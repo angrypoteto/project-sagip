@@ -63,6 +63,8 @@ Keep widgets small. Anything used by two features moves to `common/`; anything t
 
 - Same patterns as the dashboard: `apps/mobile/lib/src/providers.dart` holds repository providers that throw until `main.dart` overrides them (`mockOverrides(MockMobileBackend())` for now).
 - Routes live in `Routes` (`router.dart`). The role picks the shell after sign-in: residents under `/r/...`, responders under `/f/...`. Full-screen pages such as R2 (`/r/sos/:id`) sit outside the tab shell.
+- Responder full-screen pages are `/f/incoming`, `/f/assignment`, `/f/navigate`, `/f/on-scene`, `/f/complete`. `OfferWatcher` (around the responder shell) opens `/f/incoming` whenever a new assignment is offered.
+- Glove-friendly controls: 56 dp primary buttons and status control, `Counter` for numbers (`common/counter.dart`).
 - `OfflineBanner` (`common/offline_banner.dart`) goes at the top of every screen; tab pages get it from `AppShell`, full-screen pages add it themselves.
 - Every SOS, crowd report, and status update goes through the repository, which saves it on the phone first and returns without waiting for the network. Never block the SOS on data.
 - Shared widgets take already-translated strings; labels live in the app's `common/labels.dart`. Do not change the case of translated text in code (`toLowerCase`, capitalizing); add a separate string instead.

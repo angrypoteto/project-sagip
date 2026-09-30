@@ -19,7 +19,7 @@ Four roles, each a separate account:
 
 ## Current phase
 
-**Phase 1: frontend design with mock data.** Build screens against repository interfaces backed by `Mock*Repository` classes. See the plan for the screen inventory and the five flows to prototype. The web dashboard is done for Phase 1 and can also run on the hosted Supabase project through `Supabase*Repository` classes (Joshua asked for this on 2026-09-30; see `supabase/README.md`). New screens still start on mock data; do not wire other apps to Supabase unless the task says so. `apps/mobile` runs on mock data; all Tier 1 resident screens (R1 to R4, S6) are built, responder screens are next (details in `docs/PROGRESS.md`).
+**Phase 1: frontend design with mock data.** Build screens against repository interfaces backed by `Mock*Repository` classes. See the plan for the screen inventory and the five flows to prototype. The web dashboard is done for Phase 1 and can also run on the hosted Supabase project through `Supabase*Repository` classes (Joshua asked for this on 2026-09-30; see `supabase/README.md`). New screens still start on mock data; do not wire other apps to Supabase unless the task says so. `apps/mobile` runs on mock data; all Tier 1 screens are built (resident R1 to R4 and S6, responder F1 to F6); Tier 2 screens are next (details in `docs/PROGRESS.md`).
 
 ## Stack
 

@@ -937,18 +937,18 @@ These are the flows reviewed at the end of Phase 1. Each must run end to end on 
 - [ ] `EmptyState`, `ErrorState`, skeleton variants, `ConfirmDialog`, `Toast` (EmptyState, ErrorState, SkeletonBox, SkeletonList done)
 - [ ] Manila vector tiles hosted for development, plus light and dark map styles with barangay boundaries **(High)**
 - [ ] `SagipMap` wrapper, marker set, `RiskLayer` and legend **(High)**
-- [ ] `EtaHero` and `UnitStatusControl`
+- [x] `EtaHero` and `UnitStatusControl` (Sep 30)
 - [ ] `QueueRow`, `DetailDrawer`, `UnitSuggestionTile`, `SagipTable`, `FilterBar`, `KpiTile`, `ChartCard`, `StatusTimeline`
 - [x] `RoleGate` and go_router route guards per role (router redirect; admin items hidden in the rail)
 
 **Week 3, screens. Difficulty: Medium; D2 and D4 are High.**
 
 - [x] Tier 1 resident: R1, R2, R3, R4, S6 (Sep 30, mock data)
-- [ ] Tier 1 responder: F1 to F6
+- [x] Tier 1 responder: F1 to F6 (Sep 30, mock data)
 - [x] Tier 1 dashboard: D2 to D6 (Sep 30, mock data)
 - [ ] Tier 2 mobile: S1 to S5, S7, R5 to R11, F7
 - [ ] Tier 2 dashboard: D1, D7 to D10 (D1, D7, D9, D10 done Sep 30; D8 is a placeholder until the forecast exists)
-- [ ] Wire the five flows end to end on mock data (partial Sep 30: flows 1 and 2 and the resident half of flow 5 run in the mobile app; flow 3 in the dashboard; flow 4 waits on the responder screens)
+- [ ] Wire the five flows end to end on mock data (partial Sep 30: flows 1, 2, and 4 and the resident half of flow 5 run in the mobile app; flow 3 in the dashboard. They meet only when both apps run on Supabase)
 
 **Week 3, review. Difficulty: Low.**
 
