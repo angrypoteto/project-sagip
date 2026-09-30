@@ -23,10 +23,10 @@ One pub workspace (root `pubspec.yaml`). Members use `resolution: workspace`. Ru
 packages/shared   sagip_shared: theme, models, repository interfaces, algorithms, mock backend, Supabase repositories, shared widgets
 apps/dashboard    sagip_dashboard: dispatcher and admin web app
 supabase          migrations, RLS test, seed, README (not a pub package)
-apps/mobile       not created yet (resident and responder Android app)
+apps/mobile       sagip_mobile: resident and responder Android app (web target for previews only)
 ```
 
-When `apps/mobile` is created, add it to the root `workspace:` list.
+Every app and package is listed in the root `workspace:`.
 
 ## State management (Riverpod 3)
 
@@ -58,6 +58,15 @@ lib/
 ```
 
 Keep widgets small. Anything used by two features moves to `common/`; anything the mobile app will also need moves to `packages/shared`.
+
+## Mobile app
+
+- Same patterns as the dashboard: `apps/mobile/lib/src/providers.dart` holds repository providers that throw until `main.dart` overrides them (`mockOverrides(MockMobileBackend())` for now).
+- Routes live in `Routes` (`router.dart`). The role picks the shell after sign-in: residents under `/r/...`, responders under `/f/...`. Full-screen pages such as R2 (`/r/sos/:id`) sit outside the tab shell.
+- `OfflineBanner` (`common/offline_banner.dart`) goes at the top of every screen; tab pages get it from `AppShell`, full-screen pages add it themselves.
+- Every SOS, crowd report, and status update goes through the repository, which saves it on the phone first and returns without waiting for the network. Never block the SOS on data.
+- Shared widgets take already-translated strings; labels live in the app's `common/labels.dart`. Do not change the case of translated text in code (`toLowerCase`, capitalizing); add a separate string instead.
+- Widget tests: phone size 390 x 844, `MockMobileBackend(latency: Duration.zero, timing: ...)`, `demoTools: false`, a fixed `clockProvider`, and end each test with `finish(tester)` (see `test/sos_flow_test.dart`).
 
 ## The four states
 

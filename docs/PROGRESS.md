@@ -43,7 +43,8 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] Git repo on branch `main`, pushed to the **public** GitHub repo https://github.com/angrypoteto/project-sagip (created 2026-09-30). Commits use angrypoteto's noreply email so GitHub credits that account.
 - [x] Root `.gitignore` (build output, `.env`, thesis .docx kept out)
 - [x] Pub workspace: root `pubspec.yaml` with `apps/dashboard` and `packages/shared`
-- [ ] `apps/mobile` (resident and responder Android app) not created
+- [x] `apps/mobile` created 2026-09-30 (Android, minimum Android 10; a web target exists only for quick previews)
+- [x] Android emulator `sagip_pixel` (Pixel 6, Android 15) created on Joshua's machine
 - [ ] `ml/` folder is empty
 - [ ] CI (GitHub Actions running analyze and tests)
 
@@ -57,7 +58,11 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] Algorithms: `dbscan()` (haversine, eps 50 m, minPts 3), `PriorityRules` (provisional weights), `StraightLineSuggester` (stand-in for Dijkstra)
 - [x] `MockBackend` + `Mock*Repository`: Manila seed data, role checks, audit log on every action, live simulation
 - [x] Shared widgets: `SagipChip` (tint, outline, dashed), status visuals, `EmptyState`, `ErrorState`, `SkeletonBox`, `SkeletonList`
-- [ ] `SosButton`, `ConnectivityBanner` (mobile), `DeliveryBadge`, `SyncQueueSheet`, `EtaHero`, `UnitStatusControl`, `SagipMap` wrapper, widget gallery
+- [x] `SosButton` (2 s hold, progress ring, haptic ticks, early release cancels, tier states, opens the active SOS instead of sending a second), `ConnectivityBanner`, `DeliveryBadge` with `deliveryVisual()`
+- [x] Mobile models and interfaces: `SosRequest`, `SosDetails`, `QueuedRecord`, `DeliveryState`, `SignalState`, `LocationFix`/`LocationStatus`, `newClientId()`; `SosRepository`, `OfflineQueue`, `SignalMonitor`, `LocationService`
+- [x] `MockMobileBackend` + adapters: saves an SOS on the phone first, sends in capture order over internet, SMS, or nearby phones, keeps the capture time, confirms delivery, then plays the dispatcher (verify, assign R-03, en route, on scene, resolved); updates wait for internet like Realtime
+- [x] Shared formatters (`formatTime`, `formatWait`, `formatCoordinates`, ...) and `LiveValue` moved here from the dashboard so both apps use them
+- [ ] `EtaHero`, `UnitStatusControl`, `SagipMap` wrapper, widget gallery
 - [ ] Dijkstra over the OSM road graph (plan 10.2)
 - [ ] Incident type classifier (plan 10.4), LSTM + KDE (plan 10.5), RAG (plan 10.6)
 
@@ -73,6 +78,20 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Responder and resident write paths (status updates, SOS insert, crowd report insert) for the mobile app
 - [ ] SMS gateway, Semaphore, PAGASA feed, FCM (Edge Functions)
 - [ ] Leaked-password protection is off (Supabase dashboard setting: Authentication, then Passwords); turn it on before the pilot
+
+### apps/mobile (`sagip_mobile`), mock data
+- [x] Demo sign-in (pick the resident or the responder account); the role picks the shell: resident Home, Report, Alerts, Me; responder Home, History, Me
+- [x] Offline banner on every screen (SMS only, no signal, waiting count, sending, "Back online" for 4 s); tapping opens S6
+- [x] R1 Home and SOS: greeting and barangay, PAGASA strip, SOS button with caption below it, GPS-off warning with Open settings, active SOS card, Report a hazard link
+- [x] R2 SOS status: state heading and elapsed time, ETA card (unit, minutes), 9-step timeline, Add details sheet (type, people, extra help, note), location card, guidance, Call MDRRMD
+- [x] S6 offline queue sheet: records with capture time and delivery badge, what happens next for the current signal, Try sending now, remove a rejected record
+- [x] Delivery notice: "Your SOS from 3:42 PM was delivered." (in-app message; a system notification comes with FCM)
+- [~] S7 Me: name, role, barangay, sign out, demo tools (signal and GPS switches); settings and privacy links not yet
+- [ ] R3 Track responder (map), R4 Report a hazard (part 2)
+- [ ] F1 to F6 responder screens (part 3); Report, Alerts, responder Home and History tabs are placeholders
+- [ ] S1 splash (the launch screen is still the Flutter logo), S2 permissions, S3 to S5 real sign-in, R5 to R11, F7 (part 4)
+- [ ] Cancel SOS (waits on plan Q10), nearest evacuation center card (waits on Q38 data), MDRRMD hotline number (Call MDRRMD says it is not set until `MDRRMD_HOTLINE` is provided)
+- [ ] Hive queue, real GPS, SMS, and BLE (Phase 3 and 5); the mock keeps everything in memory, so closing the app clears it
 
 ### apps/dashboard (`sagip_dashboard`), runs on Supabase (with `.env`) or mock data
 - [x] D1 Staff sign in (demo accounts shown only in mock mode)
@@ -98,7 +117,9 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Crowd reports map: the 50 m ring is only a few pixels at city zoom; add a count marker for clusters
 
 ### Tests (last run 2026-09-30)
-- `packages/shared`: 39 passing (`flutter test`), including parsing of rows shaped like the Supabase views
+- `packages/shared`: 53 passing (`flutter test`), including Supabase-shaped JSON, the mobile mock's offline rules (capture order, capture time kept, SMS and relay tiers, updates held while offline), and the SOS button (a tap never sends, a 2 s hold sends once, early release cancels, the release after a send does not also open)
+- `apps/mobile`: 4 passing (the role picks the shell; online SOS to responder assigned; offline SOS by SMS, queue sheet, delivered on reconnect; add details)
+- Emulator check (2026-09-30, `sagip_pixel`, driven with adb): sign-in, Home, a real 2.6 s hold with the progress ring, R2 timeline updating live to Verified, offline banner, offline SOS showing Sent by SMS, and the queue sheet all work. Found and fixed: the release after a completed hold opened R2 twice; a redundant badge on R2; the active SOS card's link crowded long states. Haptics not checked (the emulator does not vibrate); needs a real phone.
 - `apps/dashboard`: 7 passing (sign-in, ranked queue, assign top unit, override needs a reason, admin pages hidden, admin audit log, offline disables actions)
 - `supabase/tests/rls_test.sql`: 29 of 29 passing, run on the hosted project inside a rolled-back transaction (nothing was left behind)
 - Browser check on Supabase (2026-09-30, headless Chrome, 1440 x 900): dispatcher sign-in; board loaded from the database; realtime delivered a new SOS toast and a new DBSCAN cluster without reload; "Show number" revealed the full number; "Mark verified" and "Assign" worked; all five actions appear in `audit_log` under R. Santos. Demo data reset afterwards. Not yet checked in the browser: admin sign-in and the audit log page on Supabase, crowd reports, units, and weather pages on Supabase.
@@ -123,7 +144,18 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 
 **On Supabase:** `apps/dashboard/.env` holds the project URL and publishable key (git-ignored; copy `.env.example`). Staff accounts are `dispatcher@sagip.test` (R. Santos) and `admin@sagip.test` (E. Navarro). Their password is not in the repo; Joshua has it. Change data in the Supabase Table Editor, or run `select public.reset_demo_data();` in the SQL editor to start over (more in `supabase/README.md`).
 
-**On mock data:** same emails, password `sagip-demo`. What the mock demo does by itself after sign-in:
+**Mobile app (mock data):**
+
+```bash
+flutter emulators --launch sagip_pixel               # start the Android emulator
+cd apps/mobile
+flutter run                                         # picks the running emulator
+flutter test
+```
+
+Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 seconds. In Me, the demo tools switch the signal (Internet, SMS only, No signal) and GPS. After an online SOS the simulated dispatcher verifies it after about 8 s, assigns R-03 after 14 s, and so on to Resolved after about 70 s.
+
+**Dashboard on mock data:** same emails, password `sagip-demo`. What the mock demo does by itself after sign-in:
 - about 20 s: a new SOS arrives from Barangay 128, Tondo, flagged "Location may be faked" (toast appears on any page)
 - about 35 s: a third crowd report on Dapitan St turns into a confirmed flood cluster (DBSCAN)
 - assigned units accept after 6 s, drive to the incident, arrive, and resolve 90 s after arriving
@@ -150,6 +182,10 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 | Contact numbers reach the dashboard masked; the full number comes from `reveal_resident_contact`, which writes a `contactViewed` audit row | Data Privacy Act (NFR4) | Mention in Ch 3 |
 | Enum values stored as checked `text` columns with the exact Dart names (`pendingVerification`, `enRoute`, ...) | Same names end to end, no mapping layer | None |
 | Demo tools are SQL functions that the app cannot call | Reset and demo scenarios from the SQL editor; no demo backdoor in the API | None |
+| While an SOS is active, the SOS button opens its status instead of sending a second one | Avoids duplicate SOS from repeated holds; the button is never disabled | Mention in Ch 3 SOS design |
+| The SOS button's caption sits under the button, not inside it | Small white text on the signal red fails WCAG AA | None |
+| When an SOS goes out by SMS after a Bluetooth relay, SMS is recorded as the channel | A relay may never reach anyone; SMS reaches the gateway | None |
+| The mobile app has a web target for quick previews only | Faster checks; the product stays Android only | None |
 | Snackbars are 360 px wide at the bottom centre | A full-width one covered the drawer's "Assign" button for 4 s after "Mark verified" (found in the browser check) | None |
 
 ---
@@ -165,7 +201,7 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 
 ## Next steps (in order)
 
-1. **Mobile app, Tier 1, on mock data** (due M1, Oct 18): create `apps/mobile` (Android only), the `SosButton` (hold to send, cancel, tier states), and the resident screens R1 to R4 and S6 (flow 1: send an SOS and see it delivered), then the responder screens F1 to F6 (flow 4: receive, navigate, update status, complete).
+1. **Mobile app, Tier 1, on mock data** (due M1, Oct 18). Part 1 is done (R1, R2, S6, SOS button, offline banner). Next: part 2, R3 Track responder (map) and R4 Report a hazard; part 3, responder F1 to F6 (flow 4); part 4, the Tier 2 screens (S1 to S5, S7, R5 to R11, F7).
 2. **CI** (small): GitHub Actions running `flutter analyze` and `flutter test` on every push.
 3. **Map spikes** (Phase 0, unblock later work): pick the self-hosted Manila tile source (Protomaps extract) and build the Manila road graph with `osmnx` for Dijkstra.
 4. **Wire the five flows end to end on mock data**, fix the top issues from the hallway test, tag `phase1-design-complete`, and hold the Oct 18 scope checkpoint (record it in `docs/DECISIONS.md`).
@@ -175,7 +211,7 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 ## Not done yet (full list)
 
 **Joshua + Claude (code)**
-- Mobile app: everything (resident, responder, SOS button, offline banner, delivery badge, sync queue, map wrapper, ETA hero, unit status control)
+- Mobile app: R3, R4, all responder screens, the Tier 2 screens, map wrapper, ETA hero, unit status control, Hive queue, real GPS, SMS, and BLE (see the apps/mobile status above)
 - Dashboard: admin pages A1 to A6 (accounts, resources, configuration, analytics, NDRRMC reports) are placeholders; D8 forecast is a placeholder; D11 My account; G2 Session expired; W1 to W3 resident web form; new-SOS sound; widget gallery
 - Supabase: resident and responder write paths, barangay boundaries, configuration and priority-rule tables, Edge Functions (SMS intake, Semaphore alerts, PAGASA ingest, FCM), storage buckets
 - Algorithms: Dijkstra on the OSM road graph, TF-IDF classifier, LSTM + KDE forecast, RAG report (proof of concept)
@@ -204,6 +240,8 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 | `cd0822f` | 2026-09-30 | Supabase repositories in the shared package; dashboard runs on Supabase with `.env`; snackbar and location-text fixes |
 | `cd75f29` | 2026-09-30 | Docs: Supabase setup, this file, conventions, plan ticks |
 | `0ff9292` | 2026-09-30 | Docs: which tables to edit instead of the read-only views |
+| `5822635` | 2026-09-30 | Docs: roadmap against milestones, full not-done list, commit history |
+| `76380c2` | 2026-09-30 | Mobile app part 1: resident SOS on mock data (R1, R2, S6, SOS button, offline banner, mock phone backend); formatters and `LiveValue` moved to shared |
 
 `git log --oneline` shows newer commits; add a row here for each one.
 
@@ -227,6 +265,11 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 - Headless browser checks: Flutter's semantics tree could not be switched on by clicking `flt-semantics-placeholder`, so drive the page by coordinates and screenshots. Snackbars and toasts can sit on top of buttons; take a screenshot before clicking.
 - Data streams restart when the signed-in account changes (`_forAccount` in `providers.dart`), so one account's data never stays in memory for the next.
 - Long Python in a Bash heredoc can fail to parse here; write the script to the scratchpad and run the file.
+- Android SDK is at `C:\Android\Sdk`. `sdkmanager` and `avdmanager` need `JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"`. `flutter doctor` warns that some Android licenses are not accepted; builds still work. The first Gradle build takes about 5 minutes.
+- Driving the emulator: `adb shell input tap X Y` and, for the SOS hold, `adb shell input swipe X Y X Y 2600` (same point, 2.6 s). Screenshots: `adb exec-out screencap -p > file.png`. The screen is 1080 x 2400.
+- Widget tests of a hold: call `tester.pump()` once after `startGesture`, because an animation starts timing on the first frame after it starts.
+- Snackbars queue: a second message waits until the first (4 s) is gone. Tests must pump past it.
+- Mobile widget tests end with `finish(tester)`: it runs the simulated dispatcher to the end, disposes the backend, and unmounts, so no timers are left pending.
 
 ---
 
@@ -256,3 +299,12 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 - Verified: `flutter analyze` clean in both packages; 39 shared tests and 7 dashboard tests pass; web build with the Supabase settings succeeds.
 - Pushed commits `1a25ba5` to `0ff9292` to GitHub (Joshua approved). Joshua tested the dashboard on Supabase and confirmed it works, then tried editing `vulnerable_resident_list` in the Table Editor, which is a read-only view; `supabase/README.md` now says which tables to edit instead.
 - Added the milestone table, the full "Not done yet" list, and the commit history to this file.
+
+### 2026-09-30: mobile app part 1, resident SOS (session f47c816b)
+- Plan approved by Joshua; test device: Android emulator. Created the `sagip_pixel` emulator (Android 15 image, WHPX acceleration).
+- Created `apps/mobile` in the workspace (Android, minimum SDK 29, app name S.A.G.I.P.).
+- Shared package: `SosButton`, `ConnectivityBanner`, `DeliveryBadge`; SOS and offline models; mobile repository interfaces; `MockMobileBackend`; formatters and `LiveValue` moved out of the dashboard.
+- Mobile app: demo sign-in, role shells, offline banner, R1 Home and SOS, R2 SOS status with Add details, S6 queue sheet, a first S7 Me with demo tools, delivery notices.
+- Found and fixed while testing: the release after a completed hold also opened the status screen (regression test added).
+- Verified: analyze clean in all three packages; 53 shared, 7 dashboard, 4 mobile tests pass; checked on the emulator (details under Tests). Not checked: haptics on a real phone.
+

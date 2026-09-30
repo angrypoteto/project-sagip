@@ -17,6 +17,13 @@
       "cwd": "apps/dashboard",
       "program": "lib/main.dart",
       "deviceId": "chrome"
+    },
+    {
+      "name": "Mobile (mock data)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/mobile",
+      "program": "lib/main.dart"
     }
   ]
 }

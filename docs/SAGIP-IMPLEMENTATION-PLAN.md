@@ -912,7 +912,7 @@ These are the flows reviewed at the end of Phase 1. Each must run end to end on 
 **Week 2, foundation (first two days). Difficulty: Medium.**
 
 - [x] Write `docs/CONVENTIONS.md`: state management, routing, folders, naming, l10n, commit rules
-- [ ] Create `apps/mobile` (Android only), `apps/dashboard` (web, with a `main_webform.dart` entry), and `packages/shared` (dashboard and shared done Sep 30; mobile and `main_webform.dart` not yet)
+- [ ] Create `apps/mobile` (Android only), `apps/dashboard` (web, with a `main_webform.dart` entry), and `packages/shared` (dashboard, shared, and mobile done Sep 30; `main_webform.dart` not yet)
 - [x] Define immutable domain models with `fromJson`/`toJson` that mirror Figures 3.6a to 3.6d, including the missing fields listed in Q16 and Q17
 - [x] Define repository interfaces: incidents, crowd reports, dispatch, units, responders, forecasts, alerts, vulnerable profiles, audit, NDRRMC reports, auth, connectivity, sync queue
 - [ ] Build mock repositories with realistic Manila seed data: at least 30 incidents across real barangays, 12 units, 40 responders, 3 forecast runs, 20 alerts, 15 vulnerable households, 100 audit entries (partial Sep 30: 7 incidents, 12 units, 12 crowd reports, 8 residents, 5 audit entries)
@@ -931,8 +931,8 @@ These are the flows reviewed at the end of Phase 1. Each must run end to end on 
 - [x] Contrast audit of every text and background pair in both themes (automated as `packages/shared/test/contrast_test.dart` instead of a document)
 - [x] Bundle Plus Jakarta Sans and Material Symbols Rounded; turn off runtime font fetching
 - [ ] Widget gallery: a dashboard route and a mobile debug screen showing every shared widget in all states and both themes
-- [ ] `SosButton` with hold progress, cancel on early release, haptics, and all tier states **(High)**
-- [ ] `ConnectivityBanner`, `DeliveryBadge`, `SyncQueueSheet`
+- [x] `SosButton` with hold progress, cancel on early release, haptics, and all tier states **(High)** (Sep 30; haptics not yet felt on a real phone)
+- [x] `ConnectivityBanner`, `DeliveryBadge`, `SyncQueueSheet` (Sep 30; the sheet lives in the mobile app as S6)
 - [x] `StatusChip`, `SeverityEdge`, `TypeChip`, `VulnerableBadge`, `ChannelIcon` (built as `SagipChip` plus `status_visuals.dart` helpers)
 - [ ] `EmptyState`, `ErrorState`, skeleton variants, `ConfirmDialog`, `Toast` (EmptyState, ErrorState, SkeletonBox, SkeletonList done)
 - [ ] Manila vector tiles hosted for development, plus light and dark map styles with barangay boundaries **(High)**
@@ -943,12 +943,12 @@ These are the flows reviewed at the end of Phase 1. Each must run end to end on 
 
 **Week 3, screens. Difficulty: Medium; D2 and D4 are High.**
 
-- [ ] Tier 1 resident: R1, R2, R3, R4, S6
+- [ ] Tier 1 resident: R1, R2, R3, R4, S6 (partial Sep 30: R1, R2, S6 done on mock data; R3 and R4 next)
 - [ ] Tier 1 responder: F1 to F6
 - [x] Tier 1 dashboard: D2 to D6 (Sep 30, mock data)
 - [ ] Tier 2 mobile: S1 to S5, S7, R5 to R11, F7
 - [ ] Tier 2 dashboard: D1, D7 to D10 (D1, D7, D9, D10 done Sep 30; D8 is a placeholder until the forecast exists)
-- [ ] Wire the five flows end to end on mock data
+- [ ] Wire the five flows end to end on mock data (partial Sep 30: flow 1 up to R3 tracking, and flow 2, run in the mobile app; flow 3 in the dashboard)
 
 **Week 3, review. Difficulty: Low.**
 
