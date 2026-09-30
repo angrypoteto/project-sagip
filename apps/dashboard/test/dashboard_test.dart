@@ -113,6 +113,11 @@ void main() {
     expect(find.text('Incident INC-0147'), findsOneWidget);
     await revealInDrawer(tester, find.text('Suggested units'));
     expect(find.text('Suggested units'), findsOneWidget);
+    // Ranked by Dijkstra over the bundled road graph, not straight lines.
+    expect(
+      find.text('Available units, by travel time on the road network'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Assign R-03'));
     await settle(tester);

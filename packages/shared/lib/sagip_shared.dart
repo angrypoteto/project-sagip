@@ -4,7 +4,11 @@
 library;
 
 export 'src/algorithms/dbscan.dart';
+export 'src/algorithms/dijkstra.dart';
+export 'src/algorithms/polyline.dart';
 export 'src/algorithms/priority.dart';
+export 'src/algorithms/road_graph.dart';
+export 'src/algorithms/road_router.dart';
 export 'src/algorithms/unit_suggester.dart';
 export 'src/data/manila_barangays.dart';
 export 'src/format.dart';

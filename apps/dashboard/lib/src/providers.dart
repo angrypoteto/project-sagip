@@ -167,8 +167,11 @@ final priorityRulesProvider = Provider<PriorityRules>(
   (ref) => const PriorityRules(),
 );
 
+/// Ranks units by road travel time (Dijkstra over the bundled OSM road
+/// graph, plan 10.2), falling back to straight-line estimates for units the
+/// graph cannot place or when the graph fails to load.
 final unitSuggesterProvider = Provider<UnitSuggester>(
-  (ref) => const StraightLineSuggester(),
+  (ref) => RoadNetworkSuggester(loadManilaRouter),
 );
 
 /// The Triage Queue in priority order (FR2).

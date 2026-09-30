@@ -21,3 +21,10 @@ PROJECT-SAGIP-FINAL-CLEAN.docx
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Python (ml/)
+.venv/
+__pycache__/
+*.pyc
+/cache/
+ml/**/cache/
