@@ -83,6 +83,7 @@ class LocationFix {
     this.barangay,
     this.district,
     this.mockProvider = false,
+    this.manual = false,
   });
 
   final GeoPoint point;
@@ -96,6 +97,10 @@ class LocationFix {
   /// The phone reported a mock-location provider. Sent with the SOS for the
   /// dispatcher (FR8); never shown to the resident (plan R1).
   final bool mockProvider;
+
+  /// Chosen by the resident on the map or from the barangay list (R5),
+  /// not measured by GPS, so [accuracyMeters] means nothing.
+  final bool manual;
 }
 
 /// Whether GPS is on, plus the last fix the phone has.

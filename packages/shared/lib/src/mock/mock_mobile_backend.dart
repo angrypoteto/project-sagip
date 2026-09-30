@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../models/account.dart';
+import '../models/alerts.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
@@ -17,6 +18,8 @@ import 'live_value.dart';
 import 'mock_seed.dart';
 
 part 'mock_accounts.dart';
+part 'mock_alerts.dart';
+part 'mock_history.dart';
 part 'mock_responder.dart';
 
 /// How long each simulated step takes in [MockMobileBackend].
@@ -103,9 +106,13 @@ class MockMobileBackend {
     this.timing = const MockSosTiming(),
     this.simulateDispatch = true,
     this.autoOffers = true,
+    this.withHistory = false,
   }) : _clock = clock ?? DateTime.now {
-    final seed = MockSeed(_clock());
-    _residents = {for (final r in seed.residents) r.id: r};
+    _t0 = _clock();
+    final seed = MockSeed(_t0);
+    _residents = LiveValue({
+      for (final r in seed.residents) r.id: _withMemberIds(r),
+    });
     _weather = LiveValue(seed.weather);
     _location = LiveValue(
       LocationStatus(
@@ -119,7 +126,28 @@ class MockMobileBackend {
         ),
       ),
     );
+    if (withHistory) _seedHistory(this);
   }
+
+  /// Seeded members have no ids yet; the phone needs them to edit (R11).
+  static Resident _withMemberIds(Resident r) => Resident(
+    id: r.id,
+    fullName: r.fullName,
+    contactNumber: r.contactNumber,
+    barangay: r.barangay,
+    district: r.district,
+    household: [
+      for (final (i, m) in r.household.indexed)
+        VulnerableMember(
+          id: m.id ?? 'mem-${r.id}-$i',
+          label: m.label,
+          types: m.types,
+          notes: m.notes,
+        ),
+    ],
+    consentGivenAt: r.consentGivenAt,
+    updatedAt: r.updatedAt,
+  );
 
   final DateTime Function() _clock;
 
@@ -133,6 +161,13 @@ class MockMobileBackend {
   /// Whether the responder gets assignments on its own (tests offer them
   /// with [sendOfferNow]).
   final bool autoOffers;
+
+  /// Adds past SOS, reports, and assignments so My activity (R6) and
+  /// History (F7) have something to show. Off in tests.
+  final bool withHistory;
+
+  /// When this backend was created; sample data is dated from it.
+  late final DateTime _t0;
 
   /// Demo accounts. Password: [MockSeed.demoPassword].
   static const resident = AppUser(
@@ -159,7 +194,7 @@ class MockMobileBackend {
   static const reportLimit = 5;
   static const reportWindow = Duration(hours: 1);
 
-  late final Map<String, Resident> _residents;
+  late final LiveValue<Map<String, Resident>> _residents;
   late final LiveValue<WeatherStatus> _weather;
   late final LiveValue<LocationStatus> _location;
   final _user = LiveValue<AppUser?>(null);
@@ -170,6 +205,11 @@ class MockMobileBackend {
   final _outbox = LiveValue<List<_Outgoing>>(const []);
   late final _responder = _ResponderSim(this);
   late final _accounts = _AccountsSim(this);
+  late final _alerts = _AlertsSim(this);
+
+  /// Which account made each SOS and report, so one account never sees
+  /// another's on a shared phone.
+  final _owner = <String, String?>{};
   final _deliveries = StreamController<QueuedRecord>.broadcast();
 
   final _timers = <Timer>[];
@@ -191,9 +231,21 @@ class MockMobileBackend {
   Stream<LocationStatus> watchLocation() => _location.watch();
   Stream<WeatherStatus> watchWeather() => _weather.watch();
 
-  Stream<List<SosRequest>> watchSos() => _sos.watch();
+  /// The signed-in account's SOS requests, newest first.
+  Stream<List<SosRequest>> watchSos() => _sos.watch().map(
+    (all) => [
+      for (final s in all)
+        if (_owner[s.clientId] == _user.value?.id) s,
+    ],
+  );
 
-  Stream<List<HazardReport>> watchReports() => _reports.watch();
+  /// The signed-in account's hazard reports, newest first.
+  Stream<List<HazardReport>> watchReports() => _reports.watch().map(
+    (all) => [
+      for (final r in all)
+        if (_owner[r.clientId] == _user.value?.id) r,
+    ],
+  );
 
   /// Everything not yet confirmed by the server, oldest capture first.
   Stream<List<QueuedRecord>> watchPending() => _queue.watch();
@@ -209,7 +261,16 @@ class MockMobileBackend {
   ];
 
   Stream<Resident?> watchResident(String id) =>
-      _user.watch().map((_) => _residents[id]);
+      _residents.watch().map((all) => all[id]);
+
+  void _putResident(Resident r) =>
+      _residents.value = {..._residents.value, r.id: r};
+
+  Stream<AlertFeed> watchAlerts() => _alerts.watch();
+  Future<void> refreshAlerts() => _alerts.refresh();
+  Future<void> markAlertRead(String id) => _alerts.markRead(id);
+
+  Stream<List<CompletedAssignment>> watchHistory() => _responder.watchHistory();
 
   // ------------------------------------------------------- scenario switcher
 
@@ -225,6 +286,7 @@ class MockMobileBackend {
       for (final apply in waiting) {
         apply();
       }
+      _alerts.onOnline();
     }
     unawaited(_pump());
   }
@@ -266,6 +328,7 @@ class MockMobileBackend {
       throw const AuthException(AuthFailure.wrongCredentials);
     }
     final user = _user.value = match.first;
+    _alerts.onAccountChanged();
     if (user.role == UserRole.responder) _responder.onSignIn();
     return user;
   }
@@ -291,6 +354,7 @@ class MockMobileBackend {
       district: fix?.district ?? _homeResident?.district,
       mockLocationSuspected: fix?.mockProvider ?? false,
     );
+    _owner[sos.clientId] = _user.value?.id;
     _setSos([sos, ..._sos.value]);
     unawaited(_pump());
     return sos;
@@ -332,7 +396,10 @@ class MockMobileBackend {
       throw const ReportRejected(ReportRejection.outsideManila);
     }
     final since = _clock().subtract(reportWindow);
-    final recent = _reports.value.where((r) => r.capturedAt.isAfter(since));
+    final recent = _reports.value.where(
+      (r) =>
+          _owner[r.clientId] == _user.value?.id && r.capturedAt.isAfter(since),
+    );
     if (recent.length >= reportLimit) {
       throw const ReportRejected(ReportRejection.rateLimited);
     }
@@ -342,11 +409,12 @@ class MockMobileBackend {
       description: text,
       type: type,
       location: fix.point,
-      accuracyMeters: fix.accuracyMeters,
+      accuracyMeters: fix.manual ? null : fix.accuracyMeters,
       barangay: fix.barangay,
       district: fix.district,
       delivery: DeliveryState.savedOnPhone,
     );
+    _owner[report.clientId] = _user.value?.id;
     _setReports([report, ..._reports.value]);
     unawaited(_pump());
     return report;
@@ -398,6 +466,12 @@ class MockMobileBackend {
       _accounts.register(fullName: fullName, phone: phone, barangay: barangay);
   Future<void> requestDataDeletion() => _accounts.requestDataDeletion();
 
+  Future<void> giveConsent() => _accounts.giveConsent();
+  Future<void> withdrawConsent() => _accounts.withdrawConsent();
+  Future<void> saveMember(VulnerableMember member) =>
+      _accounts.saveMember(member);
+  Future<void> removeMember(String id) => _accounts.removeMember(id);
+
   /// Accounts that asked for their data to be deleted (for tests).
   List<String> get deletionRequests => _accounts.deletionRequests;
 
@@ -425,7 +499,7 @@ class MockMobileBackend {
 
   Resident? get _homeResident {
     final id = _user.value?.id;
-    return id == null ? null : _residents[id];
+    return id == null ? null : _residents.value[id];
   }
 
   SosRequest? _find(String id) {
@@ -609,6 +683,9 @@ class MockMobileBackend {
         delivery: DeliveryState.delivered,
         deliveredAt: _clock(),
         serverId: 'rep-${_nextReportNumber++}',
+        // DBSCAN now looks for other reports nearby (FR7). A single
+        // report is never confirmed on its own.
+        stage: ReportStage.checking,
       ),
     );
     if (!_deliveries.isClosed) {

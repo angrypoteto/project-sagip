@@ -23,6 +23,10 @@ String formatClock(DateTime t, String locale) =>
 String formatTime(DateTime t, String locale) =>
     _spaced(DateFormat.jm(locale).format(t));
 
+/// "Sep 30, 2026".
+String formatDate(DateTime t, String locale) =>
+    DateFormat.yMMMd(locale).format(t);
+
 String formatDateTime(DateTime t, String locale) =>
     _spaced(DateFormat.yMMMd(locale).add_jm().format(t));
 

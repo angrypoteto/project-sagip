@@ -1,4 +1,5 @@
 import '../models/account.dart';
+import '../models/alerts.dart';
 import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
@@ -190,6 +191,10 @@ abstract interface class ResponderRepository {
     int affectedFamilies = 0,
     String? notes,
   });
+
+  /// Assignments this unit finished, newest first, with whether each
+  /// completion report has reached the server (F7).
+  Stream<List<CompletedAssignment>> watchHistory();
 }
 
 /// Resident sign-in by mobile number and a code sent by SMS (S3 to S5).
@@ -212,6 +217,36 @@ abstract interface class ResidentAccountRepository {
 
   /// Asks MDRRMD to delete the resident's personal data (NFR4, RA 10173).
   Future<void> requestDataDeletion();
+}
+
+/// The resident's Vulnerable Resident Priority List entry (R9 to R11).
+/// Reading goes through [ResidentRepository.watchResident]. Every change
+/// needs the internet; nothing here is queued on the phone.
+abstract interface class VulnerabilityRepository {
+  /// Records Data Privacy Act consent (R10, NFR4). Throws [ActionRejected].
+  Future<void> giveConsent();
+
+  /// Withdraws consent and deletes the household list, since no profile
+  /// may be kept without consent.
+  Future<void> withdrawConsent();
+
+  /// Adds a member (no id) or updates one. Throws [ActionRejected], for
+  /// example without consent or offline.
+  Future<void> saveMember(VulnerableMember member);
+
+  Future<void> removeMember(String memberId);
+}
+
+/// Alerts for Manila and the 72-hour forecast for the resident's barangay
+/// (R7, R8). The phone keeps the last copy for offline reading.
+abstract interface class AlertRepository {
+  Stream<AlertFeed> watch();
+
+  /// Asks the server for anything new (pull to refresh). Throws
+  /// [ActionRejected] when offline; the saved copy stays.
+  Future<void> refresh();
+
+  Future<void> markRead(String alertId);
 }
 
 /// The phone's permissions (S2, S7).

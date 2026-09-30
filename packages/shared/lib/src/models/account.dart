@@ -1,15 +1,21 @@
 import 'package:flutter/foundation.dart';
 
+import 'geo_point.dart';
+
 /// A barangay and its district, for pickers (S4, R5).
 @immutable
 class Barangay {
-  const Barangay(this.name, this.district);
+  const Barangay(this.name, this.district, [this.center]);
 
   /// For example "Barangay 412".
   final String name;
 
   /// For example "Sampaloc".
   final String district;
+
+  /// Roughly the middle of the barangay. R5 moves the map here when the
+  /// resident picks the barangay from the list.
+  final GeoPoint? center;
 
   @override
   bool operator ==(Object other) =>

@@ -1,7 +1,7 @@
 part of 'mock_mobile_backend.dart';
 
-/// Resident accounts by mobile number, the codes sent by SMS, and the
-/// phone's permissions (S2 to S5, S7). The code is always
+/// Resident accounts by mobile number, the codes sent by SMS, the phone's
+/// permissions, and the vulnerability profile (S2 to S5, S7, R9 to R11). The code is always
 /// [MockMobileBackend.demoCode]; the real one comes from Supabase's Send SMS
 /// hook (plan Q37).
 class _AccountsSim {
@@ -68,13 +68,14 @@ class _AccountsSim {
     final pending = _pending.remove(n);
     if (pending != null) {
       _accounts[n] = pending.user;
-      _b._residents[pending.user.id] = pending.resident;
+      _b._putResident(pending.resident);
     }
     final user = _accounts[n];
     if (user == null) {
       throw const PhoneAuthException(PhoneAuthFailure.notRegistered);
     }
     _b._user.value = user;
+    _b._alerts.onAccountChanged();
     return user;
   }
 
@@ -116,6 +117,99 @@ class _AccountsSim {
     final id = _b._user.value?.id;
     if (id != null) deletionRequests.add(id);
   }
+
+  // ------------------------------------------------ vulnerability profile
+
+  var _nextMember = 1;
+
+  Resident _mine() {
+    final r = _b._homeResident;
+    if (r == null) throw const ActionRejected(ActionRejection.notAllowed);
+    return r;
+  }
+
+  Future<void> _online() async {
+    await _b._pause();
+    if (_b._signal.value != SignalState.internet) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+  }
+
+  Resident _copy(
+    Resident r, {
+    required List<VulnerableMember> household,
+    required DateTime? consentGivenAt,
+  }) => Resident(
+    id: r.id,
+    fullName: r.fullName,
+    contactNumber: r.contactNumber,
+    barangay: r.barangay,
+    district: r.district,
+    household: household,
+    consentGivenAt: consentGivenAt,
+    updatedAt: _b._clock(),
+  );
+
+  Future<void> giveConsent() async {
+    await _online();
+    final r = _mine();
+    _b._putResident(
+      _copy(r, household: r.household, consentGivenAt: _b._clock()),
+    );
+  }
+
+  /// No profile may be kept without consent, so the household goes too.
+  Future<void> withdrawConsent() async {
+    await _online();
+    final r = _mine();
+    _b._putResident(_copy(r, household: const [], consentGivenAt: null));
+  }
+
+  Future<void> saveMember(VulnerableMember member) async {
+    await _online();
+    final r = _mine();
+    if (r.consentGivenAt == null) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final saved = member.id == null
+        ? VulnerableMember(
+            id: 'mem-new-${_nextMember++}',
+            label: member.label,
+            types: member.types,
+            notes: member.notes,
+          )
+        : member;
+    final exists = r.household.any((m) => m.id == saved.id);
+    _b._putResident(
+      _copy(
+        r,
+        household: exists
+            ? [
+                for (final m in r.household)
+                  if (m.id == saved.id) saved else m,
+              ]
+            : [...r.household, saved],
+        consentGivenAt: r.consentGivenAt,
+      ),
+    );
+  }
+
+  Future<void> removeMember(String id) async {
+    await _online();
+    final r = _mine();
+    _b._putResident(
+      _copy(
+        r,
+        household: [
+          for (final m in r.household)
+            if (m.id != id) m,
+        ],
+        consentGivenAt: r.consentGivenAt,
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------ permissions
 
   /// The mock grants whatever is asked. [denyNext] lets tests and the demo
   /// show the refused and "Open settings" states.

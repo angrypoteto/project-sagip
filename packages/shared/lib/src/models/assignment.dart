@@ -237,6 +237,62 @@ class CompletionReport {
       );
 }
 
+/// One finished assignment in the responder's history (F7).
+@immutable
+class CompletedAssignment {
+  const CompletedAssignment({
+    required this.incidentId,
+    required this.completedAt,
+    required this.barangay,
+    required this.district,
+    required this.outcome,
+    required this.personsAssisted,
+    required this.reportDelivery,
+    this.type,
+  });
+
+  final String incidentId;
+
+  /// When the completion report was filed on the phone.
+  final DateTime completedAt;
+  final IncidentType? type;
+  final String barangay;
+  final String district;
+  final RescueOutcome outcome;
+  final int personsAssisted;
+
+  /// Whether the completion report has reached the server.
+  final DeliveryState reportDelivery;
+
+  String get place => '$barangay, $district';
+
+  factory CompletedAssignment.fromJson(Map<String, Object?> json) =>
+      CompletedAssignment(
+        incidentId: json['incident_id']! as String,
+        completedAt: timeFromJson(json['completed_at']),
+        type: enumFromJsonOrNull(IncidentType.values, json['type']),
+        barangay: json['barangay']! as String,
+        district: json['district']! as String,
+        outcome: enumFromJson(RescueOutcome.values, json['outcome']),
+        personsAssisted: json['persons_assisted']! as int,
+        reportDelivery: enumFromJson(
+          DeliveryState.values,
+          json['report_delivery'],
+        ),
+      );
+
+  Map<String, Object?> toJson() => {
+    'incident_id': incidentId,
+    'completed_at': completedAt.toUtc().toIso8601String(),
+    'type': type?.name,
+    'barangay': barangay,
+    'district': district,
+    'outcome': outcome.name,
+    'persons_assisted': personsAssisted,
+    'report_delivery': reportDelivery.name,
+  };
+}
+
 /// Everything the responder home screen needs (F1).
 @immutable
 class ResponderState {

@@ -14,6 +14,7 @@ export 'src/mock/mock_mobile_repositories.dart';
 export 'src/mock/mock_repositories.dart';
 export 'src/mock/mock_seed.dart' show MockSeed;
 export 'src/models/account.dart';
+export 'src/models/alerts.dart';
 export 'src/models/assignment.dart';
 export 'src/models/crowd_report.dart';
 export 'src/models/enums.dart';

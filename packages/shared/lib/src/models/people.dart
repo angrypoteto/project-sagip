@@ -41,10 +41,14 @@ class AppUser {
 @immutable
 class VulnerableMember {
   const VulnerableMember({
+    this.id,
     required this.label,
     required this.types,
     this.notes,
   });
+
+  /// The database row id; null for a member not saved yet (R11).
+  final String? id;
 
   /// A name or a description such as "Lola" or "Father".
   final String label;
@@ -55,6 +59,7 @@ class VulnerableMember {
 
   factory VulnerableMember.fromJson(Map<String, Object?> json) =>
       VulnerableMember(
+        id: json['member_id'] == null ? null : '${json['member_id']}',
         label: json['label']! as String,
         types: [
           for (final t in json['vulnerability_types']! as List<Object?>)
@@ -64,6 +69,7 @@ class VulnerableMember {
       );
 
   Map<String, Object?> toJson() => {
+    'member_id': ?id,
     'label': label,
     'vulnerability_types': [for (final t in types) t.name],
     'notes': notes,

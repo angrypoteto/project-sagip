@@ -1,4 +1,5 @@
 import '../models/account.dart';
+import '../models/alerts.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
@@ -110,6 +111,43 @@ class MockResponderRepository implements ResponderRepository {
     affectedFamilies: affectedFamilies,
     notes: notes,
   );
+
+  @override
+  Stream<List<CompletedAssignment>> watchHistory() => _backend.watchHistory();
+}
+
+class MockVulnerabilityRepository implements VulnerabilityRepository {
+  const MockVulnerabilityRepository(this._backend);
+
+  final MockMobileBackend _backend;
+
+  @override
+  Future<void> giveConsent() => _backend.giveConsent();
+
+  @override
+  Future<void> withdrawConsent() => _backend.withdrawConsent();
+
+  @override
+  Future<void> saveMember(VulnerableMember member) =>
+      _backend.saveMember(member);
+
+  @override
+  Future<void> removeMember(String memberId) => _backend.removeMember(memberId);
+}
+
+class MockAlertRepository implements AlertRepository {
+  const MockAlertRepository(this._backend);
+
+  final MockMobileBackend _backend;
+
+  @override
+  Stream<AlertFeed> watch() => _backend.watchAlerts();
+
+  @override
+  Future<void> refresh() => _backend.refreshAlerts();
+
+  @override
+  Future<void> markRead(String alertId) => _backend.markAlertRead(alertId);
 }
 
 class MockResidentAccountRepository implements ResidentAccountRepository {

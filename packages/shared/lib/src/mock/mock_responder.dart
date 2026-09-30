@@ -57,6 +57,37 @@ class _ResponderSim {
   Stream<ResponderState> watch() => _state.watch();
   ResponderState get value => _state.value;
 
+  // ---------------------------------------------------------------- history
+
+  var _pastHistory = const <CompletedAssignment>[];
+
+  /// What each report filed on this phone was about, by report id. Its
+  /// delivery comes from the outbox, so the list shows "Saved on phone"
+  /// until the server confirms it.
+  final _filed = <String, CompletedAssignment>{};
+
+  void seedHistory(List<CompletedAssignment> past) => _pastHistory = past;
+
+  Stream<List<CompletedAssignment>> watchHistory() =>
+      _b._outbox.watch().map((outbox) {
+        final list = [
+          for (final o in outbox)
+            if (_filed[o.id] case final c?)
+              CompletedAssignment(
+                incidentId: c.incidentId,
+                completedAt: c.completedAt,
+                type: c.type,
+                barangay: c.barangay,
+                district: c.district,
+                outcome: c.outcome,
+                personsAssisted: c.personsAssisted,
+                reportDelivery: o.delivery,
+              ),
+          ..._pastHistory,
+        ]..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+        return list;
+      });
+
   void _set({
     ResponseUnit? unit,
     Assignment? current,
@@ -271,6 +302,16 @@ class _ResponderSim {
     );
     _mapTimer?.cancel();
     _driveTimer?.cancel();
+    _filed[report.clientId] = CompletedAssignment(
+      incidentId: current.incidentId,
+      completedAt: now,
+      type: current.type,
+      barangay: current.barangay,
+      district: current.district,
+      outcome: outcome,
+      personsAssisted: personsAssisted,
+      reportDelivery: DeliveryState.savedOnPhone,
+    );
     _set(
       clearCurrent: true,
       unit: _state.value.unit.copyWith(
