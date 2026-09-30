@@ -26,7 +26,7 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-09-30 | f47c816b (resumed) | Part 6: offline outbox and sync engine (6a), mobile app on Hive, GPS, connectivity, permissions, and Supabase via `.env` (6b), SMS-code hook and end-to-end run (6c) | `packages/shared/lib/src/offline/` (new), `packages/shared/lib/src/models/`, `packages/shared/lib/src/supabase/`, `packages/shared/test/`, `apps/mobile/`, `supabase/functions/` (new) | in progress |
+| 2026-09-30 | f47c816b (resumed) | CI workflow; Phase 4 Dijkstra: road graph build, Dart Dijkstra, unit suggestions by road travel time | `.github/workflows/` (new), `ml/road_graph/` (new), `packages/shared/lib/src/algorithms/`, `packages/shared/assets/`, `packages/shared/test/`, `apps/dashboard/lib/` (suggestions wiring only) | in progress |
 
 ---
 
@@ -82,11 +82,12 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] DBSCAN clustering of crowd reports in the database (`ST_ClusterDBSCAN`, eps 50 m, minPts 3, 60 min)
 - [x] Realtime on incidents, timeline, crowd reports, units, weather, audit log, households
 - [x] Demo data and tools (SQL editor only): `reset_demo_data()`, `demo_new_sos()`, `demo_add_crowd_report()`, `demo_advance()`, `create_staff_account(...)`
-- [x] RLS test: `supabase/tests/rls_test.sql`, 29 pgTAP checks across anon, dispatcher, admin, responder, resident, and a signed-in account with no role
+- [x] RLS test: `supabase/tests/rls_test.sql`, 88 pgTAP checks across anon, dispatcher, admin, responder, residents (linked, by phone, new number), and a signed-in account with no role
 - [x] Mobile write paths and reads (part 5, 3 migrations): resident linking and registration, SOS (client UUID stored once, capture time kept, vulnerable household types, on the board at once), SOS details, crowd reports (Manila check, 5 an hour by capture time plus 10 received an hour), consent and household changes, data deletion requests, responder accept, arrive, on-scene check, status control, completion reports (resolve the incident, free the unit), position sharing, alert read state; reads in the app's model shapes; DBSCAN counts from capture time
 - [x] New tables with RLS: `barangay` (10 samples), `completion_report`, `public_alert`, `alert_read`, `barangay_forecast`, `data_deletion_request`; view `my_alerts`; household members carry `member_id` in `resident_profile`
 - [ ] Load the new sample data on the hosted project: run `select public.reset_demo_data();` (not run by the migration, so edits Joshua made are kept until he chooses)
-- [ ] SMS gateway, Semaphore, PAGASA feed, FCM (Edge Functions)
+- [x] SMS log (`sms_log`, full numbers, no client access) and the `send-sms` Edge Function for Supabase's Send SMS hook: checks the signature, sends the sign-in code through Semaphore's OTP route, or keeps it in `sms_log` for an hour when no Semaphore key is set (part 6c). **Not deployed or switched on yet** (Joshua: steps in `supabase/README.md`)
+- [ ] SMS gateway intake, Semaphore broadcasts, PAGASA feed, FCM (Edge Functions)
 - [ ] Leaked-password protection is off (Supabase dashboard setting: Authentication, then Passwords); turn it on before the pilot
 
 ### apps/mobile (`sagip_mobile`), mock data
@@ -120,12 +121,12 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] F7 Assignment history: rows with incident, type, barangay, time, outcome, and "Saved on phone" until the report reaches the server; All, This week, Last week
 - [ ] Real offline map tiles (F2/F3 progress is simulated), road routes and turn-by-turn (Dijkstra, Phase 4), a custom alert sound (FCM work)
 - [ ] Real barangay boundaries for the Manila check and the picker's "Near ..." line (needs the Data role's boundary file)
-- [ ] The welcome-seen flag and theme choice live in memory (Hive later); real texted codes need Supabase phone sign-in and the SMS hook (plan Q37); real permission prompts come with the real GPS, SMS, and BLE work
+- [~] Real texted codes: the Send SMS hook is written (part 6c); resident sign-in on Supabase works once Joshua deploys it and switches Phone sign-in on (`supabase/README.md`)
 - [ ] Cancel SOS (waits on plan Q10), nearest evacuation center card on R7 (waits on Q38 data), a separate pin for a household member who lives elsewhere (needs a schema change, plan Q14), MDRRMD hotline number (Call MDRRMD says it is not set until `MDRRMD_HOTLINE` is provided)
 - [x] The real app (part 6b): with `apps/mobile/.env` it runs on Supabase (`liveOverrides`), with an encrypted Hive store (AES key in Android secure storage), GPS through `geolocator` (keeps the last fix, flags mock locations), a signal monitor that checks the server answers (not just Wi-Fi), and real Android permission prompts on S2. Without `.env` it runs on sample data as before
 - [x] Welcome-seen and theme saved on the phone
 - [x] Screens never promise what the real app cannot do yet (`DeviceCapabilities`): offline banner and queue sheet say records are saved and sent when back online; the offline-map row on F3 is hidden
-- [ ] SMS tier 2 and BLE tier 3 on the phone, real offline map tiles (Phase 5); resident sign-in on Supabase needs the Send SMS hook (part 6c)
+- [ ] SMS tier 2 and BLE tier 3 on the phone, real offline map tiles (Phase 5)
 
 ### apps/dashboard (`sagip_dashboard`), runs on Supabase (with `.env`) or mock data
 - [x] D1 Staff sign in (demo accounts shown only in mock mode)
@@ -161,8 +162,9 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Dashboard after the map base moved to shared: tests pass and a browser screenshot of the board looks the same.
 - Emulator check (2026-09-30, `sagip_pixel`, driven with adb): sign-in, Home, a real 2.6 s hold with the progress ring, R2 timeline updating live to Verified, offline banner, offline SOS showing Sent by SMS, and the queue sheet all work. Found and fixed: the release after a completed hold opened R2 twice; a redundant badge on R2; the active SOS card's link crowded long states. Haptics not checked (the emulator does not vibrate); needs a real phone.
 - `apps/dashboard`: 7 passing (sign-in, ranked queue, assign top unit, override needs a reason, admin pages hidden, admin audit log, offline disables actions)
-- `supabase/tests/rls_test.sql`: 87 of 87 passing (part 5 added 58: SOS stored once with capture time and vulnerable types, the mock-location flag hidden from residents, Manila check, hourly limit, report stages, consent and household, linking and registering by phone, another resident's SOS hidden and untouchable, responder accept/arrive/on-scene/report/status/position, alerts and read state, forecasts, audit entries under the responder's name, anon and private-helper privileges), run on the hosted project inside a rolled-back transaction
+- `supabase/tests/rls_test.sql`: 88 of 88 passing (part 6c added the SMS log check; part 5 added 58: SOS stored once with capture time and vulnerable types, the mock-location flag hidden from residents, Manila check, hourly limit, report stages, consent and household, linking and registering by phone, another resident's SOS hidden and untouchable, responder accept/arrive/on-scene/report/status/position, alerts and read state, forecasts, audit entries under the responder's name, anon and private-helper privileges), run on the hosted project inside a rolled-back transaction
 - Live API check (2026-09-30): a temporary responder account called the new functions through the REST API (the app's path): reads returned JSON, refusals came back as codes (`no_assignment`, `not_allowed`), anon was denied. The account was deleted afterwards and nothing was changed.
+- `supabase/functions/send-sms/sms.test.ts`: 6 passing (`node --test`, Node 24): the code message fits one SMS, number forms for Semaphore, masked numbers for logs, the payload read defensively, a correctly signed hook call accepted, and a changed body, wrong secret, old timestamp, or missing headers refused. The migration was also dry-run in a rolled-back transaction (old development codes deleted, no client can read the table). Not tested: the deployed function end to end (not deployed yet)
 - `packages/shared`: `supabase_mobile_json_test.dart` parses rows captured from the hosted functions into the app's models, and checks the refusal mapping
 - Browser check on Supabase (2026-09-30, headless Chrome, 1440 x 900): dispatcher sign-in; board loaded from the database; realtime delivered a new SOS toast and a new DBSCAN cluster without reload; "Show number" revealed the full number; "Mark verified" and "Assign" worked; all five actions appear in `audit_log` under R. Santos. Demo data reset afterwards. Not yet checked in the browser: admin sign-in and the audit log page on Supabase, crowd reports, units, and weather pages on Supabase.
 - `flutter analyze`: no issues in both packages
@@ -197,7 +199,7 @@ flutter test
 
 The first screen after the splash is the welcome steps (Allow or Skip each). On sign-in, tap "Continue as resident" or "Continue as rescue personnel", or type 917 000 4821 and the code 123456 to go through the real flow. The app starts with sample history (a past SOS, three reports, five past assignments) and four alerts. Hold SOS for 2 seconds. In Me, the demo tools switch the signal (Internet, SMS only, No signal) and GPS. After an online SOS the simulated dispatcher verifies it after about 8 s, assigns R-03 after 14 s, and so on to Resolved after about 70 s.
 
-**Mobile app on Supabase:** copy `apps/mobile/.env.example` to `.env` (same values as the dashboard's), then `flutter run --dart-define-from-file=.env` in `apps/mobile`, or "Mobile (Supabase)" in VS Code. Responders sign in with a staff account (`create_staff_account(..., 'responder', 'unit-r03')`). Residents need the Send SMS hook first (part 6c).
+**Mobile app on Supabase:** copy `apps/mobile/.env.example` to `.env` (same values as the dashboard's), then `flutter run --dart-define-from-file=.env` in `apps/mobile`, or "Mobile (Supabase)" in VS Code. Responders sign in with a staff account (`create_staff_account(..., 'responder', 'unit-r03')`). Residents need the Send SMS hook switched on first (steps in `supabase/README.md`); until Semaphore is set up, read the code in the `sms_log` table.
 
 **Dashboard on mock data:** same emails, password `sagip-demo`. What the mock demo does by itself after sign-in:
 - about 20 s: a new SOS arrives from Barangay 128, Tondo, flagged "Location may be faked" (toast appears on any page)
@@ -270,6 +272,9 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 | A job that disappears from the server while the phone was working on it stays with the "reassigned or closed" banner until the responder sets Available | The responder must see why the job went away | None |
 | The unit's position is sent every 15 s while online, even when it has not moved | The dashboard marks positions older than 2 minutes as stale | None |
 | `compileSdk` 37 for the mobile app | `permission_handler_android` needs it | None |
+| Sign-in codes go through Supabase's Send SMS hook to our `send-sms` Edge Function, which uses Semaphore's OTP route | One SMS provider for codes and broadcasts (Semaphore, FR6); Supabase has no built-in Semaphore option | Mention in Ch 3 |
+| Without a Semaphore key, the hook sends nothing and keeps the message with the code in `sms_log` for an hour | The demo can sign residents in before the Semaphore account exists | None |
+| `sms_log` holds full numbers and has no client access; the function's console output masks numbers | RA 10173 (NFR4) | None |
 | Snackbars are 360 px wide at the bottom centre | A full-width one covered the drawer's "Assign" button for 4 s after "Mark verified" (found in the browser check) | None |
 
 ---
@@ -288,7 +293,7 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 Joshua decided on 2026-09-30: **functions first, UI polish later**, once the whole system works. The order:
 
 1. **Part 5, Phase 2 gaps:** done (database side of the mobile app, 87-check RLS test, Supabase repositories). Joshua: run `select public.reset_demo_data();` to load the new sample data.
-2. **Part 6 (next), Phase 3 and the first half of Phase 5:** the mobile app on Supabase (switched by `.env`, like the dashboard), resident sign-in by SMS code through the Send SMS hook, the Hive offline queue, real GPS, live tracking; an SOS runs phone to dashboard to responder phone to resolved (M2 demo, Nov 1).
+2. **Part 6, Phase 3 and the first half of Phase 5:** done (the mobile app on Supabase with `.env`, the Hive offline queue, real GPS, the signal check, real permission prompts, the Send SMS hook). Joshua: deploy `send-sms` and switch Phone sign-in on (`supabase/README.md`).
 3. **Part 7:** push notifications (FCM), responder background GPS, rescue confirmations.
 4. **Phase 4 algorithms:** priority score in the database, Dijkstra on the OSM road graph (build the graph with `osmnx`); then the classifier and LSTM + KDE when the Data role's datasets arrive.
 5. **Phase 5 second half and Phase 6:** SMS fallback and gateway, BLE relay, PAGASA and PHIVOLCS feeds, Semaphore broadcasts, Facebook posting.
@@ -298,16 +303,16 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 ## Not done yet (full list)
 
 **Joshua + Claude (code)**
-- Mobile app: widget gallery, Hive queue, real GPS, SMS, BLE, offline map tiles, push notifications (see the apps/mobile status above)
+- Mobile app: widget gallery, SMS tier 2, BLE, offline map tiles, push notifications (see the apps/mobile status above)
 - Dashboard: admin pages A1 to A6 (accounts, resources, configuration, analytics, NDRRMC reports) are placeholders; D8 forecast is a placeholder; D11 My account; G2 Session expired; W1 to W3 resident web form; new-SOS sound; widget gallery
 - Supabase: all 897 barangays with boundaries, device tokens, evacuation centers (Q38), configuration and priority-rule tables, Edge Functions (SMS intake, Semaphore alerts, PAGASA ingest, FCM), storage buckets
 - Algorithms: Dijkstra on the OSM road graph, TF-IDF classifier, LSTM + KDE forecast, RAG report (proof of concept)
-- Offline: Hive queue, SMS fallback through the GSM gateway, BLE mesh relay (proof of concept), responder tile pre-download
+- Offline: SMS fallback through the GSM gateway, BLE mesh relay (proof of concept), responder tile pre-download
 - Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only)
 - CI; admin sign-in and the audit log, crowd reports, units, and weather pages not yet browser-checked on Supabase
 
 **Joshua (settings and decisions)**
-- Resident sign-in by SMS code: Supabase needs something to send the text. The plan is Supabase's Send SMS hook calling a small Edge Function that sends through Semaphore. Until the Semaphore account exists, that function saves the code so the demo can show it. Joshua switches Phone sign-in and the hook on in the Supabase dashboard (Claude gives the exact clicks in part 6). Noted 2026-09-30.
+- Resident sign-in by SMS code: the `send-sms` Edge Function is written and tested (part 6c). Joshua deploys it and switches Phone sign-in and the Send SMS hook on; the six steps are in `supabase/README.md` ("Turning on resident sign-in by SMS code"). Until the Semaphore account exists, the code is kept in `sms_log` for an hour.
 - Firebase project for push notifications (FCM): needed for part 7, not yet.
 - Run `select public.reset_demo_data();` in the Supabase SQL editor to load the part 5 sample data (alerts, forecasts, past rescues). It replaces the current demo data.
 - Turn on leaked-password protection in Supabase (Authentication, then Passwords)
@@ -347,6 +352,10 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 | `916e2a3` | 2026-09-30 | Docs: mobile part 4b status, decisions, gotchas |
 | `b388e20` | 2026-09-30 | Supabase part 5: mobile schema, checked functions for every phone write, reads in the app's shapes, demo reset with past rescues, alerts, forecasts; RLS test at 87 checks |
 | `a5495d0` | 2026-09-30 | Shared: Supabase repositories for the mobile app, `databaseRefusal`, `liveQuery.refreshOn`, tests on real server rows |
+| `401e756` | 2026-09-30 | Docs: part 5 status, decisions, gotchas |
+| `ba07a4c` | 2026-09-30 | Shared: offline outbox, sync engine, queue-backed repositories, saved copies, position sharing |
+| `2e427d4` | 2026-09-30 | Mobile app part 6b: runs on Supabase with `.env`; encrypted Hive store, GPS, signal check, Android permissions; saved settings |
+| `7501b70` | 2026-09-30 | Supabase part 6c: `send-sms` hook (Semaphore OTP or kept in `sms_log`), `sms_log` table, RLS test at 88 checks, README steps |
 
 `git log --oneline` shows newer commits; add a row here for each one.
 
@@ -396,6 +405,8 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - An offered assignment opens F2 over any responder screen after about 10 s; widget tests that finish a job go back with `routerProvider.go`.
 - Mobile widget tests override `welcomeSeenProvider` with `WelcomeDone` to skip S2, and sign in through the number and code (`MockMobileBackend.demoCode`) or the personnel form (`MockSeed.demoPassword`). Long lists build lazily: `scrollUntilVisible` before tapping.
 - After a cold boot the emulator can show "System UI isn't responding"; tap Close app. The app's package is `ph.sagip.sagip_mobile` (for `adb shell monkey -p ... 1`).
+- Edge Function helpers are plain TypeScript with no Deno-only imports so Node 24 can test them: `node --test supabase/functions/send-sms/sms.test.ts` (Node strips the types). Only `index.ts` uses `Deno`.
+- The Send SMS hook signs each call (Standard Webhooks: `webhook-id`, `webhook-timestamp`, `webhook-signature`, secret `v1,whsec_...`). Deploy the function with `--no-verify-jwt`; the signature is the check.
 - Mobile widget tests end with `finish(tester)`: it runs the simulated dispatcher to the end, disposes the backend, and unmounts, so no timers are left pending.
 
 ---
@@ -478,3 +489,11 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - Live check on the emulator against the hosted project with a temporary account and test incident, all removed afterwards (details under Tests).
 - Verified: analyze clean in all three packages; 98 shared, 7 dashboard, 20 mobile tests pass.
 - Next: 6c, the Send SMS hook Edge Function and the SMS log table, and the steps for Joshua to switch it on.
+
+### 2026-09-30: part 6c, the Send SMS hook (session f47c816b, resumed)
+- Still overnight on Joshua's instruction; same limits (no push, no dashboard settings, no demo reload, no lasting accounts, no Edge Function deploys).
+- `supabase/functions/send-sms/`: the hook, its pure helpers, and 6 Node tests; `_shared/standard_webhooks.ts` checks the signature.
+- Migration `sms_log` dry-run in a rolled-back transaction, then applied (renamed to `20260930150520_sms_log.sql`). RLS test at 88 checks, all passing on the hosted project (rolled back). Security advisor: only the expected items (the app's functions, and `sms_log` with no policies on purpose).
+- `supabase/README.md`: the six steps for Joshua to switch resident sign-in on.
+- Committed `7501b70`. Part 6 is done apart from Joshua's switch-on steps.
+- Next: CI workflow, then Phase 4 Dijkstra.
