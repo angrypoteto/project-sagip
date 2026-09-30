@@ -11,35 +11,8 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../repositories/repositories.dart';
+import 'live_value.dart';
 import 'mock_seed.dart';
-
-/// A value that can be watched: emits the current value on listen, then
-/// every change. Stands in for a Supabase realtime channel.
-class _Live<T> {
-  _Live(this._value);
-
-  T _value;
-  final _changes = StreamController<T>.broadcast();
-
-  T get value => _value;
-
-  set value(T next) {
-    _value = next;
-    if (!_changes.isClosed) _changes.add(next);
-  }
-
-  Stream<T> watch() => Stream<T>.multi((listener) {
-    listener.add(_value);
-    final sub = _changes.stream.listen(
-      listener.add,
-      onError: listener.addError,
-      onDone: listener.close,
-    );
-    listener.onCancel = sub.cancel;
-  });
-
-  Future<void> close() => _changes.close();
-}
 
 /// In-memory stand-in for the Supabase backend during Phase 1.
 ///
@@ -55,13 +28,13 @@ class MockBackend {
   }) : _clock = clock ?? DateTime.now {
     _seed = MockSeed(_clock());
     _staff = _seed.staff;
-    _incidents = _Live({for (final i in _seed.incidents) i.id: i});
-    _resolved = _Live(const []);
-    _units = _Live({for (final u in _seed.units) u.id: u});
-    _reports = _Live(_seed.crowdReports);
-    _residents = _Live({for (final r in _seed.residents) r.id: r});
-    _audit = _Live(_seed.audit);
-    _weather = _Live(_seed.weather);
+    _incidents = LiveValue({for (final i in _seed.incidents) i.id: i});
+    _resolved = LiveValue(const []);
+    _units = LiveValue({for (final u in _seed.units) u.id: u});
+    _reports = LiveValue(_seed.crowdReports);
+    _residents = LiveValue({for (final r in _seed.residents) r.id: r});
+    _audit = LiveValue(_seed.audit);
+    _weather = LiveValue(_seed.weather);
   }
 
   final DateTime Function() _clock;
@@ -71,15 +44,15 @@ class MockBackend {
 
   late final MockSeed _seed;
   late final List<AppUser> _staff;
-  late final _Live<Map<String, Incident>> _incidents;
-  late final _Live<List<Incident>> _resolved;
-  late final _Live<Map<String, ResponseUnit>> _units;
-  late final _Live<List<CrowdReport>> _reports;
-  late final _Live<Map<String, Resident>> _residents;
-  late final _Live<List<AuditEntry>> _audit;
-  late final _Live<WeatherStatus> _weather;
-  final _user = _Live<AppUser?>(null);
-  final _link = _Live<LinkState>(LinkState.live);
+  late final LiveValue<Map<String, Incident>> _incidents;
+  late final LiveValue<List<Incident>> _resolved;
+  late final LiveValue<Map<String, ResponseUnit>> _units;
+  late final LiveValue<List<CrowdReport>> _reports;
+  late final LiveValue<Map<String, Resident>> _residents;
+  late final LiveValue<List<AuditEntry>> _audit;
+  late final LiveValue<WeatherStatus> _weather;
+  final _user = LiveValue<AppUser?>(null);
+  final _link = LiveValue<LinkState>(LinkState.live);
 
   // Simulation bookkeeping.
   Timer? _timer;
@@ -542,7 +515,7 @@ class MockBackend {
 
   void dispose() {
     stopSimulation();
-    for (final live in <_Live<Object?>>[
+    for (final live in <LiveValue<Object?>>[
       _incidents,
       _resolved,
       _units,

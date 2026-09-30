@@ -1,0 +1,30 @@
+name: sagip_mobile
+description: S.A.G.I.P. Android app for Manila residents and MDRRMD field rescue personnel.
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.0.2
+  intl: ^0.20.3
+  material_symbols_icons: ^4.2960.0
+  material_ui: ^1.5.0
+  sagip_shared:
+    path: ../../packages/shared
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true

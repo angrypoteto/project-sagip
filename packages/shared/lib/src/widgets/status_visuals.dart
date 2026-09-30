@@ -2,6 +2,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../models/enums.dart';
+import '../models/offline.dart';
 import '../theme/sagip_palette.dart';
 
 /// How a chip is drawn.
@@ -95,3 +96,23 @@ IconData vulnerabilityIcon(VulnerabilityType type) => switch (type) {
   VulnerabilityType.pregnant => Symbols.pregnant_woman_rounded,
   VulnerabilityType.other => Symbols.favorite_rounded,
 };
+
+/// Delivery badges for records made on the phone (plan 7.6).
+StatusVisual deliveryVisual(DeliveryState state, SagipPalette p) =>
+    switch (state) {
+      DeliveryState.savedOnPhone => StatusVisual(
+        p.warning,
+        Symbols.smartphone_rounded,
+      ),
+      DeliveryState.sending => StatusVisual(p.info, Symbols.upload_rounded),
+      DeliveryState.sentBySms => StatusVisual(p.info, Symbols.sms_rounded),
+      DeliveryState.relaying => StatusVisual(
+        p.onScene,
+        Symbols.bluetooth_searching_rounded,
+      ),
+      DeliveryState.delivered => StatusVisual(
+        p.success,
+        Symbols.check_circle_rounded,
+      ),
+      DeliveryState.rejected => StatusVisual(p.critical, Symbols.block_rounded),
+    };

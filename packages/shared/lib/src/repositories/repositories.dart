@@ -1,9 +1,11 @@
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/incident.dart';
+import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/sos.dart';
 
 // Repository interfaces. The UI depends only on these. Phase 1 uses the Mock*
 // implementations; Phase 3 adds Supabase ones behind the same interfaces.
@@ -104,4 +106,51 @@ enum LinkState { live, reconnecting, offline }
 /// Whether the dashboard can reach the backend and realtime is flowing.
 abstract interface class ConnectionMonitor {
   Stream<LinkState> watch();
+}
+
+// ---------------------------------------------------------------- mobile
+
+/// What the phone can reach: internet, SMS only, or nothing (plan 7.6).
+abstract interface class SignalMonitor {
+  Stream<SignalState> watch();
+}
+
+/// GPS on or off, plus the last fix.
+abstract interface class LocationService {
+  Stream<LocationStatus> watch();
+
+  /// Opens the phone's location settings so the resident can turn GPS on.
+  Future<void> openSettings();
+}
+
+/// The resident's own SOS requests (R1, R2).
+abstract interface class SosRepository {
+  /// This resident's SOS requests, newest first.
+  Stream<List<SosRequest>> watchMine();
+
+  /// Saves a new SOS on the phone (Tier 1) and starts sending it by the best
+  /// channel available. Completes as soon as the SOS is saved; it never
+  /// waits for the network (NFR1). [fix] is the last known location, if any.
+  Future<SosRequest> send({LocationFix? fix});
+
+  /// Adds optional details to an SOS that was already sent (R2).
+  Future<void> addDetails(String clientId, SosDetails details);
+}
+
+/// Records made on this phone that the server has not confirmed yet (S6).
+/// They are sent in the order they were captured and keep their original
+/// capture time (NFR1, FR13).
+abstract interface class OfflineQueue {
+  /// Pending records, oldest capture first.
+  Stream<List<QueuedRecord>> watchPending();
+
+  /// Emits each record once the server confirms it, so the app can say
+  /// "Your SOS from 3:42 PM was delivered".
+  Stream<QueuedRecord> deliveries();
+
+  /// Tries to send everything pending now.
+  Future<void> retryNow();
+
+  /// Removes a record the server rejected.
+  Future<void> remove(String id);
 }

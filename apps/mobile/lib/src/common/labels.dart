@@ -1,0 +1,99 @@
+import 'package:sagip_shared/sagip_shared.dart';
+
+import '../l10n/app_localizations.dart';
+
+/// Localized labels for domain enums. Keeps every visible word in the ARB
+/// file so Filipino can be added without touching widgets.
+extension MobileLabels on AppLocalizations {
+  String delivery(DeliveryState s) => switch (s) {
+    DeliveryState.savedOnPhone => deliverySaved,
+    DeliveryState.sending => deliverySending,
+    DeliveryState.sentBySms => deliverySms,
+    DeliveryState.relaying => deliveryRelaying,
+    DeliveryState.delivered => deliveryDelivered,
+    DeliveryState.rejected => deliveryRejected,
+  };
+
+  String incidentType(IncidentType t) => switch (t) {
+    IncidentType.flood => typeFlood,
+    IncidentType.fire => typeFire,
+    IncidentType.medical => typeMedical,
+    IncidentType.structural => typeStructural,
+  };
+
+  String unitType(UnitType t) => switch (t) {
+    UnitType.ambulance => unitAmbulance,
+    UnitType.rescueBoat => unitRescueBoat,
+    UnitType.rescueTeam => unitRescueTeam,
+  };
+
+  String queuedKind(QueuedKind k) => switch (k) {
+    QueuedKind.sos => queueKindSos,
+    QueuedKind.crowdReport => queueKindReport,
+    QueuedKind.statusUpdate => queueKindStatus,
+    QueuedKind.completionReport => queueKindCompletion,
+  };
+
+  /// "Your SOS from 3:42 PM was delivered." (NFR1 delivery notice).
+  String deliveredNotice(QueuedKind k, String time) => switch (k) {
+    QueuedKind.sos => sosDeliveredNotice(time),
+    QueuedKind.crowdReport => reportDeliveredNotice(time),
+    QueuedKind.statusUpdate => statusDeliveredNotice(time),
+    QueuedKind.completionReport => completionDeliveredNotice(time),
+  };
+
+  String signal(SignalState s) => switch (s) {
+    SignalState.internet => signalInternet,
+    SignalState.smsOnly => signalSms,
+    SignalState.noSignal => signalNone,
+  };
+
+  String authFailure(AuthFailure f) => switch (f) {
+    AuthFailure.wrongCredentials => signInWrongCredentials,
+    AuthFailure.accountDisabled => signInDisabled,
+    AuthFailure.notStaff => signInNotStaff,
+    AuthFailure.offline => signInOffline,
+  };
+
+  /// The big label on R2: delivery until the server has it, then status.
+  String sosState(SosRequest s) {
+    if (s.delivery == DeliveryState.rejected) return sosStateRejected;
+    if (!s.isDelivered) {
+      return switch (s.delivery) {
+        DeliveryState.sending => sosStateSending,
+        DeliveryState.sentBySms => sosStateSms,
+        DeliveryState.relaying => sosStateRelaying,
+        _ => sosStateSaved,
+      };
+    }
+    return switch (s.status) {
+      IncidentStatus.confirmed => sosStateVerified,
+      IncidentStatus.assigned => sosStateAssigned,
+      IncidentStatus.enRoute => sosStateEnRoute,
+      IncidentStatus.onScene => sosStateOnScene,
+      IncidentStatus.resolved => sosStateResolved,
+      _ => sosStatePending,
+    };
+  }
+
+  /// The caption under the SOS button on R1.
+  String sosCaption(SosButtonPhase phase) => switch (phase) {
+    SosButtonPhase.ready => sosHoldCaption,
+    SosButtonPhase.sending => sosCaptionSending,
+    SosButtonPhase.savedOnPhone => sosCaptionSaved,
+    SosButtonPhase.sentBySms => sosCaptionSms,
+    SosButtonPhase.relaying => sosCaptionRelaying,
+    SosButtonPhase.delivered => sosCaptionDelivered,
+  };
+}
+
+/// What the SOS button shows for the active SOS, if any.
+SosButtonPhase sosPhase(SosRequest? active) => switch (active?.delivery) {
+  null => SosButtonPhase.ready,
+  DeliveryState.sending => SosButtonPhase.sending,
+  DeliveryState.sentBySms => SosButtonPhase.sentBySms,
+  DeliveryState.relaying => SosButtonPhase.relaying,
+  DeliveryState.delivered => SosButtonPhase.delivered,
+  DeliveryState.savedOnPhone ||
+  DeliveryState.rejected => SosButtonPhase.savedOnPhone,
+};

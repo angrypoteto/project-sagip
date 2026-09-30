@@ -7,4 +7,5 @@ environment:
 
 workspace:
   - apps/dashboard
+  - apps/mobile
   - packages/shared
