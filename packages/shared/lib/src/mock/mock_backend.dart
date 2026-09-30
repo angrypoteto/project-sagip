@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../algorithms/dbscan.dart';
+import '../algorithms/priority.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
@@ -11,6 +12,7 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/settings.dart';
 import '../repositories/repositories.dart';
 import 'live_value.dart';
 import 'mock_seed.dart';
@@ -64,6 +66,43 @@ class MockBackend {
   int _nextAuditNumber = 2000;
   final _assignedAt = <String, DateTime>{};
   final _routes = <String, RoadRoute>{};
+  final _settings = LiveValue<Map<String, AppSetting>>({
+    for (final s in defaultPrioritySettings) s.key: s,
+  });
+
+  Stream<List<AppSetting>> watchSettings() => _settings.watch().map(
+    (m) => [...m.values]..sort((a, b) => a.key.compareTo(b.key)),
+  );
+
+  /// A3: admins only, checked like `set_setting`, and audited (FR11).
+  Future<void> setSetting(String key, num value) async {
+    final actor = await _authorize();
+    if (!actor.isAdmin) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final problem = checkSetting(_settings.value, key, value);
+    if (problem != null) throw ActionRejected(problem);
+    final old = _settings.value[key]!;
+    if (old.value == value) return;
+    _settings.value = {
+      ..._settings.value,
+      key: old.copyWith(
+        value: value,
+        updatedAt: _clock(),
+        updatedBy: actor.displayName,
+      ),
+    };
+    _log(
+      actor,
+      AuditAction.settingChanged,
+      'app_setting',
+      key,
+      '${_plain(old.value)} → ${_plain(value)}',
+    );
+  }
+
+  static String _plain(num v) =>
+      v == v.roundToDouble() ? v.round().toString() : v.toString();
   final _onSceneSince = <String, DateTime>{};
 
   /// The road route sent with the latest assignment of [incidentId], as the
@@ -533,6 +572,7 @@ class MockBackend {
       _weather,
       _user,
       _link,
+      _settings,
     ]) {
       live.close();
     }

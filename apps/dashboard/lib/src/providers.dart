@@ -39,6 +39,9 @@ final connectionMonitorProvider = Provider<ConnectionMonitor>(
 final routingLogProvider = Provider<RoutingLogRepository>(
   (ref) => _missing('RoutingLogRepository'),
 );
+final settingsRepositoryProvider = Provider<SettingsRepository>(
+  (ref) => _missing('SettingsRepository'),
+);
 
 /// Only set when running on mock data. Screens use it for the demo scenario
 /// switcher; everything else goes through the repositories above.
@@ -64,6 +67,7 @@ List<Override> mockOverrides(MockBackend backend, {bool demoTools = true}) => [
   auditRepositoryProvider.overrideWithValue(MockAuditRepository(backend)),
   connectionMonitorProvider.overrideWithValue(MockConnectionMonitor(backend)),
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(MemoryRoutingLog())),
+  settingsRepositoryProvider.overrideWithValue(MockSettingsRepository(backend)),
 ];
 
 /// Overrides that run the dashboard on the Supabase project (see
@@ -78,6 +82,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   auditRepositoryProvider.overrideWithValue(backend.audit),
   connectionMonitorProvider.overrideWithValue(backend.connection),
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
+  settingsRepositoryProvider.overrideWithValue(backend.settings),
 ];
 
 // ---------------------------------------------------------------------------
@@ -168,9 +173,20 @@ final slowClockProvider = StreamProvider<DateTime>((ref) async* {
 // Rules and derived data.
 // ---------------------------------------------------------------------------
 
-final priorityRulesProvider = Provider<PriorityRules>(
-  (ref) => const PriorityRules(),
+/// A3 settings (priority weights so far), live.
+final settingsProvider = StreamProvider<List<AppSetting>>(
+  (ref) =>
+      _forAccount(ref, () => ref.watch(settingsRepositoryProvider).watch()),
 );
+
+/// The Triage Queue rules with the weights an administrator set on A3; the
+/// built-in defaults until they load.
+final priorityRulesProvider = Provider<PriorityRules>((ref) {
+  final settings = ref.watch(settingsProvider).value;
+  return settings == null
+      ? const PriorityRules()
+      : PriorityRules.fromSettings(settings);
+});
 
 /// The bundled Manila road graph, loaded once on first use (plan 10.2).
 final roadRouterProvider = FutureProvider<RoadRouter>(

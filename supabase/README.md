@@ -15,9 +15,10 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_mobile_actions.sql` | Every write the phones can make (resident sign-up and linking, SOS and details, crowd reports with the Manila check and hourly limit, consent and household, responder accept, arrive, on-scene check, status, completion report, position, alert read) and the reads in the app's shapes (`my_sos`, `my_crowd_reports`, `my_assignments`, `my_unit_history`, `my_alerts`); DBSCAN now counts from capture time |
 | `migrations/*_mobile_demo_data.sql` | `reset_demo_data()` also loads past rescues for R-03 and Maria, four sample alerts, and sample forecasts |
 | `migrations/*_sms_log.sql` | The SMS log: every text sent or kept; no client access |
+| `migrations/*_configuration.sql` | A3 settings (`app_setting`: the Triage Queue priority weights), `set_setting` (admins only, audited as `settingChanged`), and the priority score, severity, and factors on `incident_board` |
 | `migrations/*_routing.sql` | Road routes on dispatch records (`dispatch.route` polyline and `route_plan`; `assign_unit` takes the route), routes in `my_assignments`, and the Dijkstra timing log `routing_run` (admins read it; `log_routing_run` writes it) |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 99 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 112 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -73,6 +74,10 @@ The app asks Supabase to text a code; Supabase hands the code to the `send-sms` 
 6. **For demos without texts at all:** Authentication > Sign In / Providers > Phone > Test phone numbers: for example `639170004821=123456` (Maria's sample number). Test numbers never call the hook.
 
 The function never logs full numbers (only "0917 ••• 4821"), and `sms_log` is not readable from the apps.
+
+## Priority weights (A3)
+
+The Triage Queue ranks by the weights in `app_setting` (provisional until MDRRMD's triage SOP arrives). Change them on the dashboard's Configuration page (admins), which checks each value's range and that High stays at or below Critical; every change is in the audit log. `incident_board` returns each incident's `priority_score`, `priority_severity`, and `priority_factors` computed with those weights (the same rules as `PriorityRules` in `packages/shared`). From the SQL editor, `select public.set_setting(...)` works only as an admin account; edit the table directly there instead if needed (that change is not audited).
 
 ## Routing and the timing log
 

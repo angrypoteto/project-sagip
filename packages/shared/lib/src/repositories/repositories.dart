@@ -10,6 +10,7 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/settings.dart';
 import '../models/sos.dart';
 
 // Repository interfaces. The UI depends only on these. Phase 1 uses the Mock*
@@ -47,6 +48,12 @@ enum ActionRejection {
   incidentClosed,
   notAllowed,
   offline,
+
+  /// A value outside what the rule allows (for example a setting's range).
+  invalidValue,
+
+  /// The thing to change does not exist (for example an unknown setting).
+  notFound,
 }
 
 abstract interface class AuthRepository {
@@ -106,6 +113,16 @@ abstract interface class WeatherRepository {
 
 abstract interface class AuditRepository {
   Stream<List<AuditEntry>> watchRecent({int limit});
+}
+
+/// A3 Configuration: values an administrator can change (`app_setting`).
+abstract interface class SettingsRepository {
+  /// Every setting, sorted by key, live.
+  Stream<List<AppSetting>> watch();
+
+  /// Admins only; each change is audited. Throws [ActionRejected] with
+  /// `invalidValue` for a value outside its range.
+  Future<void> set(String key, num value);
 }
 
 /// The Dijkstra timing log for Chapter 4 (plan 10.2). Logging never throws

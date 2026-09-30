@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'features/admin/audit_log_page.dart';
+import 'features/admin/configuration_page.dart';
 import 'features/auth/sign_in_page.dart';
 import 'features/board/board_page.dart';
 import 'features/crowd_reports/crowd_reports_page.dart';
@@ -132,8 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: Routes.settings,
-            pageBuilder: (context, state) =>
-                _page(const PlaceholderPage(kind: PlaceholderKind.settings)),
+            pageBuilder: (context, state) => _page(const ConfigurationPage()),
           ),
           GoRoute(
             path: Routes.auditLog,

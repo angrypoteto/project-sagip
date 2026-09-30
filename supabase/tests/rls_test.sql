@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(99);
+select plan(112);
 
 select public.reset_demo_data();
 
@@ -56,6 +56,8 @@ select ok(
   not has_function_privilege('anon',
     'public.log_routing_run(text, text, numeric, text, int, int, int, date)', 'execute'),
   'anon cannot write the routing timing log');
+select ok(not has_function_privilege('anon', 'public.set_setting(text, jsonb)', 'execute'),
+  'anon cannot change settings');
 select ok(
   not has_function_privilege('authenticated', 'public.reset_demo_data()', 'execute'),
   'demo functions are SQL-editor only');
@@ -114,6 +116,18 @@ select throws_ok($$ select public.log_routing_run('guess', 'web', 1) $$,
   'P0001', 'invalid_value', 'an unknown run kind is refused');
 select is((select count(*)::int from public.routing_run), 0,
   'a dispatcher cannot read the timing log');
+select is((select count(*)::int from public.app_setting where category = 'priority'), 8,
+  'a dispatcher reads the priority weights');
+select results_eq(
+  $$ select priority_score, priority_severity from public.incident_board where id = 'INC-0146' $$,
+  $$ values (58::numeric, 'high'::text) $$,
+  'the board scores a confirmed cluster: 40, plus 18 for 9 minutes waiting');
+select results_eq(
+  $$ select priority_score, priority_severity from public.incident_board where id = 'INC-0147' $$,
+  $$ values (88::numeric, 'critical'::text) $$,
+  'the board scores an SOS with a vulnerable household: 50 + 30 + 8 for 4.2 minutes');
+select throws_ok($$ select public.set_setting('priority.sos', '60') $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot change settings');
 
 -- ------------------------------------------------------------- responder
 
@@ -150,6 +164,8 @@ select throws_ok($$ select public.reveal_resident_contact('res-002') $$,
   'P0001', 'not_allowed', 'a resident cannot reveal other numbers');
 select throws_ok($$ select public.log_routing_run('route', 'android', 3.2) $$,
   'P0001', 'not_allowed', 'a resident cannot write the timing log');
+select is((select count(*)::int from public.app_setting), 0,
+  'a resident cannot read settings');
 
 -- ------------------------------------------------ signed in, but no role
 
@@ -182,6 +198,23 @@ select is(
   (select count(*)::int from public.routing_run
     where account_id in ('00000000-0000-4000-8000-00000000000d', '00000000-0000-4000-8000-00000000000b')),
   2, 'an admin reads the timing log');
+select lives_ok($$ select public.set_setting('priority.sos', '60') $$,
+  'an admin can change a priority weight');
+select is((select priority_score from public.incident_board where id = 'INC-0147'), 98::numeric,
+  'a new weight changes the score at once');
+select throws_ok($$ select public.set_setting('priority.waiting_per_minute', '500') $$,
+  'P0001', 'invalid_value', 'a weight outside its range is refused');
+select throws_ok($$ select public.set_setting('priority.high_at', '90') $$,
+  'P0001', 'invalid_value', 'High cannot go above Critical');
+select throws_ok($$ select public.set_setting('priority.sos', '"sixty"') $$,
+  'P0001', 'invalid_value', 'a setting keeps its type');
+select throws_ok($$ select public.set_setting('priority.nope', '1') $$,
+  'P0001', 'not_found', 'an unknown setting is refused');
+select ok(
+  exists (select 1 from public.audit_log
+           where account_name = 'Test Admin' and action_type = 'settingChanged'
+             and target_id = 'priority.sos' and detail = '50 → 60'),
+  'the change is in the audit log (FR11)');
 
 -- ------------------------------------------- resident: phone app (part 5)
 

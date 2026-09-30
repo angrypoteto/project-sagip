@@ -96,4 +96,36 @@ void main() {
     expect(audit.first.action, AuditAction.contactViewed);
     expect(audit.first.targetId, residentId);
   });
+
+  test('app_setting rows parse (captured from the hosted project)', () {
+    final s = AppSetting.fromJson({
+      'key': 'priority.mock_location',
+      'value': -20,
+      'category': 'priority',
+      'max_value': 0,
+      'min_value': -200,
+      'updated_at': '2026-09-30T21:30:44.481935+00:00',
+      'updated_by': null,
+      'description': 'Points for a suspected mock location (a penalty)',
+    });
+    expect(s.value, -20);
+    expect((s.min, s.max), (-200, 0));
+    expect(s.updatedAt!.isUtc, isFalse);
+    expect(PriorityRules.fromSettings([s]).mockLocationPenalty, -20);
+  });
+
+  test('audit rows for setting changes parse', () {
+    final e = AuditEntry.fromJson({
+      'log_id': 2101,
+      'timestamp': '2026-10-01T01:00:00+00:00',
+      'account_id': '00000000-0000-4000-8000-00000000000a',
+      'account_name': 'E. Navarro',
+      'account_role': 'admin',
+      'action_type': 'settingChanged',
+      'target_table': 'app_setting',
+      'target_id': 'priority.sos',
+      'detail': '50 → 60',
+    });
+    expect(e.action, AuditAction.settingChanged);
+  });
 }

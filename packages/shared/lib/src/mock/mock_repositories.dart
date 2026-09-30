@@ -5,6 +5,7 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/settings.dart';
 import '../repositories/repositories.dart';
 import 'mock_backend.dart';
 
@@ -74,6 +75,18 @@ class MockIncidentRepository implements IncidentRepository {
 
   @override
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);
+}
+
+class MockSettingsRepository implements SettingsRepository {
+  const MockSettingsRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<AppSetting>> watch() => _backend.watchSettings();
+
+  @override
+  Future<void> set(String key, num value) => _backend.setSetting(key, value);
 }
 
 class MockUnitRepository implements UnitRepository {

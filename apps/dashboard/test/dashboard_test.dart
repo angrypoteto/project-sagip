@@ -177,6 +177,65 @@ void main() {
     expect(find.text('Assigned unit'), findsWidgets);
   });
 
+  testWidgets('admins change priority weights on A3, checked and audited', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Configuration'));
+    await settle(tester);
+    expect(find.text('Triage Queue priority'), findsOneWidget);
+    expect(find.text('Algorithm parameters'), findsOneWidget);
+
+    FilledButton save() => tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Save changes'),
+    );
+    expect(save().onPressed, isNull, reason: 'nothing changed yet');
+
+    // Out of range: explained, and Save stays off.
+    await tester.enterText(
+      find.byKey(const ValueKey('setting-priority.waiting_per_minute')),
+      '500',
+    );
+    await tester.pump();
+    expect(find.text('Use a number from 0 to 20.'), findsOneWidget);
+    expect(save().onPressed, isNull);
+
+    // High above Critical is refused before it reaches the server.
+    await tester.enterText(
+      find.byKey(const ValueKey('setting-priority.waiting_per_minute')),
+      '2',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('setting-priority.high_at')),
+      '90',
+    );
+    await tester.pump();
+    // Both fields in the conflict say so.
+    expect(find.text('High must be at or below Critical.'), findsNWidgets(2));
+    await tester.enterText(
+      find.byKey(const ValueKey('setting-priority.high_at')),
+      '50',
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('setting-priority.sos')),
+      '60',
+    );
+    await tester.pump();
+    expect(save().onPressed, isNotNull);
+    await tester.tap(find.widgetWithText(FilledButton, 'Save changes'));
+    await settle(tester);
+    expect(find.text('Settings saved'), findsOneWidget);
+    expect(container.read(priorityRulesProvider).sosPoints, 60);
+    expect(find.text('Last changed by E. Navarro'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Audit log'));
+    await settle(tester);
+    expect(find.text('Changed a setting'), findsOneWidget);
+    expect(find.text('50 → 60'), findsOneWidget);
+  });
+
   testWidgets('going offline shows a banner and disables actions', (
     tester,
   ) async {

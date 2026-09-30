@@ -1432,6 +1432,18 @@ abstract class AppLocalizations {
   /// **'Your account can\'t do this.'**
   String get errorNotAllowed;
 
+  /// No description provided for @errorInvalidValue.
+  ///
+  /// In en, this message translates to:
+  /// **'That value is outside the allowed range.'**
+  String get errorInvalidValue;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That item no longer exists. Reload the page.'**
+  String get errorNotFound;
+
   /// No description provided for @errorGeneric.
   ///
   /// In en, this message translates to:
@@ -1798,6 +1810,228 @@ abstract class AppLocalizations {
   /// **'Viewed contact number'**
   String get actionContactViewed;
 
+  /// No description provided for @actionSettingChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed a setting'**
+  String get actionSettingChanged;
+
+  /// No description provided for @configSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes apply at once for every dispatcher and are recorded in the audit log.'**
+  String get configSubtitle;
+
+  /// No description provided for @configPriorityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Triage Queue priority'**
+  String get configPriorityTitle;
+
+  /// No description provided for @settingSos.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get settingSos;
+
+  /// No description provided for @settingCluster.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed cluster of crowd reports'**
+  String get settingCluster;
+
+  /// No description provided for @settingVulnerable.
+  ///
+  /// In en, this message translates to:
+  /// **'Vulnerable household'**
+  String get settingVulnerable;
+
+  /// No description provided for @settingWaitingPerMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Points per minute of waiting'**
+  String get settingWaitingPerMinute;
+
+  /// No description provided for @settingWaitingMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Most points for waiting'**
+  String get settingWaitingMax;
+
+  /// No description provided for @settingMockLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible mock location'**
+  String get settingMockLocation;
+
+  /// No description provided for @settingCriticalAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical from'**
+  String get settingCriticalAt;
+
+  /// No description provided for @settingHighAt.
+  ///
+  /// In en, this message translates to:
+  /// **'High from'**
+  String get settingHighAt;
+
+  /// No description provided for @settingRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} to {max}'**
+  String settingRange(String min, String max);
+
+  /// No description provided for @settingOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a number from {min} to {max}.'**
+  String settingOutOfRange(String min, String max);
+
+  /// No description provided for @settingNotNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number.'**
+  String get settingNotNumber;
+
+  /// No description provided for @settingHighAboveCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'High must be at or below Critical.'**
+  String get settingHighAboveCritical;
+
+  /// No description provided for @settingLastChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Last changed by {name}'**
+  String settingLastChanged(String name);
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @discardChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get discardChanges;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get settingsSaved;
+
+  /// No description provided for @previewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue with these values'**
+  String get previewTitle;
+
+  /// No description provided for @previewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Active incidents ranked now with the values above, before you save.'**
+  String get previewNote;
+
+  /// No description provided for @previewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active incidents to rank.'**
+  String get previewEmpty;
+
+  /// No description provided for @algorithmsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Algorithm parameters'**
+  String get algorithmsTitle;
+
+  /// No description provided for @algorithmsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Set in the thesis. Changes need team agreement.'**
+  String get algorithmsNote;
+
+  /// No description provided for @algDbscan.
+  ///
+  /// In en, this message translates to:
+  /// **'DBSCAN clustering'**
+  String get algDbscan;
+
+  /// No description provided for @algDbscanValue.
+  ///
+  /// In en, this message translates to:
+  /// **'50 m radius, 3 reports, reports from the last 60 minutes'**
+  String get algDbscanValue;
+
+  /// No description provided for @algDijkstra.
+  ///
+  /// In en, this message translates to:
+  /// **'Dijkstra routing'**
+  String get algDijkstra;
+
+  /// No description provided for @algDijkstraValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{nodes} intersections, {edges} road segments, OpenStreetMap data from {date}'**
+  String algDijkstraValue(int nodes, int edges, String date);
+
+  /// No description provided for @algDijkstraLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Road graph not loaded yet'**
+  String get algDijkstraLoading;
+
+  /// No description provided for @algSpeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Road speeds'**
+  String get algSpeeds;
+
+  /// No description provided for @algSpeedsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Provisional, by road class; to be tuned with MDRRMD dispatch records'**
+  String get algSpeedsValue;
+
+  /// No description provided for @algLstm.
+  ///
+  /// In en, this message translates to:
+  /// **'LSTM forecast'**
+  String get algLstm;
+
+  /// No description provided for @algLstmValue.
+  ///
+  /// In en, this message translates to:
+  /// **'14-day window, 64 then 32 units, dropout 0.2 (not trained yet)'**
+  String get algLstmValue;
+
+  /// No description provided for @algKde.
+  ///
+  /// In en, this message translates to:
+  /// **'KDE hotspots'**
+  String get algKde;
+
+  /// No description provided for @algKdeValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Gaussian kernel, bandwidth 100 to 500 m by cross-validation (not trained yet)'**
+  String get algKdeValue;
+
+  /// No description provided for @algClassifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident type classifier'**
+  String get algClassifier;
+
+  /// No description provided for @algClassifierValue.
+  ///
+  /// In en, this message translates to:
+  /// **'TF-IDF on words and word pairs, 4 types (not trained yet)'**
+  String get algClassifierValue;
+
   /// No description provided for @auditEmpty.
   ///
   /// In en, this message translates to:
@@ -1851,12 +2085,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unit and roster management is built directly on Supabase in Phase 3.'**
   String get placeholderResources;
-
-  /// No description provided for @placeholderSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Alert thresholds and priority rules are built directly on Supabase in Phase 3.'**
-  String get placeholderSettings;
 
   /// No description provided for @notFoundTitle.
   ///

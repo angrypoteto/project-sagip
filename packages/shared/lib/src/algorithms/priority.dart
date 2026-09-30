@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 
 import '../models/enums.dart';
 import '../models/incident.dart';
+import '../models/settings.dart';
+import '../repositories/repositories.dart';
 
 /// One reason an incident scored the points it did.
 enum PriorityFactorKind { sos, cluster, vulnerable, waiting, mockLocation }
@@ -28,9 +30,10 @@ class PriorityBreakdown {
 
 /// Provisional Triage Queue ranking (plan 10.1, FR2).
 ///
-/// These weights are placeholders until MDRRMD's triage SOP arrives
-/// (Table 3.1 item 4, plan Q15 and Q20). They will move to the A3
-/// Configuration screen so an administrator can change them.
+/// The weights are placeholders until MDRRMD's triage SOP arrives
+/// (Table 3.1 item 4, plan Q15 and Q20). An administrator changes them on
+/// A3 Configuration (`app_setting`); the database scores the board with the
+/// same rules (`private.priority_breakdown`), so keep the two in step.
 @immutable
 class PriorityRules {
   const PriorityRules({
@@ -62,6 +65,47 @@ class PriorityRules {
 
   final double criticalAt;
   final double highAt;
+
+  /// The `app_setting` keys, in the order A3 shows them.
+  static const settingKeys = [
+    'priority.sos',
+    'priority.cluster',
+    'priority.vulnerable',
+    'priority.waiting_per_minute',
+    'priority.waiting_max',
+    'priority.mock_location',
+    'priority.critical_at',
+    'priority.high_at',
+  ];
+
+  /// Rules from the A3 settings; a missing value keeps its default.
+  factory PriorityRules.fromSettings(Iterable<AppSetting> settings) {
+    final v = {for (final s in settings) s.key: s.value.toDouble()};
+    const d = PriorityRules();
+    return PriorityRules(
+      sosPoints: v['priority.sos'] ?? d.sosPoints,
+      clusterPoints: v['priority.cluster'] ?? d.clusterPoints,
+      vulnerablePoints: v['priority.vulnerable'] ?? d.vulnerablePoints,
+      pointsPerMinuteWaiting:
+          v['priority.waiting_per_minute'] ?? d.pointsPerMinuteWaiting,
+      maxWaitingPoints: v['priority.waiting_max'] ?? d.maxWaitingPoints,
+      mockLocationPenalty: v['priority.mock_location'] ?? d.mockLocationPenalty,
+      criticalAt: v['priority.critical_at'] ?? d.criticalAt,
+      highAt: v['priority.high_at'] ?? d.highAt,
+    );
+  }
+
+  /// These rules as setting values, keyed like [settingKeys].
+  Map<String, double> toSettings() => {
+    'priority.sos': sosPoints,
+    'priority.cluster': clusterPoints,
+    'priority.vulnerable': vulnerablePoints,
+    'priority.waiting_per_minute': pointsPerMinuteWaiting,
+    'priority.waiting_max': maxWaitingPoints,
+    'priority.mock_location': mockLocationPenalty,
+    'priority.critical_at': criticalAt,
+    'priority.high_at': highAt,
+  };
 
   PriorityBreakdown score(Incident incident, DateTime now) {
     final factors = <PriorityFactor>[
@@ -117,4 +161,94 @@ class PriorityRules {
     });
     return [for (final s in scored) s.incident];
   }
+}
+
+/// The priority settings as the `configuration` migration seeds them, with
+/// the same ranges (the mock backend starts from these).
+const defaultPrioritySettings = [
+  AppSetting(
+    key: 'priority.sos',
+    category: 'priority',
+    value: 50,
+    min: 0,
+    max: 200,
+    description: 'Points for a single-person SOS',
+  ),
+  AppSetting(
+    key: 'priority.cluster',
+    category: 'priority',
+    value: 40,
+    min: 0,
+    max: 200,
+    description: 'Points for a confirmed cluster of crowd reports',
+  ),
+  AppSetting(
+    key: 'priority.vulnerable',
+    category: 'priority',
+    value: 30,
+    min: 0,
+    max: 200,
+    description: 'Points when the household has a vulnerable member',
+  ),
+  AppSetting(
+    key: 'priority.waiting_per_minute',
+    category: 'priority',
+    value: 2,
+    min: 0,
+    max: 20,
+    description: 'Points for each minute of waiting',
+  ),
+  AppSetting(
+    key: 'priority.waiting_max',
+    category: 'priority',
+    value: 30,
+    min: 0,
+    max: 200,
+    description: 'The most points waiting can add',
+  ),
+  AppSetting(
+    key: 'priority.mock_location',
+    category: 'priority',
+    value: -20,
+    min: -200,
+    max: 0,
+    description: 'Points for a suspected mock location (a penalty)',
+  ),
+  AppSetting(
+    key: 'priority.critical_at',
+    category: 'priority',
+    value: 80,
+    min: 0,
+    max: 500,
+    description: 'Score at which an incident is Critical',
+  ),
+  AppSetting(
+    key: 'priority.high_at',
+    category: 'priority',
+    value: 50,
+    min: 0,
+    max: 500,
+    description: 'Score at which an incident is High',
+  ),
+];
+
+/// Why a setting value is refused (the same checks as `set_setting`), or
+/// null when it is fine. [current] holds every setting by key.
+ActionRejection? checkSetting(
+  Map<String, AppSetting> current,
+  String key,
+  num value,
+) {
+  final s = current[key];
+  if (s == null) return ActionRejection.notFound;
+  if ((s.min != null && value < s.min!) || (s.max != null && value > s.max!)) {
+    return ActionRejection.invalidValue;
+  }
+  final critical = current['priority.critical_at']?.value;
+  final high = current['priority.high_at']?.value;
+  if ((key == 'priority.high_at' && critical != null && value > critical) ||
+      (key == 'priority.critical_at' && high != null && value < high)) {
+    return ActionRejection.invalidValue;
+  }
+  return null;
 }

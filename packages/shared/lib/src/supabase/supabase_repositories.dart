@@ -17,6 +17,7 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/settings.dart';
 import '../models/sos.dart';
 import '../offline/mobile_server.dart';
 import '../offline/outbox.dart';
@@ -44,7 +45,8 @@ class SupabaseBackend {
       weather = SupabaseWeatherRepository(client),
       audit = SupabaseAuditRepository(client),
       connection = SupabaseConnectionMonitor(client),
-      routing = SupabaseRoutingLog(client);
+      routing = SupabaseRoutingLog(client),
+      settings = SupabaseSettingsRepository(client);
 
   final SupabaseAuthRepository auth;
   final SupabaseIncidentRepository incidents;
@@ -55,6 +57,43 @@ class SupabaseBackend {
   final SupabaseAuditRepository audit;
   final SupabaseConnectionMonitor connection;
   final SupabaseRoutingLog routing;
+  final SupabaseSettingsRepository settings;
+}
+
+/// A3 settings (`app_setting`), live over Realtime; changes go through
+/// `set_setting`, which checks the admin role and audits.
+class SupabaseSettingsRepository implements SettingsRepository {
+  const SupabaseSettingsRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<List<AppSetting>> watch() => liveQuery(
+    _client,
+    tables: const ['app_setting'],
+    fetch: () async {
+      final rows = await _client.from('app_setting').select().order('key');
+      return [for (final r in rows) AppSetting.fromJson(r)];
+    },
+  );
+
+  @override
+  Future<void> set(String key, num value) async {
+    try {
+      await _call(
+        () => _client.rpc<void>(
+          'set_setting',
+          params: {'p_key': key, 'p_value': value},
+        ),
+      );
+    } on ActionRejected catch (e) {
+      // not_found means an unknown setting here, not a closed incident.
+      if (e.reason == ActionRejection.incidentClosed) {
+        throw const ActionRejected(ActionRejection.notFound);
+      }
+      rethrow;
+    }
+  }
 }
 
 /// Sends each timed Dijkstra run to `log_routing_run` (plan 10.2). Failures
@@ -509,6 +548,7 @@ Exception databaseRefusal(String code) => switch (code) {
     ActionRejection.unitNotAvailable,
   ),
   'already_assigned' => const ActionRejected(ActionRejection.alreadyAssigned),
+  'invalid_value' => const ActionRejected(ActionRejection.invalidValue),
   'incident_closed' ||
   'not_found' => const ActionRejected(ActionRejection.incidentClosed),
   _ => const ActionRejected(ActionRejection.notAllowed),

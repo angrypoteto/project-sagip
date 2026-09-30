@@ -781,6 +781,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNotAllowed => 'Your account can\'t do this.';
 
   @override
+  String get errorInvalidValue => 'That value is outside the allowed range.';
+
+  @override
+  String get errorNotFound => 'That item no longer exists. Reload the page.';
+
+  @override
   String get errorGeneric => 'Something went wrong. Try again.';
 
   @override
@@ -987,6 +993,133 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionContactViewed => 'Viewed contact number';
 
   @override
+  String get actionSettingChanged => 'Changed a setting';
+
+  @override
+  String get configSubtitle =>
+      'Changes apply at once for every dispatcher and are recorded in the audit log.';
+
+  @override
+  String get configPriorityTitle => 'Triage Queue priority';
+
+  @override
+  String get settingSos => 'SOS';
+
+  @override
+  String get settingCluster => 'Confirmed cluster of crowd reports';
+
+  @override
+  String get settingVulnerable => 'Vulnerable household';
+
+  @override
+  String get settingWaitingPerMinute => 'Points per minute of waiting';
+
+  @override
+  String get settingWaitingMax => 'Most points for waiting';
+
+  @override
+  String get settingMockLocation => 'Possible mock location';
+
+  @override
+  String get settingCriticalAt => 'Critical from';
+
+  @override
+  String get settingHighAt => 'High from';
+
+  @override
+  String settingRange(String min, String max) {
+    return '$min to $max';
+  }
+
+  @override
+  String settingOutOfRange(String min, String max) {
+    return 'Use a number from $min to $max.';
+  }
+
+  @override
+  String get settingNotNumber => 'Enter a number.';
+
+  @override
+  String get settingHighAboveCritical => 'High must be at or below Critical.';
+
+  @override
+  String settingLastChanged(String name) {
+    return 'Last changed by $name';
+  }
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get discardChanges => 'Discard changes';
+
+  @override
+  String get settingsSaved => 'Settings saved';
+
+  @override
+  String get previewTitle => 'Queue with these values';
+
+  @override
+  String get previewNote =>
+      'Active incidents ranked now with the values above, before you save.';
+
+  @override
+  String get previewEmpty => 'No active incidents to rank.';
+
+  @override
+  String get algorithmsTitle => 'Algorithm parameters';
+
+  @override
+  String get algorithmsNote =>
+      'Set in the thesis. Changes need team agreement.';
+
+  @override
+  String get algDbscan => 'DBSCAN clustering';
+
+  @override
+  String get algDbscanValue =>
+      '50 m radius, 3 reports, reports from the last 60 minutes';
+
+  @override
+  String get algDijkstra => 'Dijkstra routing';
+
+  @override
+  String algDijkstraValue(int nodes, int edges, String date) {
+    return '$nodes intersections, $edges road segments, OpenStreetMap data from $date';
+  }
+
+  @override
+  String get algDijkstraLoading => 'Road graph not loaded yet';
+
+  @override
+  String get algSpeeds => 'Road speeds';
+
+  @override
+  String get algSpeedsValue =>
+      'Provisional, by road class; to be tuned with MDRRMD dispatch records';
+
+  @override
+  String get algLstm => 'LSTM forecast';
+
+  @override
+  String get algLstmValue =>
+      '14-day window, 64 then 32 units, dropout 0.2 (not trained yet)';
+
+  @override
+  String get algKde => 'KDE hotspots';
+
+  @override
+  String get algKdeValue =>
+      'Gaussian kernel, bandwidth 100 to 500 m by cross-validation (not trained yet)';
+
+  @override
+  String get algClassifier => 'Incident type classifier';
+
+  @override
+  String get algClassifierValue =>
+      'TF-IDF on words and word pairs, 4 types (not trained yet)';
+
+  @override
   String get auditEmpty => 'No actions recorded yet.';
 
   @override
@@ -1019,10 +1152,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get placeholderResources =>
       'Unit and roster management is built directly on Supabase in Phase 3.';
-
-  @override
-  String get placeholderSettings =>
-      'Alert thresholds and priority rules are built directly on Supabase in Phase 3.';
 
   @override
   String get notFoundTitle => 'Page not found';

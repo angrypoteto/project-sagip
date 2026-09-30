@@ -32,6 +32,7 @@ export 'src/models/people.dart';
 export 'src/models/records.dart';
 export 'src/models/response_unit.dart';
 export 'src/models/road_route.dart';
+export 'src/models/settings.dart';
 export 'src/models/sos.dart';
 export 'src/offline/cached_repositories.dart';
 export 'src/offline/mobile_server.dart';
