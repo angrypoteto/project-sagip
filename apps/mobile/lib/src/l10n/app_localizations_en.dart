@@ -1027,6 +1027,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneOffline => 'You\'re offline. Connect to continue.';
 
   @override
+  String get phoneUnavailable =>
+      'Couldn\'t send or check the code right now. Try again in a few minutes. In an emergency, call MDRRMD.';
+
+  @override
   String get staffSignInTitle => 'MDRRMD personnel';
 
   @override

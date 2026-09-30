@@ -108,6 +108,7 @@ extension MobileLabels on AppLocalizations {
     PhoneAuthFailure.wrongCode => phoneWrongCode,
     PhoneAuthFailure.tooManyAttempts => phoneTooMany,
     PhoneAuthFailure.offline => phoneOffline,
+    PhoneAuthFailure.unavailable => phoneUnavailable,
   };
 
   String signal(SignalState s) => switch (s) {

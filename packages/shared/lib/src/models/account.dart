@@ -57,6 +57,10 @@ enum PhoneAuthFailure {
   wrongCode,
   tooManyAttempts,
   offline,
+
+  /// The code could not be sent or checked for another reason, for example
+  /// the SMS service is down.
+  unavailable,
 }
 
 class PhoneAuthException implements Exception {

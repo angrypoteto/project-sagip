@@ -141,6 +141,27 @@ class BarangayForecast {
         isSimulated: json['is_simulated'] as bool? ?? false,
       );
 
+  /// A row of the `barangay_forecast` table: one column per hazard.
+  factory BarangayForecast.fromRow(Map<String, Object?> row) =>
+      BarangayForecast(
+        barangay: row['barangay']! as String,
+        district: row['district']! as String,
+        issuedAt: timeFromJson(row['issued_at']),
+        validUntil: timeFromJson(row['valid_until']),
+        risks: {
+          ForecastHazard.flood: enumFromJson(
+            RiskLevel.values,
+            row['flood_risk'],
+          ),
+          ForecastHazard.fire: enumFromJson(RiskLevel.values, row['fire_risk']),
+          ForecastHazard.stormSurge: enumFromJson(
+            RiskLevel.values,
+            row['surge_risk'],
+          ),
+        },
+        isSimulated: row['is_simulated'] as bool? ?? false,
+      );
+
   Map<String, Object?> toJson() => {
     'barangay': barangay,
     'district': district,

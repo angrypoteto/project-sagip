@@ -361,6 +361,7 @@
   "phoneWrongCode": "That code is wrong or has expired. Check it or send a new one.",
   "phoneTooMany": "Too many tries. Try again in 60 s.",
   "phoneOffline": "You're offline. Connect to continue.",
+  "phoneUnavailable": "Couldn't send or check the code right now. Try again in a few minutes. In an emergency, call MDRRMD.",
   "staffSignInTitle": "MDRRMD personnel",
   "staffSignInBody": "Sign in with the account MDRRMD gave you.",
   "email": "Email",

@@ -1870,6 +1870,12 @@ abstract class AppLocalizations {
   /// **'You\'re offline. Connect to continue.'**
   String get phoneOffline;
 
+  /// No description provided for @phoneUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send or check the code right now. Try again in a few minutes. In an emergency, call MDRRMD.'**
+  String get phoneUnavailable;
+
   /// No description provided for @staffSignInTitle.
   ///
   /// In en, this message translates to:

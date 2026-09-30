@@ -5,7 +5,8 @@ import 'package:supabase/supabase.dart';
 int _channelCount = 0;
 
 /// A stream that runs [fetch] on listen, then runs it again whenever one of
-/// [tables] changes (Supabase Realtime) or, if set, every [refreshEvery].
+/// [tables] changes (Supabase Realtime), if set every [refreshEvery], and
+/// whenever [refreshOn] emits (for changes realtime cannot deliver).
 ///
 /// Changes are debounced so a burst (an assignment touches three tables)
 /// causes one refetch. It also refetches each time the realtime channel
@@ -15,12 +16,14 @@ Stream<T> liveQuery<T>(
   required List<String> tables,
   required Future<T> Function() fetch,
   Duration? refreshEvery,
+  Stream<Object?>? refreshOn,
   Duration debounce = const Duration(milliseconds: 200),
 }) {
   late final StreamController<T> controller;
   RealtimeChannel? channel;
   Timer? pending;
   Timer? periodic;
+  StreamSubscription<Object?>? manual;
   var sequence = 0;
 
   Future<void> run() async {
@@ -59,10 +62,12 @@ Stream<T> liveQuery<T>(
       if (refreshEvery != null) {
         periodic = Timer.periodic(refreshEvery, (_) => schedule());
       }
+      manual = refreshOn?.listen((_) => schedule());
     },
     onCancel: () async {
       pending?.cancel();
       periodic?.cancel();
+      await manual?.cancel();
       final ch = channel;
       channel = null;
       if (ch != null) await client.removeChannel(ch);

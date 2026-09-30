@@ -5,14 +5,22 @@ import 'package:supabase/supabase.dart'
     as supa
     show AuthException, AuthRetryableFetchException;
 
+import '../models/account.dart';
+import '../models/alerts.dart';
+import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
+import '../models/geo_point.dart';
+import '../models/hazard_report.dart';
 import '../models/incident.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/sos.dart';
 import '../repositories/repositories.dart';
 import 'live_query.dart';
+
+part 'mobile_repositories.dart';
 
 // Supabase implementations of the repository interfaces (Phase 3 wiring,
 // done early so demo data can be edited in the Supabase Table Editor).
@@ -296,9 +304,13 @@ class SupabaseCrowdReportRepository implements CrowdReportRepository {
 // -------------------------------------------------------------- residents
 
 class SupabaseResidentRepository implements ResidentRepository {
-  const SupabaseResidentRepository(this._client);
+  const SupabaseResidentRepository(this._client, {this.refreshOn});
 
   final SupabaseClient _client;
+
+  /// Emits after the app changes the resident record itself (consent),
+  /// which realtime does not deliver.
+  final Stream<Object?>? refreshOn;
 
   // manila_resident is not in the realtime publication (its full contact
   // number column is hidden from clients), so household changes drive
@@ -309,6 +321,7 @@ class SupabaseResidentRepository implements ResidentRepository {
   Stream<Resident?> watchResident(String residentId) => liveQuery(
     _client,
     tables: _tables,
+    refreshOn: refreshOn,
     fetch: () async {
       final row = await _client
           .from('resident_profile')
@@ -442,18 +455,33 @@ class SupabaseConnectionMonitor implements ConnectionMonitor {
 String _utcAgo(Duration d) =>
     DateTime.now().toUtc().subtract(d).toIso8601String();
 
-/// Runs a database function and turns its refusals into [ActionRejected].
-/// The functions raise these codes (supabase/migrations/*dispatch_actions).
+/// The exception for a refusal code raised by a database function
+/// (supabase/migrations/*dispatch_actions and *mobile_actions).
+Exception databaseRefusal(String code) => switch (code) {
+  'outside_manila' => const ReportRejected(ReportRejection.outsideManila),
+  'rate_limited' => const ReportRejected(ReportRejection.rateLimited),
+  'no_location' => const ReportRejected(ReportRejection.noLocation),
+  'no_assignment' => const StatusRejected(StatusRejection.noAssignment),
+  'finish_report_first' => const StatusRejected(
+    StatusRejection.finishReportFirst,
+  ),
+  'already_on_scene' => const StatusRejected(StatusRejection.alreadyOnScene),
+  'unit_not_available' => const ActionRejected(
+    ActionRejection.unitNotAvailable,
+  ),
+  'already_assigned' => const ActionRejected(ActionRejection.alreadyAssigned),
+  'incident_closed' ||
+  'not_found' => const ActionRejected(ActionRejection.incidentClosed),
+  _ => const ActionRejected(ActionRejection.notAllowed),
+};
+
+/// Runs a database function and turns its refusals into the app's
+/// exceptions ([databaseRefusal]); network failures become offline.
 Future<T> _call<T>(Future<T> Function() body) async {
   try {
     return await body();
   } on PostgrestException catch (e) {
-    throw ActionRejected(switch (e.message) {
-      'unit_not_available' => ActionRejection.unitNotAvailable,
-      'already_assigned' => ActionRejection.alreadyAssigned,
-      'incident_closed' || 'not_found' => ActionRejection.incidentClosed,
-      _ => ActionRejection.notAllowed,
-    });
+    throw databaseRefusal(e.message);
   } on ActionRejected {
     rethrow;
   } on Exception {
