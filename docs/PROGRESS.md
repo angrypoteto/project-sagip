@@ -26,6 +26,7 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
+| 2026-09-30 | f47c816b | Mobile app part 4: Tier 2 screens (4a S1 to S5, S7 done; 4b R5 to R11, F7 next) | `apps/mobile/`, `packages/shared/lib/src/` (models, mock, repositories, data) | in progress |
 
 ---
 
@@ -64,6 +65,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] Shared formatters (`formatTime`, `formatWait`, `formatCoordinates`, ...) and `LiveValue` moved here from the dashboard so both apps use them
 - [x] `UnitStatusControl` (56 dp, tinted selected segment that passes WCAG AA) and `EtaHero`; `SagipTiles` and `MapCredit` are the shared map base
 - [x] Responder models and interface: `Assignment`, `CompletionReport`, `ResponderState`, `RescueOutcome`, `StatusRejected`, `ResponderRepository`; the mock responder (`mock_responder.dart`) offers assignments, drives R-03, and queues status updates and reports
+- [x] Account models and interfaces: `Barangay`, `AppPermission`, `PermissionState`, `PhoneAuthFailure`, `normalizePhMobile()`; `ResidentAccountRepository` (send code, verify, register, request data deletion) and `PermissionService`; the mock (`mock_accounts.dart`) checks numbers, limits code requests to 3 a minute, accepts code `123456`, and records deletion requests; `sampleManilaBarangays` (10 real barangays until the Data role supplies all 897)
 - [ ] Widget gallery
 - [ ] Dijkstra over the OSM road graph (plan 10.2)
 - [ ] Incident type classifier (plan 10.4), LSTM + KDE (plan 10.5), RAG (plan 10.6)
@@ -82,13 +84,17 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Leaked-password protection is off (Supabase dashboard setting: Authentication, then Passwords); turn it on before the pilot
 
 ### apps/mobile (`sagip_mobile`), mock data
-- [x] Demo sign-in (pick the resident or the responder account); the role picks the shell: resident Home, Report, Alerts, Me; responder Home, History, Me
+- [x] S1 splash (red S.A.G.I.P. mark, also the launcher icon) while the session loads; the role picks the shell: resident Home, Report, Alerts, Me; responder Home, History, Me
+- [x] S2 welcome and permissions: three steps (location; notifications; SMS and nearby devices), each says why before asking; Allow, Skip, "Allowed", "Not allowed" with Open settings when blocked; shown once per app run for now
+- [x] S3 sign in by mobile number: +63 prefix, number checks ("like 917 123 4567"), unknown number, too many tries, offline notice, Call MDRRMD card; links to register and to the MDRRMD personnel sign-in (email and password); demo account buttons only on sample data
+- [x] S4 register: full name, number, barangay picker with search, terms and privacy notice (draft), each missing field explained
+- [x] S5 code: 6 digits checked as soon as they are in, wrong-code message, resend after 60 s, change number; the demo code shows only on sample data
 - [x] Offline banner on every screen (SMS only, no signal, waiting count, sending, "Back online" for 4 s); tapping opens S6
 - [x] R1 Home and SOS: greeting and barangay, PAGASA strip, SOS button with caption below it, GPS-off warning with Open settings, active SOS card, Report a hazard link
 - [x] R2 SOS status: state heading and elapsed time, ETA card (unit, minutes), 9-step timeline, Add details sheet (type, people, extra help, note), location card, guidance, Call MDRRMD
 - [x] S6 offline queue sheet: records with capture time and delivery badge, what happens next for the current signal, Try sending now, remove a rejected record
 - [x] Delivery notice: "Your SOS from 3:42 PM was delivered." (in-app message; a system notification comes with FCM)
-- [~] S7 Me: name, role, barangay, sign out, demo tools (signal and GPS switches); settings and privacy links not yet
+- [x] S7 Me: name, role, barangay, number; My activity and Vulnerability profile links (placeholders until 4b); theme (System, Light, Dark); language (English, Filipino later); test notification; privacy notice; request deletion of my data (asks first); sign out warns when records still wait to send; demo tools
 - [x] R3 Track responder: full-screen map (shared `SagipTiles`), resident pin, responder marker gliding between updates, dashed line, one card with unit, status, ETA, "Updated 30 s ago" (stale after 2 min), offline "last known position", Call MDRRMD; opened from R2 once a unit is assigned
 - [x] R4 Report a hazard: description, optional type, current location, on-phone checks (empty, no location, outside Manila, 5 per hour), saved on the phone and sent over internet only, confirmation with delivery badge, Send another
 - [x] Android Back on another tab returns to Home instead of closing the app; tapping outside a text box closes the keyboard
@@ -98,10 +104,11 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] F4 Navigation: map follows the unit, heading arrow, destination pin, recenter, card with compass direction, distance, ETA, "Waiting for GPS", "Offline. Using saved map.", and "You're at the scene" plus Arrived within 50 m
 - [x] F5 On scene: real-emergency check with a required reason for No (FR8), people found
 - [x] F6 Completion report: outcome, persons assisted, damage counts, notes, time on scene, draft kept while moving around the app, saved offline and sent later
-- [ ] F7 Assignment history and the Alerts tab are placeholders (part 4)
+- [ ] F7 Assignment history, the Alerts tab, My activity, and Vulnerability profile are placeholders (part 4b)
 - [ ] Real offline map tiles (F2/F3 progress is simulated), road routes and turn-by-turn (Dijkstra, Phase 4), a custom alert sound (FCM work)
 - [ ] R5 location picker ("Change" on R4), real barangay boundaries for the Manila check (part 4 and later)
-- [ ] S1 splash (the launch screen is still the Flutter logo), S2 permissions, S3 to S5 real sign-in, R5 to R11, F7 (part 4)
+- [ ] R5 to R11 and F7 (part 4b)
+- [ ] The welcome-seen flag and theme choice live in memory (Hive later); real texted codes need Supabase phone sign-in and the SMS hook (plan Q37); real permission prompts come with the real GPS, SMS, and BLE work
 - [ ] Cancel SOS (waits on plan Q10), nearest evacuation center card (waits on Q38 data), MDRRMD hotline number (Call MDRRMD says it is not set until `MDRRMD_HOTLINE` is provided)
 - [ ] Hive queue, real GPS, SMS, and BLE (Phase 3 and 5); the mock keeps everything in memory, so closing the app clears it
 
@@ -129,8 +136,9 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Crowd reports map: the 50 m ring is only a few pixels at city zoom; add a count marker for clusters
 
 ### Tests (last run 2026-09-30)
-- `packages/shared`: 59 passing (`flutter test`), including Supabase-shaped JSON, the mobile mock's offline rules (capture order, capture time kept, SMS and relay tiers, updates held while offline), and the SOS button (a tap never sends, a 2 s hold sends once, early release cancels, the release after a send does not also open), hazard reports (wait for internet while an SOS goes by SMS, delivered in capture order, the four on-phone checks), the responder closing in with a falling ETA, and the mock responder (offer and accept, refused status moves, completion makes the unit available, offline updates and the report sent in capture order)
-- `apps/mobile`: 8 passing (the role picks the shell, and Back on another tab goes Home; online SOS to responder assigned; offline SOS by SMS, queue sheet, delivered on reconnect; add details; tracking before and after assignment; reporting: empty check, online, offline; responder offer, accept, navigate, arrive, on scene, report; responder offline report and the required reason)
+- `packages/shared`: 65 passing (`flutter test`), including accounts (number formats, unknown number, the 3-a-minute code limit, register then verify, deletion request, permission states), Supabase-shaped JSON, the mobile mock's offline rules (capture order, capture time kept, SMS and relay tiers, updates held while offline), and the SOS button (a tap never sends, a 2 s hold sends once, early release cancels, the release after a send does not also open), hazard reports (wait for internet while an SOS goes by SMS, delivered in capture order, the four on-phone checks), the responder closing in with a falling ETA, and the mock responder (offer and accept, refused status moves, completion makes the unit available, offline updates and the report sent in capture order)
+- `apps/mobile`: 12 passing (first run: welcome steps then sign-in by code, wrong code; bad and unknown numbers and the offline notice; register with the barangay picker; Me: theme, deletion request, sign-out warning; the role picks the shell, and Back on another tab goes Home; online SOS to responder assigned; offline SOS by SMS, queue sheet, delivered on reconnect; add details; tracking before and after assignment; reporting: empty check, online, offline; responder offer, accept, navigate, arrive, on scene, report; responder offline report and the required reason)
+- Emulator check, part 4a (2026-09-30): launcher icon, S2 steps with Allow, S3, S5 with the demo code landing on Home ("Hi, Maria"), S4, and Me all render. Found and fixed: the main S2 button jumped down when Skip disappeared after Allow; the hotline call icon was grey on blue (the app theme greys every icon button, even filled ones); the register barangay row read "Choose your barangay / Barangay" (label and hint swapped). Not checked on the emulator: the staff form, dark theme on every new screen.
 - Emulator check, part 3 (2026-09-30): the full responder job on Android: F1, the F2 alert, accept, F3 with the map progress reaching "saved", F4 following the unit to the scene, Arrived, F5, F6, back to Available. Found and fixed: the F2 background was a translucent tint over the black window (unreadable); status segments did not fill their height; a leftover message covered Accept; arrival showed "Head north · 0 m" and "1 min"; location sharing went stale after the drive. The arrival card fix is checked by the widget test, not re-run on the emulator.
 - Emulator check, part 2 (2026-09-30): R3 map with real OSM tiles, gliding marker, falling ETA, arrived state; R4 typed, sent, and delivered; Back from R3 to R2 to Home. Found and fixed: Back on the Report tab closed the app; "Track responder" competed with Call MDRRMD; the unit line wrapped; a repeated "arrived" message; the delivery notice covered the next form's Send button.
 - Dashboard after the map base moved to shared: tests pass and a browser screenshot of the board looks the same.
@@ -168,7 +176,7 @@ flutter run                                         # picks the running emulator
 flutter test
 ```
 
-Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 seconds. In Me, the demo tools switch the signal (Internet, SMS only, No signal) and GPS. After an online SOS the simulated dispatcher verifies it after about 8 s, assigns R-03 after 14 s, and so on to Resolved after about 70 s.
+The first screen after the splash is the welcome steps (Allow or Skip each). On sign-in, tap "Continue as resident" or "Continue as rescue personnel", or type 917 000 4821 and the code 123456 to go through the real flow. Hold SOS for 2 seconds. In Me, the demo tools switch the signal (Internet, SMS only, No signal) and GPS. After an online SOS the simulated dispatcher verifies it after about 8 s, assigns R-03 after 14 s, and so on to Resolved after about 70 s.
 
 **Dashboard on mock data:** same emails, password `sagip-demo`. What the mock demo does by itself after sign-in:
 - about 20 s: a new SOS arrives from Barangay 128, Tondo, flagged "Location may be faked" (toast appears on any page)
@@ -210,6 +218,12 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 | Report limit 5 per account per hour | FR15 and NFR7 give no number | Provisional; plan Q-list |
 | The phone's Manila check is a rough box until barangay boundaries are bundled | R4 needs a check now; the server checks again (FR15) | None |
 | Mock responder drives in a straight line from its station | Dijkstra routes come in Phase 4 | None |
+| Residents sign in with a mobile number and a texted code; responders use the staff email and password form | Matches plan S3 and the plan's Supabase phone sign-in; responders are staff accounts | None |
+| Mobile barangay list holds 10 real sample barangays | The full list of 897 comes from the Data role | Replace before UAT |
+| The privacy notice text is a draft written from RA 10173 | No approved notice exists yet | Team, MDRRMD, and the data protection officer must review it before UAT |
+| "Request deletion of my data" sends a request to MDRRMD instead of deleting at once | Incident records may be needed for NDRRMC reports and the audit log | Describe the retention rule in Ch 3; confirm with MDRRMD |
+| Every welcome permission can be skipped | SOS still works (it falls back to SMS, and asks for location again when needed) | None |
+| Code requests limited to 3 a minute per number (mock) | Stops texting costs from repeated taps | Set the real limit in Supabase |
 | Snackbars are 360 px wide at the bottom centre | A full-width one covered the drawer's "Assign" button for 4 s after "Mark verified" (found in the browser check) | None |
 
 ---
@@ -225,7 +239,7 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 
 ## Next steps (in order)
 
-1. **Mobile app on mock data** (due M1, Oct 18). Tier 1 is done: resident R1 to R4 and S6, responder F1 to F6. Next: part 4, the Tier 2 screens (S1 splash, S2 permissions, S3 to S5 sign-in, S7 Me, R5 location picker, R6 activity, R7 and R8 alerts, R9 to R11 vulnerability profile and consent, F7 history).
+1. **Mobile app on mock data** (due M1, Oct 18). Tier 1 is done: resident R1 to R4 and S6, responder F1 to F6. Part 4a is done: S1 to S5 and S7. Next: part 4b (R5 location picker, R6 activity, R7 and R8 alerts, R9 to R11 vulnerability profile and consent, F7 history).
 2. **CI** (small): GitHub Actions running `flutter analyze` and `flutter test` on every push.
 3. **Map spikes** (Phase 0, unblock later work): pick the self-hosted Manila tile source (Protomaps extract) and build the Manila road graph with `osmnx` for Dijkstra.
 4. **Wire the five flows end to end on mock data**, fix the top issues from the hallway test, tag `phase1-design-complete`, and hold the Oct 18 scope checkpoint (record it in `docs/DECISIONS.md`).
@@ -271,6 +285,9 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 | `6a20efb` | 2026-09-30 | Docs: mobile part 2 status, decisions, gotchas |
 | `8ab2503` | 2026-09-30 | Shared: responder models and interface, mock responder, `UnitStatusControl`, `EtaHero`, bearing and distance helpers |
 | `7f6b419` | 2026-09-30 | Mobile app part 3: responder screens F1 to F6, offer alert from any screen |
+| `b519d13` | 2026-09-30 | Docs: mobile part 3 status, decisions, gotchas |
+| `fe7fe7f` | 2026-09-30 | Shared: account models, `ResidentAccountRepository`, `PermissionService`, mock accounts, sample barangays |
+| `b87d2b8` | 2026-09-30 | Mobile app part 4a: S1 splash and launcher icon, S2 welcome, S3 sign-in, S4 register, S5 code, S7 Me, personnel sign-in |
 
 `git log --oneline` shows newer commits; add a row here for each one.
 
@@ -304,6 +321,10 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 - In the emulator the text box does not open the on-screen keyboard (hardware keyboard), so `adb shell input keyevent 4` is a real Back press. Tap outside the field to close the keyboard instead.
 - Map widgets need the Material bridge (`MaterialUiCompatibilityBridge` in `app.dart`) because flutter_map still uses `flutter/material.dart`. Tests override `mapTilesEnabledProvider` to false.
 - `find.bySemanticsLabel` only finds labels on their own semantics node; give map markers `Semantics(container: true, label: ...)`.
+- The app theme's `iconButtonTheme` greys every `IconButton`, including `IconButton.filled`. A filled icon button needs its own `style:` with a light foreground (see `HotlineCard`).
+- When a button can disappear under the main button (Skip on S2), keep a fixed-height slot so the main button does not move under the thumb.
+- Mobile widget tests override `welcomeSeenProvider` with `WelcomeDone` to skip S2, and sign in through the number and code (`MockMobileBackend.demoCode`) or the personnel form (`MockSeed.demoPassword`). Long lists build lazily: `scrollUntilVisible` before tapping.
+- After a cold boot the emulator can show "System UI isn't responding"; tap Close app. The app's package is `ph.sagip.sagip_mobile` (for `adb shell monkey -p ... 1`).
 - Mobile widget tests end with `finish(tester)`: it runs the simulated dispatcher to the end, disposes the backend, and unmounts, so no timers are left pending.
 
 ---
@@ -357,3 +378,10 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 - Found and fixed on the emulator and in tests: unreadable F2 background, a message covering Accept, segment height, the arrival card, stale location sharing, and three narrow-screen overflows.
 - Verified: analyze clean in all three packages; 59 shared, 7 dashboard, 8 mobile tests pass; emulator check (details under Tests).
 
+### 2026-09-30: mobile app part 4a, sign-in and Me (session f47c816b)
+- Joshua approved part 4 as 4a (S1 to S5, S7) then 4b (R5 to R11, F7), with a commit after each half.
+- Shared: account models, `ResidentAccountRepository`, `PermissionService`, the mock accounts part, 10 sample barangays, 6 new tests.
+- Mobile: splash, launcher icon (vector, red mark on white), welcome and permission steps, sign-in by number and code, register with a searchable barangay picker, the privacy notice (draft), the personnel sign-in form, and the full Me screen with theme choice and a data deletion request. The demo sign-in page is gone; its buttons live on S3 in demo mode only.
+- Tests moved to the real flows (number and code for residents, the personnel form for responders).
+- Found and fixed on the emulator: the S2 button jump, the grey hotline icon, and the swapped barangay label.
+- Verified: analyze clean in all three packages; 65 shared, 7 dashboard, and 12 mobile tests pass; emulator check (details under Tests).
