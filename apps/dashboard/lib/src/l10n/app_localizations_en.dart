@@ -1114,6 +1114,130 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noValue => '–';
 
   @override
+  String get resourcesSubtitle =>
+      'Units and the responders who crew them. Every change is recorded in the audit log.';
+
+  @override
+  String get addUnit => 'Add unit';
+
+  @override
+  String get editUnit => 'Edit unit';
+
+  @override
+  String get unitsTitleA2 => 'Units';
+
+  @override
+  String get rosterTitle => 'Responder roster';
+
+  @override
+  String get rosterNote =>
+      'A responder works for the unit chosen here. Responder accounts are created in Accounts.';
+
+  @override
+  String get rosterEmpty => 'No responder accounts yet.';
+
+  @override
+  String get colResponders => 'Responders';
+
+  @override
+  String get colEmail => 'Email';
+
+  @override
+  String get retire => 'Retire';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get retiredChip => 'Retired';
+
+  @override
+  String retireTitle(String callSign) {
+    return 'Retire $callSign?';
+  }
+
+  @override
+  String get retireBody =>
+      'It will not be dispatched and its responders come off it. Its past jobs stay in the records. You can restore it later.';
+
+  @override
+  String get retireBusy =>
+      'Only a unit that is Available with no job can be retired.';
+
+  @override
+  String unitSaved(String callSign) {
+    return '$callSign saved';
+  }
+
+  @override
+  String unitRetiredSnack(String callSign) {
+    return '$callSign retired';
+  }
+
+  @override
+  String unitRestoredSnack(String callSign) {
+    return '$callSign restored';
+  }
+
+  @override
+  String get rosterSaved => 'Roster updated';
+
+  @override
+  String get noUnit => 'No unit';
+
+  @override
+  String get fieldCallSign => 'Call sign';
+
+  @override
+  String get fieldCallSignHint => 'For example R-12';
+
+  @override
+  String get fieldCallSignError =>
+      'Use letters, numbers, and dashes, up to 12 characters.';
+
+  @override
+  String get fieldUnitType => 'Type';
+
+  @override
+  String get fieldStation => 'Station';
+
+  @override
+  String get fieldStationHint => 'For example Sampaloc station';
+
+  @override
+  String get fieldStationError => 'Enter the station.';
+
+  @override
+  String get fieldCrew => 'Crew size';
+
+  @override
+  String get fieldCrewError => 'Use a number from 1 to 50.';
+
+  @override
+  String get errorAlreadyExists => 'Another unit already uses that call sign.';
+
+  @override
+  String get actionUnitAdded => 'Added a unit';
+
+  @override
+  String get actionUnitEdited => 'Edited a unit';
+
+  @override
+  String get actionUnitRetired => 'Retired a unit';
+
+  @override
+  String get actionUnitRestored => 'Restored a unit';
+
+  @override
+  String get actionRosterChanged => 'Changed the roster';
+
+  @override
   String get configSubtitle =>
       'Changes apply at once for every dispatcher and are recorded in the audit log.';
 
@@ -1262,10 +1386,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get placeholderAccounts =>
       'Account management is built directly on Supabase in Phase 3.';
-
-  @override
-  String get placeholderResources =>
-      'Unit and roster management is built directly on Supabase in Phase 3.';
 
   @override
   String get notFoundTitle => 'Page not found';

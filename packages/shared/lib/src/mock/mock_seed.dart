@@ -33,6 +33,37 @@ class MockSeed {
     ),
   ];
 
+  /// Responder accounts for the A2 roster (sample names).
+  List<StaffAccount> get responders => const [
+    StaffAccount(
+      id: 'usr-resp-01',
+      displayName: 'J. Reyes',
+      email: 'j.reyes@sagip.test',
+      role: UserRole.responder,
+      unitId: 'unit-r03',
+    ),
+    StaffAccount(
+      id: 'usr-resp-02',
+      displayName: 'M. Lim',
+      email: 'm.lim@sagip.test',
+      role: UserRole.responder,
+      unitId: 'unit-r05',
+    ),
+    StaffAccount(
+      id: 'usr-resp-03',
+      displayName: 'A. Bautista',
+      email: 'a.bautista@sagip.test',
+      role: UserRole.responder,
+      unitId: 'unit-r07',
+    ),
+    StaffAccount(
+      id: 'usr-resp-04',
+      displayName: 'C. Garcia',
+      email: 'c.garcia@sagip.test',
+      role: UserRole.responder,
+    ),
+  ];
+
   List<Resident> get residents => [
     Resident(
       id: 'res-001',

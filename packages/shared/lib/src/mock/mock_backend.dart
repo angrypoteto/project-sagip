@@ -68,6 +68,9 @@ class MockBackend {
   int _nextAuditNumber = 2000;
   final _assignedAt = <String, DateTime>{};
   final _routes = <String, RoadRoute>{};
+  late final LiveValue<Map<String, StaffAccount>> _responders = LiveValue({
+    for (final s in _seed.responders) s.id: s,
+  });
   final _settings = LiveValue<Map<String, AppSetting>>({
     for (final s in defaultPrioritySettings) s.key: s,
   });
@@ -160,8 +163,186 @@ class MockBackend {
         ];
       });
 
-  Stream<List<ResponseUnit>> watchUnits() =>
-      _units.watch().map((m) => m.values.toList(growable: false));
+  /// Units in service (the board and suggestions).
+  Stream<List<ResponseUnit>> watchUnits() => _units.watch().map(
+    (m) => [
+      for (final u in m.values)
+        if (!u.retired) u,
+    ],
+  );
+
+  /// Every unit, retired ones included (A2).
+  Stream<List<ResponseUnit>> watchAllUnits() => _units.watch().map(
+    (m) => [...m.values]..sort((a, b) => a.callSign.compareTo(b.callSign)),
+  );
+
+  Stream<List<StaffAccount>> watchResponders() => _responders.watch().map(
+    (m) =>
+        [...m.values]..sort((a, b) => a.displayName.compareTo(b.displayName)),
+  );
+
+  Future<AppUser> _authorizeAdmin() async {
+    final actor = await _authorize();
+    if (!actor.isAdmin) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    return actor;
+  }
+
+  static final _callSignPattern = RegExp(r'^[A-Z0-9][A-Z0-9-]{0,11}$');
+
+  /// A2, checked like `save_unit`.
+  Future<String> saveUnit({
+    String? id,
+    required String callSign,
+    required UnitType type,
+    required String station,
+    required int crewSize,
+  }) async {
+    final actor = await _authorizeAdmin();
+    final cs = callSign.trim().toUpperCase();
+    final st = station.trim();
+    if (!_callSignPattern.hasMatch(cs) ||
+        st.isEmpty ||
+        st.length > 80 ||
+        crewSize < 1 ||
+        crewSize > 50) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    if (_units.value.values.any(
+      (u) => u.callSign.toUpperCase() == cs && u.id != id,
+    )) {
+      throw const ActionRejected(ActionRejection.alreadyExists);
+    }
+    if (id == null) {
+      final base =
+          'unit-${cs.replaceAll(RegExp('[^A-Z0-9]'), '').toLowerCase()}';
+      var newId = base;
+      for (var n = 2; _units.value.containsKey(newId); n++) {
+        newId = '$base-$n';
+      }
+      _units.value = {
+        ..._units.value,
+        newId: ResponseUnit(
+          id: newId,
+          callSign: cs,
+          type: type,
+          station: st,
+          crewSize: crewSize,
+          status: UnitStatus.available,
+        ),
+      };
+      _log(
+        actor,
+        AuditAction.unitAdded,
+        'response_unit',
+        newId,
+        '$cs, ${type.name}, $st, crew of $crewSize',
+      );
+      return newId;
+    }
+    final old = _units.value[id];
+    if (old == null) throw const ActionRejected(ActionRejection.notFound);
+    final changes = [
+      if (old.callSign != cs) 'call sign ${old.callSign} → $cs',
+      if (old.type != type) 'type ${old.type.name} → ${type.name}',
+      if (old.station != st) 'station ${old.station} → $st',
+      if (old.crewSize != crewSize) 'crew ${old.crewSize} → $crewSize',
+    ];
+    if (changes.isEmpty) return id;
+    _units.value = {
+      ..._units.value,
+      id: old.copyWith(
+        callSign: cs,
+        type: type,
+        station: st,
+        crewSize: crewSize,
+      ),
+    };
+    _log(
+      actor,
+      AuditAction.unitEdited,
+      'response_unit',
+      id,
+      changes.join('; '),
+    );
+    return id;
+  }
+
+  /// A2: only a free unit; its responders come off it.
+  Future<void> retireUnit(String id) async {
+    final actor = await _authorizeAdmin();
+    final unit = _units.value[id];
+    if (unit == null) throw const ActionRejected(ActionRejection.notFound);
+    if (unit.retired) return;
+    if (unit.currentIncidentId != null || unit.status != UnitStatus.available) {
+      throw const ActionRejected(ActionRejection.unitNotAvailable);
+    }
+    final crew = [
+      for (final s in _responders.value.values)
+        if (s.unitId == id) s,
+    ];
+    _responders.value = {
+      ..._responders.value,
+      for (final s in crew) s.id: s.copyWith(clearUnit: true),
+    };
+    _units.value = {..._units.value, id: unit.copyWith(retiredAt: _clock())};
+    final names = (crew.map((s) => s.displayName).toList()..sort()).join(', ');
+    _log(
+      actor,
+      AuditAction.unitRetired,
+      'response_unit',
+      id,
+      crew.isEmpty
+          ? unit.callSign
+          : '${unit.callSign}; responders taken off: $names',
+    );
+  }
+
+  Future<void> restoreUnit(String id) async {
+    final actor = await _authorizeAdmin();
+    final unit = _units.value[id];
+    if (unit == null) throw const ActionRejected(ActionRejection.notFound);
+    if (!unit.retired) return;
+    _units.value = {
+      ..._units.value,
+      id: unit.copyWith(
+        clearRetired: true,
+        status: UnitStatus.available,
+        clearIncident: true,
+      ),
+    };
+    _log(actor, AuditAction.unitRestored, 'response_unit', id, unit.callSign);
+  }
+
+  Future<void> setResponderUnit(String staffId, String? unitId) async {
+    final actor = await _authorizeAdmin();
+    final s = _responders.value[staffId];
+    if (s == null) throw const ActionRejected(ActionRejection.notFound);
+    ResponseUnit? unit;
+    if (unitId != null) {
+      unit = _units.value[unitId];
+      if (unit == null) throw const ActionRejected(ActionRejection.notFound);
+      if (unit.retired) {
+        throw const ActionRejected(ActionRejection.invalidValue);
+      }
+    }
+    if (s.unitId == unitId) return;
+    final from = _units.value[s.unitId]?.callSign ?? 'no unit';
+    _responders.value = {
+      ..._responders.value,
+      staffId: unitId == null
+          ? s.copyWith(clearUnit: true)
+          : s.copyWith(unitId: unitId),
+    };
+    _log(
+      actor,
+      AuditAction.rosterChanged,
+      'staff',
+      staffId,
+      '${s.displayName}: $from → ${unit?.callSign ?? 'no unit'}',
+    );
+  }
 
   Stream<List<CrowdReport>> watchReports(Duration window) =>
       _reports.watch().map((all) {
@@ -597,6 +778,7 @@ class MockBackend {
       _user,
       _link,
       _settings,
+      _responders,
     ]) {
       live.close();
     }

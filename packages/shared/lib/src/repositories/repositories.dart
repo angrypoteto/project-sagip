@@ -55,6 +55,9 @@ enum ActionRejection {
 
   /// The thing to change does not exist (for example an unknown setting).
   notFound,
+
+  /// Another record already uses that name (for example a call sign).
+  alreadyExists,
 }
 
 abstract interface class AuthRepository {
@@ -114,6 +117,29 @@ abstract interface class WeatherRepository {
 
 abstract interface class AuditRepository {
   Stream<List<AuditEntry>> watchRecent({int limit});
+}
+
+/// A2 Resources (admins only): units, including retired ones, and the
+/// responder roster. Every change is audited.
+abstract interface class ResourceRepository {
+  Stream<List<ResponseUnit>> watchUnits();
+  Stream<List<StaffAccount>> watchResponders();
+
+  /// Adds a unit ([id] null) or edits one; returns the unit id.
+  Future<String> saveUnit({
+    String? id,
+    required String callSign,
+    required UnitType type,
+    required String station,
+    required int crewSize,
+  });
+
+  /// Only a free unit (no job, Available); its responders come off it.
+  Future<void> retireUnit(String id);
+  Future<void> restoreUnit(String id);
+
+  /// Puts a responder on a unit, or takes them off ([unitId] null).
+  Future<void> setResponderUnit(String staffId, String? unitId);
 }
 
 /// A4 Performance analytics (admins only).

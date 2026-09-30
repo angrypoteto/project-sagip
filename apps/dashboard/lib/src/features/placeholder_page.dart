@@ -4,7 +4,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 
 import '../l10n/app_localizations.dart';
 
-enum PlaceholderKind { forecast, reports, accounts, resources }
+enum PlaceholderKind { forecast, reports, accounts }
 
 /// Honest stand-in for screens that come in later phases (plan section 7.8,
 /// Tier 3 and Phase 4). Says what the page will do and when.
@@ -31,11 +31,6 @@ class PlaceholderPage extends StatelessWidget {
         Symbols.manage_accounts_rounded,
         l10n.navAccounts,
         l10n.placeholderAccounts,
-      ),
-      PlaceholderKind.resources => (
-        Symbols.inventory_2_rounded,
-        l10n.navResources,
-        l10n.placeholderResources,
       ),
     };
     return EmptyState(

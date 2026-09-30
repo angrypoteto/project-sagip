@@ -48,7 +48,8 @@ class SupabaseBackend {
       connection = SupabaseConnectionMonitor(client),
       routing = SupabaseRoutingLog(client),
       settings = SupabaseSettingsRepository(client),
-      analytics = SupabaseAnalyticsRepository(client);
+      analytics = SupabaseAnalyticsRepository(client),
+      resources = SupabaseResourceRepository(client);
 
   final SupabaseAuthRepository auth;
   final SupabaseIncidentRepository incidents;
@@ -61,6 +62,89 @@ class SupabaseBackend {
   final SupabaseRoutingLog routing;
   final SupabaseSettingsRepository settings;
   final SupabaseAnalyticsRepository analytics;
+  final SupabaseResourceRepository resources;
+}
+
+/// A2 through `save_unit`, `retire_unit`, `restore_unit`, and
+/// `set_responder_unit` (admins only). The staff table is not sent over
+/// Realtime, so the roster refreshes after each change made here.
+class SupabaseResourceRepository implements ResourceRepository {
+  SupabaseResourceRepository(this._client);
+
+  final SupabaseClient _client;
+  final _changed = StreamController<Object?>.broadcast();
+
+  @override
+  Stream<List<ResponseUnit>> watchUnits() => liveQuery(
+    _client,
+    tables: const ['response_unit'],
+    refreshOn: _changed.stream,
+    fetch: () async => [
+      for (final r
+          in await _client.from('response_unit').select().order('call_sign'))
+        ResponseUnit.fromJson(r),
+    ],
+  );
+
+  @override
+  Stream<List<StaffAccount>> watchResponders() => liveQuery(
+    _client,
+    tables: const ['response_unit'],
+    refreshOn: _changed.stream,
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('staff')
+              .select('id, display_name, email, role, unit_id')
+              .eq('role', 'responder')
+              .order('display_name'))
+        StaffAccount.fromJson(r),
+    ],
+  );
+
+  Future<T> _change<T>(Future<T> Function() body) async {
+    final result = await _call(body);
+    _changed.add(null);
+    return result;
+  }
+
+  @override
+  Future<String> saveUnit({
+    String? id,
+    required String callSign,
+    required UnitType type,
+    required String station,
+    required int crewSize,
+  }) => _change(
+    () => _client.rpc<String>(
+      'save_unit',
+      params: {
+        'p_unit_id': id,
+        'p_call_sign': callSign,
+        'p_unit_type': type.name,
+        'p_station': station,
+        'p_crew_size': crewSize,
+      },
+    ),
+  );
+
+  @override
+  Future<void> retireUnit(String id) => _change(
+    () => _client.rpc<void>('retire_unit', params: {'p_unit_id': id}),
+  );
+
+  @override
+  Future<void> restoreUnit(String id) => _change(
+    () => _client.rpc<void>('restore_unit', params: {'p_unit_id': id}),
+  );
+
+  @override
+  Future<void> setResponderUnit(String staffId, String? unitId) => _change(
+    () => _client.rpc<void>(
+      'set_responder_unit',
+      params: {'p_staff_id': staffId, 'p_unit_id': unitId},
+    ),
+  );
 }
 
 /// A4 through `analytics_report` (admins only).
@@ -369,8 +453,13 @@ class SupabaseUnitRepository implements UnitRepository {
     _client,
     tables: const ['response_unit'],
     fetch: () async => [
+      // Retired units are not dispatched; A2 lists them separately.
       for (final r
-          in await _client.from('response_unit').select().order('call_sign'))
+          in await _client
+              .from('response_unit')
+              .select()
+              .isFilter('retired_at', null)
+              .order('call_sign'))
         ResponseUnit.fromJson(r),
     ],
   );
@@ -573,6 +662,7 @@ Exception databaseRefusal(String code) => switch (code) {
   ),
   'already_assigned' => const ActionRejected(ActionRejection.alreadyAssigned),
   'invalid_value' => const ActionRejected(ActionRejection.invalidValue),
+  'already_exists' => const ActionRejected(ActionRejection.alreadyExists),
   'incident_closed' ||
   'not_found' => const ActionRejected(ActionRejection.incidentClosed),
   _ => const ActionRejected(ActionRejection.notAllowed),

@@ -17,6 +17,7 @@ class ResponseUnit {
     this.location,
     this.lastLocationAt,
     this.currentIncidentId,
+    this.retiredAt,
   });
 
   final String id;
@@ -35,9 +36,15 @@ class ResponseUnit {
   /// The incident this unit is handling, if any.
   final String? currentIncidentId;
 
-  /// Can take a new assignment: marked Available and not already assigned.
+  /// Set when an admin took the unit out of service (A2).
+  final DateTime? retiredAt;
+
+  bool get retired => retiredAt != null;
+
+  /// Can take a new assignment: in service, marked Available, and not
+  /// already assigned.
   bool get isDispatchable =>
-      status == UnitStatus.available && currentIncidentId == null;
+      !retired && status == UnitStatus.available && currentIncidentId == null;
 
   ResponseUnit copyWith({
     UnitStatus? status,
@@ -45,18 +52,25 @@ class ResponseUnit {
     DateTime? lastLocationAt,
     String? currentIncidentId,
     bool clearIncident = false,
+    String? callSign,
+    UnitType? type,
+    String? station,
+    int? crewSize,
+    DateTime? retiredAt,
+    bool clearRetired = false,
   }) => ResponseUnit(
     id: id,
-    callSign: callSign,
-    type: type,
-    station: station,
-    crewSize: crewSize,
+    callSign: callSign ?? this.callSign,
+    type: type ?? this.type,
+    station: station ?? this.station,
+    crewSize: crewSize ?? this.crewSize,
     status: status ?? this.status,
     location: location ?? this.location,
     lastLocationAt: lastLocationAt ?? this.lastLocationAt,
     currentIncidentId: clearIncident
         ? null
         : (currentIncidentId ?? this.currentIncidentId),
+    retiredAt: clearRetired ? null : (retiredAt ?? this.retiredAt),
   );
 
   factory ResponseUnit.fromJson(Map<String, Object?> json) => ResponseUnit(
@@ -74,6 +88,7 @@ class ResponseUnit {
           ),
     lastLocationAt: timeFromJsonOrNull(json['last_location_at']),
     currentIncidentId: json['current_incident_id'] as String?,
+    retiredAt: timeFromJsonOrNull(json['retired_at']),
   );
 
   Map<String, Object?> toJson() => {
@@ -87,5 +102,6 @@ class ResponseUnit {
     'last_longitude': location?.lng,
     'last_location_at': lastLocationAt?.toIso8601String(),
     'current_incident_id': currentIncidentId,
+    'retired_at': retiredAt?.toUtc().toIso8601String(),
   };
 }

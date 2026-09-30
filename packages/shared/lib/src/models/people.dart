@@ -76,6 +76,43 @@ class VulnerableMember {
   };
 }
 
+/// An MDRRMD account as A1 and A2 list it (`staff` row). Admins only.
+@immutable
+class StaffAccount {
+  const StaffAccount({
+    required this.id,
+    required this.displayName,
+    required this.email,
+    required this.role,
+    this.unitId,
+  });
+
+  final String id;
+  final String displayName;
+  final String email;
+  final UserRole role;
+
+  /// Responders only: the unit they crew.
+  final String? unitId;
+
+  StaffAccount copyWith({String? unitId, bool clearUnit = false}) =>
+      StaffAccount(
+        id: id,
+        displayName: displayName,
+        email: email,
+        role: role,
+        unitId: clearUnit ? null : (unitId ?? this.unitId),
+      );
+
+  factory StaffAccount.fromJson(Map<String, Object?> json) => StaffAccount(
+    id: '${json['id']}',
+    displayName: json['display_name']! as String,
+    email: json['email']! as String,
+    role: enumFromJson(UserRole.values, json['role']),
+    unitId: json['unit_id'] as String?,
+  );
+}
+
 /// A registered Manila resident (MANILA_RESIDENT with VULNERABLE_PROFILE).
 @immutable
 class Resident {

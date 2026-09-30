@@ -45,6 +45,9 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
 final analyticsRepositoryProvider = Provider<AnalyticsRepository>(
   (ref) => _missing('AnalyticsRepository'),
 );
+final resourceRepositoryProvider = Provider<ResourceRepository>(
+  (ref) => _missing('ResourceRepository'),
+);
 
 /// Only set when running on mock data. Screens use it for the demo scenario
 /// switcher; everything else goes through the repositories above.
@@ -84,6 +87,7 @@ List<Override> _mockOverrides(
   analyticsRepositoryProvider.overrideWithValue(
     MockAnalyticsRepository(backend, runs: runs),
   ),
+  resourceRepositoryProvider.overrideWithValue(MockResourceRepository(backend)),
 ];
 
 /// Overrides that run the dashboard on the Supabase project (see
@@ -100,6 +104,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
   settingsRepositoryProvider.overrideWithValue(backend.settings),
   analyticsRepositoryProvider.overrideWithValue(backend.analytics),
+  resourceRepositoryProvider.overrideWithValue(backend.resources),
 ];
 
 // ---------------------------------------------------------------------------
@@ -189,6 +194,22 @@ final slowClockProvider = StreamProvider<DateTime>((ref) async* {
 // ---------------------------------------------------------------------------
 // Rules and derived data.
 // ---------------------------------------------------------------------------
+
+/// A2: every unit, retired ones included.
+final allUnitsProvider = StreamProvider<List<ResponseUnit>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(resourceRepositoryProvider).watchUnits(),
+  ),
+);
+
+/// A2: responder accounts and their units.
+final respondersProvider = StreamProvider<List<StaffAccount>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(resourceRepositoryProvider).watchResponders(),
+  ),
+);
 
 /// A4's period: rolling windows ending now.
 enum AnalyticsPeriod {

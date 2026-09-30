@@ -79,6 +79,43 @@ class MockIncidentRepository implements IncidentRepository {
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);
 }
 
+class MockResourceRepository implements ResourceRepository {
+  const MockResourceRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<ResponseUnit>> watchUnits() => _backend.watchAllUnits();
+
+  @override
+  Stream<List<StaffAccount>> watchResponders() => _backend.watchResponders();
+
+  @override
+  Future<String> saveUnit({
+    String? id,
+    required String callSign,
+    required UnitType type,
+    required String station,
+    required int crewSize,
+  }) => _backend.saveUnit(
+    id: id,
+    callSign: callSign,
+    type: type,
+    station: station,
+    crewSize: crewSize,
+  );
+
+  @override
+  Future<void> retireUnit(String id) => _backend.retireUnit(id);
+
+  @override
+  Future<void> restoreUnit(String id) => _backend.restoreUnit(id);
+
+  @override
+  Future<void> setResponderUnit(String staffId, String? unitId) =>
+      _backend.setResponderUnit(staffId, unitId);
+}
+
 class MockAnalyticsRepository implements AnalyticsRepository {
   const MockAnalyticsRepository(this._backend, {this.runs});
 

@@ -75,6 +75,11 @@ enum AuditAction {
   smsCheckSent,
   contactViewed,
   settingChanged,
+  unitAdded,
+  unitEdited,
+  unitRetired,
+  unitRestored,
+  rosterChanged,
 }
 
 /// Reads a timestamp from JSON and converts it to local time (the database

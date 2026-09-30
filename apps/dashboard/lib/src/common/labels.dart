@@ -100,6 +100,11 @@ extension DomainLabels on AppLocalizations {
     AuditAction.smsCheckSent => actionSmsCheck,
     AuditAction.contactViewed => actionContactViewed,
     AuditAction.settingChanged => actionSettingChanged,
+    AuditAction.unitAdded => actionUnitAdded,
+    AuditAction.unitEdited => actionUnitEdited,
+    AuditAction.unitRetired => actionUnitRetired,
+    AuditAction.unitRestored => actionUnitRestored,
+    AuditAction.rosterChanged => actionRosterChanged,
   };
 
   String actionRejection(ActionRejection r) => switch (r) {
@@ -110,6 +115,7 @@ extension DomainLabels on AppLocalizations {
     ActionRejection.notAllowed => errorNotAllowed,
     ActionRejection.invalidValue => errorInvalidValue,
     ActionRejection.notFound => errorNotFound,
+    ActionRejection.alreadyExists => errorAlreadyExists,
   };
 
   String authFailure(AuthFailure f) => switch (f) {

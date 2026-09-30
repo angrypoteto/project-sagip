@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(117);
+select plan(132);
 
 select public.reset_demo_data();
 
@@ -19,11 +19,14 @@ insert into auth.users (id, email, phone) values
   -- Signs in by phone with res-002's number; not linked yet.
   ('00000000-0000-4000-8000-00000000000f', null, '639180003310'),
   -- A new number with no resident record.
-  ('00000000-0000-4000-8000-000000000010', null, '639185550101');
+  ('00000000-0000-4000-8000-000000000010', null, '639185550101'),
+  -- A second responder with no unit yet (A2 roster checks).
+  ('00000000-0000-4000-8000-000000000011', 'rls-responder2@test.local', null);
 insert into public.staff (id, display_name, email, role, unit_id) values
   ('00000000-0000-4000-8000-00000000000d', 'Test Dispatcher', 'rls-dispatcher@test.local', 'dispatcher', null),
   ('00000000-0000-4000-8000-00000000000a', 'Test Admin', 'rls-admin@test.local', 'admin', null),
-  ('00000000-0000-4000-8000-00000000000b', 'Test Responder', 'rls-responder@test.local', 'responder', 'unit-r05');
+  ('00000000-0000-4000-8000-00000000000b', 'Test Responder', 'rls-responder@test.local', 'responder', 'unit-r05'),
+  ('00000000-0000-4000-8000-000000000011', 'Test Responder Two', 'rls-responder2@test.local', 'responder', null);
 -- res-001 sent INC-0147 and has a vulnerable household.
 update public.manila_resident
   set auth_user_id = '00000000-0000-4000-8000-00000000000c'
@@ -60,6 +63,8 @@ select ok(not has_function_privilege('anon', 'public.set_setting(text, jsonb)', 
   'anon cannot change settings');
 select ok(not has_function_privilege('anon', 'public.analytics_report(timestamptz, timestamptz)', 'execute'),
   'anon cannot read analytics');
+select ok(not has_function_privilege('anon', 'public.save_unit(text, text, text, text, int)', 'execute'),
+  'anon cannot change units');
 select ok(
   not has_function_privilege('authenticated', 'public.reset_demo_data()', 'execute'),
   'demo functions are SQL-editor only');
@@ -132,6 +137,8 @@ select throws_ok($$ select public.set_setting('priority.sos', '60') $$,
   'P0001', 'not_allowed', 'a dispatcher cannot change settings');
 select throws_ok($$ select public.analytics_report(now() - interval '1 day', now()) $$,
   'P0001', 'not_allowed', 'a dispatcher cannot read analytics (admins only)');
+select throws_ok($$ select public.save_unit(null, 'R-20', 'rescueTeam', 'Paco', 5) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot add units (admins only)');
 
 -- ------------------------------------------------------------- responder
 
@@ -234,6 +241,35 @@ select is(
   2, 'analytics include the Dijkstra timings (suggestions and routes)');
 select throws_ok($$ select public.analytics_report(now(), now() - interval '1 day') $$,
   'P0001', 'invalid_value', 'a period that ends before it starts is refused');
+select is(public.save_unit(null, ' r-20 ', 'rescueTeam', 'Paco station', 5), 'unit-r20',
+  'an admin can add a unit (call sign tidied, id from it)');
+select throws_ok($$ select public.save_unit(null, 'r-03', 'ambulance', 'Tondo station', 3) $$,
+  'P0001', 'already_exists', 'a call sign already in use is refused');
+select throws_ok($$ select public.save_unit(null, 'R-21', 'ambulance', 'Tondo station', 0) $$,
+  'P0001', 'invalid_value', 'a crew of zero is refused');
+select lives_ok($$ select public.save_unit('unit-r20', 'R-20', 'rescueTeam', 'Pandacan station', 6) $$,
+  'an admin can edit a unit');
+select throws_ok($$ select public.retire_unit('unit-r05') $$,
+  'P0001', 'unit_not_available', 'a unit on a job cannot be retired');
+select lives_ok($$ select public.set_responder_unit('00000000-0000-4000-8000-000000000011', 'unit-r20') $$,
+  'an admin can put a responder on a unit');
+select throws_ok($$ select public.set_responder_unit('00000000-0000-4000-8000-00000000000d', 'unit-r20') $$,
+  'P0001', 'invalid_value', 'only responders go on the roster');
+select lives_ok($$ select public.retire_unit('unit-r20') $$, 'an admin can retire a free unit');
+select ok(
+  (select retired_at is not null from public.response_unit where unit_id = 'unit-r20')
+  and (select unit_id is null from public.staff where id = '00000000-0000-4000-8000-000000000011'),
+  'retiring a unit takes its responders off it');
+select throws_ok($$ select public.assign_unit('INC-0149', 'unit-r20') $$,
+  'P0001', 'unit_not_available', 'a retired unit is never dispatched');
+select throws_ok($$ select public.set_responder_unit('00000000-0000-4000-8000-000000000011', 'unit-r20') $$,
+  'P0001', 'invalid_value', 'nobody goes on a retired unit');
+select lives_ok($$ select public.restore_unit('unit-r20') $$, 'an admin can restore a retired unit');
+select is(
+  (select string_agg(action_type, ',' order by log_id) from public.audit_log
+    where account_name = 'Test Admin' and action_type in ('unitAdded', 'unitEdited', 'unitRetired', 'unitRestored', 'rosterChanged')),
+  'unitAdded,unitEdited,rosterChanged,unitRetired,unitRestored',
+  'every unit and roster change is in the audit log (FR11)');
 
 -- ------------------------------------------- resident: phone app (part 5)
 

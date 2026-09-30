@@ -2020,6 +2020,228 @@ abstract class AppLocalizations {
   /// **'–'**
   String get noValue;
 
+  /// No description provided for @resourcesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Units and the responders who crew them. Every change is recorded in the audit log.'**
+  String get resourcesSubtitle;
+
+  /// No description provided for @addUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Add unit'**
+  String get addUnit;
+
+  /// No description provided for @editUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit unit'**
+  String get editUnit;
+
+  /// No description provided for @unitsTitleA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get unitsTitleA2;
+
+  /// No description provided for @rosterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Responder roster'**
+  String get rosterTitle;
+
+  /// No description provided for @rosterNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A responder works for the unit chosen here. Responder accounts are created in Accounts.'**
+  String get rosterNote;
+
+  /// No description provided for @rosterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No responder accounts yet.'**
+  String get rosterEmpty;
+
+  /// No description provided for @colResponders.
+  ///
+  /// In en, this message translates to:
+  /// **'Responders'**
+  String get colResponders;
+
+  /// No description provided for @colEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get colEmail;
+
+  /// No description provided for @retire.
+  ///
+  /// In en, this message translates to:
+  /// **'Retire'**
+  String get retire;
+
+  /// No description provided for @restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @retiredChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Retired'**
+  String get retiredChip;
+
+  /// No description provided for @retireTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Retire {callSign}?'**
+  String retireTitle(String callSign);
+
+  /// No description provided for @retireBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will not be dispatched and its responders come off it. Its past jobs stay in the records. You can restore it later.'**
+  String get retireBody;
+
+  /// No description provided for @retireBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a unit that is Available with no job can be retired.'**
+  String get retireBusy;
+
+  /// No description provided for @unitSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{callSign} saved'**
+  String unitSaved(String callSign);
+
+  /// No description provided for @unitRetiredSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{callSign} retired'**
+  String unitRetiredSnack(String callSign);
+
+  /// No description provided for @unitRestoredSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{callSign} restored'**
+  String unitRestoredSnack(String callSign);
+
+  /// No description provided for @rosterSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Roster updated'**
+  String get rosterSaved;
+
+  /// No description provided for @noUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'No unit'**
+  String get noUnit;
+
+  /// No description provided for @fieldCallSign.
+  ///
+  /// In en, this message translates to:
+  /// **'Call sign'**
+  String get fieldCallSign;
+
+  /// No description provided for @fieldCallSignHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example R-12'**
+  String get fieldCallSignHint;
+
+  /// No description provided for @fieldCallSignError.
+  ///
+  /// In en, this message translates to:
+  /// **'Use letters, numbers, and dashes, up to 12 characters.'**
+  String get fieldCallSignError;
+
+  /// No description provided for @fieldUnitType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get fieldUnitType;
+
+  /// No description provided for @fieldStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Station'**
+  String get fieldStation;
+
+  /// No description provided for @fieldStationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example Sampaloc station'**
+  String get fieldStationHint;
+
+  /// No description provided for @fieldStationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the station.'**
+  String get fieldStationError;
+
+  /// No description provided for @fieldCrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew size'**
+  String get fieldCrew;
+
+  /// No description provided for @fieldCrewError.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a number from 1 to 50.'**
+  String get fieldCrewError;
+
+  /// No description provided for @errorAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Another unit already uses that call sign.'**
+  String get errorAlreadyExists;
+
+  /// No description provided for @actionUnitAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added a unit'**
+  String get actionUnitAdded;
+
+  /// No description provided for @actionUnitEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited a unit'**
+  String get actionUnitEdited;
+
+  /// No description provided for @actionUnitRetired.
+  ///
+  /// In en, this message translates to:
+  /// **'Retired a unit'**
+  String get actionUnitRetired;
+
+  /// No description provided for @actionUnitRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored a unit'**
+  String get actionUnitRestored;
+
+  /// No description provided for @actionRosterChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed the roster'**
+  String get actionRosterChanged;
+
   /// No description provided for @configSubtitle.
   ///
   /// In en, this message translates to:
@@ -2277,12 +2499,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account management is built directly on Supabase in Phase 3.'**
   String get placeholderAccounts;
-
-  /// No description provided for @placeholderResources.
-  ///
-  /// In en, this message translates to:
-  /// **'Unit and roster management is built directly on Supabase in Phase 3.'**
-  String get placeholderResources;
 
   /// No description provided for @notFoundTitle.
   ///

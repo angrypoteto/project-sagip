@@ -264,6 +264,100 @@ void main() {
     expect(lastDownload!.text, contains('median_dispatch_s'));
   });
 
+  testWidgets('admins manage units and the roster on A2', (tester) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    // A tall window so both tables are on screen without scrolling (the
+    // width stays 1440 px, the smallest the dashboard supports).
+    tester.view.physicalSize = const Size(1440, 2400);
+    await tester.tap(find.byTooltip('Resources'));
+    await settle(tester);
+    expect(find.text('Responder roster'), findsOneWidget);
+
+    Future<void> fillUnit(String callSign, String station, String crew) async {
+      await tester.tap(find.widgetWithText(FilledButton, 'Add unit'));
+      await settle(tester);
+      await tester.enterText(
+        find.byKey(const ValueKey('unit-call-sign')),
+        callSign,
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('unit-station')),
+        station,
+      );
+      await tester.enterText(find.byKey(const ValueKey('unit-crew')), crew);
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await settle(tester);
+    }
+
+    // Field checks come first, then the database's.
+    await fillUnit('R 20', 'Paco station', '0');
+    expect(
+      find.text('Use letters, numbers, and dashes, up to 12 characters.'),
+      findsOneWidget,
+    );
+    expect(find.text('Use a number from 1 to 50.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await settle(tester);
+
+    await fillUnit('r-03', 'Tondo station', '3');
+    expect(
+      find.text('Another unit already uses that call sign.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await settle(tester);
+
+    // Let the error message go before the next one shows.
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+
+    await fillUnit('r-20', 'Paco station', '5');
+    expect(find.text('R-20 saved'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+
+    // Put C. Garcia on R-20.
+    await tester.tap(find.byKey(const ValueKey('roster-usr-resp-04')));
+    await settle(tester);
+    await tester.tap(find.text('R-20').last);
+    await settle(tester);
+    expect(find.text('Roster updated'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+
+    // A unit on a job cannot be retired; a free one can, after asking.
+    final busy = tester.widget<IconButton>(
+      find.byKey(const ValueKey('retire-unit-r05')),
+    );
+    expect(busy.onPressed, isNull);
+    await tester.tap(find.byKey(const ValueKey('retire-unit-r20')));
+    await settle(tester);
+    expect(find.text('Retire R-20?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Retire'));
+    await settle(tester);
+    expect(find.text('R-20 retired'), findsOneWidget);
+    expect(find.text('Retired'), findsOneWidget);
+    final garcia = container
+        .read(respondersProvider)
+        .value!
+        .firstWhere((s) => s.id == 'usr-resp-04');
+    expect(garcia.unitId, isNull, reason: 'retiring takes the crew off');
+
+    // Streams are read outside the fake clock (see docs/PROGRESS.md).
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(
+      audit!.map((e) => e.action),
+      containsAll([
+        AuditAction.unitAdded,
+        AuditAction.rosterChanged,
+        AuditAction.unitRetired,
+      ]),
+    );
+  });
+
   testWidgets('going offline shows a banner and disables actions', (
     tester,
   ) async {
