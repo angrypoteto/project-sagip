@@ -6,16 +6,20 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(29);
+select plan(87);
 
 select public.reset_demo_data();
 
-insert into auth.users (id, email) values
-  ('00000000-0000-4000-8000-00000000000d', 'rls-dispatcher@test.local'),
-  ('00000000-0000-4000-8000-00000000000a', 'rls-admin@test.local'),
-  ('00000000-0000-4000-8000-00000000000b', 'rls-responder@test.local'),
-  ('00000000-0000-4000-8000-00000000000c', 'rls-resident@test.local'),
-  ('00000000-0000-4000-8000-00000000000e', 'rls-stranger@test.local');
+insert into auth.users (id, email, phone) values
+  ('00000000-0000-4000-8000-00000000000d', 'rls-dispatcher@test.local', null),
+  ('00000000-0000-4000-8000-00000000000a', 'rls-admin@test.local', null),
+  ('00000000-0000-4000-8000-00000000000b', 'rls-responder@test.local', null),
+  ('00000000-0000-4000-8000-00000000000c', 'rls-resident@test.local', '639170004821'),
+  ('00000000-0000-4000-8000-00000000000e', 'rls-stranger@test.local', null),
+  -- Signs in by phone with res-002's number; not linked yet.
+  ('00000000-0000-4000-8000-00000000000f', null, '639180003310'),
+  -- A new number with no resident record.
+  ('00000000-0000-4000-8000-000000000010', null, '639185550101');
 insert into public.staff (id, display_name, email, role, unit_id) values
   ('00000000-0000-4000-8000-00000000000d', 'Test Dispatcher', 'rls-dispatcher@test.local', 'dispatcher', null),
   ('00000000-0000-4000-8000-00000000000a', 'Test Admin', 'rls-admin@test.local', 'admin', null),
@@ -47,6 +51,15 @@ select ok(
 select ok(
   not has_function_privilege('authenticated', 'public.reset_demo_data()', 'execute'),
   'demo functions are SQL-editor only');
+select ok(
+  not has_function_privilege('anon',
+    'public.submit_sos(uuid, timestamptz, double precision, double precision, double precision, text, text, boolean)',
+    'execute'),
+  'anon cannot send an SOS');
+select is(
+  (select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'private' and has_function_privilege('anon', p.oid, 'execute')),
+  0, 'anon cannot run any private helper');
 
 -- ------------------------------------------------------------ dispatcher
 
@@ -90,9 +103,9 @@ select throws_ok($$ select public.assign_unit('INC-0148', 'unit-r07') $$,
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 
 select results_eq(
-  $$ select id from public.incident_board $$,
-  $$ values ('INC-0147'::text) $$,
-  'a resident sees only their own SOS');
+  $$ select id from public.incident_board order by id $$,
+  $$ values ('INC-0118'::text), ('INC-0147'::text) $$,
+  'a resident sees only their own SOS requests');
 select results_eq(
   $$ select manila_resident_id from public.resident_profile $$,
   $$ values ('res-001'::text) $$,
@@ -129,6 +142,182 @@ select ok(
   exists (select 1 from public.audit_log
     where account_name = 'Test Dispatcher' and action_type = 'contactViewed' and target_id = 'res-001'),
   'revealing a number was written to the audit log');
+
+-- ------------------------------------------- resident: phone app (part 5)
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+
+select is(public.link_resident(), 'res-001',
+  'a signed-in resident finds their own record');
+select lives_ok(
+  $$ select public.submit_sos('00000000-0000-4000-8000-0000000005a1', now() - interval '5 seconds',
+       14.6091, 120.9925, 8, 'Barangay 412', 'Sampaloc', false) $$,
+  'a resident can send an SOS');
+select is(
+  public.submit_sos('00000000-0000-4000-8000-0000000005a1', now(), 14.6, 120.99, 8, null, null, false),
+  (select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1'),
+  'sending the same SOS again returns the same incident');
+select is(
+  (select count(*)::int from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1'),
+  1, 'the same SOS is stored once');
+select ok(
+  (select captured_at < received_at and status = 'pendingVerification'
+          and vulnerable @> array['pwd', 'seniorCitizen']
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1'),
+  'the SOS is Pending Verification, keeps the capture time, and carries the household''s vulnerable types');
+select is(jsonb_array_length(public.my_sos()), 3,
+  'my_sos lists the resident''s SOS requests');
+select ok(not (public.my_sos()->0 ? 'mock_location'),
+  'the mock-location flag is never sent back to the resident');
+select lives_ok(
+  $$ select public.add_sos_details('00000000-0000-4000-8000-0000000005a1', 'flood', 3, true, 'Water inside') $$,
+  'a resident can add details to their SOS');
+select throws_ok(
+  $$ select public.submit_crowd_report(gen_random_uuid(), now(), 'Flood', 'flood', 14.40, 121.20, 10, null, null) $$,
+  'P0001', 'outside_manila', 'a report outside Manila is refused (FR15)');
+select lives_ok(
+  $$ select public.submit_crowd_report(gen_random_uuid(), now(), 'Flood ' || g, 'flood',
+       14.595 + g * 0.002, 120.980, 10, null, null) from generate_series(1, 5) g $$,
+  'five reports in an hour are accepted');
+select throws_ok(
+  $$ select public.submit_crowd_report(gen_random_uuid(), now(), 'Flood 6', 'flood', 14.620, 120.980, 10, null, null) $$,
+  'P0001', 'rate_limited', 'a sixth report within the hour is refused');
+select is(
+  (select count(*)::int from jsonb_array_elements(public.my_crowd_reports()) r where r->>'stage' = 'checking'),
+  5, 'new reports wait for nearby reports (Checking)');
+select is(
+  (select string_agg(r->>'stage', ',' order by r->>'server_id')
+     from jsonb_array_elements(public.my_crowd_reports()) r where r->>'server_id' like 'rep-1900%'),
+  'resolved,notConfirmed', 'past reports show Resolved and Not confirmed');
+select lives_ok(
+  $$ select public.save_vulnerable_member(null, 'Tita Rosa', array['pregnant'], null) $$,
+  'a consenting resident can add a household member');
+select is(
+  (select jsonb_array_length(household) from public.resident_profile),
+  2, 'the household now has two members');
+select throws_ok(
+  $$ select public.save_vulnerable_member(null, 'X', array['alien'], null) $$,
+  'P0001', 'invalid_value', 'an unknown vulnerability type is refused');
+select lives_ok($$ select public.withdraw_consent() $$, 'a resident can withdraw consent');
+select ok(
+  (select consent_given_at is null and jsonb_array_length(household) = 0 from public.resident_profile),
+  'withdrawing consent deletes the household list');
+select throws_ok(
+  $$ select public.save_vulnerable_member(null, 'Lolo', array['seniorCitizen'], null) $$,
+  'P0001', 'not_allowed', 'adding a member needs consent');
+select throws_ok($$ select public.accept_assignment('INC-0142') $$,
+  'P0001', 'not_allowed', 'a resident cannot act as a responder');
+select is((select count(*)::int from public.completion_report), 0,
+  'a resident cannot read completion reports');
+select lives_ok($$ select public.request_data_deletion() $$,
+  'a resident can ask for their data to be deleted');
+
+-- --------------------------------------- another resident, linked by phone
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000f", "role": "authenticated"}';
+
+select is(public.link_resident(), 'res-002',
+  'signing in with a number MDRRMD already has links that record');
+select is(
+  (select count(*)::int from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1'),
+  0, 'another resident cannot see that SOS');
+select throws_ok(
+  $$ select public.add_sos_details('00000000-0000-4000-8000-0000000005a1', 'fire', 1, false, null) $$,
+  'P0001', 'not_found', 'another resident cannot change that SOS');
+select throws_ok(
+  $$ select public.submit_sos('00000000-0000-4000-8000-0000000005a1', now(), 14.6, 120.99, 5, null, null, false) $$,
+  'P0001', 'not_allowed', 'another resident cannot reuse that SOS id');
+select is((select count(*)::int from public.data_deletion_request), 0,
+  'another resident cannot see the deletion request');
+
+-- ------------------------------------------------ a new number, registering
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000010", "role": "authenticated"}';
+
+select ok(public.link_resident() is null, 'a new number has no resident record');
+select throws_ok(
+  $$ select public.submit_sos(gen_random_uuid(), now(), 14.6, 120.99, 5, null, null, false) $$,
+  'P0001', 'not_allowed', 'an unregistered number cannot send an SOS');
+select ok(public.register_resident('Leo Cruz', 'Barangay 461', 'Sampaloc') like 'res-%',
+  'a new number can register');
+select ok(
+  (select contact_number = '0918 ••• 0101' and barangay = 'Barangay 461' from public.resident_profile),
+  'the new record has the verified number (masked) and the barangay');
+
+-- ------------------------------------------------ responder: phone app (part 5)
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+
+select throws_ok($$ select public.accept_assignment('INC-0147') $$,
+  'P0001', 'not_allowed', 'a responder cannot take another unit''s incident');
+select throws_ok($$ select public.set_unit_status('available') $$,
+  'P0001', 'finish_report_first', 'a unit on a job cannot go Available before the report');
+select lives_ok($$ select public.mark_on_scene('INC-0142', now()) $$,
+  'a responder can mark arrival');
+select is((select status from public.response_unit where unit_id = 'unit-r05'), 'onScene',
+  'the unit is On scene');
+select is((select r->>'status' from jsonb_array_elements(public.my_assignments()) r), 'onScene',
+  'my_assignments shows the job On scene');
+select throws_ok($$ select public.confirm_on_scene('INC-0142', false, null, 0, now()) $$,
+  'P0001', 'invalid_value', '"not a real emergency" needs a reason (FR8)');
+select lives_ok($$ select public.confirm_on_scene('INC-0142', true, null, 1, now()) $$,
+  'a responder can confirm a real emergency');
+select lives_ok(
+  $$ select public.submit_completion_report('00000000-0000-4000-8000-0000000007c1', 'INC-0142', now(),
+       'transported', 1, 900, 0, 0, 0, 1, 'Taken to hospital') $$,
+  'a responder can file the completion report');
+select ok(
+  (select status = 'resolved' from public.incident_report where incident_id = 'INC-0142')
+  and (select status = 'available' and current_incident_id is null from public.response_unit where unit_id = 'unit-r05'),
+  'filing the report resolves the incident and frees the unit');
+select lives_ok(
+  $$ select public.submit_completion_report('00000000-0000-4000-8000-0000000007c1', 'INC-0142', now(),
+       'transported', 1, 900, 0, 0, 0, 1, 'Taken to hospital') $$,
+  'sending the same report again is accepted');
+select is((select count(*)::int from public.completion_report), 1,
+  'the report is stored once, and the unit sees only its own reports');
+select throws_ok($$ select public.set_unit_status('onScene') $$,
+  'P0001', 'no_assignment', 'On scene needs an assignment');
+select lives_ok($$ select public.update_unit_location(14.5750, 120.9880, now()) $$,
+  'a responder can share the unit''s position');
+select lives_ok($$ select public.update_unit_location(14.5000, 120.9000, now() - interval '1 minute') $$,
+  'an older position is accepted');
+select is((select last_latitude from public.response_unit where unit_id = 'unit-r05'), 14.5750::double precision,
+  'but an older position does not move the unit back');
+select is(jsonb_array_length(public.my_unit_history()), 1,
+  'my_unit_history lists the finished job');
+
+-- ------------------------------------------------ any signed-in account
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
+
+select is((select count(*)::int from public.my_alerts where not read), 4,
+  'alerts are readable by any signed-in account, all unread');
+select lives_ok($$ select public.mark_alert_read('alert-pagasa-rain') $$, 'an alert can be marked read');
+select is((select count(*)::int from public.my_alerts where read), 1, 'the read state is kept');
+select ok((select count(*) from public.barangay_forecast) > 0, 'forecasts are readable');
+select throws_ok(
+  $$ select public.submit_crowd_report(gen_random_uuid(), now(), 'Flood', null, 14.6, 120.99, 5, null, null) $$,
+  'P0001', 'not_allowed', 'an account with no role cannot send a report');
+
+-- ----------------------------------------------------------------- admin (part 5)
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+
+select ok(
+  exists (select 1 from public.incident_board i
+           join public.incident_report r on r.incident_id = i.id
+          where r.client_uuid = '00000000-0000-4000-8000-0000000005a1' and i.status = 'pendingVerification'),
+  'the resident''s SOS is on the board at once (FR8)');
+select ok(
+  exists (select 1 from public.audit_log
+           where account_name = 'Test Responder' and target_id = 'INC-0142'
+             and action_type in ('statusChanged', 'resolved')),
+  'the responder''s status changes are in the audit log under their name (FR11)');
+select is((select count(*)::int from public.alert_read), 0,
+  'an admin cannot see other accounts'' read state');
+select is((select count(*)::int from public.data_deletion_request), 1,
+  'an admin sees the deletion request');
 
 reset role;
 select * from finish();
