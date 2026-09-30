@@ -1,3 +1,5 @@
+import '../algorithms/routing_log.dart';
+import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/incident.dart';
@@ -75,6 +77,19 @@ class MockIncidentRepository implements IncidentRepository {
 
   @override
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);
+}
+
+class MockAnalyticsRepository implements AnalyticsRepository {
+  const MockAnalyticsRepository(this._backend, {this.runs});
+
+  final MockBackend _backend;
+
+  /// The dashboard's timing log on sample data, for the Dijkstra figures.
+  final MemoryRoutingLog? runs;
+
+  @override
+  Future<AnalyticsReport> report(DateTime from, DateTime to) =>
+      _backend.analytics(from, to, runs: runs?.runs ?? const []);
 }
 
 class MockSettingsRepository implements SettingsRepository {

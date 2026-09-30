@@ -996,6 +996,124 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionSettingChanged => 'Changed a setting';
 
   @override
+  String get analyticsSubtitle =>
+      'Dispatch and response times for incidents received in the period (Objective 1).';
+
+  @override
+  String get periodDay => 'Last 24 hours';
+
+  @override
+  String get periodWeek => 'Last 7 days';
+
+  @override
+  String get periodMonth => 'Last 30 days';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get exportCsv => 'Export CSV';
+
+  @override
+  String get analyticsEmpty => 'Not enough data for this period.';
+
+  @override
+  String get kpiIncidents => 'Incidents';
+
+  @override
+  String kpiIncidentsFooter(int resolved, int falseReports) {
+    return '$resolved resolved · $falseReports false reports';
+  }
+
+  @override
+  String get kpiDispatch => 'Median dispatch time';
+
+  @override
+  String kpiDispatchFooter(String average) {
+    return 'Received to unit assigned · average $average';
+  }
+
+  @override
+  String get kpiResponse => 'Median response time';
+
+  @override
+  String kpiResponseFooter(String average) {
+    return 'Received to on scene · average $average';
+  }
+
+  @override
+  String get kpiVerify => 'Average verification time';
+
+  @override
+  String get kpiVerifyFooter => 'Received to verified';
+
+  @override
+  String get kpiSosChannels => 'SOS by channel';
+
+  @override
+  String get kpiDijkstra => 'Dijkstra run time';
+
+  @override
+  String kpiDijkstraValue(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String kpiDijkstraFooter(int runs, String p95) {
+    return 'Average of $runs runs · 95th percentile $p95 ms';
+  }
+
+  @override
+  String get kpiDijkstraNone => 'No timed runs in this period';
+
+  @override
+  String channelCount(String channel, int count) {
+    return '$channel $count';
+  }
+
+  @override
+  String get baselineNote =>
+      'Objective 1 compares these times with MDRRMD\'s before S.A.G.I.P. Those records have not arrived yet (Table 3.1 item 2).';
+
+  @override
+  String get dailyTitle => 'Incidents per day';
+
+  @override
+  String dailyAvgResponse(String time) {
+    return 'average response $time';
+  }
+
+  @override
+  String get byTypeTitle => 'By incident type';
+
+  @override
+  String get byBarangayTitle => 'Busiest barangays';
+
+  @override
+  String get byUnitTitle => 'By unit';
+
+  @override
+  String get colBarangay => 'Barangay';
+
+  @override
+  String get colIncidents => 'Incidents';
+
+  @override
+  String get colJobs => 'Jobs';
+
+  @override
+  String get colAvgDispatch => 'Average dispatch';
+
+  @override
+  String get colAvgResponse => 'Average response';
+
+  @override
+  String get colAvgTravel => 'Average travel';
+
+  @override
+  String get noValue => '–';
+
+  @override
   String get configSubtitle =>
       'Changes apply at once for every dispatcher and are recorded in the audit log.';
 
@@ -1136,10 +1254,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get placeholderForecast =>
       'The 72-hour risk heatmap arrives once the LSTM and KDE models are trained (plan 10.5).';
-
-  @override
-  String get placeholderAnalytics =>
-      'Response-time analytics arrive with the Supabase backend (plan Phase 3).';
 
   @override
   String get placeholderReports =>

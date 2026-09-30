@@ -22,6 +22,7 @@ dependencies:
   sagip_shared:
     path: ../../packages/shared
   supabase_flutter: ^2.17.2
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(112);
+select plan(117);
 
 select public.reset_demo_data();
 
@@ -58,6 +58,8 @@ select ok(
   'anon cannot write the routing timing log');
 select ok(not has_function_privilege('anon', 'public.set_setting(text, jsonb)', 'execute'),
   'anon cannot change settings');
+select ok(not has_function_privilege('anon', 'public.analytics_report(timestamptz, timestamptz)', 'execute'),
+  'anon cannot read analytics');
 select ok(
   not has_function_privilege('authenticated', 'public.reset_demo_data()', 'execute'),
   'demo functions are SQL-editor only');
@@ -128,6 +130,8 @@ select results_eq(
   'the board scores an SOS with a vulnerable household: 50 + 30 + 8 for 4.2 minutes');
 select throws_ok($$ select public.set_setting('priority.sos', '60') $$,
   'P0001', 'not_allowed', 'a dispatcher cannot change settings');
+select throws_ok($$ select public.analytics_report(now() - interval '1 day', now()) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot read analytics (admins only)');
 
 -- ------------------------------------------------------------- responder
 
@@ -215,6 +219,21 @@ select ok(
            where account_name = 'Test Admin' and action_type = 'settingChanged'
              and target_id = 'priority.sos' and detail = '50 → 60'),
   'the change is in the audit log (FR11)');
+-- The demo timeline: dispatch 122 s (INC-0139), 266 s (INC-0142), 541 s
+-- (INC-0144), plus the two assignments made above at now(): 251 s
+-- (INC-0147) and 400 s (INC-0146). Verified after 131 s and 146 s; on scene
+-- after 842 s (INC-0139).
+select results_eq(
+  $$ select (r->>'incidents')::int, (r->>'sos')::int, (r->>'median_dispatch_s')::numeric,
+            (r->>'avg_verify_s')::numeric, (r->>'median_response_s')::numeric
+       from (select public.analytics_report(now() - interval '1 day', now() + interval '1 minute') r) x $$,
+  $$ values (6, 4, 266::numeric, 138.5::numeric, 842::numeric) $$,
+  'analytics: counts, median dispatch, verification, and response times from the timeline');
+select is(
+  (select jsonb_array_length(public.analytics_report(now() - interval '1 day', now() + interval '1 minute') -> 'routing')),
+  2, 'analytics include the Dijkstra timings (suggestions and routes)');
+select throws_ok($$ select public.analytics_report(now(), now() - interval '1 day') $$,
+  'P0001', 'invalid_value', 'a period that ends before it starts is refused');
 
 -- ------------------------------------------- resident: phone app (part 5)
 

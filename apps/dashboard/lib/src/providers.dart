@@ -42,6 +42,9 @@ final routingLogProvider = Provider<RoutingLogRepository>(
 final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => _missing('SettingsRepository'),
 );
+final analyticsRepositoryProvider = Provider<AnalyticsRepository>(
+  (ref) => _missing('AnalyticsRepository'),
+);
 
 /// Only set when running on mock data. Screens use it for the demo scenario
 /// switcher; everything else goes through the repositories above.
@@ -54,7 +57,17 @@ final mapTilesEnabledProvider = Provider<bool>((ref) => true);
 ///
 /// With [demoTools] off, the scenario switcher and the live simulation are
 /// hidden (tests use this to stay deterministic).
-List<Override> mockOverrides(MockBackend backend, {bool demoTools = true}) => [
+List<Override> mockOverrides(MockBackend backend, {bool demoTools = true}) {
+  // One timing log for Dijkstra runs and for A4's figures.
+  final runs = MemoryRoutingLog();
+  return _mockOverrides(backend, runs, demoTools: demoTools);
+}
+
+List<Override> _mockOverrides(
+  MockBackend backend,
+  MemoryRoutingLog runs, {
+  required bool demoTools,
+}) => [
   mockBackendProvider.overrideWithValue(demoTools ? backend : null),
   authRepositoryProvider.overrideWithValue(MockAuthRepository(backend)),
   incidentRepositoryProvider.overrideWithValue(MockIncidentRepository(backend)),
@@ -66,8 +79,11 @@ List<Override> mockOverrides(MockBackend backend, {bool demoTools = true}) => [
   weatherRepositoryProvider.overrideWithValue(MockWeatherRepository(backend)),
   auditRepositoryProvider.overrideWithValue(MockAuditRepository(backend)),
   connectionMonitorProvider.overrideWithValue(MockConnectionMonitor(backend)),
-  routingLogProvider.overrideWithValue(ThrottledRoutingLog(MemoryRoutingLog())),
+  routingLogProvider.overrideWithValue(ThrottledRoutingLog(runs)),
   settingsRepositoryProvider.overrideWithValue(MockSettingsRepository(backend)),
+  analyticsRepositoryProvider.overrideWithValue(
+    MockAnalyticsRepository(backend, runs: runs),
+  ),
 ];
 
 /// Overrides that run the dashboard on the Supabase project (see
@@ -83,6 +99,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   connectionMonitorProvider.overrideWithValue(backend.connection),
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
   settingsRepositoryProvider.overrideWithValue(backend.settings),
+  analyticsRepositoryProvider.overrideWithValue(backend.analytics),
 ];
 
 // ---------------------------------------------------------------------------
@@ -172,6 +189,43 @@ final slowClockProvider = StreamProvider<DateTime>((ref) async* {
 // ---------------------------------------------------------------------------
 // Rules and derived data.
 // ---------------------------------------------------------------------------
+
+/// A4's period: rolling windows ending now.
+enum AnalyticsPeriod {
+  day(Duration(days: 1)),
+  week(Duration(days: 7)),
+  month(Duration(days: 30));
+
+  const AnalyticsPeriod(this.length);
+  final Duration length;
+}
+
+class AnalyticsPeriodController extends Notifier<AnalyticsPeriod> {
+  @override
+  AnalyticsPeriod build() => AnalyticsPeriod.week;
+
+  void select(AnalyticsPeriod p) => state = p;
+}
+
+final analyticsPeriodProvider =
+    NotifierProvider<AnalyticsPeriodController, AnalyticsPeriod>(
+      AnalyticsPeriodController.new,
+    );
+
+/// The time A4 counts back from (tests fix it).
+final analyticsNowProvider = Provider<DateTime Function()>(
+  (ref) => DateTime.now,
+);
+
+/// A4 for the chosen period; fetched when the page opens, the period
+/// changes, or the admin refreshes.
+final analyticsProvider = FutureProvider.autoDispose<AnalyticsReport>((ref) {
+  final period = ref.watch(analyticsPeriodProvider);
+  final now = ref.read(analyticsNowProvider)();
+  return ref
+      .watch(analyticsRepositoryProvider)
+      .report(now.subtract(period.length), now.add(const Duration(minutes: 1)));
+});
 
 /// A3 settings (priority weights so far), live.
 final settingsProvider = StreamProvider<List<AppSetting>>(

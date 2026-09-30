@@ -174,6 +174,7 @@ class RoutingRun {
     this.nodeCount,
     this.edgeCount,
     this.graphBuilt,
+    this.at,
   });
 
   final RoutingRunKind kind;
@@ -186,6 +187,9 @@ class RoutingRun {
   final int? nodeCount;
   final int? edgeCount;
   final DateTime? graphBuilt;
+
+  /// When the run finished (the server stamps its own time on Supabase).
+  final DateTime? at;
 
   double get computeMs => computeTime.inMicroseconds / 1000;
 }

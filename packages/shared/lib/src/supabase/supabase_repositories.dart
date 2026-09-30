@@ -7,6 +7,7 @@ import 'package:supabase/supabase.dart'
 
 import '../models/account.dart';
 import '../models/alerts.dart';
+import '../models/analytics.dart';
 import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
@@ -46,7 +47,8 @@ class SupabaseBackend {
       audit = SupabaseAuditRepository(client),
       connection = SupabaseConnectionMonitor(client),
       routing = SupabaseRoutingLog(client),
-      settings = SupabaseSettingsRepository(client);
+      settings = SupabaseSettingsRepository(client),
+      analytics = SupabaseAnalyticsRepository(client);
 
   final SupabaseAuthRepository auth;
   final SupabaseIncidentRepository incidents;
@@ -58,6 +60,28 @@ class SupabaseBackend {
   final SupabaseConnectionMonitor connection;
   final SupabaseRoutingLog routing;
   final SupabaseSettingsRepository settings;
+  final SupabaseAnalyticsRepository analytics;
+}
+
+/// A4 through `analytics_report` (admins only).
+class SupabaseAnalyticsRepository implements AnalyticsRepository {
+  const SupabaseAnalyticsRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Future<AnalyticsReport> report(DateTime from, DateTime to) async {
+    final json = await _call(
+      () => _client.rpc<Map<String, dynamic>>(
+        'analytics_report',
+        params: {
+          'p_from': from.toUtc().toIso8601String(),
+          'p_to': to.toUtc().toIso8601String(),
+        },
+      ),
+    );
+    return AnalyticsReport.fromJson(json);
+  }
 }
 
 /// A3 settings (`app_setting`), live over Realtime; changes go through

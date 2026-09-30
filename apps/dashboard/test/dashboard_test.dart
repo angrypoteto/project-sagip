@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_dashboard/src/app.dart';
+import 'package:sagip_dashboard/src/common/download.dart';
 import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
 import 'package:sagip_dashboard/src/providers.dart';
 import 'package:sagip_dashboard/src/router.dart';
@@ -28,6 +29,7 @@ void main() {
         mapTilesEnabledProvider.overrideWithValue(false),
         clockProvider.overrideWith((ref) => Stream.value(now)),
         slowClockProvider.overrideWith((ref) => Stream.value(now)),
+        analyticsNowProvider.overrideWithValue(() => now),
       ],
     );
   });
@@ -234,6 +236,32 @@ void main() {
     await settle(tester);
     expect(find.text('Changed a setting'), findsOneWidget);
     expect(find.text('50 → 60'), findsOneWidget);
+  });
+
+  testWidgets('admins see analytics for a period and export them', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Analytics'));
+    await settle(tester);
+
+    final active = container.read(activeIncidentsProvider).value!.length;
+    expect(find.text('Median dispatch time'), findsOneWidget);
+    expect(find.text('Incidents per day'), findsOneWidget);
+    expect(find.text('By unit'), findsOneWidget);
+    // Every sample incident arrived within the last 7 days.
+    final report = container.read(analyticsProvider).value!;
+    expect(report.incidents, active);
+
+    await tester.tap(find.text('Last 24 hours'));
+    await settle(tester);
+    expect(container.read(analyticsPeriodProvider), AnalyticsPeriod.day);
+
+    await tester.tap(find.text('Export CSV'));
+    await tester.pump();
+    expect(lastDownload!.name, endsWith('.csv'));
+    expect(lastDownload!.text, contains('median_dispatch_s'));
   });
 
   testWidgets('going offline shows a banner and disables actions', (

@@ -1,5 +1,6 @@
 import '../models/account.dart';
 import '../models/alerts.dart';
+import '../models/analytics.dart';
 import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
@@ -113,6 +114,12 @@ abstract interface class WeatherRepository {
 
 abstract interface class AuditRepository {
   Stream<List<AuditEntry>> watchRecent({int limit});
+}
+
+/// A4 Performance analytics (admins only).
+abstract interface class AnalyticsRepository {
+  /// Incidents received in [from, to). Throws [ActionRejected].
+  Future<AnalyticsReport> report(DateTime from, DateTime to);
 }
 
 /// A3 Configuration: values an administrator can change (`app_setting`).

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../algorithms/analytics.dart';
 import '../algorithms/dbscan.dart';
 import '../algorithms/priority.dart';
+import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
@@ -98,6 +100,28 @@ class MockBackend {
       'app_setting',
       key,
       '${_plain(old.value)} → ${_plain(value)}',
+    );
+  }
+
+  /// A4, admins only; the same definitions as `analytics_report`.
+  Future<AnalyticsReport> analytics(
+    DateTime from,
+    DateTime to, {
+    Iterable<RoutingRun> runs = const [],
+  }) async {
+    final actor = await _authorize();
+    if (!actor.isAdmin) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    if (!to.isAfter(from)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    return buildAnalytics(
+      incidents: [..._incidents.value.values, ..._resolved.value],
+      units: _units.value,
+      from: from,
+      to: to,
+      runs: runs,
     );
   }
 

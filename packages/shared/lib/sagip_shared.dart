@@ -3,6 +3,7 @@
 /// Supabase implementations, algorithms, and shared widgets.
 library;
 
+export 'src/algorithms/analytics.dart';
 export 'src/algorithms/dbscan.dart';
 export 'src/algorithms/dijkstra.dart';
 export 'src/algorithms/polyline.dart';
@@ -21,6 +22,7 @@ export 'src/mock/mock_repositories.dart';
 export 'src/mock/mock_seed.dart' show MockSeed;
 export 'src/models/account.dart';
 export 'src/models/alerts.dart';
+export 'src/models/analytics.dart';
 export 'src/models/assignment.dart';
 export 'src/models/crowd_report.dart';
 export 'src/models/enums.dart';

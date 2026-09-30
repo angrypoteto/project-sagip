@@ -1816,6 +1816,210 @@ abstract class AppLocalizations {
   /// **'Changed a setting'**
   String get actionSettingChanged;
 
+  /// No description provided for @analyticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatch and response times for incidents received in the period (Objective 1).'**
+  String get analyticsSubtitle;
+
+  /// No description provided for @periodDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 24 hours'**
+  String get periodDay;
+
+  /// No description provided for @periodWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get periodWeek;
+
+  /// No description provided for @periodMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get periodMonth;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @exportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get exportCsv;
+
+  /// No description provided for @analyticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data for this period.'**
+  String get analyticsEmpty;
+
+  /// No description provided for @kpiIncidents.
+  ///
+  /// In en, this message translates to:
+  /// **'Incidents'**
+  String get kpiIncidents;
+
+  /// No description provided for @kpiIncidentsFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'{resolved} resolved · {falseReports} false reports'**
+  String kpiIncidentsFooter(int resolved, int falseReports);
+
+  /// No description provided for @kpiDispatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Median dispatch time'**
+  String get kpiDispatch;
+
+  /// No description provided for @kpiDispatchFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Received to unit assigned · average {average}'**
+  String kpiDispatchFooter(String average);
+
+  /// No description provided for @kpiResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Median response time'**
+  String get kpiResponse;
+
+  /// No description provided for @kpiResponseFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Received to on scene · average {average}'**
+  String kpiResponseFooter(String average);
+
+  /// No description provided for @kpiVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Average verification time'**
+  String get kpiVerify;
+
+  /// No description provided for @kpiVerifyFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Received to verified'**
+  String get kpiVerifyFooter;
+
+  /// No description provided for @kpiSosChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS by channel'**
+  String get kpiSosChannels;
+
+  /// No description provided for @kpiDijkstra.
+  ///
+  /// In en, this message translates to:
+  /// **'Dijkstra run time'**
+  String get kpiDijkstra;
+
+  /// No description provided for @kpiDijkstraValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String kpiDijkstraValue(String ms);
+
+  /// No description provided for @kpiDijkstraFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Average of {runs} runs · 95th percentile {p95} ms'**
+  String kpiDijkstraFooter(int runs, String p95);
+
+  /// No description provided for @kpiDijkstraNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No timed runs in this period'**
+  String get kpiDijkstraNone;
+
+  /// No description provided for @channelCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{channel} {count}'**
+  String channelCount(String channel, int count);
+
+  /// No description provided for @baselineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Objective 1 compares these times with MDRRMD\'s before S.A.G.I.P. Those records have not arrived yet (Table 3.1 item 2).'**
+  String get baselineNote;
+
+  /// No description provided for @dailyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Incidents per day'**
+  String get dailyTitle;
+
+  /// No description provided for @dailyAvgResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'average response {time}'**
+  String dailyAvgResponse(String time);
+
+  /// No description provided for @byTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'By incident type'**
+  String get byTypeTitle;
+
+  /// No description provided for @byBarangayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Busiest barangays'**
+  String get byBarangayTitle;
+
+  /// No description provided for @byUnitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'By unit'**
+  String get byUnitTitle;
+
+  /// No description provided for @colBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay'**
+  String get colBarangay;
+
+  /// No description provided for @colIncidents.
+  ///
+  /// In en, this message translates to:
+  /// **'Incidents'**
+  String get colIncidents;
+
+  /// No description provided for @colJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs'**
+  String get colJobs;
+
+  /// No description provided for @colAvgDispatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Average dispatch'**
+  String get colAvgDispatch;
+
+  /// No description provided for @colAvgResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Average response'**
+  String get colAvgResponse;
+
+  /// No description provided for @colAvgTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Average travel'**
+  String get colAvgTravel;
+
+  /// No description provided for @noValue.
+  ///
+  /// In en, this message translates to:
+  /// **'–'**
+  String get noValue;
+
   /// No description provided for @configSubtitle.
   ///
   /// In en, this message translates to:
@@ -2061,12 +2265,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The 72-hour risk heatmap arrives once the LSTM and KDE models are trained (plan 10.5).'**
   String get placeholderForecast;
-
-  /// No description provided for @placeholderAnalytics.
-  ///
-  /// In en, this message translates to:
-  /// **'Response-time analytics arrive with the Supabase backend (plan Phase 3).'**
-  String get placeholderAnalytics;
 
   /// No description provided for @placeholderReports.
   ///

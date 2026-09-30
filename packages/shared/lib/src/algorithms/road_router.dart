@@ -42,6 +42,7 @@ class RoadRouter {
     nodeCount: graph.nodeCount,
     edgeCount: graph.edgeCount,
     graphBuilt: graph.built,
+    at: DateTime.now(),
   );
 
   /// The fastest route from [from] to [to], or null when either end is off
@@ -257,6 +258,7 @@ class RoadNetworkSuggester implements UnitSuggester {
         nodeCount: router.graph.nodeCount,
         edgeCount: router.graph.edgeCount,
         graphBuilt: router.graph.built,
+        at: DateTime.now(),
       ),
     );
     final ranked = <UnitSuggestion>[
