@@ -44,12 +44,16 @@ class StraightLineSuggester implements UnitSuggester {
     return ranked.take(limit).toList();
   }
 
+  /// Estimated minutes to cover [meters] of straight-line distance. The
+  /// responder app uses the same estimate for its ETA.
+  double minutesFor(double meters) =>
+      meters / 1000 * detourFactor / averageSpeedKmh * 60;
+
   UnitSuggestion _estimate(ResponseUnit unit, double meters) {
-    final km = meters / 1000 * detourFactor;
     return UnitSuggestion(
       unit: unit,
-      distanceKm: km,
-      etaMinutes: km / averageSpeedKmh * 60,
+      distanceKm: meters / 1000 * detourFactor,
+      etaMinutes: minutesFor(meters),
       method: RoutingMethod.straightLine,
     );
   }

@@ -28,3 +28,8 @@ String formatDateTime(DateTime t, String locale) =>
 
 String formatCoordinates(GeoPoint p) =>
     '${p.lat.toStringAsFixed(4)}, ${p.lng.toStringAsFixed(4)}';
+
+/// "850 m" under a kilometer, then "1.2 km".
+String formatDistance(double meters) => meters < 1000
+    ? '${(meters / 10).round() * 10} m'
+    : '${(meters / 1000).toStringAsFixed(1)} km';

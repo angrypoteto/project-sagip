@@ -2,16 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
+import '../models/response_unit.dart';
 import '../models/sos.dart';
 import '../repositories/repositories.dart';
 import 'live_value.dart';
 import 'mock_seed.dart';
+
+part 'mock_responder.dart';
 
 /// How long each simulated step takes in [MockMobileBackend].
 @immutable
@@ -26,6 +30,9 @@ class MockSosTiming {
     this.arrive = const Duration(seconds: 24),
     this.resolve = const Duration(seconds: 30),
     this.moveEvery = const Duration(seconds: 3),
+    this.offerAfter = const Duration(seconds: 10),
+    this.mapSave = const Duration(seconds: 4),
+    this.drive = const Duration(seconds: 40),
   });
 
   /// Upload over the internet.
@@ -48,6 +55,13 @@ class MockSosTiming {
   /// Zero skips the in-between positions.
   final Duration moveEvery;
 
+  /// Responder side (F1 to F6): when a new assignment is offered after
+  /// sign-in, how long saving the offline map takes, and how long the drive
+  /// to the scene takes.
+  final Duration offerAfter;
+  final Duration mapSave;
+  final Duration drive;
+
   /// Everything happens on the next event-loop turn. For unit tests.
   static const instant = MockSosTiming(
     send: Duration.zero,
@@ -59,6 +73,9 @@ class MockSosTiming {
     arrive: Duration.zero,
     resolve: Duration.zero,
     moveEvery: Duration.zero,
+    offerAfter: Duration.zero,
+    mapSave: Duration.zero,
+    drive: Duration.zero,
   );
 }
 
@@ -73,12 +90,17 @@ class MockSosTiming {
 /// from the station toward the resident, on scene, resolved. Updates only
 /// reach the phone while it has internet, as they would over Supabase
 /// Realtime. Hazard reports go out over the internet only; SMS is for SOS.
+///
+/// Signed in as the responder, it offers R-03 an assignment, drives it to
+/// the scene once accepted, and queues its status updates and completion
+/// report like everything else (see `mock_responder.dart`).
 class MockMobileBackend {
   MockMobileBackend({
     DateTime Function()? clock,
     this.latency = const Duration(milliseconds: 350),
     this.timing = const MockSosTiming(),
     this.simulateDispatch = true,
+    this.autoOffers = true,
   }) : _clock = clock ?? DateTime.now {
     final seed = MockSeed(_clock());
     _residents = {for (final r in seed.residents) r.id: r};
@@ -105,6 +127,10 @@ class MockMobileBackend {
 
   /// Whether a delivered SOS moves through verify, assign, and so on.
   final bool simulateDispatch;
+
+  /// Whether the responder gets assignments on its own (tests offer them
+  /// with [sendOfferNow]).
+  final bool autoOffers;
 
   /// Demo accounts. Password: [MockSeed.demoPassword].
   static const resident = AppUser(
@@ -136,6 +162,8 @@ class MockMobileBackend {
   final _sos = LiveValue<List<SosRequest>>(const []);
   final _reports = LiveValue<List<HazardReport>>(const []);
   final _queue = LiveValue<List<QueuedRecord>>(const []);
+  final _outbox = LiveValue<List<_Outgoing>>(const []);
+  late final _responder = _ResponderSim(this);
   final _deliveries = StreamController<QueuedRecord>.broadcast();
 
   final _timers = <Timer>[];
@@ -166,6 +194,14 @@ class MockMobileBackend {
 
   Stream<QueuedRecord> deliveries() => _deliveries.stream;
 
+  Stream<ResponderState> watchResponder() => _responder.watch();
+
+  /// Completion reports filed on this phone (for tests and history).
+  List<CompletionReport> get completionReports => [
+    for (final o in _outbox.value)
+      if (o.completion != null) o.completion!,
+  ];
+
   Stream<Resident?> watchResident(String id) =>
       _user.watch().map((_) => _residents[id]);
 
@@ -189,6 +225,11 @@ class MockMobileBackend {
 
   /// Simulates turning GPS off (the last fix is kept) and on.
   void setGps({required bool on}) {
+    _setGpsOnly(on);
+    _responder.onGpsChanged();
+  }
+
+  void _setGpsOnly(bool on) {
     final current = _location.value;
     _location.value = LocationStatus(
       gpsOn: on,
@@ -218,11 +259,14 @@ class MockMobileBackend {
     if (match.isEmpty || password != MockSeed.demoPassword) {
       throw const AuthException(AuthFailure.wrongCredentials);
     }
-    return _user.value = match.first;
+    final user = _user.value = match.first;
+    if (user.role == UserRole.responder) _responder.onSignIn();
+    return user;
   }
 
   Future<void> signOut() async {
     await _pause();
+    _responder.onSignOut();
     _user.value = null;
   }
 
@@ -302,6 +346,43 @@ class MockMobileBackend {
     return report;
   }
 
+  // --------------------------------------------------------------- responder
+
+  Future<void> acceptAssignment(String incidentId) =>
+      _responder.accept(incidentId);
+  Future<void> setUnitStatus(UnitStatus status) => _responder.setStatus(status);
+  Future<void> arrive() => _responder.arrive();
+  Future<void> confirmOnScene({
+    required bool realEmergency,
+    String? reason,
+    int? peopleFound,
+  }) => _responder.confirmOnScene(
+    realEmergency: realEmergency,
+    reason: reason,
+    peopleFound: peopleFound,
+  );
+  Future<void> complete({
+    required RescueOutcome outcome,
+    required int personsAssisted,
+    int housesDamaged = 0,
+    int injured = 0,
+    int missing = 0,
+    int affectedFamilies = 0,
+    String? notes,
+  }) => _responder.complete(
+    outcome: outcome,
+    personsAssisted: personsAssisted,
+    housesDamaged: housesDamaged,
+    injured: injured,
+    missing: missing,
+    affectedFamilies: affectedFamilies,
+    notes: notes,
+  );
+
+  /// Demo tools: offer an assignment now, or have the dispatcher close it.
+  void sendOfferNow() => _responder.sendOfferNow();
+  void dispatcherCloses() => _responder.dispatcherCloses();
+
   void dispose() {
     _disposed = true;
     for (final t in _timers) {
@@ -353,6 +434,16 @@ class MockMobileBackend {
     _refreshQueue();
   }
 
+  void _addOutgoing(_Outgoing record) {
+    _setOutbox([..._outbox.value, record]);
+    unawaited(_pump());
+  }
+
+  void _setOutbox(List<_Outgoing> next) {
+    _outbox.value = next;
+    _refreshQueue();
+  }
+
   void _refreshQueue() {
     _queue.value = [
       for (final s in _sos.value)
@@ -372,6 +463,14 @@ class MockMobileBackend {
             capturedAt: r.capturedAt,
             delivery: r.delivery,
             rejectReason: r.rejectReason,
+          ),
+      for (final o in _outbox.value)
+        if (o.delivery != DeliveryState.delivered)
+          QueuedRecord(
+            id: o.id,
+            kind: o.kind,
+            capturedAt: o.capturedAt,
+            delivery: o.delivery,
           ),
     ]..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
   }
@@ -393,10 +492,13 @@ class MockMobileBackend {
         ];
         for (final r in pending) {
           if (_disposed) return;
-          if (r.kind == QueuedKind.sos) {
-            await _advance(r.id);
-          } else {
-            await _advanceReport(r.id);
+          switch (r.kind) {
+            case QueuedKind.sos:
+              await _advance(r.id);
+            case QueuedKind.crowdReport:
+              await _advanceReport(r.id);
+            case QueuedKind.statusUpdate || QueuedKind.completionReport:
+              await _advanceOutgoing(r.id);
           }
         }
       } while (_pumpAgain && !_disposed);
@@ -484,6 +586,48 @@ class MockMobileBackend {
         QueuedRecord(
           id: id,
           kind: QueuedKind.crowdReport,
+          capturedAt: now.capturedAt,
+          delivery: DeliveryState.delivered,
+          waitedOffline: _waited.remove(id),
+        ),
+      );
+    }
+  }
+
+  _Outgoing? _findOutgoing(String id) {
+    for (final o in _outbox.value) {
+      if (o.id == id) return o;
+    }
+    return null;
+  }
+
+  void _putOutgoing(_Outgoing next) {
+    _setOutbox([for (final o in _outbox.value) o.id == next.id ? next : o]);
+  }
+
+  /// Responder status updates and reports go over the internet only.
+  Future<void> _advanceOutgoing(String id) async {
+    final record = _findOutgoing(id);
+    if (record == null || !record.delivery.isPending) return;
+    if (_signal.value != SignalState.internet) {
+      _waited.add(id);
+      return;
+    }
+    _putOutgoing(record.withDelivery(DeliveryState.sending));
+    await _wait(timing.send);
+    final now = _findOutgoing(id);
+    if (now == null) return;
+    if (_signal.value != SignalState.internet) {
+      _waited.add(id);
+      _putOutgoing(now.withDelivery(DeliveryState.savedOnPhone));
+      return;
+    }
+    _putOutgoing(now.withDelivery(DeliveryState.delivered));
+    if (!_deliveries.isClosed) {
+      _deliveries.add(
+        QueuedRecord(
+          id: id,
+          kind: now.kind,
           capturedAt: now.capturedAt,
           delivery: DeliveryState.delivered,
           waitedOffline: _waited.remove(id),

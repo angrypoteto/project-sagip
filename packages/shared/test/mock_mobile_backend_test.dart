@@ -312,4 +312,127 @@ void main() {
     expect(sos.status, IncidentStatus.onScene);
     expect(sos.responderLocation!.distanceTo(dapitan), lessThan(1));
   });
+
+  group('responder', () {
+    late MockMobileBackend r;
+
+    setUp(() async {
+      r = MockMobileBackend(
+        clock: () => now,
+        latency: Duration.zero,
+        timing: MockSosTiming.instant,
+        autoOffers: false,
+      );
+      await r.signIn('r03@sagip.test', MockSeed.demoPassword);
+    });
+
+    tearDown(() => r.dispose());
+
+    Future<StatusRejection?> tryStatus(UnitStatus s) async {
+      try {
+        await r.setUnitStatus(s);
+        return null;
+      } on StatusRejected catch (e) {
+        return e.reason;
+      }
+    }
+
+    test('an offer is accepted and the unit drives to the scene', () async {
+      expect(await tryStatus(UnitStatus.onScene), StatusRejection.noAssignment);
+      r.sendOfferNow();
+      var state = await r.watchResponder().first;
+      expect(state.offer!.incidentId, 'INC-0147');
+      expect(state.offer!.vulnerable, isNotEmpty);
+
+      await r.acceptAssignment('INC-0147');
+      await settle();
+      state = await r.watchResponder().first;
+      expect(state.offer, isNull);
+      expect(state.current!.status, IncidentStatus.enRoute);
+      expect(state.current!.mapSaved, 1);
+      expect(state.unit.status, UnitStatus.enRoute);
+      expect(
+        state.unit.location!.distanceTo(state.current!.location),
+        lessThan(1),
+        reason: 'instant timing jumps to the scene',
+      );
+      expect(
+        await tryStatus(UnitStatus.available),
+        StatusRejection.finishReportFirst,
+      );
+    });
+
+    test(
+      'on scene, the check, and the report make the unit available',
+      () async {
+        r.sendOfferNow();
+        await r.acceptAssignment('INC-0147');
+        now = now.add(const Duration(minutes: 9));
+        await r.arrive();
+        expect(
+          await tryStatus(UnitStatus.enRoute),
+          StatusRejection.alreadyOnScene,
+        );
+        await r.confirmOnScene(realEmergency: true, peopleFound: 3);
+        now = now.add(const Duration(minutes: 12));
+        await r.complete(
+          outcome: RescueOutcome.rescued,
+          personsAssisted: 3,
+          housesDamaged: 1,
+        );
+        await settle();
+
+        final state = await r.watchResponder().first;
+        expect(state.current, isNull);
+        expect(state.unit.status, UnitStatus.available);
+        expect(state.unit.currentIncidentId, isNull);
+        final report = r.completionReports.single;
+        expect(report.timeOnScene, const Duration(minutes: 12));
+        expect(report.delivery, DeliveryState.delivered);
+      },
+    );
+
+    test(
+      'offline updates and the report wait, then go in capture order',
+      () async {
+        r.sendOfferNow();
+        await r.acceptAssignment('INC-0147');
+        await settle();
+        r.setSignal(SignalState.noSignal);
+        now = now.add(const Duration(minutes: 1));
+        await r.arrive();
+        now = now.add(const Duration(minutes: 1));
+        await r.confirmOnScene(realEmergency: false, reason: 'No one there');
+        now = now.add(const Duration(minutes: 1));
+        await r.complete(
+          outcome: RescueOutcome.falseReport,
+          personsAssisted: 0,
+        );
+        await settle();
+
+        final pending = await r.watchPending().first;
+        expect(pending, isNotEmpty);
+        expect(
+          pending.every((q) => q.delivery == DeliveryState.savedOnPhone),
+          isTrue,
+          reason: 'status updates and reports never go by SMS',
+        );
+        final times = [for (final q in pending) q.capturedAt];
+        expect(times, [...times]..sort());
+
+        final delivered = <QueuedRecord>[];
+        final sub = r.deliveries().listen(delivered.add);
+        r.setSignal(SignalState.internet);
+        await settle();
+        await sub.cancel();
+        expect(delivered.length, pending.length);
+        expect(
+          [for (final q in delivered) q.id],
+          [for (final q in pending) q.id],
+        );
+        expect(delivered.every((q) => q.waitedOffline), isTrue);
+        expect(await r.watchPending().first, isEmpty);
+      },
+    );
+  });
 }

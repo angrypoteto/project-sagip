@@ -1,3 +1,4 @@
+import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
@@ -151,6 +152,42 @@ abstract interface class HazardReportRepository {
     required String description,
     IncidentType? type,
     LocationFix? fix,
+  });
+}
+
+/// The responder's unit, assignment, and status (F1 to F6). Status updates
+/// and completion reports are saved on the phone first and sent over the
+/// internet in capture order.
+abstract interface class ResponderRepository {
+  Stream<ResponderState> watch();
+
+  /// Accepts the offered assignment: the unit goes En route and the map
+  /// around the route starts saving for offline use (F2).
+  Future<void> accept(String incidentId);
+
+  /// Changes the unit's status from the F1 control. Throws [StatusRejected]
+  /// for moves that make no sense, such as On scene with no assignment.
+  Future<void> setStatus(UnitStatus status);
+
+  /// Arrived at the scene (F4 "Arrived", F3 "Mark on scene").
+  Future<void> arrive();
+
+  /// The on-scene check (F5, FR8).
+  Future<void> confirmOnScene({
+    required bool realEmergency,
+    String? reason,
+    int? peopleFound,
+  });
+
+  /// Files the completion report (F6); the unit becomes Available again.
+  Future<void> complete({
+    required RescueOutcome outcome,
+    required int personsAssisted,
+    int housesDamaged = 0,
+    int injured = 0,
+    int missing = 0,
+    int affectedFamilies = 0,
+    String? notes,
   });
 }
 

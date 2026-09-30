@@ -1,3 +1,4 @@
+import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
@@ -59,6 +60,55 @@ class MockHazardReportRepository implements HazardReportRepository {
     IncidentType? type,
     LocationFix? fix,
   }) => _backend.submitReport(description: description, type: type, fix: fix);
+}
+
+class MockResponderRepository implements ResponderRepository {
+  const MockResponderRepository(this._backend);
+
+  final MockMobileBackend _backend;
+
+  @override
+  Stream<ResponderState> watch() => _backend.watchResponder();
+
+  @override
+  Future<void> accept(String incidentId) =>
+      _backend.acceptAssignment(incidentId);
+
+  @override
+  Future<void> setStatus(UnitStatus status) => _backend.setUnitStatus(status);
+
+  @override
+  Future<void> arrive() => _backend.arrive();
+
+  @override
+  Future<void> confirmOnScene({
+    required bool realEmergency,
+    String? reason,
+    int? peopleFound,
+  }) => _backend.confirmOnScene(
+    realEmergency: realEmergency,
+    reason: reason,
+    peopleFound: peopleFound,
+  );
+
+  @override
+  Future<void> complete({
+    required RescueOutcome outcome,
+    required int personsAssisted,
+    int housesDamaged = 0,
+    int injured = 0,
+    int missing = 0,
+    int affectedFamilies = 0,
+    String? notes,
+  }) => _backend.complete(
+    outcome: outcome,
+    personsAssisted: personsAssisted,
+    housesDamaged: housesDamaged,
+    injured: injured,
+    missing: missing,
+    affectedFamilies: affectedFamilies,
+    notes: notes,
+  );
 }
 
 class MockOfflineQueue implements OfflineQueue {
