@@ -10,6 +10,7 @@ import '../models/incident.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/road_route.dart';
 import '../repositories/repositories.dart';
 import 'live_value.dart';
 import 'mock_seed.dart';
@@ -62,7 +63,12 @@ class MockBackend {
   int _nextIncidentNumber = 151;
   int _nextAuditNumber = 2000;
   final _assignedAt = <String, DateTime>{};
+  final _routes = <String, RoadRoute>{};
   final _onSceneSince = <String, DateTime>{};
+
+  /// The road route sent with the latest assignment of [incidentId], as the
+  /// dispatch record keeps it on Supabase.
+  RoadRoute? routeFor(String incidentId) => _routes[incidentId];
   final _smsCheckSentAt = <String, DateTime>{};
 
   /// When the simulated SOS arrives and when the third Dapitan St report
@@ -240,6 +246,7 @@ class MockBackend {
     String id,
     String unitId, {
     String? overrideReason,
+    RoadRoute? route,
   }) async {
     final actor = await _authorize();
     final incident = _activeIncident(id);
@@ -255,6 +262,7 @@ class MockBackend {
       unitId: unit.copyWith(currentIncidentId: id),
     };
     _assignedAt[id] = now;
+    if (route != null) _routes[id] = route;
     _putIncident(
       incident
           .copyWith(

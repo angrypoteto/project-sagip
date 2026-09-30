@@ -181,18 +181,18 @@ class _OfferCard extends StatelessWidget {
 }
 
 /// The current assignment as one card with a hero ETA (design skill).
-class _AssignmentCard extends StatelessWidget {
+class _AssignmentCard extends ConsumerWidget {
   const _AssignmentCard({required this.state, required this.assignment});
 
   final ResponderState state;
   final Assignment assignment;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);
-    final estimate = routeEstimate(state, assignment);
+    final estimate = routeEstimate(ref, state, assignment);
     final onScene = assignment.status == IncidentStatus.onScene;
     return Material(
       color: p.panelRaised,

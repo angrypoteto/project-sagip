@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../models/geo_point.dart';
 import '../models/incident.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/road_route.dart';
 import 'dijkstra.dart';
-import 'polyline.dart';
 import 'road_graph.dart';
 import 'unit_suggester.dart';
 
@@ -14,114 +13,6 @@ import 'unit_suggester.dart';
 Future<RoadRouter> loadManilaRouter([AssetBundle? bundle]) async {
   final data = await (bundle ?? rootBundle).load(RoadGraph.assetKey);
   return RoadRouter(RoadGraph.decode(data));
-}
-
-/// Which way to go at the start of a route step.
-enum TurnDirection {
-  depart,
-  straight,
-  slightLeft,
-  left,
-  sharpLeft,
-  slightRight,
-  right,
-  sharpRight,
-  uTurn,
-}
-
-/// One stretch of a route along the same street.
-@immutable
-class RouteStep {
-  const RouteStep({
-    required this.turn,
-    required this.street,
-    required this.meters,
-    required this.seconds,
-    required this.start,
-  });
-
-  final TurnDirection turn;
-
-  /// The street's name from OpenStreetMap; null for unnamed roads.
-  final String? street;
-  final double meters;
-  final double seconds;
-
-  /// Where the step starts.
-  final GeoPoint start;
-
-  factory RouteStep.fromJson(Map<String, Object?> json) => RouteStep(
-    turn: TurnDirection.values.byName(json['turn']! as String),
-    street: json['street'] as String?,
-    meters: (json['meters']! as num).toDouble(),
-    seconds: (json['seconds']! as num).toDouble(),
-    start: GeoPoint.fromJson((json['start']! as Map).cast<String, Object?>()),
-  );
-
-  Map<String, Object?> toJson() => {
-    'turn': turn.name,
-    'street': street,
-    'meters': meters.roundToDouble(),
-    'seconds': seconds.roundToDouble(),
-    'start': start.toJson(),
-  };
-}
-
-/// A road route from a unit to an incident (FR3), found by Dijkstra.
-@immutable
-class RoadRoute {
-  const RoadRoute({
-    required this.points,
-    required this.seconds,
-    required this.meters,
-    required this.steps,
-    required this.computeTime,
-    required this.graphBuilt,
-  });
-
-  /// The route's shape, from the start point to the destination.
-  final List<GeoPoint> points;
-
-  /// Estimated travel time, including the short legs between each end and
-  /// the nearest intersection.
-  final double seconds;
-  final double meters;
-  final List<RouteStep> steps;
-
-  /// How long Dijkstra took (the thesis's T_end minus T_start), for
-  /// Chapter 4.
-  final Duration computeTime;
-
-  /// When the road graph was built from OpenStreetMap.
-  final DateTime graphBuilt;
-
-  double get minutes => seconds / 60;
-
-  factory RoadRoute.fromJson(Map<String, Object?> json) => RoadRoute(
-    points: decodePolyline(json['polyline']! as String),
-    seconds: (json['seconds']! as num).toDouble(),
-    meters: (json['meters']! as num).toDouble(),
-    steps: [
-      for (final s in (json['steps'] as List? ?? const []))
-        RouteStep.fromJson((s as Map).cast<String, Object?>()),
-    ],
-    computeTime: Duration(
-      microseconds: ((json['compute_ms'] as num? ?? 0) * 1000).round(),
-    ),
-    graphBuilt: DateTime.parse(json['graph_built']! as String),
-  );
-
-  Map<String, Object?> toJson() => {
-    'polyline': encodePolyline(points),
-    'seconds': seconds.roundToDouble(),
-    'meters': meters.roundToDouble(),
-    'steps': [for (final s in steps) s.toJson()],
-    'compute_ms': computeTime.inMicroseconds / 1000,
-    'graph_built':
-        '${graphBuilt.year.toString().padLeft(4, '0')}-'
-        '${graphBuilt.month.toString().padLeft(2, '0')}-'
-        '${graphBuilt.day.toString().padLeft(2, '0')}',
-  };
 }
 
 /// Routes over the road graph between any two points in Manila.
@@ -137,6 +28,21 @@ class RoadRouter {
   final double maxSnapMeters;
 
   double _accessSeconds(double meters) => meters / (accessSpeedKmh / 3.6);
+
+  /// The timing-log entry for [route] (plan 10.2, Chapter 4).
+  RoutingRun runFor(
+    RoadRoute route, {
+    String? incidentId,
+    RoutingPlatform? platform,
+  }) => RoutingRun(
+    kind: RoutingRunKind.route,
+    platform: platform ?? RoutingPlatform.current,
+    computeTime: route.computeTime,
+    incidentId: incidentId,
+    nodeCount: graph.nodeCount,
+    edgeCount: graph.edgeCount,
+    graphBuilt: graph.built,
+  );
 
   /// The fastest route from [from] to [to], or null when either end is off
   /// the road graph.
@@ -307,14 +213,16 @@ class RoadNetworkSuggester implements UnitSuggester {
     this._loadRouter, {
     this.fallback = const StraightLineSuggester(),
     this.onRun,
-  });
+    RoutingPlatform? platform,
+  }) : platform = platform ?? RoutingPlatform.current;
 
   final Future<RoadRouter> Function() _loadRouter;
   final StraightLineSuggester fallback;
 
   /// Called after every routing run with its execution time, for the
   /// Chapter 4 timing log.
-  final void Function(Incident incident, Duration computeTime)? onRun;
+  final void Function(RoutingRun run)? onRun;
+  final RoutingPlatform platform;
 
   Future<RoadRouter>? _router;
 
@@ -339,7 +247,18 @@ class RoadNetworkSuggester implements UnitSuggester {
     final result = router.timesTo(incident.location, {
       for (final u in candidates) u.id: u.location!,
     });
-    onRun?.call(incident, result.computeTime);
+    onRun?.call(
+      RoutingRun(
+        kind: RoutingRunKind.suggestions,
+        platform: platform,
+        computeTime: result.computeTime,
+        incidentId: incident.id,
+        candidates: candidates.length,
+        nodeCount: router.graph.nodeCount,
+        edgeCount: router.graph.edgeCount,
+        graphBuilt: router.graph.built,
+      ),
+    );
     final ranked = <UnitSuggestion>[
       for (final u in candidates)
         if (result.times[u.id] case final t?)

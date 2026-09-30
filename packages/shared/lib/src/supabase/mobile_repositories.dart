@@ -26,7 +26,8 @@ class SupabaseMobileBackend {
       vulnerability = SupabaseVulnerabilityRepository(client, _profileChanged),
       alerts = SupabaseAlertRepository(client),
       weather = SupabaseWeatherRepository(client),
-      remote = SupabaseMobileRemote(client);
+      remote = SupabaseMobileRemote(client),
+      routing = SupabaseRoutingLog(client);
 
   final StreamController<Object?> _profileChanged;
   final SupabaseMobileAccounts accounts;
@@ -35,6 +36,9 @@ class SupabaseMobileBackend {
   final SupabaseAlertRepository alerts;
   final SupabaseWeatherRepository weather;
   final SupabaseMobileRemote remote;
+
+  /// The Dijkstra timing log (responders' phones route on their own).
+  final SupabaseRoutingLog routing;
 
   Future<void> dispose() => _profileChanged.close();
 }

@@ -58,9 +58,15 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
       );
       if (reason == null || !mounted) return;
     }
+    final route = await routeForAssignment(ref, incident, chosen.unit);
+    if (!mounted) return;
     final ok = await _run(
-      () =>
-          _repo.assignUnit(incident.id, chosen.unit.id, overrideReason: reason),
+      () => _repo.assignUnit(
+        incident.id,
+        chosen.unit.id,
+        overrideReason: reason,
+        route: route,
+      ),
       l10n.assignedSnack(chosen.unit.callSign),
     );
     if (ok && mounted) setState(() => _chosen = null);

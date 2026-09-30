@@ -278,10 +278,11 @@ void main() {
         );
 
     test('ranks by road travel time and skips busy units', () async {
-      Duration? logged;
+      final log = MemoryRoutingLog();
       final suggester = RoadNetworkSuggester(
         () async => RoadRouter(graph),
-        onRun: (_, t) => logged = t,
+        onRun: log.log,
+        platform: RoutingPlatform.web,
       );
       final ranked = await suggester.suggest(incident, [
         unit('far', const GeoPoint(14.6180, 121.0050)),
@@ -298,7 +299,13 @@ void main() {
         ranked.every((s) => s.method == RoutingMethod.roadNetwork),
         isTrue,
       );
-      expect(logged, isNotNull);
+      final run = log.runs.single;
+      expect(run.kind, RoutingRunKind.suggestions);
+      expect(run.platform, RoutingPlatform.web);
+      expect(run.incidentId, 'INC-1');
+      expect(run.candidates, 3, reason: 'the busy unit is not a candidate');
+      expect(run.nodeCount, graph.nodeCount);
+      expect(run.computeMs, greaterThan(0));
     });
 
     test('a unit the graph cannot place falls back to straight line', () async {
@@ -324,6 +331,89 @@ void main() {
       expect(ranked.single.method, RoutingMethod.straightLine);
       await suggester.suggest(incident, const []);
       expect(attempts, 2, reason: 'loading is tried again next time');
+    });
+  });
+
+  group('route helpers and storage', () {
+    final router = RoadRouter(loadManila());
+    const cityHall = GeoPoint(14.5896, 120.9811);
+    const ust = GeoPoint(14.6096, 120.9894);
+
+    test('next turn, distance to it, and the first heading', () {
+      final route = router.route(cityHall, ust)!;
+      expect(route.nextTurn, route.steps[1]);
+      expect(route.metersToNextTurn, greaterThan(route.steps.first.meters));
+      expect(route.metersToNextTurn, lessThan(route.meters));
+      final bearing = route.initialBearing();
+      expect(bearing, inInclusiveRange(0, 360));
+    });
+
+    test('an assignment keeps its route through the phone cache', () {
+      final route = router.route(cityHall, ust)!;
+      final a = Assignment(
+        incidentId: 'INC-1',
+        offeredAt: DateTime.utc(2026, 9, 30, 12),
+        location: ust,
+        barangay: 'Barangay 412',
+        district: 'Sampaloc',
+        channel: ReportChannel.app,
+        route: route,
+      );
+      final copy = Assignment.fromJson(
+        jsonDecode(jsonEncode(a.toJson())) as Map<String, Object?>,
+      );
+      expect(copy.route!.steps.length, route.steps.length);
+      expect(copy.route!.points.length, route.points.length);
+      expect(copy.copyWith(status: IncidentStatus.enRoute).route, isNotNull);
+    });
+
+    test('a broken route from the server is dropped, the job is kept', () {
+      final a = Assignment.fromJson({
+        'incident_id': 'INC-1',
+        'offered_at': '2026-09-30T04:00:00Z',
+        'latitude': 14.6,
+        'longitude': 120.99,
+        'barangay': 'Barangay 412',
+        'district': 'Sampaloc',
+        'channel': 'app',
+        'status': 'assigned',
+        'route': {'polyline': 5},
+      });
+      expect(a.route, isNull);
+      expect(a.incidentId, 'INC-1');
+    });
+
+    test('the mock keeps the route sent with an assignment', () async {
+      final backend = MockBackend(latency: Duration.zero);
+      addTearDown(backend.dispose);
+      final repo = MockIncidentRepository(backend);
+      await MockAuthRepository(
+        backend,
+      ).signIn(email: 'dispatcher@sagip.test', password: MockSeed.demoPassword);
+      final route = router.route(cityHall, ust)!;
+      await repo.assignUnit('INC-0147', 'unit-r03', route: route);
+      expect(backend.routeFor('INC-0147'), same(route));
+    });
+
+    test('the timing log keeps one run per incident a minute', () {
+      final inner = MemoryRoutingLog();
+      var now = DateTime(2026, 9, 30, 12);
+      final log = ThrottledRoutingLog(inner, clock: () => now);
+      RoutingRun run(String id, [RoutingRunKind k = RoutingRunKind.route]) =>
+          RoutingRun(
+            kind: k,
+            platform: RoutingPlatform.android,
+            computeTime: const Duration(milliseconds: 4),
+            incidentId: id,
+          );
+      log.log(run('A'));
+      log.log(run('A'));
+      log.log(run('B'));
+      log.log(run('A', RoutingRunKind.suggestions));
+      expect(inner.runs, hasLength(3));
+      now = now.add(const Duration(seconds: 61));
+      log.log(run('A'));
+      expect(inner.runs, hasLength(4));
     });
   });
 

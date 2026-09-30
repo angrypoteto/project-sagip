@@ -79,7 +79,7 @@ class _IncomingPageState extends ConsumerState<IncomingPage> {
         ),
       );
     }
-    final estimate = routeEstimate(state, offer);
+    final estimate = routeEstimate(ref, state, offer);
 
     return Scaffold(
       // Tints are translucent; blend onto the canvas so the whole screen is

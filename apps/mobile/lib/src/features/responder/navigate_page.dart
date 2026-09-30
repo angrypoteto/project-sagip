@@ -13,8 +13,10 @@ import '../../providers.dart';
 import '../../router.dart';
 
 /// F4 Navigation: full-bleed map, one floating card, nothing else (design
-/// skill). Until Dijkstra road routes arrive (Phase 4) it shows a straight
-/// line and a compass direction.
+/// skill). The route is Dijkstra over the bundled road graph, computed on
+/// the phone from each new position (so it works offline and re-routes);
+/// without it the card falls back to a straight line and a compass
+/// direction.
 class NavigatePage extends ConsumerStatefulWidget {
   const NavigatePage({super.key});
 
@@ -63,7 +65,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
     }
 
     final unit = state.unit.location;
-    final estimate = routeEstimate(state, a);
+    final estimate = routeEstimate(ref, state, a);
     final heading = estimate?.bearing;
     final tiles = ref.watch(mapTilesEnabledProvider);
 
@@ -100,14 +102,25 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                         target: toLatLng(unit),
                         builder: (at) => PolylineLayer(
                           polylines: [
-                            Polyline(
-                              points: [at, toLatLng(a.location)],
-                              strokeWidth: 5,
-                              color: SagipPalette.of(context).info.fill,
-                              pattern: StrokePattern.dashed(
-                                segments: const [12, 8],
+                            if (estimate?.road case final road?)
+                              Polyline(
+                                points: [
+                                  at,
+                                  for (final p in road.points.skip(1))
+                                    toLatLng(p),
+                                ],
+                                strokeWidth: 6,
+                                color: SagipPalette.of(context).info.fill,
+                              )
+                            else
+                              Polyline(
+                                points: [at, toLatLng(a.location)],
+                                strokeWidth: 5,
+                                color: SagipPalette.of(context).info.fill,
+                                pattern: StrokePattern.dashed(
+                                  segments: const [12, 8],
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -186,7 +199,7 @@ class _NavCard extends ConsumerWidget {
   });
 
   final ResponderState state;
-  final ({double meters, int minutes, double bearing})? estimate;
+  final RouteEstimate? estimate;
   final VoidCallback onArrived;
 
   @override
@@ -196,7 +209,9 @@ class _NavCard extends ConsumerWidget {
     final p = SagipPalette.of(context);
     final signal = ref.watch(signalProvider).value ?? SignalState.internet;
     final e = estimate;
-    final close = e != null && e.meters <= arrivalRadiusMeters;
+    final close = e != null && e.straightMeters <= arrivalRadiusMeters;
+    final road = e?.road;
+    final next = road?.nextTurn;
 
     return Material(
       color: p.panel,
@@ -229,14 +244,29 @@ class _NavCard extends ConsumerWidget {
               // nothing; say where they are instead.
               Text(l10n.atScene, style: text.headlineSmall),
               Text(
-                l10n.distanceAway(formatDistance(e.meters)),
+                l10n.distanceAway(formatDistance(e.straightMeters)),
                 style: text.bodyMedium!.copyWith(color: p.textSecondary),
               ),
             ] else ...[
-              Text(
-                '${l10n.heading(e.bearing)} · ${formatDistance(e.meters)}',
-                style: text.titleMedium,
-              ),
+              if (road == null)
+                Text(
+                  '${l10n.heading(e.bearing)} · ${formatDistance(e.meters)}',
+                  style: text.titleMedium,
+                )
+              else ...[
+                // The next turn, the one thing a driver needs (design skill).
+                Text(
+                  next == null
+                      ? l10n.continueToScene
+                      : l10n.turnInstruction(next),
+                  style: text.titleLarge,
+                ),
+                if (next != null)
+                  Text(
+                    l10n.inDistance(formatDistance(road.metersToNextTurn)),
+                    style: text.bodyMedium!.copyWith(color: p.textSecondary),
+                  ),
+              ],
               const SizedBox(height: SagipSpace.sm),
               EtaHero(
                 label: l10n.etaTitle,
@@ -246,9 +276,11 @@ class _NavCard extends ConsumerWidget {
             ],
             const SizedBox(height: SagipSpace.xs),
             Text(
-              signal == SignalState.internet
-                  ? l10n.straightLineNote
-                  : l10n.offlineSavedMap,
+              signal != SignalState.internet
+                  ? l10n.offlineSavedMap
+                  : road != null
+                  ? l10n.roadRouteNote
+                  : l10n.straightLineNote,
               style: text.bodySmall!.copyWith(
                 color: signal == SignalState.internet
                     ? p.textSecondary

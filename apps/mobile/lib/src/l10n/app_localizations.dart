@@ -1474,6 +1474,36 @@ abstract class AppLocalizations {
   /// **'Direct line. Road routes come in a later version.'**
   String get straightLineNote;
 
+  /// No description provided for @roadRouteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Road route from OpenStreetMap. Times are estimates.'**
+  String get roadRouteNote;
+
+  /// No description provided for @turnOnto.
+  ///
+  /// In en, this message translates to:
+  /// **'{turn, select, straight{Continue onto {street}} slightLeft{Keep left onto {street}} left{Turn left onto {street}} sharpLeft{Turn sharp left onto {street}} slightRight{Keep right onto {street}} right{Turn right onto {street}} sharpRight{Turn sharp right onto {street}} uTurn{Make a U-turn onto {street}} other{Go onto {street}}}'**
+  String turnOnto(String turn, String street);
+
+  /// No description provided for @turnHere.
+  ///
+  /// In en, this message translates to:
+  /// **'{turn, select, straight{Continue straight} slightLeft{Keep left} left{Turn left} sharpLeft{Turn sharp left} slightRight{Keep right} right{Turn right} sharpRight{Turn sharp right} uTurn{Make a U-turn} other{Continue}}'**
+  String turnHere(String turn);
+
+  /// No description provided for @inDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'In {distance}'**
+  String inDistance(String distance);
+
+  /// No description provided for @continueToScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to the scene'**
+  String get continueToScene;
+
   /// No description provided for @offlineSavedMap.
   ///
   /// In en, this message translates to:

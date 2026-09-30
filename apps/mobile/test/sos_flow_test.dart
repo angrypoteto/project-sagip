@@ -370,8 +370,14 @@ void main() {
     expect(find.text('Map saved for offline use'), findsOneWidget);
 
     await tapAndSettle(tester, 'Start navigation');
+    // Dijkstra on the phone over the bundled road graph: the next turn and
+    // the road route, not a straight line.
     expect(
-      find.text('Direct line. Road routes come in a later version.'),
+      find.text('Road route from OpenStreetMap. Times are estimates.'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(RegExp(r'^(Turn|Keep|Continue|Make|Go)')),
       findsOneWidget,
     );
     expect(find.text('Arrived'), findsNothing);

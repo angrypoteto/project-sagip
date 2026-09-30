@@ -36,6 +36,9 @@ final auditRepositoryProvider = Provider<AuditRepository>(
 final connectionMonitorProvider = Provider<ConnectionMonitor>(
   (ref) => _missing('ConnectionMonitor'),
 );
+final routingLogProvider = Provider<RoutingLogRepository>(
+  (ref) => _missing('RoutingLogRepository'),
+);
 
 /// Only set when running on mock data. Screens use it for the demo scenario
 /// switcher; everything else goes through the repositories above.
@@ -60,6 +63,7 @@ List<Override> mockOverrides(MockBackend backend, {bool demoTools = true}) => [
   weatherRepositoryProvider.overrideWithValue(MockWeatherRepository(backend)),
   auditRepositoryProvider.overrideWithValue(MockAuditRepository(backend)),
   connectionMonitorProvider.overrideWithValue(MockConnectionMonitor(backend)),
+  routingLogProvider.overrideWithValue(ThrottledRoutingLog(MemoryRoutingLog())),
 ];
 
 /// Overrides that run the dashboard on the Supabase project (see
@@ -73,6 +77,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   weatherRepositoryProvider.overrideWithValue(backend.weather),
   auditRepositoryProvider.overrideWithValue(backend.audit),
   connectionMonitorProvider.overrideWithValue(backend.connection),
+  routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
 ];
 
 // ---------------------------------------------------------------------------
@@ -167,12 +172,46 @@ final priorityRulesProvider = Provider<PriorityRules>(
   (ref) => const PriorityRules(),
 );
 
+/// The bundled Manila road graph, loaded once on first use (plan 10.2).
+final roadRouterProvider = FutureProvider<RoadRouter>(
+  (ref) => loadManilaRouter(),
+);
+
 /// Ranks units by road travel time (Dijkstra over the bundled OSM road
 /// graph, plan 10.2), falling back to straight-line estimates for units the
-/// graph cannot place or when the graph fails to load.
+/// graph cannot place or when the graph fails to load. Each run is timed
+/// for Chapter 4.
 final unitSuggesterProvider = Provider<UnitSuggester>(
-  (ref) => RoadNetworkSuggester(loadManilaRouter),
+  (ref) => RoadNetworkSuggester(
+    () => ref.read(roadRouterProvider.future),
+    onRun: ref.read(routingLogProvider).log,
+  ),
 );
+
+/// The chosen unit's road route to the incident, sent with the assignment
+/// so the dispatch record and the responder's phone have it. Null when the
+/// unit has no position, the road graph did not load, or either end is off
+/// the map; the assignment goes ahead without it.
+Future<RoadRoute?> routeForAssignment(
+  WidgetRef ref,
+  Incident incident,
+  ResponseUnit unit,
+) async {
+  final from = unit.location;
+  if (from == null) return null;
+  try {
+    final router = await ref.read(roadRouterProvider.future);
+    final route = router.route(from, incident.location);
+    if (route != null) {
+      ref
+          .read(routingLogProvider)
+          .log(router.runFor(route, incidentId: incident.id));
+    }
+    return route;
+  } on Object {
+    return null;
+  }
+}
 
 /// The Triage Queue in priority order (FR2).
 final triageQueueProvider = Provider<AsyncValue<List<Incident>>>((ref) {

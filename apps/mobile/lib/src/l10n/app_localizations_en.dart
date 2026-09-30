@@ -815,6 +815,50 @@ class AppLocalizationsEn extends AppLocalizations {
       'Direct line. Road routes come in a later version.';
 
   @override
+  String get roadRouteNote =>
+      'Road route from OpenStreetMap. Times are estimates.';
+
+  @override
+  String turnOnto(String turn, String street) {
+    String _temp0 = intl.Intl.selectLogic(turn, {
+      'straight': 'Continue onto $street',
+      'slightLeft': 'Keep left onto $street',
+      'left': 'Turn left onto $street',
+      'sharpLeft': 'Turn sharp left onto $street',
+      'slightRight': 'Keep right onto $street',
+      'right': 'Turn right onto $street',
+      'sharpRight': 'Turn sharp right onto $street',
+      'uTurn': 'Make a U-turn onto $street',
+      'other': 'Go onto $street',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String turnHere(String turn) {
+    String _temp0 = intl.Intl.selectLogic(turn, {
+      'straight': 'Continue straight',
+      'slightLeft': 'Keep left',
+      'left': 'Turn left',
+      'sharpLeft': 'Turn sharp left',
+      'slightRight': 'Keep right',
+      'right': 'Turn right',
+      'sharpRight': 'Turn sharp right',
+      'uTurn': 'Make a U-turn',
+      'other': 'Continue',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String inDistance(String distance) {
+    return 'In $distance';
+  }
+
+  @override
+  String get continueToScene => 'Continue to the scene';
+
+  @override
   String get offlineSavedMap => 'Offline. Using saved map.';
 
   @override

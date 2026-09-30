@@ -71,6 +71,9 @@ class _Body extends ConsumerWidget {
       toLatLng(assignment.location),
       if (unit != null) toLatLng(unit),
     ];
+    // The phone's own road route, else the one saved at dispatch.
+    final road =
+        routeEstimate(ref, state, assignment)?.road ?? assignment.route;
 
     return ListView(
       padding: const EdgeInsets.all(SagipSpace.xl),
@@ -103,7 +106,17 @@ class _Body extends ConsumerWidget {
                   userAgentPackageName: 'ph.sagip.mobile',
                   enabled: tiles,
                 ),
-                if (unit != null)
+                if (road != null)
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: [for (final q in road.points) toLatLng(q)],
+                        strokeWidth: 4,
+                        color: p.info.fill,
+                      ),
+                    ],
+                  )
+                else if (unit != null)
                   PolylineLayer(
                     polylines: [
                       Polyline(

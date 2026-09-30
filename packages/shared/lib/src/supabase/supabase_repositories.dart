@@ -16,6 +16,7 @@ import '../models/incident.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/road_route.dart';
 import '../models/sos.dart';
 import '../offline/mobile_server.dart';
 import '../offline/outbox.dart';
@@ -42,7 +43,8 @@ class SupabaseBackend {
       residents = SupabaseResidentRepository(client),
       weather = SupabaseWeatherRepository(client),
       audit = SupabaseAuditRepository(client),
-      connection = SupabaseConnectionMonitor(client);
+      connection = SupabaseConnectionMonitor(client),
+      routing = SupabaseRoutingLog(client);
 
   final SupabaseAuthRepository auth;
   final SupabaseIncidentRepository incidents;
@@ -52,6 +54,38 @@ class SupabaseBackend {
   final SupabaseWeatherRepository weather;
   final SupabaseAuditRepository audit;
   final SupabaseConnectionMonitor connection;
+  final SupabaseRoutingLog routing;
+}
+
+/// Sends each timed Dijkstra run to `log_routing_run` (plan 10.2). Failures
+/// are dropped: the timing log must never get in the way of dispatch.
+class SupabaseRoutingLog implements RoutingLogRepository {
+  SupabaseRoutingLog(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  void log(RoutingRun run) {
+    unawaited(
+      _client
+          .rpc<void>(
+            'log_routing_run',
+            params: {
+              'p_kind': run.kind.name,
+              'p_platform': run.platform.name,
+              'p_compute_ms': run.computeMs,
+              'p_incident_id': run.incidentId,
+              'p_candidates': run.candidates,
+              'p_node_count': run.nodeCount,
+              'p_edge_count': run.edgeCount,
+              'p_graph_built': run.graphBuilt == null
+                  ? null
+                  : dateOnly(run.graphBuilt!),
+            },
+          )
+          .then<void>((_) {}, onError: (Object _) {}),
+    );
+  }
 }
 
 typedef _Row = Map<String, dynamic>;
@@ -244,10 +278,12 @@ class SupabaseIncidentRepository implements IncidentRepository {
     String incidentId,
     String unitId, {
     String? overrideReason,
+    RoadRoute? route,
   }) => _rpc('assign_unit', {
     'p_incident_id': incidentId,
     'p_unit_id': unitId,
     'p_override_reason': overrideReason,
+    if (route != null) 'p_route': route.toJson(),
   });
 
   @override

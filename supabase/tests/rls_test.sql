@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(88);
+select plan(99);
 
 select public.reset_demo_data();
 
@@ -28,6 +28,10 @@ insert into public.staff (id, display_name, email, role, unit_id) values
 update public.manila_resident
   set auth_user_id = '00000000-0000-4000-8000-00000000000c'
   where manila_resident_id = 'res-001';
+-- R-05's open dispatch (INC-0142) carries a route, as the dashboard saves it.
+update public.dispatch
+  set route = '_p~iF~ps|U', route_plan = '{"seconds": 300, "meters": 2000, "steps": []}'
+  where incident_id = 'INC-0142' and completion_time is null;
 
 -- ------------------------------------------------------------ privileges
 
@@ -46,8 +50,12 @@ select ok(
   not has_column_privilege('authenticated', 'public.manila_resident', 'contact_number', 'select'),
   'full contact numbers are not readable by clients');
 select ok(
-  not has_function_privilege('anon', 'public.assign_unit(text, text, text)', 'execute'),
+  not has_function_privilege('anon', 'public.assign_unit(text, text, text, jsonb)', 'execute'),
   'anon cannot call dispatch functions');
+select ok(
+  not has_function_privilege('anon',
+    'public.log_routing_run(text, text, numeric, text, int, int, int, date)', 'execute'),
+  'anon cannot write the routing timing log');
 select ok(
   not has_function_privilege('authenticated', 'public.reset_demo_data()', 'execute'),
   'demo functions are SQL-editor only');
@@ -88,6 +96,24 @@ select throws_ok($$ select public.assign_unit('INC-0147', 'unit-r03') $$,
   'P0001', 'already_assigned', 'assigning the same unit twice is refused');
 select ok(public.reveal_resident_contact('res-001') not like '%•%',
   'a dispatcher can reveal a full number');
+select throws_ok(
+  $$ select public.assign_unit('INC-0146', 'unit-a05', null, '{"polyline": 5}'::jsonb) $$,
+  'P0001', 'invalid_value', 'a malformed route is refused');
+select lives_ok(
+  $$ select public.assign_unit('INC-0146', 'unit-a05', null,
+       '{"polyline": "_p~iF~ps|U", "seconds": 412, "meters": 2310, "steps": [], "compute_ms": 4.2}'::jsonb) $$,
+  'a dispatcher can assign with the unit''s road route');
+select ok(
+  (select route = '_p~iF~ps|U' and route_plan->>'seconds' = '412' and not route_plan ? 'polyline'
+     from public.dispatch where incident_id = 'INC-0146' and completion_time is null),
+  'the dispatch record keeps the route');
+select lives_ok(
+  $$ select public.log_routing_run('suggestions', 'web', 12.5, 'INC-0146', 9, 9296, 23716, '2026-09-30') $$,
+  'a dispatcher can log a Dijkstra run');
+select throws_ok($$ select public.log_routing_run('guess', 'web', 1) $$,
+  'P0001', 'invalid_value', 'an unknown run kind is refused');
+select is((select count(*)::int from public.routing_run), 0,
+  'a dispatcher cannot read the timing log');
 
 -- ------------------------------------------------------------- responder
 
@@ -101,6 +127,10 @@ select is((select count(*)::int from public.vulnerable_resident_list), 0,
   'a responder cannot see the Vulnerable Resident Priority List');
 select throws_ok($$ select public.assign_unit('INC-0148', 'unit-r07') $$,
   'P0001', 'not_allowed', 'a responder cannot dispatch');
+select is(public.my_assignments()->0->'route'->>'polyline', '_p~iF~ps|U',
+  'the responder''s job carries the route from the dispatch');
+select lives_ok($$ select public.log_routing_run('route', 'android', 3.2, 'INC-0142') $$,
+  'a responder can log a Dijkstra run');
 
 -- -------------------------------------------------------------- resident
 
@@ -118,6 +148,8 @@ select is((select count(*)::int from public.response_unit), 0,
   'a resident cannot see unit locations');
 select throws_ok($$ select public.reveal_resident_contact('res-002') $$,
   'P0001', 'not_allowed', 'a resident cannot reveal other numbers');
+select throws_ok($$ select public.log_routing_run('route', 'android', 3.2) $$,
+  'P0001', 'not_allowed', 'a resident cannot write the timing log');
 
 -- ------------------------------------------------ signed in, but no role
 
@@ -146,6 +178,10 @@ select ok(
   exists (select 1 from public.audit_log
     where account_name = 'Test Dispatcher' and action_type = 'contactViewed' and target_id = 'res-001'),
   'revealing a number was written to the audit log');
+select is(
+  (select count(*)::int from public.routing_run
+    where account_id in ('00000000-0000-4000-8000-00000000000d', '00000000-0000-4000-8000-00000000000b')),
+  2, 'an admin reads the timing log');
 
 -- ------------------------------------------- resident: phone app (part 5)
 

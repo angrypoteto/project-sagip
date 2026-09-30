@@ -129,6 +129,10 @@ void main() {
     final incident = container.read(incidentByIdProvider('INC-0147'))!;
     expect(incident.status, IncidentStatus.assigned);
     expect(incident.assignedUnitId, 'unit-r03');
+    // The unit's road route went with the assignment (dispatch record).
+    final route = backend.routeFor('INC-0147')!;
+    expect(route.points.last, incident.location);
+    expect(route.steps, isNotEmpty);
   });
 
   testWidgets('choosing a unit other than the top one asks for a reason', (

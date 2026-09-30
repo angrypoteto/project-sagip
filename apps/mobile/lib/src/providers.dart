@@ -60,6 +60,13 @@ final mockBackendProvider = Provider<MockMobileBackend?>((ref) => null);
 /// Whether map tiles load from the network. Tests turn this off.
 final mapTilesEnabledProvider = Provider<bool>((ref) => true);
 
+/// The Dijkstra timing log for Chapter 4 (plan 10.2): in memory on sample
+/// data, the `routing_run` table on Supabase. At most one run a minute per
+/// job, since the phone re-routes on every GPS fix.
+final routingLogProvider = Provider<RoutingLogRepository>(
+  (ref) => ThrottledRoutingLog(MemoryRoutingLog()),
+);
+
 /// Storage on the phone (settings, and on the real backend the outbox and
 /// saved copies). In memory unless main.dart provides Hive.
 final localStoreProvider = Provider<LocalStore>((ref) => MemoryLocalStore());
@@ -194,6 +201,7 @@ List<Override> liveOverrides({
       CachedAlertRepository(backend.alerts, store, account),
     ),
     vulnerabilityRepositoryProvider.overrideWithValue(backend.vulnerability),
+    routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
   ];
 }
 
@@ -280,22 +288,87 @@ final responderProvider = StreamProvider<ResponderState>(
       _forAccount(ref, () => ref.watch(responderRepositoryProvider).watch()),
 );
 
-/// Straight-line distance and ETA from the unit to its assignment. Road
-/// routes replace this with Dijkstra in Phase 4.
-({double meters, int minutes, double bearing})? routeEstimate(
-  ResponderState? s,
-  Assignment? a,
-) {
+/// The bundled Manila road graph (plan 10.2), loaded once on first use. The
+/// phone routes on its own, so navigation works offline (FR13).
+final roadRouterProvider = FutureProvider<RoadRouter>(
+  (ref) => loadManilaRouter(),
+);
+
+/// The road route from [from] to a job, by Dijkstra on the phone. Recomputed
+/// for every new position (a few milliseconds), so it follows the unit and
+/// re-routes when it leaves the route. Null until the graph has loaded, or
+/// when either end is off the map.
+final navigationRouteProvider = Provider.autoDispose
+    .family<RoadRoute?, ({GeoPoint from, GeoPoint to, String incidentId})>((
+      ref,
+      key,
+    ) {
+      final router = ref.watch(roadRouterProvider).value;
+      if (router == null) return null;
+      final route = router.route(key.from, key.to);
+      if (route != null) {
+        ref
+            .read(routingLogProvider)
+            .log(router.runFor(route, incidentId: key.incidentId));
+      }
+      return route;
+    });
+
+/// Distance, ETA, and direction from the unit to a job.
+@immutable
+class RouteEstimate {
+  const RouteEstimate({
+    required this.meters,
+    required this.minutes,
+    required this.bearing,
+    required this.straightMeters,
+    this.road,
+  });
+
+  /// Along the road route, or the straight line when there is none.
+  final double meters;
+  final int minutes;
+
+  /// The direction to travel now, in degrees from north.
+  final double bearing;
+
+  /// Straight-line distance to the scene; "Arrived" uses this.
+  final double straightMeters;
+
+  /// The road route; null when estimated by straight line.
+  final RoadRoute? road;
+}
+
+/// The unit's estimate for [a]: by road when the graph can route it, else by
+/// straight-line distance (labelled as such on screen).
+RouteEstimate? routeEstimate(WidgetRef ref, ResponderState? s, Assignment? a) {
   final from = s?.unit.location;
   if (from == null || a == null) return null;
-  final meters = from.distanceTo(a.location);
-  return (
-    meters: meters,
+  final straight = from.distanceTo(a.location);
+  final road = ref.watch(
+    navigationRouteProvider((
+      from: from,
+      to: a.location,
+      incidentId: a.incidentId,
+    )),
+  );
+  if (road != null) {
+    return RouteEstimate(
+      meters: road.meters,
+      minutes: road.minutes.ceil().clamp(1, 999),
+      bearing: road.initialBearing(),
+      straightMeters: straight,
+      road: road,
+    );
+  }
+  return RouteEstimate(
+    meters: straight,
     minutes: const StraightLineSuggester()
-        .minutesFor(meters)
+        .minutesFor(straight)
         .ceil()
         .clamp(1, 999),
     bearing: from.bearingTo(a.location),
+    straightMeters: straight,
   );
 }
 

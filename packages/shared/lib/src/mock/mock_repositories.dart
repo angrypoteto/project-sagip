@@ -4,6 +4,7 @@ import '../models/incident.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/road_route.dart';
 import '../repositories/repositories.dart';
 import 'mock_backend.dart';
 
@@ -63,7 +64,13 @@ class MockIncidentRepository implements IncidentRepository {
     String incidentId,
     String unitId, {
     String? overrideReason,
-  }) => _backend.assignUnit(incidentId, unitId, overrideReason: overrideReason);
+    RoadRoute? route,
+  }) => _backend.assignUnit(
+    incidentId,
+    unitId,
+    overrideReason: overrideReason,
+    route: route,
+  );
 
   @override
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);

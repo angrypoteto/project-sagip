@@ -9,6 +9,7 @@ import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/road_route.dart';
 import '../models/sos.dart';
 
 // Repository interfaces. The UI depends only on these. Phase 1 uses the Mock*
@@ -68,11 +69,13 @@ abstract interface class IncidentRepository {
   Future<void> confirmType(String incidentId, IncidentType type);
 
   /// Assigns [unitId]. Pass [overrideReason] when it is not the top
-  /// suggestion (FR3 manual override).
+  /// suggestion (FR3 manual override), and the unit's road [route] when
+  /// Dijkstra found one (kept on the dispatch record for the responder).
   Future<void> assignUnit(
     String incidentId,
     String unitId, {
     String? overrideReason,
+    RoadRoute? route,
   });
   Future<void> resolve(String incidentId);
 }
@@ -103,6 +106,12 @@ abstract interface class WeatherRepository {
 
 abstract interface class AuditRepository {
   Stream<List<AuditEntry>> watchRecent({int limit});
+}
+
+/// The Dijkstra timing log for Chapter 4 (plan 10.2). Logging never throws
+/// and never delays the caller: a lost timing row must not block dispatch.
+abstract interface class RoutingLogRepository {
+  void log(RoutingRun run);
 }
 
 enum LinkState { live, reconnecting, offline }

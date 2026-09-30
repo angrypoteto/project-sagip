@@ -97,6 +97,11 @@ extension MobileLabels on AppLocalizations {
   String typeOrEmergency(IncidentType? t) =>
       t == null ? typeUnknown : incidentType(t);
 
+  /// "Turn right onto España Boulevard", or "Turn right" on an unnamed road.
+  String turnInstruction(RouteStep step) => step.street == null
+      ? turnHere(step.turn.name)
+      : turnOnto(step.turn.name, step.street!);
+
   /// "Head northeast" from a bearing in degrees.
   String heading(double degrees) {
     final points = [dirN, dirNE, dirE, dirSE, dirS, dirSW, dirW, dirNW];

@@ -15,8 +15,9 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_mobile_actions.sql` | Every write the phones can make (resident sign-up and linking, SOS and details, crowd reports with the Manila check and hourly limit, consent and household, responder accept, arrive, on-scene check, status, completion report, position, alert read) and the reads in the app's shapes (`my_sos`, `my_crowd_reports`, `my_assignments`, `my_unit_history`, `my_alerts`); DBSCAN now counts from capture time |
 | `migrations/*_mobile_demo_data.sql` | `reset_demo_data()` also loads past rescues for R-03 and Maria, four sample alerts, and sample forecasts |
 | `migrations/*_sms_log.sql` | The SMS log: every text sent or kept; no client access |
+| `migrations/*_routing.sql` | Road routes on dispatch records (`dispatch.route` polyline and `route_plan`; `assign_unit` takes the route), routes in `my_assignments`, and the Dijkstra timing log `routing_run` (admins read it; `log_routing_run` writes it) |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 88 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 99 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -72,6 +73,18 @@ The app asks Supabase to text a code; Supabase hands the code to the `send-sms` 
 6. **For demos without texts at all:** Authentication > Sign In / Providers > Phone > Test phone numbers: for example `639170004821=123456` (Maria's sample number). Test numbers never call the hook.
 
 The function never logs full numbers (only "0917 ••• 4821"), and `sms_log` is not readable from the apps.
+
+## Routing and the timing log
+
+The dashboard ranks units by road travel time (Dijkstra over the OpenStreetMap road graph bundled in the apps; see `ml/README.md`). On Assign it sends the unit's route, which `assign_unit` keeps on the dispatch record: `route` holds the encoded polyline and `route_plan` the travel time, length, street steps, and how long Dijkstra took. The responder's phone gets it through `my_assignments()` and also routes on its own from its current position.
+
+Every Dijkstra run is timed and logged in `routing_run` (at most one per job and kind a minute from each app). For Chapter 4, in the SQL editor:
+
+```sql
+select kind, platform, count(*), round(avg(compute_ms), 2) as avg_ms,
+       percentile_cont(0.95) within group (order by compute_ms) as p95_ms, max(compute_ms) as max_ms
+from public.routing_run group by kind, platform order by kind, platform;
+```
 
 ## Loading all 897 barangays
 

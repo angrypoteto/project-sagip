@@ -4,6 +4,7 @@ import 'enums.dart';
 import 'geo_point.dart';
 import 'offline.dart';
 import 'response_unit.dart';
+import 'road_route.dart';
 
 /// F4 offers "Arrived" within this distance of the scene (plan: about 50 m).
 const arrivalRadiusMeters = 50.0;
@@ -36,6 +37,7 @@ class Assignment {
     this.notRealReason,
     this.peopleFound,
     this.closedByDispatcher = false,
+    this.route,
   });
 
   final String incidentId;
@@ -70,6 +72,11 @@ class Assignment {
   /// The dispatcher reassigned or closed it; F3 shows a banner.
   final bool closedByDispatcher;
 
+  /// The road route the dispatcher's suggestion used, from the unit's
+  /// position at dispatch time (Dijkstra, plan 10.2). The phone re-routes
+  /// from its own position; this is the fallback and the record.
+  final RoadRoute? route;
+
   String get place => '$barangay, $district';
 
   Assignment copyWith({
@@ -81,6 +88,7 @@ class Assignment {
     String? notRealReason,
     int? peopleFound,
     bool? closedByDispatcher,
+    RoadRoute? route,
   }) => Assignment(
     incidentId: incidentId,
     offeredAt: offeredAt,
@@ -101,6 +109,7 @@ class Assignment {
     notRealReason: notRealReason ?? this.notRealReason,
     peopleFound: peopleFound ?? this.peopleFound,
     closedByDispatcher: closedByDispatcher ?? this.closedByDispatcher,
+    route: route ?? this.route,
   );
 
   factory Assignment.fromJson(Map<String, Object?> json) => Assignment(
@@ -129,6 +138,7 @@ class Assignment {
     notRealReason: json['not_real_reason'] as String?,
     peopleFound: json['people_found'] as int?,
     closedByDispatcher: json['closed_by_dispatcher'] as bool? ?? false,
+    route: _routeFromJson(json['route']),
   );
 
   Map<String, Object?> toJson() => {
@@ -152,7 +162,18 @@ class Assignment {
     'not_real_reason': notRealReason,
     'people_found': peopleFound,
     'closed_by_dispatcher': closedByDispatcher,
+    'route': route?.toJson(),
   };
+}
+
+/// A bad or missing route is dropped rather than failing the whole job.
+RoadRoute? _routeFromJson(Object? json) {
+  if (json is! Map) return null;
+  try {
+    return RoadRoute.fromJson(json.cast<String, Object?>());
+  } on Object {
+    return null;
+  }
 }
 
 /// The completion and damage report (F6). Saved on the phone first.
