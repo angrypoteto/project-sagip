@@ -19,7 +19,7 @@ Four roles, each a separate account:
 
 ## Current phase
 
-**Phase 1: frontend design with mock data.** Build screens against repository interfaces backed by `Mock*Repository` classes. Do not wire Supabase into UI code yet unless the task says so. See the plan for the screen inventory and the five flows to prototype. The web dashboard already runs on the mock backend; `apps/mobile` does not exist yet (details in `docs/PROGRESS.md`).
+**Phase 1: frontend design with mock data.** Build screens against repository interfaces backed by `Mock*Repository` classes. See the plan for the screen inventory and the five flows to prototype. The web dashboard is done for Phase 1 and can also run on the hosted Supabase project through `Supabase*Repository` classes (Joshua asked for this on 2026-09-30; see `supabase/README.md`). New screens still start on mock data; do not wire other apps to Supabase unless the task says so. `apps/mobile` does not exist yet (details in `docs/PROGRESS.md`).
 
 ## Stack
 
@@ -51,12 +51,15 @@ If a folder doesn't exist yet, create it following this layout instead of invent
 
 ```bash
 flutter pub get                          # in each app/package
-flutter run -d chrome                    # dashboard
+flutter run -d chrome                    # dashboard on mock data
+flutter run -d chrome --dart-define-from-file=.env   # dashboard on Supabase (in apps/dashboard; needs .env)
 flutter run -d <android-device-id>       # mobile
 flutter analyze                          # must pass with zero issues before commit
 flutter test                             # run tests for the package you touched
 dart format .                            # format before commit
-supabase start / supabase db reset       # local database (migrations + seed)
+supabase start / supabase db reset       # local database (migrations + seed); CLI not installed yet
+supabase test db                         # RLS test (supabase/tests/rls_test.sql)
+select public.reset_demo_data();         # hosted project, SQL editor: reload the demo data
 ```
 
 ## Architecture rules

@@ -18,7 +18,7 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
    - remove your row from "Active work" (or mark it "paused" with the exact next step),
    - list anything you learned about the tools in "Gotchas".
 6. Never rewrite another session's log entry. Add a new one below it.
-7. Do not commit unless Joshua asks. Commits have no Co-Authored-By trailer.
+7. Do not commit unless Joshua asks, and ask before every push. Commits have no Co-Authored-By trailer and use the author `Joshua F. Habana <83832534+angrypoteto@users.noreply.github.com>` (already set in this repo's git config).
 
 ---
 
@@ -26,7 +26,6 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-09-30 | f47c816b | Supabase backend: schema, RLS, seed data, Supabase repositories, dashboard wiring | `supabase/`, `packages/shared/lib/src/supabase/`, `apps/dashboard/lib/main.dart`, `apps/dashboard/lib/src/providers.dart` | in progress |
 
 ---
 
@@ -41,12 +40,12 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] `docs/CONVENTIONS.md`
 
 ### Workspace
-- [x] Git repo initialized (branch `main`, **no commits yet**; git user.name/email not set on this machine)
+- [x] Git repo on branch `main`, pushed to the **public** GitHub repo https://github.com/angrypoteto/project-sagip (created 2026-09-30). Commits use angrypoteto's noreply email so GitHub credits that account.
 - [x] Root `.gitignore` (build output, `.env`, thesis .docx kept out)
 - [x] Pub workspace: root `pubspec.yaml` with `apps/dashboard` and `packages/shared`
 - [ ] `apps/mobile` (resident and responder Android app) not created
-- [ ] `supabase/` and `ml/` folders exist but are empty
-- [ ] GitHub remote and CI
+- [ ] `ml/` folder is empty
+- [ ] CI (GitHub Actions running analyze and tests)
 
 ### packages/shared (`sagip_shared`)
 - [x] Design tokens: `SagipColors` (with text-safe variants), `SagipSpace`, `SagipRadius`, `SagipMotion`
@@ -62,7 +61,20 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Dijkstra over the OSM road graph (plan 10.2)
 - [ ] Incident type classifier (plan 10.4), LSTM + KDE (plan 10.5), RAG (plan 10.6)
 
-### apps/dashboard (`sagip_dashboard`), running on the mock backend
+### supabase/ (hosted project `imssgenjfirpohkwxwbv`, see `supabase/README.md`)
+- [x] Schema: staff, residents + vulnerable household members, units, incidents + timeline, crowd reports, dispatches, weather, audit log (5 migrations, applied)
+- [x] Row Level Security on every table; clients get read-only grants; full contact numbers are hidden (masked column + audited `reveal_resident_contact`)
+- [x] Every write is a checked database function: verify, SMS check, false report, confirm type, assign/reassign, resolve
+- [x] Audit log written by a trigger on incident changes, plus the functions (FR11); rows made outside the app are logged as "System"
+- [x] DBSCAN clustering of crowd reports in the database (`ST_ClusterDBSCAN`, eps 50 m, minPts 3, 60 min)
+- [x] Realtime on incidents, timeline, crowd reports, units, weather, audit log, households
+- [x] Demo data and tools (SQL editor only): `reset_demo_data()`, `demo_new_sos()`, `demo_add_crowd_report()`, `demo_advance()`, `create_staff_account(...)`
+- [x] RLS test: `supabase/tests/rls_test.sql`, 29 pgTAP checks across anon, dispatcher, admin, responder, resident, and a signed-in account with no role
+- [ ] Responder and resident write paths (status updates, SOS insert, crowd report insert) for the mobile app
+- [ ] SMS gateway, Semaphore, PAGASA feed, FCM (Edge Functions)
+- [ ] Leaked-password protection is off (Supabase dashboard setting: Authentication, then Passwords); turn it on before the pilot
+
+### apps/dashboard (`sagip_dashboard`), runs on Supabase (with `.env`) or mock data
 - [x] D1 Staff sign in (demo accounts shown only in mock mode)
 - [x] Shell: top bar (PAGASA summary, live/offline indicator, clock, user menu with theme toggle and demo connection switcher), navigation rail (admin items hidden for dispatchers), offline/reconnecting banner, new-SOS toast
 - [x] D2 Command Board map view (incidents, units, unverified reports, layers, legend, zoom)
@@ -86,8 +98,10 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Crowd reports map: the 50 m ring is only a few pixels at city zoom; add a count marker for clusters
 
 ### Tests (last run 2026-09-30)
-- `packages/shared`: 35 passing (`flutter test`)
+- `packages/shared`: 39 passing (`flutter test`), including parsing of rows shaped like the Supabase views
 - `apps/dashboard`: 7 passing (sign-in, ranked queue, assign top unit, override needs a reason, admin pages hidden, admin audit log, offline disables actions)
+- `supabase/tests/rls_test.sql`: 29 of 29 passing, run on the hosted project inside a rolled-back transaction (nothing was left behind)
+- Browser check on Supabase (2026-09-30, headless Chrome, 1440 x 900): dispatcher sign-in; board loaded from the database; realtime delivered a new SOS toast and a new DBSCAN cluster without reload; "Show number" revealed the full number; "Mark verified" and "Assign" worked; all five actions appear in `audit_log` under R. Santos. Demo data reset afterwards. Not yet checked in the browser: admin sign-in and the audit log page on Supabase, crowd reports, units, and weather pages on Supabase.
 - `flutter analyze`: no issues in both packages
 - `flutter build web --release`: builds
 - Browser check (2026-09-30, headless Chrome at 1440 x 900 driving the real build): sign-in, board, drawer, new-SOS toast, list view, and crowd reports all render and work; the simulated SOS arrived and the Dapitan St cluster formed live. Screenshots were taken but not saved in the repo.
@@ -97,16 +111,19 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 ## How to run
 
 ```bash
-flutter pub get                       # once, at the repo root
+flutter pub get                                        # once, at the repo root
 cd apps/dashboard
-flutter run -d chrome                 # opens the dashboard
-flutter test                          # dashboard tests
+flutter run -d chrome --dart-define-from-file=.env     # on Supabase (needs apps/dashboard/.env)
+flutter run -d chrome                                  # on mock data
+flutter test                                           # dashboard tests
 cd ../../packages/shared && flutter test
 ```
 
-Demo accounts (mock mode only): `dispatcher@sagip.test` or `admin@sagip.test`, password `sagip-demo`.
+In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (mock data)" (`.vscode/launch.json`).
 
-What the demo does by itself after sign-in:
+**On Supabase:** `apps/dashboard/.env` holds the project URL and publishable key (git-ignored; copy `.env.example`). Staff accounts are `dispatcher@sagip.test` (R. Santos) and `admin@sagip.test` (E. Navarro). Their password is not in the repo; Joshua has it. Change data in the Supabase Table Editor, or run `select public.reset_demo_data();` in the SQL editor to start over (more in `supabase/README.md`).
+
+**On mock data:** same emails, password `sagip-demo`. What the mock demo does by itself after sign-in:
 - about 20 s: a new SOS arrives from Barangay 128, Tondo, flagged "Location may be faked" (toast appears on any page)
 - about 35 s: a third crowd report on Dapitan St turns into a confirmed flood cluster (DBSCAN)
 - assigned units accept after 6 s, drive to the incident, arrive, and resolve 90 s after arriving
@@ -127,15 +144,24 @@ What the demo does by itself after sign-in:
 | Unit ranking by straight-line distance × 1.3 at 20 km/h | Stand-in until Dijkstra; the UI labels it "estimated by straight-line distance" | None once Dijkstra lands |
 | Override reason stored as the chosen label text (plus note) | Simple for now | Consider a reason code in the Supabase schema |
 | Assigned-but-not-moving units keep status `available` with `currentIncidentId` set | FR9 has only three unit statuses (plan Q11) | Decide Q11 |
+| Dashboard wired to Supabase during Phase 1 | Joshua asked for it (2026-09-30) so demo data is easy to change; screens still only use repository interfaces | None |
+| One `staff` table for dispatchers, admins, and responders (residents in `manila_resident`) | Simpler RLS than one table per role | Check against Figure 3.6 (plan Q8) |
+| Clients never write tables directly; every write is a security-definer function that checks the role and logs the action | One place for rules and the audit log (FR11, NFR4) | Describe in Ch 3 security design |
+| Contact numbers reach the dashboard masked; the full number comes from `reveal_resident_contact`, which writes a `contactViewed` audit row | Data Privacy Act (NFR4) | Mention in Ch 3 |
+| Enum values stored as checked `text` columns with the exact Dart names (`pendingVerification`, `enRoute`, ...) | Same names end to end, no mapping layer | None |
+| Demo tools are SQL functions that the app cannot call | Reset and demo scenarios from the SQL editor; no demo backdoor in the API | None |
+| Snackbars are 360 px wide at the bottom centre | A full-width one covered the drawer's "Assign" button for 4 s after "Mark verified" (found in the browser check) | None |
 
 ---
 
 ## Next steps (suggested order)
 
-1. Joshua reviews the dashboard in Chrome (`flutter run -d chrome` in `apps/dashboard`) and lists what to change.
-2. Create `apps/mobile` and the shared mobile widgets (`SosButton` first), then the Tier 1 resident and responder screens (plan 7.8).
-3. Supabase schema, RLS, and auth (plan Phase 2), then `supabaseOverrides(...)` beside `mockOverrides`.
-4. Build the OSM road graph and Dijkstra (plan 10.2) and swap it in for `StraightLineSuggester`.
+1. Joshua reviews the dashboard on Supabase ("Dashboard (Supabase)" in VS Code) and lists what to change. Also turn on leaked-password protection in the Supabase dashboard.
+2. Browser-check the admin account on Supabase (audit log page) and the crowd reports, units, and weather pages.
+3. Create `apps/mobile` and the shared mobile widgets (`SosButton` first), then the Tier 1 resident and responder screens (plan 7.8), on mock data first.
+4. Supabase write paths for the mobile app (SOS insert with the capture timestamp, crowd reports, responder status updates), each with RLS tests.
+5. Build the OSM road graph and Dijkstra (plan 10.2) and swap it in for `StraightLineSuggester`.
+6. GitHub Actions: `flutter analyze` and `flutter test` on every push.
 
 ---
 
@@ -150,6 +176,13 @@ What the demo does by itself after sign-in:
 - intl puts U+202F before AM/PM; the font cannot draw it. `common/labels.dart` swaps it for U+00A0. Use those formatters, not `DateFormat` directly.
 - Headless-Chrome automation (puppeteer) triggers a harmless engine error, `Cannot read properties of null (reading 'toString')` in Flutter's `KeyboardConverter`, because synthetic key events lack a key location. Real keyboards do not trigger it. Ignore it in automated browser runs.
 - The map's dark and light looks come from color filters on OSM tiles (`map_parts.dart`, `_mutedDark` / `_mutedLight`); they go away when self-hosted styled tiles arrive.
+- Supabase MCP: the local `supabase` connector answers "Resource has been removed". Use the claude.ai Supabase connector with `project_id: imssgenjfirpohkwxwbv`.
+- Supabase `execute_sql` returns only the last statement's result. To run the pgTAP file there, collect each check into a temp table and end with a `do` block that raises an exception containing the results; the error also guarantees the whole run is rolled back. `supabase/tests/rls_test.sql` itself is plain pgTAP for `supabase test db`.
+- New migrations applied through the MCP get a version stamped with the apply time. Rename the local file to match `list_migrations` so the CLI does not apply it twice.
+- `package:supabase` also exports `AuthException`, which clashes with ours. Import it with `hide AuthException` plus a prefixed `show` import (see `supabase_repositories.dart`).
+- Headless browser checks: Flutter's semantics tree could not be switched on by clicking `flt-semantics-placeholder`, so drive the page by coordinates and screenshots. Snackbars and toasts can sit on top of buttons; take a screenshot before clicking.
+- Data streams restart when the signed-in account changes (`_forAccount` in `providers.dart`), so one account's data never stays in memory for the next.
+- Long Python in a Bash heredoc can fail to parse here; write the script to the scratchpad and run the file.
 
 ---
 
@@ -168,3 +201,12 @@ What the demo does by itself after sign-in:
 - Drove the real build in headless Chrome and fixed what the screenshots showed: pink roads on the dark map (now a muted blue-grey basemap), missing space in the clock, the new-SOS toast covering the Map/List switch, and the resident name being cut off. **Joshua has not reviewed it in person yet.**
 - Wrote `docs/CONVENTIONS.md`, this file, and a root `.gitignore`; updated `CLAUDE.md` (points every session here; maps, Riverpod, material_ui, no co-author trailer) and ticked finished items in the plan.
 - Not committed (no git identity configured; waiting for Joshua).
+
+### 2026-09-30: Supabase backend and GitHub (session f47c816b)
+- Built the hosted Supabase backend: 5 migrations (schema, access control, dispatch functions with audit and DBSCAN, demo data and tools, private RLS helpers), renamed locally to match the hosted versions. Staff accounts `dispatcher@sagip.test` and `admin@sagip.test` created in the SQL editor (password kept out of the repo).
+- Added Supabase implementations of every repository interface in `packages/shared/lib/src/supabase/` (live queries: fetch, then refetch on realtime changes; database refusals mapped to `ActionRejected`). `main.dart` uses Supabase when `.env` is present, mock data otherwise. `ResidentRepository.logContactViewed` became `revealContact` (returns the number and audits it).
+- Model changes: timestamps converted to local time, `UserRole.system`, numeric audit ids, numbers that arrive already masked.
+- Browser check against the live project passed (details under Tests). It found two UI problems, both fixed: full-width snackbars covered the "Assign" button, and "from the sms" was lowercased (now a translatable phrase per channel).
+- Added `supabase/tests/rls_test.sql` (29 checks, all passing on the hosted project, rolled back), `supabase/seed.sql`, `supabase/README.md`, and `.vscode/launch.json`.
+- Created the public GitHub repo https://github.com/angrypoteto/project-sagip and pushed the first commit. Rewrote its author to angrypoteto's noreply email and force-pushed (with Joshua's approval) so GitHub credits angrypoteto instead of `habanajoshuaf-source`, which owns the Gmail address.
+- Verified: `flutter analyze` clean in both packages; 39 shared tests and 7 dashboard tests pass; web build with the Supabase settings succeeds.
