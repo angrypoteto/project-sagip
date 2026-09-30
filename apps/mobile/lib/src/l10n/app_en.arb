@@ -68,6 +68,8 @@
   "@statusDeliveredNotice": {"placeholders": {"time": {"type": "String"}}},
   "completionDeliveredNotice": "Your completion report from {time} was delivered.",
   "@completionDeliveredNotice": {"placeholders": {"time": {"type": "String"}}},
+  "detailsDeliveredNotice": "The details of your SOS from {time} were delivered.",
+  "@detailsDeliveredNotice": {"placeholders": {"time": {"type": "String"}}},
 
   "sosStatusTitle": "Your SOS",
   "sosStateSaved": "Saved on your phone",
@@ -156,6 +158,7 @@
   "queueKindReport": "Hazard report",
   "queueKindStatus": "Status update",
   "queueKindCompletion": "Completion report",
+  "queueKindDetails": "SOS details",
   "queueRemove": "Remove",
 
   "meTitle": "Me",

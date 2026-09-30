@@ -601,7 +601,9 @@ class MockMobileBackend {
               await _advance(r.id);
             case QueuedKind.crowdReport:
               await _advanceReport(r.id);
-            case QueuedKind.statusUpdate || QueuedKind.completionReport:
+            case QueuedKind.statusUpdate ||
+                QueuedKind.completionReport ||
+                QueuedKind.sosDetails:
               await _advanceOutgoing(r.id);
           }
         }

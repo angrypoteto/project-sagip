@@ -191,6 +191,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String detailsDeliveredNotice(String time) {
+    return 'The details of your SOS from $time were delivered.';
+  }
+
+  @override
   String get sosStatusTitle => 'Your SOS';
 
   @override
@@ -435,6 +440,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get queueKindCompletion => 'Completion report';
+
+  @override
+  String get queueKindDetails => 'SOS details';
 
   @override
   String get queueRemove => 'Remove';

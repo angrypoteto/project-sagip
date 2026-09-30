@@ -29,6 +29,7 @@ extension MobileLabels on AppLocalizations {
 
   String queuedKind(QueuedKind k) => switch (k) {
     QueuedKind.sos => queueKindSos,
+    QueuedKind.sosDetails => queueKindDetails,
     QueuedKind.crowdReport => queueKindReport,
     QueuedKind.statusUpdate => queueKindStatus,
     QueuedKind.completionReport => queueKindCompletion,
@@ -37,6 +38,7 @@ extension MobileLabels on AppLocalizations {
   /// "Your SOS from 3:42 PM was delivered." (NFR1 delivery notice).
   String deliveredNotice(QueuedKind k, String time) => switch (k) {
     QueuedKind.sos => sosDeliveredNotice(time),
+    QueuedKind.sosDetails => detailsDeliveredNotice(time),
     QueuedKind.crowdReport => reportDeliveredNotice(time),
     QueuedKind.statusUpdate => statusDeliveredNotice(time),
     QueuedKind.completionReport => completionDeliveredNotice(time),

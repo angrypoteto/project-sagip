@@ -11,11 +11,14 @@ part of 'supabase_repositories.dart';
 
 /// Everything the mobile app needs from one [SupabaseClient].
 class SupabaseMobileBackend {
-  SupabaseMobileBackend(SupabaseClient client)
-    : this._(client, StreamController<Object?>.broadcast());
+  SupabaseMobileBackend(SupabaseClient client, {LocalStore? store})
+    : this._(client, store, StreamController<Object?>.broadcast());
 
-  SupabaseMobileBackend._(SupabaseClient client, this._profileChanged)
-    : accounts = SupabaseMobileAccounts(client),
+  SupabaseMobileBackend._(
+    SupabaseClient client,
+    LocalStore? store,
+    this._profileChanged,
+  ) : accounts = SupabaseMobileAccounts(client, store: store),
       residents = SupabaseResidentRepository(
         client,
         refreshOn: _profileChanged.stream,
@@ -47,7 +50,7 @@ class SupabaseMobileBackend {
 /// Supabase's Send SMS hook (plan Q37).
 class SupabaseMobileAccounts
     implements AuthRepository, ResidentAccountRepository {
-  SupabaseMobileAccounts(this._client) {
+  SupabaseMobileAccounts(this._client, {this._store}) {
     _client.auth.onAuthStateChange.listen(
       (state) => _onSession(state.session),
       onError: (Object _) {},
@@ -55,6 +58,11 @@ class SupabaseMobileAccounts
   }
 
   final SupabaseClient _client;
+
+  /// Remembers who is signed in, so a phone restarted without a signal
+  /// stays signed in and can still send an SOS.
+  final LocalStore? _store;
+  static const _savedKey = 'account';
   final _changes = StreamController<AppUser?>.broadcast();
   AppUser? _user;
   var _known = false;
@@ -70,6 +78,24 @@ class SupabaseMobileAccounts
     _user = user;
     _known = true;
     _changes.add(user);
+    final authId = _client.auth.currentUser?.id;
+    unawaited(
+      _store?.write(
+        _savedKey,
+        user == null || authId == null
+            ? null
+            : jsonEncodeSafe({'auth_id': authId, 'user': user.toJson()}),
+      ),
+    );
+  }
+
+  /// The account saved for this session, if it is the same login.
+  AppUser? _saved(String authId) {
+    final text = _store?.read(_savedKey);
+    if (text is! String) return null;
+    final json = jsonDecodeSafe(text);
+    if (json is! Map || json['auth_id'] != authId) return null;
+    return AppUser.fromJson((json['user']! as Map).cast<String, Object?>());
   }
 
   /// The account behind a session: a responder, or a resident record
@@ -118,9 +144,16 @@ class SupabaseMobileAccounts
       }
       if (_client.auth.currentUser?.id == id) _set(user);
     } catch (_) {
-      // Offline while restoring a session: show sign-in; the next auth
-      // event retries.
-      if (!_known) _set(null);
+      // Offline while restoring a session: use the account saved on the
+      // phone, or show sign-in; the next auth event retries.
+      final saved = _saved(id);
+      if (saved != null) {
+        _user = saved;
+        _known = true;
+        _changes.add(saved);
+      } else if (!_known) {
+        _set(null);
+      }
     }
   }
 
@@ -400,7 +433,7 @@ class SupabaseAlertRepository implements AlertRepository {
 /// client id and capture time, so the offline queue (part 6) can send the
 /// same record again after a reconnect and the server stores it once
 /// (NFR1, plan Q31).
-class SupabaseMobileRemote {
+class SupabaseMobileRemote implements MobileServer {
   const SupabaseMobileRemote(this._client);
 
   final SupabaseClient _client;
@@ -415,6 +448,7 @@ class SupabaseMobileRemote {
   // ------------------------------------------------------- resident
 
   /// Sends an SOS; returns the incident id (for example "INC-0152").
+  @override
   Future<String> submitSos(SosRequest sos) => _call(
     () => _client.rpc<String>(
       'submit_sos',
@@ -431,6 +465,7 @@ class SupabaseMobileRemote {
     ),
   );
 
+  @override
   Future<void> addSosDetails(String clientId, SosDetails details) => _call(
     () => _client.rpc<void>(
       'add_sos_details',
@@ -447,6 +482,7 @@ class SupabaseMobileRemote {
   /// The resident's SOS requests as the server has them. Refreshes often
   /// while a unit is on the way: its position is not sent to residents by
   /// realtime.
+  @override
   Stream<List<SosRequest>> watchMySos() => liveQuery(
     _client,
     tables: const ['incident_report', 'incident_event'],
@@ -459,6 +495,7 @@ class SupabaseMobileRemote {
 
   /// Sends a hazard report; returns the report id. Throws [ReportRejected]
   /// for the server's FR15 checks.
+  @override
   Future<String> submitReport(HazardReport report) => _call(
     () => _client.rpc<String>(
       'submit_crowd_report',
@@ -478,6 +515,7 @@ class SupabaseMobileRemote {
 
   /// The resident's reports with their stage. Refreshes every minute:
   /// a report turns Not confirmed an hour after it was made.
+  @override
   Stream<List<HazardReport>> watchMyReports() => liveQuery(
     _client,
     tables: const ['crowd_report'],
@@ -491,6 +529,7 @@ class SupabaseMobileRemote {
   // ------------------------------------------------------ responder
 
   /// This responder's unit, or null if the account has no unit.
+  @override
   Stream<ResponseUnit?> watchUnit() => liveQuery(
     _client,
     tables: const ['response_unit'],
@@ -513,6 +552,7 @@ class SupabaseMobileRemote {
 
   /// Open assignments for this unit: status assigned is an offer,
   /// enRoute and onScene the current job.
+  @override
   Stream<List<Assignment>> watchAssignments() => liveQuery(
     _client,
     tables: const ['incident_report', 'incident_event'],
@@ -522,6 +562,7 @@ class SupabaseMobileRemote {
     ],
   );
 
+  @override
   Future<void> accept(String incidentId, DateTime capturedAt) => _call(
     () => _client.rpc<void>(
       'accept_assignment',
@@ -529,6 +570,7 @@ class SupabaseMobileRemote {
     ),
   );
 
+  @override
   Future<void> arrive(String incidentId, DateTime capturedAt) => _call(
     () => _client.rpc<void>(
       'mark_on_scene',
@@ -536,6 +578,7 @@ class SupabaseMobileRemote {
     ),
   );
 
+  @override
   Future<void> confirmOnScene(
     String incidentId, {
     required bool realEmergency,
@@ -556,6 +599,7 @@ class SupabaseMobileRemote {
   );
 
   /// The F1 status control. Throws [StatusRejected] for refused moves.
+  @override
   Future<void> setStatus(UnitStatus status, DateTime capturedAt) => _call(
     () => _client.rpc<void>(
       'set_unit_status',
@@ -563,6 +607,7 @@ class SupabaseMobileRemote {
     ),
   );
 
+  @override
   Future<void> submitCompletion(CompletionReport report) => _call(
     () => _client.rpc<void>(
       'submit_completion_report',
@@ -582,6 +627,7 @@ class SupabaseMobileRemote {
     ),
   );
 
+  @override
   Future<void> updateLocation(GeoPoint point, DateTime capturedAt) => _call(
     () => _client.rpc<void>(
       'update_unit_location',
@@ -594,6 +640,7 @@ class SupabaseMobileRemote {
   );
 
   /// Finished jobs for this unit, newest first (F7).
+  @override
   Stream<List<CompletedAssignment>> watchHistory() => liveQuery(
     _client,
     tables: const ['completion_report'],

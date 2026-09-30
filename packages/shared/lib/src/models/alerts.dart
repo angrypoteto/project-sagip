@@ -190,4 +190,24 @@ class AlertFeed {
   final DateTime updatedAt;
 
   int get unread => alerts.where((a) => !a.read).length;
+
+  /// The phone keeps the last feed so the tab works offline.
+  factory AlertFeed.fromJson(Map<String, Object?> json) => AlertFeed(
+    alerts: [
+      for (final a in (json['alerts'] as List<Object?>? ?? const []))
+        PublicAlert.fromJson((a! as Map).cast<String, Object?>()),
+    ],
+    forecast: json['forecast'] == null
+        ? null
+        : BarangayForecast.fromJson(
+            (json['forecast']! as Map).cast<String, Object?>(),
+          ),
+    updatedAt: timeFromJson(json['updated_at']),
+  );
+
+  Map<String, Object?> toJson() => {
+    'alerts': [for (final a in alerts) a.toJson()],
+    'forecast': forecast?.toJson(),
+    'updated_at': updatedAt.toUtc().toIso8601String(),
+  };
 }

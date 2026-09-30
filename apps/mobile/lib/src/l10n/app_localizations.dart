@@ -400,6 +400,12 @@ abstract class AppLocalizations {
   /// **'Your completion report from {time} was delivered.'**
   String completionDeliveredNotice(String time);
 
+  /// No description provided for @detailsDeliveredNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'The details of your SOS from {time} were delivered.'**
+  String detailsDeliveredNotice(String time);
+
   /// No description provided for @sosStatusTitle.
   ///
   /// In en, this message translates to:
@@ -837,6 +843,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Completion report'**
   String get queueKindCompletion;
+
+  /// No description provided for @queueKindDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS details'**
+  String get queueKindDetails;
 
   /// No description provided for @queueRemove.
   ///
