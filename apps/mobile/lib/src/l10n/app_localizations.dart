@@ -322,6 +322,12 @@ abstract class AppLocalizations {
   /// **'No signal. Your SOS will be saved and passed to nearby phones.'**
   String get bannerNoSignal;
 
+  /// No description provided for @bannerOfflineSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. SOS and reports are saved and sent when you\'re back online.'**
+  String get bannerOfflineSaved;
+
   /// No description provided for @bannerOfflineWaiting.
   ///
   /// In en, this message translates to:
@@ -813,6 +819,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No signal. We\'ll keep trying, and pass your SOS to nearby phones.'**
   String get queueNextNone;
+
+  /// No description provided for @queueNextWait.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. Everything stays on your phone and is sent when you\'re back online. In an emergency, call MDRRMD.'**
+  String get queueNextWait;
 
   /// No description provided for @queueCaptured.
   ///

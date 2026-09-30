@@ -19,6 +19,14 @@
       "deviceId": "chrome"
     },
     {
+      "name": "Mobile (Supabase)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/mobile",
+      "program": "lib/main.dart",
+      "args": ["--dart-define-from-file=.env"]
+    },
+    {
       "name": "Mobile (mock data)",
       "type": "dart",
       "request": "launch",

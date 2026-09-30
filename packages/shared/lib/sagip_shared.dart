@@ -8,6 +8,7 @@ export 'src/algorithms/priority.dart';
 export 'src/algorithms/unit_suggester.dart';
 export 'src/data/manila_barangays.dart';
 export 'src/format.dart';
+export 'src/mock/live_value.dart';
 export 'src/mock/mock_backend.dart';
 export 'src/mock/mock_mobile_backend.dart';
 export 'src/mock/mock_mobile_repositories.dart';

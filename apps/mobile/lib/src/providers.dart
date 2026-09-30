@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart' show ThemeMode;
@@ -59,6 +60,48 @@ final mockBackendProvider = Provider<MockMobileBackend?>((ref) => null);
 /// Whether map tiles load from the network. Tests turn this off.
 final mapTilesEnabledProvider = Provider<bool>((ref) => true);
 
+/// Storage on the phone (settings, and on the real backend the outbox and
+/// saved copies). In memory unless main.dart provides Hive.
+final localStoreProvider = Provider<LocalStore>((ref) => MemoryLocalStore());
+
+/// What this build can really do while offline. The sample data simulates
+/// every tier; the real app gets SMS, relay, and saved maps in Phase 5, and
+/// screens must not promise them before then.
+@immutable
+class DeviceCapabilities {
+  const DeviceCapabilities({
+    required this.smsTier,
+    required this.relayTier,
+    required this.offlineMaps,
+  });
+
+  /// Tier 2: an SOS goes out by SMS without internet.
+  final bool smsTier;
+
+  /// Tier 3: an SOS is passed through nearby phones without any signal.
+  final bool relayTier;
+
+  /// The map around an accepted job is saved for offline use (FR13).
+  final bool offlineMaps;
+
+  static const simulated = DeviceCapabilities(
+    smsTier: true,
+    relayTier: true,
+    offlineMaps: true,
+  );
+
+  /// The real app before Phase 5: the phone's queue only.
+  static const queueOnly = DeviceCapabilities(
+    smsTier: false,
+    relayTier: false,
+    offlineMaps: false,
+  );
+}
+
+final capabilitiesProvider = Provider<DeviceCapabilities>(
+  (ref) => DeviceCapabilities.simulated,
+);
+
 /// Overrides that run the app on [backend] (Phase 1).
 List<Override> mockOverrides(
   MockMobileBackend backend, {
@@ -92,6 +135,68 @@ List<Override> mockOverrides(
   ),
 ];
 
+/// Overrides that run the app on Supabase (part 6): records go through the
+/// phone's outbox ([engine]); screens read the server's copy merged with
+/// what is still on the phone, and saved copies when offline.
+List<Override> liveOverrides({
+  required SupabaseMobileBackend backend,
+  required LocalStore store,
+  required SyncEngine engine,
+  required SignalMonitor signal,
+  required LocationService location,
+  required PermissionService permissions,
+  Future<void> Function()? recheckSignal,
+}) {
+  String? account() => backend.accounts.currentUser?.id;
+  return [
+    localStoreProvider.overrideWithValue(store),
+    capabilitiesProvider.overrideWithValue(DeviceCapabilities.queueOnly),
+    authRepositoryProvider.overrideWithValue(backend.accounts),
+    residentAccountRepositoryProvider.overrideWithValue(backend.accounts),
+    permissionServiceProvider.overrideWithValue(permissions),
+    sosRepositoryProvider.overrideWithValue(
+      OutboxSosRepository(
+        engine: engine,
+        server: backend.remote,
+        store: store,
+        account: account,
+      ),
+    ),
+    hazardReportRepositoryProvider.overrideWithValue(
+      OutboxHazardReportRepository(
+        engine: engine,
+        server: backend.remote,
+        store: store,
+        account: account,
+      ),
+    ),
+    responderRepositoryProvider.overrideWithValue(
+      OutboxResponderRepository(
+        engine: engine,
+        server: backend.remote,
+        store: store,
+        account: account,
+        location: location.watch(),
+      ),
+    ),
+    offlineQueueProvider.overrideWithValue(
+      OutboxOfflineQueue(engine, account, recheck: recheckSignal),
+    ),
+    signalMonitorProvider.overrideWithValue(signal),
+    locationServiceProvider.overrideWithValue(location),
+    residentRepositoryProvider.overrideWithValue(
+      CachedResidentRepository(backend.residents, store),
+    ),
+    weatherRepositoryProvider.overrideWithValue(
+      CachedWeatherRepository(backend.weather, store),
+    ),
+    alertRepositoryProvider.overrideWithValue(
+      CachedAlertRepository(backend.alerts, store, account),
+    ),
+    vulnerabilityRepositoryProvider.overrideWithValue(backend.vulnerability),
+  ];
+}
+
 // ---------------------------------------------------------------------------
 // Live data.
 // ---------------------------------------------------------------------------
@@ -112,12 +217,17 @@ final permissionsProvider = StreamProvider<Map<AppPermission, PermissionState>>(
 );
 
 /// Whether this phone has been through the welcome and permission steps
-/// (S2). Kept in memory for now; Hive stores it across restarts later.
+/// (S2). Saved on the phone.
 class WelcomeSeen extends Notifier<bool> {
-  @override
-  bool build() => false;
+  static const _key = 'settings:welcome-seen';
 
-  void markSeen() => state = true;
+  @override
+  bool build() => ref.read(localStoreProvider).read(_key) == 'yes';
+
+  void markSeen() {
+    state = true;
+    ref.read(localStoreProvider).write(_key, 'yes');
+  }
 }
 
 final welcomeSeenProvider = NotifierProvider<WelcomeSeen, bool>(
@@ -126,10 +236,19 @@ final welcomeSeenProvider = NotifierProvider<WelcomeSeen, bool>(
 
 /// The Me screen's theme choice (S7). Follows the phone by default.
 class ThemeModeController extends Notifier<ThemeMode> {
-  @override
-  ThemeMode build() => ThemeMode.system;
+  static const _key = 'settings:theme';
 
-  void set(ThemeMode mode) => state = mode;
+  @override
+  ThemeMode build() {
+    final saved = ref.read(localStoreProvider).read(_key);
+    return ThemeMode.values.where((m) => m.name == saved).firstOrNull ??
+        ThemeMode.system;
+  }
+
+  void set(ThemeMode mode) {
+    state = mode;
+    ref.read(localStoreProvider).write(_key, mode.name);
+  }
 }
 
 final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(

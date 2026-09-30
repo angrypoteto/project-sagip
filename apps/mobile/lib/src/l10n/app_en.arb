@@ -48,6 +48,7 @@
 
   "bannerSmsOnly": "Offline. Your SOS will be saved and sent by SMS.",
   "bannerNoSignal": "No signal. Your SOS will be saved and passed to nearby phones.",
+  "bannerOfflineSaved": "Offline. SOS and reports are saved and sent when you're back online.",
   "bannerOfflineWaiting": "Offline · {count} waiting to send",
   "@bannerOfflineWaiting": {"placeholders": {"count": {"type": "int"}}},
   "bannerSending": "Back online · sending {count} saved on your phone",
@@ -152,6 +153,7 @@
   "queueNextInternet": "You're online. Everything saved here is being sent now.",
   "queueNextSms": "No internet. SOS messages go out by SMS; the rest waits for internet.",
   "queueNextNone": "No signal. We'll keep trying, and pass your SOS to nearby phones.",
+  "queueNextWait": "No internet. Everything stays on your phone and is sent when you're back online. In an emergency, call MDRRMD.",
   "queueCaptured": "Captured {time}",
   "@queueCaptured": {"placeholders": {"time": {"type": "String"}}},
   "queueKindSos": "SOS",

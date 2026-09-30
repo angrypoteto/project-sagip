@@ -238,6 +238,10 @@ class _MapReadiness extends ConsumerWidget {
     if (assignment.status == IncidentStatus.assigned) {
       return const SizedBox.shrink(); // not accepted yet
     }
+    // Saving the map for offline use comes in Phase 5 on the real app.
+    if (!ref.watch(capabilitiesProvider).offlineMaps) {
+      return const SizedBox.shrink();
+    }
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);

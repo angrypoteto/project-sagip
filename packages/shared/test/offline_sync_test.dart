@@ -632,30 +632,45 @@ void main() {
     });
   });
 
-  test('position sharing: at most every 15 s, only online', () async {
-    final fixes = StreamController<LocationStatus>();
-    final sharer = ResponderLocationSharer(
-      server: server,
-      location: fixes.stream,
-      online: online.stream,
-    )..start();
-    LocationStatus at(int seconds, double lat) => LocationStatus(
-      gpsOn: true,
-      lastFix: LocationFix(
-        point: GeoPoint(lat, 120.99),
-        accuracyMeters: 5,
-        at: now.add(Duration(seconds: seconds)),
-      ),
-    );
-    fixes.add(at(0, 14.60));
-    await goOnline(true);
-    fixes.add(at(1, 14.61));
-    fixes.add(at(5, 14.62));
-    fixes.add(at(17, 14.63));
-    await pumpEventQueue();
-    expect(server.calls, ['location 14.61', 'location 14.63']);
-    await sharer.stop();
-  });
+  test(
+    'position sharing: at most every 15 s, only online, heartbeat',
+    () async {
+      var clock = now;
+      final fixes = StreamController<LocationStatus>();
+      final sharer = ResponderLocationSharer(
+        server: server,
+        location: fixes.stream,
+        online: online.stream,
+        clock: () => clock,
+        every: const Duration(milliseconds: 40),
+      )..start();
+      LocationStatus at(int ms, double lat) => LocationStatus(
+        gpsOn: true,
+        lastFix: LocationFix(
+          point: GeoPoint(lat, 120.99),
+          accuracyMeters: 5,
+          at: now.add(Duration(milliseconds: ms)),
+        ),
+      );
+      fixes.add(at(0, 14.60));
+      await pumpEventQueue();
+      expect(server.calls, isEmpty, reason: 'offline');
+
+      await goOnline(true);
+      expect(server.calls, ['location 14.6'], reason: 'sent on reconnect');
+      clock = now.add(const Duration(milliseconds: 10));
+      fixes.add(at(10, 14.61));
+      await pumpEventQueue();
+      expect(server.calls, hasLength(1), reason: 'too soon after the last');
+
+      // Standing still: the heartbeat repeats the position.
+      clock = now.add(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 60));
+      await pumpEventQueue();
+      expect(server.calls.last, 'location 14.61');
+      await sharer.stop();
+    },
+  );
 }
 
 class _Weather implements WeatherRepository {

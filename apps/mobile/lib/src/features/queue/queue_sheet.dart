@@ -26,6 +26,7 @@ class QueueSheet extends ConsumerWidget {
     final p = SagipPalette.of(context);
     final records = ref.watch(pendingQueueProvider).value ?? const [];
     final signal = ref.watch(signalProvider).value ?? SignalState.internet;
+    final caps = ref.watch(capabilitiesProvider);
     final locale = Localizations.localeOf(context).toString();
 
     return Padding(
@@ -43,8 +44,10 @@ class QueueSheet extends ConsumerWidget {
           const SizedBox(height: SagipSpace.sm),
           Text(switch (signal) {
             SignalState.internet => l10n.queueNextInternet,
-            SignalState.smsOnly => l10n.queueNextSms,
-            SignalState.noSignal => l10n.queueNextNone,
+            SignalState.smsOnly =>
+              caps.smsTier ? l10n.queueNextSms : l10n.queueNextWait,
+            SignalState.noSignal =>
+              caps.relayTier ? l10n.queueNextNone : l10n.queueNextWait,
           }, style: text.bodyMedium!.copyWith(color: p.textSecondary)),
           const SizedBox(height: SagipSpace.lg),
           if (records.isEmpty)

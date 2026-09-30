@@ -675,10 +675,13 @@ class OutboxResponderRepository implements ResponderRepository {
 /// The offline queue sheet (S6) over the outbox: this account's records
 /// that the server has not confirmed yet, oldest first.
 class OutboxOfflineQueue implements OfflineQueue {
-  const OutboxOfflineQueue(this._engine, this._account);
+  const OutboxOfflineQueue(this._engine, this._account, {this.recheck});
 
   final SyncEngine _engine;
   final String? Function() _account;
+
+  /// Checks the connection again before "Try sending now".
+  final Future<void> Function()? recheck;
 
   @override
   Stream<List<QueuedRecord>> watchPending() => _engine.watch().map(
@@ -693,7 +696,10 @@ class OutboxOfflineQueue implements OfflineQueue {
   Stream<QueuedRecord> deliveries() => _engine.deliveries();
 
   @override
-  Future<void> retryNow() => _engine.retryNow();
+  Future<void> retryNow() async {
+    await recheck?.call();
+    await _engine.retryNow();
+  }
 
   @override
   Future<void> remove(String id) => _engine.remove(id);
@@ -701,50 +707,70 @@ class OutboxOfflineQueue implements OfflineQueue {
 
 // ------------------------------------------------------- position sharing
 
-/// Shares the responder's position while signed in (FR9): at most every
-/// [every], only while online, and never queued (only the newest position
-/// matters). Positions older than the last one sent are skipped.
+/// Shares the responder's position while signed in (FR9): a new fix at
+/// most every [every], and the same position again every [every] while the
+/// unit is standing still, so the dashboard does not mark it stale. Only
+/// while online, and never queued (only the newest position matters).
 class ResponderLocationSharer {
   ResponderLocationSharer({
     required this._server,
     required this._location,
     required Stream<bool> online,
     this.every = const Duration(seconds: 15),
-  }) : _onlineChanges = online;
+    DateTime Function()? clock,
+  }) : _onlineChanges = online,
+       _clock = clock ?? DateTime.now;
 
   final MobileServer _server;
   final Stream<LocationStatus> _location;
   final Stream<bool> _onlineChanges;
+  final DateTime Function() _clock;
   final Duration every;
 
   StreamSubscription<LocationStatus>? _fixes;
   StreamSubscription<bool>? _onlineSub;
+  Timer? _heartbeat;
   var _online = false;
-  DateTime? _sentFixAt;
+  LocationStatus? _latest;
+  DateTime? _sentAt;
   var _busy = false;
 
   void start() {
-    _onlineSub ??= _onlineChanges.listen((on) => _online = on);
-    _fixes ??= _location.listen(_onFix);
+    _onlineSub ??= _onlineChanges.listen((on) {
+      _online = on;
+      if (on) unawaited(_send());
+    });
+    _fixes ??= _location.listen((status) {
+      _latest = status;
+      unawaited(_send());
+    });
+    _heartbeat ??= Timer.periodic(every, (_) => unawaited(_send()));
   }
 
-  Future<void> _onFix(LocationStatus status) async {
-    final fix = status.lastFix;
-    if (!_online || _busy || fix == null || !status.gpsOn) return;
-    final last = _sentFixAt;
-    if (last != null && fix.at.difference(last) < every) return;
+  Future<void> _send() async {
+    final status = _latest;
+    final fix = status?.lastFix;
+    if (!_online || _busy || fix == null || status?.gpsOn != true) return;
+    final now = _clock();
+    final last = _sentAt;
+    if (last != null && now.difference(last) < every) return;
     _busy = true;
     try {
-      await _server.updateLocation(fix.point, fix.at);
-      _sentFixAt = fix.at;
+      // A fresh fix keeps its own time; a repeat of an old one is "still
+      // here now".
+      final at = fix.at.isAfter(last ?? DateTime(0)) ? fix.at : now;
+      await _server.updateLocation(fix.point, at);
+      _sentAt = now;
     } catch (_) {
-      // Next fix tries again.
+      // The next fix or heartbeat tries again.
     } finally {
       _busy = false;
     }
   }
 
   Future<void> stop() async {
+    _heartbeat?.cancel();
+    _heartbeat = null;
     await _fixes?.cancel();
     await _onlineSub?.cancel();
     _fixes = null;

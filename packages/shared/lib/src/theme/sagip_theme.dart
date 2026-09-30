@@ -114,6 +114,8 @@ abstract final class SagipTheme {
         ),
       ),
       inputDecorationTheme: InputDecorationThemeData(
+        // Errors say what happened and what to do; let them wrap.
+        errorMaxLines: 3,
         filled: true,
         fillColor: isDark ? SagipColors.bay : SagipColors.porcelain,
         isDense: density == SagipDensity.dashboard,

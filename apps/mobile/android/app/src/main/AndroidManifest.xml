@@ -1,4 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Sending SOS and reports, and checking that the server answers. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- The SOS location and responder tracking (S2 step 1). -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Alerts and delivery notices (S2 step 2). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Tier 2: an SOS by SMS to the MDRRMD gateway; the APK is installed
+         directly, not from Google Play (plan Q29). -->
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <!-- Tier 3: passing an SOS through nearby phones (Android 12 and up). -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <application
         android:label="S.A.G.I.P."
         android:name="${applicationName}"

@@ -140,6 +140,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'No signal. Your SOS will be saved and passed to nearby phones.';
 
   @override
+  String get bannerOfflineSaved =>
+      'Offline. SOS and reports are saved and sent when you\'re back online.';
+
+  @override
   String bannerOfflineWaiting(int count) {
     return 'Offline · $count waiting to send';
   }
@@ -423,6 +427,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get queueNextNone =>
       'No signal. We\'ll keep trying, and pass your SOS to nearby phones.';
+
+  @override
+  String get queueNextWait =>
+      'No internet. Everything stays on your phone and is sent when you\'re back online. In an emergency, call MDRRMD.';
 
   @override
   String queueCaptured(String time) {

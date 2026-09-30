@@ -50,15 +50,24 @@ class _OfflineBannerState extends ConsumerState<OfflineBanner> {
     final signal = ref.watch(signalProvider).value ?? SignalState.internet;
     final waiting = ref.watch(pendingQueueProvider).value?.length ?? 0;
     final justReconnected = _backOnline?.isActive ?? false;
+    final caps = ref.watch(capabilitiesProvider);
 
     final (String? message, IconData icon, SagipTone? tone) = switch (signal) {
       SignalState.smsOnly => (
-        waiting > 0 ? l10n.bannerOfflineWaiting(waiting) : l10n.bannerSmsOnly,
+        waiting > 0
+            ? l10n.bannerOfflineWaiting(waiting)
+            : caps.smsTier
+            ? l10n.bannerSmsOnly
+            : l10n.bannerOfflineSaved,
         Symbols.cloud_off_rounded,
         null,
       ),
       SignalState.noSignal => (
-        waiting > 0 ? l10n.bannerOfflineWaiting(waiting) : l10n.bannerNoSignal,
+        waiting > 0
+            ? l10n.bannerOfflineWaiting(waiting)
+            : caps.relayTier
+            ? l10n.bannerNoSignal
+            : l10n.bannerOfflineSaved,
         Symbols.signal_disconnected_rounded,
         null,
       ),
