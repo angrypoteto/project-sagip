@@ -1122,11 +1122,11 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 **Dependencies:** Phase 1 offline UI; Phase 2 `client_uuid` and the `sms-intake` function; gateway hardware from Phase 0.
 **Who:** you. The Team lends phones and runs field tests.
 
-- [ ] Local queue with typed records (SOS, crowd report, status update, completion report), each with a client UUID, capture time, attempt count, and tier state
-- [ ] Connectivity check that pings Supabase instead of trusting the network type
-- [ ] Sync engine: send in capture order, retry with backoff, mark synced only on server acknowledgement, notify the user on delivery (NFR1); unit tests
-- [ ] Tier 2 SMS format: short, versioned, with a checksum, under 160 characters (for example a prefix, short ID, coordinates, time, resident ID)
-- [ ] Tier 2 sending: direct send with the SMS permission on the sideloaded APK, or open the SMS app with the message filled in as a fallback (Q29)
+- [x] Local queue with typed records (SOS, crowd report, status update, completion report), each with a client UUID, capture time, attempt count, and tier state
+- [x] Connectivity check that pings Supabase instead of trusting the network type
+- [x] Sync engine: send in capture order, retry with backoff, mark synced only on server acknowledgement, notify the user on delivery (NFR1); unit tests
+- [x] Tier 2 SMS format: short, versioned, with a checksum, under 160 characters (Oct 1: `SAGIP1`, CRC-16, about 85 characters; the sender number identifies the resident)
+- [~] Tier 2 sending: direct send with the SMS permission on the sideloaded APK, or open the SMS app with the message filled in as a fallback (Q29) (Oct 1: direct send done; the fallback is not built)
 - [ ] SMS gateway receiver: GSM modem service or Android gateway app, forwarding to `sms-intake`, which parses, validates, removes duplicates, and creates the incident with channel = SMS
 - [ ] SMS acknowledgement reply from the gateway SIM, so the resident knows the SOS arrived
 - [ ] SMS field test with real phones and the gateway SIM **(Team)**
