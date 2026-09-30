@@ -101,6 +101,15 @@ extension MobileLabels on AppLocalizations {
     return headDirection(points[((degrees + 22.5) % 360 ~/ 45)]);
   }
 
+  String phoneAuthFailure(PhoneAuthFailure f) => switch (f) {
+    PhoneAuthFailure.invalidNumber => phoneInvalid,
+    PhoneAuthFailure.notRegistered => phoneNotRegistered,
+    PhoneAuthFailure.numberTaken => phoneTaken,
+    PhoneAuthFailure.wrongCode => phoneWrongCode,
+    PhoneAuthFailure.tooManyAttempts => phoneTooMany,
+    PhoneAuthFailure.offline => phoneOffline,
+  };
+
   String signal(SignalState s) => switch (s) {
     SignalState.internet => signalInternet,
     SignalState.smsOnly => signalSms,

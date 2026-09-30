@@ -41,6 +41,7 @@ class SagipMobileApp extends ConsumerWidget {
       scaffoldMessengerKey: rootMessengerKey,
       theme: SagipTheme.light(SagipDensity.mobile),
       darkTheme: SagipTheme.dark(SagipDensity.mobile),
+      themeMode: ref.watch(themeModeProvider),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         ...GlobalMaterialLocalizations.delegates,

@@ -1708,6 +1708,588 @@ abstract class AppLocalizations {
   /// **'Dispatcher closes the assignment'**
   String get demoClose;
 
+  /// No description provided for @starting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get starting;
+
+  /// No description provided for @welcomeStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your location'**
+  String get welcomeStep1Title;
+
+  /// No description provided for @welcomeStep1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'So your SOS shows exactly where you are, and you can see your responder coming.'**
+  String get welcomeStep1Body;
+
+  /// No description provided for @welcomeStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Get alerts'**
+  String get welcomeStep2Title;
+
+  /// No description provided for @welcomeStep2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather warnings, updates on your SOS, and a note when something saved on your phone is delivered.'**
+  String get welcomeStep2Body;
+
+  /// No description provided for @welcomeStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep SOS working without internet'**
+  String get welcomeStep3Title;
+
+  /// No description provided for @welcomeStep3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'With no data, your SOS goes out by SMS. With no signal at all, nearby phones can pass it on.'**
+  String get welcomeStep3Body;
+
+  /// No description provided for @allow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get allow;
+
+  /// No description provided for @allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get allowed;
+
+  /// No description provided for @notAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed. SOS still works, but less reliably.'**
+  String get notAllowed;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
+
+  /// No description provided for @welcomeStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {total}'**
+  String welcomeStepOf(int step, int total);
+
+  /// No description provided for @residentSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get residentSignInTitle;
+
+  /// No description provided for @residentSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number. We\'ll text you a code.'**
+  String get residentSignInBody;
+
+  /// No description provided for @mobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get mobileNumber;
+
+  /// No description provided for @mobileNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'917 123 4567'**
+  String get mobileNumberHint;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get sendCode;
+
+  /// No description provided for @sendingCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending code'**
+  String get sendingCode;
+
+  /// No description provided for @createAccountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'New to S.A.G.I.P.? Create an account'**
+  String get createAccountPrompt;
+
+  /// No description provided for @staffSignInLink.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD personnel sign in'**
+  String get staffSignInLink;
+
+  /// No description provided for @hotlineCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'In an emergency, call MDRRMD'**
+  String get hotlineCardTitle;
+
+  /// No description provided for @offlineSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Signing in needs internet. In an emergency, call MDRRMD.'**
+  String get offlineSignIn;
+
+  /// No description provided for @demoAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo accounts'**
+  String get demoAccounts;
+
+  /// No description provided for @phoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Philippine mobile number, like 917 123 4567.'**
+  String get phoneInvalid;
+
+  /// No description provided for @phoneNotRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This number has no account yet.'**
+  String get phoneNotRegistered;
+
+  /// No description provided for @phoneTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This number already has an account. Sign in instead.'**
+  String get phoneTaken;
+
+  /// No description provided for @phoneWrongCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is wrong or has expired. Check it or send a new one.'**
+  String get phoneWrongCode;
+
+  /// No description provided for @phoneTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries. Try again in 60 s.'**
+  String get phoneTooMany;
+
+  /// No description provided for @phoneOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Connect to continue.'**
+  String get phoneOffline;
+
+  /// No description provided for @staffSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD personnel'**
+  String get staffSignInTitle;
+
+  /// No description provided for @staffSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the account MDRRMD gave you.'**
+  String get staffSignInBody;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @signInButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInButton;
+
+  /// No description provided for @staffDemoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo: r03@sagip.test, password sagip-demo'**
+  String get staffDemoHint;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get registerTitle;
+
+  /// No description provided for @registerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD uses this to reach you and to know your barangay.'**
+  String get registerBody;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fullName;
+
+  /// No description provided for @barangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay'**
+  String get barangay;
+
+  /// No description provided for @chooseBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your barangay'**
+  String get chooseBarangay;
+
+  /// No description provided for @searchBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Search barangays'**
+  String get searchBarangay;
+
+  /// No description provided for @sampleBarangays.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample list. The full list of Manila\'s 897 barangays comes later.'**
+  String get sampleBarangays;
+
+  /// No description provided for @noBarangayMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No barangay matches that.'**
+  String get noBarangayMatch;
+
+  /// No description provided for @agreeTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the terms and the privacy notice'**
+  String get agreeTerms;
+
+  /// No description provided for @readPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the privacy notice'**
+  String get readPrivacy;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueButton;
+
+  /// No description provided for @creatingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating account'**
+  String get creatingAccount;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name.'**
+  String get nameRequired;
+
+  /// No description provided for @barangayRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your barangay.'**
+  String get barangayRequired;
+
+  /// No description provided for @termsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree to the terms to continue.'**
+  String get termsRequired;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {phone}.'**
+  String verifyBody(String phone);
+
+  /// No description provided for @codeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get codeLabel;
+
+  /// No description provided for @checkCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Check code'**
+  String get checkCode;
+
+  /// No description provided for @checkingCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking code'**
+  String get checkingCode;
+
+  /// No description provided for @resendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {time}'**
+  String resendIn(String time);
+
+  /// No description provided for @resendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get resendCode;
+
+  /// No description provided for @codeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'A new code is on its way.'**
+  String get codeSent;
+
+  /// No description provided for @changeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get changeNumber;
+
+  /// No description provided for @waitingForConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for connection. Your code is kept.'**
+  String get waitingForConnection;
+
+  /// No description provided for @demoCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo code: {code}'**
+  String demoCodeHint(String code);
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @myActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'My activity'**
+  String get myActivity;
+
+  /// No description provided for @vulnerabilityProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Vulnerability profile'**
+  String get vulnerabilityProfile;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Filipino is coming'**
+  String get languageSoon;
+
+  /// No description provided for @testNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a test notification'**
+  String get testNotification;
+
+  /// No description provided for @testNotificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Test: this is how S.A.G.I.P. alerts appear.'**
+  String get testNotificationSent;
+
+  /// No description provided for @privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacy;
+
+  /// No description provided for @privacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy notice'**
+  String get privacyNotice;
+
+  /// No description provided for @requestDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Request deletion of my data'**
+  String get requestDeletion;
+
+  /// No description provided for @requestDeletionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your data?'**
+  String get requestDeletionTitle;
+
+  /// No description provided for @requestDeletionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD will delete your profile and household list and keep only what the law requires for incident records. You\'ll need a new account to send an SOS.'**
+  String get requestDeletionBody;
+
+  /// No description provided for @requestDeletionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get requestDeletionConfirm;
+
+  /// No description provided for @requestDeletionSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent. MDRRMD will contact you to confirm.'**
+  String get requestDeletionSent;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @signOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out?'**
+  String get signOutTitle;
+
+  /// No description provided for @signOutWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item is} other{{count} items are}} waiting to send. They stay on this phone and send after you sign in again.'**
+  String signOutWaiting(int count);
+
+  /// No description provided for @privacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy notice'**
+  String get privacyTitle;
+
+  /// No description provided for @privacyCollectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What we collect'**
+  String get privacyCollectTitle;
+
+  /// No description provided for @privacyCollectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, mobile number, and barangay; where you are when you send an SOS or a report; and, only if you agree, household members who may need priority rescue.'**
+  String get privacyCollectBody;
+
+  /// No description provided for @privacyWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get privacyWhyTitle;
+
+  /// No description provided for @privacyWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To find and reach you in an emergency, to send you alerts for your area, and to plan rescues for people who need extra help.'**
+  String get privacyWhyBody;
+
+  /// No description provided for @privacyWhoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can see it'**
+  String get privacyWhoTitle;
+
+  /// No description provided for @privacyWhoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD dispatchers and administrators. Rescue personnel see only the incident they are assigned to, and vulnerability types, never names.'**
+  String get privacyWhoBody;
+
+  /// No description provided for @privacyKeepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How long we keep it'**
+  String get privacyKeepTitle;
+
+  /// No description provided for @privacyKeepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'As long as you have an account, and incident records as long as the law requires.'**
+  String get privacyKeepBody;
+
+  /// No description provided for @privacyRightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rights'**
+  String get privacyRightsTitle;
+
+  /// No description provided for @privacyRightsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Under the Data Privacy Act (RA 10173) you can see, correct, or ask us to delete your data, and withdraw consent at any time in Me.'**
+  String get privacyRightsBody;
+
   /// No description provided for @errorGeneric.
   ///
   /// In en, this message translates to:

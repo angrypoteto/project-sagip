@@ -7,6 +7,12 @@ import 'package:sagip_mobile/src/features/sos/track_page.dart';
 import 'package:sagip_mobile/src/providers.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+/// These tests start at sign-in: the welcome steps (S2) count as seen.
+class WelcomeDone extends WelcomeSeen {
+  @override
+  bool build() => true;
+}
+
 /// pumpAndSettle with a short limit, so an endless animation fails fast.
 Future<void> settle(WidgetTester tester) => tester.pumpAndSettle(
   const Duration(milliseconds: 100),
@@ -41,6 +47,7 @@ void main() {
       overrides: [
         ...mockOverrides(backend, demoTools: false),
         mapTilesEnabledProvider.overrideWithValue(false),
+        welcomeSeenProvider.overrideWith(WelcomeDone.new),
         clockProvider.overrideWith((ref) => Stream.value(now)),
       ],
     );
@@ -61,8 +68,23 @@ void main() {
     await settle(tester);
   }
 
+  /// Signs in the way a resident does: mobile number, then the code.
   Future<void> signInAsResident(WidgetTester tester) async {
-    await tester.tap(find.text('Continue as resident'));
+    await tester.enterText(find.byType(TextField), '917 000 4821');
+    await tester.tap(find.text('Send code'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField), MockMobileBackend.demoCode);
+    await settle(tester);
+  }
+
+  /// Signs in through the MDRRMD personnel form.
+  Future<void> signInAsStaff(WidgetTester tester) async {
+    await tester.ensureVisible(find.text('MDRRMD personnel sign in'));
+    await tester.tap(find.text('MDRRMD personnel sign in'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField).at(0), 'r03@sagip.test');
+    await tester.enterText(find.byType(TextField).at(1), MockSeed.demoPassword);
+    await tester.tap(find.text('Sign in').last);
     await settle(tester);
   }
 
@@ -113,11 +135,15 @@ void main() {
 
     await tester.tap(find.text('Me'));
     await settle(tester);
+    await tester.scrollUntilVisible(
+      find.text('Sign out'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Sign out'));
     await settle(tester);
 
-    await tester.tap(find.text('Continue as rescue personnel'));
-    await settle(tester);
+    await signInAsStaff(tester);
     expect(find.text('History'), findsOneWidget);
     expect(find.text('R-03'), findsOneWidget);
     expect(find.text('No assignment. Stay available.'), findsOneWidget);
@@ -303,10 +329,7 @@ void main() {
     await finish(tester);
   });
 
-  Future<void> signInAsResponder(WidgetTester tester) async {
-    await tester.tap(find.text('Continue as rescue personnel'));
-    await settle(tester);
-  }
+  Future<void> signInAsResponder(WidgetTester tester) => signInAsStaff(tester);
 
   Future<void> tapAndSettle(WidgetTester tester, String text) async {
     await tester.ensureVisible(find.text(text).last);

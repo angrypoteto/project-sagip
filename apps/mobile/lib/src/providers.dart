@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:sagip_shared/sagip_shared.dart';
 
 // ---------------------------------------------------------------------------
@@ -13,6 +14,12 @@ Never _missing(String name) => throw UnimplementedError(
 
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => _missing('AuthRepository'),
+);
+final residentAccountRepositoryProvider = Provider<ResidentAccountRepository>(
+  (ref) => _missing('ResidentAccountRepository'),
+);
+final permissionServiceProvider = Provider<PermissionService>(
+  (ref) => _missing('PermissionService'),
 );
 final sosRepositoryProvider = Provider<SosRepository>(
   (ref) => _missing('SosRepository'),
@@ -53,6 +60,10 @@ List<Override> mockOverrides(
 }) => [
   mockBackendProvider.overrideWithValue(demoTools ? backend : null),
   authRepositoryProvider.overrideWithValue(MockMobileAuthRepository(backend)),
+  residentAccountRepositoryProvider.overrideWithValue(
+    MockResidentAccountRepository(backend),
+  ),
+  permissionServiceProvider.overrideWithValue(MockPermissionService(backend)),
   sosRepositoryProvider.overrideWithValue(MockSosRepository(backend)),
   hazardReportRepositoryProvider.overrideWithValue(
     MockHazardReportRepository(backend),
@@ -85,6 +96,35 @@ Stream<T> _forAccount<T>(Ref ref, Stream<T> Function() open) {
   final account = ref.watch(currentUserProvider.select((u) => u.value?.id));
   return account == null ? const Stream.empty() : open();
 }
+
+final permissionsProvider = StreamProvider<Map<AppPermission, PermissionState>>(
+  (ref) => ref.watch(permissionServiceProvider).watch(),
+);
+
+/// Whether this phone has been through the welcome and permission steps
+/// (S2). Kept in memory for now; Hive stores it across restarts later.
+class WelcomeSeen extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void markSeen() => state = true;
+}
+
+final welcomeSeenProvider = NotifierProvider<WelcomeSeen, bool>(
+  WelcomeSeen.new,
+);
+
+/// The Me screen's theme choice (S7). Follows the phone by default.
+class ThemeModeController extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ThemeMode.system;
+
+  void set(ThemeMode mode) => state = mode;
+}
+
+final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
+  ThemeModeController.new,
+);
 
 final signalProvider = StreamProvider<SignalState>(
   (ref) => ref.watch(signalMonitorProvider).watch(),

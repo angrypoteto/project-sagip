@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- S.A.G.I.P. mark: the red SOS circle with two soft rings. Stays inside the
+     adaptive-icon safe zone (a 66 dp circle in the middle of 108 dp). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#24E5323F"
+        android:pathData="M22,54a32,32 0,1 0,64 0a32,32 0,1 0,-64 0" />
+    <path
+        android:fillColor="#40E5323F"
+        android:pathData="M28,54a26,26 0,1 0,52 0a26,26 0,1 0,-52 0" />
+    <path
+        android:fillColor="#E5323F"
+        android:pathData="M34,54a20,20 0,1 0,40 0a20,20 0,1 0,-40 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,54a8,8 0,1 0,16 0a8,8 0,1 0,-16 0" />
+</vector>

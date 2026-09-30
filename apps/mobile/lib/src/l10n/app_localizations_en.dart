@@ -938,6 +938,332 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoClose => 'Dispatcher closes the assignment';
 
   @override
+  String get starting => 'Starting';
+
+  @override
+  String get welcomeStep1Title => 'Share your location';
+
+  @override
+  String get welcomeStep1Body =>
+      'So your SOS shows exactly where you are, and you can see your responder coming.';
+
+  @override
+  String get welcomeStep2Title => 'Get alerts';
+
+  @override
+  String get welcomeStep2Body =>
+      'Weather warnings, updates on your SOS, and a note when something saved on your phone is delivered.';
+
+  @override
+  String get welcomeStep3Title => 'Keep SOS working without internet';
+
+  @override
+  String get welcomeStep3Body =>
+      'With no data, your SOS goes out by SMS. With no signal at all, nearby phones can pass it on.';
+
+  @override
+  String get allow => 'Allow';
+
+  @override
+  String get allowed => 'Allowed';
+
+  @override
+  String get notAllowed => 'Not allowed. SOS still works, but less reliably.';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get getStarted => 'Get started';
+
+  @override
+  String welcomeStepOf(int step, int total) {
+    return 'Step $step of $total';
+  }
+
+  @override
+  String get residentSignInTitle => 'Sign in';
+
+  @override
+  String get residentSignInBody =>
+      'Enter your mobile number. We\'ll text you a code.';
+
+  @override
+  String get mobileNumber => 'Mobile number';
+
+  @override
+  String get mobileNumberHint => '917 123 4567';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String get sendingCode => 'Sending code';
+
+  @override
+  String get createAccountPrompt => 'New to S.A.G.I.P.? Create an account';
+
+  @override
+  String get staffSignInLink => 'MDRRMD personnel sign in';
+
+  @override
+  String get hotlineCardTitle => 'In an emergency, call MDRRMD';
+
+  @override
+  String get offlineSignIn =>
+      'You\'re offline. Signing in needs internet. In an emergency, call MDRRMD.';
+
+  @override
+  String get demoAccounts => 'Demo accounts';
+
+  @override
+  String get phoneInvalid =>
+      'Enter a Philippine mobile number, like 917 123 4567.';
+
+  @override
+  String get phoneNotRegistered => 'This number has no account yet.';
+
+  @override
+  String get phoneTaken =>
+      'This number already has an account. Sign in instead.';
+
+  @override
+  String get phoneWrongCode =>
+      'That code is wrong or has expired. Check it or send a new one.';
+
+  @override
+  String get phoneTooMany => 'Too many tries. Try again in 60 s.';
+
+  @override
+  String get phoneOffline => 'You\'re offline. Connect to continue.';
+
+  @override
+  String get staffSignInTitle => 'MDRRMD personnel';
+
+  @override
+  String get staffSignInBody => 'Sign in with the account MDRRMD gave you.';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get signInButton => 'Sign in';
+
+  @override
+  String get staffDemoHint => 'Demo: r03@sagip.test, password sagip-demo';
+
+  @override
+  String get registerTitle => 'Create an account';
+
+  @override
+  String get registerBody =>
+      'MDRRMD uses this to reach you and to know your barangay.';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get barangay => 'Barangay';
+
+  @override
+  String get chooseBarangay => 'Choose your barangay';
+
+  @override
+  String get searchBarangay => 'Search barangays';
+
+  @override
+  String get sampleBarangays =>
+      'Sample list. The full list of Manila\'s 897 barangays comes later.';
+
+  @override
+  String get noBarangayMatch => 'No barangay matches that.';
+
+  @override
+  String get agreeTerms => 'I agree to the terms and the privacy notice';
+
+  @override
+  String get readPrivacy => 'Read the privacy notice';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get creatingAccount => 'Creating account';
+
+  @override
+  String get nameRequired => 'Enter your full name.';
+
+  @override
+  String get barangayRequired => 'Choose your barangay.';
+
+  @override
+  String get termsRequired => 'Agree to the terms to continue.';
+
+  @override
+  String get verifyTitle => 'Enter the code';
+
+  @override
+  String verifyBody(String phone) {
+    return 'We sent a 6-digit code to $phone.';
+  }
+
+  @override
+  String get codeLabel => '6-digit code';
+
+  @override
+  String get checkCode => 'Check code';
+
+  @override
+  String get checkingCode => 'Checking code';
+
+  @override
+  String resendIn(String time) {
+    return 'Resend code in $time';
+  }
+
+  @override
+  String get resendCode => 'Resend code';
+
+  @override
+  String get codeSent => 'A new code is on its way.';
+
+  @override
+  String get changeNumber => 'Change number';
+
+  @override
+  String get waitingForConnection =>
+      'Waiting for connection. Your code is kept.';
+
+  @override
+  String demoCodeHint(String code) {
+    return 'Demo code: $code';
+  }
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get myActivity => 'My activity';
+
+  @override
+  String get vulnerabilityProfile => 'Vulnerability profile';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageSoon => 'Filipino is coming';
+
+  @override
+  String get testNotification => 'Send a test notification';
+
+  @override
+  String get testNotificationSent =>
+      'Test: this is how S.A.G.I.P. alerts appear.';
+
+  @override
+  String get privacy => 'Privacy';
+
+  @override
+  String get privacyNotice => 'Privacy notice';
+
+  @override
+  String get requestDeletion => 'Request deletion of my data';
+
+  @override
+  String get requestDeletionTitle => 'Delete your data?';
+
+  @override
+  String get requestDeletionBody =>
+      'MDRRMD will delete your profile and household list and keep only what the law requires for incident records. You\'ll need a new account to send an SOS.';
+
+  @override
+  String get requestDeletionConfirm => 'Send request';
+
+  @override
+  String get requestDeletionSent =>
+      'Request sent. MDRRMD will contact you to confirm.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get signOutTitle => 'Sign out?';
+
+  @override
+  String signOutWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items are',
+      one: '1 item is',
+    );
+    return '$_temp0 waiting to send. They stay on this phone and send after you sign in again.';
+  }
+
+  @override
+  String get privacyTitle => 'Privacy notice';
+
+  @override
+  String get privacyCollectTitle => 'What we collect';
+
+  @override
+  String get privacyCollectBody =>
+      'Your name, mobile number, and barangay; where you are when you send an SOS or a report; and, only if you agree, household members who may need priority rescue.';
+
+  @override
+  String get privacyWhyTitle => 'Why';
+
+  @override
+  String get privacyWhyBody =>
+      'To find and reach you in an emergency, to send you alerts for your area, and to plan rescues for people who need extra help.';
+
+  @override
+  String get privacyWhoTitle => 'Who can see it';
+
+  @override
+  String get privacyWhoBody =>
+      'MDRRMD dispatchers and administrators. Rescue personnel see only the incident they are assigned to, and vulnerability types, never names.';
+
+  @override
+  String get privacyKeepTitle => 'How long we keep it';
+
+  @override
+  String get privacyKeepBody =>
+      'As long as you have an account, and incident records as long as the law requires.';
+
+  @override
+  String get privacyRightsTitle => 'Your rights';
+
+  @override
+  String get privacyRightsBody =>
+      'Under the Data Privacy Act (RA 10173) you can see, correct, or ask us to delete your data, and withdraw consent at any time in Me.';
+
+  @override
   String get errorGeneric => 'Something went wrong. Try again.';
 
   @override

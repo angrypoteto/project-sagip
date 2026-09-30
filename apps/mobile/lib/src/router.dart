@@ -4,7 +4,12 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
-import 'features/auth/demo_sign_in_page.dart';
+import 'features/auth/register_page.dart';
+import 'features/auth/sign_in_page.dart';
+import 'features/auth/splash_page.dart';
+import 'features/auth/staff_sign_in_page.dart';
+import 'features/auth/verify_page.dart';
+import 'features/auth/welcome_page.dart';
 import 'features/me/me_page.dart';
 import 'features/placeholder_page.dart';
 import 'features/report/report_page.dart';
@@ -22,7 +27,18 @@ import 'features/sos/track_page.dart';
 import 'providers.dart';
 
 abstract final class Routes {
+  // Signed out (S1 to S5).
+  static const splash = '/';
+  static const welcome = '/welcome';
   static const signIn = '/sign-in';
+  static const staffSignIn = '/sign-in/staff';
+  static const register = '/register';
+  static const verify = '/verify';
+  static String verifyFor(String phone) =>
+      Uri(path: verify, queryParameters: {'phone': phone}).toString();
+
+  /// Pages anyone may open without signing in.
+  static const public = {welcome, signIn, staffSignIn, register, verify};
 
   // Resident shell: Home, Report, Alerts, Me (plan 7.3).
   static const home = '/r/home';
@@ -31,6 +47,8 @@ abstract final class Routes {
   static const me = '/r/me';
   static String sos(String clientId) => '/r/sos/$clientId';
   static String track(String clientId) => '/r/sos/$clientId/track';
+  static const activity = '/r/activity';
+  static const vulnerability = '/r/vulnerability';
 
   // Responder shell: Home, History, Me.
   static const duty = '/f/home';
@@ -63,25 +81,70 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     refreshListenable: authChanged,
     redirect: (context, state) {
-      final user = ref.read(currentUserProvider).value;
+      final session = ref.read(currentUserProvider);
       final path = state.uri.path;
-      final atSignIn = path == Routes.signIn;
-      if (user == null) return atSignIn ? null : Routes.signIn;
+      // S1 stays up while the saved session is checked.
+      if (session.isLoading && !session.hasValue) {
+        return path == Routes.splash ? null : Routes.splash;
+      }
+      final user = session.value;
+      final public = Routes.public.contains(path);
+      if (user == null) {
+        if (public) return null;
+        return ref.read(welcomeSeenProvider) ? Routes.signIn : Routes.welcome;
+      }
 
       final home = _homeFor(user);
       // Dispatchers and admins use the web dashboard, not this app.
-      if (home == null) return atSignIn ? null : Routes.signIn;
-      if (atSignIn || path == '/') return home;
+      if (home == null) return path == Routes.signIn ? null : Routes.signIn;
+      if (public || path == Routes.splash) return home;
       final resident = user.role == UserRole.resident;
       if (resident && path.startsWith('/f/')) return home;
       if (!resident && path.startsWith('/r/')) return home;
       return null;
     },
     routes: [
-      GoRoute(path: '/', redirect: (_, _) => Routes.signIn),
+      GoRoute(
+        path: Routes.splash,
+        pageBuilder: (context, state) => _page(const SplashPage()),
+      ),
+      GoRoute(
+        path: Routes.welcome,
+        pageBuilder: (context, state) => _page(const WelcomePage()),
+      ),
       GoRoute(
         path: Routes.signIn,
-        pageBuilder: (context, state) => _page(const DemoSignInPage()),
+        pageBuilder: (context, state) => _page(const SignInPage()),
+      ),
+      GoRoute(
+        path: Routes.staffSignIn,
+        builder: (context, state) => const StaffSignInPage(),
+      ),
+      GoRoute(
+        path: Routes.register,
+        builder: (context, state) => const RegisterPage(),
+      ),
+      GoRoute(
+        path: Routes.verify,
+        builder: (context, state) =>
+            VerifyPage(phone: state.uri.queryParameters['phone'] ?? ''),
+      ),
+      // Placeholders until part 4b builds R6 and R9.
+      GoRoute(
+        path: Routes.activity,
+        builder: (context, state) => const PlaceholderPage(
+          screen: ComingScreen.activity,
+          icon: Symbols.history_rounded,
+          standalone: true,
+        ),
+      ),
+      GoRoute(
+        path: Routes.vulnerability,
+        builder: (context, state) => const PlaceholderPage(
+          screen: ComingScreen.vulnerability,
+          icon: Symbols.accessible_rounded,
+          standalone: true,
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(
