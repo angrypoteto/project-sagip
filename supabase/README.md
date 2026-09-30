@@ -18,7 +18,15 @@ Migration file names match the versions recorded on the hosted project. Never ed
 
 ## Changing the demo data
 
-- **Small edits:** open the Table Editor in the Supabase dashboard and edit rows directly (for example a unit's status or a resident's household). The dashboard updates live.
+- **Small edits:** open the Table Editor in the Supabase dashboard and edit rows directly (for example a unit's status or a resident's household). Items with an eye icon are **views** and cannot be edited; change the table they read from:
+
+  | View | Edit instead |
+  |---|---|
+  | `incident_board` | `incident_report` (the timeline is `incident_event`) |
+  | `resident_profile`, `vulnerable_resident_list` | `manila_resident` (name, full number, barangay, consent) and `vulnerable_member` (household members) |
+
+  A resident is on the Vulnerable Resident Priority List only when `consent_given_at` is set and they have at least one `vulnerable_member` row. The dashboard updates live, except for edits to `manila_resident` (not sent over Realtime because it holds full numbers): reload the page after those.
+- **Moving an incident through its steps** (assign, en route, on scene, resolved): use the dashboard or `demo_advance()` below, not direct edits, so unit status and incident status stay in step.
 - **Start over:** in the SQL editor run `select public.reset_demo_data();`. It wipes incidents, reports, residents, units, and the audit log, and reloads the sample data. Staff accounts are kept.
 - **Change the sample data for good:** edit it in a new migration that replaces `public.reset_demo_data()`, then run the function.
 
