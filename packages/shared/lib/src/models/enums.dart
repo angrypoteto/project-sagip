@@ -47,7 +47,16 @@ enum UnitType { ambulance, rescueBoat, rescueTeam }
 /// MDRRMD SOP arrives, see plan Q15).
 enum Severity { critical, high, normal }
 
-enum UserRole { resident, responder, dispatcher, admin }
+enum UserRole {
+  resident,
+  responder,
+  dispatcher,
+  admin,
+
+  /// Changes made outside the app (SQL editor, scheduled jobs). Appears
+  /// only in the audit log; nobody signs in as system.
+  system,
+}
 
 enum VulnerabilityType { seniorCitizen, pwd, pregnant, other }
 
@@ -66,6 +75,13 @@ enum AuditAction {
   smsCheckSent,
   contactViewed,
 }
+
+/// Reads a timestamp from JSON and converts it to local time (the database
+/// returns UTC), so the UI shows Manila time.
+DateTime timeFromJson(Object? raw) => DateTime.parse(raw! as String).toLocal();
+
+DateTime? timeFromJsonOrNull(Object? raw) =>
+    raw == null ? null : timeFromJson(raw);
 
 /// Reads an enum stored by its `name` in JSON.
 T enumFromJson<T extends Enum>(List<T> values, Object? raw) =>

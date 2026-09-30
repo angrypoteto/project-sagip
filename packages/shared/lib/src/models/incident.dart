@@ -37,7 +37,7 @@ class IncidentEvent {
 
   factory IncidentEvent.fromJson(Map<String, Object?> json) => IncidentEvent(
     kind: enumFromJson(IncidentEventKind.values, json['kind']),
-    at: DateTime.parse(json['at']! as String),
+    at: timeFromJson(json['at']),
     actorName: json['actor_name'] as String?,
     detail: json['detail'] as String?,
   );
@@ -221,8 +221,8 @@ class Incident {
     district: json['district']! as String,
     address: json['address'] as String?,
     accuracyMeters: (json['accuracy_m'] as num?)?.toDouble(),
-    capturedAt: DateTime.parse(json['captured_at']! as String),
-    receivedAt: DateTime.parse(json['received_at']! as String),
+    capturedAt: timeFromJson(json['captured_at']),
+    receivedAt: timeFromJson(json['received_at']),
     residentId: json['manila_resident_id'] as String?,
     peopleCount: json['people_count'] as int?,
     note: json['note'] as String?,
@@ -244,9 +244,7 @@ class Incident {
     suggestionOverridden: json['suggestion_overridden'] as bool? ?? false,
     overrideReason: json['override_reason'] as String?,
     falseReport: json['false_report'] as bool? ?? false,
-    resolvedAt: json['resolved_at'] == null
-        ? null
-        : DateTime.parse(json['resolved_at']! as String),
+    resolvedAt: timeFromJsonOrNull(json['resolved_at']),
     events: [
       for (final e in (json['events'] as List<Object?>? ?? const []))
         IncidentEvent.fromJson(e! as Map<String, Object?>),

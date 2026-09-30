@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Dashboard (Supabase)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/dashboard",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "args": ["--dart-define-from-file=.env"]
+    },
+    {
+      "name": "Dashboard (mock data)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/dashboard",
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
+    }
+  ]
+}

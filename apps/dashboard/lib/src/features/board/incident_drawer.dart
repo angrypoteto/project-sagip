@@ -289,7 +289,7 @@ class _Summary extends ConsumerWidget {
     final now = ref.watch(clockProvider).value ?? DateTime.now();
     final queue = ref.watch(triageQueueProvider).value ?? const <Incident>[];
     final rank = queue.indexWhere((i) => i.id == incident.id) + 1;
-    final channel = l10n.channel(incident.channel).toLowerCase();
+    final source = l10n.locationSource(incident.channel.name);
     final coords = formatCoordinates(incident.location);
 
     return Column(
@@ -327,10 +327,10 @@ class _Summary extends ConsumerWidget {
         const SizedBox(height: SagipSpace.xs),
         Text(
           incident.accuracyMeters == null
-              ? l10n.locationDetailNoAccuracy(coords, channel)
+              ? l10n.locationDetailNoAccuracy(coords, source)
               : l10n.locationDetail(
                   coords,
-                  channel,
+                  source,
                   incident.accuracyMeters!.round(),
                 ),
           style: text.bodySmall!.copyWith(

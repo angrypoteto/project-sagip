@@ -23,7 +23,7 @@ class AppUser {
   bool get canDispatch => role == UserRole.dispatcher || isAdmin;
 
   factory AppUser.fromJson(Map<String, Object?> json) => AppUser(
-    id: json['id']! as String,
+    id: '${json['id']}',
     displayName: json['display_name']! as String,
     email: json['email']! as String,
     role: enumFromJson(UserRole.values, json['role']),
@@ -104,8 +104,11 @@ class Resident {
   List<VulnerabilityType> get vulnerabilityTypes =>
       {for (final m in household) ...m.types}.toList();
 
-  /// "0917 ••• 4821" style masking.
+  /// "0917 ••• 4821" style masking. The database already sends numbers
+  /// masked (the full number needs an audited reveal), so pass those
+  /// through unchanged.
   String get maskedContact {
+    if (contactNumber.contains('•')) return contactNumber;
     final digits = contactNumber.replaceAll(RegExp(r'\D'), '');
     if (digits.length < 8) return '••••';
     return '${digits.substring(0, 4)} ••• ${digits.substring(digits.length - 4)}';
@@ -123,12 +126,8 @@ class Resident {
       for (final m in (json['household'] as List<Object?>? ?? const []))
         VulnerableMember.fromJson(m! as Map<String, Object?>),
     ],
-    consentGivenAt: json['consent_given_at'] == null
-        ? null
-        : DateTime.parse(json['consent_given_at']! as String),
-    updatedAt: json['updated_at'] == null
-        ? null
-        : DateTime.parse(json['updated_at']! as String),
+    consentGivenAt: timeFromJsonOrNull(json['consent_given_at']),
+    updatedAt: timeFromJsonOrNull(json['updated_at']),
   );
 
   Map<String, Object?> toJson() => {

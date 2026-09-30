@@ -21,6 +21,7 @@ dependencies:
   material_ui: ^1.5.0
   sagip_shared:
     path: ../../packages/shared
+  supabase_flutter: ^2.17.2
 
 dev_dependencies:
   flutter_test:

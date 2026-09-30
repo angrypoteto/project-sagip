@@ -160,6 +160,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleAdmin => 'Administrator';
 
   @override
+  String get roleSystem => 'System';
+
+  @override
   String userWithRole(String name, String role) {
     return '$name, $role';
   }
@@ -445,13 +448,25 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String locationDetail(String coordinates, String channel, int meters) {
-    return '$coordinates, from the $channel, accurate to $meters m';
+  String locationDetail(String coordinates, String source, int meters) {
+    return '$coordinates, from $source, accurate to $meters m';
   }
 
   @override
-  String locationDetailNoAccuracy(String coordinates, String channel) {
-    return '$coordinates, from the $channel';
+  String locationDetailNoAccuracy(String coordinates, String source) {
+    return '$coordinates, from $source';
+  }
+
+  @override
+  String locationSource(String channel) {
+    String _temp0 = intl.Intl.selectLogic(channel, {
+      'app': 'the app',
+      'sms': 'SMS',
+      'bleRelay': 'nearby phones',
+      'webForm': 'the web form',
+      'other': 'an unknown source',
+    });
+    return '$_temp0';
   }
 
   @override

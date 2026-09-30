@@ -53,7 +53,7 @@ class WeatherStatus {
     signalLevel: json['signal_level']! as int,
     rainfallMmPerHour: (json['rainfall_intensity']! as num).toDouble(),
     stormSurgeAdvisory: json['storm_surge_advisory'] as String?,
-    issuedAt: DateTime.parse(json['issued_at']! as String),
+    issuedAt: timeFromJson(json['issued_at']),
     isSimulated: json['is_simulated'] as bool? ?? false,
   );
 
@@ -93,9 +93,9 @@ class AuditEntry {
   final String? detail;
 
   factory AuditEntry.fromJson(Map<String, Object?> json) => AuditEntry(
-    id: json['log_id']! as String,
-    at: DateTime.parse(json['timestamp']! as String),
-    actorId: json['account_id']! as String,
+    id: '${json['log_id']}',
+    at: timeFromJson(json['timestamp']),
+    actorId: '${json['account_id']}',
     actorName: json['account_name']! as String,
     actorRole: enumFromJson(UserRole.values, json['account_role']),
     action: enumFromJson(AuditAction.values, json['action_type']),

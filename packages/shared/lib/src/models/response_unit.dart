@@ -72,9 +72,7 @@ class ResponseUnit {
             (json['last_latitude']! as num).toDouble(),
             (json['last_longitude']! as num).toDouble(),
           ),
-    lastLocationAt: json['last_location_at'] == null
-        ? null
-        : DateTime.parse(json['last_location_at']! as String),
+    lastLocationAt: timeFromJsonOrNull(json['last_location_at']),
     currentIncidentId: json['current_incident_id'] as String?,
   );
 

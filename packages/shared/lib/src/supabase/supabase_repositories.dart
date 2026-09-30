@@ -1,0 +1,463 @@
+import 'dart:async';
+
+import 'package:supabase/supabase.dart' hide AuthException;
+import 'package:supabase/supabase.dart'
+    as supa
+    show AuthException, AuthRetryableFetchException;
+
+import '../models/crowd_report.dart';
+import '../models/enums.dart';
+import '../models/incident.dart';
+import '../models/people.dart';
+import '../models/records.dart';
+import '../models/response_unit.dart';
+import '../repositories/repositories.dart';
+import 'live_query.dart';
+
+// Supabase implementations of the repository interfaces (Phase 3 wiring,
+// done early so demo data can be edited in the Supabase Table Editor).
+//
+// Reads go through tables and views protected by Row Level Security. Every
+// write is a security-definer function in supabase/migrations that checks
+// the caller's role and writes the audit log (FR11).
+
+/// All repositories for one [SupabaseClient].
+class SupabaseBackend {
+  SupabaseBackend(SupabaseClient client)
+    : auth = SupabaseAuthRepository(client),
+      incidents = SupabaseIncidentRepository(client),
+      units = SupabaseUnitRepository(client),
+      crowdReports = SupabaseCrowdReportRepository(client),
+      residents = SupabaseResidentRepository(client),
+      weather = SupabaseWeatherRepository(client),
+      audit = SupabaseAuditRepository(client),
+      connection = SupabaseConnectionMonitor(client);
+
+  final SupabaseAuthRepository auth;
+  final SupabaseIncidentRepository incidents;
+  final SupabaseUnitRepository units;
+  final SupabaseCrowdReportRepository crowdReports;
+  final SupabaseResidentRepository residents;
+  final SupabaseWeatherRepository weather;
+  final SupabaseAuditRepository audit;
+  final SupabaseConnectionMonitor connection;
+}
+
+typedef _Row = Map<String, dynamic>;
+
+// ------------------------------------------------------------------- auth
+
+/// Staff sign-in. Only accounts with a row in `staff` get in; anyone else is
+/// signed out again (residents use the mobile app).
+class SupabaseAuthRepository implements AuthRepository {
+  SupabaseAuthRepository(this._client) {
+    _client.auth.onAuthStateChange.listen(
+      (state) => _onSession(state.session),
+      onError: (Object _) {},
+    );
+  }
+
+  final SupabaseClient _client;
+  final _changes = StreamController<AppUser?>.broadcast();
+  AppUser? _user;
+  var _known = false;
+  final _staff = <String, Future<AppUser?>>{};
+
+  void _set(AppUser? user) {
+    _user = user;
+    _known = true;
+    _changes.add(user);
+  }
+
+  Future<AppUser?> _staffRow(String userId) => _staff[userId] ??= _client
+      .from('staff')
+      .select('id, display_name, email, role')
+      .eq('id', userId)
+      .maybeSingle()
+      .then((row) => row == null ? null : AppUser.fromJson(row));
+
+  Future<void> _onSession(Session? session) async {
+    if (session == null) {
+      _staff.clear();
+      _set(null);
+      return;
+    }
+    final id = session.user.id;
+    if (_known && _user?.id == id) return; // token refresh
+    try {
+      final user = await _staffRow(id);
+      if (user == null) {
+        await _client.auth.signOut();
+        return;
+      }
+      if (_client.auth.currentUser?.id == id) _set(user);
+    } catch (_) {
+      // Offline while restoring a session: forget the cached lookup and
+      // show sign-in; the next auth event retries.
+      _staff.remove(id);
+      if (!_known) _set(null);
+    }
+  }
+
+  @override
+  Stream<AppUser?> watchUser() {
+    StreamSubscription<AppUser?>? sub;
+    late final StreamController<AppUser?> controller;
+    controller = StreamController<AppUser?>(
+      onListen: () {
+        if (_known) controller.add(_user);
+        sub = _changes.stream.listen(controller.add);
+      },
+      onCancel: () => sub?.cancel(),
+    );
+    return controller.stream;
+  }
+
+  @override
+  AppUser? get currentUser => _user;
+
+  @override
+  Future<AppUser> signIn({
+    required String email,
+    required String password,
+  }) async {
+    final String id;
+    try {
+      final res = await _client.auth.signInWithPassword(
+        email: email.trim(),
+        password: password,
+      );
+      id = res.user!.id;
+    } on supa.AuthRetryableFetchException {
+      throw const AuthException(AuthFailure.offline);
+    } on supa.AuthException catch (e) {
+      throw AuthException(
+        e.code == 'user_banned'
+            ? AuthFailure.accountDisabled
+            : AuthFailure.wrongCredentials,
+      );
+    } catch (_) {
+      throw const AuthException(AuthFailure.offline);
+    }
+
+    final AppUser? user;
+    try {
+      user = await _staffRow(id);
+    } catch (_) {
+      _staff.remove(id);
+      await _client.auth.signOut();
+      throw const AuthException(AuthFailure.offline);
+    }
+    if (user == null) {
+      await _client.auth.signOut();
+      throw const AuthException(AuthFailure.notStaff);
+    }
+    _set(user);
+    return user;
+  }
+
+  @override
+  Future<void> signOut() => _client.auth.signOut();
+}
+
+// -------------------------------------------------------------- incidents
+
+class SupabaseIncidentRepository implements IncidentRepository {
+  const SupabaseIncidentRepository(this._client);
+
+  final SupabaseClient _client;
+
+  static const _boardTables = [
+    'incident_report',
+    'incident_event',
+    'crowd_report',
+  ];
+
+  List<Incident> _incidents(List<_Row> rows) => [
+    for (final r in rows) Incident.fromJson(r),
+  ];
+
+  @override
+  Stream<List<Incident>> watchActive() => liveQuery(
+    _client,
+    tables: _boardTables,
+    fetch: () async => _incidents(
+      await _client
+          .from('incident_board')
+          .select()
+          .neq('status', IncidentStatus.resolved.name)
+          .order('received_at'),
+    ),
+  );
+
+  @override
+  Stream<List<Incident>> watchResolved({
+    Duration since = const Duration(hours: 12),
+  }) => liveQuery(
+    _client,
+    tables: _boardTables,
+    fetch: () async => _incidents(
+      await _client
+          .from('incident_board')
+          .select()
+          .eq('status', IncidentStatus.resolved.name)
+          .gte('resolved_at', _utcAgo(since))
+          .order('resolved_at', ascending: false),
+    ),
+  );
+
+  @override
+  Future<void> verify(String incidentId, VerificationMethod method) => _rpc(
+    'verify_incident',
+    {'p_incident_id': incidentId, 'p_method': method.name},
+  );
+
+  @override
+  Future<void> sendSmsCheck(String incidentId) =>
+      _rpc('send_sms_check', {'p_incident_id': incidentId});
+
+  @override
+  Future<void> markFalseReport(String incidentId, {String? reason}) => _rpc(
+    'mark_false_report',
+    {'p_incident_id': incidentId, 'p_reason': reason},
+  );
+
+  @override
+  Future<void> confirmType(String incidentId, IncidentType type) => _rpc(
+    'confirm_incident_type',
+    {'p_incident_id': incidentId, 'p_type': type.name},
+  );
+
+  @override
+  Future<void> assignUnit(
+    String incidentId,
+    String unitId, {
+    String? overrideReason,
+  }) => _rpc('assign_unit', {
+    'p_incident_id': incidentId,
+    'p_unit_id': unitId,
+    'p_override_reason': overrideReason,
+  });
+
+  @override
+  Future<void> resolve(String incidentId) =>
+      _rpc('resolve_incident', {'p_incident_id': incidentId});
+
+  Future<void> _rpc(String name, Map<String, Object?> params) =>
+      _call(() => _client.rpc<void>(name, params: params));
+}
+
+// ------------------------------------------------------------------ units
+
+class SupabaseUnitRepository implements UnitRepository {
+  const SupabaseUnitRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<List<ResponseUnit>> watchAll() => liveQuery(
+    _client,
+    tables: const ['response_unit'],
+    fetch: () async => [
+      for (final r
+          in await _client.from('response_unit').select().order('call_sign'))
+        ResponseUnit.fromJson(r),
+    ],
+  );
+}
+
+// ---------------------------------------------------------- crowd reports
+
+class SupabaseCrowdReportRepository implements CrowdReportRepository {
+  const SupabaseCrowdReportRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<List<CrowdReport>> watchRecent({
+    Duration window = const Duration(minutes: 60),
+  }) => liveQuery(
+    _client,
+    tables: const ['crowd_report'],
+    // Old reports leave the window even when nothing new arrives.
+    refreshEvery: const Duration(minutes: 1),
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('crowd_report')
+              .select()
+              .gte('submitted_at', _utcAgo(window))
+              .order('submitted_at', ascending: false))
+        CrowdReport.fromJson(r),
+    ],
+  );
+}
+
+// -------------------------------------------------------------- residents
+
+class SupabaseResidentRepository implements ResidentRepository {
+  const SupabaseResidentRepository(this._client);
+
+  final SupabaseClient _client;
+
+  // manila_resident is not in the realtime publication (its full contact
+  // number column is hidden from clients), so household changes drive
+  // refreshes.
+  static const _tables = ['vulnerable_member'];
+
+  @override
+  Stream<Resident?> watchResident(String residentId) => liveQuery(
+    _client,
+    tables: _tables,
+    fetch: () async {
+      final row = await _client
+          .from('resident_profile')
+          .select()
+          .eq('manila_resident_id', residentId)
+          .maybeSingle();
+      return row == null ? null : Resident.fromJson(row);
+    },
+  );
+
+  @override
+  Stream<List<Resident>> watchVulnerable() => liveQuery(
+    _client,
+    tables: _tables,
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('vulnerable_resident_list')
+              .select()
+              .order('fullname'))
+        Resident.fromJson(r),
+    ],
+  );
+
+  @override
+  Future<String> revealContact(String residentId) => _call(
+    () => _client.rpc<String>(
+      'reveal_resident_contact',
+      params: {'p_resident_id': residentId},
+    ),
+  );
+}
+
+// ---------------------------------------------------------------- weather
+
+class SupabaseWeatherRepository implements WeatherRepository {
+  const SupabaseWeatherRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<WeatherStatus> watchCurrent() => liveQuery(
+    _client,
+    tables: const ['weather_alert'],
+    fetch: () async {
+      final row = await _client
+          .from('weather_alert')
+          .select()
+          .order('issued_at', ascending: false)
+          .limit(1)
+          .maybeSingle();
+      // No reading is an error, not "no signal": a calm default could
+      // mislead a dispatcher during a typhoon.
+      if (row == null) throw StateError('No weather reading yet');
+      return WeatherStatus.fromJson(row);
+    },
+  );
+}
+
+// ------------------------------------------------------------------ audit
+
+class SupabaseAuditRepository implements AuditRepository {
+  const SupabaseAuditRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<List<AuditEntry>> watchRecent({int limit = 200}) => liveQuery(
+    _client,
+    tables: const ['audit_log'],
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('audit_log')
+              .select()
+              .order('timestamp', ascending: false)
+              .order('log_id', ascending: false)
+              .limit(limit))
+        AuditEntry.fromJson(r),
+    ],
+  );
+}
+
+// ------------------------------------------------------------- connection
+
+/// Reports the realtime link: joined means live, an error or timeout means
+/// the client is retrying, and a closed channel means offline.
+class SupabaseConnectionMonitor implements ConnectionMonitor {
+  SupabaseConnectionMonitor(this._client);
+
+  final SupabaseClient _client;
+  final _changes = StreamController<LinkState>.broadcast();
+  RealtimeChannel? _channel;
+  LinkState? _state;
+
+  void _start() {
+    _channel ??= _client.channel('sagip-link').subscribe((status, _) {
+      final next = switch (status) {
+        RealtimeSubscribeStatus.subscribed => LinkState.live,
+        RealtimeSubscribeStatus.channelError ||
+        RealtimeSubscribeStatus.timedOut => LinkState.reconnecting,
+        RealtimeSubscribeStatus.closed => LinkState.offline,
+      };
+      if (next == _state) return;
+      _state = next;
+      _changes.add(next);
+    });
+  }
+
+  @override
+  Stream<LinkState> watch() {
+    _start();
+    StreamSubscription<LinkState>? sub;
+    late final StreamController<LinkState> controller;
+    controller = StreamController<LinkState>(
+      onListen: () {
+        // Nothing until the first status: unknown counts as online, so the
+        // banner does not flash on start.
+        final state = _state;
+        if (state != null) controller.add(state);
+        sub = _changes.stream.listen(controller.add);
+      },
+      onCancel: () => sub?.cancel(),
+    );
+    return controller.stream;
+  }
+}
+
+// ---------------------------------------------------------------- helpers
+
+String _utcAgo(Duration d) =>
+    DateTime.now().toUtc().subtract(d).toIso8601String();
+
+/// Runs a database function and turns its refusals into [ActionRejected].
+/// The functions raise these codes (supabase/migrations/*dispatch_actions).
+Future<T> _call<T>(Future<T> Function() body) async {
+  try {
+    return await body();
+  } on PostgrestException catch (e) {
+    throw ActionRejected(switch (e.message) {
+      'unit_not_available' => ActionRejection.unitNotAvailable,
+      'already_assigned' => ActionRejection.alreadyAssigned,
+      'incident_closed' || 'not_found' => ActionRejection.incidentClosed,
+      _ => ActionRejection.notAllowed,
+    });
+  } on ActionRejected {
+    rethrow;
+  } on Exception {
+    // Network failures surface as client exceptions from the HTTP layer.
+    throw const ActionRejected(ActionRejection.offline);
+  }
+}

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/actions.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -205,8 +206,16 @@ Future<void> showCallDialog(
 ) async {
   final l10n = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
-  // Viewing personal data is an audited action (NFR4, FR11).
-  ref.read(residentRepositoryProvider).logContactViewed(resident.id).ignore();
+  // Lists only carry masked numbers. The full one comes from an audited
+  // reveal (NFR4, FR11).
+  String? number;
+  final ok = await runAction(context, () async {
+    number = await ref
+        .read(residentRepositoryProvider)
+        .revealContact(resident.id);
+  });
+  if (!ok || number == null || !context.mounted) return;
+  final contact = number!;
   await showDialog<void>(
     context: context,
     builder: (context) {
@@ -220,7 +229,7 @@ Future<void> showCallDialog(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SelectableText(
-                resident.contactNumber,
+                contact,
                 style: text.displaySmall!.copyWith(
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
@@ -233,10 +242,8 @@ Future<void> showCallDialog(
         actions: [
           TextButton(
             onPressed: () async {
-              await Clipboard.setData(
-                ClipboardData(text: resident.contactNumber),
-              );
-              messenger.showSnackBar(SnackBar(content: Text(l10n.copiedSnack)));
+              await Clipboard.setData(ClipboardData(text: contact));
+              messenger.showSnackBar(statusSnack(l10n.copiedSnack));
             },
             child: Text(l10n.copyNumber),
           ),

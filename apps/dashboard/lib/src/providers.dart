@@ -62,6 +62,19 @@ List<Override> mockOverrides(MockBackend backend, {bool demoTools = true}) => [
   connectionMonitorProvider.overrideWithValue(MockConnectionMonitor(backend)),
 ];
 
+/// Overrides that run the dashboard on the Supabase project (see
+/// docs/CONVENTIONS.md, "Supabase").
+List<Override> supabaseOverrides(SupabaseBackend backend) => [
+  authRepositoryProvider.overrideWithValue(backend.auth),
+  incidentRepositoryProvider.overrideWithValue(backend.incidents),
+  unitRepositoryProvider.overrideWithValue(backend.units),
+  crowdReportRepositoryProvider.overrideWithValue(backend.crowdReports),
+  residentRepositoryProvider.overrideWithValue(backend.residents),
+  weatherRepositoryProvider.overrideWithValue(backend.weather),
+  auditRepositoryProvider.overrideWithValue(backend.audit),
+  connectionMonitorProvider.overrideWithValue(backend.connection),
+];
+
 // ---------------------------------------------------------------------------
 // Live data.
 // ---------------------------------------------------------------------------
@@ -70,32 +83,56 @@ final currentUserProvider = StreamProvider<AppUser?>(
   (ref) => ref.watch(authRepositoryProvider).watchUser(),
 );
 
+/// Data streams restart when the signed-in account changes, so nothing one
+/// account loaded under its access rules stays in memory for the next one.
+/// Signed out, they wait.
+Stream<T> _forAccount<T>(Ref ref, Stream<T> Function() open) {
+  final account = ref.watch(currentUserProvider.select((u) => u.value?.id));
+  return account == null ? const Stream.empty() : open();
+}
+
 final activeIncidentsProvider = StreamProvider<List<Incident>>(
-  (ref) => ref.watch(incidentRepositoryProvider).watchActive(),
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(incidentRepositoryProvider).watchActive(),
+  ),
 );
 
 final unitsProvider = StreamProvider<List<ResponseUnit>>(
-  (ref) => ref.watch(unitRepositoryProvider).watchAll(),
+  (ref) => _forAccount(ref, () => ref.watch(unitRepositoryProvider).watchAll()),
 );
 
 final crowdReportsProvider = StreamProvider<List<CrowdReport>>(
-  (ref) => ref.watch(crowdReportRepositoryProvider).watchRecent(),
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(crowdReportRepositoryProvider).watchRecent(),
+  ),
 );
 
 final weatherProvider = StreamProvider<WeatherStatus>(
-  (ref) => ref.watch(weatherRepositoryProvider).watchCurrent(),
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(weatherRepositoryProvider).watchCurrent(),
+  ),
 );
 
 final vulnerableResidentsProvider = StreamProvider<List<Resident>>(
-  (ref) => ref.watch(residentRepositoryProvider).watchVulnerable(),
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(residentRepositoryProvider).watchVulnerable(),
+  ),
 );
 
 final residentProvider = StreamProvider.family<Resident?, String>(
-  (ref, id) => ref.watch(residentRepositoryProvider).watchResident(id),
+  (ref, id) => _forAccount(
+    ref,
+    () => ref.watch(residentRepositoryProvider).watchResident(id),
+  ),
 );
 
 final auditLogProvider = StreamProvider<List<AuditEntry>>(
-  (ref) => ref.watch(auditRepositoryProvider).watchRecent(),
+  (ref) =>
+      _forAccount(ref, () => ref.watch(auditRepositoryProvider).watchRecent()),
 );
 
 final linkStateProvider = StreamProvider<LinkState>(

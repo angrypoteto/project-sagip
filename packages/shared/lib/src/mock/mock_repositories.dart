@@ -102,8 +102,8 @@ class MockResidentRepository implements ResidentRepository {
   Stream<List<Resident>> watchVulnerable() => _backend.watchVulnerable();
 
   @override
-  Future<void> logContactViewed(String residentId) =>
-      _backend.logContactViewed(residentId);
+  Future<String> revealContact(String residentId) =>
+      _backend.revealContact(residentId);
 }
 
 class MockWeatherRepository implements WeatherRepository {

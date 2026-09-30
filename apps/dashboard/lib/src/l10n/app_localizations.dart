@@ -376,6 +376,12 @@ abstract class AppLocalizations {
   /// **'Administrator'**
   String get roleAdmin;
 
+  /// No description provided for @roleSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get roleSystem;
+
   /// No description provided for @userWithRole.
   ///
   /// In en, this message translates to:
@@ -889,14 +895,20 @@ abstract class AppLocalizations {
   /// No description provided for @locationDetail.
   ///
   /// In en, this message translates to:
-  /// **'{coordinates}, from the {channel}, accurate to {meters} m'**
-  String locationDetail(String coordinates, String channel, int meters);
+  /// **'{coordinates}, from {source}, accurate to {meters} m'**
+  String locationDetail(String coordinates, String source, int meters);
 
   /// No description provided for @locationDetailNoAccuracy.
   ///
   /// In en, this message translates to:
-  /// **'{coordinates}, from the {channel}'**
-  String locationDetailNoAccuracy(String coordinates, String channel);
+  /// **'{coordinates}, from {source}'**
+  String locationDetailNoAccuracy(String coordinates, String source);
+
+  /// Where an incident location came from, after the word from.
+  ///
+  /// In en, this message translates to:
+  /// **'{channel, select, app{the app} sms{SMS} bleRelay{nearby phones} webForm{the web form} other{an unknown source}}'**
+  String locationSource(String channel);
 
   /// No description provided for @incidentTypeLabel.
   ///

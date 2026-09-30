@@ -317,9 +317,14 @@ class MockBackend {
     _log(actor, AuditAction.resolved, 'incident_report', id, null);
   }
 
-  Future<void> logContactViewed(String residentId) async {
+  Future<String> revealContact(String residentId) async {
     final actor = await _authorize();
+    final resident = _residents.value[residentId];
+    if (resident == null) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
     _log(actor, AuditAction.contactViewed, 'manila_resident', residentId, null);
+    return resident.contactNumber;
   }
 
   // ------------------------------------------------------------- simulation

@@ -54,6 +54,7 @@ extension DomainLabels on AppLocalizations {
     UserRole.responder => roleResponder,
     UserRole.dispatcher => roleDispatcher,
     UserRole.admin => roleAdmin,
+    UserRole.system => roleSystem,
   };
 
   String severity(Severity s) => switch (s) {

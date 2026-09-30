@@ -1,6 +1,6 @@
 /// Shared code for the S.A.G.I.P. mobile app and web dashboard: design
-/// tokens and theme, domain models, repository interfaces, algorithms,
-/// mock data, and shared widgets.
+/// tokens and theme, domain models, repository interfaces with mock and
+/// Supabase implementations, algorithms, and shared widgets.
 library;
 
 export 'src/algorithms/dbscan.dart';
@@ -17,6 +17,7 @@ export 'src/models/people.dart';
 export 'src/models/records.dart';
 export 'src/models/response_unit.dart';
 export 'src/repositories/repositories.dart';
+export 'src/supabase/supabase_repositories.dart';
 export 'src/theme/sagip_colors.dart';
 export 'src/theme/sagip_palette.dart';
 export 'src/theme/sagip_theme.dart';

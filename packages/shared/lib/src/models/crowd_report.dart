@@ -68,7 +68,7 @@ class CrowdReport {
     barangay: json['barangay']! as String,
     district: json['district']! as String,
     channel: enumFromJson(ReportChannel.values, json['source']),
-    submittedAt: DateTime.parse(json['submitted_at']! as String),
+    submittedAt: timeFromJson(json['submitted_at']),
     suggestedType: enumFromJsonOrNull(IncidentType.values, json['category']),
     suggestionConfidence: (json['category_confidence'] as num?)?.toDouble(),
     incidentId: json['incident_id'] as String?,

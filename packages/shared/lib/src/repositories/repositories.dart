@@ -86,8 +86,9 @@ abstract interface class ResidentRepository {
   /// The Vulnerable Resident Priority List (admins and dispatchers only).
   Stream<List<Resident>> watchVulnerable();
 
-  /// Records in the audit log that a dispatcher revealed a contact number.
-  Future<void> logContactViewed(String residentId);
+  /// Returns the resident's full contact number and records the reveal in
+  /// the audit log. Lists only carry masked numbers (NFR4).
+  Future<String> revealContact(String residentId);
 }
 
 abstract interface class WeatherRepository {
