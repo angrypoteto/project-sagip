@@ -988,15 +988,15 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 - [ ] Run the Supabase stack locally with the CLI; all changes go through migration files (partial Sep 30: hosted project with 5 migration files; CLI not installed yet)
 - [x] Enable PostGIS; enable pgvector later for RAG (PostGIS on, Sep 30)
 - [ ] Migrations for the Figure 3.6 tables with UUID keys linked to Supabase Auth users (partial Sep 30: staff and residents link to Auth users; incidents use readable ids like INC-0147)
-- [ ] Add the missing tables: barangays with boundaries (897), evacuation centers, device tokens, configuration and thresholds, priority rules, EFCOS readings, alert deliveries, incident status history (Q16)
+- [ ] Add the missing tables: barangays with boundaries (897), evacuation centers, device tokens, configuration and thresholds, priority rules, EFCOS readings, alert deliveries, incident status history (Q16) (partial Sep 30: barangays with 10 samples, alerts with read state, forecasts, completion reports, data deletion requests)
 - [ ] Geography columns and spatial indexes on every location
-- [ ] `client_uuid` unique key on SOS, crowd reports, and sync log so the same SOS arriving by internet, SMS, and BLE is stored once (Q31)
+- [x] `client_uuid` unique key on SOS, crowd reports, and sync log so the same SOS arriving by internet, SMS, and BLE is stored once (Q31) (Sep 30: SOS, crowd reports, and completion reports; the queue itself is on the phone)
 - [ ] Auth: resident phone OTP through the Send SMS hook (Q37); staff username or email with password; role in the JWT through a custom access token hook
 - [x] RLS on every table: residents see only their own rows, responders only assigned incidents, the vulnerable list only admins and dispatchers, configuration only admins (Sep 30; the configuration table does not exist yet)
-- [x] RLS tests for every role, including "resident cannot read another resident's SOS" and "dispatcher cannot read configuration" (Sep 30: `supabase/tests/rls_test.sql`, 29 checks; add configuration checks with that table)
+- [x] RLS tests for every role, including "resident cannot read another resident's SOS" and "dispatcher cannot read configuration" (Sep 30: `supabase/tests/rls_test.sql`, 87 checks; add configuration checks with that table)
 - [x] Audit triggers for every dispatch action, status change, and verification (FR11) (Sep 30)
-- [ ] Functions: Manila boundary check (FR15) and per-account rate limit (FR15, NFR7)
-- [ ] Realtime publication for incidents, dispatches, units, and responder positions (partial Sep 30: incidents, timeline, crowd reports, units with last position, weather, audit log)
+- [x] Functions: Manila boundary check (FR15) and per-account rate limit (FR15, NFR7) (Sep 30: rough box until boundaries load; 5 an hour, provisional)
+- [ ] Realtime publication for incidents, dispatches, units, and responder positions (partial Sep 30: incidents, timeline, crowd reports, units with last position, weather, audit log, completion reports, alerts, forecasts)
 - [ ] Storage buckets: NDRRMC PDFs (private) and map tiles and road graph (public read)
 - [ ] Seed data: barangays, units and responders (mock until the roster arrives), sample incidents (partial Sep 30: `reset_demo_data()` loads units, residents, incidents, reports; no barangays or responders yet)
 - [ ] Edge Function skeletons: `sms-intake`, `compute-priority`, `classify-report`, `send-alerts`, `ingest-pagasa`, `ingest-phivolcs`, `generate-report`

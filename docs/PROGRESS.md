@@ -67,6 +67,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] Account models and interfaces: `Barangay`, `AppPermission`, `PermissionState`, `PhoneAuthFailure`, `normalizePhMobile()`; `ResidentAccountRepository` (send code, verify, register, request data deletion) and `PermissionService`; the mock (`mock_accounts.dart`) checks numbers, limits code requests to 3 a minute, accepts code `123456`, and records deletion requests; `sampleManilaBarangays` (10 real barangays until the Data role supplies all 897)
 - [x] Part 4b models and interfaces: `PublicAlert`, `AlertFeed`, `BarangayForecast` (`alerts.dart`), `CompletedAssignment`, `ReportStage` and `incidentId` on `HazardReport`, `VulnerableMember.id`, `LocationFix.manual`, `Barangay.center`, `nearestBarangay()`, `formatDate()`; `AlertRepository`, `VulnerabilityRepository`, `ResponderRepository.watchHistory()`
 - [x] Mock: sample alerts and forecasts (`mock_alerts.dart`), consent and household changes, account-owned SOS and report lists, delivered reports move to "Checking", responder history that follows each report's delivery, and an opt-in history seed (`withHistory: true`, used by `main.dart`; `mock_history.dart`)
+- [x] Supabase side of the mobile app (`supabase/mobile_repositories.dart`): `SupabaseMobileBackend` with `SupabaseMobileAccounts` (resident sign-in by code, registration, linking, responder sign-in; implements `AuthRepository` and `ResidentAccountRepository`), `SupabaseVulnerabilityRepository`, `SupabaseAlertRepository`, and `SupabaseMobileRemote` (the server calls the offline queue will send: SOS and details, reports, accept, arrive, on-scene check, status, completion report, position; plus live `my_sos`, `my_crowd_reports`, `my_assignments`, `my_unit_history`, unit). `databaseRefusal()` maps the database's refusal codes to `ReportRejected`, `StatusRejected`, and `ActionRejected`. `liveQuery` gained `refreshOn`. `BarangayForecast.fromRow`, `PhoneAuthFailure.unavailable`
 - [ ] Widget gallery
 - [ ] Dijkstra over the OSM road graph (plan 10.2)
 - [ ] Incident type classifier (plan 10.4), LSTM + KDE (plan 10.5), RAG (plan 10.6)
@@ -80,7 +81,9 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] Realtime on incidents, timeline, crowd reports, units, weather, audit log, households
 - [x] Demo data and tools (SQL editor only): `reset_demo_data()`, `demo_new_sos()`, `demo_add_crowd_report()`, `demo_advance()`, `create_staff_account(...)`
 - [x] RLS test: `supabase/tests/rls_test.sql`, 29 pgTAP checks across anon, dispatcher, admin, responder, resident, and a signed-in account with no role
-- [ ] Responder and resident write paths (status updates, SOS insert, crowd report insert) for the mobile app
+- [x] Mobile write paths and reads (part 5, 3 migrations): resident linking and registration, SOS (client UUID stored once, capture time kept, vulnerable household types, on the board at once), SOS details, crowd reports (Manila check, 5 an hour by capture time plus 10 received an hour), consent and household changes, data deletion requests, responder accept, arrive, on-scene check, status control, completion reports (resolve the incident, free the unit), position sharing, alert read state; reads in the app's model shapes; DBSCAN counts from capture time
+- [x] New tables with RLS: `barangay` (10 samples), `completion_report`, `public_alert`, `alert_read`, `barangay_forecast`, `data_deletion_request`; view `my_alerts`; household members carry `member_id` in `resident_profile`
+- [ ] Load the new sample data on the hosted project: run `select public.reset_demo_data();` (not run by the migration, so edits Joshua made are kept until he chooses)
 - [ ] SMS gateway, Semaphore, PAGASA feed, FCM (Edge Functions)
 - [ ] Leaked-password protection is off (Supabase dashboard setting: Authentication, then Passwords); turn it on before the pilot
 
@@ -143,7 +146,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Crowd reports map: the 50 m ring is only a few pixels at city zoom; add a count marker for clusters
 
 ### Tests (last run 2026-09-30)
-- `packages/shared`: 77 passing (`flutter test`), including part 4b (alerts newest first and unread count, forecast by barangay and none for some, refresh offline keeps the saved time, add, edit, remove, withdraw and consent, changes need internet, history seed visible to Maria only, delivered reports go to Checking, a map pin is sent without accuracy, responder history with a report waiting, nearest barangay, JSON for the new models), accounts (number formats, unknown number, the 3-a-minute code limit, register then verify, deletion request, permission states), Supabase-shaped JSON, the mobile mock's offline rules (capture order, capture time kept, SMS and relay tiers, updates held while offline), and the SOS button (a tap never sends, a 2 s hold sends once, early release cancels, the release after a send does not also open), hazard reports (wait for internet while an SOS goes by SMS, delivered in capture order, the four on-phone checks), the responder closing in with a falling ETA, and the mock responder (offer and accept, refused status moves, completion makes the unit available, offline updates and the report sent in capture order)
+- `packages/shared`: 83 passing (`flutter test`), including the server rows above, part 4b (alerts newest first and unread count, forecast by barangay and none for some, refresh offline keeps the saved time, add, edit, remove, withdraw and consent, changes need internet, history seed visible to Maria only, delivered reports go to Checking, a map pin is sent without accuracy, responder history with a report waiting, nearest barangay, JSON for the new models), accounts (number formats, unknown number, the 3-a-minute code limit, register then verify, deletion request, permission states), Supabase-shaped JSON, the mobile mock's offline rules (capture order, capture time kept, SMS and relay tiers, updates held while offline), and the SOS button (a tap never sends, a 2 s hold sends once, early release cancels, the release after a send does not also open), hazard reports (wait for internet while an SOS goes by SMS, delivered in capture order, the four on-phone checks), the responder closing in with a falling ETA, and the mock responder (offer and accept, refused status moves, completion makes the unit available, offline updates and the report sent in capture order)
 - `apps/mobile`: 18 passing (R6 history and the report sheet; R6 empty for a new account; R7 unread count, reading two alerts, forecast, offline line; R9 to R11 validation, add, remove, withdraw, consent again, offline; R5 by search and by barangay offline, sent without accuracy; F7 week filters and a report saved on the phone; first run: welcome steps then sign-in by code, wrong code; bad and unknown numbers and the offline notice; register with the barangay picker; Me: theme, deletion request, sign-out warning; the role picks the shell, and Back on another tab goes Home; online SOS to responder assigned; offline SOS by SMS, queue sheet, delivered on reconnect; add details; tracking before and after assignment; reporting: empty check, online, offline; responder offer, accept, navigate, arrive, on scene, report; responder offline report and the required reason)
 - Emulator check, part 4b (2026-09-30): Alerts with the unread count (3, then 2 after reading), alert detail, forecast, My activity (SOS and Reports), the report sheet, Vulnerability profile, the add-member checks, R5 with real map tiles (pin stays centred, coordinates and "Near" update while dragging), and F7 in light and dark. Found and fixed: the alert card header overflowed at phone width with long dates (time moved under the title); the unread dot moved sideways between cards; report and history titles were cut at half the row because the chip took half; "Withdraw consent" was inset from the text; the R5 pin tip sat about 4 dp above the chosen point. Checked by widget tests only: R5 offline, R10, the offline states. Not checked: dark theme on every new screen (History was checked).
 - Emulator check, part 4a (2026-09-30): launcher icon, S2 steps with Allow, S3, S5 with the demo code landing on Home ("Hi, Maria"), S4, and Me all render. Found and fixed: the main S2 button jumped down when Skip disappeared after Allow; the hotline call icon was grey on blue (the app theme greys every icon button, even filled ones); the register barangay row read "Choose your barangay / Barangay" (label and hint swapped). Not checked on the emulator: the staff form, dark theme on every new screen.
@@ -152,7 +155,9 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Dashboard after the map base moved to shared: tests pass and a browser screenshot of the board looks the same.
 - Emulator check (2026-09-30, `sagip_pixel`, driven with adb): sign-in, Home, a real 2.6 s hold with the progress ring, R2 timeline updating live to Verified, offline banner, offline SOS showing Sent by SMS, and the queue sheet all work. Found and fixed: the release after a completed hold opened R2 twice; a redundant badge on R2; the active SOS card's link crowded long states. Haptics not checked (the emulator does not vibrate); needs a real phone.
 - `apps/dashboard`: 7 passing (sign-in, ranked queue, assign top unit, override needs a reason, admin pages hidden, admin audit log, offline disables actions)
-- `supabase/tests/rls_test.sql`: 29 of 29 passing, run on the hosted project inside a rolled-back transaction (nothing was left behind)
+- `supabase/tests/rls_test.sql`: 87 of 87 passing (part 5 added 58: SOS stored once with capture time and vulnerable types, the mock-location flag hidden from residents, Manila check, hourly limit, report stages, consent and household, linking and registering by phone, another resident's SOS hidden and untouchable, responder accept/arrive/on-scene/report/status/position, alerts and read state, forecasts, audit entries under the responder's name, anon and private-helper privileges), run on the hosted project inside a rolled-back transaction
+- Live API check (2026-09-30): a temporary responder account called the new functions through the REST API (the app's path): reads returned JSON, refusals came back as codes (`no_assignment`, `not_allowed`), anon was denied. The account was deleted afterwards and nothing was changed.
+- `packages/shared`: `supabase_mobile_json_test.dart` parses rows captured from the hosted functions into the app's models, and checks the refusal mapping
 - Browser check on Supabase (2026-09-30, headless Chrome, 1440 x 900): dispatcher sign-in; board loaded from the database; realtime delivered a new SOS toast and a new DBSCAN cluster without reload; "Show number" revealed the full number; "Mark verified" and "Assign" worked; all five actions appear in `audit_log` under R. Santos. Demo data reset afterwards. Not yet checked in the browser: admin sign-in and the audit log page on Supabase, crowd reports, units, and weather pages on Supabase.
 - `flutter analyze`: no issues in both packages
 - `flutter build web --release`: builds
@@ -240,6 +245,15 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 | Unread alert count on the tab uses tide, not red | An unread alert is not an emergency on its own (design skill: no red for non-emergency UI) | None |
 | Forecast risk chips: low outline, moderate ember, high signal | Matches the dashboard heatmap colours | None |
 | Sample alerts, forecasts, and history are mock content; the forecast says "Sample forecast" | LSTM + KDE is not trained yet; the thesis promises a simulated live feed | None |
+| The sign-in code is sent to any valid number; "no account yet" shows after the code is checked | A "does this number have an account" lookup would let anyone find out who is registered (RA 10173) | Update the S3 flow text in Ch 3 |
+| A number MDRRMD already has (resident record without an app account) is linked on first sign-in | Residents registered by MDRRMD keep their household list | None |
+| The responder's completion report resolves the incident (or marks it a false report) and frees the unit | One step for the responder; the dispatcher can still resolve from the dashboard | Confirm with MDRRMD |
+| "Real emergency" in the on-scene check counts as verification on scene when no dispatcher verified it | FR8 names on-scene confirmation as a verification method | None |
+| An SOS with no GPS fix at all is placed at the centre of the resident's barangay, with no accuracy | It still reaches the board (FR8); the dispatcher calls back for the spot | Mention in Ch 3 |
+| Server report limit: 5 per hour by capture time, and at most 10 received per hour | Offline backlogs arrive in bursts; the second cap stops back-dated capture times from getting around the limit | Provisional; A3 configuration later |
+| DBSCAN's 60-minute window counts from capture time, not upload time | A report made offline belongs to the time it was made (NFR1) | Mention in Ch 3 |
+| The resident's chosen type is kept apart from the classifier's suggestion (`reported_type` vs `category`); clusters use the classifier's when it exists | Keeps the classifier's output measurable for Chapter 4 | None |
+| Applying the part 5 migrations did not reload the demo data | Joshua may have edited the live demo data | None |
 | Snackbars are 360 px wide at the bottom centre | A full-width one covered the drawer's "Assign" button for 4 s after "Mark verified" (found in the browser check) | None |
 
 ---
@@ -255,31 +269,38 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 
 ## Next steps (in order)
 
-1. **Joshua reviews the mobile app** on the emulator or a phone (every Tier 1 and Tier 2 screen is built on mock data), and the deferred look at his dashboard UI changes. Fix what comes up.
-2. **CI** (small): GitHub Actions running `flutter analyze` and `flutter test` on every push.
-3. **Map spikes** (Phase 0, unblock later work): pick the self-hosted Manila tile source (Protomaps extract) and build the Manila road graph with `osmnx` for Dijkstra.
-4. **Wire the five flows end to end on mock data**, fix the top issues from the hallway test, tag `phase1-design-complete`, and hold the Oct 18 scope checkpoint (record it in `docs/DECISIONS.md`).
-5. Phase 2 and 3 on Supabase: SOS insert with the original capture timestamp, crowd reports, responder status updates (each with RLS tests), Hive offline queue.
-6. Phase 4: Dijkstra (swap out `StraightLineSuggester`), the TF-IDF classifier, then LSTM + KDE and the forecast screen.
+Joshua decided on 2026-09-30: **functions first, UI polish later**, once the whole system works. The order:
+
+1. **Part 5, Phase 2 gaps:** done (database side of the mobile app, 87-check RLS test, Supabase repositories). Joshua: run `select public.reset_demo_data();` to load the new sample data.
+2. **Part 6 (next), Phase 3 and the first half of Phase 5:** the mobile app on Supabase (switched by `.env`, like the dashboard), resident sign-in by SMS code through the Send SMS hook, the Hive offline queue, real GPS, live tracking; an SOS runs phone to dashboard to responder phone to resolved (M2 demo, Nov 1).
+3. **Part 7:** push notifications (FCM), responder background GPS, rescue confirmations.
+4. **Phase 4 algorithms:** priority score in the database, Dijkstra on the OSM road graph (build the graph with `osmnx`); then the classifier and LSTM + KDE when the Data role's datasets arrive.
+5. **Phase 5 second half and Phase 6:** SMS fallback and gateway, BLE relay, PAGASA and PHIVOLCS feeds, Semaphore broadcasts, Facebook posting.
+6. **Tier 3 on Supabase:** admin A1 to A6, D11, G2, web form W1 to W3.
+7. Later, when everything works: Joshua's UI review of both apps (including his dashboard UI changes), widget gallery, hallway test, CI.
 
 ## Not done yet (full list)
 
 **Joshua + Claude (code)**
 - Mobile app: widget gallery, Hive queue, real GPS, SMS, BLE, offline map tiles, push notifications (see the apps/mobile status above)
 - Dashboard: admin pages A1 to A6 (accounts, resources, configuration, analytics, NDRRMC reports) are placeholders; D8 forecast is a placeholder; D11 My account; G2 Session expired; W1 to W3 resident web form; new-SOS sound; widget gallery
-- Supabase: resident and responder write paths, barangay boundaries, configuration and priority-rule tables, Edge Functions (SMS intake, Semaphore alerts, PAGASA ingest, FCM), storage buckets
+- Supabase: all 897 barangays with boundaries, device tokens, evacuation centers (Q38), configuration and priority-rule tables, Edge Functions (SMS intake, Semaphore alerts, PAGASA ingest, FCM), storage buckets
 - Algorithms: Dijkstra on the OSM road graph, TF-IDF classifier, LSTM + KDE forecast, RAG report (proof of concept)
 - Offline: Hive queue, SMS fallback through the GSM gateway, BLE mesh relay (proof of concept), responder tile pre-download
 - Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only)
 - CI; admin sign-in and the audit log, crowd reports, units, and weather pages not yet browser-checked on Supabase
 
 **Joshua (settings and decisions)**
+- Resident sign-in by SMS code: Supabase needs something to send the text. The plan is Supabase's Send SMS hook calling a small Edge Function that sends through Semaphore. Until the Semaphore account exists, that function saves the code so the demo can show it. Joshua switches Phone sign-in and the hook on in the Supabase dashboard (Claude gives the exact clicks in part 6). Noted 2026-09-30.
+- Firebase project for push notifications (FCM): needed for part 7, not yet.
+- Run `select public.reset_demo_data();` in the Supabase SQL editor to load the part 5 sample data (alerts, forecasts, past rescues). It replaces the current demo data.
 - Turn on leaked-password protection in Supabase (Authentication, then Passwords)
 - Confirm the one-`staff`-table design against the thesis (plan Q8)
 - Decide where each algorithm runs and which LLM provider RAG uses (plan section 6)
 - The Supabase project sits in a personal org on the free tier; the plan wants a team-owned account and the paid tier from the pilot to the defense
 
-**Teammates (long lead time, plan section 6)**
+**Teammates (long lead time, plan section 6).** Joshua asked on 2026-09-30 to check where each of these stands; they take weeks: the MDRRMD data letter, the 897 barangays with boundaries, the Semaphore account, the GSM modem, and the test phones.
+- The full list of Manila's 897 barangays with districts and boundaries (for the pickers, the Manila check, and forecasts) **(Data)**
 - MDRRMD data letter (unit roster, triage SOP, incident records, descriptions, NDRRMC templates); hotline number
 - UAT slots for Nov 23 to 27 (3 admins, 16 field personnel, 31 residents); ISO/IEC 25010 questionnaire validated by Oct 30
 - Semaphore account and sender name; GSM modem and SIM; list of test phones (need 3+ for BLE, one low-end Android 10)
@@ -307,6 +328,9 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 | `ac7ee05` | 2026-09-30 | Docs: mobile part 4a status, decisions, gotchas |
 | `f7d8630` | 2026-09-30 | Shared: alert and forecast models, report stages, completed assignments, vulnerability and alert interfaces, mock alerts and history, `nearestBarangay`, `formatDate` |
 | `08f6ad4` | 2026-09-30 | Mobile app part 4b: R5 location picker, R6 My activity, R7 and R8 alerts, R9 to R11 vulnerability profile, F7 history; placeholder page removed |
+| `916e2a3` | 2026-09-30 | Docs: mobile part 4b status, decisions, gotchas |
+| `b388e20` | 2026-09-30 | Supabase part 5: mobile schema, checked functions for every phone write, reads in the app's shapes, demo reset with past rescues, alerts, forecasts; RLS test at 87 checks |
+| `a5495d0` | 2026-09-30 | Shared: Supabase repositories for the mobile app, `databaseRefusal`, `liveQuery.refreshOn`, tests on real server rows |
 
 `git log --oneline` shows newer commits; add a row here for each one.
 
@@ -342,6 +366,9 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 - `find.bySemanticsLabel` only finds labels on their own semantics node; give map markers `Semantics(container: true, label: ...)`.
 - The app theme's `iconButtonTheme` greys every `IconButton`, including `IconButton.filled`. A filled icon button needs its own `style:` with a light foreground (see `HotlineCard`).
 - When a button can disappear under the main button (Skip on S2), keep a fixed-height slot so the main button does not move under the thumb.
+- Database functions refuse with short codes in the error message (`not_allowed`, `rate_limited`, ...); the REST API returns them in `message`, and `databaseRefusal()` maps them. Add new codes in both places.
+- Security-definer functions called by signed-in users show up in the Supabase security advisor as warnings; for the app's write API that is intended (each checks the caller first).
+- To see what a database function returns, run it in a transaction as the right user (`set local role authenticated`, `set local request.jwt.claims`) and end with a `do` block that raises the output; nothing is kept.
 - Mobile widget tests build the backend with `withHistory: false` (the default) so lists start empty; pass `withHistory: true` to test R6 and F7 with sample rows. Many older tests expect Maria to have exactly one SOS.
 - `tester.ensureVisible` did not bring the last alert card into the hit area inside the `RefreshIndicator` list; drag the list first (see `resident_extras_test.dart`).
 - `StepState` is taken by Material's stepper; the shared timeline row is `TimelineStep` with `TimelineState` (`common/timeline.dart`).
@@ -417,3 +444,10 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 - Mobile: R5 location picker (and "Change" on R4), R6 My activity with the report sheet, R7 Alerts and forecast with the unread count on the tab, R8 alert detail, R9 vulnerability profile, R10 consent, R11 household member, F7 assignment history. The placeholder page and its strings are gone. The R2 timeline row moved to `common/timeline.dart` for reuse. 6 new widget tests.
 - Found and fixed on the emulator: alert card overflow, the drifting unread dot, titles cut at half width, the inset withdraw link, and the pin offset (details under Tests).
 - Verified: analyze clean in all three packages; 77 shared, 7 dashboard, and 18 mobile tests pass; emulator check. Every mobile Tier 1 and Tier 2 screen now exists on mock data.
+
+### 2026-09-30: part 5, the database side of the mobile app (session f47c816b)
+- Joshua decided: functions first, UI polish later. He noted the SMS hook, Firebase, and teammate items (recorded above), approved part 5, and approved pushing parts 4a and 4b (pushed `fe7fe7f` to `916e2a3`).
+- Three migrations applied to the hosted project (`mobile_schema`, `mobile_actions`, `mobile_demo_data`; local files renamed to the hosted versions). The demo data was not reloaded (see Joshua's list).
+- RLS test grown from 29 to 87 checks; all pass on the hosted project. Live REST check with a temporary responder account (deleted). Security advisor: only the expected warnings.
+- Shared: Supabase mobile repositories and the remote calls part 6 will queue; tests parse real rows from the hosted functions.
+- Verified: analyze clean in all three packages; 83 shared, 7 dashboard, 18 mobile tests pass. Not verified: resident phone sign-in (needs the Send SMS hook, part 6).
