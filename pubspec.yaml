@@ -1,0 +1,10 @@
+name: sagip_workspace
+description: Project S.A.G.I.P. monorepo root. Holds no code; it links the apps and packages into one pub workspace.
+publish_to: none
+
+environment:
+  sdk: ^3.13.2
+
+workspace:
+  - apps/dashboard
+  - packages/shared

@@ -1,0 +1,23 @@
+# Dart and Flutter
+.dart_tool/
+build/
+*.iml
+.idea/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Secrets: keys go in .env (never committed) or Supabase secrets
+.env
+.env.*
+!.env.example
+
+# Personal Claude Code settings (the shared skill in .claude/skills is tracked)
+.claude/settings.local.json
+
+# Thesis draft: kept out of the repo by default because it holds names and
+# beneficiary details. Delete this line if the team wants it tracked.
+PROJECT-SAGIP-FINAL-CLEAN.docx
+
+# OS noise
+.DS_Store
+Thumbs.db

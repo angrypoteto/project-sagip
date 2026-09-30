@@ -1,0 +1,1036 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'S.A.G.I.P. Command';
+
+  @override
+  String get brandName => 'S.A.G.I.P.';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get loadFailed => 'Couldn\'t load this data.';
+
+  @override
+  String get signInTitle => 'Sign in to the command board';
+
+  @override
+  String get signInSubtitle => 'For MDRRMD dispatchers and administrators.';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get signInButton => 'Sign in';
+
+  @override
+  String get signingIn => 'Signing in';
+
+  @override
+  String get fieldRequired => 'Required';
+
+  @override
+  String get signInWrongCredentials => 'Email or password is incorrect.';
+
+  @override
+  String get signInDisabled =>
+      'This account is turned off. Ask an administrator.';
+
+  @override
+  String get signInNotStaff => 'This account can\'t use the command board.';
+
+  @override
+  String get signInOffline => 'You\'re offline. Reconnect to sign in.';
+
+  @override
+  String get forgotPassword => 'Forgot your password? Ask an administrator.';
+
+  @override
+  String demoAccountsHint(String password) {
+    return 'Demo accounts: dispatcher@sagip.test or admin@sagip.test. Password: $password';
+  }
+
+  @override
+  String get navCommandBoard => 'Command Board';
+
+  @override
+  String get navCrowdReports => 'Crowd reports';
+
+  @override
+  String get navUnits => 'Units';
+
+  @override
+  String get navForecast => 'Forecast';
+
+  @override
+  String get navVulnerable => 'Vulnerable residents';
+
+  @override
+  String get navWeather => 'Weather and advisories';
+
+  @override
+  String get navAnalytics => 'Analytics';
+
+  @override
+  String get navReports => 'NDRRMC reports';
+
+  @override
+  String get navAccounts => 'Accounts';
+
+  @override
+  String get navResources => 'Resources';
+
+  @override
+  String get navSettings => 'Configuration';
+
+  @override
+  String get navAuditLog => 'Audit log';
+
+  @override
+  String signalLevel(int level) {
+    return 'Signal No. $level';
+  }
+
+  @override
+  String get noSignal => 'No signal raised';
+
+  @override
+  String rainfall(String value) {
+    return 'Rainfall $value mm/hr';
+  }
+
+  @override
+  String pagasaAt(String time) {
+    return 'PAGASA, $time';
+  }
+
+  @override
+  String get simulatedFeed => 'Simulated feed';
+
+  @override
+  String get linkLive => 'Live';
+
+  @override
+  String get linkReconnecting => 'Reconnecting';
+
+  @override
+  String get linkOffline => 'Offline';
+
+  @override
+  String get roleResident => 'Resident';
+
+  @override
+  String get roleResponder => 'Responder';
+
+  @override
+  String get roleDispatcher => 'Dispatcher';
+
+  @override
+  String get roleAdmin => 'Administrator';
+
+  @override
+  String userWithRole(String name, String role) {
+    return '$name, $role';
+  }
+
+  @override
+  String get switchToLight => 'Switch to light theme';
+
+  @override
+  String get switchToDark => 'Switch to dark theme';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get demoConnection => 'Demo: connection';
+
+  @override
+  String get demoGoOffline => 'Simulate going offline';
+
+  @override
+  String get demoReconnecting => 'Simulate reconnecting';
+
+  @override
+  String get demoGoLive => 'Back online';
+
+  @override
+  String offlineBanner(String time) {
+    return 'You\'re offline. Showing data from $time. Actions are off until you reconnect.';
+  }
+
+  @override
+  String get reconnectingBanner => 'Live updates paused. Reconnecting.';
+
+  @override
+  String get offlineActionsDisabled => 'Reconnect to take actions.';
+
+  @override
+  String get queueTitle => 'Triage queue';
+
+  @override
+  String queueCount(int count) {
+    return '$count active, by priority';
+  }
+
+  @override
+  String filterAll(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String filterPending(int count) {
+    return 'Pending $count';
+  }
+
+  @override
+  String filterSos(int count) {
+    return 'SOS $count';
+  }
+
+  @override
+  String filterReports(int count) {
+    return 'Reports $count';
+  }
+
+  @override
+  String get queueEmpty => 'No active incidents';
+
+  @override
+  String get queueEmptyMessage => 'New reports will appear here.';
+
+  @override
+  String get queueFilterEmpty => 'Nothing matches this filter.';
+
+  @override
+  String get sosTitle => 'SOS';
+
+  @override
+  String sosWithType(String type) {
+    return 'SOS, $type';
+  }
+
+  @override
+  String clusterTitle(String type, int count) {
+    return '$type, $count reports';
+  }
+
+  @override
+  String clusterUntyped(int count) {
+    return 'Hazard, $count reports';
+  }
+
+  @override
+  String get mockLocationWarning => 'Location may be faked';
+
+  @override
+  String statusWithUnit(String status, String unit) {
+    return '$status $unit';
+  }
+
+  @override
+  String get statusPendingShort => 'Pending';
+
+  @override
+  String get channelApp => 'App';
+
+  @override
+  String get channelSms => 'SMS';
+
+  @override
+  String get channelBle => 'Nearby phones';
+
+  @override
+  String get channelWeb => 'Web form';
+
+  @override
+  String get statusPendingVerification => 'Pending verification';
+
+  @override
+  String get statusUnverified => 'Unverified';
+
+  @override
+  String get statusConfirmed => 'Confirmed';
+
+  @override
+  String get statusAssigned => 'Assigned';
+
+  @override
+  String get statusEnRoute => 'En route';
+
+  @override
+  String get statusOnScene => 'On scene';
+
+  @override
+  String get statusResolved => 'Resolved';
+
+  @override
+  String get typeFlood => 'Flood';
+
+  @override
+  String get typeFire => 'Fire';
+
+  @override
+  String get typeMedical => 'Medical';
+
+  @override
+  String get typeStructural => 'Structural';
+
+  @override
+  String get vulnSenior => 'Senior citizen';
+
+  @override
+  String get vulnPwd => 'Person with disability';
+
+  @override
+  String get vulnPregnant => 'Pregnant';
+
+  @override
+  String get vulnOther => 'Other';
+
+  @override
+  String get unitAmbulance => 'Ambulance';
+
+  @override
+  String get unitRescueBoat => 'Rescue boat';
+
+  @override
+  String get unitRescueTeam => 'Rescue team';
+
+  @override
+  String get unitAvailable => 'Available';
+
+  @override
+  String get unitEnRoute => 'En route';
+
+  @override
+  String get unitOnScene => 'On scene';
+
+  @override
+  String get viewMap => 'Map';
+
+  @override
+  String get viewList => 'List';
+
+  @override
+  String get layersTitle => 'Layers';
+
+  @override
+  String get layerUnits => 'Units';
+
+  @override
+  String get layerReports => 'Crowd reports';
+
+  @override
+  String get zoomIn => 'Zoom in';
+
+  @override
+  String get zoomOut => 'Zoom out';
+
+  @override
+  String get mapAttribution => 'OpenStreetMap contributors';
+
+  @override
+  String get legendPending => 'Pending verification';
+
+  @override
+  String get legendConfirmed => 'Confirmed';
+
+  @override
+  String get legendAssigned => 'Assigned';
+
+  @override
+  String get legendEnRoute => 'En route';
+
+  @override
+  String get legendOnScene => 'On scene';
+
+  @override
+  String get legendUnverified => 'Unverified report';
+
+  @override
+  String get legendUnitAvailable => 'Unit available';
+
+  @override
+  String get legendUnitBusy => 'Unit busy';
+
+  @override
+  String get newSosTitle => 'New SOS';
+
+  @override
+  String newSosBody(String place, String ago) {
+    return '$place, $ago';
+  }
+
+  @override
+  String get colPriority => 'Priority';
+
+  @override
+  String get colWaiting => 'Waiting';
+
+  @override
+  String get colStatus => 'Status';
+
+  @override
+  String get colType => 'Type';
+
+  @override
+  String get colPlace => 'Barangay';
+
+  @override
+  String get colChannel => 'Channel';
+
+  @override
+  String get colVerified => 'Verified';
+
+  @override
+  String get colVulnerable => 'Vulnerable';
+
+  @override
+  String get colUnit => 'Unit';
+
+  @override
+  String get severityCritical => 'Critical';
+
+  @override
+  String get severityHigh => 'High';
+
+  @override
+  String get severityNormal => 'Normal';
+
+  @override
+  String drawerIncidentId(String id) {
+    return 'Incident $id';
+  }
+
+  @override
+  String waitingFor(String duration) {
+    return 'Waiting $duration';
+  }
+
+  @override
+  String rankOf(int rank, int total) {
+    return 'Rank $rank of $total';
+  }
+
+  @override
+  String locationDetail(String coordinates, String channel, int meters) {
+    return '$coordinates, from the $channel, accurate to $meters m';
+  }
+
+  @override
+  String locationDetailNoAccuracy(String coordinates, String channel) {
+    return '$coordinates, from the $channel';
+  }
+
+  @override
+  String get incidentTypeLabel => 'Incident type';
+
+  @override
+  String typeSuggested(String type) {
+    return '$type (suggested)';
+  }
+
+  @override
+  String get typeNotSet => 'Not set';
+
+  @override
+  String get confirmType => 'Confirm type';
+
+  @override
+  String typeConfirmedSnack(String type) {
+    return 'Type set to $type';
+  }
+
+  @override
+  String get verificationTitle => 'Verification';
+
+  @override
+  String get checkAccountVerified =>
+      'Registered account, verified mobile number';
+
+  @override
+  String get checkAccountNotVerified => 'Account not verified';
+
+  @override
+  String get checkGpsOk => 'Location from phone GPS, not a mock location';
+
+  @override
+  String get checkGpsMock =>
+      'The phone reported a mock location. Confirm by call before dispatching.';
+
+  @override
+  String get checkNotVerified => 'Not yet confirmed by call or SMS';
+
+  @override
+  String checkVerifiedBy(String method) {
+    return 'Confirmed by $method';
+  }
+
+  @override
+  String get methodCallback => 'callback';
+
+  @override
+  String get methodSmsReply => 'SMS reply';
+
+  @override
+  String get methodOnScene => 'responders on scene';
+
+  @override
+  String get checkClusterVerified =>
+      'Confirmed by 3 or more reports within 50 m';
+
+  @override
+  String get smsCheckPending => 'SMS check sent. Waiting for a reply.';
+
+  @override
+  String get smsReplyReceived => 'The resident replied YES to the SMS check.';
+
+  @override
+  String get callResident => 'Call resident';
+
+  @override
+  String get sendSmsCheck => 'Send SMS check';
+
+  @override
+  String get smsCheckSentSnack => 'SMS check sent';
+
+  @override
+  String get markVerified => 'Mark verified';
+
+  @override
+  String get verifiedSnack => 'SOS verified';
+
+  @override
+  String get markFalse => 'Mark as false report';
+
+  @override
+  String get residentTitle => 'Resident';
+
+  @override
+  String get showNumber => 'Show number';
+
+  @override
+  String peopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get residentNote => 'Note from the resident';
+
+  @override
+  String get clusterReportsTitle => 'Reports in this cluster';
+
+  @override
+  String get priorityTitle => 'Why it\'s ranked here';
+
+  @override
+  String get factorSos => 'SOS';
+
+  @override
+  String get factorCluster => 'Confirmed cluster';
+
+  @override
+  String get factorVulnerable => 'Vulnerable household';
+
+  @override
+  String get factorWaiting => 'Waiting time';
+
+  @override
+  String get factorMockLocation => 'Possible mock location';
+
+  @override
+  String get provisionalRules =>
+      'Provisional weights until MDRRMD\'s triage SOP is added.';
+
+  @override
+  String points(int points) {
+    String _temp0 = intl.Intl.pluralLogic(
+      points,
+      locale: localeName,
+      other: '$points pts',
+      one: '1 pt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get suggestedUnitsTitle => 'Suggested units';
+
+  @override
+  String get suggestedByRoad =>
+      'Available units, by travel time on the road network';
+
+  @override
+  String get suggestedByDistance =>
+      'Available units, estimated by straight-line distance';
+
+  @override
+  String get chooseAnotherUnit => 'Choose another unit';
+
+  @override
+  String get noAvailableUnits => 'No available units';
+
+  @override
+  String get noAvailableUnitsMessage =>
+      'Choose another unit or wait for one to become available.';
+
+  @override
+  String etaMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String distanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String assignUnit(String unit) {
+    return 'Assign $unit';
+  }
+
+  @override
+  String reassignUnit(String unit) {
+    return 'Reassign to $unit';
+  }
+
+  @override
+  String assignedSnack(String unit) {
+    return '$unit assigned';
+  }
+
+  @override
+  String get assignedUnitTitle => 'Assigned unit';
+
+  @override
+  String get markResolved => 'Mark resolved';
+
+  @override
+  String get resolvedSnack => 'Incident resolved';
+
+  @override
+  String unitStationCrew(String station, int crew) {
+    return '$station, crew of $crew';
+  }
+
+  @override
+  String get timelineTitle => 'Timeline';
+
+  @override
+  String get eventReceived => 'Received';
+
+  @override
+  String get eventSmsCheckSent => 'SMS check sent';
+
+  @override
+  String get eventSmsReply => 'SMS reply received';
+
+  @override
+  String get eventVerified => 'Verified';
+
+  @override
+  String get eventTypeConfirmed => 'Type confirmed';
+
+  @override
+  String get eventAssigned => 'Assigned';
+
+  @override
+  String get eventEnRoute => 'En route';
+
+  @override
+  String get eventOnScene => 'On scene';
+
+  @override
+  String get eventResolved => 'Resolved';
+
+  @override
+  String get eventFalseReport => 'Marked as false report';
+
+  @override
+  String get incidentClosed => 'This incident was closed.';
+
+  @override
+  String overrideTitle(String unit) {
+    return 'Assign $unit instead of the top suggestion?';
+  }
+
+  @override
+  String overrideBody(String top, int minutes) {
+    return '$top is about $minutes min closer. You can still choose another unit. Add a reason so the audit log explains the choice.';
+  }
+
+  @override
+  String get overrideReasonLabel => 'Reason (required)';
+
+  @override
+  String get reasonEquipment => 'Top unit lacks the needed equipment';
+
+  @override
+  String get reasonBusy => 'Top unit is handling another call';
+
+  @override
+  String get reasonBlocked => 'Known road blockage on the suggested route';
+
+  @override
+  String get reasonOther => 'Other';
+
+  @override
+  String get overrideNoteLabel => 'Note (optional)';
+
+  @override
+  String get overrideReasonMissing => 'Choose a reason.';
+
+  @override
+  String get chooseUnitTitle => 'Choose a unit';
+
+  @override
+  String get chooseUnitBody => 'Units that are available now, nearest first.';
+
+  @override
+  String get falseReportTitle => 'Mark as a false report?';
+
+  @override
+  String get falseReportBody =>
+      'It leaves the queue, and any assigned unit becomes available. This is recorded in the audit log.';
+
+  @override
+  String get falseReportDone => 'Marked as a false report';
+
+  @override
+  String callTitle(String name) {
+    return 'Call $name';
+  }
+
+  @override
+  String get callBody =>
+      'Call this number from the command center phone. Viewing it is recorded in the audit log.';
+
+  @override
+  String get copyNumber => 'Copy number';
+
+  @override
+  String get copiedSnack => 'Number copied';
+
+  @override
+  String get errorOffline => 'You\'re offline. Reconnect and try again.';
+
+  @override
+  String get errorUnitTaken =>
+      'That unit is no longer available. Choose another.';
+
+  @override
+  String get errorAlreadyAssigned => 'This incident already has that unit.';
+
+  @override
+  String get errorIncidentClosed => 'This incident was already closed.';
+
+  @override
+  String get errorNotAllowed => 'Your account can\'t do this.';
+
+  @override
+  String get errorGeneric => 'Something went wrong. Try again.';
+
+  @override
+  String get crowdReportsTitle => 'Crowd reports';
+
+  @override
+  String get crowdWindow => 'Last 60 minutes';
+
+  @override
+  String crowdSummary(int total, int clusters, int singles) {
+    return '$total reports: $clusters in confirmed clusters, $singles unverified';
+  }
+
+  @override
+  String clusterCardTitle(String type, int count) {
+    return '$type, $count reports within 50 m';
+  }
+
+  @override
+  String get clusterInQueue => 'In the triage queue';
+
+  @override
+  String get openInQueue => 'Open in triage queue';
+
+  @override
+  String get unverifiedSection => 'Unverified, waiting for nearby reports';
+
+  @override
+  String reportMeta(String time, String channel, String type, int percent) {
+    return '$time, $channel, suggested $type ($percent%)';
+  }
+
+  @override
+  String get crowdRule =>
+      'Three or more reports within 50 m in the last 60 minutes become a confirmed incident. A single report is never confirmed on its own.';
+
+  @override
+  String get crowdEmpty => 'No crowd reports in the last 60 minutes.';
+
+  @override
+  String get unitsTitle => 'Units';
+
+  @override
+  String countAvailable(int count) {
+    return '$count available';
+  }
+
+  @override
+  String countEnRoute(int count) {
+    return '$count en route';
+  }
+
+  @override
+  String countOnScene(int count) {
+    return '$count on scene';
+  }
+
+  @override
+  String get colCallSign => 'Call sign';
+
+  @override
+  String get colUnitType => 'Type';
+
+  @override
+  String get colStation => 'Station';
+
+  @override
+  String get colCrew => 'Crew';
+
+  @override
+  String get colIncident => 'Current incident';
+
+  @override
+  String get colLastGps => 'Last GPS';
+
+  @override
+  String get staleGps => 'Stale';
+
+  @override
+  String get unitsEmpty => 'No units set up';
+
+  @override
+  String get unitsEmptyMessage =>
+      'An administrator can add units in Resources.';
+
+  @override
+  String get assignedNotStarted => 'Assigned, waiting for crew';
+
+  @override
+  String get vulnerableTitle => 'Vulnerable Resident Priority List';
+
+  @override
+  String get vulnerablePrivacy =>
+      'Only dispatchers and administrators can see this list (Data Privacy Act, RA 10173).';
+
+  @override
+  String get colResident => 'Resident';
+
+  @override
+  String get colHousehold => 'Household';
+
+  @override
+  String get colConsent => 'Consent given';
+
+  @override
+  String get colUpdated => 'Updated';
+
+  @override
+  String get colContact => 'Contact';
+
+  @override
+  String get vulnerableEmpty => 'No registered vulnerable residents yet.';
+
+  @override
+  String get weatherTitle => 'Weather and advisories';
+
+  @override
+  String get signalCard => 'Tropical cyclone wind signal';
+
+  @override
+  String get rainfallCard => 'Rainfall intensity';
+
+  @override
+  String get stormSurgeCard => 'Storm surge';
+
+  @override
+  String get noAdvisory => 'No advisory';
+
+  @override
+  String issuedAt(String time) {
+    return 'Issued $time';
+  }
+
+  @override
+  String rainfallValue(String value) {
+    return '$value mm/hr';
+  }
+
+  @override
+  String get simulatedWeatherNote =>
+      'Replaying recorded data. The live PAGASA feed is not connected yet.';
+
+  @override
+  String get efcosTitle => 'EFCOS water levels';
+
+  @override
+  String get efcosNotConnected =>
+      'Not connected yet. Alerts use PAGASA thresholds only (FR5 fallback).';
+
+  @override
+  String get phivolcsTitle => 'PHIVOLCS advisories';
+
+  @override
+  String get phivolcsNotConnected =>
+      'Not connected yet. Advisories will be relayed to residents as notifications (FR14).';
+
+  @override
+  String get auditTitle => 'Audit log';
+
+  @override
+  String get auditSubtitle =>
+      'Every dispatch action, status change, and verification, with who did it (FR11).';
+
+  @override
+  String get colTime => 'Time';
+
+  @override
+  String get colAccount => 'Account';
+
+  @override
+  String get colAction => 'Action';
+
+  @override
+  String get colTarget => 'Record';
+
+  @override
+  String get colDetail => 'Detail';
+
+  @override
+  String get actionVerified => 'Verified';
+
+  @override
+  String get actionFalseReport => 'Marked false report';
+
+  @override
+  String get actionTypeConfirmed => 'Confirmed type';
+
+  @override
+  String get actionAssigned => 'Assigned unit';
+
+  @override
+  String get actionReassigned => 'Reassigned unit';
+
+  @override
+  String get actionStatusChanged => 'Changed status';
+
+  @override
+  String get actionResolved => 'Resolved';
+
+  @override
+  String get actionSmsCheck => 'Sent SMS check';
+
+  @override
+  String get actionContactViewed => 'Viewed contact number';
+
+  @override
+  String get auditEmpty => 'No actions recorded yet.';
+
+  @override
+  String get comingSoonTitle => 'Not built yet';
+
+  @override
+  String comingSoonFor(String page) {
+    return '$page: not built yet';
+  }
+
+  @override
+  String get working => 'Working';
+
+  @override
+  String get placeholderForecast =>
+      'The 72-hour risk heatmap arrives once the LSTM and KDE models are trained (plan 10.5).';
+
+  @override
+  String get placeholderAnalytics =>
+      'Response-time analytics arrive with the Supabase backend (plan Phase 3).';
+
+  @override
+  String get placeholderReports =>
+      'NDRRMC report generation arrives with the RAG proof of concept (plan 10.6).';
+
+  @override
+  String get placeholderAccounts =>
+      'Account management is built directly on Supabase in Phase 3.';
+
+  @override
+  String get placeholderResources =>
+      'Unit and roster management is built directly on Supabase in Phase 3.';
+
+  @override
+  String get placeholderSettings =>
+      'Alert thresholds and priority rules are built directly on Supabase in Phase 3.';
+
+  @override
+  String get notFoundTitle => 'Page not found';
+
+  @override
+  String get notFoundBody =>
+      'It may have moved, or your account can\'t open it.';
+
+  @override
+  String get backToBoard => 'Back to the Command Board';
+
+  @override
+  String secondsAgo(int count) {
+    return '$count s ago';
+  }
+
+  @override
+  String minutesAgo(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count h ago';
+  }
+}
