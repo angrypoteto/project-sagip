@@ -1,0 +1,79 @@
+# Checks every push to main and every pull request: formatting, analysis,
+# and tests for the three Dart packages, the Edge Function tests, and a scan
+# for keys that must never be committed (CLAUDE.md: no secrets in the repo).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter:
+    name: Flutter (analyze and test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+      - name: Get packages (whole workspace)
+        run: flutter pub get
+      - name: Formatting
+        run: dart format --output=none --set-exit-if-changed apps packages
+      - name: Generated translations are up to date
+        run: |
+          (cd apps/dashboard && flutter gen-l10n)
+          (cd apps/mobile && flutter gen-l10n)
+          git diff --exit-code -- apps/*/lib/src/l10n
+      - name: Analyze
+        run: |
+          for dir in packages/shared apps/dashboard apps/mobile; do
+            echo "::group::$dir"
+            (cd "$dir" && flutter analyze) || exit 1
+            echo "::endgroup::"
+          done
+      - name: Test shared package
+        working-directory: packages/shared
+        run: flutter test
+      - name: Test dashboard
+        working-directory: apps/dashboard
+        run: flutter test
+      - name: Test mobile app
+        working-directory: apps/mobile
+        run: flutter test
+
+  functions:
+    name: Edge Function tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: send-sms helpers and signature check
+        run: node --test supabase/functions/send-sms/sms.test.ts
+
+  secrets:
+    name: No keys in the repo
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan tracked files
+        run: |
+          # Supabase secret keys, filled-in publishable keys, and JWTs
+          # (the legacy anon and service-role keys are JWTs).
+          if git grep -nE 'sb_secret_[A-Za-z0-9]|sb_publishable_[A-Za-z0-9]|eyJhbGciOi[A-Za-z0-9_-]{10,}' -- . ':!.github/workflows/ci.yml'; then
+            echo "::error::A key-like value is committed. Move it to .env or Supabase secrets."
+            exit 1
+          fi
+          echo "No key-like values found."
