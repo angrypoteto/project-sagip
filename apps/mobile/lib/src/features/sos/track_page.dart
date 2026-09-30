@@ -1,12 +1,12 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/hotline.dart';
 import '../../common/labels.dart';
+import '../../common/map_markers.dart';
 import '../../common/offline_banner.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -98,7 +98,7 @@ class _TrackBody extends ConsumerWidget {
           children: [
             SagipTiles(userAgentPackageName: 'ph.sagip.mobile', enabled: tiles),
             if (you != null && unit != null)
-              _GlidingLayer(
+              GlidingLayer(
                 target: unit,
                 builder: (at) => PolylineLayer(
                   polylines: [
@@ -121,13 +121,13 @@ class _TrackBody extends ConsumerWidget {
                     child: Semantics(
                       container: true,
                       label: l10n.youAreHere,
-                      child: const _YouMarker(),
+                      child: const SosPinMarker(),
                     ),
                   ),
                 ],
               ),
             if (unit != null)
-              _GlidingLayer(
+              GlidingLayer(
                 target: unit,
                 builder: (at) => MarkerLayer(
                   markers: [
@@ -138,7 +138,7 @@ class _TrackBody extends ConsumerWidget {
                       child: Semantics(
                         container: true,
                         label: l10n.responderMarker(sos.unitCallSign ?? ''),
-                        child: _ResponderMarker(type: sos.unitType),
+                        child: UnitMarker(type: sos.unitType),
                       ),
                     ),
                   ],
@@ -154,88 +154,6 @@ class _TrackBody extends ConsumerWidget {
           child: _TrackCard(sos: sos),
         ),
       ],
-    );
-  }
-}
-
-/// Moves a map layer smoothly to [target] whenever it changes, so the
-/// responder glides between position updates instead of jumping.
-class _GlidingLayer extends StatelessWidget {
-  const _GlidingLayer({required this.target, required this.builder});
-
-  final LatLng target;
-  final Widget Function(LatLng at) builder;
-
-  @override
-  Widget build(BuildContext context) {
-    final still = MediaQuery.of(context).disableAnimations;
-    return TweenAnimationBuilder<LatLng>(
-      tween: _LatLngTween(begin: target, end: target),
-      duration: still ? Duration.zero : const Duration(seconds: 3),
-      builder: (context, at, _) => builder(at),
-    );
-  }
-}
-
-class _LatLngTween extends Tween<LatLng> {
-  _LatLngTween({super.begin, super.end});
-
-  @override
-  LatLng lerp(double t) => LatLng(
-    begin!.latitude + (end!.latitude - begin!.latitude) * t,
-    begin!.longitude + (end!.longitude - begin!.longitude) * t,
-  );
-}
-
-class _YouMarker extends StatelessWidget {
-  const _YouMarker();
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: SagipColors.signal.withValues(alpha: 0.18),
-      ),
-      alignment: Alignment.center,
-      child: Container(
-        width: 22,
-        height: 22,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: SagipColors.signal,
-          border: Border.all(color: Colors.white, width: 3),
-        ),
-      ),
-    ),
-  );
-}
-
-class _ResponderMarker extends StatelessWidget {
-  const _ResponderMarker({required this.type});
-
-  final UnitType? type;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = SagipPalette.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: p.info.fill,
-        borderRadius: BorderRadius.circular(SagipRadius.card),
-        border: Border.all(color: Colors.white, width: 2),
-      ),
-      child: Icon(
-        switch (type) {
-          UnitType.ambulance => Symbols.ambulance_rounded,
-          UnitType.rescueBoat => Symbols.directions_boat_rounded,
-          _ => Symbols.groups_rounded,
-        },
-        color: Colors.white,
-        fill: 1,
-      ),
     );
   }
 }

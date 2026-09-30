@@ -20,6 +20,9 @@ final sosRepositoryProvider = Provider<SosRepository>(
 final hazardReportRepositoryProvider = Provider<HazardReportRepository>(
   (ref) => _missing('HazardReportRepository'),
 );
+final responderRepositoryProvider = Provider<ResponderRepository>(
+  (ref) => _missing('ResponderRepository'),
+);
 final offlineQueueProvider = Provider<OfflineQueue>(
   (ref) => _missing('OfflineQueue'),
 );
@@ -55,6 +58,9 @@ List<Override> mockOverrides(
     MockHazardReportRepository(backend),
   ),
   offlineQueueProvider.overrideWithValue(MockOfflineQueue(backend)),
+  responderRepositoryProvider.overrideWithValue(
+    MockResponderRepository(backend),
+  ),
   signalMonitorProvider.overrideWithValue(MockSignalMonitor(backend)),
   locationServiceProvider.overrideWithValue(MockLocationService(backend)),
   residentRepositoryProvider.overrideWithValue(
@@ -98,6 +104,31 @@ final myReportsProvider = StreamProvider<List<HazardReport>>(
     () => ref.watch(hazardReportRepositoryProvider).watchMine(),
   ),
 );
+
+/// The responder's unit, assignment, and any new offer (F1 to F6).
+final responderProvider = StreamProvider<ResponderState>(
+  (ref) =>
+      _forAccount(ref, () => ref.watch(responderRepositoryProvider).watch()),
+);
+
+/// Straight-line distance and ETA from the unit to its assignment. Road
+/// routes replace this with Dijkstra in Phase 4.
+({double meters, int minutes, double bearing})? routeEstimate(
+  ResponderState? s,
+  Assignment? a,
+) {
+  final from = s?.unit.location;
+  if (from == null || a == null) return null;
+  final meters = from.distanceTo(a.location);
+  return (
+    meters: meters,
+    minutes: const StraightLineSuggester()
+        .minutesFor(meters)
+        .ceil()
+        .clamp(1, 999),
+    bearing: from.bearingTo(a.location),
+  );
+}
 
 final pendingQueueProvider = StreamProvider<List<QueuedRecord>>(
   (ref) =>

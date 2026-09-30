@@ -484,9 +484,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenAlerts => 'Alerts and forecast';
 
   @override
-  String get screenResponderHome => 'Responder home';
-
-  @override
   String get screenHistory => 'Assignment history';
 
   @override
@@ -609,6 +606,336 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportAnother => 'Send another report';
+
+  @override
+  String get unitAvailable => 'Available';
+
+  @override
+  String get unitEnRoute => 'En route';
+
+  @override
+  String get unitOnScene => 'On scene';
+
+  @override
+  String unitDetail(String type, String station, int crew) {
+    return '$type · $station · crew of $crew';
+  }
+
+  @override
+  String sharingLocation(String ago) {
+    return 'Sharing location · sent $ago';
+  }
+
+  @override
+  String locationNotShared(String ago) {
+    return 'Location not shared while offline. Last sent $ago.';
+  }
+
+  @override
+  String get waitingForGps => 'Waiting for GPS';
+
+  @override
+  String get noAssignmentTitle => 'No assignment. Stay available.';
+
+  @override
+  String get noAssignmentBody =>
+      'New assignments appear here and on a full-screen alert.';
+
+  @override
+  String get statusNoAssignment =>
+      'There\'s no assignment to be en route to or on scene at.';
+
+  @override
+  String get statusFinishReport =>
+      'File the completion report first. Then the unit becomes available.';
+
+  @override
+  String get statusAlreadyOnScene => 'You\'re already on scene.';
+
+  @override
+  String get currentAssignment => 'Current assignment';
+
+  @override
+  String get openAssignment => 'Open';
+
+  @override
+  String get newAssignment => 'New assignment';
+
+  @override
+  String get newAssignmentOpen => 'View the new assignment';
+
+  @override
+  String distanceEta(String distance, int minutes) {
+    return '$distance away · about $minutes min';
+  }
+
+  @override
+  String vulnerableTypes(String types) {
+    return 'Vulnerable: $types';
+  }
+
+  @override
+  String get vulnSenior => 'Senior citizen';
+
+  @override
+  String get vulnPwd => 'Person with disability';
+
+  @override
+  String get vulnPregnant => 'Pregnant';
+
+  @override
+  String get vulnOther => 'Other';
+
+  @override
+  String get typeUnknown => 'Emergency';
+
+  @override
+  String get acceptAndStart => 'Accept and start';
+
+  @override
+  String get viewDetails => 'View details';
+
+  @override
+  String assignmentTitle(String id) {
+    return 'Assignment $id';
+  }
+
+  @override
+  String get assignmentReassigned =>
+      'This assignment was reassigned or closed by the dispatcher.';
+
+  @override
+  String get victimLocation => 'Where to go';
+
+  @override
+  String get incidentDetails => 'What was reported';
+
+  @override
+  String reportedVia(String channel) {
+    return 'Reported by $channel';
+  }
+
+  @override
+  String get channelApp => 'the app';
+
+  @override
+  String get channelSms => 'SMS';
+
+  @override
+  String get channelBle => 'nearby phones';
+
+  @override
+  String get channelWeb => 'the web form';
+
+  @override
+  String peopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String residentSaid(String note) {
+    return 'The resident said: $note';
+  }
+
+  @override
+  String mapSaving(int percent) {
+    return 'Saving map for offline use, $percent%';
+  }
+
+  @override
+  String get mapSaved => 'Map saved for offline use';
+
+  @override
+  String mapNotSaved(int percent) {
+    return 'Map not fully saved ($percent%). It continues when you\'re back online.';
+  }
+
+  @override
+  String get startNavigation => 'Start navigation';
+
+  @override
+  String get markOnScene => 'Mark on scene';
+
+  @override
+  String get continueOnScene => 'Continue the on-scene check';
+
+  @override
+  String get fileReport => 'File the completion report';
+
+  @override
+  String get callDispatcher => 'Call dispatcher';
+
+  @override
+  String get navigateTitle => 'Navigate';
+
+  @override
+  String headDirection(String direction) {
+    return 'Head $direction';
+  }
+
+  @override
+  String get dirN => 'north';
+
+  @override
+  String get dirNE => 'northeast';
+
+  @override
+  String get dirE => 'east';
+
+  @override
+  String get dirSE => 'southeast';
+
+  @override
+  String get dirS => 'south';
+
+  @override
+  String get dirSW => 'southwest';
+
+  @override
+  String get dirW => 'west';
+
+  @override
+  String get dirNW => 'northwest';
+
+  @override
+  String toGo(String distance) {
+    return '$distance to go';
+  }
+
+  @override
+  String get straightLineNote =>
+      'Direct line. Road routes come in a later version.';
+
+  @override
+  String get offlineSavedMap => 'Offline. Using saved map.';
+
+  @override
+  String get arrived => 'Arrived';
+
+  @override
+  String get atScene => 'You\'re at the scene';
+
+  @override
+  String distanceAway(String distance) {
+    return '$distance away';
+  }
+
+  @override
+  String get recenter => 'Recenter';
+
+  @override
+  String get destination => 'Destination';
+
+  @override
+  String get yourUnit => 'Your unit';
+
+  @override
+  String get onSceneTitle => 'On scene';
+
+  @override
+  String onSceneAt(String time) {
+    return 'Arrived at $time';
+  }
+
+  @override
+  String get realEmergencyQuestion => 'Is this a real emergency?';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get notRealReason => 'Why not? (required)';
+
+  @override
+  String get notRealReasonHint =>
+      'For example: no one at the address, already handled';
+
+  @override
+  String get peopleFound => 'People found';
+
+  @override
+  String get completeRescue => 'Complete rescue';
+
+  @override
+  String get answerRealFirst => 'Answer whether this is a real emergency.';
+
+  @override
+  String get reasonRequired => 'Say why it is not a real emergency.';
+
+  @override
+  String get completeTitle => 'Completion report';
+
+  @override
+  String get outcome => 'Outcome';
+
+  @override
+  String get outcomeRescued => 'Rescued';
+
+  @override
+  String get outcomeTreated => 'Treated on site';
+
+  @override
+  String get outcomeTransported => 'Transported';
+
+  @override
+  String get outcomeNoOne => 'No one found';
+
+  @override
+  String get outcomeFalse => 'False report';
+
+  @override
+  String get personsAssisted => 'Persons assisted';
+
+  @override
+  String get damageTitle => 'Damage assessment';
+
+  @override
+  String get housesDamaged => 'Houses damaged';
+
+  @override
+  String get injured => 'Injured';
+
+  @override
+  String get missing => 'Missing';
+
+  @override
+  String get affectedFamilies => 'Affected families';
+
+  @override
+  String get reportNotes => 'Notes (optional)';
+
+  @override
+  String timeOnScene(int minutes) {
+    return 'Time on scene: $minutes min';
+  }
+
+  @override
+  String get submitReport => 'Submit report';
+
+  @override
+  String get chooseOutcome => 'Choose an outcome.';
+
+  @override
+  String get reportSubmitted => 'Report sent. The unit is available again.';
+
+  @override
+  String get reportSavedOffline =>
+      'Report saved on your phone. It will send when you\'re back online.';
+
+  @override
+  String get demoOffer => 'Send an assignment now';
+
+  @override
+  String get demoClose => 'Dispatcher closes the assignment';
 
   @override
   String get errorGeneric => 'Something went wrong. Try again.';

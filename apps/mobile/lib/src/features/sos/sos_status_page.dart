@@ -171,38 +171,13 @@ class _EtaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final text = Theme.of(context).textTheme;
-    final p = SagipPalette.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: p.info.tint,
-        borderRadius: BorderRadius.circular(SagipRadius.card),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(SagipSpace.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.etaTitle,
-              style: text.bodyMedium!.copyWith(color: p.info.text),
-            ),
-            Text(
-              l10n.etaMinutes(sos.etaMinutes!),
-              style: text.displaySmall!.copyWith(
-                color: p.info.text,
-                fontWeight: FontWeight.w700,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-            if (sos.unitCallSign != null && sos.unitType != null)
-              Text(
-                l10n.unitLine(sos.unitCallSign!, l10n.unitType(sos.unitType!)),
-                style: text.titleSmall!.copyWith(color: p.info.text),
-              ),
-          ],
-        ),
-      ),
+    return EtaHero(
+      label: l10n.etaTitle,
+      value: l10n.etaMinutes(sos.etaMinutes!),
+      caption: sos.unitCallSign != null && sos.unitType != null
+          ? l10n.unitLine(sos.unitCallSign!, l10n.unitType(sos.unitType!))
+          : null,
+      tone: SagipPalette.of(context).info,
     );
   }
 }

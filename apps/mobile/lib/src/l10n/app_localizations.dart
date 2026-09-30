@@ -928,12 +928,6 @@ abstract class AppLocalizations {
   /// **'Alerts and forecast'**
   String get screenAlerts;
 
-  /// No description provided for @screenResponderHome.
-  ///
-  /// In en, this message translates to:
-  /// **'Responder home'**
-  String get screenResponderHome;
-
   /// No description provided for @screenHistory.
   ///
   /// In en, this message translates to:
@@ -1143,6 +1137,576 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send another report'**
   String get reportAnother;
+
+  /// No description provided for @unitAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get unitAvailable;
+
+  /// No description provided for @unitEnRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'En route'**
+  String get unitEnRoute;
+
+  /// No description provided for @unitOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'On scene'**
+  String get unitOnScene;
+
+  /// No description provided for @unitDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · {station} · crew of {crew}'**
+  String unitDetail(String type, String station, int crew);
+
+  /// No description provided for @sharingLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing location · sent {ago}'**
+  String sharingLocation(String ago);
+
+  /// No description provided for @locationNotShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not shared while offline. Last sent {ago}.'**
+  String locationNotShared(String ago);
+
+  /// No description provided for @waitingForGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for GPS'**
+  String get waitingForGps;
+
+  /// No description provided for @noAssignmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No assignment. Stay available.'**
+  String get noAssignmentTitle;
+
+  /// No description provided for @noAssignmentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'New assignments appear here and on a full-screen alert.'**
+  String get noAssignmentBody;
+
+  /// No description provided for @statusNoAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no assignment to be en route to or on scene at.'**
+  String get statusNoAssignment;
+
+  /// No description provided for @statusFinishReport.
+  ///
+  /// In en, this message translates to:
+  /// **'File the completion report first. Then the unit becomes available.'**
+  String get statusFinishReport;
+
+  /// No description provided for @statusAlreadyOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re already on scene.'**
+  String get statusAlreadyOnScene;
+
+  /// No description provided for @currentAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Current assignment'**
+  String get currentAssignment;
+
+  /// No description provided for @openAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openAssignment;
+
+  /// No description provided for @newAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'New assignment'**
+  String get newAssignment;
+
+  /// No description provided for @newAssignmentOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'View the new assignment'**
+  String get newAssignmentOpen;
+
+  /// No description provided for @distanceEta.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} away · about {minutes} min'**
+  String distanceEta(String distance, int minutes);
+
+  /// No description provided for @vulnerableTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Vulnerable: {types}'**
+  String vulnerableTypes(String types);
+
+  /// No description provided for @vulnSenior.
+  ///
+  /// In en, this message translates to:
+  /// **'Senior citizen'**
+  String get vulnSenior;
+
+  /// No description provided for @vulnPwd.
+  ///
+  /// In en, this message translates to:
+  /// **'Person with disability'**
+  String get vulnPwd;
+
+  /// No description provided for @vulnPregnant.
+  ///
+  /// In en, this message translates to:
+  /// **'Pregnant'**
+  String get vulnPregnant;
+
+  /// No description provided for @vulnOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get vulnOther;
+
+  /// No description provided for @typeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency'**
+  String get typeUnknown;
+
+  /// No description provided for @acceptAndStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and start'**
+  String get acceptAndStart;
+
+  /// No description provided for @viewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View details'**
+  String get viewDetails;
+
+  /// No description provided for @assignmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment {id}'**
+  String assignmentTitle(String id);
+
+  /// No description provided for @assignmentReassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'This assignment was reassigned or closed by the dispatcher.'**
+  String get assignmentReassigned;
+
+  /// No description provided for @victimLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to go'**
+  String get victimLocation;
+
+  /// No description provided for @incidentDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'What was reported'**
+  String get incidentDetails;
+
+  /// No description provided for @reportedVia.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported by {channel}'**
+  String reportedVia(String channel);
+
+  /// No description provided for @channelApp.
+  ///
+  /// In en, this message translates to:
+  /// **'the app'**
+  String get channelApp;
+
+  /// No description provided for @channelSms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get channelSms;
+
+  /// No description provided for @channelBle.
+  ///
+  /// In en, this message translates to:
+  /// **'nearby phones'**
+  String get channelBle;
+
+  /// No description provided for @channelWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'the web form'**
+  String get channelWeb;
+
+  /// No description provided for @peopleCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person} other{{count} people}}'**
+  String peopleCount(int count);
+
+  /// No description provided for @residentSaid.
+  ///
+  /// In en, this message translates to:
+  /// **'The resident said: {note}'**
+  String residentSaid(String note);
+
+  /// No description provided for @mapSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving map for offline use, {percent}%'**
+  String mapSaving(int percent);
+
+  /// No description provided for @mapSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Map saved for offline use'**
+  String get mapSaved;
+
+  /// No description provided for @mapNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Map not fully saved ({percent}%). It continues when you\'re back online.'**
+  String mapNotSaved(int percent);
+
+  /// No description provided for @startNavigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Start navigation'**
+  String get startNavigation;
+
+  /// No description provided for @markOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark on scene'**
+  String get markOnScene;
+
+  /// No description provided for @continueOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue the on-scene check'**
+  String get continueOnScene;
+
+  /// No description provided for @fileReport.
+  ///
+  /// In en, this message translates to:
+  /// **'File the completion report'**
+  String get fileReport;
+
+  /// No description provided for @callDispatcher.
+  ///
+  /// In en, this message translates to:
+  /// **'Call dispatcher'**
+  String get callDispatcher;
+
+  /// No description provided for @navigateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate'**
+  String get navigateTitle;
+
+  /// No description provided for @headDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Head {direction}'**
+  String headDirection(String direction);
+
+  /// No description provided for @dirN.
+  ///
+  /// In en, this message translates to:
+  /// **'north'**
+  String get dirN;
+
+  /// No description provided for @dirNE.
+  ///
+  /// In en, this message translates to:
+  /// **'northeast'**
+  String get dirNE;
+
+  /// No description provided for @dirE.
+  ///
+  /// In en, this message translates to:
+  /// **'east'**
+  String get dirE;
+
+  /// No description provided for @dirSE.
+  ///
+  /// In en, this message translates to:
+  /// **'southeast'**
+  String get dirSE;
+
+  /// No description provided for @dirS.
+  ///
+  /// In en, this message translates to:
+  /// **'south'**
+  String get dirS;
+
+  /// No description provided for @dirSW.
+  ///
+  /// In en, this message translates to:
+  /// **'southwest'**
+  String get dirSW;
+
+  /// No description provided for @dirW.
+  ///
+  /// In en, this message translates to:
+  /// **'west'**
+  String get dirW;
+
+  /// No description provided for @dirNW.
+  ///
+  /// In en, this message translates to:
+  /// **'northwest'**
+  String get dirNW;
+
+  /// No description provided for @toGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} to go'**
+  String toGo(String distance);
+
+  /// No description provided for @straightLineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct line. Road routes come in a later version.'**
+  String get straightLineNote;
+
+  /// No description provided for @offlineSavedMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. Using saved map.'**
+  String get offlineSavedMap;
+
+  /// No description provided for @arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get arrived;
+
+  /// No description provided for @atScene.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re at the scene'**
+  String get atScene;
+
+  /// No description provided for @distanceAway.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} away'**
+  String distanceAway(String distance);
+
+  /// No description provided for @recenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Recenter'**
+  String get recenter;
+
+  /// No description provided for @destination.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get destination;
+
+  /// No description provided for @yourUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unit'**
+  String get yourUnit;
+
+  /// No description provided for @onSceneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On scene'**
+  String get onSceneTitle;
+
+  /// No description provided for @onSceneAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived at {time}'**
+  String onSceneAt(String time);
+
+  /// No description provided for @realEmergencyQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Is this a real emergency?'**
+  String get realEmergencyQuestion;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @notRealReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why not? (required)'**
+  String get notRealReason;
+
+  /// No description provided for @notRealReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: no one at the address, already handled'**
+  String get notRealReasonHint;
+
+  /// No description provided for @peopleFound.
+  ///
+  /// In en, this message translates to:
+  /// **'People found'**
+  String get peopleFound;
+
+  /// No description provided for @completeRescue.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete rescue'**
+  String get completeRescue;
+
+  /// No description provided for @answerRealFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer whether this is a real emergency.'**
+  String get answerRealFirst;
+
+  /// No description provided for @reasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Say why it is not a real emergency.'**
+  String get reasonRequired;
+
+  /// No description provided for @completeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion report'**
+  String get completeTitle;
+
+  /// No description provided for @outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Outcome'**
+  String get outcome;
+
+  /// No description provided for @outcomeRescued.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescued'**
+  String get outcomeRescued;
+
+  /// No description provided for @outcomeTreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Treated on site'**
+  String get outcomeTreated;
+
+  /// No description provided for @outcomeTransported.
+  ///
+  /// In en, this message translates to:
+  /// **'Transported'**
+  String get outcomeTransported;
+
+  /// No description provided for @outcomeNoOne.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found'**
+  String get outcomeNoOne;
+
+  /// No description provided for @outcomeFalse.
+  ///
+  /// In en, this message translates to:
+  /// **'False report'**
+  String get outcomeFalse;
+
+  /// No description provided for @personsAssisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Persons assisted'**
+  String get personsAssisted;
+
+  /// No description provided for @damageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Damage assessment'**
+  String get damageTitle;
+
+  /// No description provided for @housesDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Houses damaged'**
+  String get housesDamaged;
+
+  /// No description provided for @injured.
+  ///
+  /// In en, this message translates to:
+  /// **'Injured'**
+  String get injured;
+
+  /// No description provided for @missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get missing;
+
+  /// No description provided for @affectedFamilies.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected families'**
+  String get affectedFamilies;
+
+  /// No description provided for @reportNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get reportNotes;
+
+  /// No description provided for @timeOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Time on scene: {minutes} min'**
+  String timeOnScene(int minutes);
+
+  /// No description provided for @submitReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit report'**
+  String get submitReport;
+
+  /// No description provided for @chooseOutcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an outcome.'**
+  String get chooseOutcome;
+
+  /// No description provided for @reportSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Report sent. The unit is available again.'**
+  String get reportSubmitted;
+
+  /// No description provided for @reportSavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Report saved on your phone. It will send when you\'re back online.'**
+  String get reportSavedOffline;
+
+  /// No description provided for @demoOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Send an assignment now'**
+  String get demoOffer;
+
+  /// No description provided for @demoClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatcher closes the assignment'**
+  String get demoClose;
 
   /// No description provided for @errorGeneric.
   ///

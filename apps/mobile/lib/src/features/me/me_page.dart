@@ -104,6 +104,19 @@ class _DemoTools extends ConsumerWidget {
               value: gpsOn,
               onChanged: (on) => backend.setGps(on: on),
             ),
+            if (ref.watch(currentUserProvider).value?.role ==
+                UserRole.responder) ...[
+              const SizedBox(height: SagipSpace.sm),
+              OutlinedButton(
+                onPressed: backend.sendOfferNow,
+                child: Text(l10n.demoOffer),
+              ),
+              const SizedBox(height: SagipSpace.sm),
+              OutlinedButton(
+                onPressed: backend.dispatcherCloses,
+                child: Text(l10n.demoClose),
+              ),
+            ],
           ],
         ),
       ),

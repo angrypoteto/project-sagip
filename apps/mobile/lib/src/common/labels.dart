@@ -57,6 +57,50 @@ extension MobileLabels on AppLocalizations {
     return hoursAgo(d.inHours);
   }
 
+  String unitStatus(UnitStatus s) => switch (s) {
+    UnitStatus.available => unitAvailable,
+    UnitStatus.enRoute => unitEnRoute,
+    UnitStatus.onScene => unitOnScene,
+  };
+
+  String vulnerability(VulnerabilityType v) => switch (v) {
+    VulnerabilityType.seniorCitizen => vulnSenior,
+    VulnerabilityType.pwd => vulnPwd,
+    VulnerabilityType.pregnant => vulnPregnant,
+    VulnerabilityType.other => vulnOther,
+  };
+
+  /// "Reported by SMS", "Reported by the app".
+  String reportedBy(ReportChannel c) => reportedVia(switch (c) {
+    ReportChannel.app => channelApp,
+    ReportChannel.sms => channelSms,
+    ReportChannel.bleRelay => channelBle,
+    ReportChannel.webForm => channelWeb,
+  });
+
+  String outcomeLabel(RescueOutcome o) => switch (o) {
+    RescueOutcome.rescued => outcomeRescued,
+    RescueOutcome.treated => outcomeTreated,
+    RescueOutcome.transported => outcomeTransported,
+    RescueOutcome.noOneFound => outcomeNoOne,
+    RescueOutcome.falseReport => outcomeFalse,
+  };
+
+  String statusRejection(StatusRejection r) => switch (r) {
+    StatusRejection.noAssignment => statusNoAssignment,
+    StatusRejection.finishReportFirst => statusFinishReport,
+    StatusRejection.alreadyOnScene => statusAlreadyOnScene,
+  };
+
+  String typeOrEmergency(IncidentType? t) =>
+      t == null ? typeUnknown : incidentType(t);
+
+  /// "Head northeast" from a bearing in degrees.
+  String heading(double degrees) {
+    final points = [dirN, dirNE, dirE, dirSE, dirS, dirSW, dirW, dirNW];
+    return headDirection(points[((degrees + 22.5) % 360 ~/ 45)]);
+  }
+
   String signal(SignalState s) => switch (s) {
     SignalState.internet => signalInternet,
     SignalState.smsOnly => signalSms,

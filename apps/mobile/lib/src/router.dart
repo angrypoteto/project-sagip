@@ -8,6 +8,13 @@ import 'features/auth/demo_sign_in_page.dart';
 import 'features/me/me_page.dart';
 import 'features/placeholder_page.dart';
 import 'features/report/report_page.dart';
+import 'features/responder/assignment_page.dart';
+import 'features/responder/complete_page.dart';
+import 'features/responder/incoming_page.dart';
+import 'features/responder/navigate_page.dart';
+import 'features/responder/offer_watcher.dart';
+import 'features/responder/on_scene_page.dart';
+import 'features/responder/responder_home_page.dart';
 import 'features/shell/app_shell.dart';
 import 'features/sos/home_page.dart';
 import 'features/sos/sos_status_page.dart';
@@ -29,6 +36,13 @@ abstract final class Routes {
   static const duty = '/f/home';
   static const history = '/f/history';
   static const responderMe = '/f/me';
+
+  // Responder full-screen pages (F2 to F6), above the tabs.
+  static const incoming = '/f/incoming';
+  static const assignment = '/f/assignment';
+  static const navigate = '/f/navigate';
+  static const onScene = '/f/on-scene';
+  static const complete = '/f/complete';
 }
 
 Page<void> _page(Widget child) => NoTransitionPage(child: child);
@@ -132,26 +146,44 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(
+        path: Routes.incoming,
+        builder: (context, state) => const IncomingPage(),
+      ),
+      GoRoute(
+        path: Routes.assignment,
+        builder: (context, state) => const AssignmentPage(),
+      ),
+      GoRoute(
+        path: Routes.navigate,
+        builder: (context, state) => const NavigatePage(),
+      ),
+      GoRoute(
+        path: Routes.onScene,
+        builder: (context, state) => const OnScenePage(),
+      ),
+      GoRoute(
+        path: Routes.complete,
+        builder: (context, state) => const CompletePage(),
+      ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => AppShell(
-          shell: shell,
-          destinations: const [
-            ShellDestination.duty,
-            ShellDestination.history,
-            ShellDestination.me,
-          ],
+        builder: (context, state, shell) => OfferWatcher(
+          child: AppShell(
+            shell: shell,
+            destinations: const [
+              ShellDestination.duty,
+              ShellDestination.history,
+              ShellDestination.me,
+            ],
+          ),
         ),
         branches: [
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: Routes.duty,
-                pageBuilder: (context, state) => _page(
-                  const PlaceholderPage(
-                    screen: ComingScreen.responderHome,
-                    icon: Symbols.medical_services_rounded,
-                  ),
-                ),
+                pageBuilder: (context, state) =>
+                    _page(const ResponderHomePage()),
               ),
             ],
           ),

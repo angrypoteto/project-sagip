@@ -32,6 +32,9 @@ void main() {
         depart: Duration(seconds: 2),
         arrive: Duration(seconds: 4),
         resolve: Duration(seconds: 4),
+        offerAfter: Duration(seconds: 3),
+        mapSave: Duration(seconds: 2),
+        drive: Duration(seconds: 6),
       ),
     );
     container = ProviderContainer(
@@ -116,7 +119,8 @@ void main() {
     await tester.tap(find.text('Continue as rescue personnel'));
     await settle(tester);
     expect(find.text('History'), findsOneWidget);
-    expect(find.text('Responder home comes next'), findsOneWidget);
+    expect(find.text('R-03'), findsOneWidget);
+    expect(find.text('No assignment. Stay available.'), findsOneWidget);
     await finish(tester);
   });
 
@@ -296,6 +300,120 @@ void main() {
     expect(find.text('Saved on your phone'), findsOneWidget);
     expect(find.text("It will send when you're back online."), findsOneWidget);
     expect(find.text('Offline · 1 waiting to send'), findsOneWidget);
+    await finish(tester);
+  });
+
+  Future<void> signInAsResponder(WidgetTester tester) async {
+    await tester.tap(find.text('Continue as rescue personnel'));
+    await settle(tester);
+  }
+
+  Future<void> tapAndSettle(WidgetTester tester, String text) async {
+    await tester.ensureVisible(find.text(text).last);
+    await tester.tap(find.text(text).last);
+    await settle(tester);
+  }
+
+  testWidgets('responder: offer, accept, navigate, on scene, report', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signInAsResponder(tester);
+    expect(find.text('No assignment. Stay available.'), findsOneWidget);
+
+    // Nothing assigned yet, so On scene is refused with a reason.
+    await tester.tap(find.bySemanticsLabel('On scene'));
+    await tester.pump();
+    expect(
+      find.text("There's no assignment to be en route to or on scene at."),
+      findsOneWidget,
+    );
+
+    // F2 opens by itself when the assignment arrives.
+    await tester.pump(const Duration(seconds: 3));
+    await settle(tester);
+    expect(find.text('New assignment'), findsOneWidget);
+    expect(find.text('Flood'), findsOneWidget);
+    expect(
+      find.text('Vulnerable: Senior citizen, Person with disability'),
+      findsOneWidget,
+    );
+
+    await tapAndSettle(tester, 'Accept and start');
+    expect(find.text('Assignment INC-0147'), findsOneWidget);
+    expect(find.textContaining('Saving map for offline use'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 2100));
+    await settle(tester);
+    expect(find.text('Map saved for offline use'), findsOneWidget);
+
+    await tapAndSettle(tester, 'Start navigation');
+    expect(
+      find.text('Direct line. Road routes come in a later version.'),
+      findsOneWidget,
+    );
+    expect(find.text('Arrived'), findsNothing);
+    await tester.pump(const Duration(seconds: 7));
+    await settle(tester);
+    expect(find.text("You're at the scene"), findsOneWidget);
+    expect(find.textContaining('Head '), findsNothing);
+    await tapAndSettle(tester, 'Arrived');
+
+    expect(find.text('Is this a real emergency?'), findsOneWidget);
+    await tapAndSettle(tester, 'Yes');
+    await tapAndSettle(tester, 'Complete rescue');
+
+    expect(find.text('Completion report'), findsOneWidget);
+    await tapAndSettle(tester, 'Rescued');
+    await tapAndSettle(tester, 'Submit report');
+    expect(
+      find.text('Report sent. The unit is available again.'),
+      findsOneWidget,
+    );
+    expect(find.text('No assignment. Stay available.'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 600));
+    final report = backend.completionReports.single;
+    expect(report.outcome, RescueOutcome.rescued);
+    expect(report.personsAssisted, 3);
+    expect(report.delivery, DeliveryState.delivered);
+    await finish(tester);
+  });
+
+  testWidgets('responder offline: the report waits on the phone', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signInAsResponder(tester);
+    backend.sendOfferNow();
+    await tester.pump();
+    await settle(tester);
+    await tapAndSettle(tester, 'Accept and start');
+    await tapAndSettle(tester, 'Mark on scene');
+
+    backend.setSignal(SignalState.noSignal);
+    await tester.pump();
+    await tapAndSettle(tester, 'No');
+    await tapAndSettle(tester, 'Complete rescue');
+    expect(find.text('Say why it is not a real emergency.'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'No one at the address');
+    await tapAndSettle(tester, 'Complete rescue');
+
+    // F5 said it was not real, so False report is already chosen.
+    await tapAndSettle(tester, 'Submit report');
+    expect(
+      find.text(
+        "Report saved on your phone. It will send when you're back online.",
+      ),
+      findsOneWidget,
+    );
+    final waiting = container.read(pendingQueueProvider).value!;
+    expect(waiting.map((r) => r.kind), contains(QueuedKind.completionReport));
+    expect(backend.completionReports.single.outcome, RescueOutcome.falseReport);
+
+    backend.setSignal(SignalState.internet);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+    expect(backend.completionReports.single.delivery, DeliveryState.delivered);
     await finish(tester);
   });
 }
