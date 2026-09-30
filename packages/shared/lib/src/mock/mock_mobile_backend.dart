@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/enums.dart';
 import '../models/geo_point.dart';
+import '../models/hazard_report.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
@@ -24,6 +25,7 @@ class MockSosTiming {
     this.depart = const Duration(seconds: 5),
     this.arrive = const Duration(seconds: 24),
     this.resolve = const Duration(seconds: 30),
+    this.moveEvery = const Duration(seconds: 3),
   });
 
   /// Upload over the internet.
@@ -42,6 +44,10 @@ class MockSosTiming {
   final Duration arrive;
   final Duration resolve;
 
+  /// How often the responder's position updates while en route (R3).
+  /// Zero skips the in-between positions.
+  final Duration moveEvery;
+
   /// Everything happens on the next event-loop turn. For unit tests.
   static const instant = MockSosTiming(
     send: Duration.zero,
@@ -52,19 +58,21 @@ class MockSosTiming {
     depart: Duration.zero,
     arrive: Duration.zero,
     resolve: Duration.zero,
+    moveEvery: Duration.zero,
   );
 }
 
 /// In-memory stand-in for the phone's side of the backend in Phase 1: the
 /// signed-in user, GPS, signal, the offline queue, and the resident's SOS
-/// requests.
+/// requests and hazard reports.
 ///
 /// It follows the offline rules the real app must follow (CLAUDE.md): an
 /// SOS is saved on the phone first, keeps its capture time, is sent in
 /// capture order, and counts as delivered only when the "server" confirms
-/// it. After delivery it plays the dispatcher: verify, assign R-03, en
-/// route, on scene, resolved. Updates only reach the phone while it has
-/// internet, as they would over Supabase Realtime.
+/// it. After delivery it plays the dispatcher: verify, assign R-03, drive
+/// from the station toward the resident, on scene, resolved. Updates only
+/// reach the phone while it has internet, as they would over Supabase
+/// Realtime. Hazard reports go out over the internet only; SMS is for SOS.
 class MockMobileBackend {
   MockMobileBackend({
     DateTime Function()? clock,
@@ -112,20 +120,34 @@ class MockMobileBackend {
     role: UserRole.responder,
   );
 
+  /// Where R-03 waits before it is dispatched (Sampaloc station).
+  static const stationR03 = GeoPoint(14.6045, 121.0010);
+
+  /// Reports allowed per account per [reportWindow] (FR15, NFR7).
+  /// Provisional until MDRRMD sets the limit.
+  static const reportLimit = 5;
+  static const reportWindow = Duration(hours: 1);
+
   late final Map<String, Resident> _residents;
   late final LiveValue<WeatherStatus> _weather;
   late final LiveValue<LocationStatus> _location;
   final _user = LiveValue<AppUser?>(null);
   final _signal = LiveValue<SignalState>(SignalState.internet);
   final _sos = LiveValue<List<SosRequest>>(const []);
+  final _reports = LiveValue<List<HazardReport>>(const []);
+  final _queue = LiveValue<List<QueuedRecord>>(const []);
   final _deliveries = StreamController<QueuedRecord>.broadcast();
 
   final _timers = <Timer>[];
   final _deferred = <void Function()>[];
+
+  /// Records that could not go out right away (for the delivery notice).
+  final _waited = <String>{};
   var _pumping = false;
   var _pumpAgain = false;
   var _disposed = false;
   var _nextIncidentNumber = 160;
+  var _nextReportNumber = 400;
 
   // ---------------------------------------------------------------- streams
 
@@ -137,19 +159,10 @@ class MockMobileBackend {
 
   Stream<List<SosRequest>> watchSos() => _sos.watch();
 
-  Stream<List<QueuedRecord>> watchPending() => _sos.watch().map(
-    (all) => [
-      for (final s in all)
-        if (s.delivery != DeliveryState.delivered)
-          QueuedRecord(
-            id: s.clientId,
-            kind: QueuedKind.sos,
-            capturedAt: s.capturedAt,
-            delivery: s.delivery,
-            rejectReason: s.rejectReason,
-          ),
-    ]..sort((a, b) => a.capturedAt.compareTo(b.capturedAt)),
-  );
+  Stream<List<HazardReport>> watchReports() => _reports.watch();
+
+  /// Everything not yet confirmed by the server, oldest capture first.
+  Stream<List<QueuedRecord>> watchPending() => _queue.watch();
 
   Stream<QueuedRecord> deliveries() => _deliveries.stream;
 
@@ -228,7 +241,7 @@ class MockMobileBackend {
       district: fix?.district ?? _homeResident?.district,
       mockLocationSuspected: fix?.mockProvider ?? false,
     );
-    _sos.value = [sos, ..._sos.value];
+    _setSos([sos, ..._sos.value]);
     unawaited(_pump());
     return sos;
   }
@@ -242,10 +255,51 @@ class MockMobileBackend {
   Future<void> retryNow() => _pump();
 
   Future<void> remove(String id) async {
-    _sos.value = [
+    _setSos([
       for (final s in _sos.value)
         if (!(s.clientId == id && s.delivery == DeliveryState.rejected)) s,
-    ];
+    ]);
+    _setReports([
+      for (final r in _reports.value)
+        if (!(r.clientId == id && r.delivery == DeliveryState.rejected)) r,
+    ]);
+  }
+
+  // ----------------------------------------------------------------- reports
+
+  /// Checks a hazard report on the phone, saves it, and starts sending it.
+  Future<HazardReport> submitReport({
+    required String description,
+    IncidentType? type,
+    LocationFix? fix,
+  }) async {
+    final text = description.trim();
+    if (text.isEmpty) {
+      throw const ReportRejected(ReportRejection.emptyDescription);
+    }
+    if (fix == null) throw const ReportRejected(ReportRejection.noLocation);
+    if (!roughlyInsideManila(fix.point)) {
+      throw const ReportRejected(ReportRejection.outsideManila);
+    }
+    final since = _clock().subtract(reportWindow);
+    final recent = _reports.value.where((r) => r.capturedAt.isAfter(since));
+    if (recent.length >= reportLimit) {
+      throw const ReportRejected(ReportRejection.rateLimited);
+    }
+    final report = HazardReport(
+      clientId: newClientId(),
+      capturedAt: _clock(),
+      description: text,
+      type: type,
+      location: fix.point,
+      accuracyMeters: fix.accuracyMeters,
+      barangay: fix.barangay,
+      district: fix.district,
+      delivery: DeliveryState.savedOnPhone,
+    );
+    _setReports([report, ..._reports.value]);
+    unawaited(_pump());
+    return report;
   }
 
   void dispose() {
@@ -271,9 +325,55 @@ class MockMobileBackend {
   }
 
   void _put(SosRequest next) {
-    _sos.value = [
+    _setSos([
       for (final s in _sos.value) s.clientId == next.clientId ? next : s,
-    ];
+    ]);
+  }
+
+  HazardReport? _findReport(String id) {
+    for (final r in _reports.value) {
+      if (r.clientId == id) return r;
+    }
+    return null;
+  }
+
+  void _putReport(HazardReport next) {
+    _setReports([
+      for (final r in _reports.value) r.clientId == next.clientId ? next : r,
+    ]);
+  }
+
+  void _setSos(List<SosRequest> next) {
+    _sos.value = next;
+    _refreshQueue();
+  }
+
+  void _setReports(List<HazardReport> next) {
+    _reports.value = next;
+    _refreshQueue();
+  }
+
+  void _refreshQueue() {
+    _queue.value = [
+      for (final s in _sos.value)
+        if (s.delivery != DeliveryState.delivered)
+          QueuedRecord(
+            id: s.clientId,
+            kind: QueuedKind.sos,
+            capturedAt: s.capturedAt,
+            delivery: s.delivery,
+            rejectReason: s.rejectReason,
+          ),
+      for (final r in _reports.value)
+        if (r.delivery != DeliveryState.delivered)
+          QueuedRecord(
+            id: r.clientId,
+            kind: QueuedKind.crowdReport,
+            capturedAt: r.capturedAt,
+            delivery: r.delivery,
+            rejectReason: r.rejectReason,
+          ),
+    ]..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
   }
 
   /// Works through pending records one at a time, oldest capture first, so
@@ -288,12 +388,16 @@ class MockMobileBackend {
       do {
         _pumpAgain = false;
         final pending = [
-          for (final s in _sos.value)
-            if (s.delivery.isPending) s,
-        ]..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
-        for (final s in pending) {
+          for (final r in _queue.value)
+            if (r.delivery.isPending) r,
+        ];
+        for (final r in pending) {
           if (_disposed) return;
-          await _advance(s.clientId);
+          if (r.kind == QueuedKind.sos) {
+            await _advance(r.id);
+          } else {
+            await _advanceReport(r.id);
+          }
         }
       } while (_pumpAgain && !_disposed);
     } finally {
@@ -313,11 +417,13 @@ class MockMobileBackend {
         if (now == null) return;
         if (_signal.value != SignalState.internet) {
           // Lost the connection mid-upload: back to the tier it had reached.
+          _waited.add(id);
           _put(now.copyWith(delivery: before));
           return;
         }
         _deliver(now);
       case SignalState.smsOnly:
+        _waited.add(id);
         if (sos.delivery != DeliveryState.savedOnPhone &&
             sos.delivery != DeliveryState.relaying) {
           return;
@@ -334,6 +440,7 @@ class MockMobileBackend {
           ),
         );
       case SignalState.noSignal:
+        _waited.add(id);
         if (sos.delivery != DeliveryState.savedOnPhone) return;
         await _wait(timing.relay);
         final now = _find(id);
@@ -345,6 +452,43 @@ class MockMobileBackend {
             sentAt: now.sentAt ?? _clock(),
           ),
         );
+    }
+  }
+
+  /// Reports go out over the internet only; without it they wait.
+  Future<void> _advanceReport(String id) async {
+    final report = _findReport(id);
+    if (report == null || !report.delivery.isPending) return;
+    if (_signal.value != SignalState.internet) {
+      _waited.add(id);
+      return;
+    }
+    _putReport(report.copyWith(delivery: DeliveryState.sending));
+    await _wait(timing.send);
+    final now = _findReport(id);
+    if (now == null) return;
+    if (_signal.value != SignalState.internet) {
+      _waited.add(id);
+      _putReport(now.copyWith(delivery: DeliveryState.savedOnPhone));
+      return;
+    }
+    _putReport(
+      now.copyWith(
+        delivery: DeliveryState.delivered,
+        deliveredAt: _clock(),
+        serverId: 'rep-${_nextReportNumber++}',
+      ),
+    );
+    if (!_deliveries.isClosed) {
+      _deliveries.add(
+        QueuedRecord(
+          id: id,
+          kind: QueuedKind.crowdReport,
+          capturedAt: now.capturedAt,
+          delivery: DeliveryState.delivered,
+          waitedOffline: _waited.remove(id),
+        ),
+      );
     }
   }
 
@@ -367,6 +511,7 @@ class MockMobileBackend {
           kind: QueuedKind.sos,
           capturedAt: sos.capturedAt,
           delivery: DeliveryState.delivered,
+          waitedOffline: _waited.remove(sos.clientId),
         ),
       );
     }
@@ -409,18 +554,41 @@ class MockMobileBackend {
             unitCallSign: 'R-03',
             unitType: UnitType.rescueBoat,
             etaMinutes: 9,
+            responderLocation: stationR03,
+            responderLocationAt: _clock(),
           ),
     );
     step(
       timing.depart,
       (s) => s
           .withStatus(IncidentStatus.enRoute, _clock())
-          .copyWith(etaMinutes: 7),
+          .copyWith(etaMinutes: 7, responderLocationAt: _clock()),
     );
-    step(timing.arrive ~/ 2, (s) => s.copyWith(etaMinutes: 3));
+
+    // Drive toward the resident in a straight line (Dijkstra road routes
+    // come later), reporting a position every [MockSosTiming.moveEvery].
+    const startEta = 7;
+    final target = _find(id)?.location;
+    final every = timing.moveEvery;
+    final moves = target == null || every == Duration.zero
+        ? 0
+        : (timing.arrive.inMilliseconds ~/ every.inMilliseconds) - 1;
+    for (var i = 1; i <= moves; i++) {
+      final fraction = i / (moves + 1);
+      step(
+        every,
+        (s) => s.copyWith(
+          responderLocation: stationR03.lerpTo(target!, fraction),
+          responderLocationAt: _clock(),
+          etaMinutes: (startEta * (1 - fraction)).ceil().clamp(1, startEta),
+        ),
+      );
+    }
     step(
-      timing.arrive ~/ 2,
-      (s) => s.withStatus(IncidentStatus.onScene, _clock()),
+      timing.arrive - every * (moves < 0 ? 0 : moves),
+      (s) => s
+          .withStatus(IncidentStatus.onScene, _clock())
+          .copyWith(responderLocation: target, responderLocationAt: _clock()),
     );
     step(
       timing.resolve,

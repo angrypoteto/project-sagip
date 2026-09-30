@@ -1,6 +1,5 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -8,82 +7,24 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 
-/// Manila City Hall area; the default view for the whole city.
-const manilaCenter = LatLng(14.5995, 120.9842);
-
-LatLng toLatLng(GeoPoint p) => LatLng(p.lat, p.lng);
-
-/// Base map layer. Development uses the public OpenStreetMap tiles with a dark
-/// filter; the plan (Q1, risk 8) replaces these with self-hosted Manila tiles
-/// before the pilot, because OSM's servers forbid heavy and offline use.
+/// The shared base map, switched off in widget tests.
 class SagipBaseMap extends ConsumerWidget {
   const SagipBaseMap({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.watch(mapTilesEnabledProvider)) return const SizedBox.shrink();
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      userAgentPackageName: 'ph.sagip.dashboard',
-      maxNativeZoom: 19,
-      tileBuilder: (context, tile, image) => ColorFiltered(
-        colorFilter: dark ? _mutedDark : _mutedLight,
-        child: tile,
-      ),
-    );
-  }
+  Widget build(BuildContext context, WidgetRef ref) => SagipTiles(
+    userAgentPackageName: 'ph.sagip.dashboard',
+    enabled: ref.watch(mapTilesEnabledProvider),
+  );
 }
 
-// Muted basemaps (design skill: "a muted basemap tuned to the palette").
-// Both turn the colorful OSM style into grey tones so only S.A.G.I.P. markers
-// carry color. Dark: inverted luminance, tinted toward `bay`. Light: washed-out
-// greys near `mist`. Replaced by a styled self-hosted basemap later.
-const _lr = 0.2126, _lg = 0.7152, _lb = 0.0722;
-
-ColorFilter _grey(
-  List<double> scale,
-  List<double> offset, {
-  bool invert = false,
-}) {
-  final sign = invert ? -1.0 : 1.0;
-  List<double> row(int c) => [
-    sign * _lr * scale[c],
-    sign * _lg * scale[c],
-    sign * _lb * scale[c],
-    0,
-    offset[c] + (invert ? 255 * scale[c] : 0),
-  ];
-  return ColorFilter.matrix([...row(0), ...row(1), ...row(2), 0, 0, 0, 1, 0]);
-}
-
-final _mutedDark = _grey(
-  const [0.45, 0.50, 0.58],
-  const [11, 23, 36],
-  invert: true,
-);
-final _mutedLight = _grey(const [0.52, 0.53, 0.55], const [112, 112, 112]);
-
-/// Required OpenStreetMap credit, kept small and quiet.
+/// The OpenStreetMap credit with the dashboard's wording.
 class MapAttribution extends StatelessWidget {
   const MapAttribution({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final p = SagipPalette.of(context);
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Container(
-        margin: const EdgeInsets.all(SagipSpace.xs),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        color: p.panel.withValues(alpha: 0.85),
-        child: Text(
-          '© ${AppLocalizations.of(context).mapAttribution}',
-          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontSize: 11),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      MapCredit(label: AppLocalizations.of(context).mapAttribution);
 }
 
 /// Incident marker: a clean circle with a status color; confirmed incidents

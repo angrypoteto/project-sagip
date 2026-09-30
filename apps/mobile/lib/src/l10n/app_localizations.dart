@@ -922,12 +922,6 @@ abstract class AppLocalizations {
   /// **'This screen is part of the next build step.'**
   String get comingBody;
 
-  /// No description provided for @screenReport.
-  ///
-  /// In en, this message translates to:
-  /// **'Report a hazard'**
-  String get screenReport;
-
   /// No description provided for @screenAlerts.
   ///
   /// In en, this message translates to:
@@ -945,6 +939,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Assignment history'**
   String get screenHistory;
+
+  /// No description provided for @trackResponder.
+  ///
+  /// In en, this message translates to:
+  /// **'Track responder'**
+  String get trackResponder;
+
+  /// No description provided for @trackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track responder'**
+  String get trackTitle;
+
+  /// No description provided for @trackFinding.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your responder'**
+  String get trackFinding;
+
+  /// No description provided for @trackWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a responder to be assigned.'**
+  String get trackWaiting;
+
+  /// No description provided for @trackArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Your responder has arrived.'**
+  String get trackArrived;
+
+  /// No description provided for @trackUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {ago}'**
+  String trackUpdated(String ago);
+
+  /// No description provided for @trackOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. Showing last known position from {time}.'**
+  String trackOffline(String time);
+
+  /// No description provided for @youAreHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location'**
+  String get youAreHere;
+
+  /// No description provided for @responderMarker.
+  ///
+  /// In en, this message translates to:
+  /// **'Responder {callSign}'**
+  String responderMarker(String callSign);
+
+  /// No description provided for @secondsAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} s ago'**
+  String secondsAgo(int n);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} min ago'**
+  String minutesAgo(int n);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} h ago'**
+  String hoursAgo(int n);
+
+  /// No description provided for @mapAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenStreetMap contributors'**
+  String get mapAttribution;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a hazard'**
+  String get reportTitle;
+
+  /// No description provided for @reportExpectation.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD checks reports against others nearby before acting.'**
+  String get reportExpectation;
+
+  /// No description provided for @reportSosHint.
+  ///
+  /// In en, this message translates to:
+  /// **'In danger right now? Use SOS on the Home tab.'**
+  String get reportSosHint;
+
+  /// No description provided for @reportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you see?'**
+  String get reportDescription;
+
+  /// No description provided for @reportDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: Water is knee-deep on Dapitan St and rising.'**
+  String get reportDescriptionHint;
+
+  /// No description provided for @reportType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type (optional)'**
+  String get reportType;
+
+  /// No description provided for @reportLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get reportLocation;
+
+  /// No description provided for @reportLocationLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last known location. Turn on GPS for a better one.'**
+  String get reportLocationLast;
+
+  /// No description provided for @reportLocationFinding.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your location'**
+  String get reportLocationFinding;
+
+  /// No description provided for @reportSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get reportSend;
+
+  /// No description provided for @reportSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving'**
+  String get reportSaving;
+
+  /// No description provided for @reportEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what you see.'**
+  String get reportEmpty;
+
+  /// No description provided for @reportOutsideManila.
+  ///
+  /// In en, this message translates to:
+  /// **'This location is outside Manila City. S.A.G.I.P. covers Manila only.'**
+  String get reportOutsideManila;
+
+  /// No description provided for @reportRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve sent several reports in the last hour. Try again later, or call MDRRMD.'**
+  String get reportRateLimited;
+
+  /// No description provided for @reportNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'We need your location to send a report. Turn on GPS and try again.'**
+  String get reportNoLocation;
+
+  /// No description provided for @reportSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report sent'**
+  String get reportSentTitle;
+
+  /// No description provided for @reportSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on your phone'**
+  String get reportSavedTitle;
+
+  /// No description provided for @reportSentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. MDRRMD checks reports against others nearby before acting.'**
+  String get reportSentBody;
+
+  /// No description provided for @reportSavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will send when you\'re back online.'**
+  String get reportSavedBody;
+
+  /// No description provided for @reportSeeQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'See what\'s waiting'**
+  String get reportSeeQueue;
+
+  /// No description provided for @reportAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Send another report'**
+  String get reportAnother;
 
   /// No description provided for @errorGeneric.
   ///

@@ -1,5 +1,6 @@
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
+import '../models/hazard_report.dart';
 import '../models/incident.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
@@ -135,6 +136,22 @@ abstract interface class SosRepository {
 
   /// Adds optional details to an SOS that was already sent (R2).
   Future<void> addDetails(String clientId, SosDetails details);
+}
+
+/// Hazard reports the resident sends (R4). Saved on the phone first and
+/// sent over the internet only; SMS is kept for SOS.
+abstract interface class HazardReportRepository {
+  /// This resident's reports, newest first.
+  Stream<List<HazardReport>> watchMine();
+
+  /// Checks the report on the phone (not empty, has a location, inside
+  /// Manila, under the rate limit), saves it, and starts sending it.
+  /// Throws [ReportRejected] when a check fails.
+  Future<HazardReport> submit({
+    required String description,
+    IncidentType? type,
+    LocationFix? fix,
+  });
 }
 
 /// Records made on this phone that the server has not confirmed yet (S6).

@@ -4,7 +4,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../l10n/app_localizations.dart';
 
 /// Screens that later build steps fill in.
-enum ComingScreen { report, alerts, responderHome, history }
+enum ComingScreen { alerts, responderHome, history }
 
 class PlaceholderPage extends StatelessWidget {
   const PlaceholderPage({super.key, required this.screen, required this.icon});
@@ -16,7 +16,6 @@ class PlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final name = switch (screen) {
-      ComingScreen.report => l10n.screenReport,
       ComingScreen.alerts => l10n.screenAlerts,
       ComingScreen.responderHome => l10n.screenResponderHome,
       ComingScreen.history => l10n.screenHistory,

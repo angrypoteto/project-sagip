@@ -55,6 +55,7 @@ class QueuedRecord {
     required this.capturedAt,
     required this.delivery,
     this.rejectReason,
+    this.waitedOffline = false,
   });
 
   /// The client id generated on the phone.
@@ -65,6 +66,11 @@ class QueuedRecord {
   final DateTime capturedAt;
   final DeliveryState delivery;
   final String? rejectReason;
+
+  /// On a delivery event: the record could not go out right away and waited
+  /// in the queue. Only these get the "was delivered" notice (NFR1); a
+  /// record sent at once already shows its status on screen.
+  final bool waitedOffline;
 }
 
 /// A GPS reading.

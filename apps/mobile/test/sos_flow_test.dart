@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_mobile/src/app.dart';
 import 'package:sagip_mobile/src/features/sos/sos_status_page.dart';
+import 'package:sagip_mobile/src/features/sos/track_page.dart';
 import 'package:sagip_mobile/src/providers.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
@@ -36,6 +37,7 @@ void main() {
     container = ProviderContainer(
       overrides: [
         ...mockOverrides(backend, demoTools: false),
+        mapTilesEnabledProvider.overrideWithValue(false),
         clockProvider.overrideWith((ref) => Stream.value(now)),
       ],
     );
@@ -98,6 +100,14 @@ void main() {
     expect(find.text('Hold for 2 seconds to send'), findsOneWidget);
     expect(find.text('Report'), findsOneWidget);
 
+    // Android Back on another tab returns to Home instead of closing.
+    await tester.tap(find.text('Report'));
+    await settle(tester);
+    expect(find.text('Report a hazard'), findsWidgets);
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await settle(tester);
+    expect(find.text('Hi, Maria'), findsOneWidget);
+
     await tester.tap(find.text('Me'));
     await settle(tester);
     await tester.tap(find.text('Sign out'));
@@ -125,7 +135,8 @@ void main() {
     await tester.pump();
     expect(find.text('Waiting for verification'), findsOneWidget);
     expect(find.text('Received by MDRRMD'), findsOneWidget);
-    expect(find.textContaining('was delivered'), findsOneWidget);
+    // Sent at once, so no "was delivered" notice: the screen shows it.
+    expect(find.textContaining('was delivered'), findsNothing);
 
     await tester.pump(const Duration(seconds: 2));
     await tester.pump();
@@ -205,10 +216,86 @@ void main() {
     expect(sos.details.type, IncidentType.flood);
     expect(sos.details.peopleCount, 2);
     expect(onStatus('Edit details'), findsOneWidget);
-    // Queued behind the "delivered" notice, which stays up for 4 seconds.
-    await tester.pump(const Duration(seconds: 5));
-    await settle(tester);
     expect(find.text('Details added'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('tracking the responder once a unit is assigned', (tester) async {
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    await holdSos(tester);
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('Track responder'), findsNothing);
+
+    // Verified after 2 s, R-03 assigned 2 s later.
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pump();
+    await tester.scrollUntilVisible(find.text('Track responder'), 200);
+    await tester.tap(find.text('Track responder'));
+    await settle(tester);
+
+    Finder onTrack(String text) =>
+        find.descendant(of: find.byType(TrackPage), matching: find.text(text));
+    expect(onTrack('R-03 · Rescue boat'), findsOneWidget);
+    expect(onTrack('9 min'), findsOneWidget);
+    expect(find.bySemanticsLabel('Your location'), findsOneWidget);
+    expect(find.bySemanticsLabel('Responder R-03'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    await settle(tester);
+    expect(onTrack('Responder on the way'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 4));
+    await settle(tester);
+    expect(onTrack('Your responder has arrived.'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('reporting a hazard: checks, online, and offline', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    await tester.tap(find.text('Report'));
+    await settle(tester);
+    expect(
+      find.text('MDRRMD checks reports against others nearby before acting.'),
+      findsOneWidget,
+    );
+
+    Future<void> tapSend() async {
+      await tester.ensureVisible(find.text('Send report'));
+      await tester.tap(find.text('Send report'));
+      await tester.pump();
+    }
+
+    await tapSend();
+    expect(find.text('Describe what you see.'), findsOneWidget);
+
+    await tester.enterText(
+      find.byType(TextField),
+      'Water is knee-deep on Dapitan St',
+    );
+    await tester.tap(find.text('Flood'));
+    await tapSend();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump();
+    expect(find.text('Report sent'), findsOneWidget);
+    expect(find.textContaining('was delivered'), findsNothing);
+    final sent = container.read(myReportsProvider).value!.single;
+    expect(sent.type, IncidentType.flood);
+    expect(sent.delivery, DeliveryState.delivered);
+
+    await tester.tap(find.text('Send another report'));
+    await settle(tester);
+    backend.setSignal(SignalState.smsOnly);
+    await tester.pump();
+    await tester.enterText(find.byType(TextField), 'Fallen wires on Lacson');
+    await tapSend();
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.text('Saved on your phone'), findsOneWidget);
+    expect(find.text("It will send when you're back online."), findsOneWidget);
+    expect(find.text('Offline · 1 waiting to send'), findsOneWidget);
     await finish(tester);
   });
 }

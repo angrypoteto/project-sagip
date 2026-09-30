@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -8,6 +9,7 @@ import '../../common/labels.dart';
 import '../../common/offline_banner.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../router.dart';
 import 'add_details_sheet.dart';
 
 /// R2 SOS status: where the SOS is, from "Saved on phone" to "Resolved".
@@ -127,6 +129,15 @@ class _Body extends ConsumerWidget {
         if (showEta) ...[
           const SizedBox(height: SagipSpace.xl),
           _EtaCard(sos: sos),
+        ],
+        if (sos.unitCallSign != null && !resolved) ...[
+          const SizedBox(height: SagipSpace.md),
+          // Secondary: Call MDRRMD stays the one filled button here.
+          OutlinedButton.icon(
+            onPressed: () => context.push(Routes.track(sos.clientId)),
+            icon: const Icon(Symbols.map_rounded),
+            label: Text(l10n.trackResponder),
+          ),
         ],
         const SizedBox(height: SagipSpace.xl),
         _Timeline(sos: sos),

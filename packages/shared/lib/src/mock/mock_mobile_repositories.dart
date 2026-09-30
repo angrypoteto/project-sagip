@@ -1,3 +1,5 @@
+import '../models/enums.dart';
+import '../models/hazard_report.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
@@ -41,6 +43,22 @@ class MockSosRepository implements SosRepository {
   @override
   Future<void> addDetails(String clientId, SosDetails details) =>
       _backend.addDetails(clientId, details);
+}
+
+class MockHazardReportRepository implements HazardReportRepository {
+  const MockHazardReportRepository(this._backend);
+
+  final MockMobileBackend _backend;
+
+  @override
+  Stream<List<HazardReport>> watchMine() => _backend.watchReports();
+
+  @override
+  Future<HazardReport> submit({
+    required String description,
+    IncidentType? type,
+    LocationFix? fix,
+  }) => _backend.submitReport(description: description, type: type, fix: fix);
 }
 
 class MockOfflineQueue implements OfflineQueue {

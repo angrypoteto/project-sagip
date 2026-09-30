@@ -66,6 +66,8 @@ class SosRequest {
     this.unitCallSign,
     this.unitType,
     this.etaMinutes,
+    this.responderLocation,
+    this.responderLocationAt,
     this.rejectReason,
   });
 
@@ -102,6 +104,11 @@ class SosRequest {
   final String? unitCallSign;
   final UnitType? unitType;
   final int? etaMinutes;
+
+  /// The assigned unit's last reported position and when it was sent
+  /// (R3 Track responder).
+  final GeoPoint? responderLocation;
+  final DateTime? responderLocationAt;
   final String? rejectReason;
 
   bool get isDelivered => delivery == DeliveryState.delivered;
@@ -122,6 +129,8 @@ class SosRequest {
     String? unitCallSign,
     UnitType? unitType,
     int? etaMinutes,
+    GeoPoint? responderLocation,
+    DateTime? responderLocationAt,
     String? rejectReason,
   }) => SosRequest(
     clientId: clientId,
@@ -142,6 +151,8 @@ class SosRequest {
     unitCallSign: unitCallSign ?? this.unitCallSign,
     unitType: unitType ?? this.unitType,
     etaMinutes: etaMinutes ?? this.etaMinutes,
+    responderLocation: responderLocation ?? this.responderLocation,
+    responderLocationAt: responderLocationAt ?? this.responderLocationAt,
     rejectReason: rejectReason ?? this.rejectReason,
   );
 
@@ -180,6 +191,13 @@ class SosRequest {
     unitCallSign: json['unit_call_sign'] as String?,
     unitType: enumFromJsonOrNull(UnitType.values, json['unit_type']),
     etaMinutes: json['eta_minutes'] as int?,
+    responderLocation: json['responder_latitude'] == null
+        ? null
+        : GeoPoint(
+            (json['responder_latitude']! as num).toDouble(),
+            (json['responder_longitude']! as num).toDouble(),
+          ),
+    responderLocationAt: timeFromJsonOrNull(json['responder_location_at']),
     rejectReason: json['reject_reason'] as String?,
   );
 
@@ -206,6 +224,9 @@ class SosRequest {
     'unit_call_sign': unitCallSign,
     'unit_type': unitType?.name,
     'eta_minutes': etaMinutes,
+    'responder_latitude': responderLocation?.lat,
+    'responder_longitude': responderLocation?.lng,
+    'responder_location_at': responderLocationAt?.toUtc().toIso8601String(),
     'reject_reason': rejectReason,
   };
 }

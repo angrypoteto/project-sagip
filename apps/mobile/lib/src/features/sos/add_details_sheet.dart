@@ -114,6 +114,7 @@ class _AddDetailsSheetState extends State<_AddDetailsSheet> {
             ),
             const SizedBox(height: SagipSpace.md),
             TextField(
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
               controller: _note,
               maxLines: 3,
               maxLength: 200,

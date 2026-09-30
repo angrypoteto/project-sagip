@@ -17,6 +17,9 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final sosRepositoryProvider = Provider<SosRepository>(
   (ref) => _missing('SosRepository'),
 );
+final hazardReportRepositoryProvider = Provider<HazardReportRepository>(
+  (ref) => _missing('HazardReportRepository'),
+);
 final offlineQueueProvider = Provider<OfflineQueue>(
   (ref) => _missing('OfflineQueue'),
 );
@@ -37,6 +40,9 @@ final weatherRepositoryProvider = Provider<WeatherRepository>(
 /// (signal and GPS switches) for it.
 final mockBackendProvider = Provider<MockMobileBackend?>((ref) => null);
 
+/// Whether map tiles load from the network. Tests turn this off.
+final mapTilesEnabledProvider = Provider<bool>((ref) => true);
+
 /// Overrides that run the app on [backend] (Phase 1).
 List<Override> mockOverrides(
   MockMobileBackend backend, {
@@ -45,6 +51,9 @@ List<Override> mockOverrides(
   mockBackendProvider.overrideWithValue(demoTools ? backend : null),
   authRepositoryProvider.overrideWithValue(MockMobileAuthRepository(backend)),
   sosRepositoryProvider.overrideWithValue(MockSosRepository(backend)),
+  hazardReportRepositoryProvider.overrideWithValue(
+    MockHazardReportRepository(backend),
+  ),
   offlineQueueProvider.overrideWithValue(MockOfflineQueue(backend)),
   signalMonitorProvider.overrideWithValue(MockSignalMonitor(backend)),
   locationServiceProvider.overrideWithValue(MockLocationService(backend)),
@@ -81,6 +90,13 @@ final locationProvider = StreamProvider<LocationStatus>(
 
 final mySosProvider = StreamProvider<List<SosRequest>>(
   (ref) => _forAccount(ref, () => ref.watch(sosRepositoryProvider).watchMine()),
+);
+
+final myReportsProvider = StreamProvider<List<HazardReport>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(hazardReportRepositoryProvider).watchMine(),
+  ),
 );
 
 final pendingQueueProvider = StreamProvider<List<QueuedRecord>>(

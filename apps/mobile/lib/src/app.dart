@@ -16,12 +16,15 @@ class SagipMobileApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Tell the user when a record saved on the phone reaches the server,
-    // with its original capture time (NFR1).
+    // Tell the user when a record that waited on the phone reaches the
+    // server, with its original capture time (NFR1). Records sent at once
+    // already show their status on screen.
     ref.listen(deliveriesProvider, (_, next) {
       final record = next.value;
       final messenger = rootMessengerKey.currentState;
-      if (record == null || messenger == null) return;
+      if (record == null || !record.waitedOffline || messenger == null) {
+        return;
+      }
       final l10n = AppLocalizations.of(messenger.context);
       final time = formatTime(
         record.capturedAt,
@@ -44,6 +47,11 @@ class SagipMobileApp extends ConsumerWidget {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(routerProvider),
+      // flutter_map still uses package:flutter/material.dart; the bridge lets
+      // its widgets read our material_ui theme. Remove once flutter_map
+      // migrates to material_ui.
+      // ignore: deprecated_member_use
+      builder: (context, child) => MaterialUiCompatibilityBridge(child: child!),
     );
   }
 }

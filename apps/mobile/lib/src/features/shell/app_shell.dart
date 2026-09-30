@@ -11,7 +11,8 @@ import '../../l10n/app_localizations.dart';
 enum ShellDestination { home, report, alerts, me, duty, history }
 
 /// The tab shell: the offline banner on top of every tab, then the page,
-/// then the bottom bar.
+/// then the bottom bar. Android Back on another tab returns to Home first
+/// instead of closing the app.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.shell, required this.destinations});
 
@@ -21,28 +22,35 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            const OfflineBanner(),
-            Expanded(child: shell),
+    final onHome = shell.currentIndex == 0;
+    return PopScope(
+      canPop: onHome,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) shell.goBranch(0);
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              const OfflineBanner(),
+              Expanded(child: shell),
+            ],
+          ),
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: shell.currentIndex,
+          onDestinationSelected: (i) =>
+              shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          destinations: [
+            for (final d in destinations)
+              NavigationDestination(
+                icon: Icon(_icon(d)),
+                selectedIcon: Icon(_icon(d), fill: 1),
+                label: _label(l10n, d),
+              ),
           ],
         ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: shell.currentIndex,
-        onDestinationSelected: (i) =>
-            shell.goBranch(i, initialLocation: i == shell.currentIndex),
-        destinations: [
-          for (final d in destinations)
-            NavigationDestination(
-              icon: Icon(_icon(d)),
-              selectedIcon: Icon(_icon(d), fill: 1),
-              label: _label(l10n, d),
-            ),
-        ],
       ),
     );
   }

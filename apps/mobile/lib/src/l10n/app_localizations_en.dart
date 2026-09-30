@@ -481,9 +481,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingBody => 'This screen is part of the next build step.';
 
   @override
-  String get screenReport => 'Report a hazard';
-
-  @override
   String get screenAlerts => 'Alerts and forecast';
 
   @override
@@ -491,6 +488,127 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get screenHistory => 'Assignment history';
+
+  @override
+  String get trackResponder => 'Track responder';
+
+  @override
+  String get trackTitle => 'Track responder';
+
+  @override
+  String get trackFinding => 'Finding your responder';
+
+  @override
+  String get trackWaiting => 'Waiting for a responder to be assigned.';
+
+  @override
+  String get trackArrived => 'Your responder has arrived.';
+
+  @override
+  String trackUpdated(String ago) {
+    return 'Updated $ago';
+  }
+
+  @override
+  String trackOffline(String time) {
+    return 'Offline. Showing last known position from $time.';
+  }
+
+  @override
+  String get youAreHere => 'Your location';
+
+  @override
+  String responderMarker(String callSign) {
+    return 'Responder $callSign';
+  }
+
+  @override
+  String secondsAgo(int n) {
+    return '$n s ago';
+  }
+
+  @override
+  String minutesAgo(int n) {
+    return '$n min ago';
+  }
+
+  @override
+  String hoursAgo(int n) {
+    return '$n h ago';
+  }
+
+  @override
+  String get mapAttribution => 'OpenStreetMap contributors';
+
+  @override
+  String get reportTitle => 'Report a hazard';
+
+  @override
+  String get reportExpectation =>
+      'MDRRMD checks reports against others nearby before acting.';
+
+  @override
+  String get reportSosHint => 'In danger right now? Use SOS on the Home tab.';
+
+  @override
+  String get reportDescription => 'What do you see?';
+
+  @override
+  String get reportDescriptionHint =>
+      'For example: Water is knee-deep on Dapitan St and rising.';
+
+  @override
+  String get reportType => 'Type (optional)';
+
+  @override
+  String get reportLocation => 'Location';
+
+  @override
+  String get reportLocationLast =>
+      'Your last known location. Turn on GPS for a better one.';
+
+  @override
+  String get reportLocationFinding => 'Getting your location';
+
+  @override
+  String get reportSend => 'Send report';
+
+  @override
+  String get reportSaving => 'Saving';
+
+  @override
+  String get reportEmpty => 'Describe what you see.';
+
+  @override
+  String get reportOutsideManila =>
+      'This location is outside Manila City. S.A.G.I.P. covers Manila only.';
+
+  @override
+  String get reportRateLimited =>
+      'You\'ve sent several reports in the last hour. Try again later, or call MDRRMD.';
+
+  @override
+  String get reportNoLocation =>
+      'We need your location to send a report. Turn on GPS and try again.';
+
+  @override
+  String get reportSentTitle => 'Report sent';
+
+  @override
+  String get reportSavedTitle => 'Saved on your phone';
+
+  @override
+  String get reportSentBody =>
+      'Thank you. MDRRMD checks reports against others nearby before acting.';
+
+  @override
+  String get reportSavedBody => 'It will send when you\'re back online.';
+
+  @override
+  String get reportSeeQueue => 'See what\'s waiting';
+
+  @override
+  String get reportAnother => 'Send another report';
 
   @override
   String get errorGeneric => 'Something went wrong. Try again.';

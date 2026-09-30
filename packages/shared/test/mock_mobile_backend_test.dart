@@ -28,6 +28,8 @@ void main() {
   tearDown(() => backend.dispose());
 
   test('an SOS is saved on the phone first, then delivered', () async {
+    final events = <QueuedRecord>[];
+    final sub = backend.deliveries().listen(events.add);
     final sos = await backend.sendSos();
     expect(sos.delivery, DeliveryState.savedOnPhone);
     expect(sos.capturedAt, now);
@@ -40,6 +42,8 @@ void main() {
     expect(delivered.incidentId, isNotNull);
     expect(delivered.status, IncidentStatus.pendingVerification);
     expect(await backend.watchPending().first, isEmpty);
+    await sub.cancel();
+    expect(events.single.waitedOffline, isFalse, reason: 'sent at once');
   });
 
   test(
@@ -61,7 +65,10 @@ void main() {
       ], everyElement(DeliveryState.sentBySms));
 
       final delivered = <String>[];
-      final sub = backend.deliveries().listen((r) => delivered.add(r.id));
+      final sub = backend.deliveries().listen((r) {
+        expect(r.waitedOffline, isTrue);
+        delivered.add(r.id);
+      });
       now = now.add(const Duration(minutes: 10));
       backend.setSignal(SignalState.internet);
       await settle();
@@ -194,5 +201,115 @@ void main() {
       isTrue,
     );
     expect(newClientId(), isNot(id));
+  });
+
+  LocationFix fixAt(GeoPoint p) => LocationFix(
+    point: p,
+    accuracyMeters: 8,
+    at: now,
+    barangay: 'Barangay 412',
+    district: 'Sampaloc',
+  );
+  const dapitan = GeoPoint(14.6091, 120.9925);
+
+  test('reports wait for internet while an SOS goes out by SMS', () async {
+    backend.setSignal(SignalState.smsOnly);
+    final report = await backend.submitReport(
+      description: 'Water up to the knees on Dapitan St',
+      fix: fixAt(dapitan),
+    );
+    now = now.add(const Duration(minutes: 1));
+    final sos = await backend.sendSos(fix: fixAt(dapitan));
+    await settle();
+
+    final pending = await backend.watchPending().first;
+    expect([for (final r in pending) r.id], [report.clientId, sos.clientId]);
+    expect(pending.first.kind, QueuedKind.crowdReport);
+    expect(pending.first.delivery, DeliveryState.savedOnPhone);
+    expect(pending.last.delivery, DeliveryState.sentBySms);
+
+    final delivered = <String>[];
+    final sub = backend.deliveries().listen((r) => delivered.add(r.id));
+    backend.setSignal(SignalState.internet);
+    await settle();
+    await sub.cancel();
+
+    expect(delivered, [report.clientId, sos.clientId]);
+    final mine = (await backend.watchReports().first).single;
+    expect(mine.delivery, DeliveryState.delivered);
+    expect(mine.serverId, startsWith('rep-'));
+    expect(mine.capturedAt, DateTime(2026, 9, 30, 15, 42));
+  });
+
+  test('reports are checked on the phone before they are saved', () async {
+    Future<ReportRejection?> tryReport(String text, LocationFix? fix) async {
+      try {
+        await backend.submitReport(description: text, fix: fix);
+        return null;
+      } on ReportRejected catch (e) {
+        return e.reason;
+      }
+    }
+
+    expect(
+      await tryReport('   ', fixAt(dapitan)),
+      ReportRejection.emptyDescription,
+    );
+    expect(await tryReport('Flooding', null), ReportRejection.noLocation);
+    expect(
+      await tryReport('Flooding', fixAt(const GeoPoint(14.676, 121.043))),
+      ReportRejection.outsideManila,
+      reason: 'Quezon City is outside Manila',
+    );
+    for (var i = 0; i < MockMobileBackend.reportLimit; i++) {
+      expect(await tryReport('Report $i', fixAt(dapitan)), isNull);
+    }
+    expect(
+      await tryReport('One too many', fixAt(dapitan)),
+      ReportRejection.rateLimited,
+    );
+    now = now.add(const Duration(hours: 1, minutes: 1));
+    expect(await tryReport('After an hour', fixAt(dapitan)), isNull);
+  });
+
+  test('the responder drives from the station toward the SOS', () async {
+    backend.dispose();
+    const step = Duration(milliseconds: 10);
+    backend = MockMobileBackend(
+      clock: () => now,
+      latency: Duration.zero,
+      timing: const MockSosTiming(
+        send: Duration.zero,
+        verify: step,
+        assign: step,
+        depart: step,
+        arrive: Duration(milliseconds: 60),
+        moveEvery: step,
+        resolve: Duration(seconds: 5),
+      ),
+    );
+    await backend.signIn('maria@sagip.test', MockSeed.demoPassword);
+
+    final distances = <double>[];
+    final etas = <int>[];
+    final sub = backend.watchSos().listen((all) {
+      final s = all.isEmpty ? null : all.single;
+      if (s?.status == IncidentStatus.enRoute && s!.responderLocation != null) {
+        distances.add(s.responderLocation!.distanceTo(dapitan));
+        etas.add(s.etaMinutes!);
+      }
+    });
+    await backend.sendSos(fix: fixAt(dapitan));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    await sub.cancel();
+
+    expect(distances.length, greaterThan(3));
+    for (var i = 1; i < distances.length; i++) {
+      expect(distances[i], lessThanOrEqualTo(distances[i - 1]));
+      expect(etas[i], lessThanOrEqualTo(etas[i - 1]));
+    }
+    final sos = (await backend.watchSos().first).single;
+    expect(sos.status, IncidentStatus.onScene);
+    expect(sos.responderLocation!.distanceTo(dapitan), lessThan(1));
   });
 }

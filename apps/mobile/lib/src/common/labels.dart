@@ -42,6 +42,21 @@ extension MobileLabels on AppLocalizations {
     QueuedKind.completionReport => completionDeliveredNotice(time),
   };
 
+  String reportRejection(ReportRejection r) => switch (r) {
+    ReportRejection.emptyDescription => reportEmpty,
+    ReportRejection.outsideManila => reportOutsideManila,
+    ReportRejection.rateLimited => reportRateLimited,
+    ReportRejection.noLocation => reportNoLocation,
+  };
+
+  /// "40 s ago", "3 min ago", "2 h ago".
+  String ago(DateTime then, DateTime now) {
+    final d = now.difference(then);
+    if (d.inSeconds < 60) return secondsAgo(d.inSeconds.clamp(0, 59));
+    if (d.inMinutes < 60) return minutesAgo(d.inMinutes);
+    return hoursAgo(d.inHours);
+  }
+
   String signal(SignalState s) => switch (s) {
     SignalState.internet => signalInternet,
     SignalState.smsOnly => signalSms,

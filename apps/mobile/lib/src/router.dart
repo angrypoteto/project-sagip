@@ -7,9 +7,11 @@ import 'package:sagip_shared/sagip_shared.dart';
 import 'features/auth/demo_sign_in_page.dart';
 import 'features/me/me_page.dart';
 import 'features/placeholder_page.dart';
+import 'features/report/report_page.dart';
 import 'features/shell/app_shell.dart';
 import 'features/sos/home_page.dart';
 import 'features/sos/sos_status_page.dart';
+import 'features/sos/track_page.dart';
 import 'providers.dart';
 
 abstract final class Routes {
@@ -21,6 +23,7 @@ abstract final class Routes {
   static const alerts = '/r/alerts';
   static const me = '/r/me';
   static String sos(String clientId) => '/r/sos/$clientId';
+  static String track(String clientId) => '/r/sos/$clientId/track';
 
   // Responder shell: Home, History, Me.
   static const duty = '/f/home';
@@ -89,12 +92,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Routes.report,
-                pageBuilder: (context, state) => _page(
-                  const PlaceholderPage(
-                    screen: ComingScreen.report,
-                    icon: Symbols.report_rounded,
-                  ),
-                ),
+                pageBuilder: (context, state) => _page(const ReportPage()),
               ),
             ],
           ),
@@ -121,11 +119,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      // R2 opens full screen, above the tabs.
+      // R2 and R3 open full screen, above the tabs.
       GoRoute(
         path: '/r/sos/:id',
         builder: (context, state) =>
             SosStatusPage(clientId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'track',
+            builder: (context, state) =>
+                TrackPage(clientId: state.pathParameters['id']!),
+          ),
+        ],
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(
