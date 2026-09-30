@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(87);
+select plan(88);
 
 select public.reset_demo_data();
 
@@ -60,6 +60,10 @@ select is(
   (select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'private' and has_function_privilege('anon', p.oid, 'execute')),
   0, 'anon cannot run any private helper');
+select ok(
+  not has_table_privilege('authenticated', 'public.sms_log', 'select')
+  and not has_table_privilege('anon', 'public.sms_log', 'select'),
+  'the SMS log (full numbers) is not readable by any client');
 
 -- ------------------------------------------------------------ dispatcher
 
