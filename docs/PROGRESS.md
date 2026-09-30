@@ -154,14 +154,58 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 
 ---
 
-## Next steps (suggested order)
+## Where we are against the plan (as of 2026-09-30)
 
-1. Joshua reviews the dashboard on Supabase ("Dashboard (Supabase)" in VS Code) and lists what to change. Also turn on leaked-password protection in the Supabase dashboard.
-2. Browser-check the admin account on Supabase (audit log page) and the crowd reports, units, and weather pages.
-3. Create `apps/mobile` and the shared mobile widgets (`SosButton` first), then the Tier 1 resident and responder screens (plan 7.8), on mock data first.
-4. Supabase write paths for the mobile app (SOS insert with the capture timestamp, crowd reports, responder status updates), each with RLS tests.
-5. Build the OSM road graph and Dijkstra (plan 10.2) and swap it in for `StraightLineSuggester`.
-6. GitHub Actions: `flutter analyze` and `flutter test` on every push.
+| Milestone (plan section 2) | Date | State |
+|---|---|---|
+| M0: requests sent, accounts created | Oct 4 | Repo, GitHub, and Supabase done. Teammate requests (MDRRMD data, UAT slots, Semaphore, gateway hardware, phone list) not started as far as this file knows. |
+| M1: design complete, five flows clickable, **scope checkpoint** | Oct 18 | Dashboard done (and already on Supabase, ahead of plan). **Mobile app not started**: this is the biggest gap. |
+| M2: online SOS to dispatch to resolve loop | Nov 1 | Dashboard half works on Supabase; needs the mobile SOS and responder side. |
+| M3: feature freeze | Nov 15 | Algorithms (Dijkstra, classifier, LSTM + KDE), offline tiers, feeds not started. DBSCAN done in the database. |
+
+## Next steps (in order)
+
+1. **Mobile app, Tier 1, on mock data** (due M1, Oct 18): create `apps/mobile` (Android only), the `SosButton` (hold to send, cancel, tier states), and the resident screens R1 to R4 and S6 (flow 1: send an SOS and see it delivered), then the responder screens F1 to F6 (flow 4: receive, navigate, update status, complete).
+2. **CI** (small): GitHub Actions running `flutter analyze` and `flutter test` on every push.
+3. **Map spikes** (Phase 0, unblock later work): pick the self-hosted Manila tile source (Protomaps extract) and build the Manila road graph with `osmnx` for Dijkstra.
+4. **Wire the five flows end to end on mock data**, fix the top issues from the hallway test, tag `phase1-design-complete`, and hold the Oct 18 scope checkpoint (record it in `docs/DECISIONS.md`).
+5. Phase 2 and 3 on Supabase: SOS insert with the original capture timestamp, crowd reports, responder status updates (each with RLS tests), Hive offline queue.
+6. Phase 4: Dijkstra (swap out `StraightLineSuggester`), the TF-IDF classifier, then LSTM + KDE and the forecast screen.
+
+## Not done yet (full list)
+
+**Joshua + Claude (code)**
+- Mobile app: everything (resident, responder, SOS button, offline banner, delivery badge, sync queue, map wrapper, ETA hero, unit status control)
+- Dashboard: admin pages A1 to A6 (accounts, resources, configuration, analytics, NDRRMC reports) are placeholders; D8 forecast is a placeholder; D11 My account; G2 Session expired; W1 to W3 resident web form; new-SOS sound; widget gallery
+- Supabase: resident and responder write paths, barangay boundaries, configuration and priority-rule tables, Edge Functions (SMS intake, Semaphore alerts, PAGASA ingest, FCM), storage buckets
+- Algorithms: Dijkstra on the OSM road graph, TF-IDF classifier, LSTM + KDE forecast, RAG report (proof of concept)
+- Offline: Hive queue, SMS fallback through the GSM gateway, BLE mesh relay (proof of concept), responder tile pre-download
+- Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only)
+- CI; admin sign-in and the audit log, crowd reports, units, and weather pages not yet browser-checked on Supabase
+
+**Joshua (settings and decisions)**
+- Turn on leaked-password protection in Supabase (Authentication, then Passwords)
+- Confirm the one-`staff`-table design against the thesis (plan Q8)
+- Decide where each algorithm runs and which LLM provider RAG uses (plan section 6)
+- The Supabase project sits in a personal org on the free tier; the plan wants a team-owned account and the paid tier from the pilot to the defense
+
+**Teammates (long lead time, plan section 6)**
+- MDRRMD data letter (unit roster, triage SOP, incident records, descriptions, NDRRMC templates); hotline number
+- UAT slots for Nov 23 to 27 (3 admins, 16 field personnel, 31 residents); ISO/IEC 25010 questionnaire validated by Oct 30
+- Semaphore account and sender name; GSM modem and SIM; list of test phones (need 3+ for BLE, one low-end Android 10)
+- Shared task board and weekly sync; names on the Data, UAT, and Docs roles
+
+## Commit history (what each commit contains)
+
+| Commit | Date | What |
+|---|---|---|
+| `5da18c7` | 2026-09-30 | Workspace, shared package (theme, models, mock backend, DBSCAN, priority rules), and the dashboard on mock data |
+| `1a25ba5` | 2026-09-30 | Supabase: schema, RLS, dispatch functions, audit trigger, DBSCAN in SQL, demo data and tools, 29-check RLS test |
+| `cd0822f` | 2026-09-30 | Supabase repositories in the shared package; dashboard runs on Supabase with `.env`; snackbar and location-text fixes |
+| `cd75f29` | 2026-09-30 | Docs: Supabase setup, this file, conventions, plan ticks |
+| `0ff9292` | 2026-09-30 | Docs: which tables to edit instead of the read-only views |
+
+`git log --oneline` shows newer commits; add a row here for each one.
 
 ---
 
@@ -210,3 +254,5 @@ In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (m
 - Added `supabase/tests/rls_test.sql` (29 checks, all passing on the hosted project, rolled back), `supabase/seed.sql`, `supabase/README.md`, and `.vscode/launch.json`.
 - Created the public GitHub repo https://github.com/angrypoteto/project-sagip and pushed the first commit. Rewrote its author to angrypoteto's noreply email and force-pushed (with Joshua's approval) so GitHub credits angrypoteto instead of `habanajoshuaf-source`, which owns the Gmail address.
 - Verified: `flutter analyze` clean in both packages; 39 shared tests and 7 dashboard tests pass; web build with the Supabase settings succeeds.
+- Pushed commits `1a25ba5` to `0ff9292` to GitHub (Joshua approved). Joshua tested the dashboard on Supabase and confirmed it works, then tried editing `vulnerable_resident_list` in the Table Editor, which is a read-only view; `supabase/README.md` now says which tables to edit instead.
+- Added the milestone table, the full "Not done yet" list, and the commit history to this file.

@@ -161,7 +161,7 @@ Record the decision in `docs/DECISIONS.md`. Whatever is cut, tell the adviser be
 - [x] Confirm Riverpod + go_router (or choose another) and record it in `docs/CONVENTIONS.md` (Sep 29-30)
 - [ ] Choose the tile source: extract Manila from Protomaps (or build tiles) and host it ourselves; do not use `tile.openstreetmap.org` for offline use
 - [ ] Spike: build the Manila drivable road graph with `osmnx` and check its size and one-way data
-- [ ] Decide the user-table design: separate admin/dispatcher tables as in the thesis, or one staff table with a role column (Q8)
+- [ ] Decide the user-table design: separate admin/dispatcher tables as in the thesis, or one staff table with a role column (Q8) (Sep 30: built as one `staff` table with a role column; confirm with the team)
 - [ ] Decide where each algorithm runs (Phase 4 has recommendations)
 - [ ] Choose the LLM provider for RAG and set a spending cap
 - [x] Move `SKILL.md` to `.claude/skills/sagip-flutter-design/SKILL.md`, where CLAUDE.md expects it. In CLAUDE.md, change the maps line to OpenStreetMap and note that one developer builds the system.
@@ -176,7 +176,7 @@ Record the decision in `docs/DECISIONS.md`. Whatever is cut, tell the adviser be
 
 ### Accounts and hardware
 
-- [ ] Create the Supabase project under a team-owned email. Budget for the paid tier from the pilot until the defense.
+- [ ] Create the Supabase project under a team-owned email. Budget for the paid tier from the pilot until the defense. (partial Sep 30: project `imssgenjfirpohkwxwbv` exists in Joshua's personal org on the free tier)
 - [ ] Create a Firebase project for push notifications
 - [ ] Create a Meta developer app and a test Facebook Page. Use the real MDRRMD page only after written approval.
 - [ ] Open a Semaphore account, apply for a sender name now, and load test credits **(Data)**
@@ -185,7 +185,7 @@ Record the decision in `docs/DECISIONS.md`. Whatever is cut, tell the adviser be
 
 ### Repo and process
 
-- [ ] Create the GitHub repo with CI that runs `flutter analyze` and tests
+- [ ] Create the GitHub repo with CI that runs `flutter analyze` and tests (partial Sep 30: public repo https://github.com/angrypoteto/project-sagip; no CI yet)
 - [x] Create the folder layout from CLAUDE.md: `apps/mobile`, `apps/dashboard`, `packages/shared`, `supabase`, `ml`, `docs`
 - [ ] Set up a shared task board all four can see, with one column per phase, and schedule the weekly sync **(Docs)**
 - [ ] Put names on the three roles in section 3 **(Team)**
