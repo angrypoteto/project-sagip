@@ -11,6 +11,7 @@ export 'src/algorithms/priority.dart';
 export 'src/algorithms/road_graph.dart';
 export 'src/algorithms/road_router.dart';
 export 'src/algorithms/routing_log.dart';
+export 'src/algorithms/sos_sms.dart';
 export 'src/algorithms/unit_suggester.dart';
 export 'src/data/manila_barangays.dart';
 export 'src/format.dart';

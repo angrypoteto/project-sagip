@@ -42,6 +42,7 @@ class OutboxEntry {
     this.deliveredAt,
     this.rejectReason,
     this.sequence = 0,
+    this.smsSentAt,
   });
 
   /// The record's client id: the SOS, report, or completion report id, or
@@ -74,6 +75,11 @@ class OutboxEntry {
   /// the same instant, so they are sent in the order they were made.
   final int sequence;
 
+  /// Tier 2: when the SOS went out as an SMS to the gateway. It still goes
+  /// over the internet later (the server recognises it), so it stays
+  /// pending until then.
+  final DateTime? smsSentAt;
+
   QueuedKind get kind => action.kind;
 
   OutboxEntry copyWith({
@@ -85,6 +91,7 @@ class OutboxEntry {
     DateTime? deliveredAt,
     String? rejectReason,
     int? sequence,
+    DateTime? smsSentAt,
   }) => OutboxEntry(
     id: id,
     action: action,
@@ -98,6 +105,7 @@ class OutboxEntry {
     deliveredAt: deliveredAt ?? this.deliveredAt,
     rejectReason: rejectReason ?? this.rejectReason,
     sequence: sequence ?? this.sequence,
+    smsSentAt: smsSentAt ?? this.smsSentAt,
   );
 
   QueuedRecord toQueued() => QueuedRecord(
@@ -122,6 +130,7 @@ class OutboxEntry {
     deliveredAt: timeFromJsonOrNull(json['delivered_at']),
     rejectReason: json['reject_reason'] as String?,
     sequence: json['sequence'] as int? ?? 0,
+    smsSentAt: timeFromJsonOrNull(json['sms_sent_at']),
   );
 
   Map<String, Object?> toJson() => {
@@ -137,6 +146,7 @@ class OutboxEntry {
     'delivered_at': deliveredAt?.toUtc().toIso8601String(),
     'reject_reason': rejectReason,
     'sequence': sequence,
+    'sms_sent_at': smsSentAt?.toUtc().toIso8601String(),
   };
 }
 

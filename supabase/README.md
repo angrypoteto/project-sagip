@@ -19,8 +19,10 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_analytics.sql` | `analytics_report(from, to)` for A4 (admins only): counts, dispatch, verification, response, and travel times from the incident timeline, SOS by channel, breakdowns by type, barangay, unit, and Manila day, and the Dijkstra timings |
 | `migrations/*_configuration.sql` | A3 settings (`app_setting`: the Triage Queue priority weights), `set_setting` (admins only, audited as `settingChanged`), and the priority score, severity, and factors on `incident_board` |
 | `migrations/*_routing.sql` | Road routes on dispatch records (`dispatch.route` polyline and `route_plan`; `assign_unit` takes the route), routes in `my_assignments`, and the Dijkstra timing log `routing_run` (admins read it; `log_routing_run` writes it) |
+| `migrations/*_sms_intake.sql`, `*_sms_gateway_provider.sql` | Tier 2: `intake_sms_sos` (service role only) files an SOS texted to the gateway SIM, finding the resident by the sender's number; `submit_sos` attaches the resident when the app's copy of an SOS texted from another SIM arrives; inbound texts logged in `sms_log` |
+| `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 132 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 141 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -76,6 +78,16 @@ The app asks Supabase to text a code; Supabase hands the code to the `send-sms` 
 6. **For demos without texts at all:** Authentication > Sign In / Providers > Phone > Test phone numbers: for example `639170004821=123456` (Maria's sample number). Test numbers never call the hook.
 
 The function never logs full numbers (only "0917 ••• 4821"), and `sms_log` is not readable from the apps.
+
+## Tier 2: SOS by SMS (for Joshua, when the gateway SIM exists)
+
+When a phone has signal but no data, the app texts the SOS to the MDRRMD gateway SIM in a short checked format (`SAGIP1 SOS <id> <lat>,<lng> <accuracy> <time> <flags> <crc>`). The gateway forwards each text to `sms-intake`, which files the SOS; the app's later internet copy is recognised by the same id.
+
+1. **Gateway phone:** a spare Android phone with the gateway SIM, running an SMS gateway app that forwards received texts to a webhook (for example SMS Gateway for Android). Set its webhook to `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake` with the header `x-sagip-key: <secret>`.
+2. **Deploy:** `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+3. **Secrets:** `SMS_INTAKE_SECRET` = the same secret. Optional: `SMS_ACK_VIA_SEMAPHORE=true` to send the reply through Semaphore; otherwise the response's `reply` is for the gateway to send from its SIM.
+4. **Phones:** put the gateway SIM's number in `apps/mobile/.env` as `SMS_GATEWAY_NUMBER` and rebuild. Residents allow SMS on the welcome screen.
+5. **Try it:** turn off mobile data on a test phone (keep signal), hold SOS; the board shows it as an SMS SOS within seconds. Unreadable texts are in `sms_log` (`kind = 'inbound'`, `status = 'unreadable'`).
 
 ## Priority weights (A3)
 

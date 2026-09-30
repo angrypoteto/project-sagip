@@ -61,6 +61,8 @@ jobs:
           node-version: 24
       - name: send-sms helpers and signature check
         run: node --test supabase/functions/send-sms/sms.test.ts
+      - name: sms-intake codec (same vectors as the Dart codec) and helpers
+        run: node --test supabase/functions/sms-intake/sms_intake.test.ts
 
   secrets:
     name: No keys in the repo

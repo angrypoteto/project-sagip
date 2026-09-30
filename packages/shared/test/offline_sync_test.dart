@@ -100,6 +100,19 @@ class FakeServer implements MobileServer {
   Stream<List<CompletedAssignment>> watchHistory() => history.stream;
 }
 
+/// A phone's SMS service the test can switch off.
+class FakeSms implements SmsSender {
+  var works = true;
+  final sent = <({String to, String text})>[];
+
+  @override
+  Future<bool> send(String number, String text) async {
+    if (!works) return false;
+    sent.add((to: number, text: text));
+    return true;
+  }
+}
+
 void main() {
   late DateTime now;
   late FakeServer server;
@@ -320,6 +333,139 @@ void main() {
       expect(back.capturedAt, now);
       expect(SosRequest.fromJson(back.payload).accuracyMeters, 8);
     });
+  });
+
+  group('tier 2: SOS by SMS', () {
+    const sosId = '3f2a9c1e-7b4d-4e0a-9c2f-1a2b3c4d5e6f';
+    late FakeSms sms;
+    late StreamController<bool> smsAvailable;
+
+    setUp(() async {
+      await engine.dispose();
+      sms = FakeSms();
+      smsAvailable = StreamController<bool>.broadcast();
+      engine = SyncEngine(
+        store: store,
+        sender: ServerSender(server),
+        online: online.stream,
+        account: () => account,
+        clock: () => now,
+        retryDelay: (_) => const Duration(milliseconds: 10),
+        sms: SmsTier(
+          sender: sms,
+          gatewayNumber: '09170000000',
+          available: smsAvailable.stream,
+          retryAfter: const Duration(milliseconds: 20),
+        ),
+      );
+    });
+
+    Future<void> signal({required bool internet, required bool texting}) async {
+      online.add(internet);
+      smsAvailable.add(texting);
+      await pumpEventQueue();
+    }
+
+    test(
+      'with signal but no data, the SOS is texted once; reports wait',
+      () async {
+        await signal(internet: false, texting: true);
+        await engine.add(entry(sosId, OutboxAction.sos, sos(sosId).toJson()));
+        await engine.add(
+          entry(
+            'r-b',
+            OutboxAction.crowdReport,
+            report('b').toJson(),
+            minutes: 1,
+          ),
+        );
+        await pumpEventQueue();
+
+        expect(sms.sent, hasLength(1), reason: 'SOS only, sent once');
+        expect(sms.sent.single.to, '09170000000');
+        final decoded = SosSms.decode(sms.sent.single.text);
+        expect(decoded.clientId, sosId);
+        expect(decoded.capturedAt.isAtSameMomentAs(now), isTrue);
+        final s = engine.entries.firstWhere((e) => e.id == sosId);
+        expect(s.delivery, DeliveryState.sentBySms);
+        expect(s.smsSentAt, now);
+        expect(
+          engine.entries.firstWhere((e) => e.id == 'r-b').delivery,
+          DeliveryState.savedOnPhone,
+        );
+
+        // Another pump does not text it again.
+        await engine.retryNow();
+        expect(sms.sent, hasLength(1));
+
+        // The phone shows it as sent by SMS.
+        final shown = OutboxSosRepository.mergeSos(
+          null,
+          engine.entries,
+          'res-001',
+        );
+        expect(shown.single.delivery, DeliveryState.sentBySms);
+        expect(shown.single.sentVia, ReportChannel.sms);
+
+        // Back online: it still goes over the internet (the server knows it),
+        // then the report, in capture order, with no second SMS.
+        await signal(internet: true, texting: false);
+        expect(server.calls, ['sos $sosId', 'report b']);
+        expect(sms.sent, hasLength(1));
+        expect(
+          engine.entries.map((e) => e.delivery),
+          everyElement(DeliveryState.delivered),
+        );
+      },
+    );
+
+    test('a failed internet send keeps "sent by SMS"', () async {
+      await signal(internet: false, texting: true);
+      await engine.add(entry(sosId, OutboxAction.sos, sos(sosId).toJson()));
+      await pumpEventQueue();
+      server.reachable = false;
+      await signal(internet: true, texting: false);
+      final s = engine.entries.single;
+      expect(s.delivery, DeliveryState.sentBySms);
+      expect(s.attempts, 1);
+    });
+
+    test('a failed text is tried again while texting is possible', () async {
+      sms.works = false;
+      await signal(internet: false, texting: true);
+      await engine.add(entry(sosId, OutboxAction.sos, sos(sosId).toJson()));
+      await pumpEventQueue();
+      expect(engine.entries.single.delivery, DeliveryState.savedOnPhone);
+      sms.works = true;
+      await Future<void>.delayed(const Duration(milliseconds: 60));
+      await pumpEventQueue();
+      expect(sms.sent, hasLength(1));
+      expect(engine.entries.single.delivery, DeliveryState.sentBySms);
+    });
+
+    test('no signal at all: nothing is texted', () async {
+      await signal(internet: false, texting: false);
+      await engine.add(entry(sosId, OutboxAction.sos, sos(sosId).toJson()));
+      await pumpEventQueue();
+      expect(sms.sent, isEmpty);
+      expect(engine.entries.single.delivery, DeliveryState.savedOnPhone);
+    });
+
+    test(
+      'after a restart an SOS cut off mid-send stays "sent by SMS"',
+      () async {
+        await store.putEntry(
+          entry(
+            sosId,
+            OutboxAction.sos,
+            sos(sosId).toJson(),
+          ).copyWith(delivery: DeliveryState.sending, smsSentAt: now),
+        );
+        final again = makeEngine();
+        addTearDown(again.dispose);
+        expect(again.entries.single.delivery, DeliveryState.sentBySms);
+      },
+    );
   });
 
   group('resident repositories', () {

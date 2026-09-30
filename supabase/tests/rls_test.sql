@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(132);
+select plan(141);
 
 select public.reset_demo_data();
 
@@ -446,6 +446,51 @@ select is((select count(*)::int from public.alert_read), 0,
   'an admin cannot see other accounts'' read state');
 select is((select count(*)::int from public.data_deletion_request), 1,
   'an admin sees the deletion request');
+
+-- ------------------------------------------------ Tier 2: SOS by SMS
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated',
+    'public.intake_sms_sos(text, uuid, timestamptz, double precision, double precision, double precision, boolean)', 'execute')
+  and not has_function_privilege('anon',
+    'public.intake_sms_sos(text, uuid, timestamptz, double precision, double precision, double precision, boolean)', 'execute'),
+  'only the gateway (service role) can file an SMS SOS');
+select is(
+  public.intake_sms_sos('+63 917 000 4821', '00000000-0000-4000-8000-0000000005b1',
+    now() - interval '2 minutes', 14.6090, 120.9920, 12, false) ->> 'known',
+  'true', 'an SMS SOS from a registered number finds the resident');
+select ok(
+  (select channel = 'sms' and manila_resident_id = 'res-001' and account_verified
+          and status = 'pendingVerification' and captured_at = now() - interval '2 minutes'
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b1'),
+  'it is on the board at once as an SMS SOS with its capture time (FR8)');
+select is(
+  public.intake_sms_sos('09170004821', '00000000-0000-4000-8000-0000000005b1',
+    now(), 14.6, 120.99, 12, false) ->> 'duplicate',
+  'true', 'the same SOS texted twice is stored once');
+select is(
+  public.intake_sms_sos('09995550000', '00000000-0000-4000-8000-0000000005b2',
+    now() - interval '1 minute', 14.5869, 120.9690, 20, true) ->> 'known',
+  'false', 'an SOS from an unknown number still reaches the board');
+select ok(
+  (select not account_verified and manila_resident_id is null and mock_location
+          and barangay <> 'Not known'
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b2'),
+  'marked not account-verified, with the nearest barangay and the mock-location flag');
+select throws_ok($$ select public.intake_sms_sos('0917', gen_random_uuid(), now()) $$,
+  'P0001', 'invalid_value', 'a sender without a full number is refused');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+
+select ok(
+  public.submit_sos('00000000-0000-4000-8000-0000000005b2', now(), 14.5869, 120.9690, 20, null, null, true) like 'INC-%',
+  'the app''s copy of an SOS texted from another SIM is accepted');
+select ok(
+  (select manila_resident_id = 'res-001' and account_verified and channel = 'sms'
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b2'),
+  'and attaches the resident to the same SOS');
 
 reset role;
 select * from finish();

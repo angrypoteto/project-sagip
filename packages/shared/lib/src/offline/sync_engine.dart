@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import '../algorithms/sos_sms.dart';
 import '../mock/live_value.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
@@ -69,6 +70,32 @@ class ServerSender implements OutboxSender {
   }
 }
 
+/// Sends a text message from this phone (Tier 2).
+abstract interface class SmsSender {
+  /// True when the phone's SMS service accepted and sent it.
+  Future<bool> send(String number, String text);
+}
+
+/// Tier 2 (plan section 11): an SOS goes to the MDRRMD gateway SIM as an
+/// SMS in the SAGIP1 format while the phone has signal but no data.
+class SmsTier {
+  const SmsTier({
+    required this.sender,
+    required this.gatewayNumber,
+    required this.available,
+    this.retryAfter = const Duration(seconds: 30),
+  });
+
+  final SmsSender sender;
+  final String gatewayNumber;
+
+  /// True while texting is the way out (signal, no internet).
+  final Stream<bool> available;
+
+  /// A failed text is tried again after this, while texting is possible.
+  final Duration retryAfter;
+}
+
 /// Works through the outbox (NFR1, FR13): records are saved first, sent in
 /// the order they were made, and marked delivered only when the server
 /// confirms them. A refused record is kept (marked rejected) and the rest
@@ -82,7 +109,9 @@ class SyncEngine {
     required this._account,
     DateTime Function()? clock,
     Duration Function(int attempts)? retryDelay,
+    SmsTier? sms,
   }) : _store = store,
+       _sms = sms,
        _clock = clock ?? DateTime.now,
        _retryDelay = retryDelay ?? defaultRetryDelay {
     final now = _clock();
@@ -96,7 +125,7 @@ class SyncEngine {
       // A send cut off when the app closed counts as not sent.
       kept.add(
         e.delivery == DeliveryState.sending
-            ? e.copyWith(delivery: DeliveryState.savedOnPhone, waited: true)
+            ? e.copyWith(delivery: _notSent(e), waited: true)
             : e,
       );
     }
@@ -105,7 +134,17 @@ class SyncEngine {
       _online = on;
       if (on) unawaited(pump());
     });
+    _smsSub = sms?.available.listen((ok) {
+      _smsOk = ok;
+      if (ok) unawaited(pump());
+    });
   }
+
+  /// Where a record goes back to when a send did not finish: still "sent
+  /// by SMS" if the SMS went out.
+  static DeliveryState _notSent(OutboxEntry e) => e.smsSentAt != null
+      ? DeliveryState.sentBySms
+      : DeliveryState.savedOnPhone;
 
   /// Delivered records stay this long so screens can show them until the
   /// server's copy catches up.
@@ -122,6 +161,10 @@ class SyncEngine {
   final Duration Function(int attempts) _retryDelay;
   late final LiveValue<List<OutboxEntry>> _entries;
   late final StreamSubscription<bool> _onlineSub;
+  final SmsTier? _sms;
+  StreamSubscription<bool>? _smsSub;
+  var _smsOk = false;
+  Timer? _smsRetry;
   final _deliveries = StreamController<QueuedRecord>.broadcast();
   Timer? _retry;
   var _online = false;
@@ -197,7 +240,13 @@ class SyncEngine {
         for (final e in pending) {
           if (_disposed) return;
           if (!_online) {
-            if (!e.waited) await _put(e.copyWith(waited: true));
+            if (_smsOk &&
+                e.action == OutboxAction.sos &&
+                e.delivery == DeliveryState.savedOnPhone) {
+              await _sendSms(e);
+            } else if (!e.waited) {
+              await _put(e.copyWith(waited: true));
+            }
             continue;
           }
           if (!await _send(e)) break;
@@ -237,12 +286,45 @@ class SyncEngine {
     }
   }
 
+  /// Tier 2: texts the SOS to the gateway. It stays pending (sent by SMS)
+  /// so it still goes over the internet later; a failed text is tried again
+  /// after [SmsTier.retryAfter] while texting is possible.
+  Future<void> _sendSms(OutboxEntry e) async {
+    final sms = _sms!;
+    var sent = false;
+    try {
+      final text = SosSms.encode(SosRequest.fromJson(e.payload));
+      sent = await sms.sender
+          .send(sms.gatewayNumber, text)
+          .timeout(const Duration(seconds: 45), onTimeout: () => false);
+    } catch (_) {
+      sent = false;
+    }
+    if (sent) {
+      await _put(
+        e.copyWith(
+          delivery: DeliveryState.sentBySms,
+          smsSentAt: _clock(),
+          waited: true,
+        ),
+      );
+      return;
+    }
+    if (!e.waited) await _put(e.copyWith(waited: true));
+    _smsRetry?.cancel();
+    if (!_disposed) {
+      _smsRetry = Timer(sms.retryAfter, () {
+        if (_smsOk) unawaited(pump());
+      });
+    }
+  }
+
   Future<void> _reject(OutboxEntry e, String reason) =>
       _put(e.copyWith(delivery: DeliveryState.rejected, rejectReason: reason));
 
   Future<bool> _failed(OutboxEntry e) async {
     final back = e.copyWith(
-      delivery: DeliveryState.savedOnPhone,
+      delivery: _notSent(e),
       attempts: e.attempts + 1,
       waited: true,
     );
@@ -257,6 +339,8 @@ class SyncEngine {
   Future<void> dispose() async {
     _disposed = true;
     _retry?.cancel();
+    _smsRetry?.cancel();
+    await _smsSub?.cancel();
     await _onlineSub.cancel();
     await _deliveries.close();
   }

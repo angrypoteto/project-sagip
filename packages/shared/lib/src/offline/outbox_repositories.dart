@@ -93,6 +93,12 @@ class OutboxSosRepository implements SosRepository {
                   IncidentStatus.pendingVerification,
                   e.deliveredAt ?? e.capturedAt,
                 )
+          : e.delivery == DeliveryState.sentBySms
+          ? local.copyWith(
+              delivery: DeliveryState.sentBySms,
+              sentVia: ReportChannel.sms,
+              sentAt: e.smsSentAt,
+            )
           : local.copyWith(delivery: e.delivery, rejectReason: e.rejectReason);
     }
     // Details still on the phone show at once.

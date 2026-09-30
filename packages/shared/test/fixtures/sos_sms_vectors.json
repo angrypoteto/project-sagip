@@ -1,0 +1,33 @@
+{
+  "note": "Tier 2 SOS messages made by SosSms.encode (Dart). The Dart test and supabase/functions/sms-intake/sms_intake.test.ts both check them, so the two codecs stay in step.",
+  "crc_check": {"text": "123456789", "crc": "29B1"},
+  "messages": [
+    {
+      "text": "SAGIP1 SOS 3f2a9c1e7b4d4e0a9c2f1a2b3c4d5e6f 14.60912,120.99251 8 1790754133 - 012C",
+      "client_id": "3f2a9c1e-7b4d-4e0a-9c2f-1a2b3c4d5e6f",
+      "lat": 14.60912,
+      "lng": 120.99251,
+      "accuracy_m": 8,
+      "captured_at": "2026-09-30T07:42:13Z",
+      "mock": false
+    },
+    {
+      "text": "SAGIP1 SOS 000000000000400080000000000005b1 14.58690,120.96900 20 1790754133 M 35C2",
+      "client_id": "00000000-0000-4000-8000-0000000005b1",
+      "lat": 14.5869,
+      "lng": 120.969,
+      "accuracy_m": 20,
+      "captured_at": "2026-09-30T07:42:13Z",
+      "mock": true
+    },
+    {
+      "text": "SAGIP1 SOS ffffffffffff4fffbfffffffffffffff - - 1790754133 - 9FC6",
+      "client_id": "ffffffff-ffff-4fff-bfff-ffffffffffff",
+      "lat": null,
+      "lng": null,
+      "accuracy_m": null,
+      "captured_at": "2026-09-30T07:42:13Z",
+      "mock": false
+    }
+  ]
+}

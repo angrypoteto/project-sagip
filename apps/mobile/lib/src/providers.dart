@@ -153,11 +153,12 @@ List<Override> liveOverrides({
   required LocationService location,
   required PermissionService permissions,
   Future<void> Function()? recheckSignal,
+  DeviceCapabilities capabilities = DeviceCapabilities.queueOnly,
 }) {
   String? account() => backend.accounts.currentUser?.id;
   return [
     localStoreProvider.overrideWithValue(store),
-    capabilitiesProvider.overrideWithValue(DeviceCapabilities.queueOnly),
+    capabilitiesProvider.overrideWithValue(capabilities),
     authRepositoryProvider.overrideWithValue(backend.accounts),
     residentAccountRepositoryProvider.overrideWithValue(backend.accounts),
     permissionServiceProvider.overrideWithValue(permissions),

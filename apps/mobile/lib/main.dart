@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 import 'src/app.dart';
 import 'src/device/device_location_service.dart';
 import 'src/device/device_permission_service.dart';
+import 'src/device/device_sms_sender.dart';
 import 'src/device/hive_store.dart';
 import 'src/device/reachability_signal_monitor.dart';
 import 'src/providers.dart';
@@ -18,6 +19,10 @@ import 'src/providers.dart';
 /// permits). Without them the app runs on sample data.
 const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const _supabaseKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+
+/// The MDRRMD gateway SIM's number for Tier 2 (an SOS by SMS). Without it
+/// an SOS waits on the phone until there is internet.
+const _smsGateway = String.fromEnvironment('SMS_GATEWAY_NUMBER');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,11 +45,22 @@ Future<List<Override>> _live() async {
   final location = DeviceLocationService();
   Stream<bool> online() =>
       signal.watch().map((s) => s == SignalState.internet).distinct();
+  final sms = _smsGateway.isEmpty
+      ? null
+      : SmsTier(
+          sender: const DeviceSmsSender(),
+          gatewayNumber: _smsGateway,
+          available: signal
+              .watch()
+              .map((s) => s == SignalState.smsOnly)
+              .distinct(),
+        );
   final engine = SyncEngine(
     store: store,
     sender: ServerSender(backend.remote),
     online: online(),
     account: () => backend.accounts.currentUser?.id,
+    sms: sms,
   );
   final sharer = ResponderLocationSharer(
     server: backend.remote,
@@ -68,5 +84,10 @@ Future<List<Override>> _live() async {
     location: location,
     permissions: DevicePermissionService(store),
     recheckSignal: signal.checkNow,
+    capabilities: DeviceCapabilities(
+      smsTier: sms != null,
+      relayTier: false,
+      offlineMaps: false,
+    ),
   );
 }
