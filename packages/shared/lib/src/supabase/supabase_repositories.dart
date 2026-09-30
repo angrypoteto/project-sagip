@@ -241,7 +241,7 @@ typedef _Row = Map<String, dynamic>;
 
 /// Staff sign-in. Only accounts with a row in `staff` get in; anyone else is
 /// signed out again (residents use the mobile app).
-class SupabaseAuthRepository implements AuthRepository {
+class SupabaseAuthRepository implements AuthRepository, StaffSessionRepository {
   SupabaseAuthRepository(this._client) {
     _client.auth.onAuthStateChange.listen(
       (state) => _onSession(state.session),
@@ -251,8 +251,10 @@ class SupabaseAuthRepository implements AuthRepository {
 
   final SupabaseClient _client;
   final _changes = StreamController<AppUser?>.broadcast();
+  final _expired = StreamController<void>.broadcast();
   AppUser? _user;
   var _known = false;
+  var _signingOut = false;
   final _staff = <String, Future<AppUser?>>{};
 
   void _set(AppUser? user) {
@@ -271,6 +273,9 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<void> _onSession(Session? session) async {
     if (session == null) {
       _staff.clear();
+      // Signed in a moment ago and nobody chose to sign out: it expired.
+      if (_user != null && !_signingOut) _expired.add(null);
+      _signingOut = false;
       _set(null);
       return;
     }
@@ -307,6 +312,41 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   AppUser? get currentUser => _user;
+
+  @override
+  Stream<void> watchExpired() => _expired.stream;
+
+  @override
+  Future<void> changePassword({
+    required String current,
+    required String next,
+  }) async {
+    final email = _client.auth.currentUser?.email;
+    if (email == null) throw const AuthException(AuthFailure.notStaff);
+    if (next.length < StaffSessionRepository.minPasswordLength) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    try {
+      // Checking the current password is a fresh sign-in as the same user.
+      await _client.auth.signInWithPassword(email: email, password: current);
+    } on supa.AuthRetryableFetchException {
+      throw const AuthException(AuthFailure.offline);
+    } on supa.AuthException {
+      throw const AuthException(AuthFailure.wrongCredentials);
+    } catch (_) {
+      throw const AuthException(AuthFailure.offline);
+    }
+    try {
+      await _client.auth.updateUser(UserAttributes(password: next));
+    } on supa.AuthRetryableFetchException {
+      throw const AuthException(AuthFailure.offline);
+    } on supa.AuthException {
+      // For example the project's password rules.
+      throw const ActionRejected(ActionRejection.invalidValue);
+    } catch (_) {
+      throw const AuthException(AuthFailure.offline);
+    }
+  }
 
   @override
   Future<AppUser> signIn({
@@ -349,7 +389,11 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() => _client.auth.signOut();
+  Future<void> signOut() {
+    // Cleared when the signed-out event arrives (it may come later).
+    _signingOut = true;
+    return _client.auth.signOut();
+  }
 }
 
 // -------------------------------------------------------------- incidents

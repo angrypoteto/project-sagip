@@ -67,6 +67,21 @@ abstract interface class AuthRepository {
   Future<void> signOut();
 }
 
+/// D11 and G2: a staff member's own password and session (dashboard).
+abstract interface class StaffSessionRepository {
+  /// Minimum length for a new password.
+  static const minPasswordLength = 8;
+
+  /// Checks [current], then sets [next]. Throws [AuthException] with
+  /// `wrongCredentials` for a wrong current password, [ActionRejected] with
+  /// `invalidValue` for a new password that is too short.
+  Future<void> changePassword({required String current, required String next});
+
+  /// Emits when the session ends without the person signing out (G2), for
+  /// example when it could not be refreshed.
+  Stream<void> watchExpired();
+}
+
 abstract interface class IncidentRepository {
   /// Incidents on the Triage Queue: everything not yet resolved.
   Stream<List<Incident>> watchActive();

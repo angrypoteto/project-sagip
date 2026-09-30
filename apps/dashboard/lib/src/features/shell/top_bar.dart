@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -6,6 +7,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../router.dart';
 
 /// Slim top bar: brand, PAGASA conditions, connection, clock, and user menu.
 class TopBar extends ConsumerWidget {
@@ -135,7 +137,15 @@ class _Clock extends ConsumerWidget {
   }
 }
 
-enum _MenuAction { theme, offline, reconnecting, live, signOut }
+enum _MenuAction {
+  account,
+  theme,
+  offline,
+  reconnecting,
+  live,
+  expire,
+  signOut,
+}
 
 class _UserMenu extends ConsumerWidget {
   const _UserMenu();
@@ -161,13 +171,16 @@ class _UserMenu extends ConsumerWidget {
       tooltip: l10n.userWithRole(user.displayName, l10n.role(user.role)),
       position: PopupMenuPosition.under,
       onSelected: (action) => switch (action) {
+        _MenuAction.account => context.go(Routes.account),
         _MenuAction.theme => ref.read(themeModeProvider.notifier).toggle(),
         _MenuAction.offline => backend?.setLink(LinkState.offline),
         _MenuAction.reconnecting => backend?.setLink(LinkState.reconnecting),
         _MenuAction.live => backend?.setLink(LinkState.live),
+        _MenuAction.expire => backend?.expireSession(),
         _MenuAction.signOut => ref.read(authRepositoryProvider).signOut(),
       },
       itemBuilder: (context) => [
+        PopupMenuItem(value: _MenuAction.account, child: Text(l10n.myAccount)),
         PopupMenuItem(
           value: _MenuAction.theme,
           child: Text(isDark ? l10n.switchToLight : l10n.switchToDark),
@@ -184,6 +197,10 @@ class _UserMenu extends ConsumerWidget {
             child: Text(l10n.demoReconnecting),
           ),
           PopupMenuItem(value: _MenuAction.live, child: Text(l10n.demoGoLive)),
+          PopupMenuItem(
+            value: _MenuAction.expire,
+            child: Text(l10n.demoExpireSession),
+          ),
         ],
         const PopupMenuDivider(),
         PopupMenuItem(value: _MenuAction.signOut, child: Text(l10n.signOut)),

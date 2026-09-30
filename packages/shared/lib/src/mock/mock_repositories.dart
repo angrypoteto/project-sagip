@@ -14,7 +14,7 @@ import 'mock_backend.dart';
 // Thin adapters from the repository interfaces to [MockBackend]. The Supabase
 // versions in Phase 3 implement the same interfaces.
 
-class MockAuthRepository implements AuthRepository {
+class MockAuthRepository implements AuthRepository, StaffSessionRepository {
   const MockAuthRepository(this._backend);
 
   final MockBackend _backend;
@@ -24,6 +24,15 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   AppUser? get currentUser => _backend.currentUser;
+
+  @override
+  Stream<void> watchExpired() => _backend.watchExpired();
+
+  @override
+  Future<void> changePassword({
+    required String current,
+    required String next,
+  }) => _backend.changePassword(current: current, next: next);
 
   @override
   Future<AppUser> signIn({required String email, required String password}) =>

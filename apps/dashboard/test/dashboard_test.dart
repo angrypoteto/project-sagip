@@ -52,12 +52,13 @@ void main() {
     await settle(tester);
   }
 
-  Future<void> signIn(WidgetTester tester, String email) async {
+  Future<void> signIn(
+    WidgetTester tester,
+    String email, {
+    String password = MockSeed.demoPassword,
+  }) async {
     await tester.enterText(find.byType(TextFormField).at(0), email);
-    await tester.enterText(
-      find.byType(TextFormField).at(1),
-      MockSeed.demoPassword,
-    );
+    await tester.enterText(find.byType(TextFormField).at(1), password);
     await tester.tap(find.text('Sign in'));
     await settle(tester);
   }
@@ -357,6 +358,86 @@ void main() {
       ]),
     );
   });
+
+  testWidgets('D11: theme and password change, with the checks', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('R. Santos, Dispatcher'));
+    await settle(tester);
+    await tester.tap(find.text('My account'));
+    await settle(tester);
+    expect(find.text('dispatcher@sagip.test'), findsOneWidget);
+    expect(find.text('Keyboard shortcuts'), findsOneWidget);
+
+    await tester.tap(find.text('Light'));
+    await settle(tester);
+    expect(container.read(themeModeProvider), ThemeMode.light);
+
+    Future<void> change(String current, String next, String again) async {
+      await tester.enterText(
+        find.byKey(const ValueKey('password-current')),
+        current,
+      );
+      await tester.enterText(find.byKey(const ValueKey('password-new')), next);
+      await tester.enterText(
+        find.byKey(const ValueKey('password-again')),
+        again,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Change password'));
+      await settle(tester);
+    }
+
+    await change(MockSeed.demoPassword, 'short', 'short');
+    expect(find.text('Use at least 8 characters.'), findsOneWidget);
+    await change(MockSeed.demoPassword, 'newpass123', 'newpass124');
+    expect(find.text('The two new passwords are different.'), findsOneWidget);
+    await change('not-it-at-all', 'newpass123', 'newpass123');
+    expect(find.text('The current password is not right.'), findsOneWidget);
+    await change(MockSeed.demoPassword, 'newpass123', 'newpass123');
+    expect(find.text('Password changed'), findsOneWidget);
+
+    // The new password is the one that works now.
+    await tester.runAsync(() => MockAuthRepository(backend).signOut());
+    await settle(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    expect(find.text('Email or password is incorrect.'), findsWidgets);
+    await signIn(tester, 'dispatcher@sagip.test', password: 'newpass123');
+    expect(
+      container.read(currentUserProvider).value?.email,
+      'dispatcher@sagip.test',
+    );
+    // Back on the page it came from.
+    expect(find.text('Keyboard shortcuts'), findsOneWidget);
+  });
+
+  testWidgets(
+    'G2: an expired session returns to the same page after signing in',
+    (tester) async {
+      await pumpApp(tester);
+      await signIn(tester, 'admin@sagip.test');
+      await tester.tap(find.byTooltip('Units'));
+      await settle(tester);
+
+      backend.expireSession();
+      await settle(tester);
+      expect(find.text('Your session expired'), findsOneWidget);
+
+      await tester.tap(find.text('Sign in again'));
+      await settle(tester);
+      await signIn(tester, 'admin@sagip.test');
+      expect(
+        container
+            .read(routerProvider)
+            .routerDelegate
+            .currentConfiguration
+            .uri
+            .path,
+        Routes.units,
+      );
+    },
+  );
 
   testWidgets('going offline shows a banner and disables actions', (
     tester,

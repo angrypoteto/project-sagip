@@ -15,6 +15,9 @@ Never _missing(String name) => throw UnimplementedError(
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => _missing('AuthRepository'),
 );
+final staffSessionProvider = Provider<StaffSessionRepository>(
+  (ref) => _missing('StaffSessionRepository'),
+);
 final incidentRepositoryProvider = Provider<IncidentRepository>(
   (ref) => _missing('IncidentRepository'),
 );
@@ -73,6 +76,7 @@ List<Override> _mockOverrides(
 }) => [
   mockBackendProvider.overrideWithValue(demoTools ? backend : null),
   authRepositoryProvider.overrideWithValue(MockAuthRepository(backend)),
+  staffSessionProvider.overrideWithValue(MockAuthRepository(backend)),
   incidentRepositoryProvider.overrideWithValue(MockIncidentRepository(backend)),
   unitRepositoryProvider.overrideWithValue(MockUnitRepository(backend)),
   crowdReportRepositoryProvider.overrideWithValue(
@@ -94,6 +98,7 @@ List<Override> _mockOverrides(
 /// docs/CONVENTIONS.md, "Supabase").
 List<Override> supabaseOverrides(SupabaseBackend backend) => [
   authRepositoryProvider.overrideWithValue(backend.auth),
+  staffSessionProvider.overrideWithValue(backend.auth),
   incidentRepositoryProvider.overrideWithValue(backend.incidents),
   unitRepositoryProvider.overrideWithValue(backend.units),
   crowdReportRepositoryProvider.overrideWithValue(backend.crowdReports),
@@ -113,6 +118,25 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
 
 final currentUserProvider = StreamProvider<AppUser?>(
   (ref) => ref.watch(authRepositoryProvider).watchUser(),
+);
+
+/// One event per session that ended without signing out (G2).
+final sessionExpiredEventsProvider = StreamProvider<DateTime>(
+  (ref) =>
+      ref.watch(staffSessionProvider).watchExpired().map((_) => DateTime.now()),
+);
+
+/// True from a session expiry until the person signs in again or leaves
+/// the Session expired page (G2).
+class SessionExpiredController extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool expired) => state = expired;
+}
+
+final sessionExpiredProvider = NotifierProvider<SessionExpiredController, bool>(
+  SessionExpiredController.new,
 );
 
 /// Data streams restart when the signed-in account changes, so nothing one
@@ -348,6 +372,8 @@ class ThemeModeController extends Notifier<ThemeMode> {
 
   void toggle() =>
       state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+
+  void set(ThemeMode mode) => state = mode;
 }
 
 final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(

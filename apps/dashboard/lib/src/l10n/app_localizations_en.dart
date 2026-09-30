@@ -1114,6 +1114,95 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noValue => '–';
 
   @override
+  String get myAccount => 'My account';
+
+  @override
+  String get demoExpireSession => 'Simulate the session expiring';
+
+  @override
+  String get accountSubtitle => 'Your account, display, and password.';
+
+  @override
+  String get accountDetails => 'Account';
+
+  @override
+  String get accountEmail => 'Email';
+
+  @override
+  String get accountRole => 'Role';
+
+  @override
+  String get displayTitle => 'Display';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeSystem => 'Same as this computer';
+
+  @override
+  String get passwordTitle => 'Change password';
+
+  @override
+  String get passwordCurrent => 'Current password';
+
+  @override
+  String get passwordNew => 'New password';
+
+  @override
+  String get passwordConfirm => 'New password again';
+
+  @override
+  String passwordTooShort(int min) {
+    return 'Use at least $min characters.';
+  }
+
+  @override
+  String get passwordMismatch => 'The two new passwords are different.';
+
+  @override
+  String get passwordSame =>
+      'Choose a password different from the current one.';
+
+  @override
+  String get passwordWrong => 'The current password is not right.';
+
+  @override
+  String get passwordChanged => 'Password changed';
+
+  @override
+  String get passwordSave => 'Change password';
+
+  @override
+  String get shortcutsTitle => 'Keyboard shortcuts';
+
+  @override
+  String get shortcutQueue =>
+      'Select the next or previous incident in the Triage Queue (opens it)';
+
+  @override
+  String get shortcutClose => 'Close the incident drawer';
+
+  @override
+  String get shortcutUpDown => 'Up or Down arrow';
+
+  @override
+  String get shortcutEsc => 'Esc';
+
+  @override
+  String get sessionExpiredTitle => 'Your session expired';
+
+  @override
+  String get sessionExpiredMessage =>
+      'Sign in again to go back to where you were. Nothing you saved was lost.';
+
+  @override
+  String get signInAgain => 'Sign in again';
+
+  @override
   String get resourcesSubtitle =>
       'Units and the responders who crew them. Every change is recorded in the audit log.';
 

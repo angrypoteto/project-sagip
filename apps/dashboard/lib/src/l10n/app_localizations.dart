@@ -2020,6 +2020,174 @@ abstract class AppLocalizations {
   /// **'–'**
   String get noValue;
 
+  /// No description provided for @myAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'My account'**
+  String get myAccount;
+
+  /// No description provided for @demoExpireSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate the session expiring'**
+  String get demoExpireSession;
+
+  /// No description provided for @accountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account, display, and password.'**
+  String get accountSubtitle;
+
+  /// No description provided for @accountDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountDetails;
+
+  /// No description provided for @accountEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get accountEmail;
+
+  /// No description provided for @accountRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get accountRole;
+
+  /// No description provided for @displayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get displayTitle;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as this computer'**
+  String get themeSystem;
+
+  /// No description provided for @passwordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get passwordTitle;
+
+  /// No description provided for @passwordCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get passwordCurrent;
+
+  /// No description provided for @passwordNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get passwordNew;
+
+  /// No description provided for @passwordConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'New password again'**
+  String get passwordConfirm;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least {min} characters.'**
+  String passwordTooShort(int min);
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two new passwords are different.'**
+  String get passwordMismatch;
+
+  /// No description provided for @passwordSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password different from the current one.'**
+  String get passwordSame;
+
+  /// No description provided for @passwordWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password is not right.'**
+  String get passwordWrong;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed'**
+  String get passwordChanged;
+
+  /// No description provided for @passwordSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get passwordSave;
+
+  /// No description provided for @shortcutsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keyboard shortcuts'**
+  String get shortcutsTitle;
+
+  /// No description provided for @shortcutQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the next or previous incident in the Triage Queue (opens it)'**
+  String get shortcutQueue;
+
+  /// No description provided for @shortcutClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the incident drawer'**
+  String get shortcutClose;
+
+  /// No description provided for @shortcutUpDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Up or Down arrow'**
+  String get shortcutUpDown;
+
+  /// No description provided for @shortcutEsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Esc'**
+  String get shortcutEsc;
+
+  /// No description provided for @sessionExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session expired'**
+  String get sessionExpiredTitle;
+
+  /// No description provided for @sessionExpiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again to go back to where you were. Nothing you saved was lost.'**
+  String get sessionExpiredMessage;
+
+  /// No description provided for @signInAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again'**
+  String get signInAgain;
+
   /// No description provided for @resourcesSubtitle.
   ///
   /// In en, this message translates to:

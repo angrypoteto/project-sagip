@@ -382,6 +382,39 @@ class MockBackend {
 
   // -------------------------------------------------------------------- auth
 
+  /// Passwords changed on D11 (the rest use [MockSeed.demoPassword]).
+  final _passwords = <String, String>{};
+  final _expired = StreamController<void>.broadcast();
+
+  Stream<void> watchExpired() => _expired.stream;
+
+  /// D11, checked like the Supabase version.
+  Future<void> changePassword({
+    required String current,
+    required String next,
+  }) async {
+    await _pause();
+    if (_link.value == LinkState.offline) {
+      throw const AuthException(AuthFailure.offline);
+    }
+    final user = _user.value;
+    if (user == null) throw const AuthException(AuthFailure.notStaff);
+    if (current != (_passwords[user.id] ?? MockSeed.demoPassword)) {
+      throw const AuthException(AuthFailure.wrongCredentials);
+    }
+    if (next.length < StaffSessionRepository.minPasswordLength) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    _passwords[user.id] = next;
+  }
+
+  /// Demo tool (G2): the session ends as if it could not be refreshed.
+  void expireSession() {
+    if (_user.value == null) return;
+    _user.value = null;
+    if (!_expired.isClosed) _expired.add(null);
+  }
+
   Future<AppUser> signIn(String email, String password) async {
     await _pause();
     if (_link.value == LinkState.offline) {
@@ -390,7 +423,8 @@ class MockBackend {
     final match = _staff.where(
       (u) => u.email.toLowerCase() == email.trim().toLowerCase(),
     );
-    if (match.isEmpty || password != MockSeed.demoPassword) {
+    if (match.isEmpty ||
+        password != (_passwords[match.first.id] ?? MockSeed.demoPassword)) {
       throw const AuthException(AuthFailure.wrongCredentials);
     }
     return _user.value = match.first;
@@ -767,6 +801,7 @@ class MockBackend {
 
   void dispose() {
     stopSimulation();
+    unawaited(_expired.close());
     for (final live in <LiveValue<Object?>>[
       _incidents,
       _resolved,
