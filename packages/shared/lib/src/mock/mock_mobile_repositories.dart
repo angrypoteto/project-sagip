@@ -1,3 +1,4 @@
+import '../models/account.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
@@ -109,6 +110,47 @@ class MockResponderRepository implements ResponderRepository {
     affectedFamilies: affectedFamilies,
     notes: notes,
   );
+}
+
+class MockResidentAccountRepository implements ResidentAccountRepository {
+  const MockResidentAccountRepository(this._backend);
+
+  final MockMobileBackend _backend;
+
+  @override
+  Future<void> sendCode(String phone) => _backend.sendCode(phone);
+
+  @override
+  Future<AppUser> verifyCode({required String phone, required String code}) =>
+      _backend.verifyCode(phone, code);
+
+  @override
+  Future<void> register({
+    required String fullName,
+    required String phone,
+    required Barangay barangay,
+  }) => _backend.register(fullName: fullName, phone: phone, barangay: barangay);
+
+  @override
+  Future<void> requestDataDeletion() => _backend.requestDataDeletion();
+}
+
+class MockPermissionService implements PermissionService {
+  const MockPermissionService(this._backend);
+
+  final MockMobileBackend _backend;
+
+  @override
+  Stream<Map<AppPermission, PermissionState>> watch() =>
+      _backend.watchPermissions();
+
+  @override
+  Future<PermissionState> request(AppPermission permission) =>
+      _backend.requestPermission(permission);
+
+  /// There are no settings to open in the mock.
+  @override
+  Future<void> openSettings() async {}
 }
 
 class MockOfflineQueue implements OfflineQueue {

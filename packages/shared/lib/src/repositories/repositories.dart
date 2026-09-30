@@ -1,3 +1,4 @@
+import '../models/account.dart';
 import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
@@ -189,6 +190,35 @@ abstract interface class ResponderRepository {
     int affectedFamilies = 0,
     String? notes,
   });
+}
+
+/// Resident sign-in by mobile number and a code sent by SMS (S3 to S5).
+/// Staff use [AuthRepository.signIn] with email and password.
+abstract interface class ResidentAccountRepository {
+  /// Sends a sign-in code to a registered number. Throws
+  /// [PhoneAuthException].
+  Future<void> sendCode(String phone);
+
+  /// Checks the code and signs the resident in.
+  Future<AppUser> verifyCode({required String phone, required String code});
+
+  /// Creates an account and sends the first code. Throws
+  /// [PhoneAuthException] (for example, the number is already registered).
+  Future<void> register({
+    required String fullName,
+    required String phone,
+    required Barangay barangay,
+  });
+
+  /// Asks MDRRMD to delete the resident's personal data (NFR4, RA 10173).
+  Future<void> requestDataDeletion();
+}
+
+/// The phone's permissions (S2, S7).
+abstract interface class PermissionService {
+  Stream<Map<AppPermission, PermissionState>> watch();
+  Future<PermissionState> request(AppPermission permission);
+  Future<void> openSettings();
 }
 
 /// Records made on this phone that the server has not confirmed yet (S6).

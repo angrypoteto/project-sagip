@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/account.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
@@ -15,6 +16,7 @@ import '../repositories/repositories.dart';
 import 'live_value.dart';
 import 'mock_seed.dart';
 
+part 'mock_accounts.dart';
 part 'mock_responder.dart';
 
 /// How long each simulated step takes in [MockMobileBackend].
@@ -146,6 +148,9 @@ class MockMobileBackend {
     role: UserRole.responder,
   );
 
+  /// The sign-in code the mock accepts (S5).
+  static const demoCode = '123456';
+
   /// Where R-03 waits before it is dispatched (Sampaloc station).
   static const stationR03 = GeoPoint(14.6045, 121.0010);
 
@@ -164,6 +169,7 @@ class MockMobileBackend {
   final _queue = LiveValue<List<QueuedRecord>>(const []);
   final _outbox = LiveValue<List<_Outgoing>>(const []);
   late final _responder = _ResponderSim(this);
+  late final _accounts = _AccountsSim(this);
   final _deliveries = StreamController<QueuedRecord>.broadcast();
 
   final _timers = <Timer>[];
@@ -378,6 +384,30 @@ class MockMobileBackend {
     affectedFamilies: affectedFamilies,
     notes: notes,
   );
+
+  // --------------------------------------------------- resident accounts
+
+  Future<void> sendCode(String phone) => _accounts.sendCode(phone);
+  Future<AppUser> verifyCode(String phone, String code) =>
+      _accounts.verifyCode(phone, code);
+  Future<void> register({
+    required String fullName,
+    required String phone,
+    required Barangay barangay,
+  }) =>
+      _accounts.register(fullName: fullName, phone: phone, barangay: barangay);
+  Future<void> requestDataDeletion() => _accounts.requestDataDeletion();
+
+  /// Accounts that asked for their data to be deleted (for tests).
+  List<String> get deletionRequests => _accounts.deletionRequests;
+
+  Stream<Map<AppPermission, PermissionState>> watchPermissions() =>
+      _accounts.permissions.watch();
+  Future<PermissionState> requestPermission(AppPermission p) =>
+      _accounts.request(p);
+
+  /// Demo: the next permission request is refused with [state].
+  void denyNextPermission(PermissionState state) => _accounts.denyNext = state;
 
   /// Demo tools: offer an assignment now, or have the dispatcher close it.
   void sendOfferNow() => _responder.sendOfferNow();
