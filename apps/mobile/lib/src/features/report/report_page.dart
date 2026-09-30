@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -6,6 +7,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../router.dart';
 import '../queue/queue_sheet.dart';
 
 /// R4 Report a hazard. One report is never an emergency on its own: MDRRMD
@@ -24,6 +26,9 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   ReportRejection? _error;
   var _saving = false;
 
+  /// A spot the resident chose on R5 instead of the GPS fix.
+  LocationFix? _picked;
+
   /// The report just sent; shows the confirmation instead of the form.
   String? _sentId;
 
@@ -41,7 +46,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       _error = null;
     });
     try {
-      final fix = ref.read(locationProvider).value?.lastFix;
+      final fix = _picked ?? ref.read(locationProvider).value?.lastFix;
       final report = await ref
           .read(hazardReportRepositoryProvider)
           .submit(description: _description.text, type: _type, fix: fix);
@@ -56,8 +61,20 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     }
   }
 
+  Future<void> _change() async {
+    final gps = ref.read(locationProvider).value?.lastFix;
+    final picked = await context.push<LocationFix>(
+      Routes.pickLocation,
+      extra: (_picked ?? gps)?.point,
+    );
+    if (picked == null || !mounted) return;
+    // Choosing the GPS fix goes back to following GPS.
+    setState(() => _picked = picked.manual ? picked : null);
+  }
+
   void _reset() => setState(() {
     _sentId = null;
+    _picked = null;
     _type = null;
     _error = null;
     _description.clear();
@@ -82,7 +99,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);
     final location = ref.watch(locationProvider).value;
-    final fix = location?.lastFix;
+    final fix = _picked ?? location?.lastFix;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -132,7 +149,12 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           ],
         ),
         const SizedBox(height: SagipSpace.xl),
-        _LocationRow(status: location),
+        _LocationRow(
+          status: location,
+          picked: _picked,
+          onChange: _change,
+          onUseGps: () => setState(() => _picked = null),
+        ),
         if (_error != null && _error != ReportRejection.emptyDescription) ...[
           const SizedBox(height: SagipSpace.lg),
           Row(
@@ -167,16 +189,31 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 }
 
 class _LocationRow extends StatelessWidget {
-  const _LocationRow({required this.status});
+  const _LocationRow({
+    required this.status,
+    required this.picked,
+    required this.onChange,
+    required this.onUseGps,
+  });
 
   final LocationStatus? status;
+
+  /// Set when the resident chose the spot on R5.
+  final LocationFix? picked;
+  final VoidCallback onChange;
+  final VoidCallback onUseGps;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);
-    final fix = status?.lastFix;
+    final gps = status?.lastFix;
+    final fix = picked ?? gps;
+    final numbers = text.bodySmall!.copyWith(
+      color: p.textSecondary,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -196,25 +233,40 @@ class _LocationRow extends StatelessWidget {
                     l10n.place(fix.barangay!, fix.district!),
                     style: text.bodyMedium,
                   ),
-                Text(
-                  l10n.locationAccuracy(
-                    formatCoordinates(fix.point),
-                    fix.accuracyMeters.round(),
-                  ),
-                  style: text.bodySmall!.copyWith(
-                    color: p.textSecondary,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
-                if (status?.gpsOn == false)
+                if (fix.manual) ...[
+                  Text(formatCoordinates(fix.point), style: numbers),
                   Text(
-                    l10n.reportLocationLast,
-                    style: text.bodySmall!.copyWith(color: p.warning.text),
+                    l10n.reportLocationChosen,
+                    style: text.bodySmall!.copyWith(color: p.info.text),
                   ),
+                ] else ...[
+                  Text(
+                    l10n.locationAccuracy(
+                      formatCoordinates(fix.point),
+                      fix.accuracyMeters.round(),
+                    ),
+                    style: numbers,
+                  ),
+                  if (status?.gpsOn == false)
+                    Text(
+                      l10n.reportLocationLast,
+                      style: text.bodySmall!.copyWith(color: p.warning.text),
+                    ),
+                ],
               ],
+              if (picked != null && gps != null)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    alignment: Alignment.centerLeft,
+                  ),
+                  onPressed: onUseGps,
+                  child: Text(l10n.reportUseGpsAgain),
+                ),
             ],
           ),
         ),
+        TextButton(onPressed: onChange, child: Text(l10n.reportChangeLocation)),
       ],
     );
   }

@@ -7,6 +7,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../../common/hotline.dart';
 import '../../common/labels.dart';
 import '../../common/offline_banner.dart';
+import '../../common/timeline.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
@@ -226,96 +227,15 @@ class _Timeline extends StatelessWidget {
         Text(l10n.timelineTitle, style: text.titleMedium),
         const SizedBox(height: SagipSpace.md),
         for (var i = 0; i < steps.length; i++)
-          _StepRow(
+          TimelineStep(
             label: steps[i].$1,
             time: steps[i].$2 == null ? null : formatTime(steps[i].$2!, locale),
             state: steps[i].$2 != null
-                ? _StepState.done
-                : (i == current ? _StepState.current : _StepState.later),
+                ? TimelineState.done
+                : (i == current ? TimelineState.current : TimelineState.later),
             last: i == steps.length - 1,
           ),
       ],
-    );
-  }
-}
-
-enum _StepState { done, current, later }
-
-class _StepRow extends StatelessWidget {
-  const _StepRow({
-    required this.label,
-    required this.time,
-    required this.state,
-    required this.last,
-  });
-
-  final String label;
-  final String? time;
-  final _StepState state;
-  final bool last;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    final p = SagipPalette.of(context);
-    final (icon, color) = switch (state) {
-      _StepState.done => (Symbols.check_circle_rounded, p.success.text),
-      _StepState.current => (Symbols.radio_button_checked_rounded, p.info.text),
-      _StepState.later => (Symbols.radio_button_unchecked_rounded, p.hairline),
-    };
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Column(
-            children: [
-              Icon(icon, size: 22, color: color, fill: 1),
-              if (!last)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: state == _StepState.done
-                        ? p.success.text
-                        : p.hairline,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: SagipSpace.md),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: SagipSpace.lg),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: text.bodyLarge!.copyWith(
-                        color: state == _StepState.later
-                            ? p.textSecondary
-                            : p.textPrimary,
-                        fontWeight: state == _StepState.current
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                  if (time != null)
-                    Text(
-                      time!,
-                      style: text.bodySmall!.copyWith(
-                        color: p.textSecondary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

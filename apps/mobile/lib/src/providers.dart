@@ -45,6 +45,12 @@ final residentRepositoryProvider = Provider<ResidentRepository>(
 final weatherRepositoryProvider = Provider<WeatherRepository>(
   (ref) => _missing('WeatherRepository'),
 );
+final alertRepositoryProvider = Provider<AlertRepository>(
+  (ref) => _missing('AlertRepository'),
+);
+final vulnerabilityRepositoryProvider = Provider<VulnerabilityRepository>(
+  (ref) => _missing('VulnerabilityRepository'),
+);
 
 /// Only set when running on sample data: the Me screen shows demo tools
 /// (signal and GPS switches) for it.
@@ -79,6 +85,10 @@ List<Override> mockOverrides(
   ),
   weatherRepositoryProvider.overrideWithValue(
     MockMobileWeatherRepository(backend),
+  ),
+  alertRepositoryProvider.overrideWithValue(MockAlertRepository(backend)),
+  vulnerabilityRepositoryProvider.overrideWithValue(
+    MockVulnerabilityRepository(backend),
   ),
 ];
 
@@ -169,6 +179,19 @@ final responderProvider = StreamProvider<ResponderState>(
     bearing: from.bearingTo(a.location),
   );
 }
+
+/// Finished assignments, newest first (F7).
+final responderHistoryProvider = StreamProvider<List<CompletedAssignment>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(responderRepositoryProvider).watchHistory(),
+  ),
+);
+
+/// Alerts for Manila and the forecast for the resident's barangay (R7).
+final alertFeedProvider = StreamProvider<AlertFeed>(
+  (ref) => _forAccount(ref, () => ref.watch(alertRepositoryProvider).watch()),
+);
 
 final pendingQueueProvider = StreamProvider<List<QueuedRecord>>(
   (ref) =>

@@ -473,20 +473,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoGps => 'GPS on';
 
   @override
-  String comingTitle(String screen) {
-    return '$screen comes next';
-  }
-
-  @override
-  String get comingBody => 'This screen is part of the next build step.';
-
-  @override
-  String get screenAlerts => 'Alerts and forecast';
-
-  @override
-  String get screenHistory => 'Assignment history';
-
-  @override
   String get trackResponder => 'Track responder';
 
   @override
@@ -1262,6 +1248,509 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyRightsBody =>
       'Under the Data Privacy Act (RA 10173) you can see, correct, or ask us to delete your data, and withdraw consent at any time in Me.';
+
+  @override
+  String get incPending => 'Pending verification';
+
+  @override
+  String get incUnverified => 'Unverified';
+
+  @override
+  String get incConfirmed => 'Confirmed';
+
+  @override
+  String get incAssigned => 'Assigned';
+
+  @override
+  String get incEnRoute => 'En route';
+
+  @override
+  String get incOnScene => 'On scene';
+
+  @override
+  String get incResolved => 'Resolved';
+
+  @override
+  String get pickLocationTitle => 'Choose location';
+
+  @override
+  String get pickSearch => 'Search barangay';
+
+  @override
+  String get pickUseGps => 'Use my GPS';
+
+  @override
+  String get pickNoGps => 'No GPS fix yet. Move the map or pick a barangay.';
+
+  @override
+  String pickNear(String place) {
+    return 'Near $place';
+  }
+
+  @override
+  String get pickNoBarangay => 'MDRRMD will see the exact pin.';
+
+  @override
+  String get pickMoveHint => 'Move the map to put the pin on the spot.';
+
+  @override
+  String get pickConfirm => 'Use this location';
+
+  @override
+  String get pickOfflineTitle => 'No map while offline';
+
+  @override
+  String get pickOfflineBody => 'Use your GPS location or pick your barangay.';
+
+  @override
+  String get pickGpsOption => 'My GPS location';
+
+  @override
+  String get pickPin => 'Chosen spot';
+
+  @override
+  String get reportChangeLocation => 'Change';
+
+  @override
+  String get reportLocationChosen => 'Chosen by you';
+
+  @override
+  String get reportUseGpsAgain => 'Use my GPS instead';
+
+  @override
+  String get activityTabSos => 'SOS';
+
+  @override
+  String get activityTabReports => 'Reports';
+
+  @override
+  String get activitySosEmpty =>
+      'No SOS yet. If you send one, it will appear here.';
+
+  @override
+  String get activityReportsEmpty =>
+      'No reports yet. Reports you send will appear here.';
+
+  @override
+  String get activityError => 'Couldn\'t refresh. Showing your saved list.';
+
+  @override
+  String get stageReceived => 'Received';
+
+  @override
+  String get stageChecking => 'Checking';
+
+  @override
+  String get stageConfirmed => 'Confirmed';
+
+  @override
+  String get stageNotConfirmed => 'Not confirmed';
+
+  @override
+  String get stageResolved => 'Resolved';
+
+  @override
+  String get reportDetailTitle => 'Your report';
+
+  @override
+  String get reportStepReceived => 'Received';
+
+  @override
+  String get reportStepChecking => 'Checking with nearby reports';
+
+  @override
+  String get reportStepConfirmed => 'Part of a confirmed incident';
+
+  @override
+  String get reportStepResolved => 'Resolved';
+
+  @override
+  String get reportNoteWaiting =>
+      'Saved on your phone. It will send when you\'re back online.';
+
+  @override
+  String get reportNoteReceived => 'MDRRMD has your report.';
+
+  @override
+  String get reportNoteChecking =>
+      'MDRRMD acts when several people report the same thing nearby. Yours is being compared with other reports from the last hour.';
+
+  @override
+  String reportNoteConfirmed(String id) {
+    return 'Your report and others nearby became incident $id. Responders are handling it.';
+  }
+
+  @override
+  String get reportNoteNotConfirmed =>
+      'No one else reported this nearby within the hour. MDRRMD keeps your report on file.';
+
+  @override
+  String reportNoteResolved(String id) {
+    return 'Incident $id is resolved.';
+  }
+
+  @override
+  String capturedAt(String time) {
+    return 'Sent $time';
+  }
+
+  @override
+  String get alertsTitle => 'Alerts';
+
+  @override
+  String get alertsTabAlerts => 'Alerts';
+
+  @override
+  String get alertsTabForecast => 'Forecast';
+
+  @override
+  String get alertsEmpty => 'No active alerts for Manila.';
+
+  @override
+  String get alertsError => 'Couldn\'t load alerts. Pull down to try again.';
+
+  @override
+  String alertsOffline(String time) {
+    return 'Offline. Last updated $time.';
+  }
+
+  @override
+  String get alertAllManila => 'All of Manila';
+
+  @override
+  String get alertNew => 'New';
+
+  @override
+  String get sourcePagasa => 'PAGASA';
+
+  @override
+  String get sourcePhivolcs => 'PHIVOLCS';
+
+  @override
+  String get sourceEfcos => 'EFCOS';
+
+  @override
+  String get sourceMdrrmd => 'MDRRMD';
+
+  @override
+  String get levelInfo => 'Advisory';
+
+  @override
+  String get levelWarning => 'Warning';
+
+  @override
+  String get levelCritical => 'Danger';
+
+  @override
+  String alertIssued(String time) {
+    return 'Issued $time';
+  }
+
+  @override
+  String get alertAffects => 'Affected areas';
+
+  @override
+  String get alertWhatToDo => 'What to do';
+
+  @override
+  String get alertGone => 'This alert is no longer available.';
+
+  @override
+  String unreadAlerts(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n new alerts',
+      one: '1 new alert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get forecastTitle => 'Next 72 hours';
+
+  @override
+  String get forecastExplain =>
+      'Chance of at least one incident in your barangay.';
+
+  @override
+  String forecastValid(String time) {
+    return 'Valid until $time';
+  }
+
+  @override
+  String get forecastSimulated =>
+      'Sample forecast. The model runs on simulated data for now.';
+
+  @override
+  String get forecastEmpty => 'No forecast yet. Forecasts update daily.';
+
+  @override
+  String get hazardFlood => 'Flood';
+
+  @override
+  String get hazardFire => 'Fire';
+
+  @override
+  String get hazardSurge => 'Storm surge';
+
+  @override
+  String get riskLow => 'Low';
+
+  @override
+  String get riskModerate => 'Moderate';
+
+  @override
+  String get riskHigh => 'High';
+
+  @override
+  String get tipsTitle => 'Get ready';
+
+  @override
+  String get tipsLow =>
+      'Risk is low for your barangay. Keep a go-bag ready and your phone charged.';
+
+  @override
+  String get tipFlood1 =>
+      'Move appliances and important papers to a higher place.';
+
+  @override
+  String get tipFlood2 =>
+      'Keep a go-bag with water, food, medicine, and a flashlight.';
+
+  @override
+  String get tipFlood3 =>
+      'Know the safest way from your home to higher ground.';
+
+  @override
+  String get tipFire1 =>
+      'Turn off the stove and unplug appliances before you sleep.';
+
+  @override
+  String get tipFire2 => 'Keep the way to your door clear.';
+
+  @override
+  String get tipFire3 => 'Know where the nearest fire extinguisher is.';
+
+  @override
+  String get tipSurge1 => 'Stay away from the bay shore and Baywalk.';
+
+  @override
+  String get tipSurge2 => 'Be ready to move inland if MDRRMD asks.';
+
+  @override
+  String get tipSurge3 => 'Keep important papers in a waterproof bag.';
+
+  @override
+  String get vulnIntro =>
+      'Tell MDRRMD who in your home may need priority rescue.';
+
+  @override
+  String get vulnPrivacyNote =>
+      'Only MDRRMD dispatchers and administrators can see this.';
+
+  @override
+  String vulnConsentGiven(String date) {
+    return 'Consent given $date';
+  }
+
+  @override
+  String get vulnConsentNeeded =>
+      'MDRRMD needs your consent before keeping this information.';
+
+  @override
+  String get vulnGiveConsent => 'Review and give consent';
+
+  @override
+  String get vulnWithdraw => 'Withdraw consent';
+
+  @override
+  String get vulnWithdrawTitle => 'Withdraw consent?';
+
+  @override
+  String get vulnWithdrawBody =>
+      'Your household list will be deleted. Dispatchers will no longer see it.';
+
+  @override
+  String get vulnWithdrawConfirm => 'Withdraw and delete';
+
+  @override
+  String get vulnWithdrawn =>
+      'Consent withdrawn. Your household list was deleted.';
+
+  @override
+  String get vulnEmpty => 'Add household members who may need priority rescue.';
+
+  @override
+  String get vulnAdd => 'Add household member';
+
+  @override
+  String vulnEditMember(String name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String vulnRemoveMember(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String vulnRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get vulnRemoveBody =>
+      'Dispatchers will no longer see this person on the priority list.';
+
+  @override
+  String get vulnRemoveConfirm => 'Remove';
+
+  @override
+  String get vulnRemoved => 'Removed from your list.';
+
+  @override
+  String get vulnSaved => 'Saved.';
+
+  @override
+  String get vulnOffline => 'You\'re offline. Connect to make changes.';
+
+  @override
+  String get vulnError => 'Couldn\'t load your profile.';
+
+  @override
+  String get consentTitle => 'Data privacy consent';
+
+  @override
+  String get consentIntro =>
+      'Before MDRRMD keeps information about people in your home who may need extra help, please read this.';
+
+  @override
+  String get consentCollectTitle => 'What we keep';
+
+  @override
+  String get consentCollectBody =>
+      'A name or description for each person, the kind of help they may need (senior citizen, person with disability, pregnant, or other), and your notes.';
+
+  @override
+  String get consentWhyTitle => 'Why';
+
+  @override
+  String get consentWhyBody =>
+      'So dispatchers can send help to them first in a disaster.';
+
+  @override
+  String get consentWhoTitle => 'Who can see it';
+
+  @override
+  String get consentWhoBody =>
+      'Only MDRRMD dispatchers and administrators. Rescue personnel see the kind of help needed, never names.';
+
+  @override
+  String get consentKeepTitle => 'How long we keep it';
+
+  @override
+  String get consentKeepBody =>
+      'Until you remove a person or withdraw consent.';
+
+  @override
+  String get consentWithdrawTitle => 'How to withdraw';
+
+  @override
+  String get consentWithdrawBody =>
+      'Open Me, then Vulnerability profile, then Withdraw consent. The list is deleted right away.';
+
+  @override
+  String get consentLaw => 'Data Privacy Act of 2012 (RA 10173).';
+
+  @override
+  String get consentCheck => 'I agree to let MDRRMD keep this information';
+
+  @override
+  String get consentAgree => 'I agree';
+
+  @override
+  String get consentNotNow => 'Not now';
+
+  @override
+  String get consentSaving => 'Saving';
+
+  @override
+  String get consentOffline => 'Connect to give consent.';
+
+  @override
+  String get consentSaved =>
+      'Consent saved. You can add household members now.';
+
+  @override
+  String get memberAddTitle => 'Add household member';
+
+  @override
+  String get memberEditTitle => 'Edit household member';
+
+  @override
+  String get memberLabel => 'Name or description';
+
+  @override
+  String get memberLabelHint => 'For example, Lola Rosa';
+
+  @override
+  String get memberLabelRequired => 'Enter a name or description.';
+
+  @override
+  String get memberTypes => 'Choose all that apply';
+
+  @override
+  String get memberTypesRequired => 'Choose at least one.';
+
+  @override
+  String get memberNotes => 'Notes (optional)';
+
+  @override
+  String get memberNotesHint => 'For example, uses a wheelchair';
+
+  @override
+  String memberWhere(String barangay) {
+    return 'MDRRMD uses your home address in $barangay for this person.';
+  }
+
+  @override
+  String get memberSave => 'Save';
+
+  @override
+  String get memberSaving => 'Saving';
+
+  @override
+  String get memberOffline => 'You\'re offline. Connect to save.';
+
+  @override
+  String get memberGone => 'This person is no longer on your list.';
+
+  @override
+  String get historyTitle => 'Assignment history';
+
+  @override
+  String get historyAll => 'All';
+
+  @override
+  String get historyThisWeek => 'This week';
+
+  @override
+  String get historyLastWeek => 'Last week';
+
+  @override
+  String get historyEmpty => 'No completed assignments yet.';
+
+  @override
+  String get historyEmptyFilter => 'No assignments in this period.';
+
+  @override
+  String get historyError => 'Couldn\'t refresh. Showing saved history.';
+
+  @override
+  String historyRowTitle(String id, String type) {
+    return '$id · $type';
+  }
 
   @override
   String get errorGeneric => 'Something went wrong. Try again.';

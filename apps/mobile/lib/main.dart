@@ -11,7 +11,7 @@ import 'src/providers.dart';
 void main() {
   runApp(
     ProviderScope(
-      overrides: mockOverrides(MockMobileBackend()),
+      overrides: mockOverrides(MockMobileBackend(withHistory: true)),
       child: const SagipMobileApp(),
     ),
   );

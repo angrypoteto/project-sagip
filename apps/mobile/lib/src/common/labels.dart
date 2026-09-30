@@ -144,6 +144,57 @@ extension MobileLabels on AppLocalizations {
     };
   }
 
+  /// Short status names for chips (design skill status mapping).
+  String incidentStatus(IncidentStatus s) => switch (s) {
+    IncidentStatus.pendingVerification => incPending,
+    IncidentStatus.unverified => incUnverified,
+    IncidentStatus.confirmed => incConfirmed,
+    IncidentStatus.assigned => incAssigned,
+    IncidentStatus.enRoute => incEnRoute,
+    IncidentStatus.onScene => incOnScene,
+    IncidentStatus.resolved => incResolved,
+  };
+
+  String reportStage(ReportStage s) => switch (s) {
+    ReportStage.received => stageReceived,
+    ReportStage.checking => stageChecking,
+    ReportStage.confirmed => stageConfirmed,
+    ReportStage.notConfirmed => stageNotConfirmed,
+    ReportStage.resolved => stageResolved,
+  };
+
+  String alertSource(AlertSource s) => switch (s) {
+    AlertSource.pagasa => sourcePagasa,
+    AlertSource.phivolcs => sourcePhivolcs,
+    AlertSource.efcos => sourceEfcos,
+    AlertSource.mdrrmd => sourceMdrrmd,
+  };
+
+  String alertLevel(AlertLevel l) => switch (l) {
+    AlertLevel.info => levelInfo,
+    AlertLevel.warning => levelWarning,
+    AlertLevel.critical => levelCritical,
+  };
+
+  String hazard(ForecastHazard h) => switch (h) {
+    ForecastHazard.flood => hazardFlood,
+    ForecastHazard.fire => hazardFire,
+    ForecastHazard.stormSurge => hazardSurge,
+  };
+
+  String risk(RiskLevel r) => switch (r) {
+    RiskLevel.low => riskLow,
+    RiskLevel.moderate => riskModerate,
+    RiskLevel.high => riskHigh,
+  };
+
+  /// Preparation tips for the riskiest hazard (R7 Forecast tab).
+  List<String> tips(ForecastHazard h) => switch (h) {
+    ForecastHazard.flood => [tipFlood1, tipFlood2, tipFlood3],
+    ForecastHazard.fire => [tipFire1, tipFire2, tipFire3],
+    ForecastHazard.stormSurge => [tipSurge1, tipSurge2, tipSurge3],
+  };
+
   /// The caption under the SOS button on R1.
   String sosCaption(SosButtonPhase phase) => switch (phase) {
     SosButtonPhase.ready => sosHoldCaption,

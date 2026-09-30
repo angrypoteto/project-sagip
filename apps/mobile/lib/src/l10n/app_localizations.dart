@@ -910,30 +910,6 @@ abstract class AppLocalizations {
   /// **'GPS on'**
   String get demoGps;
 
-  /// No description provided for @comingTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'{screen} comes next'**
-  String comingTitle(String screen);
-
-  /// No description provided for @comingBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This screen is part of the next build step.'**
-  String get comingBody;
-
-  /// No description provided for @screenAlerts.
-  ///
-  /// In en, this message translates to:
-  /// **'Alerts and forecast'**
-  String get screenAlerts;
-
-  /// No description provided for @screenHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'Assignment history'**
-  String get screenHistory;
-
   /// No description provided for @trackResponder.
   ///
   /// In en, this message translates to:
@@ -2289,6 +2265,894 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Under the Data Privacy Act (RA 10173) you can see, correct, or ask us to delete your data, and withdraw consent at any time in Me.'**
   String get privacyRightsBody;
+
+  /// No description provided for @incPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending verification'**
+  String get incPending;
+
+  /// No description provided for @incUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified'**
+  String get incUnverified;
+
+  /// No description provided for @incConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get incConfirmed;
+
+  /// No description provided for @incAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned'**
+  String get incAssigned;
+
+  /// No description provided for @incEnRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'En route'**
+  String get incEnRoute;
+
+  /// No description provided for @incOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'On scene'**
+  String get incOnScene;
+
+  /// No description provided for @incResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get incResolved;
+
+  /// No description provided for @pickLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose location'**
+  String get pickLocationTitle;
+
+  /// No description provided for @pickSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search barangay'**
+  String get pickSearch;
+
+  /// No description provided for @pickUseGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my GPS'**
+  String get pickUseGps;
+
+  /// No description provided for @pickNoGps.
+  ///
+  /// In en, this message translates to:
+  /// **'No GPS fix yet. Move the map or pick a barangay.'**
+  String get pickNoGps;
+
+  /// No description provided for @pickNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Near {place}'**
+  String pickNear(String place);
+
+  /// No description provided for @pickNoBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD will see the exact pin.'**
+  String get pickNoBarangay;
+
+  /// No description provided for @pickMoveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the map to put the pin on the spot.'**
+  String get pickMoveHint;
+
+  /// No description provided for @pickConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this location'**
+  String get pickConfirm;
+
+  /// No description provided for @pickOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No map while offline'**
+  String get pickOfflineTitle;
+
+  /// No description provided for @pickOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your GPS location or pick your barangay.'**
+  String get pickOfflineBody;
+
+  /// No description provided for @pickGpsOption.
+  ///
+  /// In en, this message translates to:
+  /// **'My GPS location'**
+  String get pickGpsOption;
+
+  /// No description provided for @pickPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen spot'**
+  String get pickPin;
+
+  /// No description provided for @reportChangeLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get reportChangeLocation;
+
+  /// No description provided for @reportLocationChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen by you'**
+  String get reportLocationChosen;
+
+  /// No description provided for @reportUseGpsAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my GPS instead'**
+  String get reportUseGpsAgain;
+
+  /// No description provided for @activityTabSos.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get activityTabSos;
+
+  /// No description provided for @activityTabReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get activityTabReports;
+
+  /// No description provided for @activitySosEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No SOS yet. If you send one, it will appear here.'**
+  String get activitySosEmpty;
+
+  /// No description provided for @activityReportsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports yet. Reports you send will appear here.'**
+  String get activityReportsEmpty;
+
+  /// No description provided for @activityError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh. Showing your saved list.'**
+  String get activityError;
+
+  /// No description provided for @stageReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get stageReceived;
+
+  /// No description provided for @stageChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get stageChecking;
+
+  /// No description provided for @stageConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get stageConfirmed;
+
+  /// No description provided for @stageNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not confirmed'**
+  String get stageNotConfirmed;
+
+  /// No description provided for @stageResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get stageResolved;
+
+  /// No description provided for @reportDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report'**
+  String get reportDetailTitle;
+
+  /// No description provided for @reportStepReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get reportStepReceived;
+
+  /// No description provided for @reportStepChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking with nearby reports'**
+  String get reportStepChecking;
+
+  /// No description provided for @reportStepConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of a confirmed incident'**
+  String get reportStepConfirmed;
+
+  /// No description provided for @reportStepResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get reportStepResolved;
+
+  /// No description provided for @reportNoteWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on your phone. It will send when you\'re back online.'**
+  String get reportNoteWaiting;
+
+  /// No description provided for @reportNoteReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD has your report.'**
+  String get reportNoteReceived;
+
+  /// No description provided for @reportNoteChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD acts when several people report the same thing nearby. Yours is being compared with other reports from the last hour.'**
+  String get reportNoteChecking;
+
+  /// No description provided for @reportNoteConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report and others nearby became incident {id}. Responders are handling it.'**
+  String reportNoteConfirmed(String id);
+
+  /// No description provided for @reportNoteNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'No one else reported this nearby within the hour. MDRRMD keeps your report on file.'**
+  String get reportNoteNotConfirmed;
+
+  /// No description provided for @reportNoteResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident {id} is resolved.'**
+  String reportNoteResolved(String id);
+
+  /// No description provided for @capturedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {time}'**
+  String capturedAt(String time);
+
+  /// No description provided for @alertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsTitle;
+
+  /// No description provided for @alertsTabAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsTabAlerts;
+
+  /// No description provided for @alertsTabForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast'**
+  String get alertsTabForecast;
+
+  /// No description provided for @alertsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active alerts for Manila.'**
+  String get alertsEmpty;
+
+  /// No description provided for @alertsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load alerts. Pull down to try again.'**
+  String get alertsError;
+
+  /// No description provided for @alertsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. Last updated {time}.'**
+  String alertsOffline(String time);
+
+  /// No description provided for @alertAllManila.
+  ///
+  /// In en, this message translates to:
+  /// **'All of Manila'**
+  String get alertAllManila;
+
+  /// No description provided for @alertNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get alertNew;
+
+  /// No description provided for @sourcePagasa.
+  ///
+  /// In en, this message translates to:
+  /// **'PAGASA'**
+  String get sourcePagasa;
+
+  /// No description provided for @sourcePhivolcs.
+  ///
+  /// In en, this message translates to:
+  /// **'PHIVOLCS'**
+  String get sourcePhivolcs;
+
+  /// No description provided for @sourceEfcos.
+  ///
+  /// In en, this message translates to:
+  /// **'EFCOS'**
+  String get sourceEfcos;
+
+  /// No description provided for @sourceMdrrmd.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD'**
+  String get sourceMdrrmd;
+
+  /// No description provided for @levelInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Advisory'**
+  String get levelInfo;
+
+  /// No description provided for @levelWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get levelWarning;
+
+  /// No description provided for @levelCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger'**
+  String get levelCritical;
+
+  /// No description provided for @alertIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued {time}'**
+  String alertIssued(String time);
+
+  /// No description provided for @alertAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected areas'**
+  String get alertAffects;
+
+  /// No description provided for @alertWhatToDo.
+  ///
+  /// In en, this message translates to:
+  /// **'What to do'**
+  String get alertWhatToDo;
+
+  /// No description provided for @alertGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This alert is no longer available.'**
+  String get alertGone;
+
+  /// No description provided for @unreadAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 new alert} other{{n} new alerts}}'**
+  String unreadAlerts(int n);
+
+  /// No description provided for @forecastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next 72 hours'**
+  String get forecastTitle;
+
+  /// No description provided for @forecastExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Chance of at least one incident in your barangay.'**
+  String get forecastExplain;
+
+  /// No description provided for @forecastValid.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid until {time}'**
+  String forecastValid(String time);
+
+  /// No description provided for @forecastSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample forecast. The model runs on simulated data for now.'**
+  String get forecastSimulated;
+
+  /// No description provided for @forecastEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No forecast yet. Forecasts update daily.'**
+  String get forecastEmpty;
+
+  /// No description provided for @hazardFlood.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood'**
+  String get hazardFlood;
+
+  /// No description provided for @hazardFire.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get hazardFire;
+
+  /// No description provided for @hazardSurge.
+  ///
+  /// In en, this message translates to:
+  /// **'Storm surge'**
+  String get hazardSurge;
+
+  /// No description provided for @riskLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get riskLow;
+
+  /// No description provided for @riskModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get riskModerate;
+
+  /// No description provided for @riskHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get riskHigh;
+
+  /// No description provided for @tipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get ready'**
+  String get tipsTitle;
+
+  /// No description provided for @tipsLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk is low for your barangay. Keep a go-bag ready and your phone charged.'**
+  String get tipsLow;
+
+  /// No description provided for @tipFlood1.
+  ///
+  /// In en, this message translates to:
+  /// **'Move appliances and important papers to a higher place.'**
+  String get tipFlood1;
+
+  /// No description provided for @tipFlood2.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a go-bag with water, food, medicine, and a flashlight.'**
+  String get tipFlood2;
+
+  /// No description provided for @tipFlood3.
+  ///
+  /// In en, this message translates to:
+  /// **'Know the safest way from your home to higher ground.'**
+  String get tipFlood3;
+
+  /// No description provided for @tipFire1.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off the stove and unplug appliances before you sleep.'**
+  String get tipFire1;
+
+  /// No description provided for @tipFire2.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the way to your door clear.'**
+  String get tipFire2;
+
+  /// No description provided for @tipFire3.
+  ///
+  /// In en, this message translates to:
+  /// **'Know where the nearest fire extinguisher is.'**
+  String get tipFire3;
+
+  /// No description provided for @tipSurge1.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay away from the bay shore and Baywalk.'**
+  String get tipSurge1;
+
+  /// No description provided for @tipSurge2.
+  ///
+  /// In en, this message translates to:
+  /// **'Be ready to move inland if MDRRMD asks.'**
+  String get tipSurge2;
+
+  /// No description provided for @tipSurge3.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep important papers in a waterproof bag.'**
+  String get tipSurge3;
+
+  /// No description provided for @vulnIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell MDRRMD who in your home may need priority rescue.'**
+  String get vulnIntro;
+
+  /// No description provided for @vulnPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only MDRRMD dispatchers and administrators can see this.'**
+  String get vulnPrivacyNote;
+
+  /// No description provided for @vulnConsentGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent given {date}'**
+  String vulnConsentGiven(String date);
+
+  /// No description provided for @vulnConsentNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD needs your consent before keeping this information.'**
+  String get vulnConsentNeeded;
+
+  /// No description provided for @vulnGiveConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and give consent'**
+  String get vulnGiveConsent;
+
+  /// No description provided for @vulnWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw consent'**
+  String get vulnWithdraw;
+
+  /// No description provided for @vulnWithdrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw consent?'**
+  String get vulnWithdrawTitle;
+
+  /// No description provided for @vulnWithdrawBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your household list will be deleted. Dispatchers will no longer see it.'**
+  String get vulnWithdrawBody;
+
+  /// No description provided for @vulnWithdrawConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw and delete'**
+  String get vulnWithdrawConfirm;
+
+  /// No description provided for @vulnWithdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent withdrawn. Your household list was deleted.'**
+  String get vulnWithdrawn;
+
+  /// No description provided for @vulnEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add household members who may need priority rescue.'**
+  String get vulnEmpty;
+
+  /// No description provided for @vulnAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add household member'**
+  String get vulnAdd;
+
+  /// No description provided for @vulnEditMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {name}'**
+  String vulnEditMember(String name);
+
+  /// No description provided for @vulnRemoveMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}'**
+  String vulnRemoveMember(String name);
+
+  /// No description provided for @vulnRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String vulnRemoveTitle(String name);
+
+  /// No description provided for @vulnRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatchers will no longer see this person on the priority list.'**
+  String get vulnRemoveBody;
+
+  /// No description provided for @vulnRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get vulnRemoveConfirm;
+
+  /// No description provided for @vulnRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from your list.'**
+  String get vulnRemoved;
+
+  /// No description provided for @vulnSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get vulnSaved;
+
+  /// No description provided for @vulnOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Connect to make changes.'**
+  String get vulnOffline;
+
+  /// No description provided for @vulnError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your profile.'**
+  String get vulnError;
+
+  /// No description provided for @consentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data privacy consent'**
+  String get consentTitle;
+
+  /// No description provided for @consentIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Before MDRRMD keeps information about people in your home who may need extra help, please read this.'**
+  String get consentIntro;
+
+  /// No description provided for @consentCollectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What we keep'**
+  String get consentCollectTitle;
+
+  /// No description provided for @consentCollectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A name or description for each person, the kind of help they may need (senior citizen, person with disability, pregnant, or other), and your notes.'**
+  String get consentCollectBody;
+
+  /// No description provided for @consentWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get consentWhyTitle;
+
+  /// No description provided for @consentWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'So dispatchers can send help to them first in a disaster.'**
+  String get consentWhyBody;
+
+  /// No description provided for @consentWhoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can see it'**
+  String get consentWhoTitle;
+
+  /// No description provided for @consentWhoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only MDRRMD dispatchers and administrators. Rescue personnel see the kind of help needed, never names.'**
+  String get consentWhoBody;
+
+  /// No description provided for @consentKeepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How long we keep it'**
+  String get consentKeepTitle;
+
+  /// No description provided for @consentKeepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Until you remove a person or withdraw consent.'**
+  String get consentKeepBody;
+
+  /// No description provided for @consentWithdrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to withdraw'**
+  String get consentWithdrawTitle;
+
+  /// No description provided for @consentWithdrawBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Me, then Vulnerability profile, then Withdraw consent. The list is deleted right away.'**
+  String get consentWithdrawBody;
+
+  /// No description provided for @consentLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Privacy Act of 2012 (RA 10173).'**
+  String get consentLaw;
+
+  /// No description provided for @consentCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to let MDRRMD keep this information'**
+  String get consentCheck;
+
+  /// No description provided for @consentAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree'**
+  String get consentAgree;
+
+  /// No description provided for @consentNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get consentNotNow;
+
+  /// No description provided for @consentSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving'**
+  String get consentSaving;
+
+  /// No description provided for @consentOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to give consent.'**
+  String get consentOffline;
+
+  /// No description provided for @consentSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent saved. You can add household members now.'**
+  String get consentSaved;
+
+  /// No description provided for @memberAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add household member'**
+  String get memberAddTitle;
+
+  /// No description provided for @memberEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit household member'**
+  String get memberEditTitle;
+
+  /// No description provided for @memberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or description'**
+  String get memberLabel;
+
+  /// No description provided for @memberLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Lola Rosa'**
+  String get memberLabelHint;
+
+  /// No description provided for @memberLabelRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name or description.'**
+  String get memberLabelRequired;
+
+  /// No description provided for @memberTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose all that apply'**
+  String get memberTypes;
+
+  /// No description provided for @memberTypesRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one.'**
+  String get memberTypesRequired;
+
+  /// No description provided for @memberNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get memberNotes;
+
+  /// No description provided for @memberNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, uses a wheelchair'**
+  String get memberNotesHint;
+
+  /// No description provided for @memberWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD uses your home address in {barangay} for this person.'**
+  String memberWhere(String barangay);
+
+  /// No description provided for @memberSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get memberSave;
+
+  /// No description provided for @memberSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving'**
+  String get memberSaving;
+
+  /// No description provided for @memberOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Connect to save.'**
+  String get memberOffline;
+
+  /// No description provided for @memberGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This person is no longer on your list.'**
+  String get memberGone;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment history'**
+  String get historyTitle;
+
+  /// No description provided for @historyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyAll;
+
+  /// No description provided for @historyThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get historyThisWeek;
+
+  /// No description provided for @historyLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get historyLastWeek;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed assignments yet.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyEmptyFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No assignments in this period.'**
+  String get historyEmptyFilter;
+
+  /// No description provided for @historyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh. Showing saved history.'**
+  String get historyError;
+
+  /// No description provided for @historyRowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{id} · {type}'**
+  String historyRowTitle(String id, String type);
 
   /// No description provided for @errorGeneric.
   ///
