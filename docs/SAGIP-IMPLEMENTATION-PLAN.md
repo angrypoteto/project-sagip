@@ -1040,9 +1040,9 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 
 **Tier 3 screens, built directly on Supabase**
 
-- [ ] Admin: A1 Accounts, A2 Resources, A3 Configuration, A7 Audit log (A7 done early on mock data; A1 to A3 are placeholders)
+- [x] Admin: A1 Accounts, A2 Resources, A3 Configuration, A7 Audit log (Oct 1; A3 has the priority weights so far)
 - [ ] Admin: A4 Analytics and A5 NDRRMC reports list (A6 comes with RAG in Phase 4)
-- [ ] D11 My account, G1 Not found, G2 Session expired
+- [x] D11 My account, G1 Not found, G2 Session expired (Oct 1)
 - [ ] Web form W1 to W3, reusing the resident report logic
 
 **Milestone**
