@@ -51,6 +51,9 @@ final analyticsRepositoryProvider = Provider<AnalyticsRepository>(
 final resourceRepositoryProvider = Provider<ResourceRepository>(
   (ref) => _missing('ResourceRepository'),
 );
+final accountRepositoryProvider = Provider<AccountRepository>(
+  (ref) => _missing('AccountRepository'),
+);
 
 /// Only set when running on mock data. Screens use it for the demo scenario
 /// switcher; everything else goes through the repositories above.
@@ -92,6 +95,7 @@ List<Override> _mockOverrides(
     MockAnalyticsRepository(backend, runs: runs),
   ),
   resourceRepositoryProvider.overrideWithValue(MockResourceRepository(backend)),
+  accountRepositoryProvider.overrideWithValue(MockAccountRepository(backend)),
 ];
 
 /// Overrides that run the dashboard on the Supabase project (see
@@ -110,6 +114,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   settingsRepositoryProvider.overrideWithValue(backend.settings),
   analyticsRepositoryProvider.overrideWithValue(backend.analytics),
   resourceRepositoryProvider.overrideWithValue(backend.resources),
+  accountRepositoryProvider.overrideWithValue(backend.accounts),
 ];
 
 // ---------------------------------------------------------------------------
@@ -218,6 +223,20 @@ final slowClockProvider = StreamProvider<DateTime>((ref) async* {
 // ---------------------------------------------------------------------------
 // Rules and derived data.
 // ---------------------------------------------------------------------------
+
+/// A1: every staff account.
+final staffAccountsProvider = StreamProvider<List<StaffAccount>>(
+  (ref) =>
+      _forAccount(ref, () => ref.watch(accountRepositoryProvider).watchStaff()),
+);
+
+/// A1: every resident account (numbers masked).
+final residentAccountsProvider = StreamProvider<List<Resident>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(accountRepositoryProvider).watchResidents(),
+  ),
+);
 
 /// A2: every unit, retired ones included.
 final allUnitsProvider = StreamProvider<List<ResponseUnit>>(

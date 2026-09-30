@@ -15,6 +15,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_mobile_actions.sql` | Every write the phones can make (resident sign-up and linking, SOS and details, crowd reports with the Manila check and hourly limit, consent and household, responder accept, arrive, on-scene check, status, completion report, position, alert read) and the reads in the app's shapes (`my_sos`, `my_crowd_reports`, `my_assignments`, `my_unit_history`, `my_alerts`); DBSCAN now counts from capture time |
 | `migrations/*_mobile_demo_data.sql` | `reset_demo_data()` also loads past rescues for R-03 and Maria, four sample alerts, and sample forecasts |
 | `migrations/*_sms_log.sql` | The SMS log: every text sent or kept; no client access |
+| `migrations/*_accounts.sql` | A1: `admin_create_staff` (temporary password returned once), `admin_update_staff`, `admin_set_staff_active` (bans the login and ends sessions), `admin_reset_password`, `admin_set_resident_suspended`; every role check ignores deactivated accounts; suspended residents cannot send crowd reports, and their SOS arrives unverified |
 | `migrations/*_resources.sql` | A2: units can be retired (`retired_at`) and are then never dispatched; `save_unit`, `retire_unit`, `restore_unit`, `set_responder_unit` (admins only, audited) |
 | `migrations/*_analytics.sql` | `analytics_report(from, to)` for A4 (admins only): counts, dispatch, verification, response, and travel times from the incident timeline, SOS by channel, breakdowns by type, barangay, unit, and Manila day, and the Dijkstra timings |
 | `migrations/*_configuration.sql` | A3 settings (`app_setting`: the Triage Queue priority weights), `set_setting` (admins only, audited as `settingChanged`), and the priority score, severity, and factors on `incident_board` |
@@ -22,7 +23,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_sms_intake.sql`, `*_sms_gateway_provider.sql` | Tier 2: `intake_sms_sos` (service role only) files an SOS texted to the gateway SIM, finding the resident by the sender's number; `submit_sos` attaches the resident when the app's copy of an SOS texted from another SIM arrives; inbound texts logged in `sms_log` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 141 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 158 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -52,7 +53,7 @@ select public.demo_advance();           -- every assigned incident moves one ste
 
 ## Staff accounts
 
-Accounts are created in the SQL editor, never in a migration, so no password is in the repo:
+Admins create accounts on the dashboard (Accounts page); the temporary password is shown once. In the SQL editor, without a password in the repo:
 
 ```sql
 select public.create_staff_account('name@example.com', 'a-strong-password', 'R. Santos', 'dispatcher');

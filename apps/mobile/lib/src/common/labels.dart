@@ -49,6 +49,7 @@ extension MobileLabels on AppLocalizations {
     ReportRejection.outsideManila => reportOutsideManila,
     ReportRejection.rateLimited => reportRateLimited,
     ReportRejection.noLocation => reportNoLocation,
+    ReportRejection.accountSuspended => reportAccountSuspended,
   };
 
   /// "40 s ago", "3 min ago", "2 h ago".

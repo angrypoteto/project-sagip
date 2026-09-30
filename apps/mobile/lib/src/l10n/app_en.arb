@@ -211,6 +211,7 @@
   "reportOutsideManila": "This location is outside Manila City. S.A.G.I.P. covers Manila only.",
   "reportRateLimited": "You've sent several reports in the last hour. Try again later, or call MDRRMD.",
   "reportNoLocation": "We need your location to send a report. Turn on GPS and try again.",
+  "reportAccountSuspended": "This account cannot send reports right now. In an emergency, hold SOS or call MDRRMD.",
   "reportSentTitle": "Report sent",
   "reportSavedTitle": "Saved on your phone",
   "reportSentBody": "Thank you. MDRRMD checks reports against others nearby before acting.",

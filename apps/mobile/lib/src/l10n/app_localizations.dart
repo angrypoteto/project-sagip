@@ -1102,6 +1102,12 @@ abstract class AppLocalizations {
   /// **'We need your location to send a report. Turn on GPS and try again.'**
   String get reportNoLocation;
 
+  /// No description provided for @reportAccountSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'This account cannot send reports right now. In an emergency, hold SOS or call MDRRMD.'**
+  String get reportAccountSuspended;
+
   /// No description provided for @reportSentTitle.
   ///
   /// In en, this message translates to:

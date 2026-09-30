@@ -80,6 +80,13 @@ enum AuditAction {
   unitRetired,
   unitRestored,
   rosterChanged,
+  accountCreated,
+  accountUpdated,
+  accountDeactivated,
+  accountReactivated,
+  passwordReset,
+  residentSuspended,
+  residentRestored,
 }
 
 /// Reads a timestamp from JSON and converts it to local time (the database

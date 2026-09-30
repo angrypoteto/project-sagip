@@ -88,6 +88,51 @@ class MockIncidentRepository implements IncidentRepository {
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);
 }
 
+class MockAccountRepository implements AccountRepository {
+  const MockAccountRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<StaffAccount>> watchStaff() => _backend.watchStaff();
+
+  @override
+  Stream<List<Resident>> watchResidents() => _backend.watchAllResidents();
+
+  @override
+  Future<({String id, String temporaryPassword})> createStaff({
+    required String email,
+    required String displayName,
+    required UserRole role,
+    String? unitId,
+  }) => _backend.createStaff(
+    email: email,
+    displayName: displayName,
+    role: role,
+    unitId: unitId,
+  );
+
+  @override
+  Future<void> updateStaff(
+    String id, {
+    required String displayName,
+    required UserRole role,
+  }) => _backend.updateStaff(id, displayName: displayName, role: role);
+
+  @override
+  Future<void> setStaffActive(String id, {required bool active}) =>
+      _backend.setStaffActive(id, active: active);
+
+  @override
+  Future<String> resetPassword(String id) => _backend.resetPassword(id);
+
+  @override
+  Future<void> setResidentSuspended(
+    String residentId, {
+    required bool suspended,
+  }) => _backend.setResidentSuspended(residentId, suspended: suspended);
+}
+
 class MockResourceRepository implements ResourceRepository {
   const MockResourceRepository(this._backend);
 

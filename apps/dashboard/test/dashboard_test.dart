@@ -439,6 +439,66 @@ void main() {
     },
   );
 
+  testWidgets('A1: create an account, deactivate one, suspend a resident', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    tester.view.physicalSize = const Size(1440, 2000);
+    await tester.tap(find.byTooltip('Accounts'));
+    await settle(tester);
+
+    // Admins cannot act on their own row here.
+    expect(find.byKey(const ValueKey('active-usr-admin-01')), findsNothing);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await settle(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('account-email')),
+      'new.dispatcher@sagip.test',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('account-name')),
+      'New Dispatcher',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account').last);
+    await settle(tester);
+    expect(find.text('Temporary password'), findsOneWidget);
+    expect(find.text('Temp1001pass'), findsOneWidget);
+    await tester.tap(find.text('Done'));
+    await settle(tester);
+    expect(find.text('New Dispatcher'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('active-usr-disp-01')));
+    await settle(tester);
+    expect(find.text('Deactivate R. Santos?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Deactivate'));
+    await settle(tester);
+    expect(find.text('Deactivated'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+
+    await tester.tap(find.text('Residents'));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('suspend-res-001')));
+    await settle(tester);
+    await tester.tap(find.widgetWithText(FilledButton, 'Suspend'));
+    await settle(tester);
+    expect(find.text('Suspended'), findsOneWidget);
+
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(
+      audit!.map((e) => e.action),
+      containsAll([
+        AuditAction.accountCreated,
+        AuditAction.accountDeactivated,
+        AuditAction.residentSuspended,
+      ]),
+    );
+  });
+
   testWidgets('going offline shows a banner and disables actions', (
     tester,
   ) async {

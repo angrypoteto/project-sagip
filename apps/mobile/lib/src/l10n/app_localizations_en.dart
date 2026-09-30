@@ -591,6 +591,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'We need your location to send a report. Turn on GPS and try again.';
 
   @override
+  String get reportAccountSuspended =>
+      'This account cannot send reports right now. In an emergency, hold SOS or call MDRRMD.';
+
+  @override
   String get reportSentTitle => 'Report sent';
 
   @override

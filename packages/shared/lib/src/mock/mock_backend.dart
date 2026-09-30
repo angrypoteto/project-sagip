@@ -68,7 +68,16 @@ class MockBackend {
   int _nextAuditNumber = 2000;
   final _assignedAt = <String, DateTime>{};
   final _routes = <String, RoadRoute>{};
-  late final LiveValue<Map<String, StaffAccount>> _responders = LiveValue({
+
+  /// Every staff account (A1), responders included (A2 roster).
+  late final LiveValue<Map<String, StaffAccount>> _accounts = LiveValue({
+    for (final u in _staff)
+      u.id: StaffAccount(
+        id: u.id,
+        displayName: u.displayName,
+        email: u.email,
+        role: u.role,
+      ),
     for (final s in _seed.responders) s.id: s,
   });
   final _settings = LiveValue<Map<String, AppSetting>>({
@@ -176,10 +185,175 @@ class MockBackend {
     (m) => [...m.values]..sort((a, b) => a.callSign.compareTo(b.callSign)),
   );
 
-  Stream<List<StaffAccount>> watchResponders() => _responders.watch().map(
+  Stream<List<StaffAccount>> watchResponders() => _accounts.watch().map(
+    (m) => [
+      for (final s in m.values)
+        if (s.role == UserRole.responder) s,
+    ]..sort((a, b) => a.displayName.compareTo(b.displayName)),
+  );
+
+  // ------------------------------------------------------------------ A1
+
+  Stream<List<StaffAccount>> watchStaff() => _accounts.watch().map(
     (m) =>
         [...m.values]..sort((a, b) => a.displayName.compareTo(b.displayName)),
   );
+
+  Stream<List<Resident>> watchAllResidents() => _residents.watch().map(
+    (m) => [...m.values]..sort((a, b) => a.fullName.compareTo(b.fullName)),
+  );
+
+  var _passwordCounter = 0;
+
+  /// Sample temporary passwords (the database makes random ones).
+  String _tempPassword() => 'Temp${1000 + ++_passwordCounter}pass';
+
+  static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+
+  int _activeAdminsExcept(String id) => _accounts.value.values
+      .where((s) => s.role == UserRole.admin && s.active && s.id != id)
+      .length;
+
+  /// A1, checked like `admin_create_staff`.
+  Future<({String id, String temporaryPassword})> createStaff({
+    required String email,
+    required String displayName,
+    required UserRole role,
+    String? unitId,
+  }) async {
+    final actor = await _authorizeAdmin();
+    final mail = email.trim().toLowerCase();
+    final name = displayName.trim();
+    if (!_emailPattern.hasMatch(mail) ||
+        name.isEmpty ||
+        name.length > 80 ||
+        role == UserRole.resident ||
+        role == UserRole.system ||
+        (unitId != null && role != UserRole.responder) ||
+        (unitId != null && (_units.value[unitId]?.retired ?? true))) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    if (_accounts.value.values.any((s) => s.email.toLowerCase() == mail)) {
+      throw const ActionRejected(ActionRejection.alreadyExists);
+    }
+    final id = 'usr-${_accounts.value.length + 100}';
+    final pw = _tempPassword();
+    _accounts.value = {
+      ..._accounts.value,
+      id: StaffAccount(
+        id: id,
+        displayName: name,
+        email: mail,
+        role: role,
+        unitId: unitId,
+      ),
+    };
+    _passwords[id] = pw;
+    _log(actor, AuditAction.accountCreated, 'staff', id, '$name, ${role.name}');
+    return (id: id, temporaryPassword: pw);
+  }
+
+  Future<void> updateStaff(
+    String id, {
+    required String displayName,
+    required UserRole role,
+  }) async {
+    final actor = await _authorizeAdmin();
+    final name = displayName.trim();
+    if (name.isEmpty ||
+        name.length > 80 ||
+        role == UserRole.resident ||
+        role == UserRole.system) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final s = _accounts.value[id];
+    if (s == null) throw const ActionRejected(ActionRejection.notFound);
+    final changes = <String>[];
+    if (s.role != role) {
+      if (s.id == actor.id) {
+        throw const ActionRejected(ActionRejection.ownAccount);
+      }
+      if (s.role == UserRole.admin &&
+          s.active &&
+          _activeAdminsExcept(id) == 0) {
+        throw const ActionRejected(ActionRejection.lastAdmin);
+      }
+      changes.add('role ${s.role.name} → ${role.name}');
+    }
+    if (s.displayName != name) changes.add('name ${s.displayName} → $name');
+    if (changes.isEmpty) return;
+    _accounts.value = {
+      ..._accounts.value,
+      id: s.copyWith(
+        displayName: name,
+        role: role,
+        clearUnit: role != UserRole.responder,
+      ),
+    };
+    _log(actor, AuditAction.accountUpdated, 'staff', id, changes.join('; '));
+  }
+
+  Future<void> setStaffActive(String id, {required bool active}) async {
+    final actor = await _authorizeAdmin();
+    final s = _accounts.value[id];
+    if (s == null) throw const ActionRejected(ActionRejection.notFound);
+    if (s.id == actor.id) {
+      throw const ActionRejected(ActionRejection.ownAccount);
+    }
+    if (s.active == active) return;
+    if (!active && s.role == UserRole.admin && _activeAdminsExcept(id) == 0) {
+      throw const ActionRejected(ActionRejection.lastAdmin);
+    }
+    _accounts.value = {
+      ..._accounts.value,
+      id: active
+          ? s.copyWith(clearDeactivated: true)
+          : s.copyWith(deactivatedAt: _clock()),
+    };
+    _log(
+      actor,
+      active ? AuditAction.accountReactivated : AuditAction.accountDeactivated,
+      'staff',
+      id,
+      s.displayName,
+    );
+  }
+
+  Future<String> resetPassword(String id) async {
+    final actor = await _authorizeAdmin();
+    final s = _accounts.value[id];
+    if (s == null) throw const ActionRejected(ActionRejection.notFound);
+    if (s.id == actor.id) {
+      throw const ActionRejected(ActionRejection.ownAccount);
+    }
+    final pw = _tempPassword();
+    _passwords[id] = pw;
+    _log(actor, AuditAction.passwordReset, 'staff', id, s.displayName);
+    return pw;
+  }
+
+  Future<void> setResidentSuspended(
+    String residentId, {
+    required bool suspended,
+  }) async {
+    final actor = await _authorizeAdmin();
+    final r = _residents.value[residentId];
+    if (r == null) throw const ActionRejected(ActionRejection.notFound);
+    if (r.suspended == suspended) return;
+    _residents.value = {
+      ..._residents.value,
+      residentId: suspended
+          ? r.copyWith(suspendedAt: _clock())
+          : r.copyWith(clearSuspended: true),
+    };
+    _log(
+      actor,
+      suspended ? AuditAction.residentSuspended : AuditAction.residentRestored,
+      'manila_resident',
+      residentId,
+      null,
+    );
+  }
 
   Future<AppUser> _authorizeAdmin() async {
     final actor = await _authorize();
@@ -279,11 +453,11 @@ class MockBackend {
       throw const ActionRejected(ActionRejection.unitNotAvailable);
     }
     final crew = [
-      for (final s in _responders.value.values)
+      for (final s in _accounts.value.values)
         if (s.unitId == id) s,
     ];
-    _responders.value = {
-      ..._responders.value,
+    _accounts.value = {
+      ..._accounts.value,
       for (final s in crew) s.id: s.copyWith(clearUnit: true),
     };
     _units.value = {..._units.value, id: unit.copyWith(retiredAt: _clock())};
@@ -317,7 +491,7 @@ class MockBackend {
 
   Future<void> setResponderUnit(String staffId, String? unitId) async {
     final actor = await _authorizeAdmin();
-    final s = _responders.value[staffId];
+    final s = _accounts.value[staffId];
     if (s == null) throw const ActionRejected(ActionRejection.notFound);
     ResponseUnit? unit;
     if (unitId != null) {
@@ -329,8 +503,8 @@ class MockBackend {
     }
     if (s.unitId == unitId) return;
     final from = _units.value[s.unitId]?.callSign ?? 'no unit';
-    _responders.value = {
-      ..._responders.value,
+    _accounts.value = {
+      ..._accounts.value,
       staffId: unitId == null
           ? s.copyWith(clearUnit: true)
           : s.copyWith(unitId: unitId),
@@ -420,14 +594,17 @@ class MockBackend {
     if (_link.value == LinkState.offline) {
       throw const AuthException(AuthFailure.offline);
     }
-    final match = _staff.where(
+    final match = _accounts.value.values.where(
       (u) => u.email.toLowerCase() == email.trim().toLowerCase(),
     );
     if (match.isEmpty ||
         password != (_passwords[match.first.id] ?? MockSeed.demoPassword)) {
       throw const AuthException(AuthFailure.wrongCredentials);
     }
-    return _user.value = match.first;
+    if (!match.first.active) {
+      throw const AuthException(AuthFailure.accountDisabled);
+    }
+    return _user.value = match.first.asUser;
   }
 
   Future<void> signOut() async {
@@ -813,7 +990,7 @@ class MockBackend {
       _user,
       _link,
       _settings,
-      _responders,
+      _accounts,
     ]) {
       live.close();
     }

@@ -85,6 +85,7 @@ class StaffAccount {
     required this.email,
     required this.role,
     this.unitId,
+    this.deactivatedAt,
   });
 
   final String id;
@@ -95,14 +96,31 @@ class StaffAccount {
   /// Responders only: the unit they crew.
   final String? unitId;
 
-  StaffAccount copyWith({String? unitId, bool clearUnit = false}) =>
-      StaffAccount(
-        id: id,
-        displayName: displayName,
-        email: email,
-        role: role,
-        unitId: clearUnit ? null : (unitId ?? this.unitId),
-      );
+  /// Set by an admin (A1): cannot sign in or act.
+  final DateTime? deactivatedAt;
+
+  bool get active => deactivatedAt == null;
+
+  AppUser get asUser =>
+      AppUser(id: id, displayName: displayName, email: email, role: role);
+
+  StaffAccount copyWith({
+    String? unitId,
+    bool clearUnit = false,
+    String? displayName,
+    UserRole? role,
+    DateTime? deactivatedAt,
+    bool clearDeactivated = false,
+  }) => StaffAccount(
+    id: id,
+    displayName: displayName ?? this.displayName,
+    email: email,
+    role: role ?? this.role,
+    unitId: clearUnit ? null : (unitId ?? this.unitId),
+    deactivatedAt: clearDeactivated
+        ? null
+        : (deactivatedAt ?? this.deactivatedAt),
+  );
 
   factory StaffAccount.fromJson(Map<String, Object?> json) => StaffAccount(
     id: '${json['id']}',
@@ -110,6 +128,7 @@ class StaffAccount {
     email: json['email']! as String,
     role: enumFromJson(UserRole.values, json['role']),
     unitId: json['unit_id'] as String?,
+    deactivatedAt: timeFromJsonOrNull(json['deactivated_at']),
   );
 }
 
@@ -125,6 +144,7 @@ class Resident {
     this.household = const [],
     this.consentGivenAt,
     this.updatedAt,
+    this.suspendedAt,
   });
 
   final String id;
@@ -141,6 +161,24 @@ class Resident {
   /// Data Privacy Act consent (NFR4). Null means no profile may be kept.
   final DateTime? consentGivenAt;
   final DateTime? updatedAt;
+
+  /// Set by an admin (A1): no crowd reports; an SOS arrives unverified.
+  final DateTime? suspendedAt;
+
+  bool get suspended => suspendedAt != null;
+
+  Resident copyWith({DateTime? suspendedAt, bool clearSuspended = false}) =>
+      Resident(
+        id: id,
+        fullName: fullName,
+        contactNumber: contactNumber,
+        barangay: barangay,
+        district: district,
+        household: household,
+        consentGivenAt: consentGivenAt,
+        updatedAt: updatedAt,
+        suspendedAt: clearSuspended ? null : (suspendedAt ?? this.suspendedAt),
+      );
 
   bool get isVulnerable => household.isNotEmpty && consentGivenAt != null;
 
@@ -171,6 +209,7 @@ class Resident {
     ],
     consentGivenAt: timeFromJsonOrNull(json['consent_given_at']),
     updatedAt: timeFromJsonOrNull(json['updated_at']),
+    suspendedAt: timeFromJsonOrNull(json['suspended_at']),
   );
 
   Map<String, Object?> toJson() => {
@@ -182,5 +221,6 @@ class Resident {
     'household': [for (final m in household) m.toJson()],
     'consent_given_at': consentGivenAt?.toIso8601String(),
     'updated_at': updatedAt?.toIso8601String(),
+    'suspended_at': suspendedAt?.toIso8601String(),
   };
 }

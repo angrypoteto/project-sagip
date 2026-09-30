@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(141);
+select plan(158);
 
 select public.reset_demo_data();
 
@@ -65,6 +65,8 @@ select ok(not has_function_privilege('anon', 'public.analytics_report(timestampt
   'anon cannot read analytics');
 select ok(not has_function_privilege('anon', 'public.save_unit(text, text, text, text, int)', 'execute'),
   'anon cannot change units');
+select ok(not has_function_privilege('anon', 'public.admin_create_staff(text, text, text, text)', 'execute'),
+  'anon cannot create accounts');
 select ok(
   not has_function_privilege('authenticated', 'public.reset_demo_data()', 'execute'),
   'demo functions are SQL-editor only');
@@ -139,6 +141,8 @@ select throws_ok($$ select public.analytics_report(now() - interval '1 day', now
   'P0001', 'not_allowed', 'a dispatcher cannot read analytics (admins only)');
 select throws_ok($$ select public.save_unit(null, 'R-20', 'rescueTeam', 'Paco', 5) $$,
   'P0001', 'not_allowed', 'a dispatcher cannot add units (admins only)');
+select throws_ok($$ select public.admin_create_staff('x@test.local', 'X', 'dispatcher') $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot create accounts (admins only)');
 
 -- ------------------------------------------------------------- responder
 
@@ -270,6 +274,53 @@ select is(
     where account_name = 'Test Admin' and action_type in ('unitAdded', 'unitEdited', 'unitRetired', 'unitRestored', 'rosterChanged')),
   'unitAdded,unitEdited,rosterChanged,unitRetired,unitRestored',
   'every unit and roster change is in the audit log (FR11)');
+
+-- A1 accounts.
+select is(
+  length(public.admin_create_staff(' New.Dispatcher@Test.local ', 'New Dispatcher', 'dispatcher') ->> 'temporary_password'),
+  12, 'an admin creates an account and gets a 12-character temporary password once');
+select throws_ok($$ select public.admin_create_staff('new.dispatcher@test.local', 'Again', 'dispatcher') $$,
+  'P0001', 'already_exists', 'an email already in use is refused');
+select throws_ok($$ select public.admin_create_staff('not-an-email', 'X', 'dispatcher') $$,
+  'P0001', 'invalid_value', 'a malformed email is refused');
+select throws_ok($$ select public.admin_set_staff_active('00000000-0000-4000-8000-00000000000a', false) $$,
+  'P0001', 'own_account', 'an admin cannot deactivate their own account');
+select lives_ok(
+  $$ select public.admin_set_staff_active((select id from public.staff where email = 'new.dispatcher@test.local'), false) $$,
+  'an admin can deactivate an account');
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select id from public.staff where email = 'new.dispatcher@test.local'),
+                    'role', 'authenticated')::text, true);
+select is((select count(*)::int from public.incident_board), 0,
+  'a deactivated account loses its access at once');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select ok(
+  length(public.admin_reset_password((select id from public.staff where email = 'new.dispatcher@test.local')) ->> 'temporary_password') = 12,
+  'an admin can reset a password (a new temporary one)');
+select throws_ok($$ select public.admin_reset_password('00000000-0000-4000-8000-00000000000a') $$,
+  'P0001', 'own_account', 'an admin changes their own password on D11, not here');
+select lives_ok(
+  $$ select public.admin_update_staff((select id from public.staff where email = 'new.dispatcher@test.local'),
+       'N. Dispatcher', 'dispatcher') $$,
+  'an admin can rename an account');
+select lives_ok(
+  $$ select public.admin_set_staff_active((select id from public.staff where email = 'new.dispatcher@test.local'), true) $$,
+  'an admin can reactivate an account');
+select lives_ok($$ select public.admin_set_resident_suspended('res-001', true) $$,
+  'an admin can suspend a resident account');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.submit_crowd_report(gen_random_uuid(), now(), 'Flood', 'flood', 14.6, 120.99, 5, null, null) $$,
+  'P0001', 'account_suspended', 'a suspended resident cannot send crowd reports');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select lives_ok($$ select public.admin_set_resident_suspended('res-001', false) $$,
+  'an admin can lift a suspension');
+select is(
+  (select string_agg(action_type, ',' order by log_id) from public.audit_log
+    where account_name = 'Test Admin' and action_type in ('accountCreated', 'accountUpdated',
+      'accountDeactivated', 'accountReactivated', 'passwordReset', 'residentSuspended', 'residentRestored')),
+  'accountCreated,accountDeactivated,passwordReset,accountUpdated,accountReactivated,residentSuspended,residentRestored',
+  'every account change is in the audit log (FR11)');
 
 -- ------------------------------------------- resident: phone app (part 5)
 
@@ -491,6 +542,17 @@ select ok(
   (select manila_resident_id = 'res-001' and account_verified and channel = 'sms'
      from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b2'),
   'and attaches the resident to the same SOS');
+
+reset role;
+update public.manila_resident set suspended_at = now() where manila_resident_id = 'res-001';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+-- (A separate statement, so the check below sees the new row.)
+select public.submit_sos('00000000-0000-4000-8000-0000000005c1', now(), 14.6091, 120.9925, 8, null, null, false);
+select ok(
+  (select not account_verified from public.incident_report
+    where client_uuid = '00000000-0000-4000-8000-0000000005c1'),
+  'a suspended resident''s SOS still arrives (FR8), not account-verified');
 
 reset role;
 select * from finish();

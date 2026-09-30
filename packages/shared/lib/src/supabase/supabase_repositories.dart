@@ -49,7 +49,8 @@ class SupabaseBackend {
       routing = SupabaseRoutingLog(client),
       settings = SupabaseSettingsRepository(client),
       analytics = SupabaseAnalyticsRepository(client),
-      resources = SupabaseResourceRepository(client);
+      resources = SupabaseResourceRepository(client),
+      accounts = SupabaseAccountRepository(client);
 
   final SupabaseAuthRepository auth;
   final SupabaseIncidentRepository incidents;
@@ -63,6 +64,119 @@ class SupabaseBackend {
   final SupabaseSettingsRepository settings;
   final SupabaseAnalyticsRepository analytics;
   final SupabaseResourceRepository resources;
+  final SupabaseAccountRepository accounts;
+}
+
+/// A1 through the admin_* functions (admins only). The staff table is not
+/// sent over Realtime, so lists refresh after each change made here.
+class SupabaseAccountRepository implements AccountRepository {
+  SupabaseAccountRepository(this._client);
+
+  final SupabaseClient _client;
+  final _changed = StreamController<Object?>.broadcast();
+
+  Future<T> _change<T>(Future<T> Function() body) async {
+    final result = await _call(body);
+    _changed.add(null);
+    return result;
+  }
+
+  @override
+  Stream<List<StaffAccount>> watchStaff() => liveQuery(
+    _client,
+    tables: const ['response_unit'],
+    refreshOn: _changed.stream,
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('staff')
+              .select('id, display_name, email, role, unit_id, deactivated_at')
+              .order('display_name'))
+        StaffAccount.fromJson(r),
+    ],
+  );
+
+  @override
+  Stream<List<Resident>> watchResidents() => liveQuery(
+    _client,
+    tables: const ['vulnerable_member'],
+    refreshOn: _changed.stream,
+    fetch: () async => [
+      for (final r
+          in await _client.from('resident_profile').select().order('fullname'))
+        Resident.fromJson(r),
+    ],
+  );
+
+  @override
+  Future<({String id, String temporaryPassword})> createStaff({
+    required String email,
+    required String displayName,
+    required UserRole role,
+    String? unitId,
+  }) async {
+    final json = await _change(
+      () => _client.rpc<Map<String, dynamic>>(
+        'admin_create_staff',
+        params: {
+          'p_email': email,
+          'p_display_name': displayName,
+          'p_role': role.name,
+          'p_unit_id': unitId,
+        },
+      ),
+    );
+    return (
+      id: json['id']! as String,
+      temporaryPassword: json['temporary_password']! as String,
+    );
+  }
+
+  @override
+  Future<void> updateStaff(
+    String id, {
+    required String displayName,
+    required UserRole role,
+  }) => _change(
+    () => _client.rpc<void>(
+      'admin_update_staff',
+      params: {
+        'p_staff_id': id,
+        'p_display_name': displayName,
+        'p_role': role.name,
+      },
+    ),
+  );
+
+  @override
+  Future<void> setStaffActive(String id, {required bool active}) => _change(
+    () => _client.rpc<void>(
+      'admin_set_staff_active',
+      params: {'p_staff_id': id, 'p_active': active},
+    ),
+  );
+
+  @override
+  Future<String> resetPassword(String id) async {
+    final json = await _change(
+      () => _client.rpc<Map<String, dynamic>>(
+        'admin_reset_password',
+        params: {'p_staff_id': id},
+      ),
+    );
+    return json['temporary_password']! as String;
+  }
+
+  @override
+  Future<void> setResidentSuspended(
+    String residentId, {
+    required bool suspended,
+  }) => _change(
+    () => _client.rpc<void>(
+      'admin_set_resident_suspended',
+      params: {'p_resident_id': residentId, 'p_suspended': suspended},
+    ),
+  );
 }
 
 /// A2 through `save_unit`, `retire_unit`, `restore_unit`, and
@@ -696,6 +810,9 @@ Exception databaseRefusal(String code) => switch (code) {
   'outside_manila' => const ReportRejected(ReportRejection.outsideManila),
   'rate_limited' => const ReportRejected(ReportRejection.rateLimited),
   'no_location' => const ReportRejected(ReportRejection.noLocation),
+  'account_suspended' => const ReportRejected(ReportRejection.accountSuspended),
+  'own_account' => const ActionRejected(ActionRejection.ownAccount),
+  'last_admin' => const ActionRejected(ActionRejection.lastAdmin),
   'no_assignment' => const StatusRejected(StatusRejection.noAssignment),
   'finish_report_first' => const StatusRejected(
     StatusRejection.finishReportFirst,

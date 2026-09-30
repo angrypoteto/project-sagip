@@ -58,6 +58,12 @@ enum ActionRejection {
 
   /// Another record already uses that name (for example a call sign).
   alreadyExists,
+
+  /// An admin cannot deactivate, demote, or reset their own account here.
+  ownAccount,
+
+  /// The last active admin cannot be deactivated or demoted.
+  lastAdmin,
 }
 
 abstract interface class AuthRepository {
@@ -132,6 +138,39 @@ abstract interface class WeatherRepository {
 
 abstract interface class AuditRepository {
   Stream<List<AuditEntry>> watchRecent({int limit});
+}
+
+/// A1 Accounts (admins only). Every change is audited.
+abstract interface class AccountRepository {
+  /// Every staff account: admins, dispatchers, and responders.
+  Stream<List<StaffAccount>> watchStaff();
+
+  /// Every resident account (numbers masked).
+  Stream<List<Resident>> watchResidents();
+
+  /// Creates a login; the temporary password is shown to the admin once.
+  Future<({String id, String temporaryPassword})> createStaff({
+    required String email,
+    required String displayName,
+    required UserRole role,
+    String? unitId,
+  });
+
+  Future<void> updateStaff(
+    String id, {
+    required String displayName,
+    required UserRole role,
+  });
+
+  Future<void> setStaffActive(String id, {required bool active});
+
+  /// Returns the new temporary password.
+  Future<String> resetPassword(String id);
+
+  Future<void> setResidentSuspended(
+    String residentId, {
+    required bool suspended,
+  });
 }
 
 /// A2 Resources (admins only): units, including retired ones, and the

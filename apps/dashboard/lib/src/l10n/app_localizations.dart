@@ -2188,6 +2188,312 @@ abstract class AppLocalizations {
   /// **'Sign in again'**
   String get signInAgain;
 
+  /// No description provided for @accountsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff logins and resident accounts. Every change is recorded in the audit log.'**
+  String get accountsSubtitle;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccount;
+
+  /// No description provided for @tabStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get tabStaff;
+
+  /// No description provided for @tabResponders.
+  ///
+  /// In en, this message translates to:
+  /// **'Responders'**
+  String get tabResponders;
+
+  /// No description provided for @tabResidents.
+  ///
+  /// In en, this message translates to:
+  /// **'Residents'**
+  String get tabResidents;
+
+  /// No description provided for @colName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get colName;
+
+  /// No description provided for @colRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get colRole;
+
+  /// No description provided for @colNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
+  String get colNumber;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get statusDeactivated;
+
+  /// No description provided for @statusSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get statusSuspended;
+
+  /// No description provided for @editAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get editAccount;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPassword;
+
+  /// No description provided for @deactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get deactivate;
+
+  /// No description provided for @reactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get reactivate;
+
+  /// No description provided for @suspend.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend'**
+  String get suspend;
+
+  /// No description provided for @liftSuspension.
+  ///
+  /// In en, this message translates to:
+  /// **'Lift suspension'**
+  String get liftSuspension;
+
+  /// No description provided for @ownAccountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your account. Change it on My account.'**
+  String get ownAccountHint;
+
+  /// No description provided for @fieldEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get fieldEmail;
+
+  /// No description provided for @fieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get fieldName;
+
+  /// No description provided for @fieldRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get fieldRole;
+
+  /// No description provided for @fieldUnitOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit (responders)'**
+  String get fieldUnitOptional;
+
+  /// No description provided for @fieldEmailError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an email address like name@example.com.'**
+  String get fieldEmailError;
+
+  /// No description provided for @fieldNameError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name.'**
+  String get fieldNameError;
+
+  /// No description provided for @tempPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary password'**
+  String get tempPasswordTitle;
+
+  /// No description provided for @tempPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this temporary password to {name}. They should change it on My account after signing in. It is not shown again.'**
+  String tempPasswordBody(String name);
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset the password for {name}?'**
+  String resetTitle(String name);
+
+  /// No description provided for @resetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They are signed out and need the new temporary password to sign in.'**
+  String get resetBody;
+
+  /// No description provided for @deactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate {name}?'**
+  String deactivateTitle(String name);
+
+  /// No description provided for @deactivateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They are signed out at once and cannot sign in until an admin reactivates the account. Their records stay.'**
+  String get deactivateBody;
+
+  /// No description provided for @suspendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend {name}?'**
+  String suspendTitle(String name);
+
+  /// No description provided for @suspendBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They cannot send crowd reports. An SOS still reaches MDRRMD, marked not account-verified, so a dispatcher calls back.'**
+  String get suspendBody;
+
+  /// No description provided for @accountSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} saved'**
+  String accountSaved(String name);
+
+  /// No description provided for @accountDeactivatedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} deactivated'**
+  String accountDeactivatedSnack(String name);
+
+  /// No description provided for @accountReactivatedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} reactivated'**
+  String accountReactivatedSnack(String name);
+
+  /// No description provided for @residentSuspendedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} suspended'**
+  String residentSuspendedSnack(String name);
+
+  /// No description provided for @residentRestoredSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspension lifted for {name}'**
+  String residentRestoredSnack(String name);
+
+  /// No description provided for @accountsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts yet. Create the first one.'**
+  String get accountsEmpty;
+
+  /// No description provided for @residentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No resident accounts yet.'**
+  String get residentsEmpty;
+
+  /// No description provided for @errorOwnAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot do that to your own account here. Use My account.'**
+  String get errorOwnAccount;
+
+  /// No description provided for @errorLastAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one admin must stay active.'**
+  String get errorLastAdmin;
+
+  /// No description provided for @actionAccountCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created an account'**
+  String get actionAccountCreated;
+
+  /// No description provided for @actionAccountUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited an account'**
+  String get actionAccountUpdated;
+
+  /// No description provided for @actionAccountDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated an account'**
+  String get actionAccountDeactivated;
+
+  /// No description provided for @actionAccountReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated an account'**
+  String get actionAccountReactivated;
+
+  /// No description provided for @actionPasswordReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset a password'**
+  String get actionPasswordReset;
+
+  /// No description provided for @actionResidentSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended a resident'**
+  String get actionResidentSuspended;
+
+  /// No description provided for @actionResidentRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifted a suspension'**
+  String get actionResidentRestored;
+
   /// No description provided for @resourcesSubtitle.
   ///
   /// In en, this message translates to:
@@ -2661,12 +2967,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'NDRRMC report generation arrives with the RAG proof of concept (plan 10.6).'**
   String get placeholderReports;
-
-  /// No description provided for @placeholderAccounts.
-  ///
-  /// In en, this message translates to:
-  /// **'Account management is built directly on Supabase in Phase 3.'**
-  String get placeholderAccounts;
 
   /// No description provided for @notFoundTitle.
   ///

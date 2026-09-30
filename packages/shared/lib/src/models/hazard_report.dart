@@ -150,6 +150,9 @@ enum ReportRejection {
 
   /// The phone has never had a GPS fix.
   noLocation,
+
+  /// An admin suspended the account (A1 abuse control).
+  accountSuspended,
 }
 
 class ReportRejected implements Exception {

@@ -1203,6 +1203,182 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInAgain => 'Sign in again';
 
   @override
+  String get accountsSubtitle =>
+      'Staff logins and resident accounts. Every change is recorded in the audit log.';
+
+  @override
+  String get createAccount => 'Create account';
+
+  @override
+  String get tabStaff => 'Staff';
+
+  @override
+  String get tabResponders => 'Responders';
+
+  @override
+  String get tabResidents => 'Residents';
+
+  @override
+  String get colName => 'Name';
+
+  @override
+  String get colRole => 'Role';
+
+  @override
+  String get colNumber => 'Number';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusDeactivated => 'Deactivated';
+
+  @override
+  String get statusSuspended => 'Suspended';
+
+  @override
+  String get editAccount => 'Edit account';
+
+  @override
+  String get resetPassword => 'Reset password';
+
+  @override
+  String get deactivate => 'Deactivate';
+
+  @override
+  String get reactivate => 'Reactivate';
+
+  @override
+  String get suspend => 'Suspend';
+
+  @override
+  String get liftSuspension => 'Lift suspension';
+
+  @override
+  String get ownAccountHint => 'This is your account. Change it on My account.';
+
+  @override
+  String get fieldEmail => 'Email';
+
+  @override
+  String get fieldName => 'Name';
+
+  @override
+  String get fieldRole => 'Role';
+
+  @override
+  String get fieldUnitOptional => 'Unit (responders)';
+
+  @override
+  String get fieldEmailError => 'Enter an email address like name@example.com.';
+
+  @override
+  String get fieldNameError => 'Enter a name.';
+
+  @override
+  String get tempPasswordTitle => 'Temporary password';
+
+  @override
+  String tempPasswordBody(String name) {
+    return 'Give this temporary password to $name. They should change it on My account after signing in. It is not shown again.';
+  }
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String resetTitle(String name) {
+    return 'Reset the password for $name?';
+  }
+
+  @override
+  String get resetBody =>
+      'They are signed out and need the new temporary password to sign in.';
+
+  @override
+  String deactivateTitle(String name) {
+    return 'Deactivate $name?';
+  }
+
+  @override
+  String get deactivateBody =>
+      'They are signed out at once and cannot sign in until an admin reactivates the account. Their records stay.';
+
+  @override
+  String suspendTitle(String name) {
+    return 'Suspend $name?';
+  }
+
+  @override
+  String get suspendBody =>
+      'They cannot send crowd reports. An SOS still reaches MDRRMD, marked not account-verified, so a dispatcher calls back.';
+
+  @override
+  String accountSaved(String name) {
+    return '$name saved';
+  }
+
+  @override
+  String accountDeactivatedSnack(String name) {
+    return '$name deactivated';
+  }
+
+  @override
+  String accountReactivatedSnack(String name) {
+    return '$name reactivated';
+  }
+
+  @override
+  String residentSuspendedSnack(String name) {
+    return '$name suspended';
+  }
+
+  @override
+  String residentRestoredSnack(String name) {
+    return 'Suspension lifted for $name';
+  }
+
+  @override
+  String get accountsEmpty => 'No accounts yet. Create the first one.';
+
+  @override
+  String get residentsEmpty => 'No resident accounts yet.';
+
+  @override
+  String get errorOwnAccount =>
+      'You cannot do that to your own account here. Use My account.';
+
+  @override
+  String get errorLastAdmin => 'At least one admin must stay active.';
+
+  @override
+  String get actionAccountCreated => 'Created an account';
+
+  @override
+  String get actionAccountUpdated => 'Edited an account';
+
+  @override
+  String get actionAccountDeactivated => 'Deactivated an account';
+
+  @override
+  String get actionAccountReactivated => 'Reactivated an account';
+
+  @override
+  String get actionPasswordReset => 'Reset a password';
+
+  @override
+  String get actionResidentSuspended => 'Suspended a resident';
+
+  @override
+  String get actionResidentRestored => 'Lifted a suspension';
+
+  @override
   String get resourcesSubtitle =>
       'Units and the responders who crew them. Every change is recorded in the audit log.';
 
@@ -1471,10 +1647,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get placeholderReports =>
       'NDRRMC report generation arrives with the RAG proof of concept (plan 10.6).';
-
-  @override
-  String get placeholderAccounts =>
-      'Account management is built directly on Supabase in Phase 3.';
 
   @override
   String get notFoundTitle => 'Page not found';

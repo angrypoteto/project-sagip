@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'features/account/account_page.dart';
+import 'features/admin/accounts_page.dart';
 import 'features/admin/analytics_page.dart';
 import 'features/admin/audit_log_page.dart';
 import 'features/admin/configuration_page.dart';
@@ -159,8 +160,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: Routes.accounts,
-            pageBuilder: (context, state) =>
-                _page(const PlaceholderPage(kind: PlaceholderKind.accounts)),
+            pageBuilder: (context, state) => _page(const AccountsPage()),
           ),
           GoRoute(
             path: Routes.resources,
