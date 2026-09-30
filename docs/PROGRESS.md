@@ -87,8 +87,11 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] S6 offline queue sheet: records with capture time and delivery badge, what happens next for the current signal, Try sending now, remove a rejected record
 - [x] Delivery notice: "Your SOS from 3:42 PM was delivered." (in-app message; a system notification comes with FCM)
 - [~] S7 Me: name, role, barangay, sign out, demo tools (signal and GPS switches); settings and privacy links not yet
-- [ ] R3 Track responder (map), R4 Report a hazard (part 2)
-- [ ] F1 to F6 responder screens (part 3); Report, Alerts, responder Home and History tabs are placeholders
+- [x] R3 Track responder: full-screen map (shared `SagipTiles`), resident pin, responder marker gliding between updates, dashed line, one card with unit, status, ETA, "Updated 30 s ago" (stale after 2 min), offline "last known position", Call MDRRMD; opened from R2 once a unit is assigned
+- [x] R4 Report a hazard: description, optional type, current location, on-phone checks (empty, no location, outside Manila, 5 per hour), saved on the phone and sent over internet only, confirmation with delivery badge, Send another
+- [x] Android Back on another tab returns to Home instead of closing the app; tapping outside a text box closes the keyboard
+- [ ] F1 to F6 responder screens (part 3); Alerts, responder Home and History tabs are placeholders
+- [ ] R5 location picker ("Change" on R4), real barangay boundaries for the Manila check (part 4 and later)
 - [ ] S1 splash (the launch screen is still the Flutter logo), S2 permissions, S3 to S5 real sign-in, R5 to R11, F7 (part 4)
 - [ ] Cancel SOS (waits on plan Q10), nearest evacuation center card (waits on Q38 data), MDRRMD hotline number (Call MDRRMD says it is not set until `MDRRMD_HOTLINE` is provided)
 - [ ] Hive queue, real GPS, SMS, and BLE (Phase 3 and 5); the mock keeps everything in memory, so closing the app clears it
@@ -117,8 +120,10 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] Crowd reports map: the 50 m ring is only a few pixels at city zoom; add a count marker for clusters
 
 ### Tests (last run 2026-09-30)
-- `packages/shared`: 53 passing (`flutter test`), including Supabase-shaped JSON, the mobile mock's offline rules (capture order, capture time kept, SMS and relay tiers, updates held while offline), and the SOS button (a tap never sends, a 2 s hold sends once, early release cancels, the release after a send does not also open)
-- `apps/mobile`: 4 passing (the role picks the shell; online SOS to responder assigned; offline SOS by SMS, queue sheet, delivered on reconnect; add details)
+- `packages/shared`: 56 passing (`flutter test`), including Supabase-shaped JSON, the mobile mock's offline rules (capture order, capture time kept, SMS and relay tiers, updates held while offline), and the SOS button (a tap never sends, a 2 s hold sends once, early release cancels, the release after a send does not also open), hazard reports (wait for internet while an SOS goes by SMS, delivered in capture order, the four on-phone checks), and the responder closing in with a falling ETA
+- `apps/mobile`: 6 passing (the role picks the shell, and Back on another tab goes Home; online SOS to responder assigned; offline SOS by SMS, queue sheet, delivered on reconnect; add details; tracking before and after assignment; reporting: empty check, online, offline)
+- Emulator check, part 2 (2026-09-30): R3 map with real OSM tiles, gliding marker, falling ETA, arrived state; R4 typed, sent, and delivered; Back from R3 to R2 to Home. Found and fixed: Back on the Report tab closed the app; "Track responder" competed with Call MDRRMD; the unit line wrapped; a repeated "arrived" message; the delivery notice covered the next form's Send button.
+- Dashboard after the map base moved to shared: tests pass and a browser screenshot of the board looks the same.
 - Emulator check (2026-09-30, `sagip_pixel`, driven with adb): sign-in, Home, a real 2.6 s hold with the progress ring, R2 timeline updating live to Verified, offline banner, offline SOS showing Sent by SMS, and the queue sheet all work. Found and fixed: the release after a completed hold opened R2 twice; a redundant badge on R2; the active SOS card's link crowded long states. Haptics not checked (the emulator does not vibrate); needs a real phone.
 - `apps/dashboard`: 7 passing (sign-in, ranked queue, assign top unit, override needs a reason, admin pages hidden, admin audit log, offline disables actions)
 - `supabase/tests/rls_test.sql`: 29 of 29 passing, run on the hosted project inside a rolled-back transaction (nothing was left behind)
@@ -186,6 +191,11 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 | The SOS button's caption sits under the button, not inside it | Small white text on the signal red fails WCAG AA | None |
 | When an SOS goes out by SMS after a Bluetooth relay, SMS is recorded as the channel | A relay may never reach anyone; SMS reaches the gateway | None |
 | The mobile app has a web target for quick previews only | Faster checks; the product stays Android only | None |
+| Mobile "was delivered" notices only for records that waited in the offline queue | A record sent at once already shows its status on screen; the extra notice covered the next form's Send button | Matches NFR1 wording |
+| Hazard reports go over the internet only; SMS carries SOS only | Keeps the SMS gateway for emergencies | Confirm with the team |
+| Report limit 5 per account per hour | FR15 and NFR7 give no number | Provisional; plan Q-list |
+| The phone's Manila check is a rough box until barangay boundaries are bundled | R4 needs a check now; the server checks again (FR15) | None |
+| Mock responder drives in a straight line from its station | Dijkstra routes come in Phase 4 | None |
 | Snackbars are 360 px wide at the bottom centre | A full-width one covered the drawer's "Assign" button for 4 s after "Mark verified" (found in the browser check) | None |
 
 ---
@@ -201,7 +211,7 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 
 ## Next steps (in order)
 
-1. **Mobile app, Tier 1, on mock data** (due M1, Oct 18). Part 1 is done (R1, R2, S6, SOS button, offline banner). Next: part 2, R3 Track responder (map) and R4 Report a hazard; part 3, responder F1 to F6 (flow 4); part 4, the Tier 2 screens (S1 to S5, S7, R5 to R11, F7).
+1. **Mobile app, Tier 1, on mock data** (due M1, Oct 18). Parts 1 and 2 are done: every Tier 1 resident screen (R1 to R4, S6). Next: part 3, responder F1 to F6 (flow 4: receive, navigate with cached tiles, on scene, completion report, signal loss); then part 4, the Tier 2 screens (S1 to S5, S7, R5 to R11, F7).
 2. **CI** (small): GitHub Actions running `flutter analyze` and `flutter test` on every push.
 3. **Map spikes** (Phase 0, unblock later work): pick the self-hosted Manila tile source (Protomaps extract) and build the Manila road graph with `osmnx` for Dijkstra.
 4. **Wire the five flows end to end on mock data**, fix the top issues from the hallway test, tag `phase1-design-complete`, and hold the Oct 18 scope checkpoint (record it in `docs/DECISIONS.md`).
@@ -211,7 +221,7 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 ## Not done yet (full list)
 
 **Joshua + Claude (code)**
-- Mobile app: R3, R4, all responder screens, the Tier 2 screens, map wrapper, ETA hero, unit status control, Hive queue, real GPS, SMS, and BLE (see the apps/mobile status above)
+- Mobile app: all responder screens, the Tier 2 screens, map wrapper, ETA hero, unit status control, Hive queue, real GPS, SMS, and BLE (see the apps/mobile status above)
 - Dashboard: admin pages A1 to A6 (accounts, resources, configuration, analytics, NDRRMC reports) are placeholders; D8 forecast is a placeholder; D11 My account; G2 Session expired; W1 to W3 resident web form; new-SOS sound; widget gallery
 - Supabase: resident and responder write paths, barangay boundaries, configuration and priority-rule tables, Edge Functions (SMS intake, Semaphore alerts, PAGASA ingest, FCM), storage buckets
 - Algorithms: Dijkstra on the OSM road graph, TF-IDF classifier, LSTM + KDE forecast, RAG report (proof of concept)
@@ -242,6 +252,8 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 | `0ff9292` | 2026-09-30 | Docs: which tables to edit instead of the read-only views |
 | `5822635` | 2026-09-30 | Docs: roadmap against milestones, full not-done list, commit history |
 | `76380c2` | 2026-09-30 | Mobile app part 1: resident SOS on mock data (R1, R2, S6, SOS button, offline banner, mock phone backend); formatters and `LiveValue` moved to shared |
+| `e10dbe1` | 2026-09-30 | Docs: mobile part 1 status, how to run, gotchas; VS Code launch entry for the mobile app |
+| `bd7cf4b` | 2026-09-30 | Mobile app part 2: R3 Track responder, R4 Report a hazard, Back goes Home, delivery notices only after waiting offline; map base moved to shared |
 
 `git log --oneline` shows newer commits; add a row here for each one.
 
@@ -269,6 +281,9 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 - Driving the emulator: `adb shell input tap X Y` and, for the SOS hold, `adb shell input swipe X Y X Y 2600` (same point, 2.6 s). Screenshots: `adb exec-out screencap -p > file.png`. The screen is 1080 x 2400.
 - Widget tests of a hold: call `tester.pump()` once after `startGesture`, because an animation starts timing on the first frame after it starts.
 - Snackbars queue: a second message waits until the first (4 s) is gone. Tests must pump past it.
+- In the emulator the text box does not open the on-screen keyboard (hardware keyboard), so `adb shell input keyevent 4` is a real Back press. Tap outside the field to close the keyboard instead.
+- Map widgets need the Material bridge (`MaterialUiCompatibilityBridge` in `app.dart`) because flutter_map still uses `flutter/material.dart`. Tests override `mapTilesEnabledProvider` to false.
+- `find.bySemanticsLabel` only finds labels on their own semantics node; give map markers `Semantics(container: true, label: ...)`.
 - Mobile widget tests end with `finish(tester)`: it runs the simulated dispatcher to the end, disposes the backend, and unmounts, so no timers are left pending.
 
 ---
@@ -307,4 +322,11 @@ Tap "Continue as resident" or "Continue as rescue personnel". Hold SOS for 2 sec
 - Mobile app: demo sign-in, role shells, offline banner, R1 Home and SOS, R2 SOS status with Add details, S6 queue sheet, a first S7 Me with demo tools, delivery notices.
 - Found and fixed while testing: the release after a completed hold also opened the status screen (regression test added).
 - Verified: analyze clean in all three packages; 53 shared, 7 dashboard, 4 mobile tests pass; checked on the emulator (details under Tests). Not checked: haptics on a real phone.
+
+### 2026-09-30: mobile app part 2, tracking and reports (session f47c816b)
+- Plan approved by Joshua. Built R3 Track responder and R4 Report a hazard on mock data; every Tier 1 resident screen now exists.
+- Shared: `SagipTiles`, `MapCredit`, `manilaCenter`, `toLatLng` moved out of the dashboard (the dashboard's `SagipBaseMap` and `MapAttribution` now wrap them); `HazardReport`, `HazardReportRepository`, `ReportRejected`, `roughlyInsideManila`; responder position on `SosRequest`; the mock queues reports with SOS in capture order and drives R-03 toward the resident.
+- Found and fixed on the emulator: Back on the Report tab closed the app (now returns to Home, with a regression test), the track card layout, and a delivery notice that covered the next form's Send button (notices now only for records that waited offline).
+- Verified: analyze clean in all three packages; 56 shared, 7 dashboard, 6 mobile tests pass; emulator and dashboard browser checks (details under Tests).
+- Noticed the live Supabase data had changed since the last reset (for example INC-0147 assigned to R-03), presumably Joshua testing; left as is.
 
