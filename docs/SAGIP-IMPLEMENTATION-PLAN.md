@@ -1059,11 +1059,11 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 
 ### 10.1 Priority Queue (FR2). Medium.
 
-- [ ] Write provisional ranking rules until the SOP arrives: SOS starts high, a confirmed cluster is ranked by type, vulnerable residents raise priority, and waiting time raises priority over time so no request waits forever (Q15, Q20)
-- [ ] Put the rule weights in configuration (A3)
-- [ ] Compute the score in the database on insert and update; order the queue by score
-- [ ] Return the score breakdown for the drawer's "why ranked here" panel
-- [ ] Unit tests with fixed fixtures
+- [x] Write provisional ranking rules until the SOP arrives: SOS starts high, a confirmed cluster is ranked by type, vulnerable residents raise priority, and waiting time raises priority over time so no request waits forever (Q15, Q20)
+- [x] Put the rule weights in configuration (A3) (Sep 30: `app_setting`, A3 page with a live preview)
+- [x] Compute the score in the database on insert and update; order the queue by score (Sep 30: computed when read, in `incident_board`, because waiting time changes every minute; the dashboard ranks with the same weights)
+- [x] Return the score breakdown for the drawer's "why ranked here" panel (`priority_factors`; the drawer shows the same breakdown)
+- [x] Unit tests with fixed fixtures (Dart and pgTAP use the same demo incidents)
 
 ### 10.2 Dijkstra routing (FR3, FR13, Objective 1). High.
 
