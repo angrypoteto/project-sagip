@@ -160,7 +160,7 @@ Record the decision in `docs/DECISIONS.md`. Whatever is cut, tell the adviser be
 
 - [x] Confirm Riverpod + go_router (or choose another) and record it in `docs/CONVENTIONS.md` (Sep 29-30)
 - [ ] Choose the tile source: extract Manila from Protomaps (or build tiles) and host it ourselves; do not use `tile.openstreetmap.org` for offline use
-- [ ] Spike: build the Manila drivable road graph with `osmnx` and check its size and one-way data
+- [x] Spike: build the Manila drivable road graph with `osmnx` and check its size and one-way data (Sep 30: 9,296 intersections, 23,716 one-way segments, 0.9 MB; `ml/road_graph/`)
 - [ ] Decide the user-table design: separate admin/dispatcher tables as in the thesis, or one staff table with a role column (Q8) (Sep 30: built as one `staff` table with a role column; confirm with the team)
 - [ ] Decide where each algorithm runs (Phase 4 has recommendations)
 - [ ] Choose the LLM provider for RAG and set a spending cap
@@ -185,7 +185,7 @@ Record the decision in `docs/DECISIONS.md`. Whatever is cut, tell the adviser be
 
 ### Repo and process
 
-- [ ] Create the GitHub repo with CI that runs `flutter analyze` and tests (partial Sep 30: public repo https://github.com/angrypoteto/project-sagip; no CI yet)
+- [x] Create the GitHub repo with CI that runs `flutter analyze` and tests (Sep 30: public repo https://github.com/angrypoteto/project-sagip; `.github/workflows/ci.yml`, first run on the next push)
 - [x] Create the folder layout from CLAUDE.md: `apps/mobile`, `apps/dashboard`, `packages/shared`, `supabase`, `ml`, `docs`
 - [ ] Set up a shared task board all four can see, with one column per phase, and schedule the weekly sync **(Docs)**
 - [ ] Put names on the three roles in section 3 **(Team)**
@@ -1067,14 +1067,14 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 
 ### 10.2 Dijkstra routing (FR3, FR13, Objective 1). High.
 
-- [ ] Build the directed Manila road graph from OSM: intersections as nodes, road segments as edges, one-way streets respected
-- [ ] Edge weight = estimated travel time (length divided by a speed per road class); resolve Q19 in the thesis text
-- [ ] Export a compact versioned graph file to Storage
-- [ ] Implement Dijkstra with a binary-heap priority queue in Dart in `packages/shared`
-- [ ] Test against a reference library (networkx) on 50 random origin and destination pairs; results must match
-- [ ] Nearest-unit suggestions: run Dijkstra once from the incident on the reversed graph to get the travel time from every Available unit, then return the top three. Running it in the dispatcher's browser avoids server cold starts.
-- [ ] Store the chosen route (encoded polyline and turn list) on the dispatch record; the responder app caches it
-- [ ] Log execution time for every run (the thesis formula T_end minus T_start) for Chapter 4
+- [x] Build the directed Manila road graph from OSM: intersections as nodes, road segments as edges, one-way streets respected (Sep 30)
+- [~] Edge weight = estimated travel time (length divided by a speed per road class); resolve Q19 in the thesis text (code done Sep 30 with provisional speeds; thesis text still to fix)
+- [x] Export a compact versioned graph file (Sep 30: bundled in the apps as `manila_drive_v1.bin` instead of Storage, so responders can route offline)
+- [x] Implement Dijkstra with a binary-heap priority queue in Dart in `packages/shared` (Sep 30)
+- [x] Test against a reference library (networkx) on 50 random origin and destination pairs; results must match (Sep 30: all 50 match)
+- [x] Nearest-unit suggestions: run Dijkstra once from the incident on the reversed graph to get the travel time from every Available unit, then return the top three. Running it in the dispatcher's browser avoids server cold starts.
+- [x] Store the chosen route (encoded polyline and turn list) on the dispatch record; the responder app caches it (Sep 30; the phone also re-routes on its own)
+- [x] Log execution time for every run (the thesis formula T_end minus T_start) for Chapter 4 (Sep 30: `routing_run`, one sample per job a minute)
 - [ ] Could: add a travel-time penalty for roads inside confirmed flood incidents
 
 ### 10.3 DBSCAN clustering (FR7, FR15). Medium.
