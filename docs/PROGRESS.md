@@ -438,9 +438,9 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 ## Not done yet (full list)
 
 **Joshua + Claude (code)**
-- Mobile app: widget gallery, BLE, offline map tiles, the battery-optimization prompt for responders, a push check on a real phone once Firebase exists (see the apps/mobile status above)
+- Mobile app: widget gallery, BLE, offline map tiles, the battery-optimization prompt for responders, a push check on a real phone (works on the emulator) (see the apps/mobile status above)
 - Dashboard: A5 and A6 wait on the NDRRMC template and the RAG step; A3 lacks only the data retention period; D8 waits on the model for probabilities, accuracy, a run selector, and boundaries; the incident drawer does not yet show what the resident was told (the rows are readable by dispatchers); widget gallery
-- Supabase: all 897 barangays with boundaries, evacuation centers (Q38), Edge Functions not written yet (PAGASA ingest, Facebook posting; `sms-intake`, `send-sms`, and `send-alerts` with push are written but not deployed), storage buckets
+- Supabase: all 897 barangays with boundaries, evacuation centers (Q38), Edge Functions not written yet (PAGASA ingest, Facebook posting; `sms-intake` and `send-sms` are written but not deployed; `send-alerts` is deployed), storage buckets
 - Algorithms: retraining the classifier on real descriptions, retraining the LSTM on the real records and writing forecast rows (preparation, KDE, and LSTM done on sample data), RAG report (proof of concept); tuning Dijkstra's road speeds with MDRRMD records; a travel-time penalty for flooded roads (plan 10.2 "Could")
 - Offline: gateway hardware and a field test for Tier 2, BLE mesh relay (proof of concept), responder tile pre-download
 - Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only)
