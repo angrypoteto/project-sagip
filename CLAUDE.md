@@ -53,6 +53,7 @@ If a folder doesn't exist yet, create it following this layout instead of invent
 flutter pub get                          # in each app/package
 flutter run -d chrome                    # dashboard on mock data
 flutter run -d chrome --dart-define-from-file=.env   # dashboard on Supabase (in apps/dashboard; needs .env)
+flutter run -d chrome -t lib/main_webform.dart       # resident web form on mock data (in apps/dashboard)
 flutter emulators --launch sagip_pixel   # Android emulator for the mobile app
 flutter run -d <android-device-id>       # mobile (in apps/mobile)
 flutter analyze                          # must pass with zero issues before commit

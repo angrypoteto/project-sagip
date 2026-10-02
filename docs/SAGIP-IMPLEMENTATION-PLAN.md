@@ -912,7 +912,7 @@ These are the flows reviewed at the end of Phase 1. Each must run end to end on 
 **Week 2, foundation (first two days). Difficulty: Medium.**
 
 - [x] Write `docs/CONVENTIONS.md`: state management, routing, folders, naming, l10n, commit rules
-- [ ] Create `apps/mobile` (Android only), `apps/dashboard` (web, with a `main_webform.dart` entry), and `packages/shared` (dashboard, shared, and mobile done Sep 30; `main_webform.dart` not yet)
+- [ ] Create `apps/mobile` (Android only), `apps/dashboard` (web, with a `main_webform.dart` entry), and `packages/shared` (dashboard, shared, and mobile done Sep 30; `main_webform.dart` Oct 2)
 - [x] Define immutable domain models with `fromJson`/`toJson` that mirror Figures 3.6a to 3.6d, including the missing fields listed in Q16 and Q17
 - [x] Define repository interfaces: incidents, crowd reports, dispatch, units, responders, forecasts, alerts, vulnerable profiles, audit, NDRRMC reports, auth, connectivity, sync queue
 - [ ] Build mock repositories with realistic Manila seed data: at least 30 incidents across real barangays, 12 units, 40 responders, 3 forecast runs, 20 alerts, 15 vulnerable households, 100 audit entries (partial Sep 30: 7 incidents, 12 units, 12 crowd reports, 8 residents, 5 audit entries)
@@ -1043,7 +1043,7 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 - [x] Admin: A1 Accounts, A2 Resources, A3 Configuration, A7 Audit log (Oct 1; A3 has the priority weights so far)
 - [ ] Admin: A4 Analytics and A5 NDRRMC reports list (A6 comes with RAG in Phase 4)
 - [x] D11 My account, G1 Not found, G2 Session expired (Oct 1)
-- [ ] Web form W1 to W3, reusing the resident report logic
+- [x] Web form W1 to W3, reusing the resident report logic (Oct 2: `lib/main_webform.dart`; registration on the form is on by default until Q13 is decided)
 
 **Milestone**
 

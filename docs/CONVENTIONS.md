@@ -57,6 +57,8 @@ lib/
     features/<feature>/     one folder per area (board, crowd_reports, units, ...)
 ```
 
+The resident web form (W1 to W3) is a second entry point of `apps/dashboard`: `lib/main_webform.dart` and `lib/src/webform/`, with its own providers (`web_providers.dart`), router (`web_router.dart`), and app (`web_app.dart`). It shares the dashboard's ARB file (keys start with `web`). Browser features (geolocation, local storage, online state, opening a link) sit behind small interfaces in `webform/browser/`, with a `package:web` version and a stub for tests.
+
 Keep widgets small. Anything used by two features moves to `common/`; anything the mobile app will also need moves to `packages/shared`.
 
 ## Mobile app
