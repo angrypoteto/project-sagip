@@ -1880,6 +1880,136 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionAlertEnded => 'Ended an alert';
 
   @override
+  String get forecastTitle => '72-hour forecast';
+
+  @override
+  String get forecastSample => 'Sample forecast';
+
+  @override
+  String get forecastSampleNote =>
+      'Sample values, not model output. The forecast model is not trained yet.';
+
+  @override
+  String forecastIssued(String issued, String until) {
+    return 'Issued $issued. Valid until $until.';
+  }
+
+  @override
+  String get forecastStale =>
+      'This forecast is more than 24 hours old. A newer run is overdue.';
+
+  @override
+  String get forecastEmpty => 'No forecast generated yet.';
+
+  @override
+  String get forecastEmptyHint =>
+      'The model runs once a day. Its results appear here.';
+
+  @override
+  String forecastCounts(int high, int moderate, int low) {
+    return '$high high, $moderate moderate, $low low';
+  }
+
+  @override
+  String get forecastNoneSection => 'No forecast';
+
+  @override
+  String forecastMarker(String barangay, String risk) {
+    return '$barangay: $risk';
+  }
+
+  @override
+  String forecastLegend(String hazard) {
+    return '$hazard risk, next 72 hours';
+  }
+
+  @override
+  String get forecastLegendNote =>
+      'Circles mark barangay centers, not boundaries.';
+
+  @override
+  String get forecastRisks => 'Risk by hazard';
+
+  @override
+  String get forecastVulnerable => 'Registered vulnerable residents';
+
+  @override
+  String forecastVulnerableCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count residents',
+      one: '1 resident',
+      zero: 'None registered here',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get forecastVulnerableUnknown => 'Not loaded yet';
+
+  @override
+  String get forecastOpenList => 'Open the list';
+
+  @override
+  String get forecastWeatherNow => 'Weather now';
+
+  @override
+  String forecastSurge(String meters) {
+    return 'Storm surge up to $meters m';
+  }
+
+  @override
+  String get forecastNoSurge => 'No storm surge advisory';
+
+  @override
+  String get forecastAbout => 'About this forecast';
+
+  @override
+  String get forecastAboutSample =>
+      'These are sample values so the page can be reviewed. Probabilities, the readings behind each risk, and the model\'s measured accuracy appear here once the model is trained.';
+
+  @override
+  String forecastAboutModel(String version) {
+    return 'Model $version.';
+  }
+
+  @override
+  String get forecastAboutNoVersion =>
+      'The run did not record which model made it.';
+
+  @override
+  String get hazardFlood => 'Flood';
+
+  @override
+  String get hazardFire => 'Fire';
+
+  @override
+  String get hazardSurge => 'Storm surge';
+
+  @override
+  String get riskLow => 'Low';
+
+  @override
+  String get riskModerate => 'Moderate';
+
+  @override
+  String get riskHigh => 'High';
+
+  @override
+  String vulnerableOnly(String barangay) {
+    return '$barangay only';
+  }
+
+  @override
+  String get vulnerableShowAll => 'Show all barangays';
+
+  @override
+  String vulnerableNoneIn(String barangay) {
+    return 'No registered vulnerable residents in $barangay.';
+  }
+
+  @override
   String get levelInfo => 'Advisory';
 
   @override
@@ -2350,10 +2480,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get working => 'Working';
-
-  @override
-  String get placeholderForecast =>
-      'The 72-hour risk heatmap arrives once the LSTM and KDE models are trained (plan 10.5).';
 
   @override
   String get placeholderReports =>

@@ -45,6 +45,7 @@ class MockBackend {
     _audit = LiveValue(_seed.audit);
     _weather = LiveValue(_seed.weather);
     _alertLog = LiveValue(_seed.sentAlerts);
+    _forecast = LiveValue(ForecastRun.latest(_seed.forecasts));
   }
 
   final DateTime Function() _clock;
@@ -62,6 +63,7 @@ class MockBackend {
   late final LiveValue<List<AuditEntry>> _audit;
   late final LiveValue<WeatherStatus> _weather;
   late final LiveValue<List<SentAlert>> _alertLog;
+  late final LiveValue<ForecastRun?> _forecast;
   var _nextAlertNumber = 1;
   var _weatherSimulated = false;
   final _user = LiveValue<AppUser?>(null);
@@ -770,6 +772,11 @@ class MockBackend {
   );
 
   Stream<WeatherStatus> watchWeather() => _weather.watch();
+
+  Stream<ForecastRun?> watchForecast() => _forecast.watch();
+
+  /// Scenario switcher: another run of the forecast model, or none yet.
+  void setForecast(ForecastRun? run) => _forecast.value = run;
 
   Stream<LinkState> watchLink() => _link.watch();
 

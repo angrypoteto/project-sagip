@@ -117,38 +117,12 @@ class _AlertsSim {
     ),
   ];
 
-  /// Sample forecasts for most of the sample barangays. Barangay 306 and
-  /// Barangay 461 have none, to show the empty state.
-  static const _risks = <String, List<RiskLevel>>{
-    // flood, fire, storm surge
-    'Barangay 105': [RiskLevel.moderate, RiskLevel.high, RiskLevel.moderate],
-    'Barangay 128': [RiskLevel.moderate, RiskLevel.moderate, RiskLevel.low],
-    'Barangay 287': [RiskLevel.moderate, RiskLevel.moderate, RiskLevel.low],
-    'Barangay 412': [RiskLevel.high, RiskLevel.low, RiskLevel.low],
-    'Barangay 490': [RiskLevel.high, RiskLevel.low, RiskLevel.low],
-    'Barangay 560': [RiskLevel.high, RiskLevel.low, RiskLevel.low],
-    'Barangay 649': [RiskLevel.moderate, RiskLevel.low, RiskLevel.high],
-    'Barangay 700': [RiskLevel.moderate, RiskLevel.low, RiskLevel.high],
-  };
-
+  /// The sample forecast for one barangay ([MockSeed.forecasts]); null for
+  /// a barangay that has none.
   BarangayForecast? _forecast(String barangay, String district) {
-    final r = _risks[barangay];
-    if (r == null) return null;
-    // The model runs once a day at 6 AM.
-    final now = _b._t0;
-    var issued = DateTime(now.year, now.month, now.day, 6);
-    if (issued.isAfter(now)) issued = issued.subtract(const Duration(days: 1));
-    return BarangayForecast(
-      barangay: barangay,
-      district: district,
-      issuedAt: issued,
-      validUntil: issued.add(const Duration(hours: 72)),
-      risks: {
-        ForecastHazard.flood: r[0],
-        ForecastHazard.fire: r[1],
-        ForecastHazard.stormSurge: r[2],
-      },
-      isSimulated: true,
-    );
+    for (final f in MockSeed(_b._t0).forecasts) {
+      if (f.barangay == barangay) return f;
+    }
+    return null;
   }
 }

@@ -12,6 +12,7 @@ import 'features/auth/session_expired_page.dart';
 import 'features/auth/sign_in_page.dart';
 import 'features/board/board_page.dart';
 import 'features/crowd_reports/crowd_reports_page.dart';
+import 'features/forecast/forecast_page.dart';
 import 'features/placeholder_page.dart';
 import 'features/shell/dashboard_shell.dart';
 import 'features/shell/not_found_page.dart';
@@ -163,12 +164,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: Routes.forecast,
-            pageBuilder: (context, state) =>
-                _page(const PlaceholderPage(kind: PlaceholderKind.forecast)),
+            pageBuilder: (context, state) => _page(const ForecastPage()),
           ),
           GoRoute(
             path: Routes.vulnerable,
-            pageBuilder: (context, state) => _page(const VulnerablePage()),
+            // D8 links here with one barangay's residents.
+            pageBuilder: (context, state) => _page(
+              VulnerablePage(barangay: state.uri.queryParameters['barangay']),
+            ),
           ),
           GoRoute(
             path: Routes.weather,

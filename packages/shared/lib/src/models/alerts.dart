@@ -253,6 +253,7 @@ class BarangayForecast {
     required this.validUntil,
     required this.risks,
     this.isSimulated = false,
+    this.modelVersion,
   });
 
   final String barangay;
@@ -263,6 +264,12 @@ class BarangayForecast {
 
   /// True while the model runs on a simulated live feed (thesis scope).
   final bool isSimulated;
+
+  /// Which model made it. [ForecastRun.sampleModel] marks made-up values
+  /// that stand in until the LSTM and KDE models are trained.
+  final String? modelVersion;
+
+  RiskLevel riskOf(ForecastHazard hazard) => risks[hazard] ?? RiskLevel.low;
 
   /// The hazard with the highest risk, for the preparation tips.
   ForecastHazard? get topHazard {
@@ -289,6 +296,7 @@ class BarangayForecast {
             ),
         },
         isSimulated: json['is_simulated'] as bool? ?? false,
+        modelVersion: json['model_version'] as String?,
       );
 
   /// A row of the `barangay_forecast` table: one column per hazard.
@@ -310,6 +318,7 @@ class BarangayForecast {
           ),
         },
         isSimulated: row['is_simulated'] as bool? ?? false,
+        modelVersion: row['model_version'] as String?,
       );
 
   Map<String, Object?> toJson() => {
@@ -319,7 +328,82 @@ class BarangayForecast {
     'valid_until': validUntil.toUtc().toIso8601String(),
     'risks': {for (final e in risks.entries) e.key.name: e.value.name},
     'is_simulated': isSimulated,
+    'model_version': modelVersion,
   };
+}
+
+/// One run of the forecast model: the forecasts issued together, one per
+/// barangay (D8, FR4). The model runs once a day.
+@immutable
+class ForecastRun {
+  const ForecastRun({
+    required this.issuedAt,
+    required this.validUntil,
+    required this.forecasts,
+    this.isSimulated = false,
+    this.modelVersion,
+  });
+
+  /// The `model_version` of made-up values (the demo data).
+  static const sampleModel = 'sample';
+
+  /// A run older than this is overdue: the next one should have replaced
+  /// it (plan D8: "a forecast older than 24 hours shows a stale warning").
+  static const staleAfter = Duration(hours: 24);
+
+  /// The newest run among [rows]: the forecasts that share the latest
+  /// issue time. Null when there are none.
+  static ForecastRun? latest(Iterable<BarangayForecast> rows) {
+    DateTime? newest;
+    for (final f in rows) {
+      if (newest == null || f.issuedAt.isAfter(newest)) newest = f.issuedAt;
+    }
+    if (newest == null) return null;
+    final run = [
+      for (final f in rows)
+        if (f.issuedAt.isAtSameMomentAs(newest)) f,
+    ]..sort((a, b) => a.barangay.compareTo(b.barangay));
+    return ForecastRun(
+      issuedAt: newest,
+      validUntil: run
+          .map((f) => f.validUntil)
+          .reduce((a, b) => a.isBefore(b) ? a : b),
+      forecasts: run,
+      isSimulated: run.any((f) => f.isSimulated),
+      modelVersion: run.first.modelVersion,
+    );
+  }
+
+  final DateTime issuedAt;
+  final DateTime validUntil;
+  final List<BarangayForecast> forecasts;
+
+  /// True when any forecast in the run came from a simulated feed.
+  final bool isSimulated;
+  final String? modelVersion;
+
+  /// Made-up values, not model output.
+  bool get isSample => modelVersion == sampleModel;
+
+  bool isStaleAt(DateTime now) => now.difference(issuedAt) > staleAfter;
+
+  BarangayForecast? forBarangay(String barangay) {
+    for (final f in forecasts) {
+      if (f.barangay == barangay) return f;
+    }
+    return null;
+  }
+
+  /// The barangays for one hazard, highest risk first, then by name.
+  List<BarangayForecast> ranked(ForecastHazard hazard) =>
+      [...forecasts]..sort((a, b) {
+        final byRisk = b.riskOf(hazard).index.compareTo(a.riskOf(hazard).index);
+        return byRisk != 0 ? byRisk : a.barangay.compareTo(b.barangay);
+      });
+
+  /// How many barangays sit at [level] for [hazard].
+  int count(ForecastHazard hazard, RiskLevel level) =>
+      forecasts.where((f) => f.riskOf(hazard) == level).length;
 }
 
 /// Everything the Alerts tab shows, plus when the phone last received it,

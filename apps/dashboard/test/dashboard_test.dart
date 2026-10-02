@@ -607,6 +607,134 @@ void main() {
     expect(sent.on(AlertChannel.sms)!.status, AlertDeliveryStatus.simulated);
   });
 
+  testWidgets('D8: the forecast ranked by hazard, with a barangay panel', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Forecast'));
+    await settle(tester);
+
+    expect(find.text('72-hour forecast'), findsOneWidget);
+    expect(find.text('Sample forecast'), findsOneWidget);
+    expect(find.textContaining('Sample values, not model output'), findsOne);
+    expect(find.byKey(const ValueKey('forecast-stale')), findsNothing);
+
+    double top(String barangay) =>
+        tester.getTopLeft(find.byKey(ValueKey('forecast-row-$barangay'))).dy;
+    // Flood: the three Sampaloc barangays are high.
+    expect(find.text('3 high, 5 moderate, 0 low'), findsOneWidget);
+    expect(top('Barangay 412'), lessThan(top('Barangay 105')));
+    expect(top('Barangay 560'), lessThan(top('Barangay 105')));
+
+    // Storm surge: the bay side comes first.
+    await tester.tap(find.text('Storm surge'));
+    await settle(tester);
+    expect(find.text('2 high, 1 moderate, 5 low'), findsOneWidget);
+    expect(top('Barangay 649'), lessThan(top('Barangay 105')));
+    expect(top('Barangay 105'), lessThan(top('Barangay 412')));
+
+    // No barangay chosen yet: no panel.
+    expect(find.byKey(const ValueKey('forecast-panel')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('forecast-row-Barangay 412')));
+    await settle(tester);
+    final panel = find.byKey(const ValueKey('forecast-panel'));
+    expect(panel, findsOneWidget);
+    expect(
+      find.descendant(of: panel, matching: find.text('Risk by hazard')),
+      findsOneWidget,
+    );
+    // All three hazards, whatever the list is showing.
+    expect(
+      find.descendant(of: panel, matching: find.text('High')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: panel, matching: find.text('Low')),
+      findsNWidgets(2),
+    );
+    expect(
+      find.descendant(of: panel, matching: find.text('Signal No. 2')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: panel,
+        matching: find.textContaining('These are sample values'),
+      ),
+      findsOneWidget,
+    );
+
+    // The registered vulnerable residents there, and the way to D9.
+    final here = container
+        .read(vulnerableResidentsProvider)
+        .value!
+        .where((r) => r.barangay == 'Barangay 412')
+        .toList();
+    expect(here, isNotEmpty);
+    expect(
+      find.descendant(
+        of: panel,
+        matching: find.text(
+          here.length == 1 ? '1 resident' : '${here.length} residents',
+        ),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('forecast-open-list')));
+    await settle(tester);
+    expect(find.text('Vulnerable Resident Priority List'), findsOneWidget);
+    expect(find.text('Barangay 412 only'), findsOneWidget);
+    expect(find.text(here.first.fullName), findsOneWidget);
+    final elsewhere = container
+        .read(vulnerableResidentsProvider)
+        .value!
+        .firstWhere((r) => r.barangay != 'Barangay 412');
+    expect(find.text(elsewhere.fullName), findsNothing);
+    await tester.tap(find.text('Show all barangays'));
+    await settle(tester);
+    expect(find.text('Barangay 412 only'), findsNothing);
+    expect(find.text(elsewhere.fullName), findsOneWidget);
+  });
+
+  testWidgets('D8: an overdue run is flagged; no run is said plainly', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Forecast'));
+    await settle(tester);
+
+    // Barangays the run has nothing for are listed apart, without a risk.
+    expect(find.text('No forecast'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('forecast-row-Barangay 306')),
+      findsOneWidget,
+    );
+
+    final issued = now.subtract(const Duration(hours: 30));
+    backend.setForecast(
+      ForecastRun.latest([
+        BarangayForecast(
+          barangay: 'Barangay 412',
+          district: 'Sampaloc',
+          issuedAt: issued,
+          validUntil: issued.add(const Duration(hours: 72)),
+          risks: const {ForecastHazard.flood: RiskLevel.high},
+          modelVersion: 'lstm-kde-1',
+        ),
+      ]),
+    );
+    await settle(tester);
+    expect(find.byKey(const ValueKey('forecast-stale')), findsOneWidget);
+    expect(find.text('Sample forecast'), findsNothing);
+    expect(find.text('1 high, 0 moderate, 0 low'), findsOneWidget);
+
+    backend.setForecast(null);
+    await settle(tester);
+    expect(find.text('No forecast generated yet.'), findsOneWidget);
+  });
+
   testWidgets('admins see analytics for a period and export them', (
     tester,
   ) async {

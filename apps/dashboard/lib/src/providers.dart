@@ -33,6 +33,9 @@ final residentRepositoryProvider = Provider<ResidentRepository>(
 final weatherRepositoryProvider = Provider<WeatherRepository>(
   (ref) => _missing('WeatherRepository'),
 );
+final forecastRepositoryProvider = Provider<ForecastRepository>(
+  (ref) => throw UnimplementedError('override forecastRepositoryProvider'),
+);
 final auditRepositoryProvider = Provider<AuditRepository>(
   (ref) => _missing('AuditRepository'),
 );
@@ -93,6 +96,7 @@ List<Override> _mockOverrides(
   ),
   residentRepositoryProvider.overrideWithValue(MockResidentRepository(backend)),
   weatherRepositoryProvider.overrideWithValue(MockWeatherRepository(backend)),
+  forecastRepositoryProvider.overrideWithValue(MockForecastRepository(backend)),
   auditRepositoryProvider.overrideWithValue(MockAuditRepository(backend)),
   connectionMonitorProvider.overrideWithValue(MockConnectionMonitor(backend)),
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(runs)),
@@ -118,6 +122,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   crowdReportRepositoryProvider.overrideWithValue(backend.crowdReports),
   residentRepositoryProvider.overrideWithValue(backend.residents),
   weatherRepositoryProvider.overrideWithValue(backend.weather),
+  forecastRepositoryProvider.overrideWithValue(backend.forecasts),
   auditRepositoryProvider.overrideWithValue(backend.audit),
   connectionMonitorProvider.overrideWithValue(backend.connection),
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
@@ -186,6 +191,14 @@ final weatherProvider = StreamProvider<WeatherStatus>(
   (ref) => _forAccount(
     ref,
     () => ref.watch(weatherRepositoryProvider).watchCurrent(),
+  ),
+);
+
+/// D8: the latest run of the 72-hour forecast; null when there is none.
+final forecastProvider = StreamProvider<ForecastRun?>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(forecastRepositoryProvider).watchLatest(),
   ),
 );
 

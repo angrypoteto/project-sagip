@@ -1,6 +1,7 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../models/alerts.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
@@ -117,6 +118,20 @@ StatusVisual deliveryVisual(DeliveryState state, SagipPalette p) =>
       ),
       DeliveryState.rejected => StatusVisual(p.critical, Symbols.block_rounded),
     };
+
+/// Risk in the 72-hour forecast (D8, R7). Low is quiet; moderate and high
+/// use ember and signal, as on the forecast map.
+StatusVisual riskVisual(RiskLevel risk, SagipPalette p) => switch (risk) {
+  RiskLevel.low => StatusVisual(p.neutral, null, ChipLook.outline),
+  RiskLevel.moderate => StatusVisual(p.warning, Symbols.trending_up_rounded),
+  RiskLevel.high => StatusVisual(p.critical, Symbols.warning_rounded),
+};
+
+IconData hazardIcon(ForecastHazard hazard) => switch (hazard) {
+  ForecastHazard.flood => Symbols.flood_rounded,
+  ForecastHazard.fire => Symbols.local_fire_department_rounded,
+  ForecastHazard.stormSurge => Symbols.tsunami_rounded,
+};
 
 /// Color and icon for a report's stage, following the incident status
 /// mapping (confirmed is signal, resolved is verdant).

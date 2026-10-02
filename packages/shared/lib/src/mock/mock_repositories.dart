@@ -299,6 +299,15 @@ class MockWeatherRepository implements WeatherRepository {
   Stream<WeatherStatus> watchCurrent() => _backend.watchWeather();
 }
 
+class MockForecastRepository implements ForecastRepository {
+  const MockForecastRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<ForecastRun?> watchLatest() => _backend.watchForecast();
+}
+
 class MockAuditRepository implements AuditRepository {
   const MockAuditRepository(this._backend);
 

@@ -360,21 +360,8 @@ class _RiskRow extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);
-    final icon = switch (hazard) {
-      ForecastHazard.flood => Symbols.flood_rounded,
-      ForecastHazard.fire => Symbols.local_fire_department_rounded,
-      ForecastHazard.stormSurge => Symbols.tsunami_rounded,
-    };
-    // Low is quiet; moderate and high use ember and signal, as on the
-    // dashboard's forecast heatmap.
-    final visual = switch (risk) {
-      RiskLevel.low => StatusVisual(p.neutral, null, ChipLook.outline),
-      RiskLevel.moderate => StatusVisual(
-        p.warning,
-        Symbols.trending_up_rounded,
-      ),
-      RiskLevel.high => StatusVisual(p.critical, Symbols.warning_rounded),
-    };
+    final icon = hazardIcon(hazard);
+    final visual = riskVisual(risk, p);
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(

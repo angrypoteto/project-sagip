@@ -137,6 +137,12 @@ abstract interface class WeatherRepository {
   Stream<WeatherStatus> watchCurrent();
 }
 
+/// The 72-hour forecast for every barangay (D8, FR4).
+abstract interface class ForecastRepository {
+  /// The latest run of the model, or null when none has been generated.
+  Stream<ForecastRun?> watchLatest();
+}
+
 abstract interface class AuditRepository {
   Stream<List<AuditEntry>> watchRecent({int limit});
 }

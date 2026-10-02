@@ -3388,6 +3388,204 @@ abstract class AppLocalizations {
   /// **'Ended an alert'**
   String get actionAlertEnded;
 
+  /// No description provided for @forecastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'72-hour forecast'**
+  String get forecastTitle;
+
+  /// No description provided for @forecastSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample forecast'**
+  String get forecastSample;
+
+  /// No description provided for @forecastSampleNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample values, not model output. The forecast model is not trained yet.'**
+  String get forecastSampleNote;
+
+  /// No description provided for @forecastIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued {issued}. Valid until {until}.'**
+  String forecastIssued(String issued, String until);
+
+  /// No description provided for @forecastStale.
+  ///
+  /// In en, this message translates to:
+  /// **'This forecast is more than 24 hours old. A newer run is overdue.'**
+  String get forecastStale;
+
+  /// No description provided for @forecastEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No forecast generated yet.'**
+  String get forecastEmpty;
+
+  /// No description provided for @forecastEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The model runs once a day. Its results appear here.'**
+  String get forecastEmptyHint;
+
+  /// No description provided for @forecastCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{high} high, {moderate} moderate, {low} low'**
+  String forecastCounts(int high, int moderate, int low);
+
+  /// No description provided for @forecastNoneSection.
+  ///
+  /// In en, this message translates to:
+  /// **'No forecast'**
+  String get forecastNoneSection;
+
+  /// No description provided for @forecastMarker.
+  ///
+  /// In en, this message translates to:
+  /// **'{barangay}: {risk}'**
+  String forecastMarker(String barangay, String risk);
+
+  /// No description provided for @forecastLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'{hazard} risk, next 72 hours'**
+  String forecastLegend(String hazard);
+
+  /// No description provided for @forecastLegendNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Circles mark barangay centers, not boundaries.'**
+  String get forecastLegendNote;
+
+  /// No description provided for @forecastRisks.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk by hazard'**
+  String get forecastRisks;
+
+  /// No description provided for @forecastVulnerable.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered vulnerable residents'**
+  String get forecastVulnerable;
+
+  /// No description provided for @forecastVulnerableCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None registered here} =1{1 resident} other{{count} residents}}'**
+  String forecastVulnerableCount(int count);
+
+  /// No description provided for @forecastVulnerableUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not loaded yet'**
+  String get forecastVulnerableUnknown;
+
+  /// No description provided for @forecastOpenList.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the list'**
+  String get forecastOpenList;
+
+  /// No description provided for @forecastWeatherNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather now'**
+  String get forecastWeatherNow;
+
+  /// No description provided for @forecastSurge.
+  ///
+  /// In en, this message translates to:
+  /// **'Storm surge up to {meters} m'**
+  String forecastSurge(String meters);
+
+  /// No description provided for @forecastNoSurge.
+  ///
+  /// In en, this message translates to:
+  /// **'No storm surge advisory'**
+  String get forecastNoSurge;
+
+  /// No description provided for @forecastAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About this forecast'**
+  String get forecastAbout;
+
+  /// No description provided for @forecastAboutSample.
+  ///
+  /// In en, this message translates to:
+  /// **'These are sample values so the page can be reviewed. Probabilities, the readings behind each risk, and the model\'s measured accuracy appear here once the model is trained.'**
+  String get forecastAboutSample;
+
+  /// No description provided for @forecastAboutModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model {version}.'**
+  String forecastAboutModel(String version);
+
+  /// No description provided for @forecastAboutNoVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'The run did not record which model made it.'**
+  String get forecastAboutNoVersion;
+
+  /// No description provided for @hazardFlood.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood'**
+  String get hazardFlood;
+
+  /// No description provided for @hazardFire.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get hazardFire;
+
+  /// No description provided for @hazardSurge.
+  ///
+  /// In en, this message translates to:
+  /// **'Storm surge'**
+  String get hazardSurge;
+
+  /// No description provided for @riskLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get riskLow;
+
+  /// No description provided for @riskModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get riskModerate;
+
+  /// No description provided for @riskHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get riskHigh;
+
+  /// No description provided for @vulnerableOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'{barangay} only'**
+  String vulnerableOnly(String barangay);
+
+  /// No description provided for @vulnerableShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all barangays'**
+  String get vulnerableShowAll;
+
+  /// No description provided for @vulnerableNoneIn.
+  ///
+  /// In en, this message translates to:
+  /// **'No registered vulnerable residents in {barangay}.'**
+  String vulnerableNoneIn(String barangay);
+
   /// No description provided for @levelInfo.
   ///
   /// In en, this message translates to:
@@ -4203,12 +4401,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Working'**
   String get working;
-
-  /// No description provided for @placeholderForecast.
-  ///
-  /// In en, this message translates to:
-  /// **'The 72-hour risk heatmap arrives once the LSTM and KDE models are trained (plan 10.5).'**
-  String get placeholderForecast;
 
   /// No description provided for @placeholderReports.
   ///

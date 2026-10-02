@@ -117,6 +117,18 @@ extension DomainLabels on AppLocalizations {
     AuditAction.alertEnded => actionAlertEnded,
   };
 
+  String hazard(ForecastHazard h) => switch (h) {
+    ForecastHazard.flood => hazardFlood,
+    ForecastHazard.fire => hazardFire,
+    ForecastHazard.stormSurge => hazardSurge,
+  };
+
+  String risk(RiskLevel r) => switch (r) {
+    RiskLevel.low => riskLow,
+    RiskLevel.moderate => riskModerate,
+    RiskLevel.high => riskHigh,
+  };
+
   String alertLevel(AlertLevel level) => switch (level) {
     AlertLevel.info => levelInfo,
     AlertLevel.warning => levelWarning,

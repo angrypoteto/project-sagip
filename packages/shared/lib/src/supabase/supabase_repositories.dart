@@ -46,6 +46,7 @@ class SupabaseBackend {
       crowdReports = SupabaseCrowdReportRepository(client),
       residents = SupabaseResidentRepository(client),
       weather = SupabaseWeatherRepository(client),
+      forecasts = SupabaseForecastRepository(client),
       audit = SupabaseAuditRepository(client),
       connection = SupabaseConnectionMonitor(client),
       routing = SupabaseRoutingLog(client),
@@ -62,6 +63,7 @@ class SupabaseBackend {
   final SupabaseCrowdReportRepository crowdReports;
   final SupabaseResidentRepository residents;
   final SupabaseWeatherRepository weather;
+  final SupabaseForecastRepository forecasts;
   final SupabaseAuditRepository audit;
   final SupabaseConnectionMonitor connection;
   final SupabaseRoutingLog routing;
@@ -827,6 +829,37 @@ class SupabaseWeatherRepository implements WeatherRepository {
       // mislead a dispatcher during a typhoon.
       if (row == null) throw StateError('No weather reading yet');
       return WeatherStatus.fromJson(row);
+    },
+  );
+}
+
+// --------------------------------------------------------------- forecast
+
+/// D8: the rows of `barangay_forecast` that share the newest issue time.
+class SupabaseForecastRepository implements ForecastRepository {
+  const SupabaseForecastRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<ForecastRun?> watchLatest() => liveQuery(
+    _client,
+    tables: const ['barangay_forecast'],
+    fetch: () async {
+      final newest = await _client
+          .from('barangay_forecast')
+          .select('issued_at')
+          .order('issued_at', ascending: false)
+          .limit(1)
+          .maybeSingle();
+      if (newest == null) return null;
+      final rows = await _client
+          .from('barangay_forecast')
+          .select()
+          .eq('issued_at', newest['issued_at']! as String);
+      return ForecastRun.latest([
+        for (final r in rows) BarangayForecast.fromRow(r),
+      ]);
     },
   );
 }

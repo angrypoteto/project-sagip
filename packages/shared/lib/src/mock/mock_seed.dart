@@ -697,6 +697,47 @@ class MockSeed {
     isSimulated: true,
   );
 
+  /// Sample 72-hour forecasts, as in the demo data: made-up values that
+  /// stand in for the LSTM + KDE model (plan 10.5), issued at 6 AM (the
+  /// daily run). Barangay 306 and Barangay 461 have none, to show the empty
+  /// state.
+  List<BarangayForecast> get forecasts {
+    var issued = DateTime(t0.year, t0.month, t0.day, 6);
+    if (issued.isAfter(t0)) issued = issued.subtract(const Duration(days: 1));
+    BarangayForecast f(
+      String barangay,
+      String district,
+      RiskLevel flood,
+      RiskLevel fire,
+      RiskLevel surge,
+    ) => BarangayForecast(
+      barangay: barangay,
+      district: district,
+      issuedAt: issued,
+      validUntil: issued.add(const Duration(hours: 72)),
+      risks: {
+        ForecastHazard.flood: flood,
+        ForecastHazard.fire: fire,
+        ForecastHazard.stormSurge: surge,
+      },
+      isSimulated: true,
+      modelVersion: ForecastRun.sampleModel,
+    );
+
+    const low = RiskLevel.low, moderate = RiskLevel.moderate;
+    const high = RiskLevel.high;
+    return [
+      f('Barangay 105', 'Tondo', moderate, high, moderate),
+      f('Barangay 128', 'Tondo', moderate, moderate, low),
+      f('Barangay 287', 'Binondo', moderate, moderate, low),
+      f('Barangay 412', 'Sampaloc', high, low, low),
+      f('Barangay 490', 'Sampaloc', high, low, low),
+      f('Barangay 560', 'Sampaloc', high, low, low),
+      f('Barangay 649', 'Port Area', moderate, low, high),
+      f('Barangay 700', 'Malate', moderate, low, high),
+    ];
+  }
+
   /// The four sample alerts of the demo data with their deliveries: shown
   /// in the apps, never sent outside them (simulated).
   List<SentAlert> get sentAlerts {
