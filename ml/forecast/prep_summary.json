@@ -1,0 +1,454 @@
+{
+  "data": "SAMPLE (made up by make_sample_data.py); nothing here is a result",
+  "provisional": [
+    "forecast unit: the whole city, one label per hazard (plan Q21, Q22)",
+    "prior-day incident count on day d = incidents of that hazard on day d - 1",
+    "the 3 windows before each split point are dropped"
+  ],
+  "window_days": 14,
+  "horizon_days": 3,
+  "split": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "features": [
+    "rainfall_total_mm",
+    "rainfall_max_hourly_mm",
+    "typhoon_signal",
+    "max_wind_kph",
+    "storm_surge_m",
+    "prior_day_incidents"
+  ],
+  "period": [
+    "2023-01-01",
+    "2025-12-31"
+  ],
+  "days": 1096,
+  "incident_records": {
+    "read": 427,
+    "removed_unreadable_date": 1,
+    "removed_outside_period": 1,
+    "removed_unknown_hazard": 1,
+    "removed_bad_coordinates": 0,
+    "removed_outside_manila": 2,
+    "removed_duplicates": 6,
+    "kept": 416
+  },
+  "hazards": {
+    "flood": {
+      "incidents": 92,
+      "days_with_an_incident": 54,
+      "windows": 1079,
+      "parts": {
+        "train": {
+          "windows": 752,
+          "positives": 76,
+          "positive_rate": 0.1011,
+          "first_window_ends": "2023-01-15",
+          "last_window_ends": "2025-02-04"
+        },
+        "validation": {
+          "windows": 159,
+          "positives": 8,
+          "positive_rate": 0.0503,
+          "first_window_ends": "2025-02-08",
+          "last_window_ends": "2025-07-16"
+        },
+        "test": {
+          "windows": 162,
+          "positives": 34,
+          "positive_rate": 0.2099,
+          "first_window_ends": "2025-07-20",
+          "last_window_ends": "2025-12-28"
+        }
+      },
+      "class_weights": {
+        "0": 0.5562,
+        "1": 4.9474
+      },
+      "scaler": {
+        "mean": [
+          10.5797,
+          3.4288,
+          0.0612,
+          22.2069,
+          0.0206,
+          0.0785
+        ],
+        "std": [
+          32.4574,
+          9.2269,
+          0.3245,
+          16.5757,
+          0.1956,
+          0.5213
+        ]
+      },
+      "baselines": {
+        "validation": {
+          "positives": 8,
+          "windows": 159,
+          "always_majority": {
+            "accuracy": 0.9497,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.2243,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 8,
+              "tn": 151
+            }
+          },
+          "persistence": {
+            "accuracy": 0.9371,
+            "precision": 0.3333,
+            "recall": 0.25,
+            "f1": 0.2857,
+            "rmse": 0.2508,
+            "confusion": {
+              "tp": 2,
+              "fp": 4,
+              "fn": 6,
+              "tn": 147
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.9119,
+            "precision": 0.2857,
+            "recall": 0.5,
+            "f1": 0.3636,
+            "rmse": 0.3231,
+            "confusion": {
+              "tp": 4,
+              "fp": 10,
+              "fn": 4,
+              "tn": 141
+            }
+          }
+        },
+        "test": {
+          "positives": 34,
+          "windows": 162,
+          "always_majority": {
+            "accuracy": 0.7901,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.4581,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 34,
+              "tn": 128
+            }
+          },
+          "persistence": {
+            "accuracy": 0.716,
+            "precision": 0.3421,
+            "recall": 0.3824,
+            "f1": 0.3611,
+            "rmse": 0.5329,
+            "confusion": {
+              "tp": 13,
+              "fp": 25,
+              "fn": 21,
+              "tn": 103
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.6173,
+            "precision": 0.2586,
+            "recall": 0.4412,
+            "f1": 0.3261,
+            "rmse": 0.5099,
+            "confusion": {
+              "tp": 15,
+              "fp": 43,
+              "fn": 19,
+              "tn": 85
+            }
+          }
+        }
+      }
+    },
+    "fire": {
+      "incidents": 290,
+      "days_with_an_incident": 238,
+      "windows": 1079,
+      "parts": {
+        "train": {
+          "windows": 752,
+          "positives": 379,
+          "positive_rate": 0.504,
+          "first_window_ends": "2023-01-15",
+          "last_window_ends": "2025-02-04"
+        },
+        "validation": {
+          "windows": 159,
+          "positives": 86,
+          "positive_rate": 0.5409,
+          "first_window_ends": "2025-02-08",
+          "last_window_ends": "2025-07-16"
+        },
+        "test": {
+          "windows": 162,
+          "positives": 77,
+          "positive_rate": 0.4753,
+          "first_window_ends": "2025-07-20",
+          "last_window_ends": "2025-12-28"
+        }
+      },
+      "class_weights": {
+        "0": 1.008,
+        "1": 0.9921
+      },
+      "scaler": {
+        "mean": [
+          10.5797,
+          3.4288,
+          0.0612,
+          22.2069,
+          0.0206,
+          0.2608
+        ],
+        "std": [
+          32.4574,
+          9.2269,
+          0.3245,
+          16.5757,
+          0.1956,
+          0.5325
+        ]
+      },
+      "baselines": {
+        "validation": {
+          "positives": 86,
+          "windows": 159,
+          "always_majority": {
+            "accuracy": 0.5409,
+            "precision": 0.5409,
+            "recall": 1.0,
+            "f1": 0.702,
+            "rmse": 0.6776,
+            "confusion": {
+              "tp": 86,
+              "fp": 73,
+              "fn": 0,
+              "tn": 0
+            }
+          },
+          "persistence": {
+            "accuracy": 0.4717,
+            "precision": 0.5119,
+            "recall": 0.5,
+            "f1": 0.5059,
+            "rmse": 0.7268,
+            "confusion": {
+              "tp": 43,
+              "fp": 41,
+              "fn": 43,
+              "tn": 32
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.522,
+            "precision": 0.5385,
+            "recall": 0.814,
+            "f1": 0.6481,
+            "rmse": 0.5091,
+            "confusion": {
+              "tp": 70,
+              "fp": 60,
+              "fn": 16,
+              "tn": 13
+            }
+          }
+        },
+        "test": {
+          "positives": 77,
+          "windows": 162,
+          "always_majority": {
+            "accuracy": 0.4753,
+            "precision": 0.4753,
+            "recall": 1.0,
+            "f1": 0.6444,
+            "rmse": 0.7244,
+            "confusion": {
+              "tp": 77,
+              "fp": 85,
+              "fn": 0,
+              "tn": 0
+            }
+          },
+          "persistence": {
+            "accuracy": 0.4074,
+            "precision": 0.3733,
+            "recall": 0.3636,
+            "f1": 0.3684,
+            "rmse": 0.7698,
+            "confusion": {
+              "tp": 28,
+              "fp": 47,
+              "fn": 49,
+              "tn": 38
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.5185,
+            "precision": 0.4915,
+            "recall": 0.3766,
+            "f1": 0.4265,
+            "rmse": 0.5429,
+            "confusion": {
+              "tp": 29,
+              "fp": 30,
+              "fn": 48,
+              "tn": 55
+            }
+          }
+        }
+      }
+    },
+    "storm_surge": {
+      "incidents": 34,
+      "days_with_an_incident": 16,
+      "windows": 1079,
+      "parts": {
+        "train": {
+          "windows": 752,
+          "positives": 18,
+          "positive_rate": 0.0239,
+          "first_window_ends": "2023-01-15",
+          "last_window_ends": "2025-02-04"
+        },
+        "validation": {
+          "windows": 159,
+          "positives": 1,
+          "positive_rate": 0.0063,
+          "first_window_ends": "2025-02-08",
+          "last_window_ends": "2025-07-16"
+        },
+        "test": {
+          "windows": 162,
+          "positives": 16,
+          "positive_rate": 0.0988,
+          "first_window_ends": "2025-07-20",
+          "last_window_ends": "2025-12-28"
+        }
+      },
+      "class_weights": {
+        "0": 0.5123,
+        "1": 20.8889
+      },
+      "scaler": {
+        "mean": [
+          10.5797,
+          3.4288,
+          0.0612,
+          22.2069,
+          0.0206,
+          0.0213
+        ],
+        "std": [
+          32.4574,
+          9.2269,
+          0.3245,
+          16.5757,
+          0.1956,
+          0.2464
+        ]
+      },
+      "baselines": {
+        "validation": {
+          "positives": 1,
+          "windows": 159,
+          "always_majority": {
+            "accuracy": 0.9937,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.0793,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "tn": 158
+            }
+          },
+          "persistence": {
+            "accuracy": 0.9937,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.0793,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "tn": 158
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.9686,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.1781,
+            "confusion": {
+              "tp": 0,
+              "fp": 4,
+              "fn": 1,
+              "tn": 154
+            }
+          }
+        },
+        "test": {
+          "positives": 16,
+          "windows": 162,
+          "always_majority": {
+            "accuracy": 0.9012,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.3143,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 16,
+              "tn": 146
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8272,
+            "precision": 0.2,
+            "recall": 0.25,
+            "f1": 0.2222,
+            "rmse": 0.4157,
+            "confusion": {
+              "tp": 4,
+              "fp": 16,
+              "fn": 12,
+              "tn": 130
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.8704,
+            "precision": 0.3077,
+            "recall": 0.25,
+            "f1": 0.2759,
+            "rmse": 0.3626,
+            "confusion": {
+              "tp": 4,
+              "fp": 9,
+              "fn": 12,
+              "tn": 137
+            }
+          }
+        }
+      }
+    }
+  }
+}

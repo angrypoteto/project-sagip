@@ -1,0 +1,4 @@
+# Forecast data preparation and KDE (ml/forecast). The LSTM will add TensorFlow,
+# which needs Python 3.12 (no build for 3.14 yet).
+numpy==2.5.3
+scikit-learn==1.9.1

@@ -1,6 +1,7 @@
 # Checks every push to main and every pull request: formatting, analysis,
-# and tests for the three Dart packages, the Edge Function tests, and a scan
-# for keys that must never be committed (CLAUDE.md: no secrets in the repo).
+# and tests for the three Dart packages, the Edge Function tests, the
+# forecast data preparation tests, and a scan for keys that must never be
+# committed (CLAUDE.md: no secrets in the repo).
 name: CI
 
 on:
@@ -68,6 +69,21 @@ jobs:
           node --test
           supabase/functions/send-alerts/alerts.test.ts
           supabase/functions/send-alerts/index.test.ts
+
+  forecast:
+    name: Forecast data preparation and KDE
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -r ml/requirements-forecast.txt
+      - name: Windows, split, class weights, KDE bandwidth, grid, and per-barangay averages
+        working-directory: ml/forecast
+        run: python -m unittest test_forecast -v
 
   secrets:
     name: No keys in the repo

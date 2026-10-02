@@ -1,0 +1,322 @@
+{
+  "data": "SAMPLE (made up by make_sample_data.py); nothing here is a result",
+  "provisional": [
+    "no barangay boundaries: the average is over the cells within 400 m of each centre",
+    "no risk levels: how the density and the LSTM probability combine is not decided (plan Q22)"
+  ],
+  "kernel": "gaussian",
+  "distance": "haversine",
+  "bandwidths_tried_m": [
+    100,
+    200,
+    300,
+    400,
+    500
+  ],
+  "folds": 5,
+  "grid_step_m": 100,
+  "period": [
+    "2023-01-01",
+    "2025-12-31"
+  ],
+  "incident_records": {
+    "read": 427,
+    "removed_unreadable_date": 1,
+    "removed_outside_period": 1,
+    "removed_unknown_hazard": 1,
+    "removed_bad_coordinates": 0,
+    "removed_outside_manila": 2,
+    "removed_duplicates": 6,
+    "kept": 416
+  },
+  "hazards": {
+    "flood": {
+      "incidents": 92,
+      "bandwidth_m": 200,
+      "mean_log_likelihood": {
+        "100": 14.3709,
+        "200": 15.4309,
+        "300": 15.4109,
+        "400": 15.2322,
+        "500": 15.0168
+      },
+      "grid_cells": 17110,
+      "densest_cell_per_km2": 56.1,
+      "incidents_under_the_surface": 92.0,
+      "barangays": {
+        "Barangay 105": {
+          "district": "Tondo",
+          "mean_per_km2": 16.367,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.469,
+          "rank": 2
+        },
+        "Barangay 128": {
+          "district": "Tondo",
+          "mean_per_km2": 0.393,
+          "cells": 48,
+          "area": "within 400 m of the centre",
+          "relative": 0.011,
+          "rank": 6
+        },
+        "Barangay 287": {
+          "district": "Binondo",
+          "mean_per_km2": 0.0,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 9
+        },
+        "Barangay 306": {
+          "district": "Quiapo",
+          "mean_per_km2": 0.027,
+          "cells": 49,
+          "area": "within 400 m of the centre",
+          "relative": 0.001,
+          "rank": 7
+        },
+        "Barangay 412": {
+          "district": "Sampaloc",
+          "mean_per_km2": 34.898,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 1.0,
+          "rank": 1
+        },
+        "Barangay 461": {
+          "district": "Sampaloc",
+          "mean_per_km2": 11.064,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.317,
+          "rank": 4
+        },
+        "Barangay 490": {
+          "district": "Sampaloc",
+          "mean_per_km2": 15.613,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.447,
+          "rank": 3
+        },
+        "Barangay 560": {
+          "district": "Sampaloc",
+          "mean_per_km2": 5.261,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.151,
+          "rank": 5
+        },
+        "Barangay 649": {
+          "district": "Port Area",
+          "mean_per_km2": 0.0,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 10
+        },
+        "Barangay 700": {
+          "district": "Malate",
+          "mean_per_km2": 0.02,
+          "cells": 52,
+          "area": "within 400 m of the centre",
+          "relative": 0.001,
+          "rank": 8
+        }
+      }
+    },
+    "fire": {
+      "incidents": 290,
+      "bandwidth_m": 200,
+      "mean_log_likelihood": {
+        "100": 15.5792,
+        "200": 15.7372,
+        "300": 15.5731,
+        "400": 15.3402,
+        "500": 15.0937
+      },
+      "grid_cells": 17110,
+      "densest_cell_per_km2": 120.73,
+      "incidents_under_the_surface": 290.0,
+      "barangays": {
+        "Barangay 105": {
+          "district": "Tondo",
+          "mean_per_km2": 67.554,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.929,
+          "rank": 2
+        },
+        "Barangay 128": {
+          "district": "Tondo",
+          "mean_per_km2": 1.747,
+          "cells": 48,
+          "area": "within 400 m of the centre",
+          "relative": 0.024,
+          "rank": 7
+        },
+        "Barangay 287": {
+          "district": "Binondo",
+          "mean_per_km2": 0.815,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.011,
+          "rank": 8
+        },
+        "Barangay 306": {
+          "district": "Quiapo",
+          "mean_per_km2": 72.689,
+          "cells": 49,
+          "area": "within 400 m of the centre",
+          "relative": 1.0,
+          "rank": 1
+        },
+        "Barangay 412": {
+          "district": "Sampaloc",
+          "mean_per_km2": 7.28,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.1,
+          "rank": 6
+        },
+        "Barangay 461": {
+          "district": "Sampaloc",
+          "mean_per_km2": 28.53,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.392,
+          "rank": 5
+        },
+        "Barangay 490": {
+          "district": "Sampaloc",
+          "mean_per_km2": 38.07,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.524,
+          "rank": 4
+        },
+        "Barangay 560": {
+          "district": "Sampaloc",
+          "mean_per_km2": 56.638,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.779,
+          "rank": 3
+        },
+        "Barangay 649": {
+          "district": "Port Area",
+          "mean_per_km2": 0.589,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.008,
+          "rank": 9
+        },
+        "Barangay 700": {
+          "district": "Malate",
+          "mean_per_km2": 0.0,
+          "cells": 52,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 10
+        }
+      }
+    },
+    "storm_surge": {
+      "incidents": 34,
+      "bandwidth_m": 200,
+      "mean_log_likelihood": {
+        "100": 16.1816,
+        "200": 16.8009,
+        "300": 16.573,
+        "400": 16.2552,
+        "500": 15.9445
+      },
+      "grid_cells": 17110,
+      "densest_cell_per_km2": 50.08,
+      "incidents_under_the_surface": 34.0,
+      "barangays": {
+        "Barangay 105": {
+          "district": "Tondo",
+          "mean_per_km2": 0.743,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.204,
+          "rank": 2
+        },
+        "Barangay 128": {
+          "district": "Tondo",
+          "mean_per_km2": 0.044,
+          "cells": 48,
+          "area": "within 400 m of the centre",
+          "relative": 0.012,
+          "rank": 4
+        },
+        "Barangay 287": {
+          "district": "Binondo",
+          "mean_per_km2": 0.0,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 5
+        },
+        "Barangay 306": {
+          "district": "Quiapo",
+          "mean_per_km2": 0.0,
+          "cells": 49,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 6
+        },
+        "Barangay 412": {
+          "district": "Sampaloc",
+          "mean_per_km2": 0.0,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 7
+        },
+        "Barangay 461": {
+          "district": "Sampaloc",
+          "mean_per_km2": 0.0,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 8
+        },
+        "Barangay 490": {
+          "district": "Sampaloc",
+          "mean_per_km2": 0.0,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 9
+        },
+        "Barangay 560": {
+          "district": "Sampaloc",
+          "mean_per_km2": 0.0,
+          "cells": 51,
+          "area": "within 400 m of the centre",
+          "relative": 0.0,
+          "rank": 10
+        },
+        "Barangay 649": {
+          "district": "Port Area",
+          "mean_per_km2": 3.647,
+          "cells": 50,
+          "area": "within 400 m of the centre",
+          "relative": 1.0,
+          "rank": 1
+        },
+        "Barangay 700": {
+          "district": "Malate",
+          "mean_per_km2": 0.106,
+          "cells": 52,
+          "area": "within 400 m of the centre",
+          "relative": 0.029,
+          "rank": 3
+        }
+      }
+    }
+  }
+}

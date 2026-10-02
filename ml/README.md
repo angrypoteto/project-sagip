@@ -5,9 +5,10 @@ Data preparation and model training for S.A.G.I.P. (plan sections 10.2 to 10.5).
 | Folder | What it makes | Used by |
 |---|---|---|
 | `road_graph/` | The directed Manila road graph for Dijkstra (`packages/shared/assets/road_graph/manila_drive_v1.bin`) and the networkx reference answers for its test | `RoadGraph`, `RoadRouter`, and `RoadNetworkSuggester` in `packages/shared` |
+| `forecast/` | The data preparation for the LSTM (cleaned records, 14-day windows, chronological split, class weights, baselines) and the KDE surfaces with their per-barangay averages, both on made-up sample data for now | The LSTM training (not built yet: TensorFlow) and, once plan Q22 is decided, the rows in `barangay_forecast` that D8 and R7 show |
 | `classifier/` | The incident type classifier for crowd reports (FR12): `packages/shared/assets/classifier/incident_classifier_v1.json`, the reference answers for its tests, `metrics.json`, and the SQL that loads the model into the database | `private.classify_report` in the database (the trigger on `crowd_report`) and `IncidentClassifier` in `packages/shared` |
 
-Still to come: the LSTM + KDE forecast (10.5), once the Data role delivers the MDRRMD records.
+Still to come: training the LSTM (it needs TensorFlow, so Python 3.12, and the real records) and turning the LSTM probability and the KDE density into risk levels (plan Q22).
 
 ## Setup
 
@@ -17,6 +18,7 @@ Python 3.12 or newer. Use a virtual environment in the repo root (git-ignored):
 python -m venv .venv
 .venv/Scripts/python -m pip install -r ml/requirements-road-graph.txt   # Windows
 .venv/Scripts/python -m pip install -r ml/requirements-classifier.txt   # only for the classifier
+.venv/Scripts/python -m pip install -r ml/requirements-forecast.txt     # only for the forecast
 # .venv/bin/python on macOS and Linux
 ```
 
@@ -47,3 +49,22 @@ cd packages/shared && flutter test test/incident_classifier_test.dart
 - **Not sure means no tag.** Below `MIN_CONFIDENCE` (0.5) a report is left untagged. On the handwritten check 72 of 80 get a tag, and 89% of those are right.
 - **What it writes:** the model for Dart (`packages/shared/assets/classifier/`), 38 reference cases (`packages/shared/test/fixtures/classifier_reference.json`), `metrics.json`, and `build/classifier_model.sql` (git-ignored) for a migration. The export is rounded to 5 decimals and checked against scikit-learn itself (largest difference 0.000003).
 - **Three implementations, one answer:** `classify()` in the training script, `IncidentClassifier` in Dart, and `private.classify_report` in the database must all give the numbers in the reference file. The Dart test and the RLS test check this; rerun both after retraining and update the cases in `supabase/tests/rls_test.sql`.
+
+## Forecast: data preparation and KDE (plan 10.5)
+
+```bash
+.venv/Scripts/python ml/forecast/make_sample_data.py    # only to rebuild the sample data
+cd ml/forecast
+../../.venv/Scripts/python prepare_windows.py            # cleaning, windows, split, class weights, baselines
+../../.venv/Scripts/python kde.py                        # bandwidth by 5-fold CV, 100 m grid, per-barangay averages
+../../.venv/Scripts/python -m unittest test_forecast     # 13 checks (CI runs them too)
+```
+
+- **The data is made up.** `data/sample_weather_daily.csv` (three years of daily rain, wind signal, wind, and storm surge) and `data/sample_incidents.csv` (floods, fires, and storm surge incidents around a few made-up hotspots) come from `make_sample_data.py`, by rules written in its header: floods follow heavy rain, fires peak in the dry months, surge incidents happen on surge days. A few bad rows are added on purpose. **They are not PAGASA or MDRRMD records, and nothing measured on them is a result.** `data/sample_barangays.csv` holds the ten sample barangays of the database.
+- **Real data:** the same columns. Weather: `date,rainfall_total_mm,rainfall_max_hourly_mm,typhoon_signal,max_wind_kph,storm_surge_m`, one row for every day of the period (a missing or repeated day, or a value out of range, stops the run with the line number; a silent gap would shift every window). Incidents: `incident_id,date,hazard,latitude,longitude` with `hazard` one of `flood`, `fire`, `storm_surge`. Run both scripts with `--weather` and `--incidents`. The storm surge column is a height in metres (what PAGASA's surge advisories give); if the Data role only has the advisory number, change the range in `WEATHER_RANGES`.
+- **Cleaning** (`clean_incidents`): removes unreadable dates, dates outside the weather period, unknown hazards, missing coordinates, points outside a box around Manila (until the boundaries arrive), and the same hazard at the same spot on the same day; every count is in the summary (plan 10.5: log what was kept and removed).
+- **Windows** (`prepare_windows.py`, the thesis parameters): six daily features over 14 days; the label of the window ending on day *t* is 1 when at least one incident of that hazard happens on days *t+1* to *t+3*; split 70/15/15 in time order, dropping the 3 windows before each split point (their labels look into the next part); features scaled with the training part only; class weights inversely proportional to class frequency. Writes `build/windows_<hazard>.npz` (git-ignored) for the LSTM, and `prep_summary.json` with the counts and three baselines on validation and test: always the more common class, "an incident in the last 3 days means one in the next 3", and logistic regression on the whole window. The LSTM must beat the third to be worth its weight (plan Q23).
+- **KDE** (`kde.py`, the thesis parameters): Gaussian kernel with haversine distance (scikit-learn's `KernelDensity` on radians), the bandwidth chosen from 100 to 500 m by 5-fold cross-validated log-likelihood, a 100 m grid over Manila, densities in incidents per square kilometre over the period, averaged per barangay with a rank and a value relative to the densest. Writes `kde_summary.json` and `build/kde_grid_<hazard>.csv`.
+- **Provisional, for the team** (also listed in the two summaries): the forecast unit is the whole city, one series per hazard (plan Q21); "per barangay" is the mean of the cells within 400 m of the centre until boundaries arrive (drop a GeoJSON at `data/barangay_boundaries.geojson`, one feature per barangay with a `name` property, and the cells inside each boundary are used); no risk levels are written, because how the density and the probability combine is not decided (plan Q22).
+- **Two things the sample already shows** (they come from the method, not the made-up numbers): (1) the 14-day window holds only past weather, so rain that falls during the next 72 hours is not in the input; a flood after a dry spell cannot be foreseen from it. The model can learn the season, an approaching typhoon's first days, and recent incidents. Whether the last day of the window should carry PAGASA's own forecast is a question for the team. (2) With three years of records, a chronological 15% validation part falls in one season (Feb to Jul 2025 here, few floods), which makes early stopping on it shaky; more years, or a validation part chosen per season, would help.
+
