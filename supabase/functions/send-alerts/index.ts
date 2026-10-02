@@ -1,0 +1,167 @@
+// send-alerts: works through queued alert deliveries (FR6, plan section 12).
+//
+// Each alert (from the threshold engine or MDRRMD) has one delivery row per
+// channel. This function claims the queued ones and:
+// - SMS: texts the registered residents of the affected barangays through
+//   Semaphore, one SMS each, up to the daily cap set on A3
+//   (channels.sms_daily_cap). Every text is kept in sms_log; the delivery
+//   row gets the counts.
+// - Push and Facebook: marked "not set up" until the Firebase project and
+//   the Facebook Page token exist.
+// Simulated alerts never reach this function: their deliveries are logged
+// as "simulated" when the alert is issued.
+//
+// Call it from a Database Webhook on INSERT into public.alert_delivery (or
+// on a schedule) with the shared secret as `x-sagip-key`. A run with
+// nothing queued does nothing, so extra calls are harmless.
+//
+// Secrets (Edge Functions > Secrets): ALERTS_SECRET, SEMAPHORE_API_KEY,
+// optional SEMAPHORE_SENDER_NAME. SUPABASE_URL and
+// SUPABASE_SERVICE_ROLE_KEY are provided by the platform.
+//
+// Deploy with JWT checking off (the webhook uses the shared secret):
+//   supabase functions deploy send-alerts --no-verify-jwt
+
+import { maskNumber, semaphoreNumber } from "../send-sms/sms.ts";
+import { authorized } from "../sms-intake/intake.ts";
+import {
+  acceptedCount,
+  alertSmsText,
+  chunk,
+  type ClaimedDelivery,
+  cleanNumbers,
+  ended,
+  notSetUp,
+  type Outcome,
+  planBroadcast,
+  smsOutcome,
+} from "./alerts.ts";
+
+const url = Deno.env.get("SUPABASE_URL");
+const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+function json(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+async function rest(path: string, body: unknown): Promise<Response> {
+  return await fetch(`${url}/rest/v1/${path}`, {
+    method: "POST",
+    headers: {
+      apikey: serviceKey!,
+      Authorization: `Bearer ${serviceKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+async function rpc<T>(name: string, params: Record<string, unknown> = {}): Promise<T> {
+  const res = await rest(`rpc/${name}`, params);
+  if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
+  const text = await res.text();
+  return (text ? JSON.parse(text) : null) as T;
+}
+
+async function finish(d: ClaimedDelivery, o: Outcome): Promise<void> {
+  await rpc("finish_alert_delivery", {
+    p_delivery_id: d.delivery_id,
+    p_status: o.status,
+    p_recipients: o.recipients,
+    p_delivered: o.delivered,
+    p_failed: o.failed,
+    p_detail: o.detail,
+  });
+}
+
+async function sendSms(d: ClaimedDelivery, apiKey: string): Promise<Outcome> {
+  const numbers = cleanNumbers(
+    await rpc<string[]>("alert_sms_recipients", { p_alert_id: d.alert.alert_id }),
+    semaphoreNumber,
+  );
+  const budget = await rpc<{ left: number }>("alert_sms_budget");
+  const plan = planBroadcast(numbers, budget.left);
+  const message = alertSmsText(d.alert.title, d.alert.body);
+  const sender = Deno.env.get("SEMAPHORE_SENDER_NAME");
+
+  let accepted = 0;
+  for (const batch of chunk(plan.send)) {
+    const form = new URLSearchParams({ apikey: apiKey, number: batch.join(","), message });
+    if (sender) form.set("sendername", sender);
+    let ok = 0;
+    let detail: string | null = null;
+    try {
+      const res = await fetch("https://api.semaphore.co/api/v4/messages", {
+        method: "POST",
+        body: form,
+      });
+      ok = acceptedCount(res.ok, await res.json().catch(() => null), batch.length);
+      if (ok < batch.length) detail = `HTTP ${res.status}`;
+    } catch {
+      detail = "Semaphore could not be reached";
+    }
+    accepted += ok;
+    // The log of texts (full numbers; no client can read it).
+    await rest(
+      "sms_log",
+      batch.map((to, i) => ({
+        kind: "alert",
+        to_number: to,
+        body: message,
+        provider: "semaphore",
+        status: i < ok ? "sent" : "failed",
+        detail: i < ok ? d.alert.alert_id : `${d.alert.alert_id}: ${detail}`,
+      })),
+    ).catch(() => {});
+    if (batch.length > 0) {
+      console.log(
+        `send-alerts: ${ok} of ${batch.length} accepted, first ${maskNumber(batch[0])}`,
+      );
+    }
+  }
+  return smsOutcome(numbers.length, accepted, plan.overCap);
+}
+
+Deno.serve(async (req) => {
+  const secret = Deno.env.get("ALERTS_SECRET");
+  if (!secret || !url || !serviceKey) return json(500, { error: "send-alerts is not set up" });
+  if (!authorized(req.headers, secret)) return json(401, { error: "unauthorized" });
+
+  let claimed: ClaimedDelivery[];
+  try {
+    claimed = await rpc<ClaimedDelivery[]>("claim_alert_deliveries");
+  } catch (e) {
+    console.log(`send-alerts: could not claim deliveries (${(e as Error).message})`);
+    return json(502, { error: "could not read the queue" });
+  }
+
+  const apiKey = Deno.env.get("SEMAPHORE_API_KEY");
+  const results: Record<string, string> = {};
+  for (const d of claimed) {
+    let outcome: Outcome;
+    try {
+      if (d.alert.ended) {
+        outcome = ended;
+      } else if (d.channel === "sms" && apiKey) {
+        outcome = await sendSms(d, apiKey);
+      } else {
+        outcome = notSetUp(d.channel);
+      }
+    } catch (e) {
+      outcome = {
+        status: "failed",
+        recipients: null,
+        delivered: null,
+        failed: null,
+        detail: (e as Error).message.slice(0, 200),
+      };
+    }
+    await finish(d, outcome).catch(() => {});
+    results[`${d.alert.alert_id}:${d.channel}`] = outcome.status;
+    console.log(`send-alerts: ${d.alert.alert_id} ${d.channel} ${outcome.status}`);
+  }
+  return json(200, { processed: claimed.length, results });
+});

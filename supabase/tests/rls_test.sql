@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(196);
+select plan(206);
 
 select public.reset_demo_data();
 
@@ -710,6 +710,66 @@ set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", 
 select is(public.client_config(),
   '{"hotline": "(02) 8527-0000", "sms_gateway": "+639175550199"}'::jsonb,
   'the apps read the hotline and the gateway number');
+
+-- ------------------------------------------------ the alert sender (FR6)
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'public.claim_alert_deliveries()', 'execute')
+  and not has_function_privilege('authenticated', 'public.alert_sms_recipients(text)', 'execute')
+  and not has_function_privilege('authenticated', 'public.alert_sms_budget()', 'execute')
+  and not has_function_privilege('authenticated',
+        'public.finish_alert_delivery(bigint, text, int, int, int, text)', 'execute')
+  and has_function_privilege('service_role', 'public.claim_alert_deliveries()', 'execute'),
+  'only the sender (service role) can claim deliveries, list numbers, or record outcomes');
+
+-- An MDRRMD alert for one barangay, with SMS switched back on.
+update public.app_setting set value = 'true' where key = 'channels.sms';
+insert into public.public_alert (alert_id, source, level, title, body, barangays)
+values ('alert-test-sms', 'mdrrmd', 'warning', 'Flooding on Dapitan St', 'Avoid the area.',
+        array['Barangay 412']);
+create temp table __claim as
+  select (select count(*)::int from public.alert_delivery
+           where status = 'queued' and channel <> 'app') as waiting,
+         public.claim_alert_deliveries() as claimed;
+select ok(
+  (select waiting >= 2 and jsonb_array_length(claimed) = waiting from __claim),
+  'the sender claims every queued delivery');
+select is(
+  (select string_agg(c ->> 'channel', ',' order by c ->> 'channel')
+     from __claim, jsonb_array_elements(claimed) c
+    where c -> 'alert' ->> 'alert_id' = 'alert-test-sms'),
+  'push,sms', 'with the alert to send (the switched-off channel is not claimed)');
+select is(
+  (select count(*)::int from public.alert_delivery where status = 'queued'),
+  0, 'claimed deliveries are marked as being sent');
+select is(jsonb_array_length(public.claim_alert_deliveries()), 0,
+  'a second run claims nothing, so nothing is sent twice');
+select ok(
+  (select cardinality(public.alert_sms_recipients('alert-test-sms')) > 0
+      and cardinality(public.alert_sms_recipients('alert-test-sms'))
+          = (select count(distinct contact_number)::int from public.manila_resident
+              where barangay = 'Barangay 412')
+      and cardinality(public.alert_sms_recipients('alert-test-sms'))
+          < (select count(distinct contact_number)::int from public.manila_resident)),
+  'an alert for one barangay texts only its registered residents');
+select lives_ok(
+  $$ select public.finish_alert_delivery(
+       (select delivery_id from public.alert_delivery
+         where alert_id = 'alert-test-sms' and channel = 'sms'), 'sent', 3, 3, 0, null) $$,
+  'the sender records the outcome');
+select throws_ok(
+  $$ select public.finish_alert_delivery(
+       (select delivery_id from public.alert_delivery
+         where alert_id = 'alert-test-sms' and channel = 'sms'), 'sent', 3, 3, 0, null) $$,
+  'P0001', 'not_found', 'an outcome is recorded once');
+select throws_ok(
+  $$ select public.finish_alert_delivery(
+       (select delivery_id from public.alert_delivery
+         where alert_id = 'alert-test-sms' and channel = 'push'), 'queued') $$,
+  'P0001', 'invalid_value', 'only a final outcome can be recorded');
+select is(public.alert_sms_budget(), '{"cap": 500, "sent_today": 3, "left": 497}'::jsonb,
+  'the daily cap counts the texts sent today');
 
 reset role;
 select * from finish();

@@ -75,6 +75,14 @@ class ConfigurationPage extends ConsumerWidget {
             ),
             const SizedBox(height: SagipSpace.xl),
             NumberSettingsCard(
+              id: 'sms-cap',
+              title: l10n.configSmsCapTitle,
+              note: l10n.configSmsCapNote,
+              labels: {SettingKeys.smsDailyCap: l10n.settingSmsDailyCap},
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
+            NumberSettingsCard(
               id: 'reports',
               title: l10n.configReportsTitle,
               note: l10n.configReportsNote,

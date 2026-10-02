@@ -342,7 +342,8 @@ class _AlertRow extends ConsumerWidget {
                   style: text.bodySmall!.copyWith(
                     color: switch (d.status) {
                       AlertDeliveryStatus.failed => p.critical.text,
-                      AlertDeliveryStatus.queued => p.warning.text,
+                      AlertDeliveryStatus.queued ||
+                      AlertDeliveryStatus.sending => p.warning.text,
                       AlertDeliveryStatus.sent => p.success.text,
                       _ => p.textSecondary,
                     },
@@ -350,6 +351,13 @@ class _AlertRow extends ConsumerWidget {
                 ),
             ],
           ),
+          // Why a channel did not go out in full (written by the sender).
+          for (final d in sent.deliveries)
+            if (d.detail != null && d.detail!.isNotEmpty)
+              Text(
+                l10n.deliveryLine(l10n.alertChannel(d.channel), d.detail!),
+                style: text.bodySmall,
+              ),
         ],
       ),
     );

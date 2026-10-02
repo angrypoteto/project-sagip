@@ -114,6 +114,9 @@ abstract final class SettingKeys {
   static const facebookChannel = 'channels.facebook';
   static const channels = [pushChannel, smsChannel, facebookChannel];
 
+  /// The most alert texts sent in one day (each costs Semaphore credit).
+  static const smsDailyCap = 'channels.sms_daily_cap';
+
   /// The MDRRMD hotline the apps show.
   static const hotline = 'contact.hotline';
 
@@ -209,6 +212,14 @@ const defaultOtherSettings = [
     category: 'channels',
     value: false,
     description: 'Post alerts on the MDRRMD Facebook Page',
+  ),
+  AppSetting(
+    key: SettingKeys.smsDailyCap,
+    category: 'channels',
+    value: 500,
+    min: 0,
+    max: 100000,
+    description: 'Most alert texts sent in one day (Manila time)',
   ),
   AppSetting(
     key: SettingKeys.hotline,

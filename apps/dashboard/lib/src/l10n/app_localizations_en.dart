@@ -1694,6 +1694,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Needs the page\'s approval and access token.';
 
   @override
+  String get configSmsCapTitle => 'SMS alert limit';
+
+  @override
+  String get configSmsCapNote =>
+      'Each text costs Semaphore credit. When the day\'s limit is reached, the rest of an alert\'s texts are not sent, and the alert log says so.';
+
+  @override
+  String get settingSmsDailyCap => 'Alert texts per day';
+
+  @override
   String get configContactTitle => 'Numbers shown in the apps';
 
   @override
@@ -1844,6 +1854,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryQueued => 'Waiting to send';
 
   @override
+  String get deliverySending => 'Sending';
+
+  @override
+  String get deliveryEnded => 'Not sent (the alert ended)';
+
+  @override
   String get deliverySent => 'Sent';
 
   @override
@@ -1865,7 +1881,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deliveryCounts(String channel, int delivered, int recipients) {
-    return '$channel: $delivered of $recipients delivered';
+    return '$channel: sent to $delivered of $recipients';
   }
 
   @override

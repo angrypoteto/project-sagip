@@ -23,9 +23,11 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_configuration.sql` | A3 settings (`app_setting`: the Triage Queue priority weights), `set_setting` (admins only, audited as `settingChanged`), and the priority score, severity, and factors on `incident_board` |
 | `migrations/*_routing.sql` | Road routes on dispatch records (`dispatch.route` polyline and `route_plan`; `assign_unit` takes the route), routes in `my_assignments`, and the Dijkstra timing log `routing_run` (admins read it; `log_routing_run` writes it) |
 | `migrations/*_sms_intake.sql`, `*_sms_gateway_provider.sql` | Tier 2: `intake_sms_sos` (service role only) files an SOS texted to the gateway SIM, finding the resident by the sender's number; `submit_sos` attaches the resident when the app's copy of an SOS texted from another SIM arrives; inbound texts logged in `sms_log` |
+| `migrations/*_alert_sender.sql` | For the alert sender (service role only): `claim_alert_deliveries()`, `alert_sms_recipients()`, `alert_sms_budget()` (the daily cap `channels.sms_daily_cap`, set on A3), `finish_alert_delivery()` |
+| `functions/send-alerts/` | Works through queued alert deliveries: texts residents of the affected barangays through Semaphore (one SMS each, up to the daily cap), logs every text in `sms_log`, and records each channel's outcome; `alerts.test.ts` and `index.test.ts` run with `node --test` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 196 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 206 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -112,10 +114,21 @@ flutter build web --release -t lib/main_webform.dart -o build/webform --dart-def
 
 - **Thresholds.** `app_setting` holds a warning and a critical value for rainfall (mm per hour), the wind signal, and storm surge height (m). They are provisional (PAGASA's rainfall warning levels and storm surge risk bands) until MDRRMD confirms them; an admin changes them on the Configuration page.
 - **The engine.** Each new row in `weather_alert` is compared with the reading before it. When a hazard's level changes, the earlier automatic alerts for that hazard expire and, at warning or critical, a new row goes into `public_alert` (residents see it in the app at once). A reading at the same level raises nothing; the very first reading only sets the baseline. This is what the PAGASA feed will drive once it exists: it only has to insert readings.
-- **Deliveries.** Every new alert gets four rows in `alert_delivery`: `app` (sent), and `push`, `sms`, `facebook` as `queued`, or `off` when the channel is switched off on the Configuration page. Nothing sends the queued rows yet: the sender (Semaphore broadcast, FCM, Facebook) is the next piece and needs those accounts. The Weather page shows the log.
+- **Deliveries.** Every new alert gets four rows in `alert_delivery`: `app` (sent), and `push`, `sms`, `facebook` as `queued`, or `off` when the channel is switched off on the Configuration page. The `send-alerts` Edge Function works through the queued rows (steps below); until it is deployed they stay queued. The Weather page shows the log.
 - **Simulation mode.** With the switch on (Configuration page), an admin can send a simulated reading (`simulate_weather`): a typhoon, heavy rain, or calm. The engine treats it like any reading, but the alerts are marked simulated and their deliveries are `simulated`: shown in the apps, never texted or posted. From the SQL editor a real-looking reading is `insert into public.weather_alert (signal_level, rainfall_intensity, storm_surge_m) values (3, 35, 2.5);` (that one queues real deliveries).
 - **The numbers.** `contact.hotline` and `contact.sms_gateway` are the hotline and the gateway SIM the apps show and use. `client_config()` returns them and can be called without signing in (they are public numbers).
-- **Not done:** the data retention period (which records are removed and when is a decision for the team and MDRRMD), EFCOS levels, and the sender for queued deliveries.
+- **Not done:** the data retention period (which records are removed and when is a decision for the team and MDRRMD), EFCOS levels, push (needs the Firebase project), and Facebook posting (needs the page token). `send-alerts` marks those two channels "not set up" for now.
+
+## Sending alerts by SMS (for Joshua, when the Semaphore account exists)
+
+`send-alerts` texts each queued alert to the registered residents of its barangays (everyone for an all-Manila alert): one SMS per resident, cut to 160 characters, never more than the daily cap an admin sets on the Configuration page ("SMS alert limit", 500 by default). Each text is logged in `sms_log`; the delivery row on the Weather page gets the counts, and says so when the cap left some unsent. Simulated alerts are never sent.
+
+1. **Deploy:** `supabase functions deploy send-alerts --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+2. **Secrets** (Edge Functions > Secrets): `ALERTS_SECRET` (make up a long random string), `SEMAPHORE_API_KEY`, and `SEMAPHORE_SENDER_NAME` once Semaphore approves it. Without the Semaphore key the function marks SMS deliveries "not set up" and sends nothing.
+3. **Call it when an alert is queued:** Database > Webhooks > Create: table `alert_delivery`, event Insert, type HTTP request, POST to `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/send-alerts` with the header `x-sagip-key: <ALERTS_SECRET>`. Each alert inserts four rows, so the function is called four times; a call with nothing queued does nothing.
+4. **Try it:** with simulation mode off, insert a reading that crosses a threshold (see the SQL above), or wait for the PAGASA feed. Check the Weather page's alert log and `sms_log`.
+
+Not checked against the real Semaphore API (no account yet): the function assumes its messages endpoint answers with one entry per recipient. Send one test alert to a barangay with only your own number before the pilot.
 
 ## Priority weights (A3)
 

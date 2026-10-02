@@ -287,6 +287,7 @@ void main() {
     for (final title in [
       'Alert thresholds',
       'Alert channels',
+      'SMS alert limit',
       'Numbers shown in the apps',
       'Simulation mode',
     ]) {

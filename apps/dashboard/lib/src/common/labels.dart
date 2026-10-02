@@ -137,11 +137,13 @@ extension DomainLabels on AppLocalizations {
 
   String deliveryStatus(AlertDeliveryStatus status) => switch (status) {
     AlertDeliveryStatus.queued => deliveryQueued,
+    AlertDeliveryStatus.sending => deliverySending,
     AlertDeliveryStatus.sent => deliverySent,
     AlertDeliveryStatus.failed => deliveryFailed,
     AlertDeliveryStatus.off => deliveryOff,
     AlertDeliveryStatus.simulated => deliverySimulated,
     AlertDeliveryStatus.notSetUp => deliveryNotSetUp,
+    AlertDeliveryStatus.ended => deliveryEnded,
   };
 
   String actionRejection(ActionRejection r) => switch (r) {

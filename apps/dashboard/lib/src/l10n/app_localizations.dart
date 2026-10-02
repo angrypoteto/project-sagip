@@ -3052,6 +3052,24 @@ abstract class AppLocalizations {
   /// **'Needs the page\'s approval and access token.'**
   String get channelFacebookNote;
 
+  /// No description provided for @configSmsCapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS alert limit'**
+  String get configSmsCapTitle;
+
+  /// No description provided for @configSmsCapNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Each text costs Semaphore credit. When the day\'s limit is reached, the rest of an alert\'s texts are not sent, and the alert log says so.'**
+  String get configSmsCapNote;
+
+  /// No description provided for @settingSmsDailyCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert texts per day'**
+  String get settingSmsDailyCap;
+
   /// No description provided for @configContactTitle.
   ///
   /// In en, this message translates to:
@@ -3328,6 +3346,18 @@ abstract class AppLocalizations {
   /// **'Waiting to send'**
   String get deliveryQueued;
 
+  /// No description provided for @deliverySending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get deliverySending;
+
+  /// No description provided for @deliveryEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent (the alert ended)'**
+  String get deliveryEnded;
+
   /// No description provided for @deliverySent.
   ///
   /// In en, this message translates to:
@@ -3367,7 +3397,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryCounts.
   ///
   /// In en, this message translates to:
-  /// **'{channel}: {delivered} of {recipients} delivered'**
+  /// **'{channel}: sent to {delivered} of {recipients}'**
   String deliveryCounts(String channel, int delivered, int recipients);
 
   /// No description provided for @webAppTitle.

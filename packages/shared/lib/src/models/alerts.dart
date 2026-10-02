@@ -19,6 +19,9 @@ enum AlertChannel { app, push, sms, facebook }
 enum AlertDeliveryStatus {
   /// Waiting for the sender.
   queued,
+
+  /// Claimed by a run of the sender.
+  sending,
   sent,
   failed,
 
@@ -31,6 +34,9 @@ enum AlertDeliveryStatus {
   /// The channel has no provider yet (no Semaphore key, no Firebase
   /// project, no Facebook Page token).
   notSetUp,
+
+  /// The alert expired before it was sent.
+  ended,
 }
 
 /// A public alert shown to residents (R7, R8, FR14): weather warnings,

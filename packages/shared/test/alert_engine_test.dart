@@ -428,6 +428,44 @@ void main() {
         ],
       );
 
+      // The sender's outcomes: counts, a note, and the two later statuses.
+      final outcomes = SentAlert.fromJson({
+        'alert_id': 'alert-0b0d',
+        'source': 'mdrrmd',
+        'level': 'warning',
+        'title': 'Flooding on Dapitan St',
+        'body': 'Avoid the area.',
+        'issued_at': '2026-10-02T01:00:00+00:00',
+        'alert_delivery': [
+          {'channel': 'app', 'status': 'sent'},
+          {
+            'channel': 'sms',
+            'status': 'sent',
+            'recipients': 120,
+            'delivered': 100,
+            'failed': 20,
+            'detail': '20 not sent: the daily limit was reached',
+          },
+          {'channel': 'push', 'status': 'sending'},
+          {'channel': 'facebook', 'status': 'ended'},
+        ],
+      });
+      final sms = outcomes.on(AlertChannel.sms)!;
+      expect((sms.recipients, sms.delivered, sms.failed), (120, 100, 20));
+      expect(sms.detail, '20 not sent: the daily limit was reached');
+      expect(
+        outcomes.on(AlertChannel.push)!.status,
+        AlertDeliveryStatus.sending,
+      );
+      expect(
+        outcomes.on(AlertChannel.facebook)!.status,
+        AlertDeliveryStatus.ended,
+      );
+      final cap = defaultOtherSettings.firstWhere(
+        (s) => s.key == SettingKeys.smsDailyCap,
+      );
+      expect((cap.number, cap.min, cap.max), (500, 0, 100000));
+
       final config = ClientConfig.fromJson({
         'hotline': '(02) 8527-0000',
         'sms_gateway': '+639175550199',
