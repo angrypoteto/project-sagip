@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- The tint Android gives the notification icon (SagipColors.signal). -->
+    <color name="sagip_signal">#E5323F</color>
 </resources>

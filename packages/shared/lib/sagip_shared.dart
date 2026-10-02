@@ -48,6 +48,7 @@ export 'src/offline/outbox.dart';
 export 'src/offline/outbox_repositories.dart';
 export 'src/offline/streams.dart';
 export 'src/offline/sync_engine.dart';
+export 'src/push/push.dart';
 export 'src/repositories/repositories.dart';
 export 'src/supabase/supabase_repositories.dart';
 export 'src/theme/sagip_colors.dart';

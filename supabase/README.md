@@ -28,10 +28,11 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_advisories.sql` | Advisories from the dashboard (D10): `issue_alert()` (dispatchers and admins; an MDRRMD notice or one relayed by hand from PAGASA, PHIVOLCS, or EFCOS; checked, simulated while simulation mode is on, audited) and `end_alert()` |
 | `migrations/*_alert_sender.sql` | For the alert sender (service role only): `claim_alert_deliveries()`, `alert_sms_recipients()`, `alert_sms_budget()` (the daily cap `channels.sms_daily_cap`, set on A3), `finish_alert_delivery()` |
 | `migrations/*_rescue_confirmations.sql`, `*_rescue_sms_log.sql` | Rescue confirmations (FR6): `rescue_confirmation` (what a resident was told about their own SOS: a unit assigned, on scene, closed), the trigger on `incident_report` that writes them, `mark_rescue_confirmation_read()` for the resident, and for the sender (service role only) `claim_rescue_confirmations()` and `finish_rescue_confirmation()`; the SMS log gets the kind `rescue` |
-| `functions/send-alerts/` | Works through queued alert deliveries: texts residents of the affected barangays through Semaphore (one SMS each, up to the daily cap), logs every text in `sms_log`, and records each channel's outcome. Also sends rescue confirmations: one text to the resident whose SOS got a unit. `alerts.test.ts` and `index.test.ts` run with `node --test` |
+| `migrations/*_push_notifications.sql` | Push (FR6, FR14): `push_device` (phones' FCM tokens; service role only), `push_message` (the queue of personal pushes; service role only), `register_push_device()` and `forget_push_device()` for the app, triggers that queue a push for each rescue confirmation and each new dispatch, and for the sender `claim_push_messages()`, `finish_push_message()`, `forget_push_tokens()`. Nothing is ever deleted: a phone that signs out or that FCM no longer knows is marked `forgotten_at` |
+| `functions/send-alerts/` | Works through queued alert deliveries: texts residents of the affected barangays through Semaphore (one SMS each, up to the daily cap), logs every text in `sms_log`, and records each channel's outcome. Also sends rescue confirmations: one text to the resident whose SOS got a unit. And push through Firebase Cloud Messaging: alerts to topics, rescue confirmations and new assignments to the account's phones (`fcm.ts`). `alerts.test.ts`, `fcm.test.ts`, and `index.test.ts` run with `node --test` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 277 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 302 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -151,6 +152,30 @@ A resident is told about their own SOS as the rescue moves on. A trigger on `inc
 - **Sending (for Joshua, with the alert sender).** `send-alerts` sends them, before any alert. After the steps in "Sending alerts by SMS": deploy `send-alerts` again, and add a second Database Webhook: table `rescue_confirmation`, event Insert, the same URL and `x-sagip-key` header. Until then the rows stay `queued` and expire.
 - **Before texting for real:** the demo residents' numbers are made up and may belong to someone. Keep simulation mode on while the demo data is loaded, or reload real residents first.
 - **Not done:** push (needs the Firebase project). **To confirm with MDRRMD:** which steps are texted, and the wording (English for now): "S.A.G.I.P.: Rescue team R-03 has been sent to your location. Stay where you are if it is safe and keep your phone on. Ref INC-0152."
+
+## Push notifications (FR6, FR14; for Joshua: the Firebase project)
+
+The thesis promises "in-app push notifications" for alerts, advisories, and rescue confirmations (FR6, FR14, Process 4.0). On Android that means Firebase Cloud Messaging (FCM), which is free. Everything is built and tested; what is missing is the Firebase project, which needs your Google account.
+
+**What gets pushed**
+
+| Push | To whom | How |
+|---|---|---|
+| A weather alert or advisory (not simulated) | Residents of its barangays, or everyone for all of Manila; responders get the all-Manila ones | FCM topics: each phone joins `manila` and `area-<barangay>` (for example `area-barangay-412`) at sign-in |
+| A rescue confirmation (unit assigned, on scene, SOS closed) | The resident's phones | `push_message`, written by a trigger on `rescue_confirmation` |
+| A new assignment | The phones of the responders on that unit | `push_message`, written by a trigger on `dispatch` |
+
+The A3 switch "Send alerts as push notifications" (`channels.push`) turns all three off; a push made while it is off is logged as `off`. Simulated alerts are never pushed (as with SMS); rescue confirmations and assignments are, in simulation mode too, because they go only to people already using the app. A push waiting over 30 minutes is not sent. Tapping a notification opens the alert, the SOS, or the responder's home.
+
+**Setting it up (about 15 minutes)**
+
+1. **Create the project:** https://console.firebase.google.com, Add project, name it `sagip`. Google Analytics is not needed (turn it off).
+2. **Add the Android app:** in the project, Add app, Android. Package name `ph.sagip.sagip_mobile` (exactly). Skip the SHA-1 and the SDK steps. Download `google-services.json` and put it in `apps/mobile/android/app/`. It is git-ignored: do not commit it (the repo is public). The build picks it up by itself; without it the app builds and runs with push off.
+3. **The sender's key:** Project settings, Service accounts, Generate new private key. A JSON file downloads. In Supabase, Edge Functions, Secrets, add `FIREBASE_SERVICE_ACCOUNT` and paste the whole file as the value. Then delete the downloaded file; never put it in the repo or in the app.
+4. **Deploy and connect:** deploy `send-alerts` (see "Sending alerts by SMS"; it needs `ALERTS_SECRET` too) and add a Database Webhook on `push_message`, event Insert, same URL and `x-sagip-key` header as the other two. Without the Semaphore key, SMS stays "not set up" and push still works.
+5. **Try it:** build and install the app with `.env`, sign in as a resident on a phone or the emulator (with Google Play), send an SOS, and assign it a unit on the dashboard: the phone gets "A rescue team is coming" even with the app closed. In the SQL editor, `select status, devices, delivered, detail from public.push_message order by message_id desc limit 5;` shows what happened.
+
+**Privacy:** tokens identify an install, not a person; only the service role reads them. FCM sees the topic names (barangay level) and the notification text. A phone's row stays after sign-out, marked `forgotten_at`; how long such rows are kept belongs to the data retention rule that is still to be decided.
 
 ## Incident type classifier (FR12)
 

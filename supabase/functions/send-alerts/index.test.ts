@@ -14,6 +14,30 @@ const env: Record<string, string | undefined> = {
   ALERTS_SECRET: "shared-secret-for-tests",
   SEMAPHORE_API_KEY: "test-semaphore-key",
 };
+
+// A throwaway key in the shape of a Firebase service account file.
+const firebaseKey = await (async () => {
+  const pair = await crypto.subtle.generateKey(
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256",
+    },
+    true,
+    ["sign"],
+  );
+  const der = new Uint8Array(await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+  let raw = "";
+  for (const b of der) raw += String.fromCharCode(b);
+  return JSON.stringify({
+    type: "service_account",
+    project_id: "sagip-test",
+    client_email: "sender@sagip-test.iam.gserviceaccount.com",
+    private_key: `-----BEGIN PRIVATE KEY-----\n${btoa(raw)}\n-----END PRIVATE KEY-----\n`,
+    token_uri: "https://oauth2.googleapis.com/token",
+  });
+})();
 let handler: Handler | null = null;
 (globalThis as Record<string, unknown>).Deno = {
   env: { get: (name: string) => env[name] },
@@ -30,6 +54,10 @@ let calls: Call[] = [];
 let queue: unknown[] = [];
 let rescues: unknown[] = [];
 let rescueClaimStatus = 200;
+let pushes: unknown[] = [];
+/** FCM's answer per token (default: accepted). */
+let fcmReplies: Record<string, { status: number; body: unknown }> = {};
+let googleSignIn = 200;
 let recipients: string[] = [];
 let left = 500;
 let semaphoreStatus = 200;
@@ -42,9 +70,25 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
     : raw
     ? JSON.parse(String(raw))
     : null;
+  if (init?.headers && String(input).startsWith("https://fcm.googleapis.com/")) {
+    assert.equal((init.headers as Record<string, string>).Authorization, "Bearer ya29.test");
+  }
   calls.push({ url, body });
   const reply = (value: unknown, status = 200) =>
     new Response(value === null ? "" : JSON.stringify(value), { status });
+  if (url.endsWith("/rpc/claim_push_messages")) return reply(pushes);
+  if (url.endsWith("/rpc/finish_push_message")) return reply(null, 204);
+  if (url.endsWith("/rpc/forget_push_tokens")) return reply(1);
+  if (url === "https://oauth2.googleapis.com/token") {
+    return googleSignIn === 200
+      ? reply({ access_token: "ya29.test", expires_in: 3599 })
+      : reply({ error: "invalid_grant" }, googleSignIn);
+  }
+  if (url === "https://fcm.googleapis.com/v1/projects/sagip-test/messages:send") {
+    const m = (body as { message: Record<string, unknown> }).message;
+    const r = fcmReplies[String(m.token ?? m.topic ?? m.condition)];
+    return r ? reply(r.body, r.status) : reply({ name: "projects/sagip-test/messages/1" });
+  }
   if (url.endsWith("/rpc/claim_rescue_confirmations")) return reply(rescues, rescueClaimStatus);
   if (url.endsWith("/rpc/finish_rescue_confirmation")) return reply(null, 204);
   if (url.endsWith("/rpc/claim_alert_deliveries")) return reply(queue);
@@ -84,7 +128,7 @@ function delivery(id: number, channel: string, alertId: string, endedAlready = f
       level: "warning",
       title: "Heavy rainfall warning",
       body: "PAGASA reports rain of 22 mm per hour over Manila. Flooding is possible in low-lying areas.",
-      barangays: [],
+      barangays: [] as string[],
       ended: endedAlready,
     },
   };
@@ -127,6 +171,10 @@ function reset() {
   queue = [];
   rescues = [];
   rescueClaimStatus = 200;
+  pushes = [];
+  fcmReplies = {};
+  googleSignIn = 200;
+  env.FIREBASE_SERVICE_ACCOUNT = undefined;
   recipients = [];
   left = 500;
   semaphoreStatus = 200;
@@ -233,7 +281,7 @@ test("nothing queued: nothing happens", async () => {
   reset();
   const res = await call(env.ALERTS_SECRET!);
   assert.deepEqual(await res.json(), { processed: 0, results: {} });
-  assert.equal(calls.length, 2, "only the two claims");
+  assert.equal(calls.length, 3, "only the three claims; no Firebase sign-in");
 });
 
 test("a rescue confirmation is texted to its resident, before any alert", async () => {
@@ -303,4 +351,117 @@ test("alerts still go out when the rescue queue cannot be read", async () => {
   recipients = ["09170000001"];
   const res = await call(env.ALERTS_SECRET!);
   assert.deepEqual(await res.json(), { processed: 1, results: { "alert-f:sms": "sent" } });
+});
+
+function pushed(): Record<number, Record<string, unknown>> {
+  const out: Record<number, Record<string, unknown>> = {};
+  for (const c of calls) {
+    if (c.url.endsWith("/rpc/finish_push_message")) {
+      const b = c.body as Record<string, unknown>;
+      out[b.p_message_id as number] = b;
+    }
+  }
+  return out;
+}
+
+function fcmSends(): Record<string, unknown>[] {
+  return calls
+    .filter((c) => c.url.startsWith("https://fcm.googleapis.com/"))
+    .map((c) => (c.body as { message: Record<string, unknown> }).message);
+}
+
+test("pushes go to each phone of the account; dead tokens are forgotten", async () => {
+  reset();
+  env.FIREBASE_SERVICE_ACCOUNT = firebaseKey;
+  pushes = [
+    {
+      message_id: 21,
+      kind: "rescue",
+      title: "A rescue team is coming",
+      body: "R-03 has been sent to your location. Stay where you are if it is safe.",
+      data: { type: "rescue", incident_id: "INC-0152", confirmation_id: "7" },
+      tokens: ["phone-a", "phone-b"],
+    },
+    {
+      message_id: 22,
+      kind: "assignment",
+      title: "New assignment: INC-0152",
+      body: "Flood · Barangay 412, Sampaloc. Open S.A.G.I.P. to accept.",
+      data: { type: "assignment", incident_id: "INC-0152" },
+      tokens: ["phone-gone"],
+    },
+  ];
+  fcmReplies["phone-b"] = { status: 500, body: null };
+  fcmReplies["phone-gone"] = {
+    status: 404,
+    body: { error: { details: [{ errorCode: "UNREGISTERED" }] } },
+  };
+  const res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual(await res.json(), {
+    processed: 2,
+    results: { "push:21:rescue": "sent", "push:22:assignment": "failed" },
+  });
+
+  const sends = fcmSends();
+  assert.deepEqual(sends.map((m) => m.token), ["phone-a", "phone-b", "phone-gone"]);
+  assert.deepEqual(sends[0].android, { priority: "high", notification: { channel_id: "sagip_rescue" } });
+  assert.deepEqual((sends[2].android as Record<string, unknown>).notification, {
+    channel_id: "sagip_assignments",
+  });
+  assert.equal(calls.filter((c) => c.url === "https://oauth2.googleapis.com/token").length, 1, "one sign-in per run");
+
+  const done = pushed();
+  assert.deepEqual(
+    [done[21].p_status, done[21].p_devices, done[21].p_delivered, done[21].p_detail],
+    ["sent", 2, 1, "HTTP 500"],
+  );
+  assert.deepEqual([done[22].p_status, done[22].p_delivered], ["failed", 0]);
+  const forgot = calls.find((c) => c.url.endsWith("/rpc/forget_push_tokens"))!;
+  assert.deepEqual(forgot.body, { p_tokens: ["phone-gone"] });
+});
+
+test("an alert push goes to its barangays' topics, or to all of Manila", async () => {
+  reset();
+  env.FIREBASE_SERVICE_ACCOUNT = firebaseKey;
+  const everywhere = delivery(31, "push", "alert-all");
+  const local = delivery(32, "push", "alert-local");
+  local.alert.barangays = ["Barangay 412", "Barangay 490"];
+  queue = [everywhere, local];
+  const res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual(await res.json(), {
+    processed: 2,
+    results: { "alert-all:push": "sent", "alert-local:push": "sent" },
+  });
+  const sends = fcmSends();
+  assert.equal(sends[0].topic, "manila");
+  assert.equal(sends[1].condition, "'area-barangay-412' in topics || 'area-barangay-490' in topics");
+  assert.deepEqual(sends[1].data, { type: "alert", alert_id: "alert-local" });
+  assert.equal((sends[1].notification as Record<string, string>).title, "Heavy rainfall warning");
+  assert.equal(finished()[31].p_status, "sent");
+});
+
+test("without the Firebase key pushes are marked not set up; a refused key fails them", async () => {
+  reset();
+  pushes = [{ message_id: 41, kind: "rescue", title: "T", body: "B", data: {}, tokens: ["phone-a"] }];
+  queue = [delivery(42, "push", "alert-x")];
+  await call(env.ALERTS_SECRET!);
+  assert.equal(fcmSends().length, 0);
+  assert.deepEqual([pushed()[41].p_status, pushed()[41].p_detail], ["notSetUp", "Push needs the Firebase project"]);
+  assert.equal(finished()[42].p_status, "notSetUp");
+
+  reset();
+  env.FIREBASE_SERVICE_ACCOUNT = firebaseKey;
+  googleSignIn = 401;
+  pushes = [{ message_id: 43, kind: "rescue", title: "T", body: "B", data: {}, tokens: ["phone-a"] }];
+  queue = [delivery(44, "push", "alert-y")];
+  await call(env.ALERTS_SECRET!);
+  assert.equal(fcmSends().length, 0);
+  assert.deepEqual(
+    [pushed()[43].p_status, pushed()[43].p_detail],
+    ["failed", "Firebase sign-in refused (HTTP 401)"],
+  );
+  assert.deepEqual(
+    [finished()[44].p_status, finished()[44].p_detail],
+    ["failed", "Firebase sign-in refused (HTTP 401)"],
+  );
 });

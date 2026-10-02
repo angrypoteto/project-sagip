@@ -64,10 +64,11 @@ jobs:
         run: node --test supabase/functions/send-sms/sms.test.ts
       - name: sms-intake codec (same vectors as the Dart codec) and helpers
         run: node --test supabase/functions/sms-intake/sms_intake.test.ts
-      - name: send-alerts helpers and the handler (database and Semaphore stood in)
+      - name: send-alerts helpers, Firebase calls, and the handler (database, Semaphore, and FCM stood in)
         run: >
           node --test
           supabase/functions/send-alerts/alerts.test.ts
+          supabase/functions/send-alerts/fcm.test.ts
           supabase/functions/send-alerts/index.test.ts
 
   forecast:

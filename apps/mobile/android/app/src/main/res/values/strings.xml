@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Words Android shows outside the app: the notification categories in the
+     phone's settings. The app's own words are in lib/src/l10n. -->
+<resources>
+    <string name="channel_alerts">Alerts and advisories</string>
+    <string name="channel_alerts_about">Weather warnings and advisories for your area</string>
+    <string name="channel_rescue">About your SOS</string>
+    <string name="channel_rescue_about">When a rescue team is sent, arrives, and closes your SOS</string>
+    <string name="channel_assignments">New assignments</string>
+    <string name="channel_assignments_about">A new job for your unit (responders)</string>
+</resources>

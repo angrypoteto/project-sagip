@@ -190,6 +190,7 @@ List<Override> liveOverrides({
   required PermissionService permissions,
   required ClientConfigRepository config,
   Future<void> Function()? recheckSignal,
+  Stream<PushOpen>? pushOpens,
 }) {
   String? account() => backend.accounts.currentUser?.id;
   return [
@@ -247,6 +248,7 @@ List<Override> liveOverrides({
     ),
     vulnerabilityRepositoryProvider.overrideWithValue(backend.vulnerability),
     routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
+    if (pushOpens != null) pushOpensProvider.overrideWith((ref) => pushOpens),
   ];
 }
 
@@ -433,6 +435,25 @@ final alertFeedProvider = StreamProvider<AlertFeed>(
 final pendingQueueProvider = StreamProvider<List<QueuedRecord>>(
   (ref) =>
       _forAccount(ref, () => ref.watch(offlineQueueProvider).watchPending()),
+);
+
+/// Notifications the person tapped (push, plan part 7). Empty on sample
+/// data and when the app was built without Firebase.
+final pushOpensProvider = StreamProvider<PushOpen>(
+  (ref) => const Stream.empty(),
+);
+
+/// A tapped notification waiting for the app to be ready (signed in) to
+/// open its page.
+class PendingPush extends Notifier<PushOpen?> {
+  @override
+  PushOpen? build() => null;
+
+  void set(PushOpen? open) => state = open;
+}
+
+final pendingPushProvider = NotifierProvider<PendingPush, PushOpen?>(
+  PendingPush.new,
 );
 
 /// One event per record the server confirms (NFR1 delivery notice).

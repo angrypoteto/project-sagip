@@ -10,6 +10,7 @@ import 'src/app.dart';
 import 'src/device/device_location_service.dart';
 import 'src/device/device_permission_service.dart';
 import 'src/device/device_sms_sender.dart';
+import 'src/device/fcm_push_device.dart';
 import 'src/device/hive_store.dart';
 import 'src/device/reachability_signal_monitor.dart';
 import 'src/l10n/app_localizations.dart';
@@ -92,7 +93,19 @@ Future<List<Override>> _live() async {
     location: location.watch(),
     online: online(),
   );
+  // Push notifications (plan part 7): only when the app was built with the
+  // Firebase project's config file.
+  final pushDevice = await FcmPushDevice.start();
+  final push = pushDevice == null
+      ? null
+      : PushCoordinator(
+          device: pushDevice,
+          registry: backend.push,
+          store: store,
+        );
+  if (push != null) backend.accounts.beforeSignOut = push.forgetHere;
   backend.accounts.watchUser().listen((user) {
+    if (push != null) unawaited(_syncPush(push, backend, store, user));
     // Records made by this account can go now; another account's wait.
     engine.accountChanged();
     if (user?.role == UserRole.responder) {
@@ -114,5 +127,29 @@ Future<List<Override>> _live() async {
     permissions: DevicePermissionService(store),
     config: config,
     recheckSignal: signal.checkNow,
+    pushOpens: push?.opened,
   );
+}
+
+/// Puts this phone on the signed-in account's push topics. A resident's
+/// barangay comes from the server, or from the last copy when offline, so
+/// an offline start never drops the barangay's topic.
+Future<void> _syncPush(
+  PushCoordinator push,
+  SupabaseMobileBackend backend,
+  LocalStore store,
+  AppUser? user,
+) async {
+  const key = 'push:barangay';
+  String? barangay;
+  if (user?.role == UserRole.resident) {
+    try {
+      barangay = await backend.push.homeBarangay();
+      await store.write(key, barangay);
+    } catch (_) {
+      final saved = store.read(key);
+      barangay = saved is String ? saved : null;
+    }
+  }
+  await push.setAccount(user, barangay: barangay);
 }

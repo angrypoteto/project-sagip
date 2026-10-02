@@ -24,6 +24,9 @@ Thumbs.db
 
 # Python (ml/)
 .venv/
+.venv-tf/
+# Firebase project config for push (per project; see supabase/README.md)
+apps/mobile/android/app/google-services.json
 __pycache__/
 *.pyc
 /cache/

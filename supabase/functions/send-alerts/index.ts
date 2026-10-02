@@ -6,8 +6,11 @@
 //   Semaphore, one SMS each, up to the daily cap set on A3
 //   (channels.sms_daily_cap). Every text is kept in sms_log; the delivery
 //   row gets the counts.
-// - Push and Facebook: marked "not set up" until the Firebase project and
-//   the Facebook Page token exist.
+// - Push: sent through Firebase Cloud Messaging to topics: "manila" for an
+//   alert for all of Manila, else the topics of its barangays (the app
+//   subscribes each resident to both). Marked "not set up" without the
+//   FIREBASE_SERVICE_ACCOUNT secret.
+// - Facebook: marked "not set up" until the Facebook Page token exists.
 // Simulated alerts never reach this function: their deliveries are logged
 // as "simulated" when the alert is issued.
 //
@@ -15,14 +18,20 @@
 // resident a unit was assigned to their SOS. These go first, one SMS each,
 // and are not counted against the daily cap on alert texts.
 //
-// Call it from a Database Webhook on INSERT into public.alert_delivery and
-// on INSERT into public.rescue_confirmation (or on a schedule) with the
-// shared secret as `x-sagip-key`. A run with nothing queued does nothing,
-// so extra calls are harmless.
+// And the personal pushes in push_message: rescue confirmations to the
+// resident's phones, new assignments to the phones of the unit's
+// responders. Tokens FCM no longer knows are marked forgotten.
+//
+// Call it from a Database Webhook on INSERT into public.alert_delivery, on
+// INSERT into public.rescue_confirmation, and on INSERT into
+// public.push_message (or on a schedule) with the shared secret as
+// `x-sagip-key`. A run with nothing queued does nothing, so extra calls
+// are harmless.
 //
 // Secrets (Edge Functions > Secrets): ALERTS_SECRET, SEMAPHORE_API_KEY,
-// optional SEMAPHORE_SENDER_NAME. SUPABASE_URL and
-// SUPABASE_SERVICE_ROLE_KEY are provided by the platform.
+// optional SEMAPHORE_SENDER_NAME, FIREBASE_SERVICE_ACCOUNT (the whole JSON
+// key file). SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by
+// the platform.
 //
 // Deploy with JWT checking off (the webhook uses the shared secret):
 //   supabase functions deploy send-alerts --no-verify-jwt
@@ -44,6 +53,16 @@ import {
   planBroadcast,
   smsOutcome,
 } from "./alerts.ts";
+import {
+  accessToken,
+  alertTargets,
+  channels,
+  fcmMessage,
+  parseServiceAccount,
+  type ServiceAccount,
+  sendMessage,
+  type Target,
+} from "./fcm.ts";
 
 const url = Deno.env.get("SUPABASE_URL");
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -200,6 +219,118 @@ async function sendConfirmations(apiKey: string | undefined): Promise<Record<str
   return results;
 }
 
+// ------------------------------------------------------------ push (FCM)
+
+/** Firebase, signed in once per run; null when it is not set up. */
+interface Fcm {
+  account: ServiceAccount;
+  token: string;
+}
+
+async function firebase(): Promise<Fcm | null | Error> {
+  const account = parseServiceAccount(Deno.env.get("FIREBASE_SERVICE_ACCOUNT"));
+  if (!account) return null;
+  try {
+    return { account, token: await accessToken(account, fetch) };
+  } catch (e) {
+    return e as Error;
+  }
+}
+
+interface ClaimedPush {
+  message_id: number;
+  kind: "rescue" | "assignment";
+  title: string;
+  body: string;
+  data: Record<string, unknown>;
+  tokens: string[];
+}
+
+/** Rescue confirmations and new assignments to the account's phones. */
+async function sendPushMessages(
+  getFcm: () => Promise<Fcm | null | Error>,
+): Promise<Record<string, string>> {
+  let claimed: ClaimedPush[];
+  try {
+    claimed = await rpc<ClaimedPush[]>("claim_push_messages");
+  } catch (e) {
+    console.log(`send-alerts: could not claim pushes (${(e as Error).message})`);
+    return {};
+  }
+  const results: Record<string, string> = {};
+  // Signs in to Firebase only when there is something to send.
+  const fcm = claimed.length > 0 ? await getFcm() : null;
+  const stale: string[] = [];
+  for (const m of claimed) {
+    let status: "sent" | "failed" | "notSetUp";
+    let delivered: number | null = null;
+    let detail: string | null = null;
+    if (fcm === null) {
+      status = "notSetUp";
+      detail = "Push needs the Firebase project";
+    } else if (fcm instanceof Error) {
+      status = "failed";
+      detail = fcm.message;
+    } else {
+      const message = (to: string) =>
+        fcmMessage({ token: to }, m.title, m.body, m.data, channels[m.kind]);
+      delivered = 0;
+      const errors = new Set<string>();
+      for (const to of m.tokens) {
+        const r = await sendMessage(fcm.account.project_id, fcm.token, message(to), fetch);
+        if (r.ok) delivered++;
+        if (r.stale) stale.push(to);
+        if (r.detail) errors.add(r.detail);
+      }
+      status = delivered > 0 ? "sent" : "failed";
+      detail = errors.size > 0 ? [...errors].join(", ") : null;
+    }
+    await rpc("finish_push_message", {
+      p_message_id: m.message_id,
+      p_status: status,
+      p_devices: m.tokens.length,
+      p_delivered: delivered,
+      p_detail: detail,
+    }).catch(() => {});
+    results[`push:${m.message_id}:${m.kind}`] = status;
+  }
+  if (stale.length > 0) {
+    await rpc("forget_push_tokens", { p_tokens: stale }).catch(() => {});
+    console.log(`send-alerts: ${stale.length} phone token(s) no longer exist`);
+  }
+  return results;
+}
+
+/** An alert to the topics of its area (FR6, FR14). */
+async function sendAlertPush(d: ClaimedDelivery, fcm: Fcm | Error): Promise<Outcome> {
+  if (fcm instanceof Error) {
+    return { status: "failed", recipients: null, delivered: null, failed: null, detail: fcm.message };
+  }
+  const targets: Target[] = alertTargets(d.alert.barangays);
+  let ok = 0;
+  const errors = new Set<string>();
+  for (const target of targets) {
+    const r = await sendMessage(
+      fcm.account.project_id,
+      fcm.token,
+      fcmMessage(target, d.alert.title, d.alert.body, { type: "alert", alert_id: d.alert.alert_id }, channels.alert),
+      fetch,
+    );
+    if (r.ok) ok++;
+    else if (r.detail) errors.add(r.detail);
+  }
+  // Topics do not say how many phones they reached.
+  return {
+    status: ok > 0 ? "sent" : "failed",
+    recipients: null,
+    delivered: null,
+    failed: null,
+    detail: ok === targets.length
+      ? null
+      : `${targets.length - ok} of ${targets.length} topic sends failed: ${[...errors].join(", ")}`,
+  };
+}
+
 Deno.serve(async (req) => {
   const secret = Deno.env.get("ALERTS_SECRET");
   if (!secret || !url || !serviceKey) return json(500, { error: "send-alerts is not set up" });
@@ -208,7 +339,16 @@ Deno.serve(async (req) => {
   const apiKey = Deno.env.get("SEMAPHORE_API_KEY");
   // A resident waiting for rescue comes before a broadcast.
   const results = await sendConfirmations(apiKey);
-  const confirmations = Object.keys(results).length;
+  let signedIn: Promise<Fcm | null | Error> | undefined;
+  const getFcm = () => {
+    signedIn ??= firebase().then((f) => {
+      if (f instanceof Error) console.log(`send-alerts: ${f.message}`);
+      return f;
+    });
+    return signedIn;
+  };
+  Object.assign(results, await sendPushMessages(getFcm));
+  const personal = Object.keys(results).length;
 
   let claimed: ClaimedDelivery[];
   try {
@@ -225,6 +365,8 @@ Deno.serve(async (req) => {
         outcome = ended;
       } else if (d.channel === "sms" && apiKey) {
         outcome = await sendSms(d, apiKey);
+      } else if (d.channel === "push" && (await getFcm()) !== null) {
+        outcome = await sendAlertPush(d, (await getFcm())!);
       } else {
         outcome = notSetUp(d.channel);
       }
@@ -241,5 +383,5 @@ Deno.serve(async (req) => {
     results[`${d.alert.alert_id}:${d.channel}`] = outcome.status;
     console.log(`send-alerts: ${d.alert.alert_id} ${d.channel} ${outcome.status}`);
   }
-  return json(200, { processed: confirmations + claimed.length, results });
+  return json(200, { processed: personal + claimed.length, results });
 });

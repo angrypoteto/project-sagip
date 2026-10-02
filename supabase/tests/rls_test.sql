@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(277);
+select plan(302);
 
 select public.reset_demo_data();
 
@@ -1216,6 +1216,141 @@ select is(
   (select sms_status from public.rescue_confirmation
     where created_at < now() - interval '30 minutes'),
   'expired', 'it is logged as expired');
+
+-- ------------------------------------------------ push notifications (FR6, FR14)
+
+reset role;
+select ok(
+  not has_function_privilege('anon', 'public.register_push_device(text)', 'execute')
+  and not has_function_privilege('anon', 'public.forget_push_device(text)', 'execute')
+  and not has_function_privilege('authenticated', 'public.claim_push_messages()', 'execute')
+  and not has_function_privilege('authenticated',
+        'public.finish_push_message(bigint, text, int, int, text)', 'execute')
+  and not has_function_privilege('authenticated', 'public.forget_push_tokens(text[])', 'execute')
+  and has_function_privilege('service_role', 'public.claim_push_messages()', 'execute'),
+  'only the sender (service role) can claim pushes, record outcomes, or drop tokens');
+select ok(
+  not has_table_privilege('authenticated', 'public.push_device', 'select')
+  and not has_table_privilege('authenticated', 'public.push_message', 'select')
+  and not has_table_privilege('anon', 'public.push_device', 'select'),
+  'no client can read the phones'' tokens or the push queue');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select lives_ok($$ select public.register_push_device('fcm-token-resident-phone-0001') $$,
+  'a signed-in resident registers their phone for push');
+select lives_ok($$ select public.register_push_device(' fcm-token-resident-phone-0001 ') $$,
+  'registering the same phone again is accepted');
+select throws_ok($$ select public.register_push_device('short') $$,
+  'P0001', 'invalid_value', 'a token that cannot be real is refused');
+select throws_ok($$ select count(*) from public.push_device $$,
+  '42501', null, 'a resident cannot read the token table');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000011", "role": "authenticated"}';
+select lives_ok($$ select public.register_push_device('fcm-token-responder-phone-0002') $$,
+  'a responder registers their phone');
+select lives_ok($$ select public.forget_push_device('fcm-token-resident-phone-0001') $$,
+  'forgetting another account''s token is accepted and changes nothing');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
+select public.register_push_device('fcm-token-stranger-phone-' || g) from generate_series(1, 6) g;
+
+reset role;
+select is(
+  (select string_agg(user_id::text || ' ' || token, ', ' order by token) from public.push_device
+    where token not like 'fcm-token-stranger-%' and forgotten_at is null),
+  '00000000-0000-4000-8000-00000000000c fcm-token-resident-phone-0001, 00000000-0000-4000-8000-000000000011 fcm-token-responder-phone-0002',
+  'one row per phone, with whitespace trimmed; forgetting another account''s token did nothing');
+select is((select count(*)::int from public.push_device where user_id = '00000000-0000-4000-8000-00000000000e'), 6,
+  'every phone an account signs in on is kept');
+
+-- A unit with a responder is sent to the resident's SOS.
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select public.set_responder_unit('00000000-0000-4000-8000-000000000011', 'unit-r20');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select public.assign_unit(
+  (select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1'), 'unit-r20');
+reset role;
+select ok(
+  (select m.kind = 'assignment' and m.status = 'queued'
+          and m.title = 'New assignment: ' || i.incident_id
+          and m.body = 'Flood · Barangay 412, Sampaloc. Open S.A.G.I.P. to accept.'
+          and m.data = jsonb_build_object('type', 'assignment', 'incident_id', i.incident_id)
+     from public.push_message m, public.incident_report i
+    where m.user_id = '00000000-0000-4000-8000-000000000011' and i.client_uuid = '00000000-0000-4000-8000-0000000005a1'
+    order by m.message_id desc limit 1),
+  'a new assignment queues a push to the responders on that unit');
+select ok(
+  (select m.kind = 'rescue' and m.status = 'queued'
+          and m.title = 'A rescue team is coming'
+          and m.body = 'R-20 has been sent to your location. Stay where you are if it is safe.'
+          and m.data ->> 'type' = 'rescue'
+          and m.data ->> 'incident_id' = i.incident_id
+     from public.push_message m, public.incident_report i
+    where m.user_id = '00000000-0000-4000-8000-00000000000c' and i.client_uuid = '00000000-0000-4000-8000-0000000005a1'
+    order by m.message_id desc limit 1),
+  'the rescue confirmation queues a push to the resident''s phones (FR6)');
+select is(
+  (select count(*)::int from public.push_message m
+     join public.rescue_confirmation c on c.confirmation_id = (m.data ->> 'confirmation_id')::bigint
+    where m.kind = 'rescue' and c.manila_resident_id <> 'res-001' and c.manila_resident_id <> 'res-002'),
+  0, 'a resident with no account (res-003) gets no push');
+
+-- A push that waited too long, and one for the account with six phones.
+insert into public.push_message (user_id, kind, title, body, created_at)
+values ('00000000-0000-4000-8000-00000000000c', 'rescue', 'Old', 'Old', now() - interval '31 minutes'),
+       ('00000000-0000-4000-8000-00000000000e', 'rescue', 'Six phones', 'Six phones', now());
+
+create temp table __push as select public.claim_push_messages() as claimed;
+select ok(
+  (select bool_and(jsonb_array_length(c -> 'tokens') >= 1) from __push, jsonb_array_elements(claimed) c)
+  and (select count(*) = 1 from __push, jsonb_array_elements(claimed) c
+        where c ->> 'kind' = 'assignment'
+          and c -> 'tokens' = '["fcm-token-responder-phone-0002"]'::jsonb),
+  'the sender claims each push with its account''s phones');
+select is(
+  (select jsonb_array_length(c -> 'tokens') from __push, jsonb_array_elements(claimed) c
+    where c ->> 'title' = 'Six phones'),
+  5, 'a push goes to the account''s five most recent phones at most');
+select is(
+  (select string_agg(distinct status, ',') from public.push_message where user_id = '00000000-0000-4000-8000-00000000000f'),
+  'noDevice', 'a push for an account with no phone is closed as noDevice');
+select is((select status from public.push_message where title = 'Old'), 'expired',
+  'a push still waiting after 30 minutes is not sent');
+select is((select count(*)::int from public.push_message where status = 'queued'), 0,
+  'claimed pushes are marked as being sent');
+select is(jsonb_array_length(public.claim_push_messages()), 0,
+  'a second run claims nothing, so nothing is pushed twice');
+select lives_ok(
+  $$ select public.finish_push_message(
+       (select message_id from public.push_message where user_id = '00000000-0000-4000-8000-000000000011' order by message_id desc limit 1),
+       'sent', 1, 1) $$,
+  'the sender records the outcome of a push');
+select throws_ok(
+  $$ select public.finish_push_message(
+       (select message_id from public.push_message where user_id = '00000000-0000-4000-8000-000000000011' order by message_id desc limit 1),
+       'sent', 1, 1) $$,
+  'P0001', 'not_found', 'the outcome of a push is recorded once');
+select throws_ok(
+  $$ select public.finish_push_message(
+       (select message_id from public.push_message where user_id = '00000000-0000-4000-8000-00000000000c' and status = 'sending' limit 1),
+       'queued') $$,
+  'P0001', 'invalid_value', 'only a final outcome can be recorded for a push');
+select is(public.forget_push_tokens(array['fcm-token-responder-phone-0002', 'no-such-token']), 1,
+  'tokens FCM no longer knows are marked forgotten');
+select is(jsonb_array_length(private.push_tokens('00000000-0000-4000-8000-000000000011')), 0,
+  'and get no more pushes');
+
+-- With push switched off on A3, a new push is logged as off.
+update public.app_setting set value = 'false' where key = 'channels.push';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select public.resolve_incident(
+  (select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1'));
+reset role;
+select is(
+  (select status || ':' || title from public.push_message where user_id = '00000000-0000-4000-8000-00000000000c'
+    order by message_id desc limit 1),
+  'off:Your SOS was closed', 'with push switched off, the closing push is logged as off');
 
 reset role;
 select * from finish();

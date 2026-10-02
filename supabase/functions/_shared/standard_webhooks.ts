@@ -32,7 +32,8 @@ export async function sign(
 ): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
-    secretBytes(secret),
+    // A copy on a plain ArrayBuffer, as newer TypeScript DOM types require.
+    new Uint8Array(secretBytes(secret)),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],

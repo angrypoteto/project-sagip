@@ -2,6 +2,8 @@ package ph.sagip.sagip_mobile
 
 import android.Manifest
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,6 +11,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.telephony.SmsManager
@@ -21,9 +24,38 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Hosts the Flutter app and the Tier 2 SMS channel (plan section 11): an
  * SOS texted to the MDRRMD gateway SIM when the phone has signal but no
  * data. The app is installed directly, not from Google Play, so it may hold
- * SEND_SMS (plan Q29).
+ * SEND_SMS (plan Q29). It also creates the notification categories for
+ * push (plan part 7).
  */
 class MainActivity : FlutterActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        createNotificationChannels()
+    }
+
+    /**
+     * The notification categories push messages name (supabase/functions/
+     * send-alerts/fcm.ts). All three can sound and pop up: each is about an
+     * emergency. Creating them again changes nothing the person set.
+     */
+    private fun createNotificationChannels() {
+        val manager = getSystemService(NotificationManager::class.java) ?: return
+        fun channel(id: String, name: Int, about: Int) =
+            NotificationChannel(id, getString(name), NotificationManager.IMPORTANCE_HIGH)
+                .apply { description = getString(about) }
+        manager.createNotificationChannels(
+            listOf(
+                channel("sagip_alerts", R.string.channel_alerts, R.string.channel_alerts_about),
+                channel("sagip_rescue", R.string.channel_rescue, R.string.channel_rescue_about),
+                channel(
+                    "sagip_assignments",
+                    R.string.channel_assignments,
+                    R.string.channel_assignments_about,
+                ),
+            ),
+        )
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/sms")

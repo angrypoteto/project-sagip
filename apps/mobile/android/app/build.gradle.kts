@@ -4,6 +4,13 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Push notifications need the Firebase project's google-services.json in
+// this folder (git-ignored: it is per project). Without it the app builds
+// and runs with push switched off. Steps in supabase/README.md.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "ph.sagip.sagip_mobile"
     // permission_handler_android needs 37.

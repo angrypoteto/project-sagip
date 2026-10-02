@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The S.A.G.I.P. mark in one colour, for the status bar: Android draws
+     notification icons as a white silhouette. A ring and a dot. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M2,12a10,10 0,1 0,20 0a10,10 0,1 0,-20 0z M4.8,12a7.2,7.2 0,1 0,14.4 0a7.2,7.2 0,1 0,-14.4 0z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M8.4,12a3.6,3.6 0,1 0,7.2 0a3.6,3.6 0,1 0,-7.2 0z" />
+</vector>

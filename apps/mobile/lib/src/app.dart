@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import 'common/labels.dart';
+import 'features/shell/push_routes.dart';
 import 'l10n/app_localizations.dart';
 import 'providers.dart';
 import 'router.dart';
@@ -57,6 +58,37 @@ class SagipMobileApp extends ConsumerWidget {
         messenger.showSnackBar(SnackBar(content: Text(l10n.rescueBody(c))));
       }
     });
+
+    // A tapped notification opens its page once someone is signed in (the
+    // tap that started the app arrives while the session is restored).
+    void openPending() {
+      final open = ref.read(pendingPushProvider);
+      final user = ref.read(currentUserProvider).value;
+      if (open == null || user == null) return;
+      ref.read(pendingPushProvider.notifier).set(null);
+      final to = pushDestination(
+        open,
+        user,
+        ref.read(mySosProvider).value ?? const [],
+      );
+      // After this frame, so the sign-in redirect has finished.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final router = ref.read(routerProvider);
+        if (to.push) {
+          router.push(to.location);
+        } else {
+          router.go(to.location);
+        }
+      });
+    }
+
+    ref.listen(pushOpensProvider, (_, next) {
+      final open = next.value;
+      if (open == null) return;
+      ref.read(pendingPushProvider.notifier).set(open);
+      openPending();
+    });
+    ref.listen(currentUserProvider, (_, _) => openPending());
 
     // Fetched when the app starts and kept for as long as it runs: the
     // hotline and the SMS gateway number an administrator set on A3.

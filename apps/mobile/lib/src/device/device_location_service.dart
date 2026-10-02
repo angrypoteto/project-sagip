@@ -25,6 +25,8 @@ AndroidSettings androidLocationSettings(BackgroundNotice? notice) =>
               notificationTitle: notice.title,
               notificationText: notice.text,
               notificationChannelName: notice.channel,
+              // The one-colour S.A.G.I.P. mark (res/drawable).
+              notificationIcon: const AndroidResource(name: 'ic_stat_sagip'),
               // Without it the phone sleeps and hands over every position
               // at once when it wakes.
               enableWakeLock: true,

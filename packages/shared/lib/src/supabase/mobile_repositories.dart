@@ -28,7 +28,8 @@ class SupabaseMobileBackend {
       weather = SupabaseWeatherRepository(client),
       remote = SupabaseMobileRemote(client),
       routing = SupabaseRoutingLog(client),
-      config = SupabaseClientConfigRepository(client);
+      config = SupabaseClientConfigRepository(client),
+      push = SupabasePushRegistry(client);
 
   final StreamController<Object?> _profileChanged;
   final SupabaseMobileAccounts accounts;
@@ -43,6 +44,9 @@ class SupabaseMobileBackend {
 
   /// The hotline and the SMS gateway number set on A3.
   final SupabaseClientConfigRepository config;
+
+  /// This account's phones for push notifications.
+  final SupabasePushRegistry push;
 
   Future<void> dispose() => _profileChanged.close();
 }
@@ -81,6 +85,10 @@ class SupabaseMobileAccounts
   /// True while [verifyCode] links or creates the resident record: the
   /// session exists a moment before the account does.
   var _finishing = false;
+
+  /// Runs before [signOut] while the session still works (the phone stops
+  /// getting this account's pushes). Its failure never blocks sign-out.
+  Future<void> Function()? beforeSignOut;
 
   void _set(AppUser? user) {
     _user = user;
@@ -328,7 +336,43 @@ class SupabaseMobileAccounts
   }
 
   @override
-  Future<void> signOut() => _client.auth.signOut();
+  Future<void> signOut() async {
+    try {
+      await beforeSignOut?.call();
+    } catch (_) {
+      // Offline: the token is replaced at the next sign-in anyway.
+    }
+    await _client.auth.signOut();
+  }
+}
+
+// ------------------------------------------------------------ push
+
+/// The server's list of this account's phones (`push_device`), and the
+/// resident's barangay for the topic.
+class SupabasePushRegistry implements PushRegistry {
+  const SupabasePushRegistry(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Future<void> register(String token) => _call(
+    () => _client.rpc<void>('register_push_device', params: {'p_token': token}),
+  );
+
+  @override
+  Future<void> forget(String token) => _call(
+    () => _client.rpc<void>('forget_push_device', params: {'p_token': token}),
+  );
+
+  /// The signed-in resident's barangay; null for a responder.
+  Future<String?> homeBarangay() async {
+    final row = await _client
+        .from('resident_profile')
+        .select('barangay')
+        .maybeSingle();
+    return row?['barangay'] as String?;
+  }
 }
 
 // ----------------------------------------------------- vulnerability
