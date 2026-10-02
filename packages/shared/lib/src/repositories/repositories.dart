@@ -7,6 +7,7 @@ import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
+import '../models/ndrrmc.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
@@ -65,6 +66,9 @@ enum ActionRejection {
 
   /// The last active admin cannot be deactivated or demoted.
   lastAdmin,
+
+  /// A final NDRRMC report cannot be changed.
+  alreadyFinal,
 }
 
 abstract interface class AuthRepository {
@@ -207,6 +211,33 @@ abstract interface class ResourceRepository {
 abstract interface class AnalyticsRepository {
   /// Incidents received in [from, to). Throws [ActionRejected].
   Future<AnalyticsReport> report(DateTime from, DateTime to);
+}
+
+/// A5 and A6: NDRRMC reports (Objective 4). Admins only.
+abstract interface class ReportRepository {
+  /// Every report, newest first, live.
+  Stream<List<NdrrmcReport>> watchReports();
+
+  /// The figures for incidents received in [from, to). Throws
+  /// [ActionRejected].
+  Future<ReportSource> source(DateTime from, DateTime to);
+
+  /// Saves a new draft ([id] null) for a period, or the edited text of an
+  /// existing draft. A new draft keeps the period's figures as they are at
+  /// that moment. Returns the report's id. Throws [ActionRejected]:
+  /// `alreadyFinal` for a final report, `invalidValue` for text outside
+  /// the limits in `ReportSections`.
+  Future<String> save({
+    String? id,
+    required DateTime from,
+    required DateTime to,
+    required String title,
+    required List<ReportSection> sections,
+    int? generationMs,
+  });
+
+  /// Marks a draft final; it can no longer be edited. Audited.
+  Future<void> finalize(String id);
 }
 
 /// A3 Configuration: values an administrator can change (`app_setting`).

@@ -3586,6 +3586,462 @@ abstract class AppLocalizations {
   /// **'No registered vulnerable residents in {barangay}.'**
   String vulnerableNoneIn(String barangay);
 
+  /// No description provided for @reportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NDRRMC reports'**
+  String get reportsTitle;
+
+  /// No description provided for @reportsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post-disaster reports drafted from incident, dispatch, and damage records.'**
+  String get reportsSubtitle;
+
+  /// No description provided for @reportsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports yet.'**
+  String get reportsEmpty;
+
+  /// No description provided for @reportsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate one from incident records.'**
+  String get reportsEmptyHint;
+
+  /// No description provided for @reportNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New report'**
+  String get reportNew;
+
+  /// No description provided for @colReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get colReport;
+
+  /// No description provided for @colPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get colPeriod;
+
+  /// No description provided for @colMadeBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by'**
+  String get colMadeBy;
+
+  /// No description provided for @colMadeOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Made on'**
+  String get colMadeOn;
+
+  /// No description provided for @reportPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String reportPeriod(String from, String to);
+
+  /// No description provided for @reportStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get reportStatusDraft;
+
+  /// No description provided for @reportStatusFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final'**
+  String get reportStatusFinal;
+
+  /// No description provided for @reportNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New NDRRMC report'**
+  String get reportNewTitle;
+
+  /// No description provided for @reportNewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The draft is put together from the records. You review and edit it before it is final.'**
+  String get reportNewSubtitle;
+
+  /// No description provided for @reportPeriodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Period to report on'**
+  String get reportPeriodTitle;
+
+  /// No description provided for @reportPeriodNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Incidents received in this period are counted.'**
+  String get reportPeriodNote;
+
+  /// No description provided for @reportPeriodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get reportPeriodCustom;
+
+  /// No description provided for @reportPeriodNoDates.
+  ///
+  /// In en, this message translates to:
+  /// **'No dates chosen yet.'**
+  String get reportPeriodNoDates;
+
+  /// No description provided for @reportPeriodDates.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}, whole days'**
+  String reportPeriodDates(String from, String to);
+
+  /// No description provided for @reportPeriodChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose dates'**
+  String get reportPeriodChange;
+
+  /// No description provided for @reportCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect records'**
+  String get reportCollect;
+
+  /// No description provided for @reportCollecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Collecting records and drafting the report'**
+  String get reportCollecting;
+
+  /// No description provided for @reportElapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s'**
+  String reportElapsed(String seconds);
+
+  /// No description provided for @reportNoIncidents.
+  ///
+  /// In en, this message translates to:
+  /// **'No incidents in this period.'**
+  String get reportNoIncidents;
+
+  /// No description provided for @reportChoosePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another period'**
+  String get reportChoosePeriod;
+
+  /// No description provided for @reportCollectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t collect the records. Your period is kept.'**
+  String get reportCollectFailed;
+
+  /// No description provided for @reportNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This report does not exist.'**
+  String get reportNotFound;
+
+  /// No description provided for @reportBackToList.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the reports'**
+  String get reportBackToList;
+
+  /// No description provided for @reportTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Report title'**
+  String get reportTitleLabel;
+
+  /// No description provided for @reportTitleError.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the report a title.'**
+  String get reportTitleError;
+
+  /// No description provided for @reportRemarksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by you: what the figures do not say, and what is recommended.'**
+  String get reportRemarksHint;
+
+  /// No description provided for @reportSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get reportSave;
+
+  /// No description provided for @reportSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft saved'**
+  String get reportSaved;
+
+  /// No description provided for @reportFinalize.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as final'**
+  String get reportFinalize;
+
+  /// No description provided for @reportFinalizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark this report as final?'**
+  String get reportFinalizeTitle;
+
+  /// No description provided for @reportFinalizeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A final report can no longer be edited. It stays in the list and can still be downloaded.'**
+  String get reportFinalizeBody;
+
+  /// No description provided for @reportFinalizeUnmet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 check is not met:} other{{count} checks are not met:}}'**
+  String reportFinalizeUnmet(int count);
+
+  /// No description provided for @reportFinalized.
+  ///
+  /// In en, this message translates to:
+  /// **'Report marked as final'**
+  String get reportFinalized;
+
+  /// No description provided for @reportDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF'**
+  String get reportDownload;
+
+  /// No description provided for @reportFigures.
+  ///
+  /// In en, this message translates to:
+  /// **'From the records'**
+  String get reportFigures;
+
+  /// No description provided for @reportFiguresNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The figures the draft was written from, as they were when it was made.'**
+  String get reportFiguresNote;
+
+  /// No description provided for @reportChecklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Before it is final'**
+  String get reportChecklist;
+
+  /// No description provided for @reportCheckIncidents.
+  ///
+  /// In en, this message translates to:
+  /// **'The period has incidents to report'**
+  String get reportCheckIncidents;
+
+  /// No description provided for @reportCheckNoneOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'No incident of the period is still open'**
+  String get reportCheckNoneOpen;
+
+  /// No description provided for @reportCheckAllFiled.
+  ///
+  /// In en, this message translates to:
+  /// **'Every resolved incident has a completion report'**
+  String get reportCheckAllFiled;
+
+  /// No description provided for @reportCheckNoSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'No simulated alerts or readings are counted'**
+  String get reportCheckNoSimulated;
+
+  /// No description provided for @reportCheckNoEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Every section has text'**
+  String get reportCheckNoEmpty;
+
+  /// No description provided for @reportCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet: {check}'**
+  String reportCheckFailed(String check);
+
+  /// No description provided for @reportDraftedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafted from the records in {seconds} s.'**
+  String reportDraftedIn(String seconds);
+
+  /// No description provided for @reportMethodNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The text is put together from the figures with fixed wording. The RAG engine is not connected yet.'**
+  String get reportMethodNote;
+
+  /// No description provided for @reportPdfAgency.
+  ///
+  /// In en, this message translates to:
+  /// **'Manila Disaster Risk Reduction and Management Department'**
+  String get reportPdfAgency;
+
+  /// No description provided for @reportPdfPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period covered: {from} to {to}'**
+  String reportPdfPeriod(String from, String to);
+
+  /// No description provided for @reportPdfDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: draft, not yet final'**
+  String get reportPdfDraft;
+
+  /// No description provided for @reportPdfFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: final, marked by {name} on {date}'**
+  String reportPdfFinal(String name, String date);
+
+  /// No description provided for @reportPdfPrepared.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepared by {name} on {date}'**
+  String reportPdfPrepared(String name, String date);
+
+  /// No description provided for @reportPdfFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepared with Project S.A.G.I.P.'**
+  String get reportPdfFooter;
+
+  /// No description provided for @reportPdfEmptySection.
+  ///
+  /// In en, this message translates to:
+  /// **'(Nothing written.)'**
+  String get reportPdfEmptySection;
+
+  /// No description provided for @figIncidents.
+  ///
+  /// In en, this message translates to:
+  /// **'Incidents'**
+  String get figIncidents;
+
+  /// No description provided for @figSos.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS requests'**
+  String get figSos;
+
+  /// No description provided for @figClusters.
+  ///
+  /// In en, this message translates to:
+  /// **'Crowd report clusters'**
+  String get figClusters;
+
+  /// No description provided for @figResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get figResolved;
+
+  /// No description provided for @figOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Still open'**
+  String get figOpen;
+
+  /// No description provided for @figFalse.
+  ///
+  /// In en, this message translates to:
+  /// **'False reports'**
+  String get figFalse;
+
+  /// No description provided for @figVulnerable.
+  ///
+  /// In en, this message translates to:
+  /// **'With vulnerable households'**
+  String get figVulnerable;
+
+  /// No description provided for @figCompletions.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion reports'**
+  String get figCompletions;
+
+  /// No description provided for @figAssisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Persons assisted'**
+  String get figAssisted;
+
+  /// No description provided for @figInjured.
+  ///
+  /// In en, this message translates to:
+  /// **'Injured'**
+  String get figInjured;
+
+  /// No description provided for @figMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get figMissing;
+
+  /// No description provided for @figFamilies.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected families'**
+  String get figFamilies;
+
+  /// No description provided for @figHouses.
+  ///
+  /// In en, this message translates to:
+  /// **'Houses damaged'**
+  String get figHouses;
+
+  /// No description provided for @figDispatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatches'**
+  String get figDispatches;
+
+  /// No description provided for @figUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Units deployed'**
+  String get figUnits;
+
+  /// No description provided for @figAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts issued'**
+  String get figAlerts;
+
+  /// No description provided for @actionReportDrafted.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafted an NDRRMC report'**
+  String get actionReportDrafted;
+
+  /// No description provided for @actionReportFinalized.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked an NDRRMC report final'**
+  String get actionReportFinalized;
+
+  /// No description provided for @errorAlreadyFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'This report is final and can no longer be changed.'**
+  String get errorAlreadyFinal;
+
   /// No description provided for @levelInfo.
   ///
   /// In en, this message translates to:
@@ -4390,23 +4846,11 @@ abstract class AppLocalizations {
   /// **'Not built yet'**
   String get comingSoonTitle;
 
-  /// No description provided for @comingSoonFor.
-  ///
-  /// In en, this message translates to:
-  /// **'{page}: not built yet'**
-  String comingSoonFor(String page);
-
   /// No description provided for @working.
   ///
   /// In en, this message translates to:
   /// **'Working'**
   String get working;
-
-  /// No description provided for @placeholderReports.
-  ///
-  /// In en, this message translates to:
-  /// **'NDRRMC report generation arrives with the RAG proof of concept (plan 10.6).'**
-  String get placeholderReports;
 
   /// No description provided for @notFoundTitle.
   ///

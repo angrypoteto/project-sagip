@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(232);
+select plan(252);
 
 select public.reset_demo_data();
 
@@ -926,6 +926,114 @@ select ok(
   (select category is null from public.crowd_report where description = 'Baha na naman dito sa amin'),
   'with no active model a report is stored untagged, not refused');
 update public.classifier_model set is_active = true where model_id = 'v1-sample';
+
+-- ------------------------------------------------ NDRRMC reports (A5, A6)
+
+select ok(
+  not has_function_privilege('anon', 'public.report_source(timestamptz, timestamptz)', 'execute')
+  and not has_function_privilege('anon',
+        'public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int)', 'execute')
+  and not has_function_privilege('anon', 'public.finalize_ndrrmc_report(text)', 'execute'),
+  'anon cannot read report figures or save reports');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.report_source(now() - interval '1 day', now() + interval '1 minute') $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot read report figures (admins only)');
+select throws_ok(
+  $$ select public.save_ndrrmc_report(null, now() - interval '1 day', now() + interval '1 minute', 'Report',
+       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot save a report');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select ok(
+  (select (s ->> 'incidents')::int = (select count(*)::int from public.incident_report
+                                       where received_at >= now() - interval '1 day'
+                                         and received_at < now() + interval '1 minute')
+      and (s ->> 'incidents')::int = (s ->> 'resolved')::int + (s ->> 'open')::int + (s ->> 'false_reports')::int
+      and (s ->> 'incidents')::int = (s ->> 'sos')::int + (s ->> 'clusters')::int
+      and (select sum((t ->> 'count')::int) from jsonb_array_elements(s -> 'by_type') t) = (s ->> 'incidents')::int
+      and (select sum((b ->> 'count')::int) from jsonb_array_elements(s -> 'by_barangay') b) = (s ->> 'incidents')::int
+     from (select public.report_source(now() - interval '1 day', now() + interval '1 minute') s) x),
+  'the figures cover every incident of the period and add up');
+select ok(
+  (select (s ->> 'completion_reports')::int = 1 and (s ->> 'persons_assisted')::int = 1
+      and s -> 'outcomes' ->> 'transported' = '1' and (s ->> 'dispatches')::int >= 2
+      and (s ->> 'alerts_issued')::int > 0 and (s ->> 'max_signal')::int = 4
+     from (select public.report_source(now() - interval '1 day', now() + interval '1 minute') s) x),
+  'they count what responders reported, the dispatches, the alerts, and the highest readings');
+select ok(
+  (select s::text !~* '(dela cruz|maria|ramos|fullname|latitude|longitude|contact|address)'
+     from (select public.report_source(now() - interval '30 days', now() + interval '1 minute') s) x),
+  'the figures hold no names, contact details, addresses, or coordinates (RA 10173)');
+select throws_ok($$ select public.report_source(now(), now() - interval '1 day') $$,
+  'P0001', 'invalid_value', 'a period that ends before it starts is refused');
+
+select ok(
+  public.save_ndrrmc_report(null, now() - interval '1 day', now() + interval '1 minute', ' Flood report ',
+    '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb, 4200) like 'RPT-%',
+  'an admin saves a draft');
+select ok(
+  (select status = 'draft' and title = 'Flood report' and method = 'assembled'
+          and created_by_name = 'Test Admin' and generation_ms = 4200
+          and (source ->> 'completion_reports')::int = 1
+          and period_end > period_start
+     from public.ndrrmc_report where title = 'Flood report'),
+  'the draft keeps the period''s figures and who made it');
+select throws_ok(
+  $$ select public.save_ndrrmc_report(null, now() - interval '1 day', now(), 'Empty', '[]'::jsonb) $$,
+  'P0001', 'invalid_value', 'a report needs at least one section');
+select throws_ok(
+  $$ select public.save_ndrrmc_report(null, now() - interval '1 day', now(), '  ',
+       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb) $$,
+  'P0001', 'invalid_value', 'a report needs a title');
+select lives_ok(
+  $$ select public.save_ndrrmc_report(
+       (select report_id from public.ndrrmc_report where title = 'Flood report'),
+       now() - interval '9 days', now(), 'Flood report, revised',
+       '[{"key": "overview", "title": "Situation overview", "body": "Edited."},
+         {"key": "remarks", "title": "Remarks and recommendations", "body": ""}]'::jsonb) $$,
+  'an admin edits the draft');
+select ok(
+  (select jsonb_array_length(sections) = 2 and sections -> 0 ->> 'body' = 'Edited.'
+          and (source ->> 'completion_reports')::int = 1
+          and period_start > now() - interval '2 days'
+     from public.ndrrmc_report where title = 'Flood report, revised'),
+  'editing changes the text, not the period or its figures');
+select throws_ok(
+  $$ select public.save_ndrrmc_report('RPT-9999', now() - interval '1 day', now(), 'Report',
+       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb) $$,
+  'P0001', 'not_found', 'an unknown report cannot be edited');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.ndrrmc_report), 0,
+  'a dispatcher cannot read reports');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.finalize_ndrrmc_report(
+       (select report_id from public.ndrrmc_report where title = 'Flood report, revised')) $$,
+  'an admin marks the report final');
+select ok(
+  (select status = 'final' and finalized_at is not null and finalized_by_name = 'Test Admin'
+     from public.ndrrmc_report where title = 'Flood report, revised'),
+  'it records when and by whom');
+select throws_ok(
+  $$ select public.finalize_ndrrmc_report(
+       (select report_id from public.ndrrmc_report where title = 'Flood report, revised')) $$,
+  'P0001', 'already_final', 'a final report cannot be made final again');
+select throws_ok(
+  $$ select public.save_ndrrmc_report(
+       (select report_id from public.ndrrmc_report where title = 'Flood report, revised'),
+       now() - interval '1 day', now(), 'Changed',
+       '[{"key": "overview", "title": "Situation overview", "body": "Changed."}]'::jsonb) $$,
+  'P0001', 'already_final', 'a final report cannot be edited');
+select is(
+  (select string_agg(action_type || ' ' || detail, '; ' order by log_id) from public.audit_log
+    where action_type in ('reportDrafted', 'reportFinalized')),
+  'reportDrafted Flood report; reportFinalized Flood report, revised',
+  'drafting and finalizing are in the audit log (FR11)');
 
 reset role;
 select * from finish();

@@ -4,6 +4,7 @@ import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/incident.dart';
+import '../models/ndrrmc.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
@@ -297,6 +298,39 @@ class MockWeatherRepository implements WeatherRepository {
 
   @override
   Stream<WeatherStatus> watchCurrent() => _backend.watchWeather();
+}
+
+class MockReportRepository implements ReportRepository {
+  const MockReportRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<NdrrmcReport>> watchReports() => _backend.watchNdrrmcReports();
+
+  @override
+  Future<ReportSource> source(DateTime from, DateTime to) =>
+      _backend.reportSource(from, to);
+
+  @override
+  Future<String> save({
+    String? id,
+    required DateTime from,
+    required DateTime to,
+    required String title,
+    required List<ReportSection> sections,
+    int? generationMs,
+  }) => _backend.saveNdrrmcReport(
+    id: id,
+    from: from,
+    to: to,
+    title: title,
+    sections: sections,
+    generationMs: generationMs,
+  );
+
+  @override
+  Future<void> finalize(String id) => _backend.finalizeNdrrmcReport(id);
 }
 
 class MockForecastRepository implements ForecastRepository {

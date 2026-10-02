@@ -115,6 +115,16 @@ extension DomainLabels on AppLocalizations {
     AuditAction.weatherSimulated => actionWeatherSimulated,
     AuditAction.alertIssued => actionAlertIssued,
     AuditAction.alertEnded => actionAlertEnded,
+    AuditAction.reportDrafted => actionReportDrafted,
+    AuditAction.reportFinalized => actionReportFinalized,
+  };
+
+  String reportCheck(ReportCheck c) => switch (c) {
+    ReportCheck.hasIncidents => reportCheckIncidents,
+    ReportCheck.noneOpen => reportCheckNoneOpen,
+    ReportCheck.allReportsFiled => reportCheckAllFiled,
+    ReportCheck.noSimulatedData => reportCheckNoSimulated,
+    ReportCheck.noEmptySection => reportCheckNoEmpty,
   };
 
   String hazard(ForecastHazard h) => switch (h) {
@@ -171,6 +181,7 @@ extension DomainLabels on AppLocalizations {
     ActionRejection.alreadyExists => errorAlreadyExists,
     ActionRejection.ownAccount => errorOwnAccount,
     ActionRejection.lastAdmin => errorLastAdmin,
+    ActionRejection.alreadyFinal => errorAlreadyFinal,
   };
 
   String authFailure(AuthFailure f) => switch (f) {

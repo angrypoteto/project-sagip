@@ -94,6 +94,10 @@ enum AuditAction {
   /// An advisory issued or ended from the dashboard (D10).
   alertIssued,
   alertEnded,
+
+  /// An NDRRMC report drafted or marked final (A6).
+  reportDrafted,
+  reportFinalized,
 }
 
 /// Reads a timestamp from JSON and converts it to local time (the database

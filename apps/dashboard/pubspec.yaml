@@ -19,6 +19,7 @@ dependencies:
   latlong2: ^0.10.1
   material_symbols_icons: ^4.2960.0
   material_ui: ^1.5.0
+  pdf: ^3.13.1
   sagip_shared:
     path: ../../packages/shared
   supabase_flutter: ^2.17.2

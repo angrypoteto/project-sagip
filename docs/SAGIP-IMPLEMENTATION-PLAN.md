@@ -1041,7 +1041,7 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 **Tier 3 screens, built directly on Supabase**
 
 - [x] Admin: A1 Accounts, A2 Resources, A3 Configuration, A7 Audit log (Oct 1; A3 has the priority weights so far)
-- [ ] Admin: A4 Analytics and A5 NDRRMC reports list (A6 comes with RAG in Phase 4)
+- [x] Admin: A4 Analytics and A5 NDRRMC reports list (A6 comes with RAG in Phase 4). *A5 and A6 built Oct 2 without the RAG step: the draft is assembled from the figures.*
 - [x] D11 My account, G1 Not found, G2 Session expired (Oct 1)
 - [x] Web form W1 to W3, reusing the resident report logic (Oct 2: `lib/main_webform.dart`; registration on the form is on by default until Q13 is decided)
 
@@ -1109,11 +1109,11 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 ### 10.6 RAG NDRRMC report (Objective 4). High; scope set at the checkpoint.
 
 - [ ] Get the NDRRMC template and 5 to 10 past reports (Table 3.1 item 5) **(Data)**
-- [ ] Define the report sections from the template
-- [ ] Retrieval: SQL for the period's incidents, dispatches, and damage records; pgvector search over template sections and past reports
+- [ ] Define the report sections from the template. *A provisional outline of six sections is in place (`ReportSections`); replace it when the template arrives.*
+- [ ] Retrieval: SQL for the period's incidents, dispatches, and damage records; pgvector search over template sections and past reports. *The SQL half is done (`report_source()`, Oct 2); pgvector waits for the template and past reports.*
 - [ ] Generation through the chosen LLM from an Edge Function, with the key in Supabase secrets
-- [ ] Remove names and phone numbers before any data leaves Supabase (RA 10173)
-- [ ] A6 screen: human review and edit step, then PDF export with the Dart `pdf` package to Storage and a report record
+- [x] Remove names and phone numbers before any data leaves Supabase (RA 10173). *`report_source()` returns counts only; the RLS test checks it holds no names, contact details, addresses, or coordinates.*
+- [x] A6 screen: human review and edit step, then PDF export with the Dart `pdf` package to Storage and a report record. *Built Oct 2: review beside the figures, a completeness checklist, save, mark final, PDF download. The PDF is downloaded, not stored (no Storage bucket yet).*
 - [ ] Time trial with an administrator: manual preparation against the assisted draft (Objective 4, at least 30% faster) **(UAT)**
 
 ## 11. Phase 5: Offline resilience

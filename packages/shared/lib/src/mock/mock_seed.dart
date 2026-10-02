@@ -2,7 +2,9 @@ import '../models/alerts.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
+import '../models/assignment.dart';
 import '../models/incident.dart';
+import '../models/ndrrmc.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
@@ -696,6 +698,151 @@ class MockSeed {
     issuedAt: ago(2),
     isSimulated: true,
   );
+
+  /// Past rescues, as in the demo data: resolved days ago, so they stay
+  /// off the Triage Queue but feed analytics and NDRRMC reports.
+  List<Incident> get pastIncidents {
+    DateTime back(int days, [int minutes = 0]) =>
+        t0.subtract(Duration(days: days, minutes: minutes));
+    Incident past(
+      String id,
+      IncidentOrigin origin,
+      ReportChannel channel,
+      IncidentType type,
+      GeoPoint location,
+      String barangay,
+      String unitId,
+      String callSign, {
+      required DateTime received,
+      required DateTime resolved,
+      List<VulnerabilityType> vulnerable = const [],
+    }) => Incident(
+      id: id,
+      origin: origin,
+      channel: channel,
+      status: IncidentStatus.resolved,
+      suggestedType: type,
+      confirmedType: type,
+      location: location,
+      barangay: barangay,
+      district: 'Sampaloc',
+      capturedAt: received,
+      receivedAt: received,
+      vulnerable: vulnerable,
+      accountVerified: origin == IncidentOrigin.sos,
+      assignedUnitId: unitId,
+      resolvedAt: resolved,
+      events: [
+        IncidentEvent(kind: IncidentEventKind.received, at: received),
+        IncidentEvent(
+          kind: IncidentEventKind.assigned,
+          at: received.add(const Duration(minutes: 5)),
+          actorName: 'R. Santos',
+          detail: callSign,
+        ),
+        IncidentEvent(
+          kind: IncidentEventKind.onScene,
+          at: received.add(const Duration(minutes: 17)),
+          actorName: callSign,
+        ),
+        IncidentEvent(
+          kind: IncidentEventKind.resolved,
+          at: resolved,
+          actorName: callSign,
+        ),
+      ],
+    );
+
+    return [
+      past(
+        'INC-0118',
+        IncidentOrigin.sos,
+        ReportChannel.app,
+        IncidentType.flood,
+        const GeoPoint(14.6091, 120.9925),
+        'Barangay 412',
+        'unit-r03',
+        'R-03',
+        received: back(12, 180),
+        resolved: back(12, 130),
+        vulnerable: const [
+          VulnerabilityType.pwd,
+          VulnerabilityType.seniorCitizen,
+        ],
+      ),
+      past(
+        'INC-0124',
+        IncidentOrigin.crowdCluster,
+        ReportChannel.app,
+        IncidentType.flood,
+        const GeoPoint(14.61103, 121.00012),
+        'Barangay 560',
+        'unit-r03',
+        'R-03',
+        received: back(8, 55),
+        resolved: back(8, 10),
+      ),
+      past(
+        'INC-0131',
+        IncidentOrigin.sos,
+        ReportChannel.sms,
+        IncidentType.medical,
+        const GeoPoint(14.6123, 120.9968),
+        'Barangay 490',
+        'unit-r03',
+        'R-03',
+        received: back(4, 120),
+        resolved: back(4, 80),
+        vulnerable: const [VulnerabilityType.seniorCitizen],
+      ),
+      past(
+        'INC-0141',
+        IncidentOrigin.crowdCluster,
+        ReportChannel.app,
+        IncidentType.flood,
+        const GeoPoint(14.6112, 120.9901),
+        'Barangay 412',
+        'unit-r07',
+        'R-07',
+        received: back(3, 25),
+        resolved: back(3).add(const Duration(minutes: 60)),
+      ),
+    ];
+  }
+
+  /// What the responders reported for [pastIncidents] (the demo data's
+  /// completion reports), by incident.
+  Map<String, DamageRecord> get pastCompletions => {
+    for (final c in const [
+      DamageRecord(
+        incidentId: 'INC-0118',
+        outcome: RescueOutcome.rescued,
+        personsAssisted: 3,
+        housesDamaged: 1,
+        affectedFamilies: 1,
+      ),
+      DamageRecord(
+        incidentId: 'INC-0124',
+        outcome: RescueOutcome.rescued,
+        personsAssisted: 2,
+        affectedFamilies: 2,
+      ),
+      DamageRecord(
+        incidentId: 'INC-0131',
+        outcome: RescueOutcome.transported,
+        personsAssisted: 1,
+        injured: 1,
+        affectedFamilies: 1,
+      ),
+      DamageRecord(
+        incidentId: 'INC-0141',
+        outcome: RescueOutcome.rescued,
+        housesDamaged: 4,
+        affectedFamilies: 6,
+      ),
+    ])
+      c.incidentId: c,
+  };
 
   /// Sample 72-hour forecasts, as in the demo data: made-up values that
   /// stand in for the LSTM + KDE model (plan 10.5), issued at 6 AM (the

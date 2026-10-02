@@ -33,6 +33,9 @@ final residentRepositoryProvider = Provider<ResidentRepository>(
 final weatherRepositoryProvider = Provider<WeatherRepository>(
   (ref) => _missing('WeatherRepository'),
 );
+final reportRepositoryProvider = Provider<ReportRepository>(
+  (ref) => throw UnimplementedError('override reportRepositoryProvider'),
+);
 final forecastRepositoryProvider = Provider<ForecastRepository>(
   (ref) => throw UnimplementedError('override forecastRepositoryProvider'),
 );
@@ -97,6 +100,7 @@ List<Override> _mockOverrides(
   residentRepositoryProvider.overrideWithValue(MockResidentRepository(backend)),
   weatherRepositoryProvider.overrideWithValue(MockWeatherRepository(backend)),
   forecastRepositoryProvider.overrideWithValue(MockForecastRepository(backend)),
+  reportRepositoryProvider.overrideWithValue(MockReportRepository(backend)),
   auditRepositoryProvider.overrideWithValue(MockAuditRepository(backend)),
   connectionMonitorProvider.overrideWithValue(MockConnectionMonitor(backend)),
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(runs)),
@@ -123,6 +127,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   residentRepositoryProvider.overrideWithValue(backend.residents),
   weatherRepositoryProvider.overrideWithValue(backend.weather),
   forecastRepositoryProvider.overrideWithValue(backend.forecasts),
+  reportRepositoryProvider.overrideWithValue(backend.reports),
   auditRepositoryProvider.overrideWithValue(backend.audit),
   connectionMonitorProvider.overrideWithValue(backend.connection),
   routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
@@ -191,6 +196,14 @@ final weatherProvider = StreamProvider<WeatherStatus>(
   (ref) => _forAccount(
     ref,
     () => ref.watch(weatherRepositoryProvider).watchCurrent(),
+  ),
+);
+
+/// A5: every NDRRMC report, newest first.
+final reportsProvider = StreamProvider<List<NdrrmcReport>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(reportRepositoryProvider).watchReports(),
   ),
 );
 

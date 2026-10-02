@@ -6,6 +6,7 @@ import '../algorithms/alert_thresholds.dart';
 import '../algorithms/analytics.dart';
 import '../algorithms/dbscan.dart';
 import '../algorithms/priority.dart';
+import '../algorithms/report_draft.dart';
 import '../algorithms/setting_checks.dart';
 import '../data/manila_barangays.dart';
 import '../models/alerts.dart';
@@ -14,6 +15,7 @@ import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/incident.dart';
+import '../models/ndrrmc.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
@@ -38,7 +40,8 @@ class MockBackend {
     _seed = MockSeed(_clock());
     _staff = _seed.staff;
     _incidents = LiveValue({for (final i in _seed.incidents) i.id: i});
-    _resolved = LiveValue(const []);
+    _resolved = LiveValue(_seed.pastIncidents);
+    _completions = {..._seed.pastCompletions};
     _units = LiveValue({for (final u in _seed.units) u.id: u});
     _reports = LiveValue(_seed.crowdReports);
     _residents = LiveValue({for (final r in _seed.residents) r.id: r});
@@ -64,6 +67,12 @@ class MockBackend {
   late final LiveValue<WeatherStatus> _weather;
   late final LiveValue<List<SentAlert>> _alertLog;
   late final LiveValue<ForecastRun?> _forecast;
+
+  /// What responders reported, by incident (the dashboard mock has no
+  /// phones, so only the past rescues have one).
+  late final Map<String, DamageRecord> _completions;
+  final _ndrrmcReports = LiveValue<List<NdrrmcReport>>(const []);
+  var _nextReportNumber = 1;
   var _nextAlertNumber = 1;
   var _weatherSimulated = false;
   final _user = LiveValue<AppUser?>(null);
@@ -337,6 +346,135 @@ class MockBackend {
       'Signal $signal, ${_plain(rainfallMmPerHour)} mm/hr'
           '${surge == null ? '' : ', surge ${_plain(surge)} m'}',
     );
+  }
+
+  /// A5: every report, newest first.
+  Stream<List<NdrrmcReport>> watchNdrrmcReports() => _ndrrmcReports.watch().map(
+    (all) => [...all]..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+  );
+
+  ReportSource _reportSource(DateTime from, DateTime to) {
+    if (!to.isAfter(from) || to.difference(from) > const Duration(days: 400)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    return buildReportSource(
+      incidents: [..._incidents.value.values, ..._resolved.value],
+      completions: _completions,
+      alerts: [for (final a in _alertLog.value) a.alert],
+      // The mock keeps only the current reading.
+      readings: [_weather.value],
+      from: from,
+      to: to,
+    );
+  }
+
+  /// A6 (`report_source`): admins only.
+  Future<ReportSource> reportSource(DateTime from, DateTime to) async {
+    await _authorizeAdmin();
+    return _reportSource(from, to);
+  }
+
+  /// A6 (`save_ndrrmc_report`): a new draft keeps the period's figures as
+  /// they are now; an existing draft only changes its text.
+  Future<String> saveNdrrmcReport({
+    String? id,
+    required DateTime from,
+    required DateTime to,
+    required String title,
+    required List<ReportSection> sections,
+    int? generationMs,
+  }) async {
+    final actor = await _authorizeAdmin();
+    if (!reportTextAccepted(title, sections)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final now = _clock();
+    if (id == null) {
+      final source = _reportSource(from, to);
+      final newId = 'RPT-${(_nextReportNumber++).toString().padLeft(4, '0')}';
+      _ndrrmcReports.value = [
+        ..._ndrrmcReports.value,
+        NdrrmcReport(
+          id: newId,
+          title: title.trim(),
+          status: ReportStatus.draft,
+          source: source,
+          sections: sections,
+          createdByName: actor.displayName,
+          createdAt: now,
+          updatedAt: now,
+          generationMs: generationMs,
+        ),
+      ];
+      _log(
+        actor,
+        AuditAction.reportDrafted,
+        'ndrrmc_report',
+        newId,
+        title.trim(),
+      );
+      return newId;
+    }
+    final existing = _ndrrmcReports.value.where((r) => r.id == id).firstOrNull;
+    if (existing == null) throw const ActionRejected(ActionRejection.notFound);
+    if (existing.isFinal) {
+      throw const ActionRejected(ActionRejection.alreadyFinal);
+    }
+    _replaceReport(
+      NdrrmcReport(
+        id: existing.id,
+        title: title.trim(),
+        status: existing.status,
+        source: existing.source,
+        sections: sections,
+        createdByName: existing.createdByName,
+        createdAt: existing.createdAt,
+        updatedAt: now,
+        method: existing.method,
+        generationMs: existing.generationMs,
+      ),
+    );
+    return id;
+  }
+
+  /// A6 (`finalize_ndrrmc_report`).
+  Future<void> finalizeNdrrmcReport(String id) async {
+    final actor = await _authorizeAdmin();
+    final existing = _ndrrmcReports.value.where((r) => r.id == id).firstOrNull;
+    if (existing == null) throw const ActionRejected(ActionRejection.notFound);
+    if (existing.isFinal) {
+      throw const ActionRejected(ActionRejection.alreadyFinal);
+    }
+    final now = _clock();
+    _replaceReport(
+      NdrrmcReport(
+        id: existing.id,
+        title: existing.title,
+        status: ReportStatus.finalized,
+        source: existing.source,
+        sections: existing.sections,
+        createdByName: existing.createdByName,
+        createdAt: existing.createdAt,
+        updatedAt: now,
+        method: existing.method,
+        generationMs: existing.generationMs,
+        finalizedAt: now,
+        finalizedByName: actor.displayName,
+      ),
+    );
+    _log(
+      actor,
+      AuditAction.reportFinalized,
+      'ndrrmc_report',
+      id,
+      existing.title,
+    );
+  }
+
+  void _replaceReport(NdrrmcReport report) {
+    _ndrrmcReports.value = [
+      for (final r in _ndrrmcReports.value) r.id == report.id ? report : r,
+    ];
   }
 
   /// A4, admins only; the same definitions as `analytics_report`.

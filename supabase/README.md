@@ -23,13 +23,14 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_configuration.sql` | A3 settings (`app_setting`: the Triage Queue priority weights), `set_setting` (admins only, audited as `settingChanged`), and the priority score, severity, and factors on `incident_board` |
 | `migrations/*_routing.sql` | Road routes on dispatch records (`dispatch.route` polyline and `route_plan`; `assign_unit` takes the route), routes in `my_assignments`, and the Dijkstra timing log `routing_run` (admins read it; `log_routing_run` writes it) |
 | `migrations/*_sms_intake.sql`, `*_sms_gateway_provider.sql` | Tier 2: `intake_sms_sos` (service role only) files an SOS texted to the gateway SIM, finding the resident by the sender's number; `submit_sos` attaches the resident when the app's copy of an SOS texted from another SIM arrives; inbound texts logged in `sms_log` |
+| `migrations/*_ndrrmc_reports.sql` | NDRRMC reports (A5, A6): `ndrrmc_report` (admins only), `report_source()` (the figures for a period: counts only), `save_ndrrmc_report()`, `finalize_ndrrmc_report()`; drafting and finalizing are audited |
 | `migrations/*_classifier.sql` | The incident type classifier (FR12): `classifier_model` (the exported model; one is active), `private.classify_report()`, and the trigger that tags each new crowd report before DBSCAN looks at it. Holds the `v1-sample` model, which is trained on made-up descriptions |
 | `migrations/*_advisories.sql` | Advisories from the dashboard (D10): `issue_alert()` (dispatchers and admins; an MDRRMD notice or one relayed by hand from PAGASA, PHIVOLCS, or EFCOS; checked, simulated while simulation mode is on, audited) and `end_alert()` |
 | `migrations/*_alert_sender.sql` | For the alert sender (service role only): `claim_alert_deliveries()`, `alert_sms_recipients()`, `alert_sms_budget()` (the daily cap `channels.sms_daily_cap`, set on A3), `finish_alert_delivery()` |
 | `functions/send-alerts/` | Works through queued alert deliveries: texts residents of the affected barangays through Semaphore (one SMS each, up to the daily cap), logs every text in `sms_log`, and records each channel's outcome; `alerts.test.ts` and `index.test.ts` run with `node --test` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 232 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 252 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -145,6 +146,18 @@ Every new crowd report is tagged with an incident type from its description, ins
 - **Try it** in the SQL editor: `select * from private.classify_report('Baha na po dito, hanggang bewang ang tubig');`
 
 The same arithmetic runs in Dart (`IncidentClassifier` in `packages/shared`) for the sample-data apps. Both are checked against the same 38 cases (`packages/shared/test/fixtures/classifier_reference.json`).
+
+## NDRRMC reports (A5, A6)
+
+An administrator makes a post-disaster report on the dashboard in three steps: choose a period, let the system collect the records, then review and edit the draft before saving it or marking it final.
+
+- **The figures** come from `report_source(from, to)`: incidents received in the period by type and barangay, how many are resolved, open, or false, what responders reported (persons assisted, injured, missing, affected families, houses damaged, outcomes), dispatches and units, median times to assignment and to arrival, alerts issued, and the highest PAGASA readings. **Counts only: no names, phone numbers, addresses, or coordinates** (RA 10173). Admins only.
+- **The draft** is put together from those figures with fixed wording by `draftReportSections()` in `packages/shared` (`method = 'assembled'`). No language model is involved yet: the RAG engine (plan 10.6) will later write the text from the same figures (`method = 'rag'`), and nothing else in the flow changes.
+- **The sections are a provisional outline** (situation overview, incidents reported, affected population and casualties, damage to houses, response actions, remarks and recommendations). Replace it with the NDRRMC template when MDRRMD sends it (thesis Table 3.1 item 5): `ReportSections` and `draftReportSections()` in `packages/shared/lib/src/algorithms/report_draft.dart`.
+- **A saved draft keeps its figures** as they were when it was made (`source`); editing changes only the text. **A final report cannot be changed.** Both steps are in the audit log.
+- **The checklist** on the review step flags what makes a report incomplete: incidents still open, resolved incidents with no completion report, simulated alerts or readings in the figures, an empty section.
+- **`generation_ms`** records how long collecting and drafting took, for the Objective 4 time comparison (the manual baseline still has to be measured, plan Q41).
+- **The PDF** is made in the browser (the Dart `pdf` package) and downloaded; it is not stored. A Storage bucket for the files is not set up.
 
 ## Priority weights (A3)
 

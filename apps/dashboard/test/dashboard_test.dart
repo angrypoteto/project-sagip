@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_dashboard/src/app.dart';
 import 'package:sagip_dashboard/src/common/download.dart';
+import 'package:sagip_dashboard/src/features/admin/report_pdf.dart';
 import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
 import 'package:sagip_dashboard/src/providers.dart';
 import 'package:sagip_dashboard/src/router.dart';
@@ -747,9 +748,9 @@ void main() {
     expect(find.text('Median dispatch time'), findsOneWidget);
     expect(find.text('Incidents per day'), findsOneWidget);
     expect(find.text('By unit'), findsOneWidget);
-    // Every sample incident arrived within the last 7 days.
+    // The active incidents, and the two past rescues of the last 7 days.
     final report = container.read(analyticsProvider).value!;
-    expect(report.incidents, active);
+    expect(report.incidents, active + 2);
 
     await tester.tap(find.text('Last 24 hours'));
     await settle(tester);
@@ -759,6 +760,158 @@ void main() {
     await tester.pump();
     expect(lastDownload!.name, endsWith('.csv'));
     expect(lastDownload!.text, contains('median_dispatch_s'));
+  });
+
+  testWidgets('A5 and A6: draft a report from the records, edit, finalize', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2600);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('NDRRMC reports'));
+    await settle(tester);
+    expect(find.text('No reports yet.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('report-new')));
+    await settle(tester);
+    expect(find.text('Period to report on'), findsOneWidget);
+    // The last 7 days: today's incidents and two of the past rescues.
+    await tester.tap(find.byKey(const ValueKey('report-collect')));
+    await settle(tester);
+
+    final title = tester.widget<TextField>(
+      find.byKey(const ValueKey('report-title')),
+    );
+    expect(title.controller!.text, startsWith('Incident report, '));
+    TextField section(String key) =>
+        tester.widget<TextField>(find.byKey(ValueKey('report-section-$key')));
+    expect(
+      section('population').controller!.text,
+      startsWith('Responders filed 2 completion reports.'),
+    );
+    expect(section('remarks').controller!.text, isEmpty);
+    expect(find.text('From the records'), findsOneWidget);
+    expect(find.text('Completion reports'), findsOneWidget);
+    // Today's incidents are still open and the remarks are blank.
+    expect(find.byKey(const ValueKey('check-hasIncidents-ok')), findsOne);
+    expect(find.byKey(const ValueKey('check-allReportsFiled-ok')), findsOne);
+    expect(find.byKey(const ValueKey('check-noneOpen-open')), findsOne);
+    expect(find.byKey(const ValueKey('check-noEmptySection-open')), findsOne);
+    expect(find.text('Draft'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('report-save')));
+    await settle(tester);
+    expect(find.text('Draft saved'), findsOneWidget);
+    expect(find.text('RPT-0001'), findsOneWidget);
+    var saved = (await tester.runAsync(
+      () => MockReportRepository(backend).watchReports().first,
+    ))!.single;
+    expect(saved.status, ReportStatus.draft);
+    expect(saved.source.completionReports, 2);
+    expect(saved.createdByName, 'E. Navarro');
+    expect(saved.generationMs, isNotNull);
+    // Nothing typed since: nothing to save.
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const ValueKey('report-save')))
+          .onPressed,
+      isNull,
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('report-section-remarks')),
+      'Clear the drains on Dapitan St before the next rain.',
+    );
+    await settle(tester);
+    expect(find.byKey(const ValueKey('check-noEmptySection-ok')), findsOne);
+    // Leaving now would lose the remarks: asked first, and Stay stays.
+    container.read(routerProvider).go(Routes.reports);
+    await settle(tester);
+    expect(find.text('Leave without saving?'), findsOneWidget);
+    await tester.tap(find.text('Stay'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('report-title')), findsOneWidget);
+
+    // Marking it final saves what is on screen first, and says what is
+    // still not met.
+    await tester.tap(find.byKey(const ValueKey('report-finalize')));
+    await settle(tester);
+    expect(find.text('Mark this report as final?'), findsOneWidget);
+    expect(find.text('2 checks are not met:'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('report-finalize-confirm')));
+    await settle(tester);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+
+    saved = (await tester.runAsync(
+      () => MockReportRepository(backend).watchReports().first,
+    ))!.single;
+    expect(saved.isFinal, isTrue);
+    expect(
+      saved.sections.last.body,
+      'Clear the drains on Dapitan St before the next rain.',
+    );
+    expect(find.text('Final'), findsOneWidget);
+    expect(find.byKey(const ValueKey('report-save')), findsNothing);
+    expect(find.byKey(const ValueKey('report-finalize')), findsNothing);
+    expect(section('remarks').readOnly, isTrue);
+    expect(find.byKey(const ValueKey('report-download')), findsOneWidget);
+
+    // Back on the list.
+    container.read(routerProvider).go(Routes.reports);
+    await settle(tester);
+    expect(find.text('Leave without saving?'), findsNothing);
+    expect(find.text('RPT-0001'), findsOneWidget);
+    expect(find.text('Final'), findsOneWidget);
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(
+      {
+        for (final e in audit!)
+          if (e.targetId == 'RPT-0001') e.action,
+      },
+      {AuditAction.reportDrafted, AuditAction.reportFinalized},
+    );
+
+    // A dispatcher has no reports page.
+    await tester.runAsync(() => MockAuthRepository(backend).signOut());
+    await settle(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    expect(find.byTooltip('NDRRMC reports'), findsNothing);
+    container.read(routerProvider).go(Routes.report('RPT-0001'));
+    await settle(tester);
+    expect(find.text('Page not found'), findsOneWidget);
+  });
+
+  testWidgets('A6: the report as a PDF', (tester) async {
+    final bytes = await tester.runAsync(
+      () => buildReportPdf(
+        title: 'Incident report, Oct 1, 2026',
+        sections: const [
+          ReportSection(
+            key: 'overview',
+            title: 'Situation overview',
+            body: 'From Oct 1 to Oct 2 the department recorded 3 incidents.',
+          ),
+          ReportSection(
+            key: 'remarks',
+            title: 'Remarks and recommendations',
+            body: '',
+          ),
+        ],
+        labels: const ReportPdfLabels(
+          agency: 'Manila Disaster Risk Reduction and Management Department',
+          period: 'Period covered: Oct 1, 2026 to Oct 2, 2026',
+          status: 'Status: draft, not yet final',
+          prepared: null,
+          footer: 'Prepared with Project S.A.G.I.P.',
+          emptySection: '(Nothing written.)',
+        ),
+      ),
+    );
+    expect(String.fromCharCodes(bytes!.take(5)), '%PDF-');
+    expect(bytes.length, greaterThan(2000));
   });
 
   testWidgets('admins manage units and the roster on A2', (tester) async {

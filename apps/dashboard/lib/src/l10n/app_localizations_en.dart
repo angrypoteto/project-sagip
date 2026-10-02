@@ -2010,6 +2010,270 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get reportsTitle => 'NDRRMC reports';
+
+  @override
+  String get reportsSubtitle =>
+      'Post-disaster reports drafted from incident, dispatch, and damage records.';
+
+  @override
+  String get reportsEmpty => 'No reports yet.';
+
+  @override
+  String get reportsEmptyHint => 'Generate one from incident records.';
+
+  @override
+  String get reportNew => 'New report';
+
+  @override
+  String get colReport => 'Report';
+
+  @override
+  String get colPeriod => 'Period';
+
+  @override
+  String get colMadeBy => 'Made by';
+
+  @override
+  String get colMadeOn => 'Made on';
+
+  @override
+  String reportPeriod(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String get reportStatusDraft => 'Draft';
+
+  @override
+  String get reportStatusFinal => 'Final';
+
+  @override
+  String get reportNewTitle => 'New NDRRMC report';
+
+  @override
+  String get reportNewSubtitle =>
+      'The draft is put together from the records. You review and edit it before it is final.';
+
+  @override
+  String get reportPeriodTitle => 'Period to report on';
+
+  @override
+  String get reportPeriodNote =>
+      'Incidents received in this period are counted.';
+
+  @override
+  String get reportPeriodCustom => 'Dates';
+
+  @override
+  String get reportPeriodNoDates => 'No dates chosen yet.';
+
+  @override
+  String reportPeriodDates(String from, String to) {
+    return '$from to $to, whole days';
+  }
+
+  @override
+  String get reportPeriodChange => 'Choose dates';
+
+  @override
+  String get reportCollect => 'Collect records';
+
+  @override
+  String get reportCollecting => 'Collecting records and drafting the report';
+
+  @override
+  String reportElapsed(String seconds) {
+    return '$seconds s';
+  }
+
+  @override
+  String get reportNoIncidents => 'No incidents in this period.';
+
+  @override
+  String get reportChoosePeriod => 'Choose another period';
+
+  @override
+  String get reportCollectFailed =>
+      'Couldn\'t collect the records. Your period is kept.';
+
+  @override
+  String get reportNotFound => 'This report does not exist.';
+
+  @override
+  String get reportBackToList => 'Back to the reports';
+
+  @override
+  String get reportTitleLabel => 'Report title';
+
+  @override
+  String get reportTitleError => 'Give the report a title.';
+
+  @override
+  String get reportRemarksHint =>
+      'Written by you: what the figures do not say, and what is recommended.';
+
+  @override
+  String get reportSave => 'Save draft';
+
+  @override
+  String get reportSaved => 'Draft saved';
+
+  @override
+  String get reportFinalize => 'Mark as final';
+
+  @override
+  String get reportFinalizeTitle => 'Mark this report as final?';
+
+  @override
+  String get reportFinalizeBody =>
+      'A final report can no longer be edited. It stays in the list and can still be downloaded.';
+
+  @override
+  String reportFinalizeUnmet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count checks are not met:',
+      one: '1 check is not met:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reportFinalized => 'Report marked as final';
+
+  @override
+  String get reportDownload => 'Download PDF';
+
+  @override
+  String get reportFigures => 'From the records';
+
+  @override
+  String get reportFiguresNote =>
+      'The figures the draft was written from, as they were when it was made.';
+
+  @override
+  String get reportChecklist => 'Before it is final';
+
+  @override
+  String get reportCheckIncidents => 'The period has incidents to report';
+
+  @override
+  String get reportCheckNoneOpen => 'No incident of the period is still open';
+
+  @override
+  String get reportCheckAllFiled =>
+      'Every resolved incident has a completion report';
+
+  @override
+  String get reportCheckNoSimulated =>
+      'No simulated alerts or readings are counted';
+
+  @override
+  String get reportCheckNoEmpty => 'Every section has text';
+
+  @override
+  String reportCheckFailed(String check) {
+    return 'Not yet: $check';
+  }
+
+  @override
+  String reportDraftedIn(String seconds) {
+    return 'Drafted from the records in $seconds s.';
+  }
+
+  @override
+  String get reportMethodNote =>
+      'The text is put together from the figures with fixed wording. The RAG engine is not connected yet.';
+
+  @override
+  String get reportPdfAgency =>
+      'Manila Disaster Risk Reduction and Management Department';
+
+  @override
+  String reportPdfPeriod(String from, String to) {
+    return 'Period covered: $from to $to';
+  }
+
+  @override
+  String get reportPdfDraft => 'Status: draft, not yet final';
+
+  @override
+  String reportPdfFinal(String name, String date) {
+    return 'Status: final, marked by $name on $date';
+  }
+
+  @override
+  String reportPdfPrepared(String name, String date) {
+    return 'Prepared by $name on $date';
+  }
+
+  @override
+  String get reportPdfFooter => 'Prepared with Project S.A.G.I.P.';
+
+  @override
+  String get reportPdfEmptySection => '(Nothing written.)';
+
+  @override
+  String get figIncidents => 'Incidents';
+
+  @override
+  String get figSos => 'SOS requests';
+
+  @override
+  String get figClusters => 'Crowd report clusters';
+
+  @override
+  String get figResolved => 'Resolved';
+
+  @override
+  String get figOpen => 'Still open';
+
+  @override
+  String get figFalse => 'False reports';
+
+  @override
+  String get figVulnerable => 'With vulnerable households';
+
+  @override
+  String get figCompletions => 'Completion reports';
+
+  @override
+  String get figAssisted => 'Persons assisted';
+
+  @override
+  String get figInjured => 'Injured';
+
+  @override
+  String get figMissing => 'Missing';
+
+  @override
+  String get figFamilies => 'Affected families';
+
+  @override
+  String get figHouses => 'Houses damaged';
+
+  @override
+  String get figDispatches => 'Dispatches';
+
+  @override
+  String get figUnits => 'Units deployed';
+
+  @override
+  String get figAlerts => 'Alerts issued';
+
+  @override
+  String get actionReportDrafted => 'Drafted an NDRRMC report';
+
+  @override
+  String get actionReportFinalized => 'Marked an NDRRMC report final';
+
+  @override
+  String get errorAlreadyFinal =>
+      'This report is final and can no longer be changed.';
+
+  @override
   String get levelInfo => 'Advisory';
 
   @override
@@ -2474,16 +2738,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoonTitle => 'Not built yet';
 
   @override
-  String comingSoonFor(String page) {
-    return '$page: not built yet';
-  }
-
-  @override
   String get working => 'Working';
-
-  @override
-  String get placeholderReports =>
-      'NDRRMC report generation arrives with the RAG proof of concept (plan 10.6).';
 
   @override
   String get notFoundTitle => 'Page not found';

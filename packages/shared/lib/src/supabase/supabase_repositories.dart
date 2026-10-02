@@ -14,6 +14,7 @@ import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
+import '../models/ndrrmc.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
@@ -47,6 +48,7 @@ class SupabaseBackend {
       residents = SupabaseResidentRepository(client),
       weather = SupabaseWeatherRepository(client),
       forecasts = SupabaseForecastRepository(client),
+      reports = SupabaseReportRepository(client),
       audit = SupabaseAuditRepository(client),
       connection = SupabaseConnectionMonitor(client),
       routing = SupabaseRoutingLog(client),
@@ -64,6 +66,7 @@ class SupabaseBackend {
   final SupabaseResidentRepository residents;
   final SupabaseWeatherRepository weather;
   final SupabaseForecastRepository forecasts;
+  final SupabaseReportRepository reports;
   final SupabaseAuditRepository audit;
   final SupabaseConnectionMonitor connection;
   final SupabaseRoutingLog routing;
@@ -864,6 +867,90 @@ class SupabaseForecastRepository implements ForecastRepository {
   );
 }
 
+// ---------------------------------------------------------------- reports
+
+/// A5 and A6 through `report_source`, `save_ndrrmc_report`, and
+/// `finalize_ndrrmc_report` (admins only).
+class SupabaseReportRepository implements ReportRepository {
+  SupabaseReportRepository(this._client);
+
+  final SupabaseClient _client;
+  final _changed = StreamController<void>.broadcast();
+
+  @override
+  Stream<List<NdrrmcReport>> watchReports() => liveQuery(
+    _client,
+    tables: const ['ndrrmc_report'],
+    refreshOn: _changed.stream,
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('ndrrmc_report')
+              .select()
+              .order('created_at', ascending: false))
+        NdrrmcReport.fromJson(r),
+    ],
+  );
+
+  /// `not_found` means an unknown report here, not a closed incident.
+  Future<T> _report<T>(Future<T> Function() body) async {
+    try {
+      final result = await _call(body);
+      _changed.add(null);
+      return result;
+    } on ActionRejected catch (e) {
+      if (e.reason == ActionRejection.incidentClosed) {
+        throw const ActionRejected(ActionRejection.notFound);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ReportSource> source(DateTime from, DateTime to) async =>
+      ReportSource.fromJson(
+        await _call(
+          () => _client.rpc<Map<String, dynamic>>(
+            'report_source',
+            params: {
+              'p_from': from.toUtc().toIso8601String(),
+              'p_to': to.toUtc().toIso8601String(),
+            },
+          ),
+        ),
+      );
+
+  @override
+  Future<String> save({
+    String? id,
+    required DateTime from,
+    required DateTime to,
+    required String title,
+    required List<ReportSection> sections,
+    int? generationMs,
+  }) => _report(
+    () => _client.rpc<String>(
+      'save_ndrrmc_report',
+      params: {
+        'p_report_id': id,
+        'p_from': from.toUtc().toIso8601String(),
+        'p_to': to.toUtc().toIso8601String(),
+        'p_title': title,
+        'p_sections': [for (final s in sections) s.toJson()],
+        'p_generation_ms': generationMs,
+      },
+    ),
+  );
+
+  @override
+  Future<void> finalize(String id) => _report(
+    () => _client.rpc<void>(
+      'finalize_ndrrmc_report',
+      params: {'p_report_id': id},
+    ),
+  );
+}
+
 // ------------------------------------------------------------------ audit
 
 class SupabaseAuditRepository implements AuditRepository {
@@ -958,6 +1045,7 @@ Exception databaseRefusal(String code) => switch (code) {
   'already_assigned' => const ActionRejected(ActionRejection.alreadyAssigned),
   'invalid_value' => const ActionRejected(ActionRejection.invalidValue),
   'already_exists' => const ActionRejected(ActionRejection.alreadyExists),
+  'already_final' => const ActionRejected(ActionRejection.alreadyFinal),
   'incident_closed' ||
   'not_found' => const ActionRejected(ActionRejection.incidentClosed),
   _ => const ActionRejected(ActionRejection.notAllowed),

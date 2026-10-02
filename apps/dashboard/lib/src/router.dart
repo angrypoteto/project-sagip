@@ -7,13 +7,14 @@ import 'features/admin/accounts_page.dart';
 import 'features/admin/analytics_page.dart';
 import 'features/admin/audit_log_page.dart';
 import 'features/admin/configuration_page.dart';
+import 'features/admin/report_editor_page.dart';
+import 'features/admin/reports_page.dart';
 import 'features/admin/resources_page.dart';
 import 'features/auth/session_expired_page.dart';
 import 'features/auth/sign_in_page.dart';
 import 'features/board/board_page.dart';
 import 'features/crowd_reports/crowd_reports_page.dart';
 import 'features/forecast/forecast_page.dart';
-import 'features/placeholder_page.dart';
 import 'features/shell/dashboard_shell.dart';
 import 'features/shell/not_found_page.dart';
 import 'features/units/units_page.dart';
@@ -34,6 +35,10 @@ abstract final class Routes {
   static const weather = '/weather';
   static const analytics = '/admin/analytics';
   static const reports = '/admin/reports';
+  static const newReport = '/admin/reports/new';
+
+  /// A saved NDRRMC report (A6).
+  static String report(String id) => '$reports/$id';
   static const accounts = '/admin/accounts';
   static const resources = '/admin/resources';
   static const settings = '/admin/settings';
@@ -87,6 +92,15 @@ final routerProvider = Provider<GoRouter>((ref) {
   });
   ref.listen(sessionExpiredProvider, (_, _) => authChanged.value++);
   ref.onDispose(authChanged.dispose);
+
+  // A6 guards against leaving a report with unsaved text, as A3 does.
+  Future<bool> leaveReport(BuildContext context, GoRouterState state) async {
+    final unsaved = ref.read(unsavedChangesProvider);
+    if (!unsaved.any) return true;
+    final leave = await confirmLeaveUnsaved(context);
+    if (leave) unsaved.clear();
+    return leave;
+  }
 
   final router = GoRouter(
     initialLocation: Routes.board,
@@ -183,8 +197,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: Routes.reports,
+            pageBuilder: (context, state) => _page(const ReportsPage()),
+          ),
+          GoRoute(
+            path: Routes.newReport,
+            onExit: leaveReport,
+            pageBuilder: (context, state) => _page(const ReportEditorPage()),
+          ),
+          GoRoute(
+            path: '${Routes.reports}/:id',
+            onExit: leaveReport,
             pageBuilder: (context, state) =>
-                _page(const PlaceholderPage(kind: PlaceholderKind.reports)),
+                _page(ReportEditorPage(reportId: state.pathParameters['id'])),
           ),
           GoRoute(
             path: Routes.accounts,
