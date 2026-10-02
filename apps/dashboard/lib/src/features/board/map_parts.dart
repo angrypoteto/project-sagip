@@ -171,6 +171,39 @@ class ReportMarkerRing extends StatelessWidget {
   }
 }
 
+/// A confirmed cluster on the crowd reports map: its number of reports in
+/// a signal dot, readable at city zoom where the 50 m ring is a few pixels.
+class ClusterCountMarker extends StatelessWidget {
+  const ClusterCountMarker({super.key, required this.count});
+
+  final int count;
+
+  static const double size = 30;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = SagipPalette.of(context);
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: p.critical.fill,
+        shape: BoxShape.circle,
+        border: Border.all(color: p.canvas, width: 3),
+      ),
+      child: Text(
+        '$count',
+        style: Theme.of(context).textTheme.labelMedium!.copyWith(
+          color: SagipColors.porcelain,
+          fontWeight: FontWeight.w700,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
+  }
+}
+
 /// Floating card style for controls over the map.
 BoxDecoration floatingCard(SagipPalette p) => BoxDecoration(
   color: p.panel,

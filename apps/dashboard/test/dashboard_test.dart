@@ -1,10 +1,13 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_dashboard/src/app.dart';
+import 'package:sagip_dashboard/src/common/chime.dart';
 import 'package:sagip_dashboard/src/common/download.dart';
 import 'package:sagip_dashboard/src/features/admin/report_pdf.dart';
 import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
+import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
 import 'package:sagip_dashboard/src/providers.dart';
 import 'package:sagip_dashboard/src/router.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -161,6 +164,72 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Assign R-07').last);
     await settle(tester);
     expect(find.text('Choose a reason.'), findsOneWidget);
+  });
+
+  testWidgets('Enter opens the top of the queue; a new SOS sounds', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    expect(find.byType(IncidentDrawer), findsNothing);
+
+    // Nothing open: Enter opens the incident ranked first.
+    final first = container.read(visibleQueueProvider).first;
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await settle(tester);
+    expect(
+      container.read(routerProvider).state.uri.queryParameters['incident'],
+      first.id,
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await settle(tester);
+    expect(
+      container.read(routerProvider).state.uri.queryParameters['incident'],
+      isNull,
+    );
+
+    // A new SOS: the toast and the sound.
+    final before = chimesPlayed;
+    backend.runTick(const Duration(minutes: 2));
+    await settle(tester);
+    expect(find.text('New SOS'), findsOneWidget);
+    expect(chimesPlayed, before + 1);
+  });
+
+  testWidgets('D11 can switch the new-SOS sound off', (tester) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2000);
+    await signIn(tester, 'dispatcher@sagip.test');
+    container.read(routerProvider).go(Routes.account);
+    await settle(tester);
+    expect(find.text('Play a sound for a new SOS'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('sos-sound')));
+    await settle(tester);
+    expect(container.read(sosSoundProvider), isFalse);
+
+    final before = chimesPlayed;
+    backend.runTick(const Duration(minutes: 2));
+    await settle(tester);
+    expect(find.text('New SOS'), findsOneWidget, reason: 'the toast stays');
+    expect(chimesPlayed, before);
+  });
+
+  testWidgets('D6 shows each cluster\'s report count on the map', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Crowd reports'));
+    await settle(tester);
+    // The Tondo flood cluster of the sample data has four reports.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('cluster-count-INC-0146')),
+        matching: find.text('4'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('4 reports'), findsOneWidget);
   });
 
   testWidgets('admin pages are hidden from dispatchers', (tester) async {
@@ -1012,6 +1081,9 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
+    // Tall, so the password form below the display and sound cards is on
+    // screen.
+    tester.view.physicalSize = const Size(1440, 2000);
     await signIn(tester, 'dispatcher@sagip.test');
     await tester.tap(find.byTooltip('R. Santos, Dispatcher'));
     await settle(tester);

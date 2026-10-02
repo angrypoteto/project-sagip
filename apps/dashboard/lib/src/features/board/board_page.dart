@@ -41,12 +41,21 @@ class BoardPage extends ConsumerWidget {
     );
   }
 
-  /// Arrow keys move through the queue, Esc closes the drawer (design skill).
+  /// Arrow keys move through the queue, Enter opens the top of it, Esc
+  /// closes the drawer (design skill).
   KeyEventResult _onKey(BuildContext context, WidgetRef ref, KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
     final queue = ref.read(visibleQueueProvider);
     if (event.logicalKey == LogicalKeyboardKey.escape && selectedId != null) {
       _select(context, null);
+      return KeyEventResult.handled;
+    }
+    final enter =
+        event.logicalKey == LogicalKeyboardKey.enter ||
+        event.logicalKey == LogicalKeyboardKey.numpadEnter;
+    if (enter && selectedId == null && queue.isNotEmpty) {
+      // Nothing open: Enter opens the incident ranked first.
+      _select(context, queue.first.id);
       return KeyEventResult.handled;
     }
     final down = event.logicalKey == LogicalKeyboardKey.arrowDown;

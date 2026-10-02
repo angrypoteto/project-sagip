@@ -85,10 +85,22 @@ class AccountPage extends ConsumerWidget {
               ),
             ]),
             const SizedBox(height: SagipSpace.xl),
+            card(l10n.soundTitle, [
+              SwitchListTile(
+                key: const ValueKey('sos-sound'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.soundNewSos),
+                subtitle: Text(l10n.soundNewSosNote),
+                value: ref.watch(sosSoundProvider),
+                onChanged: (on) => ref.read(sosSoundProvider.notifier).set(on),
+              ),
+            ]),
+            const SizedBox(height: SagipSpace.xl),
             card(l10n.passwordTitle, const [_PasswordForm()]),
             const SizedBox(height: SagipSpace.xl),
             card(l10n.shortcutsTitle, [
               row(l10n.shortcutUpDown, l10n.shortcutQueue),
+              row(l10n.shortcutEnter, l10n.shortcutOpenFirst),
               row(l10n.shortcutEsc, l10n.shortcutClose),
             ]),
           ],

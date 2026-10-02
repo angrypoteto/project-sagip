@@ -2274,6 +2274,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'This report is final and can no longer be changed.';
 
   @override
+  String get soundTitle => 'Sound';
+
+  @override
+  String get soundNewSos => 'Play a sound for a new SOS';
+
+  @override
+  String get soundNewSosNote =>
+      'Two short tones when an SOS arrives, on any page. Your browser may stay silent until you click the page once.';
+
+  @override
+  String get shortcutEnter => 'Enter';
+
+  @override
+  String get shortcutOpenFirst =>
+      'Open the first incident in the Triage Queue when none is open';
+
+  @override
+  String clusterReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reports',
+      one: '1 report',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get levelInfo => 'Advisory';
 
   @override

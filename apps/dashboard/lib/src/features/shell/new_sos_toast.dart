@@ -6,12 +6,14 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/chime.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
 
-/// Watches the queue and pops a toast when a new SOS arrives, on any page.
+/// Watches the queue and, when a new SOS arrives, pops a toast and plays
+/// a short sound, on any page.
 class NewSosToast extends ConsumerStatefulWidget {
   const NewSosToast({super.key});
 
@@ -41,6 +43,7 @@ class _NewSosToastState extends ConsumerState<NewSosToast> {
   }
 
   void _show(Incident incident) {
+    if (ref.read(sosSoundProvider)) playNewSosChime();
     _hideTimer?.cancel();
     setState(() => _showing = incident);
     _hideTimer = Timer(_visibleFor, _hide);

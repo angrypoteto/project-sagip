@@ -81,8 +81,14 @@ class _CrowdReportsPageState extends ConsumerState<CrowdReportsPage> {
                     children: [
                       Row(
                         children: [
-                          Text(l10n.crowdReportsTitle, style: text.titleMedium),
-                          const Spacer(),
+                          Expanded(
+                            child: Text(
+                              l10n.crowdReportsTitle,
+                              style: text.titleMedium,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: SagipSpace.sm),
                           SagipChip(label: l10n.crowdWindow, tone: p.neutral),
                         ],
                       ),
@@ -170,6 +176,22 @@ class _CrowdReportsPageState extends ConsumerState<CrowdReportsPage> {
                           child: Tooltip(
                             message: r.description,
                             child: ReportMarkerRing(clustered: r.isClustered),
+                          ),
+                        ),
+                      // Each cluster's count, just above its reports so the
+                      // dots stay visible.
+                      for (final entry in clusters.entries)
+                        Marker(
+                          key: ValueKey('cluster-count-${entry.key}'),
+                          point: toLatLng(incidents[entry.key]!.location),
+                          width: ClusterCountMarker.size,
+                          height: ClusterCountMarker.size,
+                          alignment: const Alignment(0, -2.2),
+                          child: Tooltip(
+                            message: l10n.clusterReports(entry.value.length),
+                            child: ClusterCountMarker(
+                              count: entry.value.length,
+                            ),
                           ),
                         ),
                     ],

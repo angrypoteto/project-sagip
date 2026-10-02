@@ -472,3 +472,16 @@ class ThemeModeController extends Notifier<ThemeMode> {
 final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
   ThemeModeController.new,
 );
+
+/// Whether a new SOS plays a sound (D11). On by default: a dispatcher
+/// looking at another window must still hear it.
+class SosSoundController extends Notifier<bool> {
+  @override
+  bool build() => true;
+
+  void set(bool on) => state = on;
+}
+
+final sosSoundProvider = NotifierProvider<SosSoundController, bool>(
+  SosSoundController.new,
+);

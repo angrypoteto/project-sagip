@@ -4042,6 +4042,42 @@ abstract class AppLocalizations {
   /// **'This report is final and can no longer be changed.'**
   String get errorAlreadyFinal;
 
+  /// No description provided for @soundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get soundTitle;
+
+  /// No description provided for @soundNewSos.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a sound for a new SOS'**
+  String get soundNewSos;
+
+  /// No description provided for @soundNewSosNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Two short tones when an SOS arrives, on any page. Your browser may stay silent until you click the page once.'**
+  String get soundNewSosNote;
+
+  /// No description provided for @shortcutEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get shortcutEnter;
+
+  /// No description provided for @shortcutOpenFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the first incident in the Triage Queue when none is open'**
+  String get shortcutOpenFirst;
+
+  /// No description provided for @clusterReports.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 report} other{{count} reports}}'**
+  String clusterReports(int count);
+
   /// No description provided for @levelInfo.
   ///
   /// In en, this message translates to:
