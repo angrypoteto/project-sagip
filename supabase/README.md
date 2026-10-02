@@ -17,6 +17,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_sms_log.sql` | The SMS log: every text sent or kept; no client access |
 | `migrations/*_accounts.sql` | A1: `admin_create_staff` (temporary password returned once), `admin_update_staff`, `admin_set_staff_active` (bans the login and ends sessions), `admin_reset_password`, `admin_set_resident_suspended`; every role check ignores deactivated accounts; suspended residents cannot send crowd reports, and their SOS arrives unverified |
 | `migrations/*_web_form.sql` | W1 to W3: `submit_crowd_report` records the channel (`p_source`: `app` or `webForm`), the hourly report limit moves to `app_setting` (`reports.per_hour`, set on A3), `my_report_quota()` tells a resident how many reports are left this hour, and `my_crowd_reports()` returns each report's channel |
+| `migrations/*_alert_engine.sql` | The rest of A3 and the threshold engine: settings for alert thresholds, channel switches, the hotline and SMS gateway number, and simulation mode; `client_config()` (the two numbers, readable before sign-in); a trigger on `weather_alert` that issues an alert when a reading crosses a threshold; `alert_delivery` (one row per alert and channel); `simulate_weather` (admins, simulation mode only, audited) |
 | `migrations/*_resources.sql` | A2: units can be retired (`retired_at`) and are then never dispatched; `save_unit`, `retire_unit`, `restore_unit`, `set_responder_unit` (admins only, audited) |
 | `migrations/*_analytics.sql` | `analytics_report(from, to)` for A4 (admins only): counts, dispatch, verification, response, and travel times from the incident timeline, SOS by channel, breakdowns by type, barangay, unit, and Manila day, and the Dijkstra timings |
 | `migrations/*_configuration.sql` | A3 settings (`app_setting`: the Triage Queue priority weights), `set_setting` (admins only, audited as `settingChanged`), and the priority score, severity, and factors on `incident_board` |
@@ -24,7 +25,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_sms_intake.sql`, `*_sms_gateway_provider.sql` | Tier 2: `intake_sms_sos` (service role only) files an SOS texted to the gateway SIM, finding the resident by the sender's number; `submit_sos` attaches the resident when the app's copy of an SOS texted from another SIM arrives; inbound texts logged in `sms_log` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 171 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 196 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -88,7 +89,7 @@ When a phone has signal but no data, the app texts the SOS to the MDRRMD gateway
 1. **Gateway phone:** a spare Android phone with the gateway SIM, running an SMS gateway app that forwards received texts to a webhook (for example SMS Gateway for Android). Set its webhook to `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake` with the header `x-sagip-key: <secret>`.
 2. **Deploy:** `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
 3. **Secrets:** `SMS_INTAKE_SECRET` = the same secret. Optional: `SMS_ACK_VIA_SEMAPHORE=true` to send the reply through Semaphore; otherwise the response's `reply` is for the gateway to send from its SIM.
-4. **Phones:** put the gateway SIM's number in `apps/mobile/.env` as `SMS_GATEWAY_NUMBER` and rebuild. Residents allow SMS on the welcome screen.
+4. **Phones:** an admin enters the gateway SIM's number on the dashboard's Configuration page ("Numbers shown in the apps"). Phones read it when the app starts and keep the last copy, so it is there with no data. No rebuild is needed; `SMS_GATEWAY_NUMBER` in `apps/mobile/.env` still works and takes priority. Residents allow SMS on the welcome screen.
 5. **Try it:** turn off mobile data on a test phone (keep signal), hold SOS; the board shows it as an SMS SOS within seconds. Unreadable texts are in `sms_log` (`kind = 'inbound'`, `status = 'unreadable'`).
 
 ## The resident web form (W1 to W3)
@@ -103,9 +104,18 @@ flutter build web --release -t lib/main_webform.dart -o build/webform --dart-def
 ```
 
 - **Sign-in** is the app's: a mobile number and a texted code, so it needs the Send SMS hook above. A new number can create an account on the form (plan Q13 is not decided; build with `WEBFORM_REGISTRATION=false` to allow sign-in only). The form keeps its own saved session (`sagip-webform-auth`), apart from the dashboard's.
-- **Reports** go through `submit_crowd_report` with `p_source => 'webForm'`, so the Manila check, the hourly limit, the suspension check, and DBSCAN all apply. A report is never confirmed on its own. The form cannot send an SOS; every page says so and gives the hotline (`MDRRMD_HOTLINE`) and, when set, the app link (`APP_DOWNLOAD_URL`).
+- **Reports** go through `submit_crowd_report` with `p_source => 'webForm'`, so the Manila check, the hourly limit, the suspension check, and DBSCAN all apply. A report is never confirmed on its own. The form cannot send an SOS; every page says so and gives the hotline (the one set on the Configuration page, or `MDRRMD_HOTLINE` at build time) and, when set, the app link (`APP_DOWNLOAD_URL`).
 - **The hourly limit** is `reports.per_hour` in `app_setting` (5 by default, 1 to 30), set on the dashboard's Configuration page. It counts a resident's reports from the app and the web form together; the server also refuses more than twice the limit received in an hour, whatever their capture times.
 - **The draft** (description, type, location) stays in the browser's local storage until the report is sent or the resident signs out. The server never sees it before Send.
+
+## Alerts: thresholds, channels, and simulation mode
+
+- **Thresholds.** `app_setting` holds a warning and a critical value for rainfall (mm per hour), the wind signal, and storm surge height (m). They are provisional (PAGASA's rainfall warning levels and storm surge risk bands) until MDRRMD confirms them; an admin changes them on the Configuration page.
+- **The engine.** Each new row in `weather_alert` is compared with the reading before it. When a hazard's level changes, the earlier automatic alerts for that hazard expire and, at warning or critical, a new row goes into `public_alert` (residents see it in the app at once). A reading at the same level raises nothing; the very first reading only sets the baseline. This is what the PAGASA feed will drive once it exists: it only has to insert readings.
+- **Deliveries.** Every new alert gets four rows in `alert_delivery`: `app` (sent), and `push`, `sms`, `facebook` as `queued`, or `off` when the channel is switched off on the Configuration page. Nothing sends the queued rows yet: the sender (Semaphore broadcast, FCM, Facebook) is the next piece and needs those accounts. The Weather page shows the log.
+- **Simulation mode.** With the switch on (Configuration page), an admin can send a simulated reading (`simulate_weather`): a typhoon, heavy rain, or calm. The engine treats it like any reading, but the alerts are marked simulated and their deliveries are `simulated`: shown in the apps, never texted or posted. From the SQL editor a real-looking reading is `insert into public.weather_alert (signal_level, rainfall_intensity, storm_surge_m) values (3, 35, 2.5);` (that one queues real deliveries).
+- **The numbers.** `contact.hotline` and `contact.sms_gateway` are the hotline and the gateway SIM the apps show and use. `client_config()` returns them and can be called without signing in (they are public numbers).
+- **Not done:** the data retention period (which records are removed and when is a decision for the team and MDRRMD), EFCOS levels, and the sender for queued deliveries.
 
 ## Priority weights (A3)
 

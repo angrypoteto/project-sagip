@@ -1147,12 +1147,12 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [ ] Build the scheduled `ingest-pagasa` job
 - [ ] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation
 - [ ] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14)
-- [ ] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel
+- [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
 - [ ] Push by barangay topic to residents; standby alerts to responders
 - [ ] Semaphore broadcast to registered residents in affected barangays, with a delivery log and a spending cap
 - [ ] Rescue confirmations by push and SMS on status changes (FR6)
 - [ ] Facebook Page posting through the Graph API on the test page first; manual copy text as a fallback
-- [ ] Simulation mode that triggers a fake typhoon signal for demos and UAT
+- [x] Simulation mode that triggers a fake typhoon signal for demos and UAT (Oct 2: A3 switch and three simulated readings; simulated alerts stay in the apps)
 
 ## 13. Phase 7: Technical evaluation, pilot, and UAT
 
