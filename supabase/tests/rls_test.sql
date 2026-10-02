@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(302);
+select plan(307);
 
 select public.reset_demo_data();
 
@@ -1351,6 +1351,30 @@ select is(
   (select status || ':' || title from public.push_message where user_id = '00000000-0000-4000-8000-00000000000c'
     order by message_id desc limit 1),
   'off:Your SOS was closed', 'with push switched off, the closing push is logged as off');
+
+-- ------------------------------------------------ waking the sender
+
+reset role;
+select ok(
+  not has_function_privilege('anon', 'public.sender_secret()', 'execute')
+  and not has_function_privilege('authenticated', 'public.sender_secret()', 'execute')
+  and has_function_privilege('service_role', 'public.sender_secret()', 'execute'),
+  'only the sender (service role) can read the shared secret');
+select is(length(public.sender_secret()), 64, 'the shared secret is made at random in the vault');
+create temp table __wake as select (select count(*) from net.http_request_queue) as before;
+insert into public.push_message (user_id, kind, title, body, status)
+values ('00000000-0000-4000-8000-00000000000c', 'rescue', 'Not queued', 'Not queued', 'off');
+select is((select count(*) from net.http_request_queue) - (select before from __wake), 0::bigint,
+  'nothing queued: the sender is not called');
+insert into public.push_message (user_id, kind, title, body)
+values ('00000000-0000-4000-8000-00000000000c', 'rescue', 'Queued', 'Queued');
+select is((select count(*) from net.http_request_queue) - (select before from __wake), 1::bigint,
+  'something queued: the sender is called once, after the transaction commits');
+select ok(
+  (select url = 'https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/send-alerts'
+          and headers ->> 'x-sagip-key' = public.sender_secret()
+     from net.http_request_queue order by id desc limit 1),
+  'at its address, with the shared secret');
 
 reset role;
 select * from finish();

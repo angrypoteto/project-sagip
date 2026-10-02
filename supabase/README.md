@@ -32,7 +32,8 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `functions/send-alerts/` | Works through queued alert deliveries: texts residents of the affected barangays through Semaphore (one SMS each, up to the daily cap), logs every text in `sms_log`, and records each channel's outcome. Also sends rescue confirmations: one text to the resident whose SOS got a unit. And push through Firebase Cloud Messaging: alerts to topics, rescue confirmations and new assignments to the account's phones (`fcm.ts`). `alerts.test.ts`, `fcm.test.ts`, and `index.test.ts` run with `node --test` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 302 pgTAP checks of who can see and do what |
+| `migrations/*_sender_wakeup.sql` | `pg_net` and triggers on `alert_delivery`, `rescue_confirmation`, and `push_message` that call `send-alerts` when something is queued, with a random shared secret kept in Supabase Vault (`sender_secret()`, service role only) |
+| `tests/rls_test.sql` | 307 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -129,10 +130,20 @@ flutter build web --release -t lib/main_webform.dart -o build/webform --dart-def
 
 `send-alerts` texts each queued alert to the registered residents of its barangays (everyone for an all-Manila alert): one SMS per resident, cut to 160 characters, never more than the daily cap an admin sets on the Configuration page ("SMS alert limit", 500 by default). Each text is logged in `sms_log`; the delivery row on the Weather page gets the counts, and says so when the cap left some unsent. Simulated alerts are never sent.
 
-1. **Deploy:** `supabase functions deploy send-alerts --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
-2. **Secrets** (Edge Functions > Secrets): `ALERTS_SECRET` (make up a long random string), `SEMAPHORE_API_KEY`, and `SEMAPHORE_SENDER_NAME` once Semaphore approves it. Without the Semaphore key the function marks SMS deliveries "not set up" and sends nothing.
-3. **Call it when an alert is queued:** Database > Webhooks > Create: table `alert_delivery`, event Insert, type HTTP request, POST to `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/send-alerts` with the header `x-sagip-key: <ALERTS_SECRET>`. Each alert inserts four rows, so the function is called four times; a call with nothing queued does nothing.
-4. **Try it:** with simulation mode off, insert a reading that crosses a threshold (see the SQL above), or wait for the PAGASA feed. Check the Weather page's alert log and `sms_log`.
+`send-alerts` is deployed (2026-10-03, JWT check off: it checks its own shared secret). The database calls it by itself whenever something is queued (migration `sender_wakeup`: triggers on `alert_delivery`, `rescue_confirmation`, and `push_message` call it through `pg_net`, with a random shared secret kept in Supabase Vault). No Database Webhook and no `ALERTS_SECRET` are needed. To redeploy after a change: `supabase functions deploy send-alerts --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+
+1. **Secrets** (Edge Functions > Secrets, the page with a list of names and values; not "Deploy a new function"): `SEMAPHORE_API_KEY`, and `SEMAPHORE_SENDER_NAME` once Semaphore approves it. Without the Semaphore key the function marks SMS deliveries "not set up" and sends nothing.
+2. **Check it:** in the SQL editor run
+
+   ```sql
+   select net.http_post(
+     url := 'https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/send-alerts',
+     body := '{"check": true}'::jsonb,
+     headers := jsonb_build_object('Content-Type', 'application/json', 'x-sagip-key', public.sender_secret()));
+   ```
+
+   then, a few seconds later, `select status_code, content::text from net._http_response order by id desc limit 1;`. It says whether Firebase signs in, whether the Semaphore key is set, and sends nothing.
+3. **Try it:** with simulation mode off, insert a reading that crosses a threshold (see the SQL above), or wait for the PAGASA feed. Check the Weather page's alert log and `sms_log`.
 
 Not checked against the real Semaphore API (no account yet): the function assumes its messages endpoint answers with one entry per recipient. Send one test alert to a barangay with only your own number before the pilot.
 
@@ -149,7 +160,7 @@ A resident is told about their own SOS as the rescue moves on. A trigger on `inc
 - **Who.** Only an SOS with a registered resident. A crowd-report cluster has no single sender, and an SOS marked as a false report gets no closing confirmation. An SOS texted from an unknown SIM gets its "assigned" confirmation when the app's copy names the resident, if a unit is already on the way.
 - **In the app.** The resident's Alerts tab lists them above the public alerts (the last 7 days), each with the unit's call sign and the incident number; a new one is also said on whatever screen is open. Residents read only their own rows; dispatchers and admins can read all of them; `mark_rescue_confirmation_read()` marks one read.
 - **By SMS.** `sms_status` on the row says what happened to the text: `queued`, `sending`, `sent`, `failed`, `off` (the SMS channel was switched off on the Configuration page), `simulated` (simulation mode was on), `notSetUp` (no Semaphore key), `expired` (still waiting after 30 minutes, so not sent), or `none` (this kind is not texted). These texts are not counted against the daily cap on alert texts: there is one per SOS.
-- **Sending (for Joshua, with the alert sender).** `send-alerts` sends them, before any alert. After the steps in "Sending alerts by SMS": deploy `send-alerts` again, and add a second Database Webhook: table `rescue_confirmation`, event Insert, the same URL and `x-sagip-key` header. Until then the rows stay `queued` and expire.
+- **Sending.** `send-alerts` sends them, before any alert; the database calls it when one is queued. Without the Semaphore key they are marked `notSetUp`.
 - **Before texting for real:** the demo residents' numbers are made up and may belong to someone. Keep simulation mode on while the demo data is loaded, or reload real residents first.
 - **Not done:** push (needs the Firebase project). **To confirm with MDRRMD:** which steps are texted, and the wording (English for now): "S.A.G.I.P.: Rescue team R-03 has been sent to your location. Stay where you are if it is safe and keep your phone on. Ref INC-0152."
 
@@ -171,8 +182,8 @@ The A3 switch "Send alerts as push notifications" (`channels.push`) turns all th
 
 1. **Create the project:** https://console.firebase.google.com, Add project, name it `sagip`. Google Analytics is not needed (turn it off).
 2. **Add the Android app:** in the project, Add app, Android. Package name `ph.sagip.sagip_mobile` (exactly). Skip the SHA-1 and the SDK steps. Download `google-services.json` and put it in `apps/mobile/android/app/`. It is git-ignored: do not commit it (the repo is public). The build picks it up by itself; without it the app builds and runs with push off.
-3. **The sender's key:** Project settings, Service accounts, Generate new private key. A JSON file downloads. In Supabase, Edge Functions, Secrets, add `FIREBASE_SERVICE_ACCOUNT` and paste the whole file as the value. Then delete the downloaded file; never put it in the repo or in the app.
-4. **Deploy and connect:** deploy `send-alerts` (see "Sending alerts by SMS"; it needs `ALERTS_SECRET` too) and add a Database Webhook on `push_message`, event Insert, same URL and `x-sagip-key` header as the other two. Without the Semaphore key, SMS stays "not set up" and push still works.
+3. **The sender's key:** Project settings, Service accounts, Generate new private key. A JSON file downloads. In Supabase open **Edge Functions, then Secrets** (a list of names and values; do not use "Deploy a new function"), add a secret named `FIREBASE_SERVICE_ACCOUNT`, and paste the whole file as its value. Then delete the downloaded file; never put it in the repo or in the app.
+4. **Check it:** run the check in "Sending alerts by SMS" step 2. It should say `ready: signed in to project <your project id>`. Other answers: `FIREBASE_SERVICE_ACCOUNT is not set` (the secret is missing or has another name), `... is not a Firebase service account key file` (only part of the file was pasted), `Firebase sign-in refused` (the key was deleted or disabled in Firebase). The function is already deployed and the database calls it by itself.
 5. **Try it:** build and install the app with `.env`, sign in as a resident on a phone or the emulator (with Google Play), send an SOS, and assign it a unit on the dashboard: the phone gets "A rescue team is coming" even with the app closed. In the SQL editor, `select status, devices, delivered, detail from public.push_message order by message_id desc limit 5;` shows what happened.
 
 **Privacy:** tokens identify an install, not a person; only the service role reads them. FCM sees the topic names (barangay level) and the notification text. A phone's row stays after sign-out, marked `forgotten_at`; how long such rows are kept belongs to the data retention rule that is still to be decided.

@@ -22,16 +22,22 @@
 // resident's phones, new assignments to the phones of the unit's
 // responders. Tokens FCM no longer knows are marked forgotten.
 //
-// Call it from a Database Webhook on INSERT into public.alert_delivery, on
-// INSERT into public.rescue_confirmation, and on INSERT into
-// public.push_message (or on a schedule) with the shared secret as
-// `x-sagip-key`. A run with nothing queued does nothing, so extra calls
-// are harmless.
+// The database calls it whenever something is queued (migration
+// sender_wakeup: triggers on alert_delivery, rescue_confirmation, and
+// push_message, through pg_net), with the shared secret as `x-sagip-key`.
+// A run with nothing queued does nothing, so extra calls are harmless.
 //
-// Secrets (Edge Functions > Secrets): ALERTS_SECRET, SEMAPHORE_API_KEY,
-// optional SEMAPHORE_SENDER_NAME, FIREBASE_SERVICE_ACCOUNT (the whole JSON
-// key file). SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by
-// the platform.
+// The shared secret is ALERTS_SECRET when that secret is set, else the one
+// the database keeps in its vault (read through sender_secret(), which only
+// the service role may call), so no secret has to be copied by hand.
+//
+// POST {"check": true} with the secret reports what is set up (Firebase
+// signed in or why not, Semaphore key present) and sends nothing.
+//
+// Secrets (Edge Functions > Secrets): SEMAPHORE_API_KEY, optional
+// SEMAPHORE_SENDER_NAME, FIREBASE_SERVICE_ACCOUNT (the whole JSON key
+// file), optional ALERTS_SECRET. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+// are provided by the platform.
 //
 // Deploy with JWT checking off (the webhook uses the shared secret):
 //   supabase functions deploy send-alerts --no-verify-jwt
@@ -91,6 +97,21 @@ async function rpc<T>(name: string, params: Record<string, unknown> = {}): Promi
   if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
   const text = await res.text();
   return (text ? JSON.parse(text) : null) as T;
+}
+
+/**
+ * The shared secret: ALERTS_SECRET, or the database's vault copy (read once
+ * per instance; tried again after a failure).
+ */
+let vaultSecret: Promise<string | null> | undefined;
+async function sharedSecret(): Promise<string | null> {
+  const fromEnv = Deno.env.get("ALERTS_SECRET");
+  if (fromEnv) return fromEnv;
+  vaultSecret ??= rpc<string | null>("sender_secret").catch(() => {
+    vaultSecret = undefined;
+    return null;
+  });
+  return await vaultSecret;
 }
 
 async function finish(d: ClaimedDelivery, o: Outcome): Promise<void> {
@@ -228,8 +249,12 @@ interface Fcm {
 }
 
 async function firebase(): Promise<Fcm | null | Error> {
-  const account = parseServiceAccount(Deno.env.get("FIREBASE_SERVICE_ACCOUNT"));
-  if (!account) return null;
+  const raw = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
+  if (!raw) return null;
+  const account = parseServiceAccount(raw);
+  if (!account) {
+    return new Error("FIREBASE_SERVICE_ACCOUNT is set but is not a Firebase service account key file");
+  }
   try {
     return { account, token: await accessToken(account, fetch) };
   } catch (e) {
@@ -332,9 +357,25 @@ async function sendAlertPush(d: ClaimedDelivery, fcm: Fcm | Error): Promise<Outc
 }
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("ALERTS_SECRET");
-  if (!secret || !url || !serviceKey) return json(500, { error: "send-alerts is not set up" });
+  if (!url || !serviceKey) return json(500, { error: "send-alerts is not set up" });
+  const secret = await sharedSecret();
+  if (!secret) return json(500, { error: "send-alerts is not set up" });
   if (!authorized(req.headers, secret)) return json(401, { error: "unauthorized" });
+
+  const request = await req.json().catch(() => null) as { check?: unknown } | null;
+  if (request?.check === true) {
+    // What is set up; nothing is claimed or sent. Names only, never values.
+    const f = await firebase();
+    return json(200, {
+      firebase: f === null
+        ? "FIREBASE_SERVICE_ACCOUNT is not set"
+        : f instanceof Error
+        ? f.message
+        : `ready: signed in to project ${f.account.project_id}`,
+      semaphore: Deno.env.get("SEMAPHORE_API_KEY") ? "key set" : "SEMAPHORE_API_KEY is not set",
+      secret: Deno.env.get("ALERTS_SECRET") ? "ALERTS_SECRET" : "the database vault",
+    });
+  }
 
   const apiKey = Deno.env.get("SEMAPHORE_API_KEY");
   // A resident waiting for rescue comes before a broadcast.

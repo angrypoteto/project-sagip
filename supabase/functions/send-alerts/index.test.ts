@@ -58,6 +58,7 @@ let pushes: unknown[] = [];
 /** FCM's answer per token (default: accepted). */
 let fcmReplies: Record<string, { status: number; body: unknown }> = {};
 let googleSignIn = 200;
+const vaultKey = "vault-secret-for-the-tests-0123456789";
 let recipients: string[] = [];
 let left = 500;
 let semaphoreStatus = 200;
@@ -76,6 +77,7 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
   calls.push({ url, body });
   const reply = (value: unknown, status = 200) =>
     new Response(value === null ? "" : JSON.stringify(value), { status });
+  if (url.endsWith("/rpc/sender_secret")) return reply(vaultKey);
   if (url.endsWith("/rpc/claim_push_messages")) return reply(pushes);
   if (url.endsWith("/rpc/finish_push_message")) return reply(null, 204);
   if (url.endsWith("/rpc/forget_push_tokens")) return reply(1);
@@ -110,11 +112,12 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
 
 await import("./index.ts");
 
-function call(key: string | null): Promise<Response> {
+function call(key: string | null, body: unknown = {}): Promise<Response> {
   return handler!(
     new Request("https://project.example/functions/v1/send-alerts", {
       method: "POST",
       headers: key ? { "x-sagip-key": key } : {},
+      body: JSON.stringify(body),
     }),
   );
 }
@@ -463,5 +466,55 @@ test("without the Firebase key pushes are marked not set up; a refused key fails
   assert.deepEqual(
     [finished()[44].p_status, finished()[44].p_detail],
     ["failed", "Firebase sign-in refused (HTTP 401)"],
+  );
+});
+
+test("without ALERTS_SECRET the database's vault secret is the key", async () => {
+  reset();
+  const saved = env.ALERTS_SECRET;
+  env.ALERTS_SECRET = undefined;
+  try {
+    assert.equal((await call(saved!)).status, 401, "the old secret no longer opens it");
+    const res = await call(vaultKey);
+    assert.equal(res.status, 200);
+    assert.ok(calls.some((c) => c.url.endsWith("/rpc/sender_secret")));
+  } finally {
+    env.ALERTS_SECRET = saved;
+  }
+});
+
+test("a check reports what is set up and sends nothing", async () => {
+  reset();
+  env.SEMAPHORE_API_KEY = undefined;
+  let res = await call(env.ALERTS_SECRET!, { check: true });
+  assert.deepEqual(await res.json(), {
+    firebase: "FIREBASE_SERVICE_ACCOUNT is not set",
+    semaphore: "SEMAPHORE_API_KEY is not set",
+    secret: "ALERTS_SECRET",
+  });
+
+  env.FIREBASE_SERVICE_ACCOUNT = "export default {}";
+  res = await call(env.ALERTS_SECRET!, { check: true });
+  assert.equal(
+    (await res.json()).firebase,
+    "FIREBASE_SERVICE_ACCOUNT is set but is not a Firebase service account key file",
+  );
+
+  env.FIREBASE_SERVICE_ACCOUNT = firebaseKey;
+  googleSignIn = 401;
+  res = await call(env.ALERTS_SECRET!, { check: true });
+  assert.equal((await res.json()).firebase, "Firebase sign-in refused (HTTP 401)");
+
+  googleSignIn = 200;
+  env.SEMAPHORE_API_KEY = "test-semaphore-key";
+  res = await call(env.ALERTS_SECRET!, { check: true });
+  assert.deepEqual(await res.json(), {
+    firebase: "ready: signed in to project sagip-test",
+    semaphore: "key set",
+    secret: "ALERTS_SECRET",
+  });
+  assert.ok(
+    !calls.some((c) => /claim_/.test(c.url)),
+    "a check claims nothing",
   );
 });
