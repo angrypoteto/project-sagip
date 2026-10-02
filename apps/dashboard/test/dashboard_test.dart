@@ -460,6 +460,153 @@ void main() {
     expect(find.text('Push: Not sent (simulated)'), findsNWidgets(4));
   });
 
+  testWidgets('D10: issue an advisory after a review, then end it', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2400);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+
+    await tester.tap(find.byKey(const ValueKey('issue-advisory')));
+    await settle(tester);
+    // Nothing typed yet: the review step is not reached.
+    await tester.tap(find.byKey(const ValueKey('advisory-review')));
+    await settle(tester);
+    expect(find.text('Give the advisory a title.'), findsOneWidget);
+    expect(find.text('Write the message.'), findsOneWidget);
+    expect(find.text('Review before sending'), findsNothing);
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'PHIVOLCS'));
+    await tester.tap(find.byKey(const ValueKey('advisory-level-info')));
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-title')),
+      'Taal Volcano advisory',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-body')),
+      'Light ashfall may reach Manila.',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-steps')),
+      'Wear a face mask.\n\nKeep windows closed.',
+    );
+    await tester.tap(find.byKey(const ValueKey('advisory-some')));
+    await settle(tester);
+    // Chosen barangays, but none chosen.
+    await tester.tap(find.byKey(const ValueKey('advisory-review')));
+    await settle(tester);
+    expect(find.text('Choose at least one barangay.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilterChip, 'Barangay 490'));
+    await tester.tap(find.widgetWithText(FilterChip, 'Barangay 412'));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('advisory-review')));
+    await settle(tester);
+
+    // The review: the advisory as residents see it, and where it goes.
+    expect(find.text('Review before sending'), findsOneWidget);
+    expect(find.text('• Wear a face mask.'), findsOneWidget);
+    expect(find.text('• Keep windows closed.'), findsOneWidget);
+    expect(
+      find.text('For residents in Barangay 412, Barangay 490.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('It appears in the apps at once and is queued for Push, SMS.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('advisory-send')));
+    await settle(tester);
+
+    expect(find.text('Advisory issued'), findsOneWidget);
+    final sent = (await tester.runAsync(
+      () => MockAlertLogRepository(backend).watchRecent().first,
+    ))!.first;
+    expect(sent.alert.source, AlertSource.phivolcs);
+    expect(sent.alert.level, AlertLevel.info);
+    expect(sent.alert.guidance, ['Wear a face mask.', 'Keep windows closed.']);
+    expect(sent.alert.barangays, ['Barangay 412', 'Barangay 490']);
+    expect(sent.on(AlertChannel.sms)!.status, AlertDeliveryStatus.queued);
+    expect(find.text('Taal Volcano advisory'), findsOneWidget);
+
+    // End it: asked first, then the row has no End button.
+    final end = find.byKey(ValueKey('end-${sent.alert.id}'));
+    await tester.ensureVisible(end);
+    await tester.tap(end);
+    await settle(tester);
+    expect(find.text('End this alert?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'End alert').last);
+    await settle(tester);
+    // It waits behind the "Advisory issued" snackbar.
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+    expect(find.text('Alert ended'), findsOneWidget);
+    expect(end, findsNothing);
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(
+      {
+        for (final e in audit!)
+          if (e.targetId == sent.alert.id) e.action,
+      },
+      {AuditAction.alertIssued, AuditAction.alertEnded},
+    );
+
+    // Offline, nothing can be issued or ended.
+    backend.setLink(LinkState.offline);
+    await settle(tester);
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const ValueKey('issue-advisory')))
+          .onPressed,
+      isNull,
+    );
+  });
+
+  testWidgets('D10: in simulation mode the review says nothing is sent', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2400);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.runAsync(
+      () => MockSettingsRepository(backend).set(SettingKeys.simulation, true),
+    );
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+
+    await tester.tap(find.byKey(const ValueKey('issue-advisory')));
+    await settle(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-title')),
+      'Evacuate Baseco',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-body')),
+      'Drill only.',
+    );
+    await tester.tap(find.byKey(const ValueKey('advisory-review')));
+    await settle(tester);
+    expect(find.text('For residents in all of Manila.'), findsOneWidget);
+    expect(find.textContaining('Simulation mode is on'), findsOneWidget);
+
+    // Back keeps what was typed.
+    await tester.tap(find.text('Back'));
+    await settle(tester);
+    expect(find.text('Evacuate Baseco'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('advisory-review')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('advisory-send')));
+    await settle(tester);
+    final sent = (await tester.runAsync(
+      () => MockAlertLogRepository(backend).watchRecent().first,
+    ))!.first;
+    expect(sent.alert.isSimulated, isTrue);
+    expect(sent.on(AlertChannel.sms)!.status, AlertDeliveryStatus.simulated);
+  });
+
   testWidgets('admins see analytics for a period and export them', (
     tester,
   ) async {

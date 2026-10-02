@@ -204,6 +204,26 @@ class MockAlertLogRepository implements AlertLogRepository {
   @override
   Stream<List<SentAlert>> watchRecent({int limit = 30}) =>
       _backend.watchAlertLog(limit);
+
+  @override
+  Future<String> issue({
+    required AlertSource source,
+    required AlertLevel level,
+    required String title,
+    required String body,
+    List<String> guidance = const [],
+    List<String> barangays = const [],
+  }) => _backend.issueAlert(
+    source: source,
+    level: level,
+    title: title,
+    body: body,
+    guidance: guidance,
+    barangays: barangays,
+  );
+
+  @override
+  Future<void> end(String alertId) => _backend.endAlert(alertId);
 }
 
 class MockSimulationRepository implements SimulationRepository {

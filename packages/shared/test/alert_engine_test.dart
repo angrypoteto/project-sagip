@@ -124,6 +124,38 @@ void main() {
     });
   });
 
+  group('advisory rules', () {
+    test('"what to do" is one step per line, tidied', () {
+      expect(AdvisoryRules.steps(''), isEmpty);
+      expect(
+        AdvisoryRules.steps(
+          '  Wear a face mask. \n\n\nKeep windows closed.\n ',
+        ),
+        ['Wear a face mask.', 'Keep windows closed.'],
+      );
+    });
+
+    test('the limits are the database limits', () {
+      bool ok({
+        String title = 'Flooding',
+        String body = 'Avoid the area.',
+        List<String> guidance = const [],
+      }) => AdvisoryRules.accepts(title: title, body: body, guidance: guidance);
+
+      expect(ok(), isTrue);
+      expect(ok(title: ' '), isFalse);
+      expect(ok(body: ' '), isFalse);
+      expect(ok(title: 'x' * 120), isTrue);
+      expect(ok(title: 'x' * 121), isFalse);
+      expect(ok(body: 'x' * 1000), isTrue);
+      expect(ok(body: 'x' * 1001), isFalse);
+      expect(ok(guidance: List.filled(8, 'Step')), isTrue);
+      expect(ok(guidance: List.filled(9, 'Step')), isFalse);
+      expect(ok(guidance: ['x' * 200]), isTrue);
+      expect(ok(guidance: ['x' * 201]), isFalse);
+    });
+  });
+
   group('setting checks follow set_setting', () {
     final all = {
       for (final s in [...defaultPrioritySettings, ...defaultOtherSettings])
@@ -318,6 +350,163 @@ void main() {
         );
       },
     );
+
+    // The same cases as the "advisories" section of the RLS test.
+    test('a dispatcher relays an advisory, and it is stored tidied', () async {
+      await auth.signOut();
+      await auth.signIn(
+        email: 'dispatcher@sagip.test',
+        password: MockSeed.demoPassword,
+      );
+      final id = await log.issue(
+        source: AlertSource.phivolcs,
+        level: AlertLevel.info,
+        title: ' Taal Volcano advisory ',
+        body: 'Light ashfall may reach Manila.',
+        guidance: ['Wear a face mask.', '  ', 'Keep windows closed.'],
+        barangays: ['Barangay 412', 'Barangay 412'],
+      );
+      final sent = (await log.watchRecent().first).first;
+      expect(sent.alert.id, id);
+      expect(sent.alert.source, AlertSource.phivolcs);
+      expect(sent.alert.title, 'Taal Volcano advisory');
+      expect(sent.alert.guidance, [
+        'Wear a face mask.',
+        'Keep windows closed.',
+      ]);
+      expect(sent.alert.barangays, ['Barangay 412']);
+      expect(sent.alert.isSimulated, isFalse);
+      expect(sent.alert.hazard, isNull);
+      expect(
+        {for (final d in sent.deliveries) d.channel: d.status},
+        {
+          AlertChannel.app: AlertDeliveryStatus.sent,
+          AlertChannel.push: AlertDeliveryStatus.queued,
+          AlertChannel.sms: AlertDeliveryStatus.queued,
+          AlertChannel.facebook: AlertDeliveryStatus.off,
+        },
+        reason: 'in the apps at once, queued on the channels that are on',
+      );
+    });
+
+    test('an advisory is checked like issue_alert', () async {
+      Future<String> issue({
+        String title = 'Flooding',
+        String body = 'Avoid the area.',
+        List<String> guidance = const [],
+        List<String> barangays = const [],
+      }) => log.issue(
+        source: AlertSource.mdrrmd,
+        level: AlertLevel.warning,
+        title: title,
+        body: body,
+        guidance: guidance,
+        barangays: barangays,
+      );
+
+      await expectLater(
+        issue(title: '   '),
+        rejected(ActionRejection.invalidValue),
+      );
+      await expectLater(
+        issue(body: ''),
+        rejected(ActionRejection.invalidValue),
+      );
+      await expectLater(
+        issue(title: 'x' * (AdvisoryRules.maxTitle + 1)),
+        rejected(ActionRejection.invalidValue),
+      );
+      await expectLater(
+        issue(guidance: [for (var i = 0; i < 9; i++) 'Step $i']),
+        rejected(ActionRejection.invalidValue),
+      );
+      await expectLater(
+        issue(barangays: ['Barangay 9999']),
+        rejected(ActionRejection.invalidValue),
+      );
+      expect(await log.watchRecent().first, hasLength(4));
+
+      await auth.signOut();
+      await expectLater(issue(), rejected(ActionRejection.notAllowed));
+    });
+
+    test('ending an alert: once, audited, and only one that exists', () async {
+      final id = await log.issue(
+        source: AlertSource.mdrrmd,
+        level: AlertLevel.warning,
+        title: 'Flooding on Taft Avenue',
+        body: 'Avoid the area.',
+      );
+      final later = DateTime.now().add(const Duration(seconds: 1));
+      Future<PublicAlert> alert() async => (await log.watchRecent().first)
+          .firstWhere((a) => a.alert.id == id)
+          .alert;
+
+      expect((await alert()).activeAt(later), isTrue);
+      await log.end(id);
+      final ended = await alert();
+      expect(ended.activeAt(later), isFalse);
+      final entry = (await log.watchRecent().first).firstWhere(
+        (a) => a.alert.id == id,
+      );
+      expect(
+        {for (final d in entry.deliveries) d.channel: d.status},
+        {
+          AlertChannel.app: AlertDeliveryStatus.sent,
+          AlertChannel.push: AlertDeliveryStatus.ended,
+          AlertChannel.sms: AlertDeliveryStatus.ended,
+          AlertChannel.facebook: AlertDeliveryStatus.off,
+        },
+        reason: 'what was still waiting is not sent',
+      );
+      await log.end(id);
+      expect((await alert()).expiresAt, ended.expiresAt);
+      await expectLater(
+        log.end('alert-nope'),
+        rejected(ActionRejection.notFound),
+      );
+
+      final audit = await MockAuditRepository(backend).watchRecent().first;
+      expect(
+        [
+          for (final e in audit.reversed)
+            if (e.action == AuditAction.alertIssued ||
+                e.action == AuditAction.alertEnded)
+              '${e.action.name} ${e.detail}',
+        ],
+        [
+          'alertIssued warning: Flooding on Taft Avenue',
+          'alertEnded Flooding on Taft Avenue',
+        ],
+        reason: 'ending it a second time is not logged again',
+      );
+    });
+
+    test('in simulation mode an advisory is never texted or posted', () async {
+      await settings.set(SettingKeys.simulation, true);
+      await log.issue(
+        source: AlertSource.mdrrmd,
+        level: AlertLevel.critical,
+        title: 'Evacuate Baseco',
+        body: 'Drill only.',
+      );
+      final sent = (await log.watchRecent().first).first;
+      expect(sent.alert.isSimulated, isTrue);
+      expect(
+        [for (final d in sent.deliveries) d.status],
+        [
+          AlertDeliveryStatus.sent,
+          AlertDeliveryStatus.simulated,
+          AlertDeliveryStatus.simulated,
+          AlertDeliveryStatus.simulated,
+        ],
+      );
+      final audit = await MockAuditRepository(backend).watchRecent().first;
+      expect(
+        audit.firstWhere((e) => e.action == AuditAction.alertIssued).detail,
+        'critical: Evacuate Baseco (simulated)',
+      );
+    });
 
     test('switches and numbers are settings like any other', () async {
       await settings.set(SettingKeys.smsChannel, false);

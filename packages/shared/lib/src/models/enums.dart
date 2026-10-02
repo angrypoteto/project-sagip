@@ -90,6 +90,10 @@ enum AuditAction {
 
   /// A simulated PAGASA reading in simulation mode (A3).
   weatherSimulated,
+
+  /// An advisory issued or ended from the dashboard (D10).
+  alertIssued,
+  alertEnded,
 }
 
 /// Reads a timestamp from JSON and converts it to local time (the database

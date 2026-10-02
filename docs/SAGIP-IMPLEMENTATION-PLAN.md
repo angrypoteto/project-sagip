@@ -1146,7 +1146,7 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [ ] Confirm how to get PAGASA data (API key, feed, or published bulletins); contact PAGASA if a formal request is needed **(Data)**
 - [ ] Build the scheduled `ingest-pagasa` job
 - [ ] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation
-- [ ] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14)
+- [ ] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14). *Relay by hand from D10 ("Issue an advisory") is built (2026-10-02); the automatic ingest is not.*
 - [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
 - [ ] Push by barangay topic to residents; standby alerts to responders
 - [ ] Semaphore broadcast to registered residents in affected barangays, with a delivery log and a spending cap

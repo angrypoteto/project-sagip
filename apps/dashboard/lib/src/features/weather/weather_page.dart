@@ -8,6 +8,7 @@ import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../common_page.dart';
+import 'advisory_dialog.dart';
 
 /// D10: PAGASA conditions against the A3 alert thresholds, the log of
 /// alerts sent with each channel's outcome (FR5, FR6), and the EFCOS and
@@ -33,6 +34,14 @@ class WeatherPage extends ConsumerWidget {
 
     return PageFrame(
       title: l10n.weatherTitle,
+      headerTrailing: FilledButton.icon(
+        key: const ValueKey('issue-advisory'),
+        onPressed: ref.watch(isOnlineProvider)
+            ? () => showAdvisoryDialog(context)
+            : null,
+        icon: const Icon(Symbols.campaign_rounded),
+        label: Text(l10n.advisoryTitle),
+      ),
       child: AsyncBody(
         value: weatherAsync,
         loading: const SkeletonBox(height: 160, radius: SagipRadius.card),
@@ -351,6 +360,21 @@ class _AlertRow extends ConsumerWidget {
                 ),
             ],
           ),
+          if (!ended)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                key: ValueKey('end-${a.id}'),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: ref.watch(isOnlineProvider)
+                    ? () => confirmEndAlert(context, ref, a)
+                    : null,
+                child: Text(l10n.endAlert),
+              ),
+            ),
           // Why a channel did not go out in full (written by the sender).
           for (final d in sent.deliveries)
             if (d.detail != null && d.detail!.isNotEmpty)

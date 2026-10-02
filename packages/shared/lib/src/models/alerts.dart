@@ -143,6 +143,35 @@ class PublicAlert {
   };
 }
 
+/// What an advisory issued from the dashboard may hold (the same limits as
+/// `issue_alert`).
+abstract final class AdvisoryRules {
+  static const maxTitle = 120;
+  static const maxBody = 1000;
+  static const maxSteps = 8;
+  static const maxStep = 200;
+
+  /// "What to do" as typed, one step per line: trimmed, blank lines
+  /// dropped, the order kept.
+  static List<String> steps(String text) => [
+    for (final line in text.split('\n'))
+      if (line.trim().isNotEmpty) line.trim(),
+  ];
+
+  /// Whether the database would accept it.
+  static bool accepts({
+    required String title,
+    required String body,
+    required List<String> guidance,
+  }) =>
+      title.trim().isNotEmpty &&
+      title.trim().length <= maxTitle &&
+      body.trim().isNotEmpty &&
+      body.trim().length <= maxBody &&
+      guidance.length <= maxSteps &&
+      guidance.every((g) => g.length <= maxStep);
+}
+
 /// One channel's outcome for an alert (D10 "log of alerts sent"). Counts
 /// only: no numbers or names.
 @immutable

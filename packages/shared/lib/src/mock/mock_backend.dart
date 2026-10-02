@@ -7,6 +7,7 @@ import '../algorithms/analytics.dart';
 import '../algorithms/dbscan.dart';
 import '../algorithms/priority.dart';
 import '../algorithms/setting_checks.dart';
+import '../data/manila_barangays.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
@@ -200,6 +201,97 @@ class MockBackend {
       ];
     }
     _alertLog.value = log;
+  }
+
+  /// D10 (`issue_alert`): dispatchers and admins. Simulated while
+  /// simulation mode is on. Audited.
+  Future<String> issueAlert({
+    required AlertSource source,
+    required AlertLevel level,
+    required String title,
+    required String body,
+    List<String> guidance = const [],
+    List<String> barangays = const [],
+  }) async {
+    final actor = await _authorize();
+    final steps = [
+      for (final g in guidance)
+        if (g.trim().isNotEmpty) g.trim(),
+    ];
+    final areas = {
+      for (final b in barangays)
+        if (b.trim().isNotEmpty) b.trim(),
+    }.toList()..sort();
+    final known = {for (final b in sampleManilaBarangays) b.name};
+    if (!AdvisoryRules.accepts(title: title, body: body, guidance: steps) ||
+        areas.any((a) => !known.contains(a))) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final simulated = _flag(SettingKeys.simulation);
+    final id = 'alert-staff-${_nextAlertNumber++}';
+    _alertLog.value = [
+      ..._alertLog.value,
+      SentAlert(
+        alert: PublicAlert(
+          id: id,
+          source: source,
+          level: level,
+          title: title.trim(),
+          body: body.trim(),
+          guidance: steps,
+          barangays: areas,
+          issuedAt: _clock(),
+          isSimulated: simulated,
+        ),
+        deliveries: _deliveriesFor(simulated: simulated),
+      ),
+    ];
+    _log(
+      actor,
+      AuditAction.alertIssued,
+      'public_alert',
+      id,
+      '${level.name}: ${title.trim()}${simulated ? ' (simulated)' : ''}',
+    );
+    return id;
+  }
+
+  /// D10 (`end_alert`): ending one that already ended does nothing. What
+  /// was still waiting to be sent is not sent.
+  Future<void> endAlert(String alertId) async {
+    final actor = await _authorize();
+    final now = _clock();
+    final entry = _alertLog.value
+        .where((e) => e.alert.id == alertId)
+        .firstOrNull;
+    if (entry == null) throw const ActionRejected(ActionRejection.notFound);
+    if (!entry.alert.activeAt(now)) return;
+    _alertLog.value = [
+      for (final e in _alertLog.value)
+        e.alert.id == alertId
+            ? SentAlert(
+                alert: e.alert.copyWith(expiresAt: now),
+                // What `send-alerts` does with a queued delivery of an
+                // alert that has ended: it is not sent.
+                deliveries: [
+                  for (final d in e.deliveries)
+                    d.status == AlertDeliveryStatus.queued
+                        ? AlertDelivery(
+                            channel: d.channel,
+                            status: AlertDeliveryStatus.ended,
+                          )
+                        : d,
+                ],
+              )
+            : e,
+    ];
+    _log(
+      actor,
+      AuditAction.alertEnded,
+      'public_alert',
+      alertId,
+      entry.alert.title,
+    );
   }
 
   /// Simulation mode (`simulate_weather`): admins only, only while the

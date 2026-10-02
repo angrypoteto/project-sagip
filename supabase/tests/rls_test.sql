@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(206);
+select plan(222);
 
 select public.reset_demo_data();
 
@@ -770,6 +770,85 @@ select throws_ok(
   'P0001', 'invalid_value', 'only a final outcome can be recorded');
 select is(public.alert_sms_budget(), '{"cap": 500, "sent_today": 3, "left": 497}'::jsonb,
   'the daily cap counts the texts sent today');
+
+-- ------------------------------------------- advisories from the dashboard
+
+select ok(
+  not has_function_privilege('anon', 'public.issue_alert(text, text, text, text, text[], text[])', 'execute')
+  and not has_function_privilege('anon', 'public.end_alert(text)', 'execute'),
+  'anon cannot issue or end an advisory');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.issue_alert('mdrrmd', 'warning', 'Flooding', 'Avoid the area.') $$,
+  'P0001', 'not_allowed', 'a resident cannot issue an advisory');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select public.set_setting('demo.simulation', 'false');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select ok(
+  public.issue_alert('phivolcs', 'info', ' Taal Volcano advisory ', 'Light ashfall may reach Manila.',
+    array['Wear a face mask.', '  ', 'Keep windows closed.'], array['Barangay 412', 'Barangay 412']) like 'alert-%',
+  'a dispatcher can relay an advisory');
+select ok(
+  (select source = 'phivolcs' and level = 'info' and title = 'Taal Volcano advisory'
+          and guidance = array['Wear a face mask.', 'Keep windows closed.']
+          and barangays = array['Barangay 412'] and not is_simulated and expires_at is null
+     from public.public_alert where title = 'Taal Volcano advisory'),
+  'it is stored tidied: blank steps dropped, each barangay once');
+select is(
+  (select string_agg(d.channel || ':' || d.status, ',' order by d.channel)
+     from public.alert_delivery d join public.public_alert a using (alert_id)
+    where a.title = 'Taal Volcano advisory'),
+  'app:sent,facebook:off,push:queued,sms:queued',
+  'it is in the apps at once and queued on the channels that are on (FR6)');
+select throws_ok(
+  $$ select public.issue_alert('mdrrmd', 'warning', '   ', 'Avoid the area.') $$,
+  'P0001', 'invalid_value', 'an advisory needs a title');
+select throws_ok(
+  $$ select public.issue_alert('mdrrmd', 'urgent', 'Flooding', 'Avoid the area.') $$,
+  'P0001', 'invalid_value', 'an unknown level is refused');
+select throws_ok(
+  $$ select public.issue_alert('mdrrmd', 'warning', 'Flooding', 'Avoid the area.', '{}', array['Barangay 9999']) $$,
+  'P0001', 'invalid_value', 'an unknown barangay is refused');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select count(*)::int from public.my_alerts where title = 'Taal Volcano advisory' and not read),
+  1, 'residents see the advisory in the app');
+select throws_ok(
+  $$ select public.end_alert((select alert_id from public.public_alert where title = 'Taal Volcano advisory')) $$,
+  'P0001', 'not_allowed', 'a resident cannot end an advisory');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.end_alert((select alert_id from public.public_alert where title = 'Taal Volcano advisory')) $$,
+  'a dispatcher can end an advisory');
+select lives_ok(
+  $$ select public.end_alert((select alert_id from public.public_alert where title = 'Taal Volcano advisory')) $$,
+  'ending it again does nothing');
+select throws_ok($$ select public.end_alert('alert-nope') $$,
+  'P0001', 'not_found', 'an unknown alert cannot be ended');
+select is(
+  (select count(*)::int from public.my_alerts where title = 'Taal Volcano advisory'),
+  0, 'an ended advisory is no longer shown');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select public.set_setting('demo.simulation', 'true');
+select public.issue_alert('mdrrmd', 'critical', 'Evacuate Baseco', 'Drill only.');
+select ok(
+  (select a.is_simulated
+      and (select bool_and(d.status = case when d.channel = 'app' then 'sent' else 'simulated' end)
+             from public.alert_delivery d where d.alert_id = a.alert_id)
+     from public.public_alert a where a.title = 'Evacuate Baseco'),
+  'in simulation mode an advisory is simulated: in the apps, never texted or posted');
+select is(
+  (select string_agg(action_type || ' ' || detail, '; ' order by log_id) from public.audit_log
+    where action_type in ('alertIssued', 'alertEnded')),
+  'alertIssued info: Taal Volcano advisory; alertEnded Taal Volcano advisory; alertIssued critical: Evacuate Baseco (simulated)',
+  'issuing and ending are in the audit log (FR11)');
 
 reset role;
 select * from finish();

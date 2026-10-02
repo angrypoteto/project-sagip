@@ -3208,6 +3208,186 @@ abstract class AppLocalizations {
   /// **'Simulated a weather reading'**
   String get actionWeatherSimulated;
 
+  /// No description provided for @advisoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue an advisory'**
+  String get advisoryTitle;
+
+  /// No description provided for @advisoryReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review before sending'**
+  String get advisoryReviewTitle;
+
+  /// No description provided for @advisoryFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get advisoryFrom;
+
+  /// No description provided for @advisoryLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get advisoryLevel;
+
+  /// No description provided for @advisoryTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get advisoryTitleLabel;
+
+  /// No description provided for @advisoryTitleError.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the advisory a title.'**
+  String get advisoryTitleError;
+
+  /// No description provided for @advisoryBodyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get advisoryBodyLabel;
+
+  /// No description provided for @advisoryBodyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the message.'**
+  String get advisoryBodyError;
+
+  /// No description provided for @advisoryStepsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What to do (optional)'**
+  String get advisoryStepsLabel;
+
+  /// No description provided for @advisoryStepsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One step per line'**
+  String get advisoryStepsHint;
+
+  /// No description provided for @advisoryStepsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at most {steps} steps of up to {length} characters each.'**
+  String advisoryStepsError(int steps, int length);
+
+  /// No description provided for @advisoryArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Who it is for'**
+  String get advisoryArea;
+
+  /// No description provided for @advisoryChosenBarangays.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen barangays'**
+  String get advisoryChosenBarangays;
+
+  /// No description provided for @advisoryAreaError.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one barangay.'**
+  String get advisoryAreaError;
+
+  /// No description provided for @advisoryReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get advisoryReview;
+
+  /// No description provided for @advisoryBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get advisoryBack;
+
+  /// No description provided for @advisorySend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send advisory'**
+  String get advisorySend;
+
+  /// No description provided for @advisoryStep.
+  ///
+  /// In en, this message translates to:
+  /// **'• {step}'**
+  String advisoryStep(String step);
+
+  /// No description provided for @advisoryToEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'For residents in all of Manila.'**
+  String get advisoryToEveryone;
+
+  /// No description provided for @advisoryToBarangays.
+  ///
+  /// In en, this message translates to:
+  /// **'For residents in {barangays}.'**
+  String advisoryToBarangays(String barangays);
+
+  /// No description provided for @advisoryChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'It appears in the apps at once and is queued for {channels}.'**
+  String advisoryChannels(String channels);
+
+  /// No description provided for @advisoryAppsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'It appears in the apps at once. The other channels are switched off.'**
+  String get advisoryAppsOnly;
+
+  /// No description provided for @advisorySimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation mode is on: it will be marked Simulated and shown in the apps only. Nothing is texted or posted.'**
+  String get advisorySimulated;
+
+  /// No description provided for @advisoryIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Advisory issued'**
+  String get advisoryIssued;
+
+  /// No description provided for @endAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'End alert'**
+  String get endAlert;
+
+  /// No description provided for @endAlertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End this alert?'**
+  String get endAlertTitle;
+
+  /// No description provided for @endAlertBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" stops showing in the apps. It stays in this log.'**
+  String endAlertBody(String title);
+
+  /// No description provided for @alertEndedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert ended'**
+  String get alertEndedSnack;
+
+  /// No description provided for @actionAlertIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued an advisory'**
+  String get actionAlertIssued;
+
+  /// No description provided for @actionAlertEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended an alert'**
+  String get actionAlertEnded;
+
   /// No description provided for @levelInfo.
   ///
   /// In en, this message translates to:

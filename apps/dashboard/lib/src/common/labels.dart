@@ -113,6 +113,8 @@ extension DomainLabels on AppLocalizations {
     AuditAction.residentSuspended => actionResidentSuspended,
     AuditAction.residentRestored => actionResidentRestored,
     AuditAction.weatherSimulated => actionWeatherSimulated,
+    AuditAction.alertIssued => actionAlertIssued,
+    AuditAction.alertEnded => actionAlertEnded,
   };
 
   String alertLevel(AlertLevel level) => switch (level) {

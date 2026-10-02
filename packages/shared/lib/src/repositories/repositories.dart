@@ -220,6 +220,25 @@ abstract interface class SettingsRepository {
 abstract interface class AlertLogRepository {
   /// Newest first.
   Stream<List<SentAlert>> watchRecent({int limit});
+
+  /// Issues an advisory for residents (FR6, FR14): an MDRRMD notice, or one
+  /// relayed by hand from PAGASA, PHIVOLCS, or EFCOS. It appears in the
+  /// apps at once and is queued on each channel that is switched on; while
+  /// simulation mode is on it is marked simulated and never texted or
+  /// posted. An empty [barangays] means all of Manila. Returns the alert's
+  /// id. Audited. Throws [ActionRejected].
+  Future<String> issue({
+    required AlertSource source,
+    required AlertLevel level,
+    required String title,
+    required String body,
+    List<String> guidance,
+    List<String> barangays,
+  });
+
+  /// Ends an alert that is still showing, so the apps stop showing it.
+  /// Audited.
+  Future<void> end(String alertId);
 }
 
 /// Simulation mode (A3, plan section 12): a simulated PAGASA reading for

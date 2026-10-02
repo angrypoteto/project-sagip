@@ -1778,6 +1778,108 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionWeatherSimulated => 'Simulated a weather reading';
 
   @override
+  String get advisoryTitle => 'Issue an advisory';
+
+  @override
+  String get advisoryReviewTitle => 'Review before sending';
+
+  @override
+  String get advisoryFrom => 'From';
+
+  @override
+  String get advisoryLevel => 'Level';
+
+  @override
+  String get advisoryTitleLabel => 'Title';
+
+  @override
+  String get advisoryTitleError => 'Give the advisory a title.';
+
+  @override
+  String get advisoryBodyLabel => 'Message';
+
+  @override
+  String get advisoryBodyError => 'Write the message.';
+
+  @override
+  String get advisoryStepsLabel => 'What to do (optional)';
+
+  @override
+  String get advisoryStepsHint => 'One step per line';
+
+  @override
+  String advisoryStepsError(int steps, int length) {
+    return 'Use at most $steps steps of up to $length characters each.';
+  }
+
+  @override
+  String get advisoryArea => 'Who it is for';
+
+  @override
+  String get advisoryChosenBarangays => 'Chosen barangays';
+
+  @override
+  String get advisoryAreaError => 'Choose at least one barangay.';
+
+  @override
+  String get advisoryReview => 'Review';
+
+  @override
+  String get advisoryBack => 'Back';
+
+  @override
+  String get advisorySend => 'Send advisory';
+
+  @override
+  String advisoryStep(String step) {
+    return '• $step';
+  }
+
+  @override
+  String get advisoryToEveryone => 'For residents in all of Manila.';
+
+  @override
+  String advisoryToBarangays(String barangays) {
+    return 'For residents in $barangays.';
+  }
+
+  @override
+  String advisoryChannels(String channels) {
+    return 'It appears in the apps at once and is queued for $channels.';
+  }
+
+  @override
+  String get advisoryAppsOnly =>
+      'It appears in the apps at once. The other channels are switched off.';
+
+  @override
+  String get advisorySimulated =>
+      'Simulation mode is on: it will be marked Simulated and shown in the apps only. Nothing is texted or posted.';
+
+  @override
+  String get advisoryIssued => 'Advisory issued';
+
+  @override
+  String get endAlert => 'End alert';
+
+  @override
+  String get endAlertTitle => 'End this alert?';
+
+  @override
+  String endAlertBody(String title) {
+    return '\"$title\" stops showing in the apps. It stays in this log.';
+  }
+
+  @override
+  String get alertEndedSnack => 'Alert ended';
+
+  @override
+  String get actionAlertIssued => 'Issued an advisory';
+
+  @override
+  String get actionAlertEnded => 'Ended an alert';
+
+  @override
   String get levelInfo => 'Advisory';
 
   @override

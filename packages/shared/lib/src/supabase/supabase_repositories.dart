@@ -344,6 +344,43 @@ class SupabaseAlertLogRepository implements AlertLogRepository {
         SentAlert.fromJson(r),
     ],
   );
+
+  @override
+  Future<String> issue({
+    required AlertSource source,
+    required AlertLevel level,
+    required String title,
+    required String body,
+    List<String> guidance = const [],
+    List<String> barangays = const [],
+  }) => _call(
+    () => _client.rpc<String>(
+      'issue_alert',
+      params: {
+        'p_source': source.name,
+        'p_level': level.name,
+        'p_title': title,
+        'p_body': body,
+        'p_guidance': guidance,
+        'p_barangays': barangays,
+      },
+    ),
+  );
+
+  @override
+  Future<void> end(String alertId) async {
+    try {
+      await _call(
+        () => _client.rpc<void>('end_alert', params: {'p_alert_id': alertId}),
+      );
+    } on ActionRejected catch (e) {
+      // not_found means an unknown alert here, not a closed incident.
+      if (e.reason == ActionRejection.incidentClosed) {
+        throw const ActionRejected(ActionRejection.notFound);
+      }
+      rethrow;
+    }
+  }
 }
 
 /// Simulation mode through `simulate_weather` (admins only).
