@@ -1087,9 +1087,9 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 ### 10.4 Incident type classifier (FR12). Medium.
 
 - [ ] Labeled dataset: MDRRMD descriptions (Table 3.1 item 6), or a team-labeled English, Filipino, and Taglish set of a few hundred examples per class, disclosed as such **(Data)**
-- [ ] TF-IDF on word unigrams and bigrams with a linear classifier such as logistic regression (Q24)
-- [ ] Evaluate accuracy and per-class precision and recall on a held-out set
-- [ ] Export the vocabulary and weights to JSON; run inference in the `classify-report` Edge Function on insert; store the suggestion and its confidence
+- [x] TF-IDF on word unigrams and bigrams with a linear classifier such as logistic regression (Q24). *Built with logistic regression on a made-up sample set (2026-10-02); retrain when the labelled dataset above arrives.*
+- [ ] Evaluate accuracy and per-class precision and recall on a held-out set. *The script does this (`ml/classifier/metrics.json`), but only on made-up data so far: not a result.*
+- [x] Export the vocabulary and weights to JSON; run inference on insert; store the suggestion and its confidence. *Inference runs in the database (a trigger on `crowd_report`), not in an Edge Function, so the tag exists before DBSCAN runs.*
 
 ### 10.5 LSTM + KDE forecast (FR4, Objective 2). High.
 

@@ -23,12 +23,13 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_configuration.sql` | A3 settings (`app_setting`: the Triage Queue priority weights), `set_setting` (admins only, audited as `settingChanged`), and the priority score, severity, and factors on `incident_board` |
 | `migrations/*_routing.sql` | Road routes on dispatch records (`dispatch.route` polyline and `route_plan`; `assign_unit` takes the route), routes in `my_assignments`, and the Dijkstra timing log `routing_run` (admins read it; `log_routing_run` writes it) |
 | `migrations/*_sms_intake.sql`, `*_sms_gateway_provider.sql` | Tier 2: `intake_sms_sos` (service role only) files an SOS texted to the gateway SIM, finding the resident by the sender's number; `submit_sos` attaches the resident when the app's copy of an SOS texted from another SIM arrives; inbound texts logged in `sms_log` |
+| `migrations/*_classifier.sql` | The incident type classifier (FR12): `classifier_model` (the exported model; one is active), `private.classify_report()`, and the trigger that tags each new crowd report before DBSCAN looks at it. Holds the `v1-sample` model, which is trained on made-up descriptions |
 | `migrations/*_advisories.sql` | Advisories from the dashboard (D10): `issue_alert()` (dispatchers and admins; an MDRRMD notice or one relayed by hand from PAGASA, PHIVOLCS, or EFCOS; checked, simulated while simulation mode is on, audited) and `end_alert()` |
 | `migrations/*_alert_sender.sql` | For the alert sender (service role only): `claim_alert_deliveries()`, `alert_sms_recipients()`, `alert_sms_budget()` (the daily cap `channels.sms_daily_cap`, set on A3), `finish_alert_delivery()` |
 | `functions/send-alerts/` | Works through queued alert deliveries: texts residents of the affected barangays through Semaphore (one SMS each, up to the daily cap), logs every text in `sms_log`, and records each channel's outcome; `alerts.test.ts` and `index.test.ts` run with `node --test` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
-| `tests/rls_test.sql` | 222 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 232 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -131,6 +132,19 @@ flutter build web --release -t lib/main_webform.dart -o build/webform --dart-def
 4. **Try it:** with simulation mode off, insert a reading that crosses a threshold (see the SQL above), or wait for the PAGASA feed. Check the Weather page's alert log and `sms_log`.
 
 Not checked against the real Semaphore API (no account yet): the function assumes its messages endpoint answers with one entry per recipient. Send one test alert to a barangay with only your own number before the pilot.
+
+## Incident type classifier (FR12)
+
+Every new crowd report is tagged with an incident type from its description, inside the database, before DBSCAN groups reports (thesis Process 2.0). The tag goes in `crowd_report.category` with its probability in `category_confidence`; what the resident chose stays in `reported_type`. A cluster takes the most common tag of its reports as the incident's suggested type, which the dispatcher confirms or changes.
+
+- **The model** is TF-IDF over words and word pairs with logistic regression, trained and exported by `ml/classifier/train_classifier.py` (see `ml/README.md`). It lives in `classifier_model` as one JSON document; the row with `is_active` is the one used.
+- **The model loaded now is `v1-sample`: trained on made-up descriptions, not MDRRMD records.** It is there so the whole path works. Do not report its accuracy.
+- **When the model is not sure** (below `min_confidence`, 0.5 in `v1-sample`) the report is left untagged and the cluster uses the resident's own choice, if there is one. Text with no known words always lands here.
+- **With no active model** reports are stored untagged; nothing is refused.
+- **Loading a retrained model:** run the training script, then add a new migration that inserts the new row (the script writes the `insert` to `ml/classifier/build/classifier_model.sql`) and moves `is_active` to it. Reports already stored keep the tag they got.
+- **Try it** in the SQL editor: `select * from private.classify_report('Baha na po dito, hanggang bewang ang tubig');`
+
+The same arithmetic runs in Dart (`IncidentClassifier` in `packages/shared`) for the sample-data apps. Both are checked against the same 38 cases (`packages/shared/test/fixtures/classifier_reference.json`).
 
 ## Priority weights (A3)
 
