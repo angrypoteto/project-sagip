@@ -1,0 +1,422 @@
+{
+  "data": "SAMPLE (made up by make_sample_data.py); nothing here is a result",
+  "tensorflow": "2.21.0",
+  "architecture": {
+    "lstm_units": [
+      64,
+      32
+    ],
+    "dropout": 0.2,
+    "output": "dense, sigmoid",
+    "loss": "binary cross-entropy with class weights",
+    "optimizer": "Adam, learning rate 0.001",
+    "batch": 32,
+    "max_epochs": 100,
+    "early_stopping_patience": 10
+  },
+  "threshold": 0.5,
+  "hazards": {
+    "flood": {
+      "epochs_run": 42,
+      "best_epoch": 32,
+      "best_val_loss": 0.2053,
+      "train_seconds": 17.9,
+      "validation": {
+        "windows": 159,
+        "positives": 8,
+        "lstm": {
+          "accuracy": 0.956,
+          "precision": 0.5714,
+          "recall": 0.5,
+          "f1": 0.5333,
+          "rmse": 0.2138,
+          "confusion": {
+            "tp": 4,
+            "fp": 3,
+            "fn": 4,
+            "tn": 148
+          }
+        },
+        "baselines": {
+          "positives": 8,
+          "windows": 159,
+          "always_majority": {
+            "accuracy": 0.9497,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.2243,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 8,
+              "tn": 151
+            }
+          },
+          "persistence": {
+            "accuracy": 0.9371,
+            "precision": 0.3333,
+            "recall": 0.25,
+            "f1": 0.2857,
+            "rmse": 0.2508,
+            "confusion": {
+              "tp": 2,
+              "fp": 4,
+              "fn": 6,
+              "tn": 147
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.9119,
+            "precision": 0.2857,
+            "recall": 0.5,
+            "f1": 0.3636,
+            "rmse": 0.3231,
+            "confusion": {
+              "tp": 4,
+              "fp": 10,
+              "fn": 4,
+              "tn": 141
+            }
+          }
+        }
+      },
+      "test": {
+        "windows": 162,
+        "positives": 34,
+        "lstm": {
+          "accuracy": 0.5926,
+          "precision": 0.2143,
+          "recall": 0.3529,
+          "f1": 0.2667,
+          "rmse": 0.5271,
+          "confusion": {
+            "tp": 12,
+            "fp": 44,
+            "fn": 22,
+            "tn": 84
+          }
+        },
+        "baselines": {
+          "positives": 34,
+          "windows": 162,
+          "always_majority": {
+            "accuracy": 0.7901,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.4581,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 34,
+              "tn": 128
+            }
+          },
+          "persistence": {
+            "accuracy": 0.716,
+            "precision": 0.3421,
+            "recall": 0.3824,
+            "f1": 0.3611,
+            "rmse": 0.5329,
+            "confusion": {
+              "tp": 13,
+              "fp": 25,
+              "fn": 21,
+              "tn": 103
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.6173,
+            "precision": 0.2586,
+            "recall": 0.4412,
+            "f1": 0.3261,
+            "rmse": 0.5099,
+            "confusion": {
+              "tp": 15,
+              "fp": 43,
+              "fn": 19,
+              "tn": 85
+            }
+          }
+        }
+      },
+      "test_f1_vs_best_baseline": [
+        0.2667,
+        0.3611
+      ],
+      "tflite": {
+        "bytes": 196532,
+        "largest_difference_from_keras": 4.77e-07
+      }
+    },
+    "fire": {
+      "epochs_run": 11,
+      "best_epoch": 1,
+      "best_val_loss": 0.6907,
+      "train_seconds": 10.6,
+      "validation": {
+        "windows": 159,
+        "positives": 86,
+        "lstm": {
+          "accuracy": 0.5283,
+          "precision": 0.5414,
+          "recall": 0.8372,
+          "f1": 0.6575,
+          "rmse": 0.4984,
+          "confusion": {
+            "tp": 72,
+            "fp": 61,
+            "fn": 14,
+            "tn": 12
+          }
+        },
+        "baselines": {
+          "positives": 86,
+          "windows": 159,
+          "always_majority": {
+            "accuracy": 0.5409,
+            "precision": 0.5409,
+            "recall": 1.0,
+            "f1": 0.702,
+            "rmse": 0.6776,
+            "confusion": {
+              "tp": 86,
+              "fp": 73,
+              "fn": 0,
+              "tn": 0
+            }
+          },
+          "persistence": {
+            "accuracy": 0.4717,
+            "precision": 0.5119,
+            "recall": 0.5,
+            "f1": 0.5059,
+            "rmse": 0.7268,
+            "confusion": {
+              "tp": 43,
+              "fp": 41,
+              "fn": 43,
+              "tn": 32
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.522,
+            "precision": 0.5385,
+            "recall": 0.814,
+            "f1": 0.6481,
+            "rmse": 0.5091,
+            "confusion": {
+              "tp": 70,
+              "fp": 60,
+              "fn": 16,
+              "tn": 13
+            }
+          }
+        }
+      },
+      "test": {
+        "windows": 162,
+        "positives": 77,
+        "lstm": {
+          "accuracy": 0.6235,
+          "precision": 0.7,
+          "recall": 0.3636,
+          "f1": 0.4786,
+          "rmse": 0.4804,
+          "confusion": {
+            "tp": 28,
+            "fp": 12,
+            "fn": 49,
+            "tn": 73
+          }
+        },
+        "baselines": {
+          "positives": 77,
+          "windows": 162,
+          "always_majority": {
+            "accuracy": 0.4753,
+            "precision": 0.4753,
+            "recall": 1.0,
+            "f1": 0.6444,
+            "rmse": 0.7244,
+            "confusion": {
+              "tp": 77,
+              "fp": 85,
+              "fn": 0,
+              "tn": 0
+            }
+          },
+          "persistence": {
+            "accuracy": 0.4074,
+            "precision": 0.3733,
+            "recall": 0.3636,
+            "f1": 0.3684,
+            "rmse": 0.7698,
+            "confusion": {
+              "tp": 28,
+              "fp": 47,
+              "fn": 49,
+              "tn": 38
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.5185,
+            "precision": 0.4915,
+            "recall": 0.3766,
+            "f1": 0.4265,
+            "rmse": 0.5429,
+            "confusion": {
+              "tp": 29,
+              "fp": 30,
+              "fn": 48,
+              "tn": 55
+            }
+          }
+        }
+      },
+      "test_f1_vs_best_baseline": [
+        0.4786,
+        0.6444
+      ],
+      "tflite": {
+        "bytes": 196532,
+        "largest_difference_from_keras": 1.19e-07
+      }
+    },
+    "storm_surge": {
+      "epochs_run": 44,
+      "best_epoch": 34,
+      "best_val_loss": 0.0476,
+      "train_seconds": 23.8,
+      "validation": {
+        "windows": 159,
+        "positives": 1,
+        "lstm": {
+          "accuracy": 0.9937,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "rmse": 0.0873,
+          "confusion": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "tn": 158
+          }
+        },
+        "baselines": {
+          "positives": 1,
+          "windows": 159,
+          "always_majority": {
+            "accuracy": 0.9937,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.0793,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "tn": 158
+            }
+          },
+          "persistence": {
+            "accuracy": 0.9937,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.0793,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "tn": 158
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.9686,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.1781,
+            "confusion": {
+              "tp": 0,
+              "fp": 4,
+              "fn": 1,
+              "tn": 154
+            }
+          }
+        }
+      },
+      "test": {
+        "windows": 162,
+        "positives": 16,
+        "lstm": {
+          "accuracy": 0.9012,
+          "precision": 0.5,
+          "recall": 0.125,
+          "f1": 0.2,
+          "rmse": 0.3127,
+          "confusion": {
+            "tp": 2,
+            "fp": 2,
+            "fn": 14,
+            "tn": 144
+          }
+        },
+        "baselines": {
+          "positives": 16,
+          "windows": 162,
+          "always_majority": {
+            "accuracy": 0.9012,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.3143,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 16,
+              "tn": 146
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8272,
+            "precision": 0.2,
+            "recall": 0.25,
+            "f1": 0.2222,
+            "rmse": 0.4157,
+            "confusion": {
+              "tp": 4,
+              "fp": 16,
+              "fn": 12,
+              "tn": 130
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.8704,
+            "precision": 0.3077,
+            "recall": 0.25,
+            "f1": 0.2759,
+            "rmse": 0.3626,
+            "confusion": {
+              "tp": 4,
+              "fp": 9,
+              "fn": 12,
+              "tn": 137
+            }
+          }
+        }
+      },
+      "test_f1_vs_best_baseline": [
+        0.2,
+        0.2759
+      ],
+      "tflite": {
+        "bytes": 197072,
+        "largest_difference_from_keras": 2.53e-07
+      }
+    }
+  }
+}

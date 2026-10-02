@@ -1,0 +1,5 @@
+# LSTM training (ml/forecast/train_lstm.py). TensorFlow has no build for
+# Python 3.14, so this goes in its own Python 3.12 environment (.venv-tf).
+tensorflow==2.21.0
+numpy==2.5.3
+scikit-learn==1.9.1

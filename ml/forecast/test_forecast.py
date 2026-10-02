@@ -3,6 +3,7 @@
 Run with: python -m unittest discover -s ml/forecast -p "test_*.py"
 """
 
+import importlib.util
 import math
 import unittest
 from datetime import date, timedelta
@@ -283,6 +284,51 @@ class Kde(unittest.TestCase):
             list(kde.inside_geometry(grid, {"type": "MultiPolygon", "coordinates": [[outer, hole], [second]]})),
             [False, True, False, True],
         )
+
+
+
+@unittest.skipUnless(
+    importlib.util.find_spec("tensorflow"),
+    "TensorFlow is not installed (it runs in .venv-tf, Python 3.12)",
+)
+class Lstm(unittest.TestCase):
+    def test_the_architecture_follows_the_thesis(self):
+        import tensorflow as tf
+
+        import train_lstm
+
+        model = train_lstm.build_model(14, 6)
+        kinds = [type(layer).__name__ for layer in model.layers]
+        self.assertEqual(kinds, ["LSTM", "Dropout", "LSTM", "Dropout", "Dense"])
+        first, drop1, second, drop2, out = model.layers
+        self.assertEqual((first.units, first.return_sequences), (64, True))
+        self.assertEqual((second.units, second.return_sequences), (32, False))
+        self.assertEqual((drop1.rate, drop2.rate), (0.2, 0.2))
+        self.assertEqual((out.units, out.activation.__name__), (1, "sigmoid"))
+        self.assertEqual(model.input_shape, (None, 14, 6))
+        self.assertAlmostEqual(float(model.optimizer.learning_rate.numpy()), 0.001, places=7)
+        self.assertEqual(model.loss, "binary_crossentropy")
+        self.assertEqual(
+            (train_lstm.BATCH, train_lstm.MAX_EPOCHS, train_lstm.PATIENCE), (32, 100, 10)
+        )
+        tf.keras.backend.clear_session()
+
+    def test_the_phone_copy_gives_the_same_answers(self):
+        import tensorflow as tf
+
+        import train_lstm
+
+        tf.keras.utils.set_random_seed(1)
+        model = train_lstm.build_model(14, 6)
+        x = np.random.default_rng(2).normal(size=(6, 14, 6)).astype(np.float32)
+        copy = train_lstm.inference_copy(model, 14, 6)
+        for i in range(len(x)):
+            self.assertAlmostEqual(
+                float(copy(x[i : i + 1], training=False)[0][0]),
+                float(model(x[i : i + 1], training=False)[0][0]),
+                places=5,
+            )
+        tf.keras.backend.clear_session()
 
 
 if __name__ == "__main__":

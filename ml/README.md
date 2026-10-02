@@ -5,10 +5,10 @@ Data preparation and model training for S.A.G.I.P. (plan sections 10.2 to 10.5).
 | Folder | What it makes | Used by |
 |---|---|---|
 | `road_graph/` | The directed Manila road graph for Dijkstra (`packages/shared/assets/road_graph/manila_drive_v1.bin`) and the networkx reference answers for its test | `RoadGraph`, `RoadRouter`, and `RoadNetworkSuggester` in `packages/shared` |
-| `forecast/` | The data preparation for the LSTM (cleaned records, 14-day windows, chronological split, class weights, baselines) and the KDE surfaces with their per-barangay averages, both on made-up sample data for now | The LSTM training (not built yet: TensorFlow) and, once plan Q22 is decided, the rows in `barangay_forecast` that D8 and R7 show |
+| `forecast/` | The data preparation for the LSTM (cleaned records, 14-day windows, chronological split, class weights, baselines), the LSTM itself (thesis architecture, with a TFLite copy), and the KDE surfaces with their per-barangay averages, all on made-up sample data for now | Once plan Q22 is decided, the rows in `barangay_forecast` that D8 and R7 show |
 | `classifier/` | The incident type classifier for crowd reports (FR12): `packages/shared/assets/classifier/incident_classifier_v1.json`, the reference answers for its tests, `metrics.json`, and the SQL that loads the model into the database | `private.classify_report` in the database (the trigger on `crowd_report`) and `IncidentClassifier` in `packages/shared` |
 
-Still to come: training the LSTM (it needs TensorFlow, so Python 3.12, and the real records) and turning the LSTM probability and the KDE density into risk levels (plan Q22).
+Still to come: the real records, and turning the LSTM probability and the KDE density into risk levels (plan Q22).
 
 ## Setup
 
@@ -19,6 +19,11 @@ python -m venv .venv
 .venv/Scripts/python -m pip install -r ml/requirements-road-graph.txt   # Windows
 .venv/Scripts/python -m pip install -r ml/requirements-classifier.txt   # only for the classifier
 .venv/Scripts/python -m pip install -r ml/requirements-forecast.txt     # only for the forecast
+
+# The LSTM needs TensorFlow, which has no build for Python 3.14: a second
+# environment on Python 3.12 (installed on Joshua's machine on 2026-10-03).
+py -3.12 -m venv .venv-tf
+.venv-tf/Scripts/python -m pip install -r ml/requirements-lstm.txt
 # .venv/bin/python on macOS and Linux
 ```
 
@@ -57,7 +62,8 @@ cd packages/shared && flutter test test/incident_classifier_test.dart
 cd ml/forecast
 ../../.venv/Scripts/python prepare_windows.py            # cleaning, windows, split, class weights, baselines
 ../../.venv/Scripts/python kde.py                        # bandwidth by 5-fold CV, 100 m grid, per-barangay averages
-../../.venv/Scripts/python -m unittest test_forecast     # 13 checks (CI runs them too)
+../../.venv/Scripts/python -m unittest test_forecast     # 15 checks; the 2 LSTM ones run only in .venv-tf
+../../.venv-tf/Scripts/python train_lstm.py              # the LSTM, about a minute on a laptop CPU
 ```
 
 - **The data is made up.** `data/sample_weather_daily.csv` (three years of daily rain, wind signal, wind, and storm surge) and `data/sample_incidents.csv` (floods, fires, and storm surge incidents around a few made-up hotspots) come from `make_sample_data.py`, by rules written in its header: floods follow heavy rain, fires peak in the dry months, surge incidents happen on surge days. A few bad rows are added on purpose. **They are not PAGASA or MDRRMD records, and nothing measured on them is a result.** `data/sample_barangays.csv` holds the ten sample barangays of the database.
@@ -67,4 +73,6 @@ cd ml/forecast
 - **KDE** (`kde.py`, the thesis parameters): Gaussian kernel with haversine distance (scikit-learn's `KernelDensity` on radians), the bandwidth chosen from 100 to 500 m by 5-fold cross-validated log-likelihood, a 100 m grid over Manila, densities in incidents per square kilometre over the period, averaged per barangay with a rank and a value relative to the densest. Writes `kde_summary.json` and `build/kde_grid_<hazard>.csv`.
 - **Provisional, for the team** (also listed in the two summaries): the forecast unit is the whole city, one series per hazard (plan Q21); "per barangay" is the mean of the cells within 400 m of the centre until boundaries arrive (drop a GeoJSON at `data/barangay_boundaries.geojson`, one feature per barangay with a `name` property, and the cells inside each boundary are used); no risk levels are written, because how the density and the probability combine is not decided (plan Q22).
 - **Two things the sample already shows** (they come from the method, not the made-up numbers): (1) the 14-day window holds only past weather, so rain that falls during the next 72 hours is not in the input; a flood after a dry spell cannot be foreseen from it. The model can learn the season, an approaching typhoon's first days, and recent incidents. Whether the last day of the window should carry PAGASA's own forecast is a question for the team. (2) With three years of records, a chronological 15% validation part falls in one season (Feb to Jul 2025 here, few floods), which makes early stopping on it shaky; more years, or a validation part chosen per season, would help.
-
+- **LSTM** (`train_lstm.py`, the thesis parameters): two stacked LSTM layers of 64 and 32 units with dropout 0.2 after each, a sigmoid output, binary cross-entropy weighted by the class weights from the preparation, Adam at 0.001, batch 32, up to 100 epochs, early stopping after 10 epochs without a better validation loss (best weights kept), a fixed seed so a rerun gives the same model. One model per hazard. Writes `lstm_metrics.json` (epochs, the LSTM's accuracy, precision, recall, F1, RMSE, and confusion matrix on validation and test, next to the three baselines) and `build/lstm_<hazard>.keras` and `.tflite` (git-ignored).
+- **The phone copy:** the TFLite file is made from a copy of the same network with the 14 steps unrolled and one window at a time, so it needs only TFLite's built-in operations (about 195 KB; no TensorFlow "select ops", which would add megabytes to the app). The script checks it against Keras on the test windows (largest difference about 0.0000005). Whether the phone runs it at all is plan Q2.
+- **On the sample data the LSTM does not beat the baselines** (test F1 0.27 for floods against 0.36 for "an incident in the last 3 days"). That is expected from made-up data and from the past-only window described above; it is not a result either way. Rerun on the real records before reading anything into it.
