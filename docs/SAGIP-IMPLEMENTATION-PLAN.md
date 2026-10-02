@@ -1095,12 +1095,12 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 
 - [ ] Clean and geocode incident records to barangay in the spreadsheet template, logging how many records were kept, corrected, and removed at each step **(Data)**
 - [ ] Get PAGASA historical weather for the same period (source to confirm, Q35) **(Data)**
-- [ ] Notebook that validates and merges the cleaned files, aligns them to daily records, and re-checks the counts
+- [~] Notebook that validates and merges the cleaned files, aligns them to daily records, and re-checks the counts (Oct 3: a script, `ml/forecast/prepare_windows.py`, on sample data)
 - [ ] Choose the forecast unit (barangay, zone, or pooled model, Q21)
-- [ ] Build 14-day input windows with the six features; chronological 70/15/15 split; class weights
+- [x] Build 14-day input windows with the six features; chronological 70/15/15 split; class weights (Oct 3, on sample data; rerun on the real records)
 - [ ] Train: LSTM 64 then 32 units, dropout 0.2, sigmoid output, weighted binary cross-entropy, Adam at 0.001, batch 32, up to 100 epochs, early stopping after 10. Start training early in Week 6 so it runs while other work continues.
 - [ ] Evaluate: confusion-matrix accuracy (target at least 80%), plus precision, recall, F1, and the no-skill baseline; RMSE as the thesis requires (Q23); compare with PAGASA advisories for the same period
-- [ ] KDE: Gaussian kernel, haversine distance, bandwidth chosen from 100 to 500 m by 5-fold cross-validated log-likelihood, 100 m grid averaged per barangay
+- [x] KDE: Gaussian kernel, haversine distance, bandwidth chosen from 100 to 500 m by 5-fold cross-validated log-likelihood, 100 m grid averaged per barangay (Oct 3, `ml/forecast/kde.py`, on sample data; per barangay by centre until boundaries arrive)
 - [ ] Define and document how the LSTM probability and the KDE density combine into a risk level (Q22)
 - [ ] Batch inference script that writes forecast rows; a simulated live feed that replays historical weather, with forecasts marked as simulated
 - [ ] Polish D8 (forecast heatmap) and the R7 forecast tab on real forecast rows
