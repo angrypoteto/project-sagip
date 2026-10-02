@@ -47,7 +47,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] `apps/mobile` created 2026-09-30 (Android, minimum Android 10; a web target exists only for quick previews)
 - [x] Android emulator `sagip_pixel` (Pixel 6, Android 15) created on Joshua's machine
 - [x] `ml/road_graph/`: builds the Manila road graph from OpenStreetMap (osmnx) and the networkx reference answers for its test (`ml/README.md`)
-- [~] CI (`.github/workflows/ci.yml`): formatting, generated translations up to date, analyze and test in all three packages, the Edge Function tests, and a scan for committed keys. Checked locally step by step; **not yet run on GitHub** (it runs on the next push)
+- [~] CI (`.github/workflows/ci.yml`): formatting, generated translations up to date, analyze and test in all three packages, the Edge Function tests, and a scan for committed keys. Checked locally step by step; **has not run on GitHub yet**: the first run (push of 2026-10-02) was refused before any step started, with "your account is locked due to a billing issue" (a GitHub account setting for Joshua: Settings, then Billing and plans). Re-run it from the Actions tab once that is cleared
 
 ### packages/shared (`sagip_shared`)
 - [x] Design tokens: `SagipColors` (with text-safe variants), `SagipSpace`, `SagipRadius`, `SagipMotion`
