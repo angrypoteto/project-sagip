@@ -1,0 +1,2 @@
+# Incident type classifier (ml/classifier). Version used for the v1-sample model.
+scikit-learn==1.9.1

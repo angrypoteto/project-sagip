@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
@@ -21,6 +24,12 @@ void main() {
       timing: MockSosTiming.instant,
       simulateDispatch: false,
       autoOffers: false,
+      classifier: IncidentClassifier.fromJson(
+        jsonDecode(
+          File('assets/classifier/incident_classifier_v1.json')
+              .readAsStringSync(),
+        ) as Map<String, Object?>,
+      ),
     );
     web = MockWebReportRepository(backend);
     await backend.sendCode('0917 000 4821');
@@ -60,6 +69,46 @@ void main() {
         final quota = await web.watchQuota().first;
         expect((quota.limit, quota.used, quota.remaining), (5, 1, 4));
         expect(quota.resetsAt, isNull);
+      },
+    );
+
+    // As `my_crowd_reports`: the resident's choice, or the classifier's tag.
+    test(
+      'a report sent without a type is tagged from its description',
+      () async {
+        Future<IncidentType?> typeOf(
+          String id,
+          String description, [
+          IncidentType? chosen,
+        ]) async => (await web.submit(
+          clientId: id,
+          capturedAt: now,
+          description: description,
+          location: binondo,
+          type: chosen,
+        )).type;
+
+        expect(
+          await typeOf(
+            '00000000-0000-4000-8000-0000000006b1',
+            'May sunog dito, makapal ang usok',
+          ),
+          IncidentType.fire,
+        );
+        expect(
+          await typeOf('00000000-0000-4000-8000-0000000006b2', 'zzzz qqqq'),
+          isNull,
+          reason: 'the model cannot place it, so it stays untagged',
+        );
+        expect(
+          await typeOf(
+            '00000000-0000-4000-8000-0000000006b3',
+            'May sunog dito, makapal ang usok',
+            IncidentType.medical,
+          ),
+          IncidentType.medical,
+          reason: 'what the resident chose is kept',
+        );
       },
     );
 

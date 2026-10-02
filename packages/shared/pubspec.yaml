@@ -28,6 +28,9 @@ flutter:
     # Manila road graph for Dijkstra (ml/road_graph/build_road_graph.py).
     # Map data (c) OpenStreetMap contributors, ODbL 1.0.
     - assets/road_graph/manila_drive_v1.bin
+    # Incident type classifier (ml/classifier/train_classifier.py). The v1
+    # model is trained on made-up sample descriptions, not MDRRMD records.
+    - assets/classifier/incident_classifier_v1.json
   fonts:
     - family: PlusJakartaSans
       fonts:

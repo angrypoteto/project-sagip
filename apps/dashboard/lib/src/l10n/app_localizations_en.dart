@@ -1624,7 +1624,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get algClassifierValue =>
-      'TF-IDF on words and word pairs, 4 types (not trained yet)';
+      'TF-IDF on words and word pairs, 4 types. Sample model: trained on made-up descriptions until the MDRRMD set arrives; a report it is under 50% sure of is left untagged';
 
   @override
   String get configReportsTitle => 'Crowd reports';

@@ -570,7 +570,7 @@
   "algKde": "KDE hotspots",
   "algKdeValue": "Gaussian kernel, bandwidth 100 to 500 m by cross-validation (not trained yet)",
   "algClassifier": "Incident type classifier",
-  "algClassifierValue": "TF-IDF on words and word pairs, 4 types (not trained yet)",
+  "algClassifierValue": "TF-IDF on words and word pairs, 4 types. Sample model: trained on made-up descriptions until the MDRRMD set arrives; a report it is under 50% sure of is left untagged",
   "configReportsTitle": "Crowd reports",
   "configReportsNote": "The limit applies to each resident account, across the app and the web form (FR15).",
   "settingReportsPerHour": "Reports per account each hour",

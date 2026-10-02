@@ -30,7 +30,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final overrides = _supabaseUrl.isNotEmpty && _supabaseKey.isNotEmpty
       ? await _live()
-      : mockOverrides(MockMobileBackend(withHistory: true));
+      : mockOverrides(
+          MockMobileBackend(
+            withHistory: true,
+            classifier: await loadIncidentClassifier(),
+          ),
+        );
   runApp(ProviderScope(overrides: overrides, child: const SagipMobileApp()));
 }
 

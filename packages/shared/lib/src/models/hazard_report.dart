@@ -79,6 +79,7 @@ class HazardReport {
   final ReportChannel? source;
 
   HazardReport copyWith({
+    IncidentType? type,
     DeliveryState? delivery,
     DateTime? deliveredAt,
     String? serverId,
@@ -89,7 +90,7 @@ class HazardReport {
     clientId: clientId,
     capturedAt: capturedAt,
     description: description,
-    type: type,
+    type: type ?? this.type,
     location: location,
     accuracyMeters: accuracyMeters,
     barangay: barangay,

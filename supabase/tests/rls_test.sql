@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(222);
+select plan(232);
 
 select public.reset_demo_data();
 
@@ -849,6 +849,83 @@ select is(
     where action_type in ('alertIssued', 'alertEnded')),
   'alertIssued info: Taal Volcano advisory; alertEnded Taal Volcano advisory; alertIssued critical: Evacuate Baseco (simulated)',
   'issuing and ending are in the audit log (FR11)');
+
+-- ------------------------------------------- incident type classifier (FR12)
+
+select ok(
+  not has_table_privilege('anon', 'public.classifier_model', 'select')
+  and not has_function_privilege('authenticated', 'private.classify_report(text)', 'execute'),
+  'anon cannot read the model; clients cannot call the classifier directly');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.classifier_model), 0,
+  'residents cannot read the model');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select string_agg(model_id, ',') from public.classifier_model where is_active), 'v1-sample',
+  'dispatchers see which model is active');
+select throws_ok(
+  $$ update public.classifier_model set min_confidence = 0 where model_id = 'v1-sample' $$,
+  '42501', null, 'no client can change the model');
+reset role;
+
+-- The same cases as packages/shared/test/fixtures/classifier_reference.json.
+select is(
+  (select count(*)::int
+     from (values
+    (E'BAHA NA SA ESPAÑA', 'flood', 0.910643, true),
+    (E'sunog sunog sunog', 'fire', 0.986092, true),
+    (E'may sunog\nat makapal na usok', 'fire', 0.955552, true),
+    (E'5 katao naipit sa 2nd floor, gumuho ang pader', 'structural', 0.940744, true),
+    (E'nahimatay sa baha', 'flood', 0.821821, true),
+    (E'An elderly neighbor is having difficulty breathing and is very pale', 'medical', 0.976859, true),
+    (E'', 'fire', 0.271026, false),
+    (E'asdf qwerty zxcv', 'fire', 0.271026, false)
+     ) as ref(description, label, confidence, tagged)
+     cross join lateral private.classify_report(ref.description) c
+    where c.category = ref.label
+      and abs(c.confidence - ref.confidence) < 0.00001
+      and c.sure = ref.tagged),
+  8, 'the database gives the same types and probabilities as the exported model');
+
+insert into public.crowd_report (description, reported_type, latitude, longitude, barangay, district) values
+  ('Baha na po dito, hanggang bewang ang tubig', null, 14.5712, 120.9888, 'Barangay 700', 'Malate'),
+  ('zzzz qqqq', null, 14.5612, 120.9788, 'Barangay 700', 'Malate'),
+  ('Gumuho ang pader, nakaharang sa kalsada', 'fire', 14.5512, 120.9688, 'Barangay 700', 'Malate');
+select ok(
+  (select category = 'flood' and category_confidence >= 0.5 and reported_type is null
+     from public.crowd_report where description = 'Baha na po dito, hanggang bewang ang tubig'),
+  'a new report is tagged from its description (FR12)');
+select ok(
+  (select category is null and category_confidence is null
+     from public.crowd_report where description = 'zzzz qqqq'),
+  'a description the model cannot place is left untagged');
+select ok(
+  (select category = 'structural' and reported_type = 'fire'
+     from public.crowd_report where description = 'Gumuho ang pader, nakaharang sa kalsada'),
+  'the tag does not replace what the resident chose');
+
+insert into public.crowd_report (description, latitude, longitude, barangay, district) values
+  ('May sunog dito, makapal ang usok', 14.58690, 120.96900, 'Barangay 649', 'Port Area'),
+  ('Nasusunog ang bodega, kumakalat ang apoy', 14.58695, 120.96905, 'Barangay 649', 'Port Area'),
+  ('Fire po, malaki na ang apoy', 14.58700, 120.96910, 'Barangay 649', 'Port Area');
+select is(
+  (select i.suggested_type || ' ' || i.status || ' ' || count(*)
+     from public.crowd_report r join public.incident_report i using (incident_id)
+    where r.description in ('May sunog dito, makapal ang usok',
+                            'Nasusunog ang bodega, kumakalat ang apoy',
+                            'Fire po, malaki na ang apoy')
+    group by i.suggested_type, i.status),
+  'fire confirmed 3',
+  'three tagged reports within 50 m become one confirmed incident of that type (FR7, FR12)');
+
+update public.classifier_model set is_active = false where model_id = 'v1-sample';
+insert into public.crowd_report (description, latitude, longitude, barangay, district) values
+  ('Baha na naman dito sa amin', 14.5412, 120.9588, 'Barangay 700', 'Malate');
+select ok(
+  (select category is null from public.crowd_report where description = 'Baha na naman dito sa amin'),
+  'with no active model a report is stored untagged, not refused');
+update public.classifier_model set is_active = true where model_id = 'v1-sample';
 
 reset role;
 select * from finish();

@@ -1,0 +1,467 @@
+{
+ "model": "v1-sample",
+ "labels": [
+  "fire",
+  "flood",
+  "medical",
+  "structural"
+ ],
+ "cases": [
+  {
+   "text": "Sunog sa ikalawang palapag ng paupahan, may mga tao pa sa loob",
+   "label": "fire",
+   "confidence": 0.914936,
+   "probabilities": [
+    0.914936,
+    0.017836,
+    0.017235,
+    0.049993
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Smoke is pouring out of the apartment next door, I can smell something burning",
+   "label": "fire",
+   "confidence": 0.988078,
+   "probabilities": [
+    0.988078,
+    0.002716,
+    0.006093,
+    0.003114
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Nagliliyab ang isang tricycle sa gilid ng kalsada",
+   "label": "medical",
+   "confidence": 0.732386,
+   "probabilities": [
+    0.017821,
+    0.033891,
+    0.732386,
+    0.215901
+   ],
+   "tagged": true
+  },
+  {
+   "text": "There are flames coming from the junk shop, it is spreading fast",
+   "label": "fire",
+   "confidence": 0.930339,
+   "probabilities": [
+    0.930339,
+    0.012373,
+    0.012048,
+    0.04524
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Nasusunog ang linya ng kuryente, nagbabagang kable sa poste",
+   "label": "fire",
+   "confidence": 0.915718,
+   "probabilities": [
+    0.915718,
+    0.002556,
+    0.005875,
+    0.075851
+   ],
+   "tagged": true
+  },
+  {
+   "text": "may sunog d2 sa kanto bilis kumalat tulong",
+   "label": "fire",
+   "confidence": 0.713359,
+   "probabilities": [
+    0.713359,
+    0.03354,
+    0.096936,
+    0.156164
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Tubig na hanggang hita dito sa kalye namin, hindi na makalabas ang mga tao",
+   "label": "flood",
+   "confidence": 0.97317,
+   "probabilities": [
+    0.00738,
+    0.97317,
+    0.012008,
+    0.007442
+   ],
+   "tagged": true
+  },
+  {
+   "text": "The whole compound is underwater, we are on the roof with two kids",
+   "label": "flood",
+   "confidence": 0.596357,
+   "probabilities": [
+    0.230806,
+    0.596357,
+    0.02218,
+    0.150658
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Bumaha bigla pagkatapos ng malakas na ulan, pasok na sa sala ang tubig",
+   "label": "flood",
+   "confidence": 0.985841,
+   "probabilities": [
+    0.006141,
+    0.985841,
+    0.006028,
+    0.00199
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Road impassable due to flood near the underpass, cars are stalled",
+   "label": "flood",
+   "confidence": 0.716676,
+   "probabilities": [
+    0.042632,
+    0.716676,
+    0.009308,
+    0.231385
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Mataas na ang tubig sa estero, malapit nang umapaw sa mga bahay",
+   "label": "flood",
+   "confidence": 0.735282,
+   "probabilities": [
+    0.048408,
+    0.735282,
+    0.035238,
+    0.181072
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Hanggang bewang na po ang tubig, may lola kaming hindi makalakad",
+   "label": "flood",
+   "confidence": 0.920566,
+   "probabilities": [
+    0.011009,
+    0.920566,
+    0.060082,
+    0.008343
+   ],
+   "tagged": true
+  },
+  {
+   "text": "My mother suddenly can't speak and her arm is numb, I think it's a stroke",
+   "label": "medical",
+   "confidence": 0.779537,
+   "probabilities": [
+    0.133538,
+    0.023445,
+    0.779537,
+    0.063479
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Lalaking nabangga ng jeep, duguan at hindi makabangon",
+   "label": "medical",
+   "confidence": 0.693949,
+   "probabilities": [
+    0.04263,
+    0.215431,
+    0.693949,
+    0.04799
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Hindi makahinga ang sanggol, nangingitim na",
+   "label": "medical",
+   "confidence": 0.787124,
+   "probabilities": [
+    0.034311,
+    0.152386,
+    0.787124,
+    0.026179
+   ],
+   "tagged": true
+  },
+  {
+   "text": "An elderly neighbor is having difficulty breathing and is very pale",
+   "label": "medical",
+   "confidence": 0.976859,
+   "probabilities": [
+    0.009836,
+    0.00472,
+    0.976859,
+    0.008585
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Nahimatay ang estudyante sa pila, hindi pa nagigising",
+   "label": "flood",
+   "confidence": 0.347167,
+   "probabilities": [
+    0.061295,
+    0.347167,
+    0.253322,
+    0.338217
+   ],
+   "tagged": false
+  },
+  {
+   "text": "Severe allergic reaction, his face is swelling and he is wheezing",
+   "label": "medical",
+   "confidence": 0.961233,
+   "probabilities": [
+    0.012681,
+    0.01036,
+    0.961233,
+    0.015726
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Gumuho ang bahagi ng lumang gusali, may mga batong nagkalat sa bangketa",
+   "label": "structural",
+   "confidence": 0.969509,
+   "probabilities": [
+    0.020736,
+    0.002177,
+    0.007577,
+    0.969509
+   ],
+   "tagged": true
+  },
+  {
+   "text": "The ceiling of the classroom fell down, luckily it was empty",
+   "label": "structural",
+   "confidence": 0.908005,
+   "probabilities": [
+    0.047881,
+    0.018862,
+    0.025252,
+    0.908005
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Natumbang poste humarang sa buong kalye, nakalaylay ang mga kawad",
+   "label": "structural",
+   "confidence": 0.964732,
+   "probabilities": [
+    0.014764,
+    0.008023,
+    0.012482,
+    0.964732
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Large crack appeared on the overpass, pieces of concrete are falling",
+   "label": "flood",
+   "confidence": 0.661379,
+   "probabilities": [
+    0.151629,
+    0.661379,
+    0.026311,
+    0.160682
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Bumigay ang riprap sa tabi ng estero, nahulog ang bahagi ng kalsada",
+   "label": "structural",
+   "confidence": 0.687185,
+   "probabilities": [
+    0.057086,
+    0.097745,
+    0.157984,
+    0.687185
+   ],
+   "tagged": true
+  },
+  {
+   "text": "A crane fell at the construction site and hit the neighboring house",
+   "label": "structural",
+   "confidence": 0.89305,
+   "probabilities": [
+    0.02399,
+    0.051022,
+    0.031939,
+    0.89305
+   ],
+   "tagged": true
+  },
+  {
+   "text": "",
+   "label": "fire",
+   "confidence": 0.271026,
+   "probabilities": [
+    0.271026,
+    0.222754,
+    0.256569,
+    0.249652
+   ],
+   "tagged": false
+  },
+  {
+   "text": "   ",
+   "label": "fire",
+   "confidence": 0.271026,
+   "probabilities": [
+    0.271026,
+    0.222754,
+    0.256569,
+    0.249652
+   ],
+   "tagged": false
+  },
+  {
+   "text": "???",
+   "label": "fire",
+   "confidence": 0.271026,
+   "probabilities": [
+    0.271026,
+    0.222754,
+    0.256569,
+    0.249652
+   ],
+   "tagged": false
+  },
+  {
+   "text": "asdf qwerty zxcv",
+   "label": "fire",
+   "confidence": 0.271026,
+   "probabilities": [
+    0.271026,
+    0.222754,
+    0.256569,
+    0.249652
+   ],
+   "tagged": false
+  },
+  {
+   "text": "a b c d",
+   "label": "fire",
+   "confidence": 0.271026,
+   "probabilities": [
+    0.271026,
+    0.222754,
+    0.256569,
+    0.249652
+   ],
+   "tagged": false
+  },
+  {
+   "text": "baha",
+   "label": "flood",
+   "confidence": 0.960858,
+   "probabilities": [
+    0.009957,
+    0.960858,
+    0.01557,
+    0.013615
+   ],
+   "tagged": true
+  },
+  {
+   "text": "BAHA NA SA ESPAÑA",
+   "label": "flood",
+   "confidence": 0.910643,
+   "probabilities": [
+    0.055174,
+    0.910643,
+    0.023182,
+    0.011
+   ],
+   "tagged": true
+  },
+  {
+   "text": "sunog sunog sunog",
+   "label": "fire",
+   "confidence": 0.986092,
+   "probabilities": [
+    0.986092,
+    0.002583,
+    0.007317,
+    0.004008
+   ],
+   "tagged": true
+  },
+  {
+   "text": "Baha-baha, lampas-tao!",
+   "label": "flood",
+   "confidence": 0.932841,
+   "probabilities": [
+    0.015775,
+    0.932841,
+    0.024779,
+    0.026605
+   ],
+   "tagged": true
+  },
+  {
+   "text": "may sunog\nat makapal na usok",
+   "label": "fire",
+   "confidence": 0.955552,
+   "probabilities": [
+    0.955552,
+    0.00699,
+    0.020754,
+    0.016704
+   ],
+   "tagged": true
+  },
+  {
+   "text": "5 katao naipit sa 2nd floor, gumuho ang pader",
+   "label": "structural",
+   "confidence": 0.940744,
+   "probabilities": [
+    0.027374,
+    0.01461,
+    0.017272,
+    0.940744
+   ],
+   "tagged": true
+  },
+  {
+   "text": "walang sunog, baha lang po",
+   "label": "flood",
+   "confidence": 0.910087,
+   "probabilities": [
+    0.027915,
+    0.910087,
+    0.016028,
+    0.045971
+   ],
+   "tagged": true
+  },
+  {
+   "text": "nahimatay sa baha",
+   "label": "flood",
+   "confidence": 0.821821,
+   "probabilities": [
+    0.020585,
+    0.821821,
+    0.134875,
+    0.022718
+   ],
+   "tagged": true
+  },
+  {
+   "text": "The bridge is on fire",
+   "label": "fire",
+   "confidence": 0.973908,
+   "probabilities": [
+    0.973908,
+    0.009744,
+    0.004101,
+    0.012247
+   ],
+   "tagged": true
+  }
+ ]
+}

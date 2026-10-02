@@ -41,7 +41,11 @@ Future<void> main() async {
     );
   } else {
     overrides = webMockOverrides(
-      MockMobileBackend(withHistory: true, autoOffers: false),
+      MockMobileBackend(
+        withHistory: true,
+        autoOffers: false,
+        classifier: await loadIncidentClassifier(),
+      ),
     );
   }
 

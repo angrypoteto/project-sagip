@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../algorithms/incident_classifier.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/assignment.dart';
@@ -107,6 +108,7 @@ class MockMobileBackend {
     this.simulateDispatch = true,
     this.autoOffers = true,
     this.withHistory = false,
+    this.classifier,
   }) : _clock = clock ?? DateTime.now {
     _t0 = _clock();
     final seed = MockSeed(_t0);
@@ -165,6 +167,10 @@ class MockMobileBackend {
   /// Adds past SOS, reports, and assignments so My activity (R6) and
   /// History (F7) have something to show. Off in tests.
   final bool withHistory;
+
+  /// Tags a delivered report that came without a type, as the database
+  /// does (FR12). Without one, such a report keeps no type.
+  final IncidentClassifier? classifier;
 
   /// When this backend was created; sample data is dated from it.
   late final DateTime _t0;
@@ -465,7 +471,9 @@ class MockMobileBackend {
       clientId: clientId,
       capturedAt: capturedAt.isAfter(now) ? now : capturedAt,
       description: text,
-      type: type,
+      // What `my_crowd_reports` sends back: the resident's choice, or the
+      // classifier's tag.
+      type: type ?? classifier?.suggest(text)?.type,
       location: location,
       accuracyMeters: accuracyMeters,
       barangay: barangay?.name ?? me.barangay,
@@ -778,6 +786,7 @@ class MockMobileBackend {
     }
     _putReport(
       now.copyWith(
+        type: now.type ?? classifier?.suggest(now.description)?.type,
         delivery: DeliveryState.delivered,
         deliveredAt: _clock(),
         serverId: 'rep-${_nextReportNumber++}',
