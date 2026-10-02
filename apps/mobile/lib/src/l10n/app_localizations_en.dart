@@ -641,6 +641,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get waitingForGps => 'Waiting for GPS';
 
   @override
+  String get dutyNoticeTitle => 'S.A.G.I.P. is sharing your location';
+
+  @override
+  String get dutyNoticeText =>
+      'MDRRMD dispatch sees your unit while you are signed in. Sign out to stop.';
+
+  @override
+  String get dutyNoticeChannel => 'Unit location sharing';
+
+  @override
   String get noAssignmentTitle => 'No assignment. Stay available.';
 
   @override
@@ -1480,6 +1490,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String alertsOffline(String time) {
     return 'Offline. Last updated $time.';
+  }
+
+  @override
+  String get rescueSection => 'About your SOS';
+
+  @override
+  String get rescueKindAssigned => 'Unit assigned';
+
+  @override
+  String get rescueKindOnScene => 'On scene';
+
+  @override
+  String get rescueKindResolved => 'Closed';
+
+  @override
+  String get rescueAssignedTitle => 'A rescue team is coming';
+
+  @override
+  String rescueAssignedBody(String unit) {
+    return '$unit has been sent to your location. Stay where you are if it is safe.';
+  }
+
+  @override
+  String get rescueAssignedBodyNoUnit =>
+      'A rescue team has been sent to your location. Stay where you are if it is safe.';
+
+  @override
+  String get rescueOnSceneTitle => 'The rescue team has arrived';
+
+  @override
+  String rescueOnSceneBody(String unit) {
+    return '$unit is at your location.';
+  }
+
+  @override
+  String get rescueOnSceneBodyNoUnit => 'The rescue team is at your location.';
+
+  @override
+  String get rescueResolvedTitle => 'Your SOS was closed';
+
+  @override
+  String get rescueResolvedBody =>
+      'MDRRMD closed this SOS. If you still need help, send a new SOS.';
+
+  @override
+  String rescueRef(String id) {
+    return 'SOS $id';
   }
 
   @override

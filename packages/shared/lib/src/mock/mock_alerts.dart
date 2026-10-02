@@ -31,6 +31,54 @@ class _AlertsSim {
     if (_read.add(id)) _bump();
   }
 
+  /// The confirmations last shown, so a moving responder (which changes
+  /// the SOS every few seconds) does not re-send the same feed.
+  var _confirmationIds = '';
+
+  /// An SOS changed: its status may have raised a confirmation.
+  void onSosChanged() {
+    final ids = [for (final c in _confirmations()) c.id].join(',');
+    if (ids == _confirmationIds) return;
+    _confirmationIds = ids;
+    _bump();
+  }
+
+  /// What the server's trigger writes (FR6): one confirmation each time
+  /// the signed-in resident's SOS gets a unit, the unit arrives, and the
+  /// SOS is closed. Those from before this session count as read.
+  List<RescueConfirmation> _confirmations() {
+    final me = _b._user.value?.id;
+    final now = _b._clock();
+    final out = <RescueConfirmation>[];
+    for (final s in _b._sos.value) {
+      final incident = s.incidentId;
+      if (incident == null || _b._owner[s.clientId] != me) continue;
+      for (final kind in RescueConfirmationKind.values) {
+        final at = s.statusTimes[kind.status];
+        if (at == null || now.difference(at) > RescueConfirmation.shownFor) {
+          continue;
+        }
+        final id = '$incident-${kind.name}';
+        out.add(
+          RescueConfirmation(
+            id: id,
+            incidentId: incident,
+            kind: kind,
+            at: at,
+            unitCallSign: s.unitCallSign,
+            read: _read.contains(id) || at.isBefore(_b._t0),
+          ),
+        );
+      }
+    }
+    // Newest first; within one moment, the later step first.
+    out.sort((a, b) {
+      final byTime = b.at.compareTo(a.at);
+      return byTime != 0 ? byTime : b.kind.index.compareTo(a.kind.index);
+    });
+    return out;
+  }
+
   /// The phone is back online: the feed is current again.
   void onOnline() {
     _updatedAt = _b._clock();
@@ -38,7 +86,10 @@ class _AlertsSim {
   }
 
   /// The signed-in resident changed, so the forecast's barangay did too.
-  void onAccountChanged() => _bump();
+  void onAccountChanged() {
+    _confirmationIds = [for (final c in _confirmations()) c.id].join(',');
+    _bump();
+  }
 
   AlertFeed _feed() {
     final home = _b._homeResident;
@@ -46,6 +97,7 @@ class _AlertsSim {
       alerts: [
         for (final a in _alerts()) a.copyWith(read: _read.contains(a.id)),
       ],
+      confirmations: _confirmations(),
       forecast: home == null ? null : _forecast(home.barangay, home.district),
       updatedAt: _updatedAt,
     );

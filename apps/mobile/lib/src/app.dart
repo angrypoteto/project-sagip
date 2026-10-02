@@ -11,6 +11,9 @@ import 'router.dart';
 /// on whatever screen is open.
 final rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
+/// How recent a rescue confirmation must be to be announced on screen.
+const rescueNoticeWindow = Duration(minutes: 5);
+
 class SagipMobileApp extends ConsumerWidget {
   const SagipMobileApp({super.key});
 
@@ -33,6 +36,26 @@ class SagipMobileApp extends ConsumerWidget {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.deliveredNotice(record.kind, time))),
       );
+    });
+
+    // A rescue confirmation that just arrived (FR6): said on whatever
+    // screen is open. Older ones wait on the Alerts tab.
+    ref.listen(alertFeedProvider, (previous, next) {
+      final before = previous?.value;
+      final feed = next.value;
+      final messenger = rootMessengerKey.currentState;
+      if (before == null || feed == null || messenger == null) return;
+      final known = {for (final c in before.confirmations) c.id};
+      final now = ref.read(clockProvider).value ?? DateTime.now();
+      for (final c in feed.confirmations.reversed) {
+        final fresh =
+            !c.read &&
+            !known.contains(c.id) &&
+            now.difference(c.at) < rescueNoticeWindow;
+        if (!fresh) continue;
+        final l10n = AppLocalizations.of(messenger.context);
+        messenger.showSnackBar(SnackBar(content: Text(l10n.rescueBody(c))));
+      }
     });
 
     // Fetched when the app starts and kept for as long as it runs: the

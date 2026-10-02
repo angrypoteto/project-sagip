@@ -481,6 +481,9 @@ abstract interface class AlertRepository {
   Future<void> refresh();
 
   Future<void> markRead(String alertId);
+
+  /// The resident has seen a rescue confirmation (FR6).
+  Future<void> markConfirmationRead(String confirmationId);
 }
 
 /// The phone's permissions (S2, S7).

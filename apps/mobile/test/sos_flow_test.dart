@@ -281,6 +281,66 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('rescue confirmations: said at once, kept on Alerts (FR6)', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    await holdSos(tester);
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(seconds: 2)); // verified
+    expect(
+      container.read(alertFeedProvider).value!.confirmations,
+      isEmpty,
+      reason: 'verification alone is not a rescue confirmation',
+    );
+    await tester.pump(const Duration(seconds: 2)); // R-03 assigned
+    await tester.pump();
+
+    // Said on whatever screen is open.
+    const sent =
+        'R-03 has been sent to your location. Stay where you are if it is '
+        'safe.';
+    expect(find.text(sent), findsOneWidget);
+    var feed = container.read(alertFeedProvider).value!;
+    expect(feed.confirmations.single.kind, RescueConfirmationKind.assigned);
+    expect(feed.unread, 4, reason: 'three alerts and the confirmation');
+
+    // And kept on the Alerts tab, above the public alerts.
+    await tester.pageBack();
+    await settle(tester);
+    expect(find.text('4'), findsOneWidget, reason: 'the count on the tab');
+    await tester.tap(find.text('Alerts'));
+    await settle(tester);
+    expect(find.text('About your SOS'), findsOneWidget);
+    expect(find.text('Unit assigned'), findsOneWidget);
+    expect(find.text('A rescue team is coming'), findsOneWidget);
+    expect(find.text('SOS ${feed.confirmations.single.incidentId}'), findsOne);
+
+    // Opening it marks it read and shows that SOS (R2).
+    await tester.tap(find.text('A rescue team is coming'));
+    await settle(tester);
+    expect(find.text('Your SOS'), findsOneWidget);
+    feed = container.read(alertFeedProvider).value!;
+    expect(feed.confirmations.single.read, isTrue);
+    expect(feed.unread, 3);
+
+    // Arrival and closing follow.
+    await tester.pump(const Duration(seconds: 11));
+    await tester.pump();
+    feed = container.read(alertFeedProvider).value!;
+    expect(
+      [for (final c in feed.confirmations) c.kind],
+      [
+        RescueConfirmationKind.resolved,
+        RescueConfirmationKind.onScene,
+        RescueConfirmationKind.assigned,
+      ],
+    );
+    expect(feed.unread, 5);
+    await finish(tester);
+  });
+
   testWidgets('reporting a hazard: checks, online, and offline', (
     tester,
   ) async {

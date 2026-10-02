@@ -180,6 +180,10 @@ class MockAlertRepository implements AlertRepository {
 
   @override
   Future<void> markRead(String alertId) => _backend.markAlertRead(alertId);
+
+  @override
+  Future<void> markConfirmationRead(String confirmationId) =>
+      _backend.markConfirmationRead(confirmationId);
 }
 
 class MockResidentAccountRepository implements ResidentAccountRepository {

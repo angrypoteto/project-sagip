@@ -57,6 +57,34 @@ void main() {
     expect(resident.isVulnerable, isTrue);
   });
 
+  test('rescue_confirmation rows', () {
+    final unread = RescueConfirmation.fromJson(
+      row(
+        '''{"kind": "assigned", "read_at": null, "created_at": "2026-10-02T07:13:35.120000+00:00", "incident_id": "INC-0147", "unit_call_sign": "R-03", "confirmation_id": 12}''',
+      ),
+    );
+    expect(unread.id, '12');
+    expect(unread.kind, RescueConfirmationKind.assigned);
+    expect(unread.kind.status, IncidentStatus.assigned);
+    expect(unread.unitCallSign, 'R-03');
+    expect(unread.read, isFalse);
+    expect(unread.at.toUtc(), DateTime.utc(2026, 10, 2, 7, 13, 35, 120));
+
+    // Closed by a dispatcher before any unit was sent, and already opened.
+    final closed = RescueConfirmation.fromJson(
+      row(
+        '''{"kind": "resolved", "read_at": "2026-10-02T07:20:00+00:00", "created_at": "2026-10-02T07:15:00+00:00", "incident_id": "INC-0149", "unit_call_sign": null, "confirmation_id": 13}''',
+      ),
+    );
+    expect(closed.unitCallSign, isNull);
+    expect(closed.read, isTrue);
+    // The phone's saved copy reads back the same.
+    final saved = RescueConfirmation.fromJson(closed.toJson());
+    expect(saved.read, isTrue);
+    expect(saved.kind, RescueConfirmationKind.resolved);
+    expect(saved.at, closed.at);
+  });
+
   test('my_alerts rows and forecast rows', () {
     final alert = PublicAlert.fromJson(
       row(

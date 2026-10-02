@@ -122,6 +122,39 @@ export function notSetUp(channel: string): Outcome {
   return { status: "notSetUp", recipients: null, delivered: null, failed: null, detail: why };
 }
 
+/** A rescue confirmation claimed from the database (claim_rescue_confirmations()). */
+export interface ClaimedConfirmation {
+  confirmation_id: number;
+  incident_id: string;
+  kind: "assigned" | "onScene" | "resolved";
+  unit_call_sign: string | null;
+  /** The resident's number as stored; full, so never logged. */
+  to: string | null;
+}
+
+/**
+ * What a resident is texted about their own SOS (FR6): one SMS, with the
+ * incident number so they can quote it on the hotline. Only "assigned" is
+ * queued today; the other two are worded for when that changes.
+ */
+export function confirmationSmsText(c: ClaimedConfirmation): string {
+  const team = c.unit_call_sign?.trim() ? `Rescue team ${c.unit_call_sign.trim()}` : "A rescue team";
+  switch (c.kind) {
+    case "assigned":
+      return `S.A.G.I.P.: ${team} has been sent to your location. Stay where you are if it is safe and keep your phone on. Ref ${c.incident_id}.`;
+    case "onScene":
+      return `S.A.G.I.P.: ${team} has arrived at your location. Ref ${c.incident_id}.`;
+    case "resolved":
+      return `S.A.G.I.P.: Your SOS ${c.incident_id} has been closed. If you still need help, send a new SOS or call MDRRMD.`;
+  }
+}
+
+/** The outcome of one rescue text, recorded with finish_rescue_confirmation(). */
+export interface ConfirmationOutcome {
+  status: "sent" | "failed" | "notSetUp";
+  detail: string | null;
+}
+
 export const ended: Outcome = {
   status: "ended",
   recipients: null,

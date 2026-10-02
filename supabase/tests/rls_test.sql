@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(252);
+select plan(277);
 
 select public.reset_demo_data();
 
@@ -1034,6 +1034,188 @@ select is(
     where action_type in ('reportDrafted', 'reportFinalized')),
   'reportDrafted Flood report; reportFinalized Flood report, revised',
   'drafting and finalizing are in the audit log (FR11)');
+
+-- ------------------------------------------------ rescue confirmations (FR6)
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'public.claim_rescue_confirmations()', 'execute')
+  and not has_function_privilege('authenticated',
+        'public.finish_rescue_confirmation(bigint, text, text)', 'execute')
+  and not has_function_privilege('anon', 'public.mark_rescue_confirmation_read(bigint)', 'execute')
+  and has_function_privilege('service_role', 'public.claim_rescue_confirmations()', 'execute'),
+  'only the sender (service role) can claim rescue texts or record their outcome');
+
+-- Earlier in this test a dispatcher assigned R-03 to res-001's SOS
+-- (INC-0147), and R-05 arrived at res-003's (INC-0142) and closed it.
+select is(
+  (select string_agg(c.kind || ':' || c.unit_call_sign || ':' || c.sms_status, ','
+            order by c.confirmation_id)
+     from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.incident_id = 'INC-0147'),
+  'assigned:R-03:queued',
+  'assigning a unit to an SOS tells its resident, with one text waiting to go');
+select is(
+  (select string_agg(c.kind || ':' || c.unit_call_sign || ':' || c.sms_status, ','
+            order by c.confirmation_id)
+     from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.incident_id = 'INC-0142'),
+  'onScene:R-05:none,resolved:R-05:none',
+  'arrival and closing are told in the app only');
+select is(
+  (select count(*)::int from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.origin <> 'sos'),
+  0, 'a crowd-report cluster has no single resident to tell');
+select set_config('test.other_confirmation',
+  (select confirmation_id::text from public.rescue_confirmation
+    where incident_id = 'INC-0142' and kind = 'onScene'), true);
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select string_agg(incident_id || ':' || kind, ',') from public.rescue_confirmation),
+  'INC-0147:assigned', 'a resident reads the confirmations of their own SOS only');
+select lives_ok(
+  $$ select public.mark_rescue_confirmation_read(
+       (select confirmation_id from public.rescue_confirmation where incident_id = 'INC-0147')) $$,
+  'a resident marks theirs as read');
+select lives_ok(
+  $$ select public.mark_rescue_confirmation_read(current_setting('test.other_confirmation')::bigint) $$,
+  'marking someone else''s is accepted and changes nothing');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000f", "role": "authenticated"}';
+select is((select count(*)::int from public.rescue_confirmation), 0,
+  'another resident reads none of them');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.rescue_confirmation), 0,
+  'a responder reads none of them');
+select throws_ok($$ select public.mark_rescue_confirmation_read(1) $$,
+  'P0001', 'not_allowed', 'only a resident marks a confirmation read');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.rescue_confirmation), 3,
+  'a dispatcher sees what each resident was told');
+
+reset role;
+select ok(
+  (select read_at is not null from public.rescue_confirmation where incident_id = 'INC-0147')
+  and (select read_at is null from public.rescue_confirmation
+        where confirmation_id = current_setting('test.other_confirmation')::bigint),
+  'only the resident''s own confirmation is marked read');
+
+create temp table __rescue as select public.claim_rescue_confirmations() as claimed;
+select ok(
+  (select jsonb_array_length(claimed) = 1
+      and claimed -> 0 ->> 'incident_id' = 'INC-0147'
+      and claimed -> 0 ->> 'kind' = 'assigned'
+      and claimed -> 0 ->> 'unit_call_sign' = 'R-03'
+      and claimed -> 0 ->> 'to' = (select contact_number from public.manila_resident
+                                    where manila_resident_id = 'res-001')
+     from __rescue),
+  'the sender claims the waiting text with the unit and the resident''s number');
+select is(jsonb_array_length(public.claim_rescue_confirmations()), 0,
+  'a second run claims nothing, so nothing is texted twice');
+select throws_ok(
+  $$ select public.finish_rescue_confirmation(
+       (select confirmation_id from public.rescue_confirmation where incident_id = 'INC-0147'),
+       'queued') $$,
+  'P0001', 'invalid_value', 'only a final outcome can be recorded for a rescue text');
+select lives_ok(
+  $$ select public.finish_rescue_confirmation(
+       (select confirmation_id from public.rescue_confirmation where incident_id = 'INC-0147'),
+       'sent') $$,
+  'the sender records the outcome of a rescue text');
+select throws_ok(
+  $$ select public.finish_rescue_confirmation(
+       (select confirmation_id from public.rescue_confirmation where incident_id = 'INC-0147'),
+       'sent') $$,
+  'P0001', 'not_found', 'the outcome of a rescue text is recorded once');
+
+-- Simulation mode: told in the app, never texted. A reassignment tells the
+-- resident again without a second text.
+update public.app_setting set value = 'true' where key = 'demo.simulation';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select public.assign_unit('INC-0149', 'unit-r07');
+select public.assign_unit('INC-0147', 'unit-r05');
+select is(
+  (select string_agg(c.kind || ':' || c.unit_call_sign || ':' || c.sms_status, ','
+            order by c.confirmation_id)
+     from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.incident_id = 'INC-0149'),
+  'assigned:R-07:simulated', 'in simulation mode the rescue text is simulated, never sent');
+select is(
+  (select string_agg(c.kind || ':' || c.unit_call_sign || ':' || c.sms_status, ','
+            order by c.confirmation_id)
+     from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.incident_id = 'INC-0147'),
+  'assigned:R-03:sent,assigned:R-05:none',
+  'a reassignment tells the resident again in the app, without a second text');
+
+-- An SOS texted from an unknown SIM gets a unit before the app's copy
+-- names the resident; the SMS channel is off.
+reset role;
+update public.app_setting set value = 'false' where key = 'demo.simulation';
+update public.app_setting set value = 'false' where key = 'channels.sms';
+select public.intake_sms_sos('09995550001', '00000000-0000-4000-8000-0000000005b3', now(), 14.6001, 120.9801, 15, false);
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select public.assign_unit(
+  (select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b3'),
+  'unit-r09');
+select is(
+  (select count(*)::int from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.client_uuid = '00000000-0000-4000-8000-0000000005b3'),
+  0, 'an SOS with no known resident has nobody to tell yet');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select public.submit_sos('00000000-0000-4000-8000-0000000005b3', now(), 14.6001, 120.9801, 15, null, null, false);
+reset role;
+select is(
+  (select string_agg(c.kind || ':' || c.unit_call_sign || ':' || c.sms_status, ','
+            order by c.confirmation_id)
+     from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.client_uuid = '00000000-0000-4000-8000-0000000005b3'),
+  'assigned:R-09:off',
+  'once the SOS has its resident they are told a unit is coming; a switched-off SMS channel is logged as off');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select public.mark_false_report(
+  (select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b3'),
+  'Prank');
+select public.resolve_incident('INC-0149');
+select is(
+  (select count(*)::int from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.client_uuid = '00000000-0000-4000-8000-0000000005b3' and c.kind = 'resolved'),
+  0, 'a false report sends no closing confirmation');
+select is(
+  (select string_agg(c.kind || ':' || c.unit_call_sign || ':' || c.sms_status, ','
+            order by c.confirmation_id)
+     from public.rescue_confirmation c
+     join public.incident_report i on i.incident_id = c.incident_id
+    where i.incident_id = 'INC-0149'),
+  'assigned:R-07:simulated,resolved:R-07:none', 'closing an SOS tells its resident');
+
+-- A text that waited too long is no longer news.
+reset role;
+insert into public.rescue_confirmation
+  (incident_id, manila_resident_id, kind, unit_call_sign, sms_status, created_at)
+values ('INC-0147', 'res-001', 'assigned', 'R-03', 'queued', now() - interval '31 minutes');
+select is(jsonb_array_length(public.claim_rescue_confirmations()), 0,
+  'a rescue text that waited over 30 minutes is not claimed');
+select is(
+  (select sms_status from public.rescue_confirmation
+    where created_at < now() - interval '30 minutes'),
+  'expired', 'it is logged as expired');
 
 reset role;
 select * from finish();

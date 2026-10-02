@@ -55,6 +55,56 @@ void main() {
       expect(feed.alerts.first.read, isTrue);
     });
 
+    test('rescue confirmations follow the resident\'s SOS (FR6)', () async {
+      b.dispose();
+      b = MockMobileBackend(
+        clock: () => now,
+        latency: Duration.zero,
+        timing: MockSosTiming.instant,
+        autoOffers: false,
+      );
+      await signInMaria();
+      expect((await b.watchAlerts().first).confirmations, isEmpty);
+      final feeds = <AlertFeed>[];
+      final sub = b.watchAlerts().listen(feeds.add);
+
+      await b.sendSos();
+      // The mock dispatcher verifies, assigns R-03, and the unit arrives
+      // and closes the SOS.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      final feed = feeds.last;
+      expect(
+        [for (final c in feed.confirmations) c.kind],
+        [
+          RescueConfirmationKind.resolved,
+          RescueConfirmationKind.onScene,
+          RescueConfirmationKind.assigned,
+        ],
+        reason: 'newest first',
+      );
+      expect(feed.confirmations.last.unitCallSign, 'R-03');
+      expect(
+        feed.confirmations.every((c) => c.incidentId.startsWith('INC-')),
+        isTrue,
+      );
+      expect(
+        feed.unread,
+        3 + 3,
+        reason: 'three alerts and three confirmations',
+      );
+
+      await b.markConfirmationRead(feed.confirmations.last.id);
+      await pumpEventQueue();
+      expect(feeds.last.unread, 5);
+      expect(feeds.last.confirmations.last.read, isTrue);
+
+      // Another account on the same phone sees none of them.
+      await b.signOut();
+      await b.signIn(MockMobileBackend.responder.email, MockSeed.demoPassword);
+      expect((await b.watchAlerts().first).confirmations, isEmpty);
+      await sub.cancel();
+    });
+
     test('forecast follows the resident barangay; some have none', () async {
       await signInMaria();
       final forecast = (await b.watchAlerts().first).forecast!;

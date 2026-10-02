@@ -28,6 +28,8 @@ interface Call {
 }
 let calls: Call[] = [];
 let queue: unknown[] = [];
+let rescues: unknown[] = [];
+let rescueClaimStatus = 200;
 let recipients: string[] = [];
 let left = 500;
 let semaphoreStatus = 200;
@@ -43,6 +45,8 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
   calls.push({ url, body });
   const reply = (value: unknown, status = 200) =>
     new Response(value === null ? "" : JSON.stringify(value), { status });
+  if (url.endsWith("/rpc/claim_rescue_confirmations")) return reply(rescues, rescueClaimStatus);
+  if (url.endsWith("/rpc/finish_rescue_confirmation")) return reply(null, 204);
   if (url.endsWith("/rpc/claim_alert_deliveries")) return reply(queue);
   if (url.endsWith("/rpc/alert_sms_recipients")) return reply(recipients);
   if (url.endsWith("/rpc/alert_sms_budget")) {
@@ -97,9 +101,32 @@ function finished(): Record<number, Record<string, unknown>> {
   return out;
 }
 
+function rescue(id: number, incidentId: string, to: string | null) {
+  return {
+    confirmation_id: id,
+    incident_id: incidentId,
+    kind: "assigned",
+    unit_call_sign: "R-03",
+    to,
+  };
+}
+
+function rescued(): Record<number, Record<string, unknown>> {
+  const out: Record<number, Record<string, unknown>> = {};
+  for (const c of calls) {
+    if (c.url.endsWith("/rpc/finish_rescue_confirmation")) {
+      const b = c.body as Record<string, unknown>;
+      out[b.p_confirmation_id as number] = b;
+    }
+  }
+  return out;
+}
+
 function reset() {
   calls = [];
   queue = [];
+  rescues = [];
+  rescueClaimStatus = 200;
   recipients = [];
   left = 500;
   semaphoreStatus = 200;
@@ -206,5 +233,74 @@ test("nothing queued: nothing happens", async () => {
   reset();
   const res = await call(env.ALERTS_SECRET!);
   assert.deepEqual(await res.json(), { processed: 0, results: {} });
-  assert.equal(calls.length, 1, "only the claim");
+  assert.equal(calls.length, 2, "only the two claims");
+});
+
+test("a rescue confirmation is texted to its resident, before any alert", async () => {
+  reset();
+  rescues = [rescue(11, "INC-0147", "0917 000 4821"), rescue(12, "INC-0150", "8527-0000")];
+  queue = [delivery(8, "sms", "alert-e")];
+  recipients = ["09170000001"];
+  const res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual(await res.json(), {
+    processed: 3,
+    results: { "INC-0147:assigned": "sent", "INC-0150:assigned": "failed", "alert-e:sms": "sent" },
+  });
+
+  const texts = calls.filter((c) => c.url.startsWith("https://api.semaphore.co/"));
+  assert.equal(texts.length, 2, "one rescue text and one alert; the landline gets none");
+  const form = texts[0].body as Record<string, string>;
+  assert.equal(form.number, "09170004821");
+  assert.equal(
+    form.message,
+    "S.A.G.I.P.: Rescue team R-03 has been sent to your location. Stay where you are if it is safe and keep your phone on. Ref INC-0147.",
+  );
+  assert.ok(form.message.length <= 160);
+  assert.ok(
+    calls.indexOf(texts[0]) < calls.findIndex((c) => c.url.endsWith("/rpc/claim_alert_deliveries")),
+    "rescue texts go first",
+  );
+
+  const log = calls.find((c) => c.url.endsWith("/sms_log"))!.body as Record<string, string>;
+  assert.deepEqual(
+    [log.kind, log.to_number, log.provider, log.status, log.detail],
+    ["rescue", "09170004821", "semaphore", "sent", "INC-0147"],
+  );
+  const done = rescued();
+  assert.deepEqual([done[11].p_status, done[11].p_detail], ["sent", null]);
+  assert.deepEqual([done[12].p_status, done[12].p_detail], ["failed", "No mobile number on record"]);
+});
+
+test("a rescue text Semaphore refuses is recorded as failed", async () => {
+  reset();
+  rescues = [rescue(13, "INC-0151", "09170004821")];
+  semaphoreStatus = 500;
+  await call(env.ALERTS_SECRET!);
+  assert.deepEqual(
+    [rescued()[13].p_status, rescued()[13].p_detail],
+    ["failed", "HTTP 500"],
+  );
+  const log = calls.find((c) => c.url.endsWith("/sms_log"))!.body as Record<string, string>;
+  assert.deepEqual([log.status, log.detail], ["failed", "INC-0151: HTTP 500"]);
+});
+
+test("without a Semaphore key a rescue text is marked not set up", async () => {
+  reset();
+  env.SEMAPHORE_API_KEY = undefined;
+  rescues = [rescue(14, "INC-0152", "09170004821")];
+  await call(env.ALERTS_SECRET!);
+  assert.equal(calls.filter((c) => c.url.startsWith("https://api.semaphore.co/")).length, 0);
+  assert.deepEqual(
+    [rescued()[14].p_status, rescued()[14].p_detail],
+    ["notSetUp", "No Semaphore key"],
+  );
+});
+
+test("alerts still go out when the rescue queue cannot be read", async () => {
+  reset();
+  rescueClaimStatus = 404;
+  queue = [delivery(9, "sms", "alert-f")];
+  recipients = ["09170000001"];
+  const res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual(await res.json(), { processed: 1, results: { "alert-f:sms": "sent" } });
 });

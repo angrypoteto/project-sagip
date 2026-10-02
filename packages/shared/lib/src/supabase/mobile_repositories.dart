@@ -384,6 +384,28 @@ class SupabaseAlertRepository implements AlertRepository {
               .order('issued_at', ascending: false))
         PublicAlert.fromJson(r),
     ];
+    // Row Level Security returns a resident's own confirmations only, and
+    // none to a responder.
+    final confirmations = [
+      for (final r
+          in await _client
+              .from('rescue_confirmation')
+              .select(
+                'confirmation_id, incident_id, kind, unit_call_sign, '
+                'created_at, read_at',
+              )
+              .gte(
+                'created_at',
+                DateTime.now()
+                    .subtract(RescueConfirmation.shownFor)
+                    .toUtc()
+                    .toIso8601String(),
+              )
+              .order('created_at', ascending: false)
+              .order('confirmation_id', ascending: false)
+              .limit(20))
+        RescueConfirmation.fromJson(r),
+    ];
     // Residents see only their own profile row; responders have none.
     final me = await _client
         .from('resident_profile')
@@ -402,6 +424,7 @@ class SupabaseAlertRepository implements AlertRepository {
     }
     return AlertFeed(
       alerts: alerts,
+      confirmations: confirmations,
       forecast: forecast,
       updatedAt: DateTime.now(),
     );
@@ -410,7 +433,12 @@ class SupabaseAlertRepository implements AlertRepository {
   @override
   Stream<AlertFeed> watch() => liveQuery(
     _client,
-    tables: const ['public_alert', 'alert_read', 'barangay_forecast'],
+    tables: const [
+      'public_alert',
+      'alert_read',
+      'barangay_forecast',
+      'rescue_confirmation',
+    ],
     refreshOn: _refresh.stream,
     fetch: _fetch,
   );
@@ -430,6 +458,19 @@ class SupabaseAlertRepository implements AlertRepository {
     await _call(
       () =>
           _client.rpc<void>('mark_alert_read', params: {'p_alert_id': alertId}),
+    );
+    _refresh.add(null);
+  }
+
+  @override
+  Future<void> markConfirmationRead(String confirmationId) async {
+    final id = int.tryParse(confirmationId);
+    if (id == null) return;
+    await _call(
+      () => _client.rpc<void>(
+        'mark_rescue_confirmation_read',
+        params: {'p_confirmation_id': id},
+      ),
     );
     _refresh.add(null);
   }

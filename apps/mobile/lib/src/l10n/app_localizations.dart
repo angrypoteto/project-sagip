@@ -1186,6 +1186,24 @@ abstract class AppLocalizations {
   /// **'Waiting for GPS'**
   String get waitingForGps;
 
+  /// No description provided for @dutyNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'S.A.G.I.P. is sharing your location'**
+  String get dutyNoticeTitle;
+
+  /// No description provided for @dutyNoticeText.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD dispatch sees your unit while you are signed in. Sign out to stop.'**
+  String get dutyNoticeText;
+
+  /// No description provided for @dutyNoticeChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit location sharing'**
+  String get dutyNoticeChannel;
+
   /// No description provided for @noAssignmentTitle.
   ///
   /// In en, this message translates to:
@@ -2631,6 +2649,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Offline. Last updated {time}.'**
   String alertsOffline(String time);
+
+  /// No description provided for @rescueSection.
+  ///
+  /// In en, this message translates to:
+  /// **'About your SOS'**
+  String get rescueSection;
+
+  /// No description provided for @rescueKindAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit assigned'**
+  String get rescueKindAssigned;
+
+  /// No description provided for @rescueKindOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'On scene'**
+  String get rescueKindOnScene;
+
+  /// No description provided for @rescueKindResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get rescueKindResolved;
+
+  /// No description provided for @rescueAssignedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A rescue team is coming'**
+  String get rescueAssignedTitle;
+
+  /// No description provided for @rescueAssignedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} has been sent to your location. Stay where you are if it is safe.'**
+  String rescueAssignedBody(String unit);
+
+  /// No description provided for @rescueAssignedBodyNoUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'A rescue team has been sent to your location. Stay where you are if it is safe.'**
+  String get rescueAssignedBodyNoUnit;
+
+  /// No description provided for @rescueOnSceneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The rescue team has arrived'**
+  String get rescueOnSceneTitle;
+
+  /// No description provided for @rescueOnSceneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} is at your location.'**
+  String rescueOnSceneBody(String unit);
+
+  /// No description provided for @rescueOnSceneBodyNoUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'The rescue team is at your location.'**
+  String get rescueOnSceneBodyNoUnit;
+
+  /// No description provided for @rescueResolvedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SOS was closed'**
+  String get rescueResolvedTitle;
+
+  /// No description provided for @rescueResolvedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD closed this SOS. If you still need help, send a new SOS.'**
+  String get rescueResolvedBody;
+
+  /// No description provided for @rescueRef.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS {id}'**
+  String rescueRef(String id);
 
   /// No description provided for @alertAllManila.
   ///

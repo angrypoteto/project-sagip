@@ -134,7 +134,9 @@ class _AlertList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    if (feed.alerts.isEmpty) {
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    if (feed.alerts.isEmpty && feed.confirmations.isEmpty) {
       return _Scrollable(
         child: EmptyState(
           icon: Symbols.notifications_off_rounded,
@@ -142,6 +144,24 @@ class _AlertList extends StatelessWidget {
         ),
       );
     }
+    Widget heading(String label) =>
+        Text(label, style: text.labelLarge!.copyWith(color: p.textSecondary));
+    // What MDRRMD told this resident about their own SOS comes first
+    // (FR6), then the alerts for everyone.
+    final items = <Widget>[
+      if (feed.confirmations.isNotEmpty) ...[
+        heading(l10n.rescueSection),
+        for (final c in feed.confirmations)
+          RescueConfirmationCard(confirmation: c),
+        heading(l10n.alertsTabAlerts),
+        if (feed.alerts.isEmpty)
+          Text(
+            l10n.alertsEmpty,
+            style: text.bodyMedium!.copyWith(color: p.textSecondary),
+          ),
+      ],
+      for (final a in feed.alerts) AlertCard(alert: a),
+    ];
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(
@@ -150,9 +170,109 @@ class _AlertList extends StatelessWidget {
         SagipSpace.xl,
         SagipSpace.x3,
       ),
-      itemCount: feed.alerts.length,
+      itemCount: items.length,
       separatorBuilder: (_, _) => const SizedBox(height: SagipSpace.md),
-      itemBuilder: (context, i) => AlertCard(alert: feed.alerts[i]),
+      itemBuilder: (context, i) => items[i],
+    );
+  }
+}
+
+/// One rescue confirmation (FR6): what MDRRMD told the resident about
+/// their SOS. Opening it marks it read and shows that SOS (R2).
+class RescueConfirmationCard extends ConsumerWidget {
+  const RescueConfirmationCard({super.key, required this.confirmation});
+
+  final RescueConfirmation confirmation;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final now = ref.watch(clockProvider).value ?? DateTime.now();
+    final c = confirmation;
+    final secondary = text.bodySmall!.copyWith(color: p.textSecondary);
+
+    void open() {
+      ref.read(alertRepositoryProvider).markConfirmationRead(c.id);
+      final mine = ref.read(mySosProvider).value ?? const <SosRequest>[];
+      for (final s in mine) {
+        if (s.incidentId == c.incidentId) {
+          context.push(Routes.sos(s.clientId));
+          return;
+        }
+      }
+    }
+
+    return Material(
+      key: ValueKey('rescue-${c.id}'),
+      color: p.panel,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SagipRadius.card),
+        side: BorderSide(color: p.hairline),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: open,
+        child: Padding(
+          padding: const EdgeInsets.all(SagipSpace.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  SagipChip.status(
+                    label: l10n.rescueKind(c.kind),
+                    visual: incidentStatusVisual(c.kind.status, p),
+                  ),
+                  const SizedBox(width: SagipSpace.sm),
+                  Expanded(
+                    child: Text(
+                      l10n.rescueRef(c.incidentId),
+                      overflow: TextOverflow.ellipsis,
+                      style: text.labelMedium!.copyWith(
+                        color: p.textSecondary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ),
+                  if (!c.read) ...[
+                    const SizedBox(width: SagipSpace.sm),
+                    Semantics(
+                      label: l10n.alertNew,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: p.info.fill,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: SagipSpace.md),
+              Text(
+                l10n.rescueTitle(c.kind),
+                style: text.titleMedium!.copyWith(
+                  fontWeight: c.read ? FontWeight.w500 : FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: SagipSpace.xs),
+              Text(l10n.rescueBody(c), style: text.bodyMedium),
+              const SizedBox(height: SagipSpace.xs),
+              Text(
+                alertTime(l10n, c.at, now, locale),
+                style: secondary.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

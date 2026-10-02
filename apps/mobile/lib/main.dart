@@ -12,6 +12,7 @@ import 'src/device/device_permission_service.dart';
 import 'src/device/device_sms_sender.dart';
 import 'src/device/hive_store.dart';
 import 'src/device/reachability_signal_monitor.dart';
+import 'src/l10n/app_localizations.dart';
 import 'src/providers.dart';
 
 /// Set from apps/mobile/.env with `--dart-define-from-file=.env`. Both are
@@ -37,6 +38,24 @@ Future<void> main() async {
           ),
         );
   runApp(ProviderScope(overrides: overrides, child: const SagipMobileApp()));
+}
+
+/// The words on the notification Android shows while a responder's
+/// position is shared in the background. Read without a BuildContext:
+/// this runs when the account is known, before any screen needs it.
+BackgroundNotice _dutyNotice() {
+  final device = WidgetsBinding.instance.platformDispatcher.locale;
+  final l10n = lookupAppLocalizations(
+    AppLocalizations.supportedLocales.firstWhere(
+      (l) => l.languageCode == device.languageCode,
+      orElse: () => AppLocalizations.supportedLocales.first,
+    ),
+  );
+  return (
+    title: l10n.dutyNoticeTitle,
+    text: l10n.dutyNoticeText,
+    channel: l10n.dutyNoticeChannel,
+  );
 }
 
 /// The real app: Supabase, the phone's encrypted outbox (Hive), GPS,
@@ -78,8 +97,12 @@ Future<List<Override>> _live() async {
     engine.accountChanged();
     if (user?.role == UserRole.responder) {
       sharer.start();
+      // Keep sharing with the screen off or another app open (FR9); the
+      // notification stays up for as long as it does.
+      unawaited(location.setBackground(_dutyNotice()));
     } else {
       unawaited(sharer.stop());
+      unawaited(location.setBackground(null));
     }
   });
   return liveOverrides(

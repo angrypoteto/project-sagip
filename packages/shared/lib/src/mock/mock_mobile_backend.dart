@@ -275,6 +275,7 @@ class MockMobileBackend {
   Stream<AlertFeed> watchAlerts() => _alerts.watch();
   Future<void> refreshAlerts() => _alerts.refresh();
   Future<void> markAlertRead(String id) => _alerts.markRead(id);
+  Future<void> markConfirmationRead(String id) => _alerts.markRead(id);
 
   Stream<List<CompletedAssignment>> watchHistory() => _responder.watchHistory();
 
@@ -634,6 +635,7 @@ class MockMobileBackend {
 
   void _setSos(List<SosRequest> next) {
     _sos.value = next;
+    _alerts.onSosChanged();
     _refreshQueue();
   }
 

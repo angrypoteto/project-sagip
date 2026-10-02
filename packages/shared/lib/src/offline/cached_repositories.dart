@@ -53,6 +53,7 @@ class CachedAlertRepository implements AlertRepository {
   final LocalStore _store;
   final String? Function() _account;
   final _readHere = <String>{};
+  final _confirmationsReadHere = <String>{};
   final _changed = StreamController<Object?>.broadcast();
 
   String get _key => 'alerts:${_account() ?? '-'}';
@@ -71,14 +72,16 @@ class CachedAlertRepository implements AlertRepository {
     ],
     (v) {
       final feed = v[0]! as AlertFeed;
-      if (_readHere.isEmpty) return feed;
-      return AlertFeed(
+      if (_readHere.isEmpty && _confirmationsReadHere.isEmpty) return feed;
+      return feed.copyWith(
         alerts: [
           for (final a in feed.alerts)
             _readHere.contains(a.id) ? a.copyWith(read: true) : a,
         ],
-        forecast: feed.forecast,
-        updatedAt: feed.updatedAt,
+        confirmations: [
+          for (final c in feed.confirmations)
+            _confirmationsReadHere.contains(c.id) ? c.copyWith(read: true) : c,
+        ],
       );
     },
   );
@@ -94,6 +97,17 @@ class CachedAlertRepository implements AlertRepository {
       await _inner.markRead(alertId);
     } catch (_) {
       // Offline: shown as read here; the next read online tells the server.
+    }
+  }
+
+  @override
+  Future<void> markConfirmationRead(String confirmationId) async {
+    _confirmationsReadHere.add(confirmationId);
+    _changed.add(null);
+    try {
+      await _inner.markConfirmationRead(confirmationId);
+    } catch (_) {
+      // Offline: shown as read here, as for alerts.
     }
   }
 }

@@ -11,9 +11,14 @@
 // Simulated alerts never reach this function: their deliveries are logged
 // as "simulated" when the alert is issued.
 //
-// Call it from a Database Webhook on INSERT into public.alert_delivery (or
-// on a schedule) with the shared secret as `x-sagip-key`. A run with
-// nothing queued does nothing, so extra calls are harmless.
+// It also sends rescue confirmations (FR6): the one text that tells a
+// resident a unit was assigned to their SOS. These go first, one SMS each,
+// and are not counted against the daily cap on alert texts.
+//
+// Call it from a Database Webhook on INSERT into public.alert_delivery and
+// on INSERT into public.rescue_confirmation (or on a schedule) with the
+// shared secret as `x-sagip-key`. A run with nothing queued does nothing,
+// so extra calls are harmless.
 //
 // Secrets (Edge Functions > Secrets): ALERTS_SECRET, SEMAPHORE_API_KEY,
 // optional SEMAPHORE_SENDER_NAME. SUPABASE_URL and
@@ -28,8 +33,11 @@ import {
   acceptedCount,
   alertSmsText,
   chunk,
+  type ClaimedConfirmation,
   type ClaimedDelivery,
   cleanNumbers,
+  type ConfirmationOutcome,
+  confirmationSmsText,
   ended,
   notSetUp,
   type Outcome,
@@ -125,10 +133,82 @@ async function sendSms(d: ClaimedDelivery, apiKey: string): Promise<Outcome> {
   return smsOutcome(numbers.length, accepted, plan.overCap);
 }
 
+/** One rescue text to one resident. The number is never logged in full. */
+async function sendConfirmation(
+  c: ClaimedConfirmation,
+  apiKey: string | undefined,
+): Promise<ConfirmationOutcome> {
+  if (!apiKey) return { status: "notSetUp", detail: "No Semaphore key" };
+  const to = semaphoreNumber(c.to ?? "");
+  if (!to) return { status: "failed", detail: "No mobile number on record" };
+  const message = confirmationSmsText(c);
+  const form = new URLSearchParams({ apikey: apiKey, number: to, message });
+  const sender = Deno.env.get("SEMAPHORE_SENDER_NAME");
+  if (sender) form.set("sendername", sender);
+
+  let ok = false;
+  let detail: string | null = null;
+  try {
+    const res = await fetch("https://api.semaphore.co/api/v4/messages", {
+      method: "POST",
+      body: form,
+    });
+    ok = acceptedCount(res.ok, await res.json().catch(() => null), 1) === 1;
+    if (!ok) detail = `HTTP ${res.status}`;
+  } catch {
+    detail = "Semaphore could not be reached";
+  }
+  await rest("sms_log", {
+    kind: "rescue",
+    to_number: to,
+    body: message,
+    provider: "semaphore",
+    status: ok ? "sent" : "failed",
+    detail: ok ? c.incident_id : `${c.incident_id}: ${detail}`,
+  }).catch(() => {});
+  console.log(
+    `send-alerts: ${c.incident_id} ${c.kind} ${ok ? "sent" : "failed"} to ${maskNumber(to)}`,
+  );
+  return { status: ok ? "sent" : "failed", detail };
+}
+
+/** Works through the rescue texts waiting to go. Returns each outcome. */
+async function sendConfirmations(apiKey: string | undefined): Promise<Record<string, string>> {
+  let claimed: ClaimedConfirmation[];
+  try {
+    claimed = await rpc<ClaimedConfirmation[]>("claim_rescue_confirmations");
+  } catch (e) {
+    // Alerts still go out.
+    console.log(`send-alerts: could not claim rescue confirmations (${(e as Error).message})`);
+    return {};
+  }
+  const results: Record<string, string> = {};
+  for (const c of claimed) {
+    let outcome: ConfirmationOutcome;
+    try {
+      outcome = await sendConfirmation(c, apiKey);
+    } catch (e) {
+      outcome = { status: "failed", detail: (e as Error).message.slice(0, 200) };
+    }
+    await rpc("finish_rescue_confirmation", {
+      p_confirmation_id: c.confirmation_id,
+      p_status: outcome.status,
+      p_detail: outcome.detail,
+    }).catch(() => {});
+    results[`${c.incident_id}:${c.kind}`] = outcome.status;
+  }
+  return results;
+}
+
 Deno.serve(async (req) => {
   const secret = Deno.env.get("ALERTS_SECRET");
   if (!secret || !url || !serviceKey) return json(500, { error: "send-alerts is not set up" });
   if (!authorized(req.headers, secret)) return json(401, { error: "unauthorized" });
+
+  const apiKey = Deno.env.get("SEMAPHORE_API_KEY");
+  // A resident waiting for rescue comes before a broadcast.
+  const results = await sendConfirmations(apiKey);
+  const confirmations = Object.keys(results).length;
 
   let claimed: ClaimedDelivery[];
   try {
@@ -138,8 +218,6 @@ Deno.serve(async (req) => {
     return json(502, { error: "could not read the queue" });
   }
 
-  const apiKey = Deno.env.get("SEMAPHORE_API_KEY");
-  const results: Record<string, string> = {};
   for (const d of claimed) {
     let outcome: Outcome;
     try {
@@ -163,5 +241,5 @@ Deno.serve(async (req) => {
     results[`${d.alert.alert_id}:${d.channel}`] = outcome.status;
     console.log(`send-alerts: ${d.alert.alert_id} ${d.channel} ${outcome.status}`);
   }
-  return json(200, { processed: claimed.length, results });
+  return json(200, { processed: confirmations + claimed.length, results });
 });

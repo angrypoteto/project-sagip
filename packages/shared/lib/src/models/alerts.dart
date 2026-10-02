@@ -406,6 +406,82 @@ class ForecastRun {
       forecasts.where((f) => f.riskOf(hazard) == level).length;
 }
 
+/// What a resident is told about their own SOS as the rescue moves on
+/// (FR6). The values are the incident statuses that raise one.
+enum RescueConfirmationKind {
+  /// A unit was assigned (or changed).
+  assigned,
+
+  /// The unit arrived.
+  onScene,
+
+  /// The SOS was closed.
+  resolved;
+
+  IncidentStatus get status => switch (this) {
+    assigned => IncidentStatus.assigned,
+    onScene => IncidentStatus.onScene,
+    resolved => IncidentStatus.resolved,
+  };
+}
+
+/// One rescue confirmation (`rescue_confirmation`), shown on the Alerts tab
+/// (R7) above the public alerts.
+@immutable
+class RescueConfirmation {
+  const RescueConfirmation({
+    required this.id,
+    required this.incidentId,
+    required this.kind,
+    required this.at,
+    this.unitCallSign,
+    this.read = false,
+  });
+
+  /// How long a confirmation stays on the Alerts tab.
+  static const shownFor = Duration(days: 7);
+
+  final String id;
+  final String incidentId;
+  final RescueConfirmationKind kind;
+
+  /// The unit at that moment; null when the SOS was closed with no unit.
+  final String? unitCallSign;
+  final DateTime at;
+
+  /// Whether the resident has opened it.
+  final bool read;
+
+  RescueConfirmation copyWith({bool? read}) => RescueConfirmation(
+    id: id,
+    incidentId: incidentId,
+    kind: kind,
+    at: at,
+    unitCallSign: unitCallSign,
+    read: read ?? this.read,
+  );
+
+  /// Reads a `rescue_confirmation` row, or the phone's saved copy.
+  factory RescueConfirmation.fromJson(Map<String, Object?> json) =>
+      RescueConfirmation(
+        id: '${json['confirmation_id']}',
+        incidentId: json['incident_id']! as String,
+        kind: enumFromJson(RescueConfirmationKind.values, json['kind']),
+        at: timeFromJson(json['created_at']),
+        unitCallSign: json['unit_call_sign'] as String?,
+        read: json['read_at'] != null,
+      );
+
+  Map<String, Object?> toJson() => {
+    'confirmation_id': id,
+    'incident_id': incidentId,
+    'kind': kind.name,
+    'created_at': at.toUtc().toIso8601String(),
+    'unit_call_sign': unitCallSign,
+    'read_at': read ? at.toUtc().toIso8601String() : null,
+  };
+}
+
 /// Everything the Alerts tab shows, plus when the phone last received it,
 /// so the offline state can say "Last updated 2:15 PM".
 @immutable
@@ -414,16 +490,33 @@ class AlertFeed {
     required this.alerts,
     required this.updatedAt,
     this.forecast,
+    this.confirmations = const [],
   });
 
   /// Newest first.
   final List<PublicAlert> alerts;
 
+  /// Confirmations about the resident's own SOS requests (FR6), newest
+  /// first. Empty for responders.
+  final List<RescueConfirmation> confirmations;
+
   /// Null when no forecast exists yet for the resident's barangay.
   final BarangayForecast? forecast;
   final DateTime updatedAt;
 
-  int get unread => alerts.where((a) => !a.read).length;
+  int get unread =>
+      alerts.where((a) => !a.read).length +
+      confirmations.where((c) => !c.read).length;
+
+  AlertFeed copyWith({
+    List<PublicAlert>? alerts,
+    List<RescueConfirmation>? confirmations,
+  }) => AlertFeed(
+    alerts: alerts ?? this.alerts,
+    confirmations: confirmations ?? this.confirmations,
+    forecast: forecast,
+    updatedAt: updatedAt,
+  );
 
   /// The phone keeps the last feed so the tab works offline.
   factory AlertFeed.fromJson(Map<String, Object?> json) => AlertFeed(
@@ -436,11 +529,16 @@ class AlertFeed {
         : BarangayForecast.fromJson(
             (json['forecast']! as Map).cast<String, Object?>(),
           ),
+    confirmations: [
+      for (final c in (json['confirmations'] as List<Object?>? ?? const []))
+        RescueConfirmation.fromJson((c! as Map).cast<String, Object?>()),
+    ],
     updatedAt: timeFromJson(json['updated_at']),
   );
 
   Map<String, Object?> toJson() => {
     'alerts': [for (final a in alerts) a.toJson()],
+    'confirmations': [for (final c in confirmations) c.toJson()],
     'forecast': forecast?.toJson(),
     'updated_at': updatedAt.toUtc().toIso8601String(),
   };

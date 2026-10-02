@@ -7,7 +7,9 @@ import {
   acceptedCount,
   alertSmsText,
   chunk,
+  type ClaimedConfirmation,
   cleanNumbers,
+  confirmationSmsText,
   ended,
   notSetUp,
   planBroadcast,
@@ -124,4 +126,27 @@ test("channels with no provider say why", () => {
   assert.equal(notSetUp("facebook").detail, "Facebook posting needs the page's access token");
   assert.equal(notSetUp("sms").detail, "No Semaphore key");
   assert.equal(ended.status, "ended");
+});
+
+test("every rescue confirmation fits one SMS and names the incident", () => {
+  const base: ClaimedConfirmation = {
+    confirmation_id: 1,
+    incident_id: "INC-0147",
+    kind: "assigned",
+    unit_call_sign: "R-03",
+    to: "09170004821",
+  };
+  for (const kind of ["assigned", "onScene", "resolved"] as const) {
+    for (const unit of ["R-03", "Rescue Boat 12", null, "  "]) {
+      const text = confirmationSmsText({ ...base, kind, unit_call_sign: unit });
+      assert.ok(text.length <= 160, `${kind}: ${text.length} characters`);
+      assert.ok(text.startsWith("S.A.G.I.P.: "));
+      assert.ok(text.includes("INC-0147"));
+      assert.ok(!text.includes("09170004821"), "no number in the text");
+    }
+  }
+  assert.equal(
+    confirmationSmsText({ ...base, unit_call_sign: null }),
+    "S.A.G.I.P.: A rescue team has been sent to your location. Stay where you are if it is safe and keep your phone on. Ref INC-0147.",
+  );
 });

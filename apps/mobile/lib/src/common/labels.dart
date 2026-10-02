@@ -44,6 +44,32 @@ extension MobileLabels on AppLocalizations {
     QueuedKind.completionReport => completionDeliveredNotice(time),
   };
 
+  /// The chip on a rescue confirmation (FR6).
+  String rescueKind(RescueConfirmationKind k) => switch (k) {
+    RescueConfirmationKind.assigned => rescueKindAssigned,
+    RescueConfirmationKind.onScene => rescueKindOnScene,
+    RescueConfirmationKind.resolved => rescueKindResolved,
+  };
+
+  String rescueTitle(RescueConfirmationKind k) => switch (k) {
+    RescueConfirmationKind.assigned => rescueAssignedTitle,
+    RescueConfirmationKind.onScene => rescueOnSceneTitle,
+    RescueConfirmationKind.resolved => rescueResolvedTitle,
+  };
+
+  /// "R-03 has been sent to your location. ..."; without a unit when the
+  /// confirmation names none.
+  String rescueBody(RescueConfirmation c) {
+    final unit = c.unitCallSign?.trim() ?? '';
+    return switch (c.kind) {
+      RescueConfirmationKind.assigned =>
+        unit.isEmpty ? rescueAssignedBodyNoUnit : rescueAssignedBody(unit),
+      RescueConfirmationKind.onScene =>
+        unit.isEmpty ? rescueOnSceneBodyNoUnit : rescueOnSceneBody(unit),
+      RescueConfirmationKind.resolved => rescueResolvedBody,
+    };
+  }
+
   String reportRejection(ReportRejection r) => switch (r) {
     ReportRejection.emptyDescription => reportEmpty,
     ReportRejection.outsideManila => reportOutsideManila,

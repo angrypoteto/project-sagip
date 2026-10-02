@@ -808,14 +808,34 @@ void main() {
               issuedAt: now,
             ),
           ],
+          confirmations: [
+            RescueConfirmation(
+              id: '7',
+              incidentId: 'INC-0147',
+              kind: RescueConfirmationKind.assigned,
+              unitCallSign: 'R-03',
+              at: now,
+            ),
+          ],
           updatedAt: now,
         ),
       );
       await pumpEventQueue();
-      expect(seen.last.unread, 1);
+      expect(seen.last.unread, 2);
       await repo.markRead('a1');
       await pumpEventQueue();
+      expect(seen.last.unread, 1);
+      // A rescue confirmation opened offline shows as read too, and the
+      // saved copy keeps it for the next start.
+      await repo.markConfirmationRead('7');
+      await pumpEventQueue();
       expect(seen.last.unread, 0);
+      expect(seen.last.confirmations.single.read, isTrue);
+      expect(seen.last.confirmations.single.unitCallSign, 'R-03');
+      expect(
+        store.read('alerts:res-001'),
+        contains('"incident_id":"INC-0147"'),
+      );
       await sub.cancel();
     });
   });
@@ -877,6 +897,9 @@ class _Alerts implements AlertRepository {
   Future<void> refresh() async {}
   @override
   Future<void> markRead(String alertId) async =>
+      throw const ActionRejected(ActionRejection.offline);
+  @override
+  Future<void> markConfirmationRead(String confirmationId) async =>
       throw const ActionRejected(ActionRejection.offline);
 }
 
