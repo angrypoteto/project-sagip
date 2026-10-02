@@ -44,6 +44,7 @@ class HazardReport {
     this.rejectReason,
     this.stage,
     this.incidentId,
+    this.source,
   });
 
   /// Generated on the phone ([newClientId]).
@@ -73,6 +74,10 @@ class HazardReport {
   /// The confirmed incident it became part of, for example "INC-0141".
   final String? incidentId;
 
+  /// [ReportChannel.app] or [ReportChannel.webForm]; null on records that
+  /// have not reached the server yet.
+  final ReportChannel? source;
+
   HazardReport copyWith({
     DeliveryState? delivery,
     DateTime? deliveredAt,
@@ -95,6 +100,7 @@ class HazardReport {
     rejectReason: rejectReason ?? this.rejectReason,
     stage: stage ?? this.stage,
     incidentId: incidentId ?? this.incidentId,
+    source: source,
   );
 
   factory HazardReport.fromJson(Map<String, Object?> json) => HazardReport(
@@ -117,6 +123,7 @@ class HazardReport {
     rejectReason: json['reject_reason'] as String?,
     stage: enumFromJsonOrNull(ReportStage.values, json['stage']),
     incidentId: json['incident_id'] as String?,
+    source: enumFromJsonOrNull(ReportChannel.values, json['source']),
   );
 
   Map<String, Object?> toJson() => {
@@ -135,6 +142,48 @@ class HazardReport {
     'reject_reason': rejectReason,
     'stage': stage?.name,
     'incident_id': incidentId,
+    'source': source?.name,
+  };
+}
+
+/// How many hazard reports the account may still send this hour (W2). The
+/// limit is set by an administrator on A3 and counts reports from the app
+/// and the web form together (FR15, NFR7).
+@immutable
+class ReportQuota {
+  const ReportQuota({
+    required this.limit,
+    required this.used,
+    this.resetsAt,
+    this.suspended = false,
+  });
+
+  final int limit;
+
+  /// Reports made in the last hour.
+  final int used;
+
+  /// When the next report frees up; set only when none are left.
+  final DateTime? resetsAt;
+
+  /// An administrator suspended the account (A1): no reports at all.
+  final bool suspended;
+
+  int get remaining => used >= limit ? 0 : limit - used;
+
+  factory ReportQuota.fromJson(Map<String, Object?> json) => ReportQuota(
+    limit: (json['limit']! as num).toInt(),
+    used: (json['used']! as num).toInt(),
+    resetsAt: timeFromJsonOrNull(json['resets_at']),
+    suspended: json['suspended'] as bool? ?? false,
+  );
+
+  Map<String, Object?> toJson() => {
+    'limit': limit,
+    'used': used,
+    'remaining': remaining,
+    'resets_at': resetsAt?.toUtc().toIso8601String(),
+    'suspended': suspended,
   };
 }
 

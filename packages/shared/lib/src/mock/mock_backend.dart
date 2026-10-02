@@ -82,6 +82,7 @@ class MockBackend {
   });
   final _settings = LiveValue<Map<String, AppSetting>>({
     for (final s in defaultPrioritySettings) s.key: s,
+    for (final s in defaultReportSettings) s.key: s,
   });
 
   Stream<List<AppSetting>> watchSettings() => _settings.watch().map(

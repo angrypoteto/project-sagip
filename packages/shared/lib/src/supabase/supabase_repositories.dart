@@ -14,6 +14,7 @@ import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
+import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
@@ -27,6 +28,7 @@ import '../repositories/repositories.dart';
 import 'live_query.dart';
 
 part 'mobile_repositories.dart';
+part 'web_form_repositories.dart';
 
 // Supabase implementations of the repository interfaces (Phase 3 wiring,
 // done early so demo data can be edited in the Supabase Table Editor).

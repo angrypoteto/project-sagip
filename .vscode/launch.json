@@ -19,6 +19,23 @@
       "deviceId": "chrome"
     },
     {
+      "name": "Web form (Supabase)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/dashboard",
+      "program": "lib/main_webform.dart",
+      "deviceId": "chrome",
+      "args": ["--dart-define-from-file=.env"]
+    },
+    {
+      "name": "Web form (mock data)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/dashboard",
+      "program": "lib/main_webform.dart",
+      "deviceId": "chrome"
+    },
+    {
       "name": "Mobile (Supabase)",
       "type": "dart",
       "request": "launch",

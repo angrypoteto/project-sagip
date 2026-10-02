@@ -420,6 +420,102 @@ class MockMobileBackend {
     return report;
   }
 
+  // ---------------------------------------------------------------- web form
+
+  /// W2: the web form sends a report straight to the "server" (nothing is
+  /// queued in a browser) with the same checks as `submit_crowd_report`.
+  Future<HazardReport> submitWebReport({
+    required String clientId,
+    required DateTime capturedAt,
+    required String description,
+    required GeoPoint location,
+    IncidentType? type,
+    double? accuracyMeters,
+    Barangay? barangay,
+  }) async {
+    await _pause();
+    if (_signal.value != SignalState.internet) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+    final me = _homeResident;
+    if (me == null) throw const ActionRejected(ActionRejection.notAllowed);
+    final text = description.trim();
+    if (text.isEmpty || text.length > 500) {
+      throw const ReportRejected(ReportRejection.emptyDescription);
+    }
+    // The same report sent again (a retry after a lost connection).
+    final existing = _findReport(clientId);
+    if (existing != null) {
+      if (_owner[clientId] != me.id) {
+        throw const ActionRejected(ActionRejection.notAllowed);
+      }
+      return existing;
+    }
+    if (!roughlyInsideManila(location)) {
+      throw const ReportRejected(ReportRejection.outsideManila);
+    }
+    if (_quota().remaining == 0) {
+      throw const ReportRejected(ReportRejection.rateLimited);
+    }
+    if (me.suspended) {
+      throw const ReportRejected(ReportRejection.accountSuspended);
+    }
+    final now = _clock();
+    final report = HazardReport(
+      clientId: clientId,
+      capturedAt: capturedAt.isAfter(now) ? now : capturedAt,
+      description: text,
+      type: type,
+      location: location,
+      accuracyMeters: accuracyMeters,
+      barangay: barangay?.name ?? me.barangay,
+      district: barangay?.district ?? me.district,
+      delivery: DeliveryState.delivered,
+      deliveredAt: now,
+      serverId: 'rep-${_nextReportNumber++}',
+      stage: ReportStage.checking,
+      source: ReportChannel.webForm,
+    );
+    _owner[clientId] = me.id;
+    _setReports([report, ..._reports.value]);
+    return report;
+  }
+
+  /// W2: reports left this hour for the signed-in account.
+  Stream<ReportQuota> watchReportQuota() =>
+      _reports.watch().map((_) => _quota());
+
+  ReportQuota _quota() {
+    final since = _clock().subtract(reportWindow);
+    final recent = [
+      for (final r in _reports.value)
+        if (_owner[r.clientId] == _user.value?.id &&
+            r.capturedAt.isAfter(since))
+          r.capturedAt,
+    ]..sort();
+    return ReportQuota(
+      limit: reportLimit,
+      used: recent.length,
+      resetsAt: recent.length >= reportLimit
+          ? recent.first.add(reportWindow)
+          : null,
+      suspended: _homeResident?.suspended ?? false,
+    );
+  }
+
+  /// Demo and tests: an administrator suspends or restores a resident (A1).
+  void setResidentSuspended(String residentId, {required bool suspended}) {
+    final r = _residents.value[residentId];
+    if (r == null) return;
+    _putResident(
+      suspended
+          ? r.copyWith(suspendedAt: _clock())
+          : r.copyWith(clearSuspended: true),
+    );
+    // The quota says whether the account is suspended.
+    _reports.value = [..._reports.value];
+  }
+
   // --------------------------------------------------------------- responder
 
   Future<void> acceptAssignment(String incidentId) =>

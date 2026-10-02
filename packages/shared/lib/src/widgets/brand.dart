@@ -1,8 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:sagip_shared/sagip_shared.dart';
+
+import '../theme/sagip_colors.dart';
 
 /// The S.A.G.I.P. mark: the red SOS circle with two soft rings, the same
-/// shape as the app icon.
+/// shape as the app icon. Used by the app and the resident web form.
 class SagipMark extends StatelessWidget {
   const SagipMark({super.key, this.size = 72});
 

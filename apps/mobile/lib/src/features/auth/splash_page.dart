@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
-import '../../common/brand.dart';
 import '../../l10n/app_localizations.dart';
 
 /// S1 Splash: shown while the saved session is checked. The router moves on

@@ -191,7 +191,7 @@ void main() {
     expect(find.text('Algorithm parameters'), findsOneWidget);
 
     FilledButton save() => tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Save changes'),
+      find.byKey(const ValueKey('save-priority')),
     );
     expect(save().onPressed, isNull, reason: 'nothing changed yet');
 
@@ -227,7 +227,7 @@ void main() {
     );
     await tester.pump();
     expect(save().onPressed, isNotNull);
-    await tester.tap(find.widgetWithText(FilledButton, 'Save changes'));
+    await tester.tap(find.byKey(const ValueKey('save-priority')));
     await settle(tester);
     expect(find.text('Settings saved'), findsOneWidget);
     expect(container.read(priorityRulesProvider).sosPoints, 60);
@@ -237,6 +237,39 @@ void main() {
     await settle(tester);
     expect(find.text('Changed a setting'), findsOneWidget);
     expect(find.text('50 → 60'), findsOneWidget);
+  });
+
+  testWidgets('admins set the hourly crowd report limit on A3', (tester) async {
+    await pumpApp(tester);
+    // Tall, so the card below the priority weights is on screen.
+    tester.view.physicalSize = const Size(1440, 2400);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Configuration'));
+    await settle(tester);
+    expect(find.text('Crowd reports'), findsOneWidget);
+    expect(find.text('Reports per account each hour'), findsWidgets);
+
+    final field = find.byKey(const ValueKey('setting-reports.per_hour'));
+    final saveKey = find.byKey(const ValueKey('save-reports.per_hour'));
+    FilledButton save() => tester.widget<FilledButton>(saveKey);
+    expect(save().onPressed, isNull, reason: 'nothing changed yet');
+
+    await tester.enterText(field, '0');
+    await tester.pump();
+    expect(find.text('Use a number from 1 to 30.'), findsOneWidget);
+    expect(save().onPressed, isNull);
+
+    await tester.enterText(field, '8');
+    await tester.pump();
+    await tester.tap(saveKey);
+    await settle(tester);
+    expect(find.text('Settings saved'), findsOneWidget);
+    final settings = container.read(settingsProvider).requireValue;
+    expect(settings.firstWhere((s) => s.key == reportsPerHourKey).value, 8);
+
+    await tester.tap(find.byTooltip('Audit log'));
+    await settle(tester);
+    expect(find.text('5 → 8'), findsOneWidget);
   });
 
   testWidgets('admins see analytics for a period and export them', (

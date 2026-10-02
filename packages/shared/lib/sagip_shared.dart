@@ -49,6 +49,7 @@ export 'src/theme/sagip_colors.dart';
 export 'src/theme/sagip_palette.dart';
 export 'src/theme/sagip_theme.dart';
 export 'src/theme/sagip_tokens.dart';
+export 'src/widgets/brand.dart';
 export 'src/widgets/offline_widgets.dart';
 export 'src/widgets/responder_widgets.dart';
 export 'src/widgets/sagip_chip.dart';

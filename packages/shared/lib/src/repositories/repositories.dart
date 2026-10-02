@@ -4,6 +4,7 @@ import '../models/analytics.dart';
 import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
+import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
 import '../models/offline.dart';
@@ -267,6 +268,32 @@ abstract interface class HazardReportRepository {
     required String description,
     IncidentType? type,
     LocationFix? fix,
+  });
+}
+
+/// Hazard reports from the resident web form (W2, W3; FR15). Online only:
+/// nothing is queued, so the page keeps the draft and the id to send again.
+/// The web form never sends an SOS.
+abstract interface class WebReportRepository {
+  /// This account's reports from the app and the web form, newest first.
+  Stream<List<HazardReport>> watchMine();
+
+  /// How many reports the account may still send this hour.
+  Stream<ReportQuota> watchQuota();
+
+  /// Sends a report and returns it as the server stored it. [clientId]
+  /// ([newClientId]) stays the same when the page sends a draft again after
+  /// a lost connection, so the server stores it once. Throws
+  /// [ReportRejected] for the FR15 checks and [ActionRejected] with
+  /// `offline` when the server cannot be reached.
+  Future<HazardReport> submit({
+    required String clientId,
+    required DateTime capturedAt,
+    required String description,
+    required GeoPoint location,
+    IncidentType? type,
+    double? accuracyMeters,
+    Barangay? barangay,
   });
 }
 

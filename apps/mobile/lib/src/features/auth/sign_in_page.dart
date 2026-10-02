@@ -5,7 +5,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
-import '../../common/brand.dart';
 import '../../common/hotline.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';

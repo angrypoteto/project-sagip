@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(158);
+select plan(171);
 
 select public.reset_demo_data();
 
@@ -553,6 +553,63 @@ select ok(
   (select not account_verified from public.incident_report
     where client_uuid = '00000000-0000-4000-8000-0000000005c1'),
   'a suspended resident''s SOS still arrives (FR8), not account-verified');
+
+-- ------------------------------------------------ web form (W1 to W3)
+
+reset role;
+select ok(
+  not has_function_privilege('anon',
+    'public.submit_crowd_report(uuid, timestamptz, text, text, double precision, double precision, double precision, text, text, text)', 'execute')
+  and not has_function_privilege('anon', 'public.my_report_quota()', 'execute'),
+  'anon cannot send a report or read a quota: the web form needs a signed-in resident (FR15)');
+
+set local role authenticated;
+-- res-002, linked by phone above, has sent no reports.
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000f", "role": "authenticated"}';
+
+select is(public.my_report_quota() - 'resets_at',
+  '{"limit": 5, "used": 0, "remaining": 5, "suspended": false}'::jsonb,
+  'a resident starts the hour with the full report quota');
+select ok(
+  public.submit_crowd_report('00000000-0000-4000-8000-0000000006a1', now(), 'Baha sa kanto', 'flood',
+    14.6003, 120.9745, null, 'Barangay 287', 'Binondo', 'webForm') like 'rep-%',
+  'a resident can send a report from the web form');
+select ok(
+  (select source = 'webForm' and incident_id is null from public.crowd_report
+    where client_uuid = '00000000-0000-4000-8000-0000000006a1'),
+  'it is stored as a web form report and is not confirmed on its own (FR7, FR15)');
+select is(
+  (select r->>'source' from jsonb_array_elements(public.my_crowd_reports()) r
+    where r->>'client_id' = '00000000-0000-4000-8000-0000000006a1'),
+  'webForm', 'the resident''s list says which channel sent it');
+select is((public.my_report_quota() ->> 'remaining')::int, 4, 'the quota counts it');
+select throws_ok(
+  $$ select public.submit_crowd_report(gen_random_uuid(), now(), 'Flood', 'flood', 14.6003, 120.9745, null, null, null, 'sos') $$,
+  'P0001', 'invalid_value', 'an unknown channel is refused');
+select is(
+  public.submit_crowd_report('00000000-0000-4000-8000-0000000006a1', now(), 'Again', 'flood',
+    14.6003, 120.9745, null, null, null, 'webForm'),
+  (select report_id from public.crowd_report where client_uuid = '00000000-0000-4000-8000-0000000006a1'),
+  'sending the same web report again returns the same report');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select lives_ok($$ select public.set_setting('reports.per_hour', '1') $$,
+  'an admin sets the hourly report limit on A3');
+select throws_ok($$ select public.set_setting('reports.per_hour', '0') $$,
+  'P0001', 'invalid_value', 'the limit cannot be turned off');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000f", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.submit_crowd_report(gen_random_uuid(), now(), 'Second', null, 14.6003, 120.9745, null, null, null, 'webForm') $$,
+  'P0001', 'rate_limited', 'the new limit applies to the next report');
+select ok(
+  (select (q ->> 'remaining')::int = 0 and (q ->> 'limit')::int = 1 and q ->> 'resets_at' is not null
+     from public.my_report_quota() q),
+  'the quota shows none left and when the next one frees up');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok($$ select public.my_report_quota() $$,
+  'P0001', 'not_allowed', 'staff accounts have no report quota');
 
 reset role;
 select * from finish();

@@ -2,6 +2,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../models/enums.dart';
+import '../models/hazard_report.dart';
 import '../models/offline.dart';
 import '../theme/sagip_palette.dart';
 
@@ -116,3 +117,23 @@ StatusVisual deliveryVisual(DeliveryState state, SagipPalette p) =>
       ),
       DeliveryState.rejected => StatusVisual(p.critical, Symbols.block_rounded),
     };
+
+/// Color and icon for a report's stage, following the incident status
+/// mapping (confirmed is signal, resolved is verdant).
+StatusVisual reportStageVisual(
+  ReportStage stage,
+  SagipPalette p,
+) => switch (stage) {
+  ReportStage.received => StatusVisual(
+    p.info,
+    Symbols.inbox_rounded,
+    ChipLook.outline,
+  ),
+  ReportStage.checking => StatusVisual(
+    p.warning,
+    Symbols.hourglass_top_rounded,
+  ),
+  ReportStage.confirmed => StatusVisual(p.critical, Symbols.warning_rounded),
+  ReportStage.notConfirmed => StatusVisual(p.neutral, null, ChipLook.dashed),
+  ReportStage.resolved => StatusVisual(p.success, Symbols.check_circle_rounded),
+};

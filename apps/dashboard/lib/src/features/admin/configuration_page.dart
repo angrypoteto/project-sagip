@@ -31,6 +31,13 @@ class ConfigurationPage extends ConsumerWidget {
           children: [
             _PriorityEditor(settings: settings),
             const SizedBox(height: SagipSpace.xl),
+            _NumberSettingsCard(
+              title: l10n.configReportsTitle,
+              note: l10n.configReportsNote,
+              labels: {reportsPerHourKey: l10n.settingReportsPerHour},
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
             const _AlgorithmCard(),
           ],
         ),
@@ -89,7 +96,12 @@ class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
       ? ''
       : (v == v.roundToDouble() ? v.round().toString() : v.toString());
 
-  num? _draftValue(String key) => num.tryParse(_fields[key]!.text.trim());
+  /// Null for a value that is not a number, and for settings this editor
+  /// has no field for (other groups share the table).
+  num? _draftValue(String key) {
+    final field = _fields[key];
+    return field == null ? null : num.tryParse(field.text.trim());
+  }
 
   bool get _dirty =>
       PriorityRules.settingKeys.any((k) => _draftValue(k) != _saved[k]?.value);
@@ -243,6 +255,7 @@ class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
                 ),
                 const SizedBox(width: SagipSpace.sm),
                 FilledButton(
+                  key: const ValueKey('save-priority'),
                   onPressed: canSave ? _save : null,
                   child: Text(l10n.saveChanges),
                 ),
@@ -299,6 +312,201 @@ class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
     'priority.high_at' => l10n.settingHighAt,
     _ => key,
   };
+}
+
+/// A group of number settings with their own Save and Discard (the crowd
+/// report limit so far). Each setting is checked against its range before
+/// Save turns on; the database checks again and audits the change.
+class _NumberSettingsCard extends ConsumerStatefulWidget {
+  const _NumberSettingsCard({
+    required this.title,
+    required this.note,
+    required this.labels,
+    required this.settings,
+  });
+
+  final String title;
+  final String note;
+
+  /// Setting key to its label, in the order shown.
+  final Map<String, String> labels;
+  final List<AppSetting> settings;
+
+  @override
+  ConsumerState<_NumberSettingsCard> createState() =>
+      _NumberSettingsCardState();
+}
+
+class _NumberSettingsCardState extends ConsumerState<_NumberSettingsCard> {
+  final _fields = <String, TextEditingController>{};
+  var _busy = false;
+
+  Map<String, AppSetting> get _saved => {
+    for (final s in widget.settings) s.key: s,
+  };
+
+  Iterable<String> get _keys =>
+      widget.labels.keys.where((k) => _saved.containsKey(k));
+
+  static String _plain(num? v) => v == null
+      ? ''
+      : (v == v.roundToDouble() ? v.round().toString() : v.toString());
+
+  @override
+  void initState() {
+    super.initState();
+    for (final key in widget.labels.keys) {
+      _fields[key] = TextEditingController(text: _plain(_saved[key]?.value))
+        ..addListener(() => setState(() {}));
+    }
+  }
+
+  @override
+  void didUpdateWidget(_NumberSettingsCard old) {
+    super.didUpdateWidget(old);
+    // Another admin saved: take the new values unless this one is editing.
+    final before = {for (final s in old.settings) s.key: s.value};
+    for (final key in _keys) {
+      final was = _plain(before[key]);
+      final now = _plain(_saved[key]?.value);
+      if (was != now && _fields[key]!.text == was) _fields[key]!.text = now;
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final c in _fields.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  num? _draft(String key) => num.tryParse(_fields[key]!.text.trim());
+
+  bool get _dirty => _keys.any((k) => _draft(k) != _saved[k]?.value);
+
+  String? _problem(String key, AppLocalizations l10n) {
+    final s = _saved[key]!;
+    final v = _draft(key);
+    if (v == null) return l10n.settingNotNumber;
+    return checkSetting(_saved, key, v) == null
+        ? null
+        : l10n.settingOutOfRange(_plain(s.min), _plain(s.max));
+  }
+
+  Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
+    final repo = ref.read(settingsRepositoryProvider);
+    final changed = {
+      for (final k in _keys)
+        if (_draft(k) != _saved[k]?.value) k: _draft(k)!,
+    };
+    setState(() => _busy = true);
+    await runAction(context, () async {
+      for (final e in changed.entries) {
+        await repo.set(e.key, e.value);
+      }
+    }, success: l10n.settingsSaved);
+    if (mounted) setState(() => _busy = false);
+  }
+
+  void _discard() {
+    for (final key in _keys) {
+      _fields[key]!.text = _plain(_saved[key]?.value);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final online = ref.watch(isOnlineProvider);
+    final problems = {for (final k in _keys) k: _problem(k, l10n)};
+    final valid = problems.values.every((e) => e == null);
+    if (_keys.isEmpty) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(SagipSpace.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(widget.title, style: text.titleMedium),
+            const SizedBox(height: SagipSpace.xs),
+            Text(widget.note, style: text.bodySmall),
+            const SizedBox(height: SagipSpace.lg),
+            for (final key in _keys)
+              Padding(
+                padding: const EdgeInsets.only(bottom: SagipSpace.md),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: SagipSpace.md),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.labels[key]!, style: text.bodyLarge),
+                            Text(
+                              l10n.settingRange(
+                                _plain(_saved[key]!.min),
+                                _plain(_saved[key]!.max),
+                              ),
+                              style: text.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: SagipSpace.lg),
+                    SizedBox(
+                      width: 180,
+                      child: TextField(
+                        key: ValueKey('setting-$key'),
+                        controller: _fields[key],
+                        enabled: online && !_busy,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.end,
+                        style: text.bodyLarge!.copyWith(
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                        decoration: InputDecoration(
+                          labelText: widget.labels[key],
+                          errorText: problems[key],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (!online)
+              Text(
+                l10n.offlineActionsDisabled,
+                style: text.bodySmall!.copyWith(color: p.warning.text),
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  key: ValueKey('discard-${widget.labels.keys.first}'),
+                  onPressed: _dirty && !_busy ? _discard : null,
+                  child: Text(l10n.discardChanges),
+                ),
+                const SizedBox(width: SagipSpace.sm),
+                FilledButton(
+                  key: ValueKey('save-${widget.labels.keys.first}'),
+                  onPressed: online && valid && _dirty && !_busy ? _save : null,
+                  child: Text(l10n.saveChanges),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// The live preview (plan 7.4 A3): the active incidents ranked now with

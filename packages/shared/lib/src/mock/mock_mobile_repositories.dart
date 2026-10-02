@@ -2,6 +2,7 @@ import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
+import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
@@ -62,6 +63,37 @@ class MockHazardReportRepository implements HazardReportRepository {
     IncidentType? type,
     LocationFix? fix,
   }) => _backend.submitReport(description: description, type: type, fix: fix);
+}
+
+class MockWebReportRepository implements WebReportRepository {
+  const MockWebReportRepository(this._backend);
+
+  final MockMobileBackend _backend;
+
+  @override
+  Stream<List<HazardReport>> watchMine() => _backend.watchReports();
+
+  @override
+  Stream<ReportQuota> watchQuota() => _backend.watchReportQuota();
+
+  @override
+  Future<HazardReport> submit({
+    required String clientId,
+    required DateTime capturedAt,
+    required String description,
+    required GeoPoint location,
+    IncidentType? type,
+    double? accuracyMeters,
+    Barangay? barangay,
+  }) => _backend.submitWebReport(
+    clientId: clientId,
+    capturedAt: capturedAt,
+    description: description,
+    location: location,
+    type: type,
+    accuracyMeters: accuracyMeters,
+    barangay: barangay,
+  );
 }
 
 class MockResponderRepository implements ResponderRepository {

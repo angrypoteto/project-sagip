@@ -2932,6 +2932,624 @@ abstract class AppLocalizations {
   /// **'TF-IDF on words and word pairs, 4 types (not trained yet)'**
   String get algClassifierValue;
 
+  /// No description provided for @configReportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crowd reports'**
+  String get configReportsTitle;
+
+  /// No description provided for @configReportsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The limit applies to each resident account, across the app and the web form (FR15).'**
+  String get configReportsNote;
+
+  /// No description provided for @settingReportsPerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports per account each hour'**
+  String get settingReportsPerHour;
+
+  /// No description provided for @webAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'S.A.G.I.P. hazard report'**
+  String get webAppTitle;
+
+  /// No description provided for @webSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a hazard to MDRRMD'**
+  String get webSignInTitle;
+
+  /// No description provided for @webSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your mobile number. We\'ll text you a code.'**
+  String get webSignInBody;
+
+  /// No description provided for @webSosNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS is only available in the S.A.G.I.P. app. In an emergency, call MDRRMD.'**
+  String get webSosNotice;
+
+  /// No description provided for @webSosNoticeHotline.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS is only available in the S.A.G.I.P. app. In an emergency, call MDRRMD at {number}.'**
+  String webSosNoticeHotline(String number);
+
+  /// No description provided for @webGetApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Get the S.A.G.I.P. app'**
+  String get webGetApp;
+
+  /// No description provided for @webMobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get webMobileNumber;
+
+  /// No description provided for @webMobileNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'917 123 4567'**
+  String get webMobileNumberHint;
+
+  /// No description provided for @webSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get webSendCode;
+
+  /// No description provided for @webSendingCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending code'**
+  String get webSendingCode;
+
+  /// No description provided for @webCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'New to S.A.G.I.P.? Create an account'**
+  String get webCreateAccount;
+
+  /// No description provided for @webHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get webHaveAccount;
+
+  /// No description provided for @webDemoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample data: sign in with 917 000 4821 and the code {code}.'**
+  String webDemoHint(String code);
+
+  /// No description provided for @webCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get webCodeTitle;
+
+  /// No description provided for @webCodeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {phone}.'**
+  String webCodeBody(String phone);
+
+  /// No description provided for @webCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get webCodeLabel;
+
+  /// No description provided for @webCheckCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Check code'**
+  String get webCheckCode;
+
+  /// No description provided for @webCheckingCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking code'**
+  String get webCheckingCode;
+
+  /// No description provided for @webResendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {time}'**
+  String webResendIn(String time);
+
+  /// No description provided for @webResendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get webResendCode;
+
+  /// No description provided for @webCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'A new code is on its way.'**
+  String get webCodeSent;
+
+  /// No description provided for @webChangeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get webChangeNumber;
+
+  /// No description provided for @webRegisterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get webRegisterTitle;
+
+  /// No description provided for @webRegisterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD uses this to reach you and to know your barangay.'**
+  String get webRegisterBody;
+
+  /// No description provided for @webFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get webFullName;
+
+  /// No description provided for @webFullNameError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name.'**
+  String get webFullNameError;
+
+  /// No description provided for @webBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay'**
+  String get webBarangay;
+
+  /// No description provided for @webChooseBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your barangay'**
+  String get webChooseBarangay;
+
+  /// No description provided for @webBarangayError.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your barangay.'**
+  String get webBarangayError;
+
+  /// No description provided for @webAgreeTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the terms and the privacy notice'**
+  String get webAgreeTerms;
+
+  /// No description provided for @webTermsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree to the terms to continue.'**
+  String get webTermsError;
+
+  /// No description provided for @webReadPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the privacy notice'**
+  String get webReadPrivacy;
+
+  /// No description provided for @webPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Philippine mobile number, like 917 123 4567.'**
+  String get webPhoneInvalid;
+
+  /// No description provided for @webPhoneNotRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This number has no account yet. Create an account first.'**
+  String get webPhoneNotRegistered;
+
+  /// No description provided for @webPhoneNotRegisteredApp.
+  ///
+  /// In en, this message translates to:
+  /// **'This number has no account yet. Create one in the S.A.G.I.P. app.'**
+  String get webPhoneNotRegisteredApp;
+
+  /// No description provided for @webPhoneTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This number already has an account. Sign in instead.'**
+  String get webPhoneTaken;
+
+  /// No description provided for @webCodeWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right. Check the text message and try again.'**
+  String get webCodeWrong;
+
+  /// No description provided for @webTooManyAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries. Wait a minute, then try again.'**
+  String get webTooManyAttempts;
+
+  /// No description provided for @webOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline.'**
+  String get webOffline;
+
+  /// No description provided for @webSmsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send or check the code right now. Try again in a few minutes.'**
+  String get webSmsUnavailable;
+
+  /// No description provided for @webPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy notice'**
+  String get webPrivacyTitle;
+
+  /// No description provided for @webPrivacyCollectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What we collect'**
+  String get webPrivacyCollectTitle;
+
+  /// No description provided for @webPrivacyCollectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, mobile number, and barangay; and where a hazard is when you send a report.'**
+  String get webPrivacyCollectBody;
+
+  /// No description provided for @webPrivacyWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get webPrivacyWhyTitle;
+
+  /// No description provided for @webPrivacyWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To check reports against others nearby, to reach you about a report, and to send you alerts for your area.'**
+  String get webPrivacyWhyBody;
+
+  /// No description provided for @webPrivacyWhoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can see it'**
+  String get webPrivacyWhoTitle;
+
+  /// No description provided for @webPrivacyWhoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD dispatchers and administrators. Rescue personnel see only the incident they are assigned to.'**
+  String get webPrivacyWhoBody;
+
+  /// No description provided for @webPrivacyKeepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How long we keep it'**
+  String get webPrivacyKeepTitle;
+
+  /// No description provided for @webPrivacyKeepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'As long as you have an account, and incident records as long as the law requires.'**
+  String get webPrivacyKeepBody;
+
+  /// No description provided for @webPrivacyRightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rights'**
+  String get webPrivacyRightsTitle;
+
+  /// No description provided for @webPrivacyRightsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Under the Data Privacy Act (RA 10173) you can see, correct, or ask MDRRMD to delete your data. Ask in the S.A.G.I.P. app or at the MDRRMD office.'**
+  String get webPrivacyRightsBody;
+
+  /// No description provided for @webReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a hazard'**
+  String get webReportTitle;
+
+  /// No description provided for @webReportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD checks reports against others nearby before acting. One report alone is not treated as an emergency.'**
+  String get webReportBody;
+
+  /// No description provided for @webSignedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {name}'**
+  String webSignedInAs(String name);
+
+  /// No description provided for @webMyReports.
+  ///
+  /// In en, this message translates to:
+  /// **'My reports'**
+  String get webMyReports;
+
+  /// No description provided for @webDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you see?'**
+  String get webDescription;
+
+  /// No description provided for @webDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: Water is knee-deep on Dapitan St and rising.'**
+  String get webDescriptionHint;
+
+  /// No description provided for @webDescriptionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what you see.'**
+  String get webDescriptionEmpty;
+
+  /// No description provided for @webType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type (optional)'**
+  String get webType;
+
+  /// No description provided for @webLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where is it?'**
+  String get webLocationTitle;
+
+  /// No description provided for @webUseMyLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get webUseMyLocation;
+
+  /// No description provided for @webLocating.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your location'**
+  String get webLocating;
+
+  /// No description provided for @webChooseBarangayButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a barangay'**
+  String get webChooseBarangayButton;
+
+  /// No description provided for @webMapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or move the map until the pin is on the spot.'**
+  String get webMapHint;
+
+  /// No description provided for @webLocationNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No location chosen yet.'**
+  String get webLocationNone;
+
+  /// No description provided for @webLocationBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'From your browser, accurate to {meters} m'**
+  String webLocationBrowser(int meters);
+
+  /// No description provided for @webLocationPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen on the map'**
+  String get webLocationPin;
+
+  /// No description provided for @webLocationBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre of the barangay you chose'**
+  String get webLocationBarangay;
+
+  /// No description provided for @webNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Near {place}'**
+  String webNear(String place);
+
+  /// No description provided for @webPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'{barangay}, {district}'**
+  String webPlace(String barangay, String district);
+
+  /// No description provided for @webLocationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Your browser did not share your location. Move the map until the pin is on the spot, or choose a barangay.'**
+  String get webLocationDenied;
+
+  /// No description provided for @webLocationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get your location. Move the map until the pin is on the spot, or choose a barangay.'**
+  String get webLocationUnavailable;
+
+  /// No description provided for @webQuotaLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} of {limit} reports left this hour'**
+  String webQuotaLeft(int remaining, int limit);
+
+  /// No description provided for @webQuotaNone.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve sent {limit} reports in the last hour. Try again after {time}.'**
+  String webQuotaNone(int limit, String time);
+
+  /// No description provided for @webQuotaNoneLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve sent {limit} reports in the last hour. Try again later.'**
+  String webQuotaNoneLater(int limit);
+
+  /// No description provided for @webSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'This account cannot send reports right now. In an emergency, call MDRRMD.'**
+  String get webSuspended;
+
+  /// No description provided for @webRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the hourly limit for reports. Try again later.'**
+  String get webRateLimited;
+
+  /// No description provided for @webSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get webSend;
+
+  /// No description provided for @webSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get webSending;
+
+  /// No description provided for @webOutsideManila.
+  ///
+  /// In en, this message translates to:
+  /// **'This location is outside Manila City. S.A.G.I.P. covers Manila only.'**
+  String get webOutsideManila;
+
+  /// No description provided for @webNeedLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where it is: use your location, move the map, or choose a barangay.'**
+  String get webNeedLocation;
+
+  /// No description provided for @webConnectionLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection lost. Your report is kept on this page. Send it when you\'re back online.'**
+  String get webConnectionLost;
+
+  /// No description provided for @webPinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Report location'**
+  String get webPinLabel;
+
+  /// No description provided for @webSearchBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Search barangays'**
+  String get webSearchBarangay;
+
+  /// No description provided for @webNoBarangayMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No barangay matches that.'**
+  String get webNoBarangayMatch;
+
+  /// No description provided for @webReceivedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report received'**
+  String get webReceivedTitle;
+
+  /// No description provided for @webReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference {id}'**
+  String webReference(String id);
+
+  /// No description provided for @webReceivedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD checks it against other reports nearby. A single report is never confirmed on its own.'**
+  String get webReceivedBody;
+
+  /// No description provided for @webRecentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent reports'**
+  String get webRecentTitle;
+
+  /// No description provided for @webNoReports.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports yet.'**
+  String get webNoReports;
+
+  /// No description provided for @webReportsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your reports.'**
+  String get webReportsFailed;
+
+  /// No description provided for @webSendAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Send another report'**
+  String get webSendAnother;
+
+  /// No description provided for @webSentFromApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from the app'**
+  String get webSentFromApp;
+
+  /// No description provided for @webSentFromWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from the web form'**
+  String get webSentFromWeb;
+
+  /// No description provided for @webReportWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {time}'**
+  String webReportWhen(String date, String time);
+
+  /// No description provided for @webStageReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get webStageReceived;
+
+  /// No description provided for @webStageChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get webStageChecking;
+
+  /// No description provided for @webStageConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get webStageConfirmed;
+
+  /// No description provided for @webStageNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not confirmed'**
+  String get webStageNotConfirmed;
+
+  /// No description provided for @webStageResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get webStageResolved;
+
   /// No description provided for @auditEmpty.
   ///
   /// In en, this message translates to:

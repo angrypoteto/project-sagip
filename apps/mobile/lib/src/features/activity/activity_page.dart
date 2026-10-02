@@ -198,26 +198,6 @@ class _ReportList extends ConsumerWidget {
   }
 }
 
-/// Color and icon for a report's stage, following the incident status
-/// mapping (confirmed is signal, resolved is verdant).
-StatusVisual reportStageVisual(
-  ReportStage stage,
-  SagipPalette p,
-) => switch (stage) {
-  ReportStage.received => StatusVisual(
-    p.info,
-    Symbols.inbox_rounded,
-    ChipLook.outline,
-  ),
-  ReportStage.checking => StatusVisual(
-    p.warning,
-    Symbols.hourglass_top_rounded,
-  ),
-  ReportStage.confirmed => StatusVisual(p.critical, Symbols.warning_rounded),
-  ReportStage.notConfirmed => StatusVisual(p.neutral, null, ChipLook.dashed),
-  ReportStage.resolved => StatusVisual(p.success, Symbols.check_circle_rounded),
-};
-
 /// One row in a history list (R6, F7): an icon, a title and a time line,
 /// and a chip on the right.
 class ActivityRow extends StatelessWidget {

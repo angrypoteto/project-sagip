@@ -63,3 +63,20 @@ class AppSetting {
     'updated_by': updatedBy,
   };
 }
+
+/// The hourly crowd report limit per resident account (FR15, NFR7), across
+/// the app and the web form.
+const reportsPerHourKey = 'reports.per_hour';
+
+/// The report settings as the `web_form` migration seeds them, with the
+/// same range (the mock backend starts from these).
+const defaultReportSettings = [
+  AppSetting(
+    key: reportsPerHourKey,
+    category: 'reports',
+    value: 5,
+    min: 1,
+    max: 30,
+    description: 'Crowd reports one account may send in an hour (app and web form together)',
+  ),
+];

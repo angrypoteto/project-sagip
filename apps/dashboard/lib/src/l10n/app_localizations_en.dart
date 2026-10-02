@@ -1627,6 +1627,367 @@ class AppLocalizationsEn extends AppLocalizations {
       'TF-IDF on words and word pairs, 4 types (not trained yet)';
 
   @override
+  String get configReportsTitle => 'Crowd reports';
+
+  @override
+  String get configReportsNote =>
+      'The limit applies to each resident account, across the app and the web form (FR15).';
+
+  @override
+  String get settingReportsPerHour => 'Reports per account each hour';
+
+  @override
+  String get webAppTitle => 'S.A.G.I.P. hazard report';
+
+  @override
+  String get webSignInTitle => 'Report a hazard to MDRRMD';
+
+  @override
+  String get webSignInBody =>
+      'Sign in with your mobile number. We\'ll text you a code.';
+
+  @override
+  String get webSosNotice =>
+      'SOS is only available in the S.A.G.I.P. app. In an emergency, call MDRRMD.';
+
+  @override
+  String webSosNoticeHotline(String number) {
+    return 'SOS is only available in the S.A.G.I.P. app. In an emergency, call MDRRMD at $number.';
+  }
+
+  @override
+  String get webGetApp => 'Get the S.A.G.I.P. app';
+
+  @override
+  String get webMobileNumber => 'Mobile number';
+
+  @override
+  String get webMobileNumberHint => '917 123 4567';
+
+  @override
+  String get webSendCode => 'Send code';
+
+  @override
+  String get webSendingCode => 'Sending code';
+
+  @override
+  String get webCreateAccount => 'New to S.A.G.I.P.? Create an account';
+
+  @override
+  String get webHaveAccount => 'Already have an account? Sign in';
+
+  @override
+  String webDemoHint(String code) {
+    return 'Sample data: sign in with 917 000 4821 and the code $code.';
+  }
+
+  @override
+  String get webCodeTitle => 'Enter the code';
+
+  @override
+  String webCodeBody(String phone) {
+    return 'We sent a 6-digit code to $phone.';
+  }
+
+  @override
+  String get webCodeLabel => '6-digit code';
+
+  @override
+  String get webCheckCode => 'Check code';
+
+  @override
+  String get webCheckingCode => 'Checking code';
+
+  @override
+  String webResendIn(String time) {
+    return 'Resend code in $time';
+  }
+
+  @override
+  String get webResendCode => 'Resend code';
+
+  @override
+  String get webCodeSent => 'A new code is on its way.';
+
+  @override
+  String get webChangeNumber => 'Change number';
+
+  @override
+  String get webRegisterTitle => 'Create an account';
+
+  @override
+  String get webRegisterBody =>
+      'MDRRMD uses this to reach you and to know your barangay.';
+
+  @override
+  String get webFullName => 'Full name';
+
+  @override
+  String get webFullNameError => 'Enter your full name.';
+
+  @override
+  String get webBarangay => 'Barangay';
+
+  @override
+  String get webChooseBarangay => 'Choose your barangay';
+
+  @override
+  String get webBarangayError => 'Choose your barangay.';
+
+  @override
+  String get webAgreeTerms => 'I agree to the terms and the privacy notice';
+
+  @override
+  String get webTermsError => 'Agree to the terms to continue.';
+
+  @override
+  String get webReadPrivacy => 'Read the privacy notice';
+
+  @override
+  String get webPhoneInvalid =>
+      'Enter a Philippine mobile number, like 917 123 4567.';
+
+  @override
+  String get webPhoneNotRegistered =>
+      'This number has no account yet. Create an account first.';
+
+  @override
+  String get webPhoneNotRegisteredApp =>
+      'This number has no account yet. Create one in the S.A.G.I.P. app.';
+
+  @override
+  String get webPhoneTaken =>
+      'This number already has an account. Sign in instead.';
+
+  @override
+  String get webCodeWrong =>
+      'That code is not right. Check the text message and try again.';
+
+  @override
+  String get webTooManyAttempts =>
+      'Too many tries. Wait a minute, then try again.';
+
+  @override
+  String get webOffline => 'You\'re offline.';
+
+  @override
+  String get webSmsUnavailable =>
+      'Couldn\'t send or check the code right now. Try again in a few minutes.';
+
+  @override
+  String get webPrivacyTitle => 'Privacy notice';
+
+  @override
+  String get webPrivacyCollectTitle => 'What we collect';
+
+  @override
+  String get webPrivacyCollectBody =>
+      'Your name, mobile number, and barangay; and where a hazard is when you send a report.';
+
+  @override
+  String get webPrivacyWhyTitle => 'Why';
+
+  @override
+  String get webPrivacyWhyBody =>
+      'To check reports against others nearby, to reach you about a report, and to send you alerts for your area.';
+
+  @override
+  String get webPrivacyWhoTitle => 'Who can see it';
+
+  @override
+  String get webPrivacyWhoBody =>
+      'MDRRMD dispatchers and administrators. Rescue personnel see only the incident they are assigned to.';
+
+  @override
+  String get webPrivacyKeepTitle => 'How long we keep it';
+
+  @override
+  String get webPrivacyKeepBody =>
+      'As long as you have an account, and incident records as long as the law requires.';
+
+  @override
+  String get webPrivacyRightsTitle => 'Your rights';
+
+  @override
+  String get webPrivacyRightsBody =>
+      'Under the Data Privacy Act (RA 10173) you can see, correct, or ask MDRRMD to delete your data. Ask in the S.A.G.I.P. app or at the MDRRMD office.';
+
+  @override
+  String get webReportTitle => 'Report a hazard';
+
+  @override
+  String get webReportBody =>
+      'MDRRMD checks reports against others nearby before acting. One report alone is not treated as an emergency.';
+
+  @override
+  String webSignedInAs(String name) {
+    return 'Signed in as $name';
+  }
+
+  @override
+  String get webMyReports => 'My reports';
+
+  @override
+  String get webDescription => 'What do you see?';
+
+  @override
+  String get webDescriptionHint =>
+      'For example: Water is knee-deep on Dapitan St and rising.';
+
+  @override
+  String get webDescriptionEmpty => 'Describe what you see.';
+
+  @override
+  String get webType => 'Type (optional)';
+
+  @override
+  String get webLocationTitle => 'Where is it?';
+
+  @override
+  String get webUseMyLocation => 'Use my location';
+
+  @override
+  String get webLocating => 'Getting your location';
+
+  @override
+  String get webChooseBarangayButton => 'Choose a barangay';
+
+  @override
+  String get webMapHint => 'Or move the map until the pin is on the spot.';
+
+  @override
+  String get webLocationNone => 'No location chosen yet.';
+
+  @override
+  String webLocationBrowser(int meters) {
+    return 'From your browser, accurate to $meters m';
+  }
+
+  @override
+  String get webLocationPin => 'Chosen on the map';
+
+  @override
+  String get webLocationBarangay => 'Centre of the barangay you chose';
+
+  @override
+  String webNear(String place) {
+    return 'Near $place';
+  }
+
+  @override
+  String webPlace(String barangay, String district) {
+    return '$barangay, $district';
+  }
+
+  @override
+  String get webLocationDenied =>
+      'Your browser did not share your location. Move the map until the pin is on the spot, or choose a barangay.';
+
+  @override
+  String get webLocationUnavailable =>
+      'Couldn\'t get your location. Move the map until the pin is on the spot, or choose a barangay.';
+
+  @override
+  String webQuotaLeft(int remaining, int limit) {
+    return '$remaining of $limit reports left this hour';
+  }
+
+  @override
+  String webQuotaNone(int limit, String time) {
+    return 'You\'ve sent $limit reports in the last hour. Try again after $time.';
+  }
+
+  @override
+  String webQuotaNoneLater(int limit) {
+    return 'You\'ve sent $limit reports in the last hour. Try again later.';
+  }
+
+  @override
+  String get webSuspended =>
+      'This account cannot send reports right now. In an emergency, call MDRRMD.';
+
+  @override
+  String get webRateLimited =>
+      'You\'ve reached the hourly limit for reports. Try again later.';
+
+  @override
+  String get webSend => 'Send report';
+
+  @override
+  String get webSending => 'Sending';
+
+  @override
+  String get webOutsideManila =>
+      'This location is outside Manila City. S.A.G.I.P. covers Manila only.';
+
+  @override
+  String get webNeedLocation =>
+      'Choose where it is: use your location, move the map, or choose a barangay.';
+
+  @override
+  String get webConnectionLost =>
+      'Connection lost. Your report is kept on this page. Send it when you\'re back online.';
+
+  @override
+  String get webPinLabel => 'Report location';
+
+  @override
+  String get webSearchBarangay => 'Search barangays';
+
+  @override
+  String get webNoBarangayMatch => 'No barangay matches that.';
+
+  @override
+  String get webReceivedTitle => 'Report received';
+
+  @override
+  String webReference(String id) {
+    return 'Reference $id';
+  }
+
+  @override
+  String get webReceivedBody =>
+      'MDRRMD checks it against other reports nearby. A single report is never confirmed on its own.';
+
+  @override
+  String get webRecentTitle => 'Your recent reports';
+
+  @override
+  String get webNoReports => 'No reports yet.';
+
+  @override
+  String get webReportsFailed => 'Couldn\'t load your reports.';
+
+  @override
+  String get webSendAnother => 'Send another report';
+
+  @override
+  String get webSentFromApp => 'Sent from the app';
+
+  @override
+  String get webSentFromWeb => 'Sent from the web form';
+
+  @override
+  String webReportWhen(String date, String time) {
+    return '$date, $time';
+  }
+
+  @override
+  String get webStageReceived => 'Received';
+
+  @override
+  String get webStageChecking => 'Checking';
+
+  @override
+  String get webStageConfirmed => 'Confirmed';
+
+  @override
+  String get webStageNotConfirmed => 'Not confirmed';
+
+  @override
+  String get webStageResolved => 'Resolved';
+
+  @override
   String get auditEmpty => 'No actions recorded yet.';
 
   @override
