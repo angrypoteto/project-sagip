@@ -87,6 +87,9 @@ enum AuditAction {
   passwordReset,
   residentSuspended,
   residentRestored,
+
+  /// A simulated PAGASA reading in simulation mode (A3).
+  weatherSimulated,
 }
 
 /// Reads a timestamp from JSON and converts it to local time (the database

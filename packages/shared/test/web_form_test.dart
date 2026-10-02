@@ -204,17 +204,22 @@ void main() {
         password: MockSeed.demoPassword,
       );
       final before = await settings.watch().first;
-      final limit = before.firstWhere((s) => s.key == reportsPerHourKey);
+      final limit = before.firstWhere(
+        (s) => s.key == SettingKeys.reportsPerHour,
+      );
       expect((limit.value, limit.min, limit.max), (5, 1, 30));
       expect(limit.category, 'reports');
 
       await expectLater(
-        settings.set(reportsPerHourKey, 0),
+        settings.set(SettingKeys.reportsPerHour, 0),
         rejected(ActionRejection.invalidValue),
       );
-      await settings.set(reportsPerHourKey, 8);
+      await settings.set(SettingKeys.reportsPerHour, 8);
       final after = await settings.watch().first;
-      expect(after.firstWhere((s) => s.key == reportsPerHourKey).value, 8);
+      expect(
+        after.firstWhere((s) => s.key == SettingKeys.reportsPerHour).value,
+        8,
+      );
       // The priority rules ignore settings from other groups.
       expect(PriorityRules.fromSettings(after).sosPoints, 50);
 
@@ -222,7 +227,7 @@ void main() {
       final entry = audit.firstWhere(
         (e) => e.action == AuditAction.settingChanged,
       );
-      expect(entry.targetId, reportsPerHourKey);
+      expect(entry.targetId, SettingKeys.reportsPerHour);
       expect(entry.detail, '5 → 8');
     });
 
@@ -232,7 +237,7 @@ void main() {
         password: MockSeed.demoPassword,
       );
       await expectLater(
-        settings.set(reportsPerHourKey, 8),
+        settings.set(SettingKeys.reportsPerHour, 8),
         rejected(ActionRejection.notAllowed),
       );
     });

@@ -1,4 +1,5 @@
 import '../algorithms/routing_log.dart';
+import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
@@ -192,7 +193,44 @@ class MockSettingsRepository implements SettingsRepository {
   Stream<List<AppSetting>> watch() => _backend.watchSettings();
 
   @override
-  Future<void> set(String key, num value) => _backend.setSetting(key, value);
+  Future<void> set(String key, Object value) => _backend.setSetting(key, value);
+}
+
+class MockAlertLogRepository implements AlertLogRepository {
+  const MockAlertLogRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<SentAlert>> watchRecent({int limit = 30}) =>
+      _backend.watchAlertLog(limit);
+}
+
+class MockSimulationRepository implements SimulationRepository {
+  const MockSimulationRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Future<void> simulateWeather({
+    required int signal,
+    required double rainfallMmPerHour,
+    double? surgeMeters,
+  }) => _backend.simulateWeather(
+    signal: signal,
+    rainfallMmPerHour: rainfallMmPerHour,
+    surgeMeters: surgeMeters,
+  );
+}
+
+/// The hotline and gateway number as set on the mock's A3.
+class MockClientConfigRepository implements ClientConfigRepository {
+  const MockClientConfigRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Future<ClientConfig> fetch() async => _backend.clientConfig;
 }
 
 class MockUnitRepository implements UnitRepository {

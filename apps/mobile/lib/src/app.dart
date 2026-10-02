@@ -35,6 +35,10 @@ class SagipMobileApp extends ConsumerWidget {
       );
     });
 
+    // Fetched when the app starts and kept for as long as it runs: the
+    // hotline and the SMS gateway number an administrator set on A3.
+    ref.listen(clientConfigProvider, (_, _) {});
+
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,

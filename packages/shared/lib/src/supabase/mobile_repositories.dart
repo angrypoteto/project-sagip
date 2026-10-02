@@ -27,7 +27,8 @@ class SupabaseMobileBackend {
       alerts = SupabaseAlertRepository(client),
       weather = SupabaseWeatherRepository(client),
       remote = SupabaseMobileRemote(client),
-      routing = SupabaseRoutingLog(client);
+      routing = SupabaseRoutingLog(client),
+      config = SupabaseClientConfigRepository(client);
 
   final StreamController<Object?> _profileChanged;
   final SupabaseMobileAccounts accounts;
@@ -39,6 +40,9 @@ class SupabaseMobileBackend {
 
   /// The Dijkstra timing log (responders' phones route on their own).
   final SupabaseRoutingLog routing;
+
+  /// The hotline and the SMS gateway number set on A3.
+  final SupabaseClientConfigRepository config;
 
   Future<void> dispose() => _profileChanged.close();
 }

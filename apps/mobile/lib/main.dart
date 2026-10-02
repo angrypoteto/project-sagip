@@ -20,8 +20,10 @@ import 'src/providers.dart';
 const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const _supabaseKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 
-/// The MDRRMD gateway SIM's number for Tier 2 (an SOS by SMS). Without it
-/// an SOS waits on the phone until there is internet.
+/// The MDRRMD gateway SIM's number for Tier 2 (an SOS by SMS), fixed at
+/// build time. Usually empty: the app then uses the number an administrator
+/// set on A3. With neither, an SOS waits on the phone until there is
+/// internet.
 const _smsGateway = String.fromEnvironment('SMS_GATEWAY_NUMBER');
 
 Future<void> main() async {
@@ -45,16 +47,15 @@ Future<List<Override>> _live() async {
   final location = DeviceLocationService();
   Stream<bool> online() =>
       signal.watch().map((s) => s == SignalState.internet).distinct();
-  final sms = _smsGateway.isEmpty
-      ? null
-      : SmsTier(
-          sender: const DeviceSmsSender(),
-          gatewayNumber: _smsGateway,
-          available: signal
-              .watch()
-              .map((s) => s == SignalState.smsOnly)
-              .distinct(),
-        );
+  // The gateway number: from the build, or the one set on A3 (the phone
+  // keeps the last copy, so it is there with no data).
+  final config = CachedClientConfig(backend.config, store);
+  final sms = SmsTier(
+    sender: const DeviceSmsSender(),
+    gatewayNumber: () =>
+        _smsGateway.isNotEmpty ? _smsGateway : config.saved.smsGateway,
+    available: signal.watch().map((s) => s == SignalState.smsOnly).distinct(),
+  );
   final engine = SyncEngine(
     store: store,
     sender: ServerSender(backend.remote),
@@ -83,11 +84,7 @@ Future<List<Override>> _live() async {
     signal: signal,
     location: location,
     permissions: DevicePermissionService(store),
+    config: config,
     recheckSignal: signal.checkNow,
-    capabilities: DeviceCapabilities(
-      smsTier: sms != null,
-      relayTier: false,
-      offlineMaps: false,
-    ),
   );
 }

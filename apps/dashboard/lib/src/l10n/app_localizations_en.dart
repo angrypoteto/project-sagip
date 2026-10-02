@@ -1637,6 +1637,238 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingReportsPerHour => 'Reports per account each hour';
 
   @override
+  String get configAlertsTitle => 'Alert thresholds';
+
+  @override
+  String get configAlertsNote =>
+      'A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. EFCOS water levels are not connected yet.';
+
+  @override
+  String get settingRainfallWarning => 'Rainfall warning, mm per hour';
+
+  @override
+  String get settingRainfallCritical => 'Rainfall critical, mm per hour';
+
+  @override
+  String get settingSignalWarning => 'Wind signal warning';
+
+  @override
+  String get settingSignalCritical => 'Wind signal critical';
+
+  @override
+  String get settingSurgeWarning => 'Storm surge warning, metres';
+
+  @override
+  String get settingSurgeCritical => 'Storm surge critical, metres';
+
+  @override
+  String get settingWarningAboveCritical =>
+      'Warning must be at or below Critical.';
+
+  @override
+  String get configChannelsTitle => 'Alert channels';
+
+  @override
+  String get configChannelsNote =>
+      'Alerts always appear in the apps. These switches decide where else the next alert goes.';
+
+  @override
+  String get channelPush => 'Push notifications';
+
+  @override
+  String get channelPushNote =>
+      'Needs the Firebase project, which is not set up yet.';
+
+  @override
+  String get channelSmsSetting => 'SMS to residents in the affected barangays';
+
+  @override
+  String get channelSmsNote =>
+      'Sent through Semaphore; each text costs credit.';
+
+  @override
+  String get channelFacebook => 'MDRRMD Facebook Page';
+
+  @override
+  String get channelFacebookNote =>
+      'Needs the page\'s approval and access token.';
+
+  @override
+  String get configContactTitle => 'Numbers shown in the apps';
+
+  @override
+  String get configContactNote =>
+      'The apps read these when they start. Leave one empty to hide it.';
+
+  @override
+  String get settingHotline => 'MDRRMD hotline';
+
+  @override
+  String get settingHotlineHint => 'For example (02) 8527-0000';
+
+  @override
+  String get settingHotlineError =>
+      'Use digits, spaces, and + ( ) - only, up to 40 characters.';
+
+  @override
+  String get settingGateway => 'SMS gateway number for SOS by text';
+
+  @override
+  String get settingGatewayHint => 'For example 0917 123 4567';
+
+  @override
+  String get settingGatewayError =>
+      'Enter a Philippine mobile number like 0917 123 4567, or leave it empty.';
+
+  @override
+  String get configSimulationTitle => 'Simulation mode';
+
+  @override
+  String get configSimulationNote =>
+      'For demos and UAT. A simulated reading raises alerts marked Simulated: they appear in the apps and are never texted or posted.';
+
+  @override
+  String get simulationSwitch => 'Simulation mode';
+
+  @override
+  String get simulationOnCaption => 'On. Simulated readings can be sent.';
+
+  @override
+  String get simulationOffCaption =>
+      'Off. Turn it on to send a simulated reading.';
+
+  @override
+  String get simulateTitle => 'Send a simulated PAGASA reading';
+
+  @override
+  String get simulateTyphoon => 'Typhoon: Signal 3, 35 mm/hr, 2.5 m surge';
+
+  @override
+  String get simulateRain => 'Heavy rain: 22 mm/hr';
+
+  @override
+  String get simulateCalm => 'Calm: no signal, 2 mm/hr';
+
+  @override
+  String get simulationSent => 'Simulated reading sent';
+
+  @override
+  String get unsavedTitle => 'Leave without saving?';
+
+  @override
+  String get unsavedBody => 'Changes on this page have not been saved.';
+
+  @override
+  String get unsavedStay => 'Stay';
+
+  @override
+  String get unsavedLeave => 'Leave';
+
+  @override
+  String get actionWeatherSimulated => 'Simulated a weather reading';
+
+  @override
+  String get levelInfo => 'Advisory';
+
+  @override
+  String get levelWarning => 'Warning';
+
+  @override
+  String get levelCritical => 'Critical';
+
+  @override
+  String thresholdNote(String warning, String critical) {
+    return 'Warning from $warning, critical from $critical';
+  }
+
+  @override
+  String stormSurgeMeters(String meters) {
+    return 'Up to $meters m';
+  }
+
+  @override
+  String get alertLogTitle => 'Alerts sent';
+
+  @override
+  String get alertLogNote =>
+      'Every alert and what happened to it on each channel (FR6).';
+
+  @override
+  String get alertLogEmpty => 'No alerts sent yet.';
+
+  @override
+  String get alertLogFailed => 'Couldn\'t load the alert log.';
+
+  @override
+  String get alertAllManila => 'All of Manila';
+
+  @override
+  String get alertSimulated => 'Simulated';
+
+  @override
+  String get alertEnded => 'Ended';
+
+  @override
+  String get alertAutomatic => 'Raised by a threshold';
+
+  @override
+  String alertFrom(String source, String time) {
+    return '$source, $time';
+  }
+
+  @override
+  String get sourcePagasa => 'PAGASA';
+
+  @override
+  String get sourcePhivolcs => 'PHIVOLCS';
+
+  @override
+  String get sourceEfcos => 'EFCOS';
+
+  @override
+  String get sourceMdrrmd => 'MDRRMD';
+
+  @override
+  String get alertChannelApp => 'In the apps';
+
+  @override
+  String get alertChannelPush => 'Push';
+
+  @override
+  String get alertChannelSms => 'SMS';
+
+  @override
+  String get alertChannelFacebook => 'Facebook';
+
+  @override
+  String get deliveryQueued => 'Waiting to send';
+
+  @override
+  String get deliverySent => 'Sent';
+
+  @override
+  String get deliveryFailed => 'Failed';
+
+  @override
+  String get deliveryOff => 'Switched off';
+
+  @override
+  String get deliverySimulated => 'Not sent (simulated)';
+
+  @override
+  String get deliveryNotSetUp => 'Not set up';
+
+  @override
+  String deliveryLine(String channel, String status) {
+    return '$channel: $status';
+  }
+
+  @override
+  String deliveryCounts(String channel, int delivered, int recipients) {
+    return '$channel: $delivered of $recipients delivered';
+  }
+
+  @override
   String get webAppTitle => 'S.A.G.I.P. hazard report';
 
   @override

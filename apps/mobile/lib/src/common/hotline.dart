@@ -1,17 +1,20 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../l10n/app_localizations.dart';
+import '../providers.dart';
 
-/// The MDRRMD hotline, set at build time with
-/// `--dart-define=MDRRMD_HOTLINE=...`. Empty until the Data role gets the
-/// official number (plan section 6); the dialog says so instead of showing
-/// a made-up number.
-const mdrrmdHotline = String.fromEnvironment('MDRRMD_HOTLINE');
-
+/// The MDRRMD hotline: the number an administrator set on A3 (or one fixed
+/// at build time with `--dart-define=MDRRMD_HOTLINE=...`). Until MDRRMD's
+/// number is set the dialog says so instead of showing a made-up number.
 Future<void> showHotlineDialog(BuildContext context) {
   final l10n = AppLocalizations.of(context);
+  final mdrrmdHotline = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(hotlineProvider);
   return showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(

@@ -18,6 +18,7 @@ import 'features/shell/not_found_page.dart';
 import 'features/units/units_page.dart';
 import 'features/vulnerable/vulnerable_page.dart';
 import 'features/weather/weather_page.dart';
+import 'l10n/app_localizations.dart';
 import 'providers.dart';
 
 abstract final class Routes {
@@ -46,6 +47,30 @@ abstract final class Routes {
 }
 
 Page<void> _page(Widget child) => NoTransitionPage(child: child);
+
+/// "Leave without saving?" Stay is the safe answer and what closing the
+/// dialog means.
+Future<bool> confirmLeaveUnsaved(BuildContext context) async {
+  final l10n = AppLocalizations.of(context);
+  final leave = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.unsavedTitle),
+      content: Text(l10n.unsavedBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(l10n.unsavedStay),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(l10n.unsavedLeave),
+        ),
+      ],
+    ),
+  );
+  return leave ?? false;
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Re-run redirects whenever the signed-in user changes.
@@ -168,6 +193,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: Routes.settings,
+            // A3 guards against leaving with unsaved changes (plan 7.4).
+            onExit: (context, state) async {
+              final unsaved = ref.read(unsavedChangesProvider);
+              if (!unsaved.any) return true;
+              final leave = await confirmLeaveUnsaved(context);
+              if (leave) unsaved.clear();
+              return leave;
+            },
             pageBuilder: (context, state) => _page(const ConfigurationPage()),
           ),
           GoRoute(

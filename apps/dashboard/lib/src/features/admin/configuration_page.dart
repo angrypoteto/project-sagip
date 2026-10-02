@@ -9,10 +9,14 @@ import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../common_page.dart';
+import 'settings_cards.dart';
 
-/// A3 Configuration (admin): the Triage Queue priority weights with a live
-/// preview of the ranking, and the thesis's algorithm parameters read-only
-/// (plan 7.4). Every saved change is audited by the database (FR11).
+/// A3 Configuration (admin, plan 7.4): the Triage Queue priority weights
+/// with a live preview of the ranking, alert thresholds, the crowd report
+/// limit, alert channels, the numbers the apps show, simulation mode, and
+/// the thesis's algorithm parameters read-only. Every saved change is
+/// audited by the database (FR11). The router asks before leaving the page
+/// with unsaved changes.
 class ConfigurationPage extends ConsumerWidget {
   const ConfigurationPage({super.key});
 
@@ -31,12 +35,75 @@ class ConfigurationPage extends ConsumerWidget {
           children: [
             _PriorityEditor(settings: settings),
             const SizedBox(height: SagipSpace.xl),
-            _NumberSettingsCard(
-              title: l10n.configReportsTitle,
-              note: l10n.configReportsNote,
-              labels: {reportsPerHourKey: l10n.settingReportsPerHour},
+            NumberSettingsCard(
+              id: 'alerts',
+              title: l10n.configAlertsTitle,
+              note: l10n.configAlertsNote,
+              labels: {
+                SettingKeys.rainfallWarning: l10n.settingRainfallWarning,
+                SettingKeys.rainfallCritical: l10n.settingRainfallCritical,
+                SettingKeys.signalWarning: l10n.settingSignalWarning,
+                SettingKeys.signalCritical: l10n.settingSignalCritical,
+                SettingKeys.surgeWarning: l10n.settingSurgeWarning,
+                SettingKeys.surgeCritical: l10n.settingSurgeCritical,
+              },
+              pairProblem: l10n.settingWarningAboveCritical,
               settings: settings,
             ),
+            const SizedBox(height: SagipSpace.xl),
+            SwitchSettingsCard(
+              title: l10n.configChannelsTitle,
+              note: l10n.configChannelsNote,
+              switches: [
+                (
+                  key: SettingKeys.pushChannel,
+                  label: l10n.channelPush,
+                  caption: l10n.channelPushNote,
+                ),
+                (
+                  key: SettingKeys.smsChannel,
+                  label: l10n.channelSmsSetting,
+                  caption: l10n.channelSmsNote,
+                ),
+                (
+                  key: SettingKeys.facebookChannel,
+                  label: l10n.channelFacebook,
+                  caption: l10n.channelFacebookNote,
+                ),
+              ],
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
+            NumberSettingsCard(
+              id: 'reports',
+              title: l10n.configReportsTitle,
+              note: l10n.configReportsNote,
+              labels: {SettingKeys.reportsPerHour: l10n.settingReportsPerHour},
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
+            TextSettingsCard(
+              id: 'contact',
+              title: l10n.configContactTitle,
+              note: l10n.configContactNote,
+              fields: [
+                (
+                  key: SettingKeys.hotline,
+                  label: l10n.settingHotline,
+                  hint: l10n.settingHotlineHint,
+                  problem: l10n.settingHotlineError,
+                ),
+                (
+                  key: SettingKeys.smsGateway,
+                  label: l10n.settingGateway,
+                  hint: l10n.settingGatewayHint,
+                  problem: l10n.settingGatewayError,
+                ),
+              ],
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
+            SimulationCard(settings: settings),
             const SizedBox(height: SagipSpace.xl),
             const _AlgorithmCard(),
           ],
@@ -57,7 +124,9 @@ class _PriorityEditor extends ConsumerStatefulWidget {
 
 class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
   final _fields = <String, TextEditingController>{};
+  late final UnsavedChanges _unsaved;
   var _busy = false;
+  var _syncing = false;
 
   Map<String, AppSetting> get _saved => {
     for (final s in widget.settings) s.key: s,
@@ -66,26 +135,46 @@ class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
   @override
   void initState() {
     super.initState();
+    _unsaved = ref.read(unsavedChangesProvider);
     for (final key in PriorityRules.settingKeys) {
-      _fields[key] = TextEditingController(text: _plain(_saved[key]?.value))
-        ..addListener(() => setState(() {}));
+      _fields[key] = TextEditingController(text: _savedText(key))
+        ..addListener(_changed);
     }
+  }
+
+  String _savedText(String key) {
+    final value = _saved[key]?.value;
+    return _plain(value is num ? value : null);
+  }
+
+  void _changed() {
+    // Text set while the widget rebuilds is already part of that build.
+    if (_syncing) return;
+    _unsaved.set('priority', dirty: _dirty);
+    setState(() {});
   }
 
   @override
   void didUpdateWidget(_PriorityEditor old) {
     super.didUpdateWidget(old);
     // Another admin saved: take the new values unless this one is editing.
-    if (!_dirty) {
-      for (final key in PriorityRules.settingKeys) {
-        final text = _plain(_saved[key]?.value);
-        if (_fields[key]!.text != text) _fields[key]!.text = text;
+    final before = {for (final s in old.settings) s.key: s.value};
+    _syncing = true;
+    for (final key in PriorityRules.settingKeys) {
+      final was = before[key];
+      final wasText = _plain(was is num ? was : null);
+      final now = _savedText(key);
+      if (wasText != now && _fields[key]!.text == wasText) {
+        _fields[key]!.text = now;
       }
     }
+    _syncing = false;
+    _unsaved.set('priority', dirty: _dirty);
   }
 
   @override
   void dispose() {
+    _unsaved.set('priority', dirty: false);
     for (final c in _fields.values) {
       c.dispose();
     }
@@ -141,7 +230,7 @@ class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
     final newCritical = _draftValue('priority.critical_at');
     final oldHigh = _saved['priority.high_at']?.value;
     final criticalFirst =
-        newCritical != null && oldHigh != null && newCritical >= oldHigh;
+        newCritical != null && oldHigh is num && newCritical >= oldHigh;
     changed.sort((a, b) {
       int rank(String k) => switch (k) {
         'priority.critical_at' => criticalFirst ? 0 : 2,
@@ -161,7 +250,7 @@ class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
 
   void _discard() {
     for (final key in PriorityRules.settingKeys) {
-      _fields[key]!.text = _plain(_saved[key]?.value);
+      _fields[key]!.text = _savedText(key);
     }
   }
 
@@ -312,201 +401,6 @@ class _PriorityEditorState extends ConsumerState<_PriorityEditor> {
     'priority.high_at' => l10n.settingHighAt,
     _ => key,
   };
-}
-
-/// A group of number settings with their own Save and Discard (the crowd
-/// report limit so far). Each setting is checked against its range before
-/// Save turns on; the database checks again and audits the change.
-class _NumberSettingsCard extends ConsumerStatefulWidget {
-  const _NumberSettingsCard({
-    required this.title,
-    required this.note,
-    required this.labels,
-    required this.settings,
-  });
-
-  final String title;
-  final String note;
-
-  /// Setting key to its label, in the order shown.
-  final Map<String, String> labels;
-  final List<AppSetting> settings;
-
-  @override
-  ConsumerState<_NumberSettingsCard> createState() =>
-      _NumberSettingsCardState();
-}
-
-class _NumberSettingsCardState extends ConsumerState<_NumberSettingsCard> {
-  final _fields = <String, TextEditingController>{};
-  var _busy = false;
-
-  Map<String, AppSetting> get _saved => {
-    for (final s in widget.settings) s.key: s,
-  };
-
-  Iterable<String> get _keys =>
-      widget.labels.keys.where((k) => _saved.containsKey(k));
-
-  static String _plain(num? v) => v == null
-      ? ''
-      : (v == v.roundToDouble() ? v.round().toString() : v.toString());
-
-  @override
-  void initState() {
-    super.initState();
-    for (final key in widget.labels.keys) {
-      _fields[key] = TextEditingController(text: _plain(_saved[key]?.value))
-        ..addListener(() => setState(() {}));
-    }
-  }
-
-  @override
-  void didUpdateWidget(_NumberSettingsCard old) {
-    super.didUpdateWidget(old);
-    // Another admin saved: take the new values unless this one is editing.
-    final before = {for (final s in old.settings) s.key: s.value};
-    for (final key in _keys) {
-      final was = _plain(before[key]);
-      final now = _plain(_saved[key]?.value);
-      if (was != now && _fields[key]!.text == was) _fields[key]!.text = now;
-    }
-  }
-
-  @override
-  void dispose() {
-    for (final c in _fields.values) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  num? _draft(String key) => num.tryParse(_fields[key]!.text.trim());
-
-  bool get _dirty => _keys.any((k) => _draft(k) != _saved[k]?.value);
-
-  String? _problem(String key, AppLocalizations l10n) {
-    final s = _saved[key]!;
-    final v = _draft(key);
-    if (v == null) return l10n.settingNotNumber;
-    return checkSetting(_saved, key, v) == null
-        ? null
-        : l10n.settingOutOfRange(_plain(s.min), _plain(s.max));
-  }
-
-  Future<void> _save() async {
-    final l10n = AppLocalizations.of(context);
-    final repo = ref.read(settingsRepositoryProvider);
-    final changed = {
-      for (final k in _keys)
-        if (_draft(k) != _saved[k]?.value) k: _draft(k)!,
-    };
-    setState(() => _busy = true);
-    await runAction(context, () async {
-      for (final e in changed.entries) {
-        await repo.set(e.key, e.value);
-      }
-    }, success: l10n.settingsSaved);
-    if (mounted) setState(() => _busy = false);
-  }
-
-  void _discard() {
-    for (final key in _keys) {
-      _fields[key]!.text = _plain(_saved[key]?.value);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final text = Theme.of(context).textTheme;
-    final p = SagipPalette.of(context);
-    final online = ref.watch(isOnlineProvider);
-    final problems = {for (final k in _keys) k: _problem(k, l10n)};
-    final valid = problems.values.every((e) => e == null);
-    if (_keys.isEmpty) return const SizedBox.shrink();
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(SagipSpace.xl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(widget.title, style: text.titleMedium),
-            const SizedBox(height: SagipSpace.xs),
-            Text(widget.note, style: text.bodySmall),
-            const SizedBox(height: SagipSpace.lg),
-            for (final key in _keys)
-              Padding(
-                padding: const EdgeInsets.only(bottom: SagipSpace.md),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: SagipSpace.md),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(widget.labels[key]!, style: text.bodyLarge),
-                            Text(
-                              l10n.settingRange(
-                                _plain(_saved[key]!.min),
-                                _plain(_saved[key]!.max),
-                              ),
-                              style: text.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: SagipSpace.lg),
-                    SizedBox(
-                      width: 180,
-                      child: TextField(
-                        key: ValueKey('setting-$key'),
-                        controller: _fields[key],
-                        enabled: online && !_busy,
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.end,
-                        style: text.bodyLarge!.copyWith(
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                        decoration: InputDecoration(
-                          labelText: widget.labels[key],
-                          errorText: problems[key],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            if (!online)
-              Text(
-                l10n.offlineActionsDisabled,
-                style: text.bodySmall!.copyWith(color: p.warning.text),
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  key: ValueKey('discard-${widget.labels.keys.first}'),
-                  onPressed: _dirty && !_busy ? _discard : null,
-                  child: Text(l10n.discardChanges),
-                ),
-                const SizedBox(width: SagipSpace.sm),
-                FilledButton(
-                  key: ValueKey('save-${widget.labels.keys.first}'),
-                  onPressed: online && valid && _dirty && !_busy ? _save : null,
-                  child: Text(l10n.saveChanges),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 /// The live preview (plan 7.4 A3): the active incidents ranked now with

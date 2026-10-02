@@ -208,9 +208,47 @@ abstract interface class SettingsRepository {
   /// Every setting, sorted by key, live.
   Stream<List<AppSetting>> watch();
 
-  /// Admins only; each change is audited. Throws [ActionRejected] with
-  /// `invalidValue` for a value outside its range.
-  Future<void> set(String key, num value);
+  /// Admins only; each change is audited. [value] is a number, a switch
+  /// (`bool`), or text, the same type the setting already has. Throws
+  /// [ActionRejected] with `invalidValue` for a value the setting's rule
+  /// refuses.
+  Future<void> set(String key, Object value);
+}
+
+/// D10: alerts with what happened to them on each channel (dispatchers and
+/// admins).
+abstract interface class AlertLogRepository {
+  /// Newest first.
+  Stream<List<SentAlert>> watchRecent({int limit});
+}
+
+/// Simulation mode (A3, plan section 12): a simulated PAGASA reading for
+/// demos and UAT. Admins only, only while simulation mode is on, audited.
+/// The threshold engine treats it like any reading; the alerts it raises
+/// are marked simulated and are never texted or posted.
+abstract interface class SimulationRepository {
+  Future<void> simulateWeather({
+    required int signal,
+    required double rainfallMmPerHour,
+    double? surgeMeters,
+  });
+}
+
+/// The hotline and the SMS gateway number an administrator set on A3,
+/// readable before sign-in.
+abstract interface class ClientConfigRepository {
+  /// Throws when the server cannot be reached; callers keep what they had.
+  Future<ClientConfig> fetch();
+}
+
+/// A fixed [ClientConfig]: sample data, tests, and builds with no server.
+class StaticClientConfigRepository implements ClientConfigRepository {
+  const StaticClientConfigRepository([this.config = const ClientConfig()]);
+
+  final ClientConfig config;
+
+  @override
+  Future<ClientConfig> fetch() async => config;
 }
 
 /// The Dijkstra timing log for Chapter 4 (plan 10.2). Logging never throws

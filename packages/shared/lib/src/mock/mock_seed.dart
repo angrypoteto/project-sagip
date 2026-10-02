@@ -1,3 +1,4 @@
+import '../models/alerts.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
@@ -695,6 +696,79 @@ class MockSeed {
     issuedAt: ago(2),
     isSimulated: true,
   );
+
+  /// The four sample alerts of the demo data with their deliveries: shown
+  /// in the apps, never sent outside them (simulated).
+  List<SentAlert> get sentAlerts {
+    SentAlert sample(
+      String id,
+      AlertSource source,
+      AlertLevel level,
+      String title,
+      String body,
+      int minutesAgo, [
+      List<String> barangays = const [],
+    ]) => SentAlert(
+      alert: PublicAlert(
+        id: id,
+        source: source,
+        level: level,
+        title: title,
+        body: body,
+        issuedAt: ago(minutesAgo),
+        barangays: barangays,
+        isSimulated: true,
+      ),
+      deliveries: [
+        for (final c in AlertChannel.values)
+          AlertDelivery(
+            channel: c,
+            status: c == AlertChannel.app
+                ? AlertDeliveryStatus.sent
+                : AlertDeliveryStatus.simulated,
+          ),
+      ],
+    );
+
+    return [
+      sample(
+        'alert-mdrrmd-1',
+        AlertSource.mdrrmd,
+        AlertLevel.warning,
+        'Flooding on Dapitan St and España Blvd',
+        'Rescue teams are responding to knee-deep flooding along Dapitan '
+            'St. Avoid the area if you can.',
+        25,
+        const ['Barangay 412', 'Barangay 490'],
+      ),
+      sample(
+        'alert-pagasa-rain',
+        AlertSource.pagasa,
+        AlertLevel.warning,
+        'Orange rainfall warning for Metro Manila',
+        'Heavy rain of 15 to 30 mm per hour is falling and may continue '
+            'for the next 3 hours.',
+        50,
+      ),
+      sample(
+        'alert-pagasa-tc',
+        AlertSource.pagasa,
+        AlertLevel.warning,
+        'Wind Signal No. 2 raised over Metro Manila',
+        'A severe tropical storm may bring gale-force winds of 62 to 88 km '
+            'per hour within 24 hours.',
+        180,
+      ),
+      sample(
+        'alert-phivolcs-1',
+        AlertSource.phivolcs,
+        AlertLevel.info,
+        'Taal Volcano advisory: possible light ashfall',
+        'PHIVOLCS reports steam and gas emission from Taal Volcano.',
+        26 * 60,
+      ),
+    ];
+  }
 
   List<AuditEntry> get audit => [
     AuditEntry(

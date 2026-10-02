@@ -50,6 +50,8 @@ class SupabaseBackend {
       connection = SupabaseConnectionMonitor(client),
       routing = SupabaseRoutingLog(client),
       settings = SupabaseSettingsRepository(client),
+      alertLog = SupabaseAlertLogRepository(client),
+      simulation = SupabaseSimulationRepository(client),
       analytics = SupabaseAnalyticsRepository(client),
       resources = SupabaseResourceRepository(client),
       accounts = SupabaseAccountRepository(client);
@@ -64,6 +66,8 @@ class SupabaseBackend {
   final SupabaseConnectionMonitor connection;
   final SupabaseRoutingLog routing;
   final SupabaseSettingsRepository settings;
+  final SupabaseAlertLogRepository alertLog;
+  final SupabaseSimulationRepository simulation;
   final SupabaseAnalyticsRepository analytics;
   final SupabaseResourceRepository resources;
   final SupabaseAccountRepository accounts;
@@ -302,7 +306,7 @@ class SupabaseSettingsRepository implements SettingsRepository {
   );
 
   @override
-  Future<void> set(String key, num value) async {
+  Future<void> set(String key, Object value) async {
     try {
       await _call(
         () => _client.rpc<void>(
@@ -318,6 +322,64 @@ class SupabaseSettingsRepository implements SettingsRepository {
       rethrow;
     }
   }
+}
+
+/// D10's alert log: `public_alert` with its `alert_delivery` rows.
+class SupabaseAlertLogRepository implements AlertLogRepository {
+  const SupabaseAlertLogRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<List<SentAlert>> watchRecent({int limit = 30}) => liveQuery(
+    _client,
+    tables: const ['public_alert', 'alert_delivery'],
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('public_alert')
+              .select('*, alert_delivery(*)')
+              .order('issued_at', ascending: false)
+              .limit(limit))
+        SentAlert.fromJson(r),
+    ],
+  );
+}
+
+/// Simulation mode through `simulate_weather` (admins only).
+class SupabaseSimulationRepository implements SimulationRepository {
+  const SupabaseSimulationRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Future<void> simulateWeather({
+    required int signal,
+    required double rainfallMmPerHour,
+    double? surgeMeters,
+  }) => _call(
+    () => _client.rpc<void>(
+      'simulate_weather',
+      params: {
+        'p_signal': signal,
+        'p_rainfall': rainfallMmPerHour,
+        'p_surge_m': surgeMeters,
+      },
+    ),
+  );
+}
+
+/// The hotline and SMS gateway number from `client_config()`, which needs
+/// no account.
+class SupabaseClientConfigRepository implements ClientConfigRepository {
+  const SupabaseClientConfigRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Future<ClientConfig> fetch() async => ClientConfig.fromJson(
+    await _client.rpc<Map<String, dynamic>>('client_config'),
+  );
 }
 
 /// Sends each timed Dijkstra run to `log_routing_run` (plan 10.2). Failures

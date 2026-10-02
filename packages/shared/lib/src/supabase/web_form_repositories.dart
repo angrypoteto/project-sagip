@@ -9,10 +9,14 @@ part of 'supabase_repositories.dart';
 class SupabaseWebFormBackend {
   SupabaseWebFormBackend(SupabaseClient client)
     : accounts = SupabaseMobileAccounts(client),
-      reports = SupabaseWebReportRepository(client);
+      reports = SupabaseWebReportRepository(client),
+      config = SupabaseClientConfigRepository(client);
 
   final SupabaseMobileAccounts accounts;
   final SupabaseWebReportRepository reports;
+
+  /// The hotline set on A3, shown before sign-in.
+  final SupabaseClientConfigRepository config;
 }
 
 class SupabaseWebReportRepository implements WebReportRepository {

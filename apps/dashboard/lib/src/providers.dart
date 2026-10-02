@@ -54,6 +54,12 @@ final resourceRepositoryProvider = Provider<ResourceRepository>(
 final accountRepositoryProvider = Provider<AccountRepository>(
   (ref) => _missing('AccountRepository'),
 );
+final alertLogRepositoryProvider = Provider<AlertLogRepository>(
+  (ref) => _missing('AlertLogRepository'),
+);
+final simulationRepositoryProvider = Provider<SimulationRepository>(
+  (ref) => _missing('SimulationRepository'),
+);
 
 /// Only set when running on mock data. Screens use it for the demo scenario
 /// switcher; everything else goes through the repositories above.
@@ -96,6 +102,10 @@ List<Override> _mockOverrides(
   ),
   resourceRepositoryProvider.overrideWithValue(MockResourceRepository(backend)),
   accountRepositoryProvider.overrideWithValue(MockAccountRepository(backend)),
+  alertLogRepositoryProvider.overrideWithValue(MockAlertLogRepository(backend)),
+  simulationRepositoryProvider.overrideWithValue(
+    MockSimulationRepository(backend),
+  ),
 ];
 
 /// Overrides that run the dashboard on the Supabase project (see
@@ -115,6 +125,8 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   analyticsRepositoryProvider.overrideWithValue(backend.analytics),
   resourceRepositoryProvider.overrideWithValue(backend.resources),
   accountRepositoryProvider.overrideWithValue(backend.accounts),
+  alertLogRepositoryProvider.overrideWithValue(backend.alertLog),
+  simulationRepositoryProvider.overrideWithValue(backend.simulation),
 ];
 
 // ---------------------------------------------------------------------------
@@ -291,10 +303,46 @@ final analyticsProvider = FutureProvider.autoDispose<AnalyticsReport>((ref) {
       .report(now.subtract(period.length), now.add(const Duration(minutes: 1)));
 });
 
-/// A3 settings (priority weights so far), live.
+/// A3 settings (priority weights, the report limit, alert thresholds,
+/// channels, numbers, simulation mode), live.
 final settingsProvider = StreamProvider<List<AppSetting>>(
   (ref) =>
       _forAccount(ref, () => ref.watch(settingsRepositoryProvider).watch()),
+);
+
+/// The alert thresholds an administrator set on A3; the built-in defaults
+/// until they load.
+final alertThresholdsProvider = Provider<AlertThresholds>((ref) {
+  final settings = ref.watch(settingsProvider).value;
+  return settings == null
+      ? const AlertThresholds()
+      : AlertThresholds.fromSettings(settings);
+});
+
+/// D10: alerts with what happened to them on each channel, newest first.
+final alertLogProvider = StreamProvider<List<SentAlert>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(alertLogRepositoryProvider).watchRecent(),
+  ),
+);
+
+/// Which editors on A3 have changes that are not saved yet, so the router
+/// can ask before leaving the page (plan 7.4 A3). A plain registry, not
+/// provider state: editors update it from text listeners and on dispose.
+class UnsavedChanges {
+  final _dirty = <String>{};
+
+  bool get any => _dirty.isNotEmpty;
+
+  void set(String id, {required bool dirty}) =>
+      dirty ? _dirty.add(id) : _dirty.remove(id);
+
+  void clear() => _dirty.clear();
+}
+
+final unsavedChangesProvider = Provider<UnsavedChanges>(
+  (ref) => UnsavedChanges(),
 );
 
 /// The Triage Queue rules with the weights an administrator set on A3; the

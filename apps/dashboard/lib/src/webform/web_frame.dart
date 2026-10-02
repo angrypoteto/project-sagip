@@ -114,6 +114,7 @@ class SosNotice extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);
     final config = ref.watch(webConfigProvider);
+    final hotline = ref.watch(webHotlineProvider);
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: p.hairlineStrong),
@@ -131,9 +132,9 @@ class SosNotice extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SelectableText(
-                    config.hotline.isEmpty
+                    hotline.isEmpty
                         ? l10n.webSosNotice
-                        : l10n.webSosNoticeHotline(config.hotline),
+                        : l10n.webSosNoticeHotline(hotline),
                     style: text.bodyMedium,
                   ),
                   if (config.appDownloadUrl.isNotEmpty)

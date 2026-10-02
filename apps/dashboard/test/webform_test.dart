@@ -63,9 +63,13 @@ void main() {
 
   ProviderContainer newContainer({
     WebFormConfig config = const WebFormConfig(),
+    ClientConfig server = const ClientConfig(),
   }) {
     final c = ProviderContainer(
       overrides: [
+        webClientConfigRepositoryProvider.overrideWithValue(
+          StaticClientConfigRepository(server),
+        ),
         ...webMockOverrides(backend, demoTools: false),
         webMapTilesProvider.overrideWithValue(false),
         draftStoreProvider.overrideWithValue(drafts),
@@ -101,11 +105,12 @@ void main() {
   Future<ProviderContainer> pumpApp(
     WidgetTester tester, {
     WebFormConfig config = const WebFormConfig(),
+    ClientConfig server = const ClientConfig(),
   }) async {
     tester.view.physicalSize = const Size(800, 1700);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final container = newContainer(config: config);
+    final container = newContainer(config: config, server: server);
     // Kept alive so tests can read the account's reports on any page.
     container.listen(myWebReportsProvider, (_, _) {});
     await tester.pumpWidget(
@@ -212,6 +217,17 @@ void main() {
     expect(find.text('Signed in as Maria Dela Cruz'), findsOneWidget);
     // The notice follows the resident onto W2.
     expect(find.textContaining('SOS is only available'), findsOneWidget);
+  });
+
+  testWidgets('W1: the notice shows the hotline set on A3', (tester) async {
+    await pumpApp(tester, server: const ClientConfig(hotline: '911'));
+    expect(
+      find.text(
+        'SOS is only available in the S.A.G.I.P. app. In an emergency, '
+        'call MDRRMD at 911.',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('W1: a new resident creates an account on the web form', (

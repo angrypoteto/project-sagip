@@ -109,6 +109,42 @@ final capabilitiesProvider = Provider<DeviceCapabilities>(
   (ref) => DeviceCapabilities.simulated,
 );
 
+/// The hotline and the SMS gateway number an administrator set on A3.
+final clientConfigRepositoryProvider = Provider<ClientConfigRepository>(
+  (ref) => const StaticClientConfigRepository(),
+);
+
+/// The copy saved on the phone first (it is there with no internet), then
+/// the server's.
+final clientConfigProvider = StreamProvider<ClientConfig>((ref) async* {
+  final repo = ref.watch(clientConfigRepositoryProvider);
+  if (repo is CachedClientConfig) yield repo.saved;
+  try {
+    yield await repo.fetch();
+  } on Object {
+    // Keep what was saved.
+  }
+});
+
+/// Fixed at build time (`--dart-define`); usually empty, and the values
+/// set on A3 are used instead.
+const _builtHotline = String.fromEnvironment('MDRRMD_HOTLINE');
+const _builtSmsGateway = String.fromEnvironment('SMS_GATEWAY_NUMBER');
+
+/// The MDRRMD hotline; empty until MDRRMD's number is set.
+final hotlineProvider = Provider<String>(
+  (ref) => _builtHotline.isNotEmpty
+      ? _builtHotline
+      : ref.watch(clientConfigProvider).value?.hotline ?? '',
+);
+
+/// The gateway SIM for Tier 2 (an SOS by SMS); empty while unknown.
+final smsGatewayProvider = Provider<String>(
+  (ref) => _builtSmsGateway.isNotEmpty
+      ? _builtSmsGateway
+      : ref.watch(clientConfigProvider).value?.smsGateway ?? '',
+);
+
 /// Overrides that run the app on [backend] (Phase 1).
 List<Override> mockOverrides(
   MockMobileBackend backend, {
@@ -152,13 +188,21 @@ List<Override> liveOverrides({
   required SignalMonitor signal,
   required LocationService location,
   required PermissionService permissions,
+  required ClientConfigRepository config,
   Future<void> Function()? recheckSignal,
-  DeviceCapabilities capabilities = DeviceCapabilities.queueOnly,
 }) {
   String? account() => backend.accounts.currentUser?.id;
   return [
     localStoreProvider.overrideWithValue(store),
-    capabilitiesProvider.overrideWithValue(capabilities),
+    clientConfigRepositoryProvider.overrideWithValue(config),
+    // Tier 2 is promised only once the gateway number is known.
+    capabilitiesProvider.overrideWith(
+      (ref) => DeviceCapabilities(
+        smsTier: ref.watch(smsGatewayProvider).isNotEmpty,
+        relayTier: false,
+        offlineMaps: false,
+      ),
+    ),
     authRepositoryProvider.overrideWithValue(backend.accounts),
     residentAccountRepositoryProvider.overrideWithValue(backend.accounts),
     permissionServiceProvider.overrideWithValue(permissions),

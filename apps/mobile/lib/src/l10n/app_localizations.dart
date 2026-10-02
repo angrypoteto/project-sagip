@@ -769,7 +769,7 @@ abstract class AppLocalizations {
   /// No description provided for @hotlineMissing.
   ///
   /// In en, this message translates to:
-  /// **'This build doesn\'t have the MDRRMD hotline number yet.'**
+  /// **'The MDRRMD hotline number has not been set yet.'**
   String get hotlineMissing;
 
   /// No description provided for @close.

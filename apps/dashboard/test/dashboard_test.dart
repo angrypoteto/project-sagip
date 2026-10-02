@@ -250,7 +250,7 @@ void main() {
     expect(find.text('Reports per account each hour'), findsWidgets);
 
     final field = find.byKey(const ValueKey('setting-reports.per_hour'));
-    final saveKey = find.byKey(const ValueKey('save-reports.per_hour'));
+    final saveKey = find.byKey(const ValueKey('save-reports'));
     FilledButton save() => tester.widget<FilledButton>(saveKey);
     expect(save().onPressed, isNull, reason: 'nothing changed yet');
 
@@ -265,11 +265,198 @@ void main() {
     await settle(tester);
     expect(find.text('Settings saved'), findsOneWidget);
     final settings = container.read(settingsProvider).requireValue;
-    expect(settings.firstWhere((s) => s.key == reportsPerHourKey).value, 8);
+    expect(
+      settings.firstWhere((s) => s.key == SettingKeys.reportsPerHour).value,
+      8,
+    );
 
     await tester.tap(find.byTooltip('Audit log'));
     await settle(tester);
     expect(find.text('5 → 8'), findsOneWidget);
+  });
+
+  testWidgets('A3: thresholds, channels, numbers, and a simulated typhoon', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    // Tall, so every card on the page is on screen.
+    tester.view.physicalSize = const Size(1440, 4200);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Configuration'));
+    await settle(tester);
+    for (final title in [
+      'Alert thresholds',
+      'Alert channels',
+      'Numbers shown in the apps',
+      'Simulation mode',
+    ]) {
+      expect(find.text(title), findsWidgets);
+    }
+    AppSetting setting(String key) => container
+        .read(settingsProvider)
+        .requireValue
+        .firstWhere((s) => s.key == key);
+    bool enabled(String key) =>
+        tester.widget<ButtonStyleButton>(find.byKey(ValueKey(key))).onPressed !=
+        null;
+
+    // A warning above its critical value is explained on both fields.
+    final rainWarning = find.byKey(
+      const ValueKey('setting-alerts.rainfall_warning'),
+    );
+    await tester.enterText(rainWarning, '40');
+    await tester.pump();
+    expect(
+      find.text('Warning must be at or below Critical.'),
+      findsNWidgets(2),
+    );
+    expect(enabled('save-alerts'), isFalse);
+    await tester.enterText(rainWarning, '20');
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('save-alerts')));
+    await settle(tester);
+    expect(container.read(alertThresholdsProvider).rainfallWarning, 20);
+
+    // A switch applies at once.
+    await tester.tap(find.byKey(const ValueKey('switch-channels.sms')));
+    await settle(tester);
+    expect(setting(SettingKeys.smsChannel).flag, isFalse);
+
+    // The gateway must be a mobile number; it is kept as +63...
+    final gateway = find.byKey(const ValueKey('setting-contact.sms_gateway'));
+    await tester.enterText(gateway, '12345');
+    await tester.pump();
+    expect(
+      find.textContaining('Enter a Philippine mobile number'),
+      findsOneWidget,
+    );
+    expect(enabled('save-contact'), isFalse);
+    await tester.enterText(gateway, '0917 555 0199');
+    await tester.enterText(
+      find.byKey(const ValueKey('setting-contact.hotline')),
+      '(02) 8527-0000',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('save-contact')));
+    await settle(tester);
+    expect(setting(SettingKeys.smsGateway).text, '+639175550199');
+    expect(setting(SettingKeys.hotline).text, '(02) 8527-0000');
+    expect(tester.widget<TextField>(gateway).controller!.text, '+639175550199');
+
+    // Simulated readings need simulation mode.
+    expect(enabled('simulate-typhoon'), isFalse);
+    await tester.tap(find.byKey(const ValueKey('switch-demo.simulation')));
+    await settle(tester);
+    expect(enabled('simulate-typhoon'), isTrue);
+    await tester.tap(find.byKey(const ValueKey('simulate-typhoon')));
+    await settle(tester);
+
+    // D10: the reading against the thresholds, and the alerts it raised.
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+    // On the card and in the top bar.
+    expect(find.text('Signal No. 3'), findsNWidgets(2));
+    expect(find.text('Up to 2.5 m'), findsOneWidget);
+    for (final card in ['signal', 'rainfall', 'surge']) {
+      expect(
+        find.descendant(
+          of: find.byKey(ValueKey('level-$card')),
+          matching: find.text('Critical'),
+        ),
+        findsOneWidget,
+      );
+    }
+    expect(find.text('Warning from 20, critical from 30'), findsOneWidget);
+    expect(find.text('Wind Signal No. 3 raised over Manila'), findsOneWidget);
+    expect(find.text('Torrential rainfall warning'), findsOneWidget);
+    expect(find.text('Storm surge warning for Manila Bay'), findsOneWidget);
+    expect(find.text('Raised by a threshold'), findsNWidgets(3));
+    // Three new simulated alerts on top of the four samples: in the apps,
+    // never texted.
+    expect(find.text('Simulated'), findsNWidgets(7));
+    expect(find.text('In the apps: Sent'), findsNWidgets(7));
+    expect(find.text('SMS: Not sent (simulated)'), findsNWidgets(7));
+
+    await tester.tap(find.byTooltip('Audit log'));
+    await settle(tester);
+    expect(find.text('Simulated a weather reading'), findsOneWidget);
+    expect(find.text('Signal 3, 35 mm/hr, surge 2.5 m'), findsOneWidget);
+    expect(find.text('true → false'), findsOneWidget);
+  });
+
+  testWidgets('A3 asks before leaving with unsaved changes', (tester) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Configuration'));
+    await settle(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('setting-priority.sos')),
+      '60',
+    );
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Audit log'));
+    await settle(tester);
+    expect(find.text('Leave without saving?'), findsOneWidget);
+    await tester.tap(find.text('Stay'));
+    await settle(tester);
+    expect(find.text('Triage Queue priority'), findsOneWidget);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('setting-priority.sos')))
+          .controller!
+          .text,
+      '60',
+      reason: 'the edit is still there',
+    );
+
+    await tester.tap(find.byTooltip('Audit log'));
+    await settle(tester);
+    await tester.tap(find.text('Leave'));
+    await settle(tester);
+    expect(find.text('Triage Queue priority'), findsNothing);
+    expect(container.read(priorityRulesProvider).sosPoints, 50);
+
+    // With nothing unsaved, leaving does not ask.
+    await tester.tap(find.byTooltip('Configuration'));
+    await settle(tester);
+    await tester.tap(find.byTooltip('Audit log'));
+    await settle(tester);
+    expect(find.text('Leave without saving?'), findsNothing);
+  });
+
+  testWidgets('D10: readings against the thresholds and the alert log', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2400);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+    // The sample reading: signal 2 and 18 mm/hr are warnings.
+    // On the card and in the top bar.
+    expect(find.text('Signal No. 2'), findsNWidgets(2));
+    for (final card in ['signal', 'rainfall']) {
+      expect(
+        find.descendant(
+          of: find.byKey(ValueKey('level-$card')),
+          matching: find.text('Warning'),
+        ),
+        findsOneWidget,
+      );
+    }
+    expect(find.byKey(const ValueKey('level-surge')), findsNothing);
+    expect(find.text('Warning from 15, critical from 30'), findsOneWidget);
+    expect(find.text('Warning from 1, critical from 3'), findsOneWidget);
+
+    expect(find.text('Alerts sent'), findsOneWidget);
+    expect(
+      find.text('Orange rainfall warning for Metro Manila'),
+      findsOneWidget,
+    );
+    expect(find.text('Barangay 412, Barangay 490'), findsOneWidget);
+    expect(find.text('All of Manila'), findsNWidgets(3));
+    expect(find.text('Push: Not sent (simulated)'), findsNWidgets(4));
   });
 
   testWidgets('admins see analytics for a period and export them', (

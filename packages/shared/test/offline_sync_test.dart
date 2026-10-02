@@ -338,11 +338,13 @@ void main() {
   group('tier 2: SOS by SMS', () {
     const sosId = '3f2a9c1e-7b4d-4e0a-9c2f-1a2b3c4d5e6f';
     late FakeSms sms;
+    late String gateway;
     late StreamController<bool> smsAvailable;
 
     setUp(() async {
       await engine.dispose();
       sms = FakeSms();
+      gateway = '09170000000';
       smsAvailable = StreamController<bool>.broadcast();
       engine = SyncEngine(
         store: store,
@@ -353,7 +355,7 @@ void main() {
         retryDelay: (_) => const Duration(milliseconds: 10),
         sms: SmsTier(
           sender: sms,
-          gatewayNumber: '09170000000',
+          gatewayNumber: () => gateway,
           available: smsAvailable.stream,
           retryAfter: const Duration(milliseconds: 20),
         ),
@@ -450,6 +452,46 @@ void main() {
       expect(sms.sent, isEmpty);
       expect(engine.entries.single.delivery, DeliveryState.savedOnPhone);
     });
+
+    test('the gateway number can arrive later (set on A3)', () async {
+      gateway = '';
+      await signal(internet: false, texting: true);
+      await engine.add(entry(sosId, OutboxAction.sos, sos(sosId).toJson()));
+      await pumpEventQueue();
+      expect(sms.sent, isEmpty, reason: 'no number to text yet');
+      expect(engine.entries.single.delivery, DeliveryState.savedOnPhone);
+
+      gateway = '+639175550199';
+      await engine.retryNow();
+      await pumpEventQueue();
+      expect(sms.sent.single.to, '+639175550199');
+      expect(engine.entries.single.delivery, DeliveryState.sentBySms);
+    });
+
+    test(
+      'the phone keeps the hotline and gateway number for offline',
+      () async {
+        var reachable = true;
+        final cached = CachedClientConfig(
+          _Config(() {
+            if (!reachable) throw const ActionRejected(ActionRejection.offline);
+            return const ClientConfig(
+              hotline: '(02) 8527-0000',
+              smsGateway: '+639175550199',
+            );
+          }),
+          store,
+        );
+        expect(cached.saved.smsGateway, isEmpty, reason: 'nothing saved yet');
+        expect((await cached.fetch()).hotline, '(02) 8527-0000');
+
+        // No internet: a new start still has both numbers.
+        reachable = false;
+        final afterRestart = CachedClientConfig(cached, store);
+        expect(afterRestart.saved.smsGateway, '+639175550199');
+        expect((await afterRestart.fetch()).hotline, '(02) 8527-0000');
+      },
+    );
 
     test(
       'after a restart an SOS cut off mid-send stays "sent by SMS"',
@@ -836,4 +878,13 @@ class _Alerts implements AlertRepository {
   @override
   Future<void> markRead(String alertId) async =>
       throw const ActionRejected(ActionRejection.offline);
+}
+
+class _Config implements ClientConfigRepository {
+  _Config(this._read);
+
+  final ClientConfig Function() _read;
+
+  @override
+  Future<ClientConfig> fetch() async => _read();
 }

@@ -3,6 +3,7 @@
 /// Supabase implementations, algorithms, and shared widgets.
 library;
 
+export 'src/algorithms/alert_thresholds.dart';
 export 'src/algorithms/analytics.dart';
 export 'src/algorithms/dbscan.dart';
 export 'src/algorithms/dijkstra.dart';
@@ -11,6 +12,7 @@ export 'src/algorithms/priority.dart';
 export 'src/algorithms/road_graph.dart';
 export 'src/algorithms/road_router.dart';
 export 'src/algorithms/routing_log.dart';
+export 'src/algorithms/setting_checks.dart';
 export 'src/algorithms/sos_sms.dart';
 export 'src/algorithms/unit_suggester.dart';
 export 'src/data/manila_barangays.dart';

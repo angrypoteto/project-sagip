@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../algorithms/alert_thresholds.dart';
 import '../algorithms/analytics.dart';
 import '../algorithms/dbscan.dart';
 import '../algorithms/priority.dart';
+import '../algorithms/setting_checks.dart';
+import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
@@ -40,6 +43,7 @@ class MockBackend {
     _residents = LiveValue({for (final r in _seed.residents) r.id: r});
     _audit = LiveValue(_seed.audit);
     _weather = LiveValue(_seed.weather);
+    _alertLog = LiveValue(_seed.sentAlerts);
   }
 
   final DateTime Function() _clock;
@@ -56,6 +60,9 @@ class MockBackend {
   late final LiveValue<Map<String, Resident>> _residents;
   late final LiveValue<List<AuditEntry>> _audit;
   late final LiveValue<WeatherStatus> _weather;
+  late final LiveValue<List<SentAlert>> _alertLog;
+  var _nextAlertNumber = 1;
+  var _weatherSimulated = false;
   final _user = LiveValue<AppUser?>(null);
   final _link = LiveValue<LinkState>(LinkState.live);
 
@@ -82,7 +89,7 @@ class MockBackend {
   });
   final _settings = LiveValue<Map<String, AppSetting>>({
     for (final s in defaultPrioritySettings) s.key: s,
-    for (final s in defaultReportSettings) s.key: s,
+    for (final s in defaultOtherSettings) s.key: s,
   });
 
   Stream<List<AppSetting>> watchSettings() => _settings.watch().map(
@@ -90,7 +97,7 @@ class MockBackend {
   );
 
   /// A3: admins only, checked like `set_setting`, and audited (FR11).
-  Future<void> setSetting(String key, num value) async {
+  Future<void> setSetting(String key, Object value) async {
     final actor = await _authorize();
     if (!actor.isAdmin) {
       throw const ActionRejected(ActionRejection.notAllowed);
@@ -98,11 +105,12 @@ class MockBackend {
     final problem = checkSetting(_settings.value, key, value);
     if (problem != null) throw ActionRejected(problem);
     final old = _settings.value[key]!;
-    if (old.value == value) return;
+    final next = normalizeSetting(key, value);
+    if (old.value == next) return;
     _settings.value = {
       ..._settings.value,
       key: old.copyWith(
-        value: value,
+        value: next,
         updatedAt: _clock(),
         updatedBy: actor.displayName,
       ),
@@ -112,7 +120,128 @@ class MockBackend {
       AuditAction.settingChanged,
       'app_setting',
       key,
-      '${_plain(old.value)} → ${_plain(value)}',
+      '${_shown(old.value)} → ${_shown(next)}',
+    );
+  }
+
+  /// A setting value as the audit log writes it.
+  static String _shown(Object v) => v is num ? _plain(v) : '$v';
+
+  bool _flag(String key) => _settings.value[key]?.value == true;
+
+  /// What the apps read before sign-in (`client_config()`).
+  ClientConfig get clientConfig => ClientConfig(
+    hotline: '${_settings.value[SettingKeys.hotline]?.value ?? ''}',
+    smsGateway: '${_settings.value[SettingKeys.smsGateway]?.value ?? ''}',
+  );
+
+  // ------------------------------------------------------- alerts (FR5, FR6)
+
+  /// D10: alerts with their deliveries, newest first.
+  Stream<List<SentAlert>> watchAlertLog(int limit) => _alertLog.watch().map(
+    (all) =>
+        ([...all]..sort((a, b) => b.alert.issuedAt.compareTo(a.alert.issuedAt)))
+            .take(limit)
+            .toList(growable: false),
+  );
+
+  /// One delivery row per channel, as `private.queue_alert_deliveries`
+  /// writes them.
+  List<AlertDelivery> _deliveriesFor({required bool simulated}) => [
+    for (final c in AlertChannel.values)
+      AlertDelivery(
+        channel: c,
+        status: c == AlertChannel.app
+            ? AlertDeliveryStatus.sent
+            : simulated
+            ? AlertDeliveryStatus.simulated
+            : !_flag('channels.${c.name}')
+            ? AlertDeliveryStatus.off
+            : AlertDeliveryStatus.queued,
+      ),
+  ];
+
+  /// The threshold engine (`private.raise_weather_alerts`): when a hazard's
+  /// level changes, its earlier automatic alerts expire and, at warning or
+  /// critical, a new one is issued.
+  void _applyReading(WeatherStatus previous, WeatherStatus reading) {
+    final thresholds = AlertThresholds.fromSettings(_settings.value.values);
+    var log = _alertLog.value;
+    for (final change in thresholds.changes(previous, reading)) {
+      log = [
+        for (final entry in log)
+          entry.alert.hazard == change.hazard &&
+                  entry.alert.activeAt(reading.issuedAt)
+              ? SentAlert(
+                  alert: entry.alert.copyWith(expiresAt: reading.issuedAt),
+                  deliveries: entry.deliveries,
+                )
+              : entry,
+      ];
+      final level = change.level;
+      if (level == null) continue;
+      final words = weatherAlertText(change.hazard, level, change.value!);
+      log = [
+        ...log,
+        SentAlert(
+          alert: PublicAlert(
+            id: 'alert-auto-${_nextAlertNumber++}',
+            source: AlertSource.pagasa,
+            level: level,
+            title: words.title,
+            body: words.body,
+            guidance: words.guidance,
+            issuedAt: reading.issuedAt,
+            isSimulated: reading.isSimulated,
+            hazard: change.hazard,
+          ),
+          deliveries: _deliveriesFor(simulated: reading.isSimulated),
+        ),
+      ];
+    }
+    _alertLog.value = log;
+  }
+
+  /// Simulation mode (`simulate_weather`): admins only, only while the
+  /// mode is on, audited.
+  Future<void> simulateWeather({
+    required int signal,
+    required double rainfallMmPerHour,
+    double? surgeMeters,
+  }) async {
+    final actor = await _authorize();
+    if (!actor.isAdmin || !_flag(SettingKeys.simulation)) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final surge = surgeMeters == null || surgeMeters == 0 ? null : surgeMeters;
+    if (signal < 0 ||
+        signal > 5 ||
+        rainfallMmPerHour < 0 ||
+        rainfallMmPerHour > 500 ||
+        (surge != null && (surge < 0 || surge > 10))) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final previous = _weather.value;
+    _weatherSimulated = true;
+    final reading = WeatherStatus(
+      signalLevel: signal,
+      rainfallMmPerHour: rainfallMmPerHour,
+      stormSurgeAdvisory: surge == null
+          ? null
+          : 'Storm surge up to ${_plain(surge)} m possible along Manila Bay',
+      stormSurgeMeters: surge,
+      issuedAt: _clock(),
+      isSimulated: true,
+    );
+    _weather.value = reading;
+    _applyReading(previous, reading);
+    _log(
+      actor,
+      AuditAction.weatherSimulated,
+      'weather_alert',
+      'sim-$_nextAuditNumber',
+      'Signal $signal, ${_plain(rainfallMmPerHour)} mm/hr'
+          '${surge == null ? '' : ', surge ${_plain(surge)} m'}',
     );
   }
 
@@ -840,13 +969,16 @@ class MockBackend {
       }
     }
 
-    if (_elapsed.inSeconds % 30 == 0) {
+    // The demo's rainfall drifts a little, until an admin simulates a
+    // reading: from then on the weather is what they set.
+    if (_elapsed.inSeconds % 30 == 0 && !_weatherSimulated) {
       final w = _weather.value;
       final drift = (_elapsed.inSeconds ~/ 30).isEven ? 1.5 : -1.0;
       _weather.value = WeatherStatus(
         signalLevel: w.signalLevel,
         rainfallMmPerHour: (w.rainfallMmPerHour + drift).clamp(5, 40),
         stormSurgeAdvisory: w.stormSurgeAdvisory,
+        stormSurgeMeters: w.stormSurgeMeters,
         issuedAt: now,
         isSimulated: true,
       );
@@ -988,6 +1120,7 @@ class MockBackend {
       _residents,
       _audit,
       _weather,
+      _alertLog,
       _user,
       _link,
       _settings,

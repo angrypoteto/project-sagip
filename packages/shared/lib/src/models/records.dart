@@ -37,6 +37,7 @@ class WeatherStatus {
     required this.rainfallMmPerHour,
     required this.issuedAt,
     this.stormSurgeAdvisory,
+    this.stormSurgeMeters,
     this.isSimulated = false,
   });
 
@@ -44,6 +45,10 @@ class WeatherStatus {
   final int signalLevel;
   final double rainfallMmPerHour;
   final String? stormSurgeAdvisory;
+
+  /// Forecast storm surge height in metres; null when there is no
+  /// advisory (or the reading predates the column).
+  final double? stormSurgeMeters;
   final DateTime issuedAt;
 
   /// True while the prototype replays recorded data (thesis scope).
@@ -53,6 +58,7 @@ class WeatherStatus {
     signalLevel: json['signal_level']! as int,
     rainfallMmPerHour: (json['rainfall_intensity']! as num).toDouble(),
     stormSurgeAdvisory: json['storm_surge_advisory'] as String?,
+    stormSurgeMeters: (json['storm_surge_m'] as num?)?.toDouble(),
     issuedAt: timeFromJson(json['issued_at']),
     isSimulated: json['is_simulated'] as bool? ?? false,
   );
@@ -61,6 +67,7 @@ class WeatherStatus {
     'signal_level': signalLevel,
     'rainfall_intensity': rainfallMmPerHour,
     'storm_surge_advisory': stormSurgeAdvisory,
+    'storm_surge_m': stormSurgeMeters,
     'issued_at': issuedAt.toIso8601String(),
     'is_simulated': isSimulated,
   };

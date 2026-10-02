@@ -3,12 +3,46 @@ import 'dart:async';
 import '../models/alerts.dart';
 import '../models/people.dart';
 import '../models/records.dart';
+import '../models/settings.dart';
 import '../repositories/repositories.dart';
 import 'outbox.dart';
 import 'streams.dart';
 
 // Read-only data the phone keeps a copy of, so screens work offline: the
 // saved copy shows first, and the server's copy replaces it when it comes.
+
+/// The hotline and the SMS gateway number an administrator set on A3,
+/// kept on the phone: an SOS by SMS needs the gateway number exactly when
+/// there is no internet to ask for it.
+class CachedClientConfig implements ClientConfigRepository {
+  CachedClientConfig(this._inner, this._store);
+
+  final ClientConfigRepository _inner;
+  final LocalStore _store;
+  static const _key = 'client-config';
+
+  /// The last copy from the server; empty before the first one.
+  ClientConfig get saved {
+    final text = _store.read(_key);
+    if (text is! String) return const ClientConfig();
+    final json = jsonDecodeSafe(text);
+    return json is Map
+        ? ClientConfig.fromJson(json.cast<String, Object?>())
+        : const ClientConfig();
+  }
+
+  /// The server's copy, saved; the saved copy when it cannot be reached.
+  @override
+  Future<ClientConfig> fetch() async {
+    try {
+      final config = await _inner.fetch();
+      await _store.write(_key, jsonEncodeSafe(config.toJson()));
+      return config;
+    } on Object {
+      return saved;
+    }
+  }
+}
 
 /// Alerts and the forecast (R7, R8). Read marks made offline are kept on
 /// the phone and shown at once; the server learns them when back online.

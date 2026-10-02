@@ -9,6 +9,30 @@ enum AlertSource { pagasa, phivolcs, efcos, mdrrmd }
 /// How urgent an alert is. Drives the icon and tone, never color alone.
 enum AlertLevel { info, warning, critical }
 
+/// The PAGASA readings the threshold engine watches (FR5).
+enum WeatherHazard { rainfall, signal, surge }
+
+/// The ways an alert goes out (FR6). The apps always show it.
+enum AlertChannel { app, push, sms, facebook }
+
+/// What happened to an alert on one channel (`alert_delivery`).
+enum AlertDeliveryStatus {
+  /// Waiting for the sender.
+  queued,
+  sent,
+  failed,
+
+  /// The channel was switched off on A3 when the alert was issued.
+  off,
+
+  /// A simulated alert: shown in the apps, never texted or posted.
+  simulated,
+
+  /// The channel has no provider yet (no Semaphore key, no Firebase
+  /// project, no Facebook Page token).
+  notSetUp,
+}
+
 /// A public alert shown to residents (R7, R8, FR14): weather warnings,
 /// relayed advisories, and MDRRMD notices.
 @immutable
@@ -23,6 +47,9 @@ class PublicAlert {
     this.guidance = const [],
     this.barangays = const [],
     this.read = false,
+    this.isSimulated = false,
+    this.hazard,
+    this.expiresAt,
   });
 
   final String id;
@@ -45,7 +72,20 @@ class PublicAlert {
   /// Whether this resident has opened it.
   final bool read;
 
-  PublicAlert copyWith({bool? read}) => PublicAlert(
+  /// Raised by simulated data (the demo data or simulation mode).
+  final bool isSimulated;
+
+  /// Set on alerts the threshold engine issued: the reading that crossed
+  /// its threshold (FR5).
+  final WeatherHazard? hazard;
+
+  /// When it stopped being current (conditions eased, or it was replaced);
+  /// null while it is active.
+  final DateTime? expiresAt;
+
+  bool activeAt(DateTime now) => expiresAt == null || expiresAt!.isAfter(now);
+
+  PublicAlert copyWith({bool? read, DateTime? expiresAt}) => PublicAlert(
     id: id,
     source: source,
     level: level,
@@ -55,6 +95,9 @@ class PublicAlert {
     guidance: guidance,
     barangays: barangays,
     read: read ?? this.read,
+    isSimulated: isSimulated,
+    hazard: hazard,
+    expiresAt: expiresAt ?? this.expiresAt,
   );
 
   factory PublicAlert.fromJson(Map<String, Object?> json) => PublicAlert(
@@ -73,6 +116,9 @@ class PublicAlert {
         b! as String,
     ],
     read: json['read'] as bool? ?? false,
+    isSimulated: json['is_simulated'] as bool? ?? false,
+    hazard: enumFromJsonOrNull(WeatherHazard.values, json['hazard']),
+    expiresAt: timeFromJsonOrNull(json['expires_at']),
   );
 
   Map<String, Object?> toJson() => {
@@ -85,7 +131,76 @@ class PublicAlert {
     'guidance': guidance,
     'barangays': barangays,
     'read': read,
+    'is_simulated': isSimulated,
+    'hazard': hazard?.name,
+    'expires_at': expiresAt?.toUtc().toIso8601String(),
   };
+}
+
+/// One channel's outcome for an alert (D10 "log of alerts sent"). Counts
+/// only: no numbers or names.
+@immutable
+class AlertDelivery {
+  const AlertDelivery({
+    required this.channel,
+    required this.status,
+    this.recipients,
+    this.delivered,
+    this.failed,
+    this.detail,
+  });
+
+  final AlertChannel channel;
+  final AlertDeliveryStatus status;
+  final int? recipients;
+  final int? delivered;
+  final int? failed;
+  final String? detail;
+
+  factory AlertDelivery.fromJson(Map<String, Object?> json) => AlertDelivery(
+    channel: enumFromJson(AlertChannel.values, json['channel']),
+    status: enumFromJson(AlertDeliveryStatus.values, json['status']),
+    recipients: (json['recipients'] as num?)?.toInt(),
+    delivered: (json['delivered'] as num?)?.toInt(),
+    failed: (json['failed'] as num?)?.toInt(),
+    detail: json['detail'] as String?,
+  );
+
+  Map<String, Object?> toJson() => {
+    'channel': channel.name,
+    'status': status.name,
+    'recipients': recipients,
+    'delivered': delivered,
+    'failed': failed,
+    'detail': detail,
+  };
+}
+
+/// An alert with what happened to it on each channel.
+@immutable
+class SentAlert {
+  const SentAlert({required this.alert, required this.deliveries});
+
+  final PublicAlert alert;
+
+  /// In [AlertChannel] order.
+  final List<AlertDelivery> deliveries;
+
+  AlertDelivery? on(AlertChannel channel) {
+    for (final d in deliveries) {
+      if (d.channel == channel) return d;
+    }
+    return null;
+  }
+
+  /// A `public_alert` row with its `alert_delivery` rows embedded.
+  factory SentAlert.fromJson(Map<String, Object?> json) => SentAlert(
+    alert: PublicAlert.fromJson(json),
+    deliveries: [
+      for (final d in (json['alert_delivery'] as List<Object?>? ?? const []))
+        AlertDelivery.fromJson((d! as Map).cast<String, Object?>()),
+    ]..sort((a, b) => a.channel.index.compareTo(b.channel.index)),
+  );
 }
 
 /// Hazards the 72-hour forecast covers (LSTM + KDE, plan 10.5).

@@ -143,7 +143,7 @@
   "hotlineTitle": "MDRRMD hotline",
   "hotlineBody": "Call {number} from any phone.",
   "@hotlineBody": {"placeholders": {"number": {"type": "String"}}},
-  "hotlineMissing": "This build doesn't have the MDRRMD hotline number yet.",
+  "hotlineMissing": "The MDRRMD hotline number has not been set yet.",
   "close": "Close",
   "sosNotFound": "This SOS isn't on this phone anymore.",
 

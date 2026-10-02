@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(171);
+select plan(196);
 
 select public.reset_demo_data();
 
@@ -610,6 +610,106 @@ select ok(
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
 select throws_ok($$ select public.my_report_quota() $$,
   'P0001', 'not_allowed', 'staff accounts have no report quota');
+
+-- ------------------------------------- threshold engine and the rest of A3
+
+reset role;
+select ok(
+  has_function_privilege('anon', 'public.client_config()', 'execute')
+  and not has_function_privilege('anon', 'public.simulate_weather(int, numeric, numeric)', 'execute'),
+  'anyone may read the hotline and gateway number; anon cannot simulate weather');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.alert_delivery), 0,
+  'a resident cannot read the alert delivery log');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is(
+  (select count(*) filter (where channel = 'app' and status = 'sent')::text || ','
+       || count(*) filter (where status = 'simulated')::text from public.alert_delivery),
+  '4,12', 'a dispatcher reads the log: sample alerts are in the app and never sent outside it');
+select throws_ok($$ select public.simulate_weather(3, 35, 2.5) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot simulate weather');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select throws_ok($$ select public.simulate_weather(3, 35, 2.5) $$,
+  'P0001', 'not_allowed', 'simulated weather needs simulation mode');
+select throws_ok($$ select public.set_setting('demo.simulation', '1') $$,
+  'P0001', 'invalid_value', 'a switch stays a switch');
+select lives_ok($$ select public.set_setting('demo.simulation', 'true') $$,
+  'an admin turns simulation mode on');
+select throws_ok($$ select public.simulate_weather(9, 35, 2.5) $$,
+  'P0001', 'invalid_value', 'a wind signal above 5 is refused');
+-- The sample reading is signal 2 and 18 mm/hr, with no surge height.
+select lives_ok($$ select public.simulate_weather(3, 35, 2.5) $$,
+  'an admin simulates a typhoon reading');
+select results_eq(
+  $$ select hazard, level, is_simulated from public.public_alert
+      where weather_alert_id = (select max(alert_id) from public.weather_alert) order by hazard $$,
+  $$ values ('rainfall'::text, 'critical'::text, true), ('signal', 'critical', true), ('surge', 'critical', true) $$,
+  'each reading that crossed its threshold raised an alert, marked simulated (FR5)');
+select is(
+  (select string_agg(d.channel || ':' || d.status, ',' order by d.channel)
+     from public.alert_delivery d join public.public_alert a using (alert_id)
+    where a.hazard = 'surge' and a.weather_alert_id = (select max(alert_id) from public.weather_alert)),
+  'app:sent,facebook:simulated,push:simulated,sms:simulated',
+  'a simulated alert is shown in the apps and never texted or posted');
+select ok(
+  exists (select 1 from public.audit_log
+           where account_name = 'Test Admin' and action_type = 'weatherSimulated'
+             and detail = 'Signal 3, 35 mm/hr, surge 2.5 m'),
+  'the simulated reading is in the audit log (FR11)');
+select public.simulate_weather(4, 40, 3);
+select is(
+  (select count(*)::int from public.public_alert
+    where weather_alert_id = (select max(alert_id) from public.weather_alert)),
+  0, 'a reading at the same level raises nothing new');
+select public.simulate_weather(0, 2, null);
+select is(
+  (select count(*)::int from public.public_alert
+    where hazard is not null and (expires_at is null or expires_at > now())),
+  0, 'when conditions ease, the automatic alerts expire');
+select public.simulate_weather(1, 2, null);
+select public.simulate_weather(3, 2, null);
+select is(
+  (select string_agg(level, ',') from public.public_alert
+    where hazard = 'signal' and (expires_at is null or expires_at > now())),
+  'critical', 'a warning that becomes critical is replaced, not doubled');
+
+select throws_ok($$ select public.set_setting('alerts.rainfall_warning', '40') $$,
+  'P0001', 'invalid_value', 'a warning threshold cannot go above its critical one');
+select lives_ok($$ select public.set_setting('alerts.rainfall_warning', '20') $$,
+  'an admin changes an alert threshold');
+select lives_ok($$ select public.set_setting('channels.sms', 'false') $$,
+  'an admin switches a channel off');
+select lives_ok($$ select public.set_setting('contact.sms_gateway', '"0917 555 0199"') $$,
+  'an admin sets the SMS gateway number');
+select throws_ok($$ select public.set_setting('contact.sms_gateway', '"12345"') $$,
+  'P0001', 'invalid_value', 'the gateway must be a Philippine mobile number');
+select lives_ok($$ select public.set_setting('contact.hotline', '"(02) 8527-0000"') $$,
+  'an admin sets the hotline');
+select throws_ok($$ select public.set_setting('contact.hotline', '"call us"') $$,
+  'P0001', 'invalid_value', 'a hotline needs digits');
+
+-- A real reading (not simulated), as the PAGASA feed will insert it.
+reset role;
+insert into public.weather_alert (signal_level, rainfall_intensity) values (0, 22);
+select is(
+  (select string_agg(d.channel || ':' || d.status, ',' order by d.channel)
+     from public.alert_delivery d join public.public_alert a using (alert_id)
+    where a.hazard = 'rainfall' and not a.is_simulated),
+  'app:sent,facebook:off,push:queued,sms:off',
+  'a real alert waits on each channel that is on; a switched-off channel is logged as off (FR6)');
+select is(
+  (select level || ': ' || title from public.public_alert where hazard = 'rainfall' and not is_simulated),
+  'warning: Heavy rainfall warning', 'with the new threshold (20), 22 mm/hr is a warning');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(public.client_config(),
+  '{"hotline": "(02) 8527-0000", "sms_gateway": "+639175550199"}'::jsonb,
+  'the apps read the hotline and the gateway number');
 
 reset role;
 select * from finish();

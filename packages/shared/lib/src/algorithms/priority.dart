@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import '../models/enums.dart';
 import '../models/incident.dart';
 import '../models/settings.dart';
-import '../repositories/repositories.dart';
 
 /// One reason an incident scored the points it did.
 enum PriorityFactorKind { sos, cluster, vulnerable, waiting, mockLocation }
@@ -80,7 +79,11 @@ class PriorityRules {
 
   /// Rules from the A3 settings; a missing value keeps its default.
   factory PriorityRules.fromSettings(Iterable<AppSetting> settings) {
-    final v = {for (final s in settings) s.key: s.value.toDouble()};
+    // Other groups share the table; only numbers are weights.
+    final v = {
+      for (final s in settings)
+        if (s.value is num) s.key: s.number.toDouble(),
+    };
     const d = PriorityRules();
     return PriorityRules(
       sosPoints: v['priority.sos'] ?? d.sosPoints,
@@ -231,24 +234,3 @@ const defaultPrioritySettings = [
     description: 'Score at which an incident is High',
   ),
 ];
-
-/// Why a setting value is refused (the same checks as `set_setting`), or
-/// null when it is fine. [current] holds every setting by key.
-ActionRejection? checkSetting(
-  Map<String, AppSetting> current,
-  String key,
-  num value,
-) {
-  final s = current[key];
-  if (s == null) return ActionRejection.notFound;
-  if ((s.min != null && value < s.min!) || (s.max != null && value > s.max!)) {
-    return ActionRejection.invalidValue;
-  }
-  final critical = current['priority.critical_at']?.value;
-  final high = current['priority.high_at']?.value;
-  if ((key == 'priority.high_at' && critical != null && value > critical) ||
-      (key == 'priority.critical_at' && high != null && value < high)) {
-    return ActionRejection.invalidValue;
-  }
-  return null;
-}

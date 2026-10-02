@@ -21,14 +21,19 @@ void main() {
   late MockMobileBackend backend;
   late ProviderContainer container;
 
-  ProviderContainer make({bool welcomeDone = true}) => ProviderContainer(
-    overrides: [
-      ...mockOverrides(backend),
-      mapTilesEnabledProvider.overrideWithValue(false),
-      clockProvider.overrideWith((ref) => Stream.value(now)),
-      if (welcomeDone) welcomeSeenProvider.overrideWith(WelcomeDone.new),
-    ],
-  );
+  ProviderContainer make({bool welcomeDone = true, ClientConfig? config}) =>
+      ProviderContainer(
+        overrides: [
+          ...mockOverrides(backend),
+          mapTilesEnabledProvider.overrideWithValue(false),
+          clockProvider.overrideWith((ref) => Stream.value(now)),
+          if (welcomeDone) welcomeSeenProvider.overrideWith(WelcomeDone.new),
+          if (config != null)
+            clientConfigRepositoryProvider.overrideWithValue(
+              StaticClientConfigRepository(config),
+            ),
+        ],
+      );
 
   setUp(() {
     backend = MockMobileBackend(
@@ -45,8 +50,12 @@ void main() {
     backend.dispose();
   });
 
-  Future<void> pumpApp(WidgetTester tester, {bool welcomeDone = true}) async {
-    container = make(welcomeDone: welcomeDone);
+  Future<void> pumpApp(
+    WidgetTester tester, {
+    bool welcomeDone = true,
+    ClientConfig? config,
+  }) async {
+    container = make(welcomeDone: welcomeDone, config: config);
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -116,6 +125,32 @@ void main() {
     await settle(tester);
     expect(find.text('Hi, Maria'), findsOneWidget);
     await finish(tester);
+  });
+
+  testWidgets('the hotline is the one set on A3, or says it is not set', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Call MDRRMD'));
+    await settle(tester);
+    expect(
+      find.text('The MDRRMD hotline number has not been set yet.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Close'));
+    await settle(tester);
+
+    container.dispose();
+    await tester.pumpWidget(const SizedBox());
+    await pumpApp(
+      tester,
+      config: const ClientConfig(hotline: '(02) 8527-0000'),
+    );
+    await tester.tap(find.byTooltip('Call MDRRMD'));
+    await settle(tester);
+    expect(find.text('Call (02) 8527-0000 from any phone.'), findsOneWidget);
+    // Tier 2 is promised only once a gateway number is known.
+    expect(container.read(smsGatewayProvider), isEmpty);
   });
 
   testWidgets('sign-in explains a bad number and an unknown number', (

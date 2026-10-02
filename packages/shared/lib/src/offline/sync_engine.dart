@@ -87,7 +87,11 @@ class SmsTier {
   });
 
   final SmsSender sender;
-  final String gatewayNumber;
+
+  /// The gateway SIM's number right now: from the build, or the one an
+  /// administrator set on A3 (kept on the phone). Empty while unknown;
+  /// nothing is texted then.
+  final String Function() gatewayNumber;
 
   /// True while texting is the way out (signal, no internet).
   final Stream<bool> available;
@@ -241,6 +245,7 @@ class SyncEngine {
           if (_disposed) return;
           if (!_online) {
             if (_smsOk &&
+                _sms!.gatewayNumber().isNotEmpty &&
                 e.action == OutboxAction.sos &&
                 e.delivery == DeliveryState.savedOnPhone) {
               await _sendSms(e);
@@ -295,7 +300,7 @@ class SyncEngine {
     try {
       final text = SosSms.encode(SosRequest.fromJson(e.payload));
       sent = await sms.sender
-          .send(sms.gatewayNumber, text)
+          .send(sms.gatewayNumber(), text)
           .timeout(const Duration(seconds: 45), onTimeout: () => false);
     } catch (_) {
       sent = false;

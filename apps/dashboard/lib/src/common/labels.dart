@@ -112,6 +112,36 @@ extension DomainLabels on AppLocalizations {
     AuditAction.passwordReset => actionPasswordReset,
     AuditAction.residentSuspended => actionResidentSuspended,
     AuditAction.residentRestored => actionResidentRestored,
+    AuditAction.weatherSimulated => actionWeatherSimulated,
+  };
+
+  String alertLevel(AlertLevel level) => switch (level) {
+    AlertLevel.info => levelInfo,
+    AlertLevel.warning => levelWarning,
+    AlertLevel.critical => levelCritical,
+  };
+
+  String alertSource(AlertSource source) => switch (source) {
+    AlertSource.pagasa => sourcePagasa,
+    AlertSource.phivolcs => sourcePhivolcs,
+    AlertSource.efcos => sourceEfcos,
+    AlertSource.mdrrmd => sourceMdrrmd,
+  };
+
+  String alertChannel(AlertChannel channel) => switch (channel) {
+    AlertChannel.app => alertChannelApp,
+    AlertChannel.push => alertChannelPush,
+    AlertChannel.sms => alertChannelSms,
+    AlertChannel.facebook => alertChannelFacebook,
+  };
+
+  String deliveryStatus(AlertDeliveryStatus status) => switch (status) {
+    AlertDeliveryStatus.queued => deliveryQueued,
+    AlertDeliveryStatus.sent => deliverySent,
+    AlertDeliveryStatus.failed => deliveryFailed,
+    AlertDeliveryStatus.off => deliveryOff,
+    AlertDeliveryStatus.simulated => deliverySimulated,
+    AlertDeliveryStatus.notSetUp => deliveryNotSetUp,
   };
 
   String actionRejection(ActionRejection r) => switch (r) {

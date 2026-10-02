@@ -24,6 +24,10 @@ final webReportsProvider = Provider<WebReportRepository>(
   (ref) => _missing('WebReportRepository'),
 );
 
+final webClientConfigRepositoryProvider = Provider<ClientConfigRepository>(
+  (ref) => const StaticClientConfigRepository(),
+);
+
 final browserLocationProvider = Provider<BrowserLocation>(
   (ref) => createBrowserLocation(),
 );
@@ -56,8 +60,8 @@ class WebFormConfig {
         defaultValue: true,
       );
 
-  /// The MDRRMD hotline; empty until the Data role gets the official
-  /// number, and then the notice says "call MDRRMD" without a number.
+  /// The MDRRMD hotline fixed at build time. Usually empty: the form then
+  /// shows the one an administrator set on A3 ([webHotlineProvider]).
   final String hotline;
 
   /// Where to get the app; empty hides the link.
@@ -73,6 +77,25 @@ final webConfigProvider = Provider<WebFormConfig>(
   (ref) => const WebFormConfig.fromEnvironment(),
 );
 
+/// The hotline an administrator set on A3. A failed fetch leaves it empty,
+/// and the notice then says "call MDRRMD" without a number.
+final webClientConfigProvider = FutureProvider<ClientConfig>((ref) async {
+  try {
+    return await ref.watch(webClientConfigRepositoryProvider).fetch();
+  } on Object {
+    return const ClientConfig();
+  }
+});
+
+/// The hotline the notice shows: the build's value when it has one, else
+/// the one set on A3.
+final webHotlineProvider = Provider<String>((ref) {
+  final built = ref.watch(webConfigProvider).hotline;
+  return built.isNotEmpty
+      ? built
+      : ref.watch(webClientConfigProvider).value?.hotline ?? '';
+});
+
 List<Override> webMockOverrides(
   MockMobileBackend backend, {
   bool demoTools = true,
@@ -87,6 +110,7 @@ List<Override> webSupabaseOverrides(SupabaseWebFormBackend backend) => [
   webAuthProvider.overrideWithValue(backend.accounts),
   webAccountsProvider.overrideWithValue(backend.accounts),
   webReportsProvider.overrideWithValue(backend.reports),
+  webClientConfigRepositoryProvider.overrideWithValue(backend.config),
 ];
 
 // ---------------------------------------------------------------- live data

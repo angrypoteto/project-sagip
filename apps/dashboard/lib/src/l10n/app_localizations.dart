@@ -2950,6 +2950,426 @@ abstract class AppLocalizations {
   /// **'Reports per account each hour'**
   String get settingReportsPerHour;
 
+  /// No description provided for @configAlertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert thresholds'**
+  String get configAlertsTitle;
+
+  /// No description provided for @configAlertsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. EFCOS water levels are not connected yet.'**
+  String get configAlertsNote;
+
+  /// No description provided for @settingRainfallWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Rainfall warning, mm per hour'**
+  String get settingRainfallWarning;
+
+  /// No description provided for @settingRainfallCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Rainfall critical, mm per hour'**
+  String get settingRainfallCritical;
+
+  /// No description provided for @settingSignalWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind signal warning'**
+  String get settingSignalWarning;
+
+  /// No description provided for @settingSignalCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind signal critical'**
+  String get settingSignalCritical;
+
+  /// No description provided for @settingSurgeWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Storm surge warning, metres'**
+  String get settingSurgeWarning;
+
+  /// No description provided for @settingSurgeCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Storm surge critical, metres'**
+  String get settingSurgeCritical;
+
+  /// No description provided for @settingWarningAboveCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning must be at or below Critical.'**
+  String get settingWarningAboveCritical;
+
+  /// No description provided for @configChannelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert channels'**
+  String get configChannelsTitle;
+
+  /// No description provided for @configChannelsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts always appear in the apps. These switches decide where else the next alert goes.'**
+  String get configChannelsNote;
+
+  /// No description provided for @channelPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get channelPush;
+
+  /// No description provided for @channelPushNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the Firebase project, which is not set up yet.'**
+  String get channelPushNote;
+
+  /// No description provided for @channelSmsSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS to residents in the affected barangays'**
+  String get channelSmsSetting;
+
+  /// No description provided for @channelSmsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent through Semaphore; each text costs credit.'**
+  String get channelSmsNote;
+
+  /// No description provided for @channelFacebook.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD Facebook Page'**
+  String get channelFacebook;
+
+  /// No description provided for @channelFacebookNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the page\'s approval and access token.'**
+  String get channelFacebookNote;
+
+  /// No description provided for @configContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers shown in the apps'**
+  String get configContactTitle;
+
+  /// No description provided for @configContactNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The apps read these when they start. Leave one empty to hide it.'**
+  String get configContactNote;
+
+  /// No description provided for @settingHotline.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD hotline'**
+  String get settingHotline;
+
+  /// No description provided for @settingHotlineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example (02) 8527-0000'**
+  String get settingHotlineHint;
+
+  /// No description provided for @settingHotlineError.
+  ///
+  /// In en, this message translates to:
+  /// **'Use digits, spaces, and + ( ) - only, up to 40 characters.'**
+  String get settingHotlineError;
+
+  /// No description provided for @settingGateway.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS gateway number for SOS by text'**
+  String get settingGateway;
+
+  /// No description provided for @settingGatewayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example 0917 123 4567'**
+  String get settingGatewayHint;
+
+  /// No description provided for @settingGatewayError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Philippine mobile number like 0917 123 4567, or leave it empty.'**
+  String get settingGatewayError;
+
+  /// No description provided for @configSimulationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation mode'**
+  String get configSimulationTitle;
+
+  /// No description provided for @configSimulationNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For demos and UAT. A simulated reading raises alerts marked Simulated: they appear in the apps and are never texted or posted.'**
+  String get configSimulationNote;
+
+  /// No description provided for @simulationSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation mode'**
+  String get simulationSwitch;
+
+  /// No description provided for @simulationOnCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'On. Simulated readings can be sent.'**
+  String get simulationOnCaption;
+
+  /// No description provided for @simulationOffCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Off. Turn it on to send a simulated reading.'**
+  String get simulationOffCaption;
+
+  /// No description provided for @simulateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a simulated PAGASA reading'**
+  String get simulateTitle;
+
+  /// No description provided for @simulateTyphoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Typhoon: Signal 3, 35 mm/hr, 2.5 m surge'**
+  String get simulateTyphoon;
+
+  /// No description provided for @simulateRain.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy rain: 22 mm/hr'**
+  String get simulateRain;
+
+  /// No description provided for @simulateCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm: no signal, 2 mm/hr'**
+  String get simulateCalm;
+
+  /// No description provided for @simulationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated reading sent'**
+  String get simulationSent;
+
+  /// No description provided for @unsavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave without saving?'**
+  String get unsavedTitle;
+
+  /// No description provided for @unsavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes on this page have not been saved.'**
+  String get unsavedBody;
+
+  /// No description provided for @unsavedStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get unsavedStay;
+
+  /// No description provided for @unsavedLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get unsavedLeave;
+
+  /// No description provided for @actionWeatherSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated a weather reading'**
+  String get actionWeatherSimulated;
+
+  /// No description provided for @levelInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Advisory'**
+  String get levelInfo;
+
+  /// No description provided for @levelWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get levelWarning;
+
+  /// No description provided for @levelCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get levelCritical;
+
+  /// No description provided for @thresholdNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning from {warning}, critical from {critical}'**
+  String thresholdNote(String warning, String critical);
+
+  /// No description provided for @stormSurgeMeters.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {meters} m'**
+  String stormSurgeMeters(String meters);
+
+  /// No description provided for @alertLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts sent'**
+  String get alertLogTitle;
+
+  /// No description provided for @alertLogNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Every alert and what happened to it on each channel (FR6).'**
+  String get alertLogNote;
+
+  /// No description provided for @alertLogEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts sent yet.'**
+  String get alertLogEmpty;
+
+  /// No description provided for @alertLogFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the alert log.'**
+  String get alertLogFailed;
+
+  /// No description provided for @alertAllManila.
+  ///
+  /// In en, this message translates to:
+  /// **'All of Manila'**
+  String get alertAllManila;
+
+  /// No description provided for @alertSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated'**
+  String get alertSimulated;
+
+  /// No description provided for @alertEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get alertEnded;
+
+  /// No description provided for @alertAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Raised by a threshold'**
+  String get alertAutomatic;
+
+  /// No description provided for @alertFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{source}, {time}'**
+  String alertFrom(String source, String time);
+
+  /// No description provided for @sourcePagasa.
+  ///
+  /// In en, this message translates to:
+  /// **'PAGASA'**
+  String get sourcePagasa;
+
+  /// No description provided for @sourcePhivolcs.
+  ///
+  /// In en, this message translates to:
+  /// **'PHIVOLCS'**
+  String get sourcePhivolcs;
+
+  /// No description provided for @sourceEfcos.
+  ///
+  /// In en, this message translates to:
+  /// **'EFCOS'**
+  String get sourceEfcos;
+
+  /// No description provided for @sourceMdrrmd.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD'**
+  String get sourceMdrrmd;
+
+  /// No description provided for @alertChannelApp.
+  ///
+  /// In en, this message translates to:
+  /// **'In the apps'**
+  String get alertChannelApp;
+
+  /// No description provided for @alertChannelPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get alertChannelPush;
+
+  /// No description provided for @alertChannelSms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get alertChannelSms;
+
+  /// No description provided for @alertChannelFacebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Facebook'**
+  String get alertChannelFacebook;
+
+  /// No description provided for @deliveryQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send'**
+  String get deliveryQueued;
+
+  /// No description provided for @deliverySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get deliverySent;
+
+  /// No description provided for @deliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get deliveryFailed;
+
+  /// No description provided for @deliveryOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched off'**
+  String get deliveryOff;
+
+  /// No description provided for @deliverySimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent (simulated)'**
+  String get deliverySimulated;
+
+  /// No description provided for @deliveryNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get deliveryNotSetUp;
+
+  /// No description provided for @deliveryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{channel}: {status}'**
+  String deliveryLine(String channel, String status);
+
+  /// No description provided for @deliveryCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{channel}: {delivered} of {recipients} delivered'**
+  String deliveryCounts(String channel, int delivered, int recipients);
+
   /// No description provided for @webAppTitle.
   ///
   /// In en, this message translates to:
