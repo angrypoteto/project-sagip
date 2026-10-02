@@ -1035,7 +1035,7 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 - [ ] Push notifications through FCM for new assignments and rescue confirmations
 - [ ] Receive assignments by push and realtime
 - [ ] Status updates (FR9)
-- [ ] Background GPS with an Android foreground service; ask for "Allow all the time" location on Android 10 and up
+- [x] Background GPS with an Android foreground service (Oct 2; started while the app is open, so "While using the app" location is enough and "Allow all the time" is not asked for; checked on the emulator, not yet on a real phone)
 - [ ] On-scene confirmation and the completion and damage report
 
 **Tier 3 screens, built directly on Supabase**
@@ -1150,7 +1150,7 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
 - [ ] Push by barangay topic to residents; standby alerts to responders
 - [ ] Semaphore broadcast to registered residents in affected barangays, with a delivery log and a spending cap
-- [ ] Rescue confirmations by push and SMS on status changes (FR6)
+- [~] Rescue confirmations by push and SMS on status changes (FR6) (Oct 2: in the app at assignment, arrival, and closing; one SMS at the first assignment, sent by `send-alerts` once it is deployed; push waits for Firebase)
 - [ ] Facebook Page posting through the Graph API on the test page first; manual copy text as a fallback
 - [x] Simulation mode that triggers a fake typhoon signal for demos and UAT (Oct 2: A3 switch and three simulated readings; simulated alerts stay in the apps)
 
