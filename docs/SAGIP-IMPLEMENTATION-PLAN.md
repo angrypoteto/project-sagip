@@ -1032,7 +1032,7 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 
 **Responder**
 
-- [ ] Push notifications through FCM for new assignments and rescue confirmations
+- [~] Push notifications through FCM for new assignments and rescue confirmations (Oct 3: built and tested; works once the Firebase project exists)
 - [ ] Receive assignments by push and realtime
 - [ ] Status updates (FR9)
 - [x] Background GPS with an Android foreground service (Oct 2; started while the app is open, so "While using the app" location is enough and "Allow all the time" is not asked for; checked on the emulator, not yet on a real phone)
@@ -1098,8 +1098,8 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [~] Notebook that validates and merges the cleaned files, aligns them to daily records, and re-checks the counts (Oct 3: a script, `ml/forecast/prepare_windows.py`, on sample data)
 - [ ] Choose the forecast unit (barangay, zone, or pooled model, Q21)
 - [x] Build 14-day input windows with the six features; chronological 70/15/15 split; class weights (Oct 3, on sample data; rerun on the real records)
-- [ ] Train: LSTM 64 then 32 units, dropout 0.2, sigmoid output, weighted binary cross-entropy, Adam at 0.001, batch 32, up to 100 epochs, early stopping after 10. Start training early in Week 6 so it runs while other work continues.
-- [ ] Evaluate: confusion-matrix accuracy (target at least 80%), plus precision, recall, F1, and the no-skill baseline; RMSE as the thesis requires (Q23); compare with PAGASA advisories for the same period
+- [~] Train: LSTM 64 then 32 units, dropout 0.2, sigmoid output, weighted binary cross-entropy, Adam at 0.001, batch 32, up to 100 epochs, early stopping after 10. Start training early in Week 6 so it runs while other work continues. (Oct 3: `ml/forecast/train_lstm.py` on sample data; rerun on the real records)
+- [~] Evaluate: confusion-matrix accuracy (target at least 80%), plus precision, recall, F1, and the no-skill baseline; RMSE as the thesis requires (Q23); compare with PAGASA advisories for the same period (Oct 3: all but the PAGASA comparison computed in `lstm_metrics.json`, on sample data)
 - [x] KDE: Gaussian kernel, haversine distance, bandwidth chosen from 100 to 500 m by 5-fold cross-validated log-likelihood, 100 m grid averaged per barangay (Oct 3, `ml/forecast/kde.py`, on sample data; per barangay by centre until boundaries arrive)
 - [ ] Define and document how the LSTM probability and the KDE density combine into a risk level (Q22)
 - [ ] Batch inference script that writes forecast rows; a simulated live feed that replays historical weather, with forecasts marked as simulated
@@ -1148,9 +1148,9 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [ ] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation
 - [ ] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14). *Relay by hand from D10 ("Issue an advisory") is built (2026-10-02); the automatic ingest is not.*
 - [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
-- [ ] Push by barangay topic to residents; standby alerts to responders
+- [~] Push by barangay topic to residents; standby alerts to responders (Oct 3: topics `area-<barangay>` and `manila`; responders on `manila`; works once the Firebase project exists)
 - [ ] Semaphore broadcast to registered residents in affected barangays, with a delivery log and a spending cap
-- [~] Rescue confirmations by push and SMS on status changes (FR6) (Oct 2: in the app at assignment, arrival, and closing; one SMS at the first assignment, sent by `send-alerts` once it is deployed; push waits for Firebase)
+- [~] Rescue confirmations by push and SMS on status changes (FR6) (Oct 2 and 3: in the app at assignment, arrival, and closing; by push at each; one SMS at the first assignment; push and SMS go out once `send-alerts` is deployed with Firebase and Semaphore)
 - [ ] Facebook Page posting through the Graph API on the test page first; manual copy text as a fallback
 - [x] Simulation mode that triggers a fake typhoon signal for demos and UAT (Oct 2: A3 switch and three simulated readings; simulated alerts stay in the apps)
 
