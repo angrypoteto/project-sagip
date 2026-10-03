@@ -53,12 +53,25 @@ MODEL_VERSION = "lstm-kde-v1 (sample data, provisional levels)"
 DB_HAZARD = {"flood": "flood_risk", "fire": "fire_risk", "storm_surge": "surge_risk"}
 
 
+# PROVISIONAL (plan Q22): the thresholds of `risk_level`. The live feed
+# (export_live.py, the run-forecast Edge Function) reads the same numbers.
+RULE = {
+    "high": {"probability": 0.5, "density": 0.5},
+    "moderate": [
+        {"probability": 0.5, "density": 0.2},
+        {"probability": 0.25, "density": 0.5},
+    ],
+}
+
+
 def risk_level(probability, relative_density):
     """PROVISIONAL (plan Q22): see the module docstring."""
-    if probability >= 0.5 and relative_density >= 0.5:
+    hi = RULE["high"]
+    if probability >= hi["probability"] and relative_density >= hi["density"]:
         return "high"
-    if (probability >= 0.5 and relative_density >= 0.2) or (
-        probability >= 0.25 and relative_density >= 0.5
+    if any(
+        probability >= m["probability"] and relative_density >= m["density"]
+        for m in RULE["moderate"]
     ):
         return "moderate"
     return "low"

@@ -72,6 +72,8 @@ jobs:
           supabase/functions/send-alerts/index.test.ts
       - name: ingest-pagasa parsers on saved PAGASA pages and bulletins, and one run with the network stood in
         run: node --test supabase/functions/ingest-pagasa/pagasa.test.ts
+      - name: run-forecast's LSTM against Keras's own output, the rule, and the replay
+        run: node --test supabase/functions/run-forecast/forecast.test.ts
 
   forecast:
     name: Forecast data preparation and KDE
