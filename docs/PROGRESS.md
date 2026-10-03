@@ -26,7 +26,7 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-03 | f47c816b (Claude) | Paused. Next: Joshua approves the push of `d2521d6`, `6350955`, `7620a93` and this docs commit; then I load the 897 barangays on the hosted project and run the full RLS test (322). The PAGASA parser waits on his OK of `docs/PAGASA-PARSER-PLAN.md` | none | Paused |
+| 2026-10-03 | f47c816b (Claude) | Paused. Built: barangay boundaries on D6 and D8, the responder's map saved at dispatch (FR13), and a fix for the polyline codec on the web. Next: Joshua approves the push (6 commits), then I load the 897 barangays on the hosted project and run the full RLS test | none | Paused |
 
 ---
 
@@ -117,7 +117,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] All 897 barangays (migration `barangays_full`, applied as `20261003015232`; data in `supabase/data/`): PSA's barangay boundaries (via GeoRiskPH, indicative, 2015 census layer), every name and 10-digit code checked against the PSGC list by `fetch_barangays.py`; 14 districts; Tutuban Mall and Manila North Cemetery are Manila but in no barangay. `barangay.psgc_code`, `manila_outline` (the city as one shape), `private.load_barangays(json)` (adds or updates, never removes a name), and the Manila check (FR15) against the outline within 50 m. **Not loaded on the hosted project yet:** the 181 KB file is fetched from GitHub after the push (`supabase/README.md`, "Loading all 897 barangays"). Dry run: loading two test squares and an outside area, codes and centers updated, a new one added, inside, 43 m outside (yes), 108 m outside (no)
 - [ ] Facebook posting, the PAGASA feed, EFCOS levels (Edge Functions). PAGASA: Joshua decided on 2026-10-03 to parse PAGASA's public pages instead of waiting for an API; plan in `docs/PAGASA-PARSER-PLAN.md`, waiting for his OK
 - [ ] Data retention period (A3): not built; which records are removed and when needs a decision (RA 10173, NDRRMC reporting)
-- [ ] Leaked-password protection is off (Supabase dashboard setting: Authentication, then Passwords); turn it on before the pilot
+- [ ] Leaked-password protection is still off (Supabase's security check said so on 2026-10-03, after Joshua tried). Supabase offers it on the Pro plan and up only, so it comes with the move to a paid, team-owned project before the pilot
 
 ### apps/mobile (`sagip_mobile`), mock data
 - [x] S1 splash (red S.A.G.I.P. mark, also the launcher icon) while the session loads; the role picks the shell: resident Home, Report, Alerts, Me; responder Home, History, Me
@@ -153,7 +153,8 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] R11 Household member: name or description, type chips (at least one), notes, a line that the home address is used; offline: Save disabled
 - [x] F7 Assignment history: rows with incident, type, barangay, time, outcome, and "Saved on phone" until the report reaches the server; All, This week, Last week
 - [x] Road routes on the phone: Dijkstra runs on the phone from every new position (works offline and re-routes); F3 and F4 draw the road route, F4 shows the next turn ("Turn right onto España Boulevard, in 300 m") and the road ETA; F1 and F2 use road ETAs; straight line only when the graph cannot route
-- [ ] Real offline map tiles (F2/F3 progress is simulated), spoken turn-by-turn, a custom alert sound for the assignment channel
+- [x] The map around a job saved for offline use (FR13, 2026-10-03): when a job is offered, `OutboxResponderRepository` asks a `MapSaver` for the tiles along the route (or from the unit to the incident); `TileMapSaver` fetches them one at a time into flutter_map's own tile cache on the phone (300 MB, tiles kept fresh 14 days so they show with no signal), skips tiles already saved, and retries 30 s after a lost signal; F2/F3 show the real share saved. `tilesAlong` picks the tiles: zoom 13 to 16 and at most 300 on OpenStreetMap's public server (its rules), zoom 13 to 17 and 800 on a self-hosted one; the closest levels are dropped whole when over. The tile address is `MAP_TILE_URL` (build setting), OpenStreetMap by default. Tested with a fake server and cache; the debug APK builds. **Not seen on a phone yet**
+- [ ] Spoken turn-by-turn, a custom alert sound for the assignment channel
 - [ ] Real barangay boundaries for the Manila check and the picker's "Near ..." line (needs the Data role's boundary file)
 - [~] Real texted codes: the Send SMS hook is written (part 6c); resident sign-in on Supabase works once Joshua deploys it and switches Phone sign-in on (`supabase/README.md`)
 - [ ] Cancel SOS (waits on plan Q10), nearest evacuation center card on R7 (waits on Q38 data), a separate pin for a household member who lives elsewhere (needs a schema change, plan Q14), the MDRRMD hotline number itself (an admin enters it on A3 once MDRRMD provides it; until then Call MDRRMD says it is not set)
@@ -162,7 +163,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] Screens never promise what the real app cannot do yet (`DeviceCapabilities`): offline banner and queue sheet say records are saved and sent when back online; the offline-map row on F3 is hidden
 - [x] The hotline and the SMS gateway number come from A3 (`client_config()`), fetched when the app starts and kept on the phone for offline; `MDRRMD_HOTLINE` and `SMS_GATEWAY_NUMBER` at build time still work and take priority. Tier 2 is offered only once a gateway number is known
 - [x] Tier 2 on the phone: with signal but no data an SOS is texted once to the gateway (`SMS_GATEWAY_NUMBER` in `.env`) in the SAGIP1 format, shows "Sent by SMS", and still goes over the internet later (the server recognises it); failed texts retry; screens say SMS is available only when the gateway number is set. `MainActivity.kt` sends through `SmsManager` (checked on the emulator with an integration test)
-- [ ] BLE tier 3 on the phone, real offline map tiles (Phase 5); a fallback that opens the SMS app when the permission is refused
+- [ ] BLE tier 3 on the phone (Phase 5); a fallback that opens the SMS app when the permission is refused
 
 ### apps/dashboard (`sagip_dashboard`), runs on Supabase (with `.env`) or mock data
 - [x] D1 Staff sign in (demo accounts shown only in mock mode)
@@ -171,6 +172,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [x] D3 list view (table)
 - [x] D4 Incident drawer: status, rank, wait timer, type confirm/override, verification (call resident, SMS check, mark verified, mark false report), resident and vulnerable household, cluster reports, priority breakdown, suggested units, assigned unit, reassign, mark resolved, timeline
 - [x] D4 "What the resident was told" (2026-10-03, FR6): for an SOS from a known resident, each rescue update (unit on the way, arrived, SOS closed) with its time, whether the resident opened it in the app, and how the text and the push went (sent, waiting, failed, switched off, not set up, not texted because only the first unit is, no phone signed in, no app account); "Nothing yet" before any unit; an error line if it cannot load. `IncidentRepository.watchNotices`, the Supabase version refreshes on `rescue_confirmation` changes and every 20 s (push outcomes are not visible to realtime)
+- [x] Barangay boundaries on the maps (2026-10-03): D6 has a "Barangay boundaries" layer (on by default, thin lines); D8 shades each barangay's real boundary by its risk (none for low) and outlines the chosen one, with the icon marker kept so color is never the only cue. Browser-checked on sample data (headless Chrome, dark theme)
 - [x] All 897 barangays in the dashboard: the D10 advisory picker finds barangays by number, name, or district (chosen ones stay, 24 matches at a time, "N more match"); D8 lists every barangay, the ones the run has nothing for under "No forecast"; the web form names the barangay from the real boundaries
 - [x] D5 Override dialog (reason required) and "Choose another unit" dialog
 - [x] Suggested units ranked by road travel time (Dijkstra, one run per incident on the reversed graph); Assign sends the unit's road route; each run is timed and logged
@@ -201,7 +203,8 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Browser check of D8 (2026-10-02, headless Chrome at 1366 by 768, sample data, dark theme): the list, the map discs and markers, the legend, the hazard switch, and the barangay panel all fit and read well. Found and fixed: "Storm surge" wrapped in the hazard selector (the icons were dropped). Not checked: light theme, Supabase.
 
 ### Tests (last run 2026-10-03)
-- Latest counts (2026-10-03, after the drawer notices, the battery prompt, and the 897 barangays): `packages/shared` 233, `apps/dashboard` 36, `apps/mobile` 32 (all passing; `flutter analyze` clean in all three). The RLS test has 322 checks (15 new: incident notices 6, barangays 9); the new ones ran as a focused dry run on the hosted project with both migrations (all as expected), not yet the full file.
+- Latest counts (2026-10-03, after boundaries on the maps, the map save, and the polyline fix): `packages/shared` 241, `apps/dashboard` 36, `apps/mobile` 35 (all passing; `flutter analyze` clean in all three). New: `map_tiles_test.dart` (3: tile numbers against the OSM formula, a route covered at every zoom, the limits), `polyline_test.dart` (3: Google's reference example, steps in every direction, every bundled outline inside Manila), the map save in `offline_sync_test.dart` (saved at offer, once, progress on the job), `tile_map_saver_test.dart` (3: every tile saved fresh for two weeks, nothing fetched twice, a refused tile ends the save), barangay outlines, and D8's shading. The RLS test has 322 checks; the 15 newest ran as a focused dry run, not yet the full file.
+- Before that (2026-10-03, after the drawer notices, the battery prompt, and the 897 barangays): `packages/shared` 233, `apps/dashboard` 36, `apps/mobile` 32.
 - Before that (2026-10-03, after push, the LSTM, and the sender wake-up): `packages/shared` 227, `apps/dashboard` 35, `apps/mobile` 30, Edge Functions 44 (Node), `ml/forecast` 15 (13 without TensorFlow), RLS 307 of 307 on the hosted project (`sender_wakeup` added 5: the shared secret readable by the service role only and 64 characters, no call when nothing is queued, one call when something is, at the function's address with the secret).
 - Firebase set-up check (2026-10-03, with Joshua's project `sagip-a4b9e`): `google-services.json` is right (package `ph.sagip.sagip_mobile`, git-ignored); the app built with it got a real FCM token on the emulator and registered it (`push_device`, 142 characters). The deployed sender answered the check (status 200, authorised with the vault secret) with `FIREBASE_SERVICE_ACCOUNT is not set`. A test push (`push_message` 17, to the temporary responder) went from the insert to the sender in about a second and ended `notSetUp` for that reason. Cause: the key was pasted into a new Edge Function named `FIREBASE_SERVICE_ACCOUNT` instead of into Secrets.
 - **Push works end to end (2026-10-03).** After Joshua added the secret, the check said `ready: signed in to project sagip-a4b9e`. A test push (`push_message` 18) to the emulator, with the app in the background, showed as a notification ("Test push from S.A.G.I.P.", with the one-colour icon) and was logged `sent`, 1 of 1 phone, 0.7 s after the insert. Tapping it opened the responder's home. Signing out marked the phone's token forgotten and stopped location sharing. Not yet seen: an alert to a topic, a rescue confirmation from a real SOS (needs resident sign-in by SMS code), a real phone. Analyze clean in all three packages; `tsc --strict` clean on the three Edge Functions with a small Deno shim. The lines below say what each suite covers.
@@ -412,7 +415,9 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 | KDE densities are in incidents per km² over the period; per barangay, the mean over the cells within 400 m of the centre until boundaries arrive | Readable units; there are no boundaries yet | Switches to the boundaries automatically when the file exists |
 | No risk levels are made from the KDE yet | How the density and the probability combine is not decided (Q22); a made-up rule would end up in D8 and R7 | **Decide** (Q22) |
 | A forecast run is the rows of `barangay_forecast` that share the newest `issued_at` | D8 needs "which run am I looking at" (issued, valid until, model) without a new table; the pipeline (10.5) must write a run with one `issued_at` | Note for 10.5; a `forecast_run` table can come with the run selector |
-| D8 draws a disc at each barangay's center, not a filled boundary or KDE surface | Boundaries exist since 2026-10-03 but the map does not draw them yet (UI pass), and there is no model output; the legend says so | Figure of D8 in Ch 4 should come after boundaries exist |
+| D8 shades each barangay's boundary by its risk level, not a KDE surface | Boundaries since 2026-10-03; there is no model output yet, and a level per barangay is what the thesis asks the forecast to give | The D8 figure in Ch 4 can be taken now; retake it with model output |
+| The responder's map is saved when a job is offered, not at accept | The phone usually has a signal at the station; a few hundred tiles take seconds | Ch 3 already says "at dispatch time" |
+| Map saves stay within OpenStreetMap's tile rules (zoom 16 and closer left out, 300 tiles at most) until self-hosted tiles exist | OSM forbids bulk and offline saving at zoom 17 and closer | The pilot needs self-hosted tiles (plan risk 8); the decision is where to host them |
 | D8 shows no probability, contributing readings, or accuracy yet, and says why | `barangay_forecast` holds only a level per hazard; inventing numbers would mislead. Columns for them are left for the pipeline's design | Plan D8 lists them; they arrive with 10.5 |
 | NDRRMC report drafts are assembled from the figures with fixed wording; no language model yet | No LLM provider is chosen (plan Q26) and no template has arrived; every sentence states a recorded figure, so nothing can be made up. The record keeps `method` so RAG drafts can be told apart later | **Confirm.** Chapter 1 promises RAG generation; this is the retrieval, review, and export half |
 | The report's figures are counts only, computed in the database | Nothing personal can reach a language model or a PDF by accident (RA 10173, plan risk 15) | Ch 3 can say personal data never leaves the database for reports |
@@ -448,20 +453,19 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 
 **Joshua + Claude (code)**
 - Mobile app: widget gallery, BLE, offline map tiles, a push check on a real phone (works on the emulator), the battery prompt seen on a phone (see the apps/mobile status above)
-- Dashboard: A5 and A6 wait on the NDRRMC template and the RAG step; A3 lacks only the data retention period; D8 waits on the model for probabilities, accuracy, a run selector, and boundaries; barangay boundaries on the D6 and D8 maps; widget gallery
+- Dashboard: A5 and A6 wait on the NDRRMC template and the RAG step; A3 lacks only the data retention period; D8 waits on the model for probabilities, accuracy, and a run selector; widget gallery
 - Supabase: load the 897 barangays on the hosted project after the push, evacuation centers (Q38), Edge Functions not written yet (PAGASA ingest, Facebook posting; `sms-intake` and `send-sms` are written but not deployed; `send-alerts` is deployed), storage buckets
 - Algorithms: retraining the classifier on real descriptions, retraining the LSTM on the real records and writing forecast rows (preparation, KDE, and LSTM done on sample data), RAG report (proof of concept); tuning Dijkstra's road speeds with MDRRMD records; a travel-time penalty for flooded roads (plan 10.2 "Could")
-- Offline: gateway hardware and a field test for Tier 2, BLE mesh relay (proof of concept), responder tile pre-download
-- Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only)
-- CI has not run on GitHub: the first run (2026-10-02) was refused for a billing lock on the account, before any step; admin sign-in and the audit log, crowd reports, units, and weather pages not yet browser-checked on Supabase
+- Offline: set up Joshua's spare phone as the SMS gateway and field-test Tier 2; BLE mesh relay (proof of concept); the map save seen on a phone
+- Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only). The app is ready (`MAP_TILE_URL`); what is missing is a decision on where to host them and the tiles themselves
+- CI has not run on GitHub: the runs on 2026-10-02 were refused for a billing lock on the account, before any step (Joshua cleared it on 2026-10-03; the next push will show); admin sign-in and the audit log, crowd reports, units, and weather pages not yet browser-checked on Supabase
 
 **Joshua (settings and decisions)**
 - Resident sign-in by SMS code: the `send-sms` Edge Function is written and tested (part 6c). Joshua deploys it and switches Phone sign-in and the Send SMS hook on; the six steps are in `supabase/README.md` ("Turning on resident sign-in by SMS code"). Until the Semaphore account exists, the code is kept in `sms_log` for an hour.
-- Firebase is set up and push works (2026-10-03). Left: delete the extra Edge Function `FIREBASE_SERVICE_ACCOUNT` in the dashboard (Edge Functions, open it, the details or settings tab, "Delete function" at the bottom). I replaced its code with an empty stub, so the key is no longer in it. Optional: because the key sat in that function's code for a while, make a new key in Firebase (Service accounts), put it in the secret, and delete the old key.
-- An empty folder `C:\JOSHUA~1` at the root of the C: drive, made by mistake on 2026-10-03 (a wrong path in a file write). The file in it was removed; the safety check blocks removing the folder itself. Delete it in File Explorer.
-- Delete the deactivated account "Temporary check" (`tmp-bgcheck@sagip.test`) left by the 2026-10-02 emulator check: in the SQL editor, `delete from auth.users where email = 'tmp-bgcheck@sagip.test';` (its staff row goes with it).
-- Run `select public.reset_demo_data();` in the Supabase SQL editor to load the part 5 sample data (alerts, forecasts, past rescues). It replaces the current demo data.
-- Turn on leaked-password protection in Supabase (Authentication, then Passwords)
+- Done by Joshua on 2026-10-03 (checked): the extra `FIREBASE_SERVICE_ACCOUNT` function deleted, the temporary account deleted, the `C:\JOSHUA~1` folder gone.
+- Run `select public.reset_demo_data();` in the Supabase SQL editor to load the part 5 sample data (alerts, forecasts, past rescues). It replaces the current demo data. (Not yet as of 2026-10-03: the hosted project has 6 incidents and no alerts or forecasts.)
+- The SMS gateway: Joshua has a spare Android phone for it (2026-10-03). Needs a SIM for the gateway number, an SMS-forwarding app, then `sms-intake` deployed (`supabase/README.md`, "Tier 2: SOS by SMS")
+- Leaked-password protection: needs the Pro plan (see the supabase status); do it with the move to a paid project
 - Confirm the one-`staff`-table design against the thesis (plan Q8)
 - Decide plan Q13 (creating an account on the web form; it is on by default) and where the web form is hosted
 - Add `SEMAPHORE_API_KEY` (Edge Function secret) when the Semaphore account exists (`send-alerts` is deployed and called by the database); send one test alert to your own number first
@@ -476,7 +480,7 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - ~~The full list of Manila's 897 barangays~~ done by Claude on 2026-10-03 from PSA's public boundaries. Data role: check a few against the MDRRMD's own list, and ask MDRRMD for zones if they want them
 - MDRRMD data letter (unit roster, triage SOP, incident records, descriptions, NDRRMC templates); hotline number
 - UAT slots for Nov 23 to 27 (3 admins, 16 field personnel, 31 residents); ISO/IEC 25010 questionnaire validated by Oct 30
-- Semaphore account and sender name; GSM modem and SIM; list of test phones (need 3+ for BLE, one low-end Android 10)
+- Semaphore account and sender name; a SIM for the gateway phone (Joshua's spare phone); list of test phones (need 3+ for BLE, one low-end Android 10)
 - Shared task board and weekly sync; names on the Data, UAT, and Docs roles
 
 ## Commit history (what each commit contains)
@@ -667,6 +671,10 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - PostGIS has `ST_LineFromEncodedPolyline(text, 5)`, so the same encoded polylines the apps use can carry boundaries into the database, and `pg_net` can fetch a file from GitHub, which avoids pasting large data through the connector.
 - PSA's barangay layer on GeoRiskPH answers ArcGIS queries with `f=geojson` and `outSR=4326`; Manila is `city_code='133900000'` (899 shapes). `psgc.gitlab.io/api/cities/133900000/barangays/` lists the 897 with 10-digit codes.
 - Widget tests and long lazy lists: a finder that leaves the screen while scrolling breaks `scrollUntilVisible`'s `scrollable:`; key the list itself, or check the first rows.
+- **Dart compiled to JavaScript treats bit operators as unsigned 32-bit.** `~x` and `<<` on a negative number give a large positive one in the dashboard (browser) but not in tests (Dart VM). The polyline decoder used `~(result >> 1)`, so on the web every negative step jumped by about 43,000 degrees (found 2026-10-03 when the barangay outlines did not draw: flutter_map's "Infinite loop going beyond 30 for world width"). Use arithmetic (`-(x >> 1) - 1`) for signed values. Route lines the web dashboard decoded were wrong before this fix.
+- To read a browser build's errors: headless Chrome with `--remote-debugging-port`, then listen for `Runtime.consoleAPICalled` over the DevTools socket (`scratchpad/cdp_console.mjs`); a `--profile` web build keeps readable names in stack traces. `flutter test --platform chrome` hung here.
+- flutter_map 8.3 caches tiles by itself (`BuiltInMapCachingProvider`); a stale tile is not shown offline, so saved tiles need a long fresh age (`overrideFreshAge`).
+- Supabase's leaked-password protection is a Pro-plan feature; the security advisor keeps warning on the free plan.
 - Mobile widget tests end with `finish(tester)`: it runs the simulated dispatcher to the end, disposes the backend, and unmounts, so no timers are left pending.
 
 ---
@@ -904,3 +912,9 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - PAGASA: the NCR page and the cyclone bulletin page are plain HTML and readable; plan in `docs/PAGASA-PARSER-PLAN.md`, waiting for Joshua's OK.
 - The project's own Supabase connector failed most of the session; the claude.ai one worked (Gotchas).
 - Left: push (Joshua's OK), then load the barangays and run the full RLS test on the hosted project; the PAGASA parser after approval.
+
+### 2026-10-03: boundaries on the maps, the map save, the polyline fix (session f47c816b, resumed)
+- Checked Joshua's items: the stub function, the temporary account, and the stray folder are gone; leaked-password protection is still off (Pro plan only); the demo data was not reloaded; CI shows on the next push. He has a spare phone for the SMS gateway.
+- Barangay boundaries: D6 layer, D8 shading by risk; `barangayOutline()` in shared. The browser check showed nothing drawn and a flutter_map error, which led to the real cause: `decodePolyline` was wrong on the web (unsigned bit operators). Fixed in `polyline.dart` with arithmetic; also fixed two outlines whose last point repeated the first (`fetch_barangays.py`, data regenerated). Checked again in headless Chrome: lines on D6, shaded areas on D8, no errors.
+- The responder's map is saved when a job is offered (FR13): `map_tiles.dart` (tile maths and limits), `MapSaver`, the outbox responder repository, `TileMapSaver` on flutter_map's cache, `MAP_TILE_URL`. The debug APK builds; not seen on a phone.
+- Left: push (Joshua's OK), then load the barangays on the hosted project and run the full RLS test; see the map save on a phone; self-hosted tiles need a hosting decision.
