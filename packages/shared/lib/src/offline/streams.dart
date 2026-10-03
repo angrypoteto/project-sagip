@@ -78,11 +78,24 @@ List<T> decodeList<T>(
 
 /// [source] with errors turned into `null` values, so a screen that merges
 /// server data with records on the phone still shows the phone's records
-/// while the server cannot be reached.
+/// while the server cannot be reached. An error after a value (the saved
+/// copy [withSavedCopy] puts first, or an earlier server answer) keeps that
+/// value: an offline restart must not lose a responder's job (FR13).
 Stream<T?> nullOnError<T>(Stream<T> source) => source.transform(
-  StreamTransformer<T, T?>.fromHandlers(
-    handleError: (_, _, sink) => sink.add(null),
-  ),
+  StreamTransformer<T, T?>.fromBind((s) {
+    var seen = false;
+    return s.transform(
+      StreamTransformer<T, T?>.fromHandlers(
+        handleData: (value, sink) {
+          seen = true;
+          sink.add(value);
+        },
+        handleError: (_, _, sink) {
+          if (!seen) sink.add(null);
+        },
+      ),
+    );
+  }),
 );
 
 /// Decodes [text], or returns null if it is not valid JSON.

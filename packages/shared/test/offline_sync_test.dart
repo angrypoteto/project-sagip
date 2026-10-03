@@ -728,6 +728,45 @@ void main() {
       },
     );
 
+    test(
+      'restarted with no signal, the accepted job is still there (FR13)',
+      () async {
+        account = 'rsp-r03';
+        OutboxResponderRepository repo() => OutboxResponderRepository(
+          engine: engine,
+          server: server,
+          store: store,
+          account: () => account,
+          clock: () => now,
+        );
+        // Online: the job arrives and the server copy is saved on the phone.
+        final first = <ResponderState>[];
+        final sub = repo().watch().listen(first.add);
+        server.unit.add(
+          unitR03.copyWith(
+            status: UnitStatus.enRoute,
+            currentIncidentId: 'INC-0147',
+          ),
+        );
+        server.jobs.add([job(IncidentStatus.enRoute)]);
+        await pumpEventQueue();
+        expect(first.last.current?.incidentId, 'INC-0147');
+        await sub.cancel();
+
+        // The app starts again with no signal: the server cannot be reached.
+        final again = <ResponderState>[];
+        final sub2 = repo().watch().listen(again.add);
+        await pumpEventQueue();
+        // As on the phone: the job list fails while the unit copy stands.
+        server.jobs.addError(const ActionRejected(ActionRejection.offline));
+        await pumpEventQueue();
+        expect(again.last.current?.incidentId, 'INC-0147');
+        expect(again.last.current?.status, IncidentStatus.enRoute);
+        expect(again.last.unit.status, UnitStatus.enRoute);
+        await sub2.cancel();
+      },
+    );
+
     test('the map around an offered job is saved at once (FR13)', () async {
       account = 'rsp-r03';
       final maps = _FakeMapSaver();

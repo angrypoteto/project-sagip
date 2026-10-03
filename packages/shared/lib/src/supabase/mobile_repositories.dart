@@ -150,6 +150,15 @@ class SupabaseMobileAccounts
     if (_finishing) return;
     final id = session.user.id;
     if (_known && _user != null) return; // token refresh
+    // Start with the account saved on the phone for this login, so the app
+    // opens at once, with or without a signal; the check below confirms it
+    // (or signs out an account that was deactivated).
+    final saved = _known ? null : _saved(id);
+    if (saved != null) {
+      _user = saved;
+      _known = true;
+      _changes.add(saved);
+    }
     try {
       final user = await _account(id);
       if (user == null) {
@@ -160,16 +169,9 @@ class SupabaseMobileAccounts
       }
       if (_client.auth.currentUser?.id == id) _set(user);
     } catch (_) {
-      // Offline while restoring a session: use the account saved on the
-      // phone, or show sign-in; the next auth event retries.
-      final saved = _saved(id);
-      if (saved != null) {
-        _user = saved;
-        _known = true;
-        _changes.add(saved);
-      } else if (!_known) {
-        _set(null);
-      }
+      // Offline while restoring a session: keep the saved account shown
+      // above, or show sign-in; the next auth event retries.
+      if (!_known) _set(null);
     }
   }
 
