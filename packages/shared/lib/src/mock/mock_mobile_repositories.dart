@@ -266,6 +266,20 @@ class MockOfflineQueue implements OfflineQueue {
 
   @override
   Future<void> remove(String id) => _backend.remove(id);
+
+  @override
+  Future<String?> sosSmsText(String id) async => _backend.sosSmsText(id);
+}
+
+/// Records what would open in the messages app.
+class MockSmsComposer implements SmsComposer {
+  final composed = <(String, String)>[];
+
+  @override
+  Future<bool> compose(String number, String text) async {
+    composed.add((number, text));
+    return true;
+  }
 }
 
 class MockSignalMonitor implements SignalMonitor {

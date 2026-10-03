@@ -193,6 +193,15 @@ class SyncEngine {
   Stream<List<OutboxEntry>> watch() => _entries.watch();
   List<OutboxEntry> get entries => _entries.value;
 
+  /// The waiting SOS [id] as its SAGIP1 text; null for anything else.
+  String? sosSmsText(String id) {
+    final e = _entries.value.where((x) => x.id == id).firstOrNull;
+    if (e == null || e.action != OutboxAction.sos || !e.delivery.isPending) {
+      return null;
+    }
+    return SosSms.encode(SosRequest.fromJson(e.payload));
+  }
+
   /// One event per record the server confirms.
   Stream<QueuedRecord> deliveries() => _deliveries.stream;
 

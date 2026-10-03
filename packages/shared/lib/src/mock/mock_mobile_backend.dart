@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../algorithms/incident_classifier.dart';
+import '../algorithms/sos_sms.dart';
 import '../data/manila_barangays.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
@@ -375,6 +376,13 @@ class MockMobileBackend {
   }
 
   Future<void> retryNow() => _pump();
+
+  /// A waiting SOS as its SAGIP1 text (the S6 fallback).
+  String? sosSmsText(String id) {
+    final sos = _find(id);
+    if (sos == null || !sos.delivery.isPending) return null;
+    return SosSms.encode(sos);
+  }
 
   Future<void> remove(String id) async {
     _setSos([

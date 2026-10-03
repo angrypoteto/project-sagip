@@ -886,6 +886,24 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get queueRemove;
 
+  /// No description provided for @queueTextIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Text it myself'**
+  String get queueTextIt;
+
+  /// No description provided for @queueTextItHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet, and the app could not text it. This opens your messages app with the SOS ready: press send there.'**
+  String get queueTextItHint;
+
+  /// No description provided for @queueTextItFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages app could be opened. In an emergency, call MDRRMD.'**
+  String get queueTextItFailed;
+
   /// No description provided for @meTitle.
   ///
   /// In en, this message translates to:

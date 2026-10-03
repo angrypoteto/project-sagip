@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:sagip_shared/sagip_shared.dart';
 
 import 'device/device_battery_optimization.dart';
+import 'device/device_sms_sender.dart';
 
 // ---------------------------------------------------------------------------
 // Repositories. Each throws until main.dart overrides it, so screens only
@@ -39,6 +40,10 @@ final batteryOptimizationProvider = Provider<BatteryOptimization>(
 final batteryExemptProvider = FutureProvider<bool>(
   (ref) => ref.watch(batteryOptimizationProvider).isExempt(),
 );
+
+/// Opens the messages app with an SOS ready (S6, when the app may not
+/// text by itself).
+final smsComposerProvider = Provider<SmsComposer>((ref) => MockSmsComposer());
 
 final permissionServiceProvider = Provider<PermissionService>(
   (ref) => _missing('PermissionService'),
@@ -234,6 +239,7 @@ List<Override> liveOverrides({
     residentAccountRepositoryProvider.overrideWithValue(backend.accounts),
     permissionServiceProvider.overrideWithValue(permissions),
     batteryOptimizationProvider.overrideWithValue(battery),
+    smsComposerProvider.overrideWithValue(const DeviceSmsSender()),
     sosRepositoryProvider.overrideWithValue(
       OutboxSosRepository(
         engine: engine,

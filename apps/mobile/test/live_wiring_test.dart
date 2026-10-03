@@ -49,6 +49,7 @@ void main() {
       autoOffers: false,
     );
     final server = _Server();
+    final composer = MockSmsComposer();
     final store = MemoryLocalStore();
     await store.write('settings:welcome-seen', 'yes');
     String? account() => backend.currentUser?.id;
@@ -109,6 +110,9 @@ void main() {
         offlineQueueProvider.overrideWithValue(
           OutboxOfflineQueue(engine, account),
         ),
+        // A gateway is known, but this phone may not text by itself.
+        smsGatewayProvider.overrideWithValue('09170000001'),
+        smsComposerProvider.overrideWithValue(composer),
       ],
     );
     addTearDown(() async {
@@ -162,6 +166,23 @@ void main() {
     expect(find.text('Offline · 1 waiting to send'), findsOneWidget);
     expect(store.outbox.single.action, OutboxAction.sos);
     expect(server.sent, isEmpty);
+
+    // S6 offers to text it from the messages app, ready to send.
+    await tester.tap(find.text('Offline · 1 waiting to send'));
+    await settle(tester);
+    await tester.ensureVisible(find.text('Text it myself'));
+    await settle(tester);
+    await tester.tap(find.text('Text it myself'));
+    await settle(tester);
+    final (number, text) = composer.composed.single;
+    expect(number, '09170000001');
+    expect(
+      text,
+      SosSms.encode(SosRequest.fromJson(store.outbox.single.payload)),
+    );
+    expect(text, startsWith('SAGIP1 SOS '));
+    await tester.tapAt(const Offset(195, 40)); // closes the sheet
+    await settle(tester);
 
     // Back online: sent, and the SOS shows as delivered.
     server.reachable = true;

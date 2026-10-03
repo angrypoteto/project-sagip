@@ -543,4 +543,17 @@ abstract interface class OfflineQueue {
 
   /// Removes a record the server rejected.
   Future<void> remove(String id);
+
+  /// The SOS [id] as its Tier 2 text (SAGIP1 format), for the resident to
+  /// send from the phone's own messages app when the app may not text.
+  /// Null for anything that is not a waiting SOS.
+  Future<String?> sosSmsText(String id);
+}
+
+/// Opens the phone's messages app with a text ready to send (S6): the
+/// fallback when the SMS permission was refused. The person presses send
+/// there, so the app never knows whether it went.
+abstract interface class SmsComposer {
+  /// False when no messages app could be opened.
+  Future<bool> compose(String number, String text);
 }

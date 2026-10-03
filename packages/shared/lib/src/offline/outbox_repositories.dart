@@ -762,6 +762,9 @@ class OutboxOfflineQueue implements OfflineQueue {
 
   @override
   Future<void> remove(String id) => _engine.remove(id);
+
+  @override
+  Future<String?> sosSmsText(String id) async => _engine.sosSmsText(id);
 }
 
 // ------------------------------------------------------- position sharing

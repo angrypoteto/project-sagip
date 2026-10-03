@@ -74,6 +74,11 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "canSend" -> result.success(canSend())
+                    "compose" -> {
+                        val number = call.argument<String>("number")
+                        val text = call.argument<String>("text")
+                        result.success(number != null && text != null && compose(number, text))
+                    }
                     "send" -> {
                         val number = call.argument<String>("number")
                         val text = call.argument<String>("text")
@@ -156,6 +161,21 @@ class MainActivity : FlutterActivity() {
             }
         }
     }
+
+    /**
+     * Opens the phone's messages app with the SOS text ready (no permission
+     * needed): the person presses send there. False when nothing can open it.
+     */
+    private fun compose(number: String, text: String): Boolean =
+        try {
+            startActivity(
+                Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${Uri.encode(number)}"))
+                    .putExtra("sms_body", text),
+            )
+            true
+        } catch (_: Exception) {
+            false
+        }
 
     private fun canSend(): Boolean =
         packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_MESSAGING) &&

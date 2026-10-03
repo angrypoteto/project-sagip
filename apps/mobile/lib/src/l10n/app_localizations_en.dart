@@ -466,6 +466,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get queueRemove => 'Remove';
 
   @override
+  String get queueTextIt => 'Text it myself';
+
+  @override
+  String get queueTextItHint =>
+      'No internet, and the app could not text it. This opens your messages app with the SOS ready: press send there.';
+
+  @override
+  String get queueTextItFailed =>
+      'No messages app could be opened. In an emergency, call MDRRMD.';
+
+  @override
   String get meTitle => 'Me';
 
   @override

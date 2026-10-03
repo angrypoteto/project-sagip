@@ -89,62 +89,107 @@ class _QueueRow extends ConsumerWidget {
   final QueuedRecord record;
   final String locale;
 
+  Future<void> _textIt(
+    BuildContext context,
+    WidgetRef ref,
+    String gateway,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final text = await ref.read(offlineQueueProvider).sosSmsText(record.id);
+    final opened =
+        text != null &&
+        await ref.read(smsComposerProvider).compose(gateway, text);
+    if (!opened) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.queueTextItFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);
     final rejected = record.delivery == DeliveryState.rejected;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: SagipSpace.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            record.kind == QueuedKind.sos
-                ? Symbols.sos_rounded
-                : Symbols.description_rounded,
-            color: record.kind == QueuedKind.sos
-                ? p.critical.text
-                : p.textSecondary,
-          ),
-          const SizedBox(width: SagipSpace.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l10n.queuedKind(record.kind), style: text.titleSmall),
+    final signal = ref.watch(signalProvider).value;
+    final gateway = ref.watch(smsGatewayProvider);
+    // Tier 2 by hand: signal but no internet, and the SOS is still only on
+    // the phone (the app has no SMS permission, or the text failed).
+    final textIt =
+        record.kind == QueuedKind.sos &&
+        record.delivery == DeliveryState.savedOnPhone &&
+        signal == SignalState.smsOnly &&
+        gateway.isNotEmpty;
+    final row = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          record.kind == QueuedKind.sos
+              ? Symbols.sos_rounded
+              : Symbols.description_rounded,
+          color: record.kind == QueuedKind.sos
+              ? p.critical.text
+              : p.textSecondary,
+        ),
+        const SizedBox(width: SagipSpace.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.queuedKind(record.kind), style: text.titleSmall),
+              const SizedBox(height: SagipSpace.xs),
+              Text(
+                l10n.queueCaptured(formatTime(record.capturedAt, locale)),
+                style: text.bodySmall!.copyWith(color: p.textSecondary),
+              ),
+              if (rejected && record.rejectReason != null) ...[
                 const SizedBox(height: SagipSpace.xs),
                 Text(
-                  l10n.queueCaptured(formatTime(record.capturedAt, locale)),
-                  style: text.bodySmall!.copyWith(color: p.textSecondary),
+                  record.rejectReason!,
+                  style: text.bodySmall!.copyWith(color: p.critical.text),
                 ),
-                if (rejected && record.rejectReason != null) ...[
-                  const SizedBox(height: SagipSpace.xs),
-                  Text(
-                    record.rejectReason!,
-                    style: text.bodySmall!.copyWith(color: p.critical.text),
-                  ),
-                ],
               ],
-            ),
-          ),
-          const SizedBox(width: SagipSpace.sm),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              DeliveryBadge(
-                state: record.delivery,
-                label: l10n.delivery(record.delivery),
-              ),
-              if (rejected)
-                TextButton(
-                  onPressed: () =>
-                      ref.read(offlineQueueProvider).remove(record.id),
-                  child: Text(l10n.queueRemove),
-                ),
             ],
           ),
+        ),
+        const SizedBox(width: SagipSpace.sm),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            DeliveryBadge(
+              state: record.delivery,
+              label: l10n.delivery(record.delivery),
+            ),
+            if (rejected)
+              TextButton(
+                onPressed: () =>
+                    ref.read(offlineQueueProvider).remove(record.id),
+                child: Text(l10n.queueRemove),
+              ),
+          ],
+        ),
+      ],
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: SagipSpace.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          row,
+          if (textIt) ...[
+            const SizedBox(height: SagipSpace.sm),
+            Text(
+              l10n.queueTextItHint,
+              style: text.bodySmall!.copyWith(color: p.textSecondary),
+            ),
+            const SizedBox(height: SagipSpace.sm),
+            OutlinedButton.icon(
+              key: ValueKey('text-it-${record.id}'),
+              onPressed: () => _textIt(context, ref, gateway),
+              icon: const Icon(Symbols.sms_rounded),
+              label: Text(l10n.queueTextIt),
+            ),
+          ],
         ],
       ),
     );

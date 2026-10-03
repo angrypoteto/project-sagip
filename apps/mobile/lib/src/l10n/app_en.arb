@@ -165,6 +165,9 @@
   "queueKindCompletion": "Completion report",
   "queueKindDetails": "SOS details",
   "queueRemove": "Remove",
+  "queueTextIt": "Text it myself",
+  "queueTextItHint": "No internet, and the app could not text it. This opens your messages app with the SOS ready: press send there.",
+  "queueTextItFailed": "No messages app could be opened. In an emergency, call MDRRMD.",
 
   "meTitle": "Me",
   "roleResident": "Resident",
