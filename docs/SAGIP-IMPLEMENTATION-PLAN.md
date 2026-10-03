@@ -1102,7 +1102,7 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [~] Evaluate: confusion-matrix accuracy (target at least 80%), plus precision, recall, F1, and the no-skill baseline; RMSE as the thesis requires (Q23); compare with PAGASA advisories for the same period (Oct 3: all but the PAGASA comparison computed in `lstm_metrics.json`, on sample data)
 - [x] KDE: Gaussian kernel, haversine distance, bandwidth chosen from 100 to 500 m by 5-fold cross-validated log-likelihood, 100 m grid averaged per barangay (Oct 3, `ml/forecast/kde.py`, on sample data; per barangay by centre until boundaries arrive)
 - [ ] Define and document how the LSTM probability and the KDE density combine into a risk level (Q22)
-- [ ] Batch inference script that writes forecast rows; a simulated live feed that replays historical weather, with forecasts marked as simulated
+- [ ] Batch inference script that writes forecast rows; a simulated live feed that replays historical weather, with forecasts marked as simulated *(Oct 3: `ml/forecast/run_forecast.py` writes a run for all 897 barangays with provisional levels (Q22), loaded on the hosted project; the replayed live feed is not built)*
 - [ ] Polish D8 (forecast heatmap) and the R7 forecast tab on real forecast rows
 - [ ] Decide whether TensorFlow Lite on the device is still needed (Q2)
 
@@ -1127,15 +1127,15 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [x] Sync engine: send in capture order, retry with backoff, mark synced only on server acknowledgement, notify the user on delivery (NFR1); unit tests
 - [x] Tier 2 SMS format: short, versioned, with a checksum, under 160 characters (Oct 1: `SAGIP1`, CRC-16, about 85 characters; the sender number identifies the resident)
 - [~] Tier 2 sending: direct send with the SMS permission on the sideloaded APK, or open the SMS app with the message filled in as a fallback (Q29) (Oct 1: direct send done; the fallback is not built)
-- [ ] SMS gateway receiver: GSM modem service or Android gateway app, forwarding to `sms-intake`, which parses, validates, removes duplicates, and creates the incident with channel = SMS
+- [ ] SMS gateway receiver: GSM modem service or Android gateway app, forwarding to `sms-intake`, which parses, validates, removes duplicates, and creates the incident with channel = SMS *(Oct 3: `sms-intake` deployed; waits for its secret and Joshua's spare phone as the gateway)*
 - [ ] SMS acknowledgement reply from the gateway SIM, so the resident knows the SOS arrived
 - [ ] SMS field test with real phones and the gateway SIM **(Team)**
-- [ ] Tier 3 BLE proof of concept: advertise a compact SOS packet (legacy advertising fits only about 24 bytes), scan and store on nearby phones, hop limit, duplicate check by ID, upload from any phone that gets online; run as a foreground service
-- [ ] Escalation controller: Tier 1 always, Tier 2 when there is cellular signal but no data, Tier 3 when there is neither; drives the SOS button states
+- [ ] Tier 3 BLE proof of concept: advertise a compact SOS packet (legacy advertising fits only about 24 bytes), scan and store on nearby phones, hop limit, duplicate check by ID, upload from any phone that gets online; run as a foreground service *(Oct 3: built and tested in code (24-byte packet, relay node, hop limit 3, `relay_sos`); it runs while the app is open, not yet as a foreground service; not yet tried on phones)*
+- [x] Escalation controller: Tier 1 always, Tier 2 when there is cellular signal but no data, Tier 3 when there is neither; drives the SOS button states (Oct 3: `SyncEngine` with `SmsTier` and `RelayTier`)
 - [ ] BLE field test with three phones at about 10, 20, and 30 m **(Team)**
-- [ ] Responder cache (FR13): save the assignment on receipt; make sure map tiles for the assigned zone (route area plus a buffer, zoom 13 to 17) are on the phone. Simplest route: download the whole Manila tile file once over Wi-Fi and verify it at dispatch.
-- [ ] Responder status and reports queued offline and synced in capture order
-- [ ] Test harness that logs every SOS attempt and outcome for the Objective 3 success rate
+- [x] Responder cache (FR13): save the assignment on receipt; make sure map tiles for the assigned zone (route area plus a buffer, zoom 13 to 17) are on the phone. Simplest route: download the whole Manila tile file once over Wi-Fi and verify it at dispatch. (Oct 3: tiles along the route saved when the job is offered, zoom 13 to 16 on OSM's server; seen on the emulator against the hosted project, 54 tiles; an offline restart keeps the job)
+- [x] Responder status and reports queued offline and synced in capture order (Oct 3: checked on the emulator against the hosted project, capture times kept)
+- [x] Test harness that logs every SOS attempt and outcome for the Objective 3 success rate (Oct 3: `sos_delivery_report` and A4's "SOS delivery" section: SOS by first tier with delays and 1/5/15-minute counts; attempts are entered from the phones' count; success window is Q44)
 
 ## 12. Phase 6: External feeds and alerts
 
@@ -1144,14 +1144,14 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 **Who:** you. Data confirms feed access with PAGASA, PHIVOLCS, and MMDA if a request is needed.
 
 - [ ] Confirm how to get PAGASA data (API key, feed, or published bulletins); contact PAGASA if a formal request is needed **(Data)**
-- [ ] Build the scheduled `ingest-pagasa` job (Oct 3: Joshua chose a parser of PAGASA's public pages; plan in `docs/PAGASA-PARSER-PLAN.md`)
+- [x] Build the scheduled `ingest-pagasa` job (Oct 3: Joshua chose a parser of PAGASA's public pages; plan in `docs/PAGASA-PARSER-PLAN.md`. Built, deployed, and run every 10 minutes by `pg_cron`)
 - [ ] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation
 - [ ] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14). *Relay by hand from D10 ("Issue an advisory") is built (2026-10-02); the automatic ingest is not.*
 - [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
 - [~] Push by barangay topic to residents; standby alerts to responders (Oct 3: topics `area-<barangay>` and `manila`; responders on `manila`; works once the Firebase project exists)
 - [ ] Semaphore broadcast to registered residents in affected barangays, with a delivery log and a spending cap
 - [~] Rescue confirmations by push and SMS on status changes (FR6) (Oct 2 and 3: in the app at assignment, arrival, and closing; by push at each; one SMS at the first assignment; push and SMS go out once `send-alerts` is deployed with Firebase and Semaphore)
-- [ ] Facebook Page posting through the Graph API on the test page first; manual copy text as a fallback
+- [ ] Facebook Page posting through the Graph API on the test page first; manual copy text as a fallback *(Oct 3: written in `send-alerts` with tests; waits for a Page token and a redeploy)*
 - [x] Simulation mode that triggers a fake typhoon signal for demos and UAT (Oct 2: A3 switch and three simulated readings; simulated alerts stay in the apps)
 
 ## 13. Phase 7: Technical evaluation, pilot, and UAT
