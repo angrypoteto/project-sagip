@@ -12,8 +12,9 @@
 //
 // Secrets (Edge Functions > Secrets): SEND_SMS_HOOK_SECRET (from the hook
 // settings, "v1,whsec_..."), and either the three SMS_GATEWAY_ secrets or
-// SEMAPHORE_API_KEY (with SEMAPHORE_SENDER_NAME once Semaphore approves it). SUPABASE_URL and
-// SUPABASE_SERVICE_ROLE_KEY are provided by the platform.
+// SEMAPHORE_API_KEY (with SEMAPHORE_SENDER_NAME once Semaphore approves
+// it). SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by the
+// platform.
 //
 // Deploy with JWT checking off (Auth signs the call instead):
 //   supabase functions deploy send-sms --no-verify-jwt
