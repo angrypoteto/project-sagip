@@ -988,7 +988,7 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 - [ ] Run the Supabase stack locally with the CLI; all changes go through migration files (partial Sep 30: hosted project with 5 migration files; CLI not installed yet)
 - [x] Enable PostGIS; enable pgvector later for RAG (PostGIS on, Sep 30)
 - [ ] Migrations for the Figure 3.6 tables with UUID keys linked to Supabase Auth users (partial Sep 30: staff and residents link to Auth users; incidents use readable ids like INC-0147)
-- [ ] Add the missing tables: barangays with boundaries (897), evacuation centers, device tokens, configuration and thresholds, priority rules, EFCOS readings, alert deliveries, incident status history (Q16) (partial Sep 30: barangays with 10 samples, alerts with read state, forecasts, completion reports, data deletion requests)
+- [ ] Add the missing tables: barangays with boundaries (897), evacuation centers, device tokens, configuration and thresholds, priority rules, EFCOS readings, alert deliveries, incident status history (Q16) (partial Sep 30: barangays with 10 samples, alerts with read state, forecasts, completion reports, data deletion requests; Oct 3: all 897 barangays with PSA boundaries and PSGC codes, `supabase/data/`, migration `barangays_full`)
 - [ ] Geography columns and spatial indexes on every location
 - [x] `client_uuid` unique key on SOS, crowd reports, and sync log so the same SOS arriving by internet, SMS, and BLE is stored once (Q31) (Sep 30: SOS, crowd reports, and completion reports; the queue itself is on the phone)
 - [ ] Auth: resident phone OTP through the Send SMS hook (Q37); staff username or email with password; role in the JWT through a custom access token hook
@@ -1144,7 +1144,7 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 **Who:** you. Data confirms feed access with PAGASA, PHIVOLCS, and MMDA if a request is needed.
 
 - [ ] Confirm how to get PAGASA data (API key, feed, or published bulletins); contact PAGASA if a formal request is needed **(Data)**
-- [ ] Build the scheduled `ingest-pagasa` job
+- [ ] Build the scheduled `ingest-pagasa` job (Oct 3: Joshua chose a parser of PAGASA's public pages; plan in `docs/PAGASA-PARSER-PLAN.md`)
 - [ ] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation
 - [ ] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14). *Relay by hand from D10 ("Issue an advisory") is built (2026-10-02); the automatic ingest is not.*
 - [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
