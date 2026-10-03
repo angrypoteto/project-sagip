@@ -535,6 +535,12 @@ abstract interface class MapSaver {
   Stream<double> save(List<GeoPoint> path);
 }
 
+/// The assignment alert tone (F2): the app's own two-tone sound, the same
+/// as the "New assignments" notifications.
+abstract interface class AlertSound {
+  Future<void> playAssignment();
+}
+
 /// Reads text aloud (the responder's spoken directions on F4).
 abstract interface class Speaker {
   /// Says [text], cutting off anything still being said.

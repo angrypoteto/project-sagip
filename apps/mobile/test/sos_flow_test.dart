@@ -464,6 +464,11 @@ void main() {
     expect(find.text('New assignment'), findsOneWidget);
     expect(find.text('Flood'), findsOneWidget);
     expect(
+      (container.read(alertSoundProvider) as MockAlertSound).played,
+      greaterThan(0),
+      reason: 'the assignment tone plays',
+    );
+    expect(
       find.text('Vulnerable: Senior citizen, Person with disability'),
       findsOneWidget,
     );

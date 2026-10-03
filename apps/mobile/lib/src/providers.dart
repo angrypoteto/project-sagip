@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:sagip_shared/sagip_shared.dart';
 
+import 'device/device_alert_sound.dart';
 import 'device/device_battery_optimization.dart';
 import 'device/device_sms_sender.dart';
 import 'device/tts_speaker.dart';
@@ -41,6 +42,9 @@ final batteryOptimizationProvider = Provider<BatteryOptimization>(
 final batteryExemptProvider = FutureProvider<bool>(
   (ref) => ref.watch(batteryOptimizationProvider).isExempt(),
 );
+
+/// F2's assignment tone.
+final alertSoundProvider = Provider<AlertSound>((ref) => MockAlertSound());
 
 /// Says F4's directions aloud.
 final speakerProvider = Provider<Speaker>((ref) => MockSpeaker());
@@ -263,6 +267,7 @@ List<Override> liveOverrides({
     batteryOptimizationProvider.overrideWithValue(battery),
     smsComposerProvider.overrideWithValue(const DeviceSmsSender()),
     speakerProvider.overrideWithValue(TtsSpeaker()),
+    alertSoundProvider.overrideWithValue(const DeviceAlertSound()),
     sosRepositoryProvider.overrideWithValue(
       OutboxSosRepository(
         engine: engine,

@@ -35,8 +35,8 @@ class _IncomingPageState extends ConsumerState<IncomingPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) ScaffoldMessenger.of(context).clearSnackBars();
     });
-    // Three alert pulses: the phone's alert sound plus a strong vibration.
-    // A custom siren sound comes with the push notification work (FCM).
+    // Three alert pulses: the app's assignment tone (the same as its push
+    // notifications) plus a strong vibration.
     _pulse();
     _alert = Timer.periodic(const Duration(seconds: 2), (t) {
       if (++_pulses >= 2) t.cancel();
@@ -45,7 +45,7 @@ class _IncomingPageState extends ConsumerState<IncomingPage> {
   }
 
   void _pulse() {
-    SystemSound.play(SystemSoundType.alert);
+    ref.read(alertSoundProvider).playAssignment();
     HapticFeedback.vibrate();
   }
 

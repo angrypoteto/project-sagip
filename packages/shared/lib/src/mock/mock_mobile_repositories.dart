@@ -209,6 +209,14 @@ class MockResidentAccountRepository implements ResidentAccountRepository {
   Future<void> requestDataDeletion() => _backend.requestDataDeletion();
 }
 
+/// Counts the tones that would play.
+class MockAlertSound implements AlertSound {
+  var played = 0;
+
+  @override
+  Future<void> playAssignment() async => played++;
+}
+
 /// Records what would be said aloud.
 class MockSpeaker implements Speaker {
   final said = <String>[];

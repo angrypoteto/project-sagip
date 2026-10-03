@@ -2,6 +2,8 @@ package ph.sagip.sagip_mobile
 
 import android.Manifest
 import android.app.Activity
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -51,6 +53,9 @@ class MainActivity : FlutterActivity() {
      * send-alerts/fcm.ts). All three can sound and pop up: each is about an
      * emergency. Creating them again changes nothing the person set.
      */
+    private fun assignmentTone(): Uri =
+        Uri.parse("android.resource://$packageName/${R.raw.sagip_assignment}")
+
     private fun createNotificationChannels() {
         val manager = getSystemService(NotificationManager::class.java) ?: return
         fun channel(id: String, name: Int, about: Int) =
@@ -64,7 +69,17 @@ class MainActivity : FlutterActivity() {
                     "sagip_assignments",
                     R.string.channel_assignments,
                     R.string.channel_assignments_about,
-                ),
+                ).apply {
+                    // The app's own two-tone, so a new job is told apart
+                    // from any other notification.
+                    setSound(
+                        assignmentTone(),
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build(),
+                    )
+                },
             ),
         )
     }
@@ -90,6 +105,22 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                     else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/sound")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "assignment") {
+                    try {
+                        MediaPlayer.create(this, R.raw.sagip_assignment)?.apply {
+                            setOnCompletionListener { it.release() }
+                            start()
+                        }
+                        result.success(null)
+                    } catch (e: Exception) {
+                        result.error("sound", e.message, null)
+                    }
+                } else {
+                    result.notImplemented()
                 }
             }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/relay")
