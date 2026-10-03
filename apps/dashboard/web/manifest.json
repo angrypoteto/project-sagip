@@ -1,11 +1,11 @@
 {
-    "name": "sagip_dashboard",
-    "short_name": "sagip_dashboard",
+    "name": "S.A.G.I.P.",
+    "short_name": "S.A.G.I.P.",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "S.A.G.I.P., the Manila City MDRRMD emergency response system.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
