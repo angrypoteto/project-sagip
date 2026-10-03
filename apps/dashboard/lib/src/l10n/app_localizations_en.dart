@@ -918,7 +918,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weatherTitle => 'Weather and advisories';
 
   @override
-  String get feedTitle => 'PAGASA feed';
+  String get feedTitle => 'PAGASA and PHIVOLCS feeds';
 
   @override
   String get feedNotConnected =>
@@ -1017,11 +1017,50 @@ class AppLocalizationsEn extends AppLocalizations {
       'Not connected yet. Alerts use PAGASA thresholds only (FR5 fallback).';
 
   @override
-  String get phivolcsTitle => 'PHIVOLCS advisories';
+  String get phivolcsTitle => 'PHIVOLCS earthquakes near Manila';
 
   @override
-  String get phivolcsNotConnected =>
-      'Not connected yet. Advisories will be relayed to residents as notifications (FR14).';
+  String get phivolcsNote =>
+      'Magnitude 3 and up within 200 km in the last 48 hours (provisional). Earthquakes are relayed by hand: nothing is sent to residents by itself.';
+
+  @override
+  String get phivolcsNone =>
+      'No earthquake of magnitude 3 or more within 200 km in the last 48 hours.';
+
+  @override
+  String phivolcsRow(String magnitude, String distance, String time) {
+    return 'Magnitude $magnitude · $distance km from Manila · $time';
+  }
+
+  @override
+  String get phivolcsRelay => 'Relay as advisory';
+
+  @override
+  String phivolcsDraftTitle(String magnitude, String distance) {
+    return 'Magnitude $magnitude earthquake, $distance km from Manila';
+  }
+
+  @override
+  String phivolcsDraftBody(
+    String magnitude,
+    String time,
+    String location,
+    String depth,
+  ) {
+    return 'PHIVOLCS reports a magnitude $magnitude earthquake at $time, $location, $depth km deep. Check your home for cracks and be ready for aftershocks.';
+  }
+
+  @override
+  String get phivolcsDraftSteps =>
+      'Drop, cover, and hold on if the ground shakes again\nStay away from damaged buildings and walls\nCall MDRRMD if someone is hurt or trapped';
+
+  @override
+  String get feedPhivolcs => 'PHIVOLCS earthquake list';
+
+  @override
+  String feedQuakes(int events, int near) {
+    return '$events events listed, $near within 300 km of Manila';
+  }
 
   @override
   String get auditTitle => 'Audit log';

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'enums.dart';
+import 'geo_point.dart';
 import 'response_unit.dart';
 
 /// How an ETA was estimated.
@@ -29,8 +30,9 @@ class UnitSuggestion {
   final RoutingMethod method;
 }
 
-/// The two pages the PAGASA feed reads (ingest-pagasa).
-enum FeedSource { pagasaRainfall, pagasaCyclone }
+/// The pages the feeds read: PAGASA's two (ingest-pagasa) and PHIVOLCS's
+/// earthquake list (ingest-phivolcs).
+enum FeedSource { pagasaRainfall, pagasaCyclone, phivolcs }
 
 /// How the last check of one PAGASA source went (`feed_status`, D10).
 @immutable
@@ -65,6 +67,7 @@ class FeedStatus {
     source: switch (json['source']) {
       'pagasa_rainfall' => FeedSource.pagasaRainfall,
       'pagasa_cyclone' => FeedSource.pagasaCyclone,
+      'phivolcs' => FeedSource.phivolcs,
       final other => throw FormatException('Unknown feed source $other'),
     },
     ok: json['ok']! as bool,
@@ -73,6 +76,56 @@ class FeedStatus {
     lastError: json['last_error'] as String?,
     failures: (json['failures'] as int?) ?? 0,
     seen: (json['seen'] as Map?)?.cast<String, Object?>() ?? const {},
+  );
+}
+
+/// A PHIVOLCS earthquake near Manila (`phivolcs_event`, D10). Relayed by
+/// hand only (FR14): nothing reaches residents by itself.
+@immutable
+class Earthquake {
+  const Earthquake({
+    required this.key,
+    required this.occurredAt,
+    required this.location,
+    required this.point,
+    required this.depthKm,
+    required this.magnitude,
+    required this.distanceKm,
+    this.bulletinUrl,
+  });
+
+  final String key;
+  final DateTime occurredAt;
+
+  /// As PHIVOLCS words it: "023 km S 66° E of Lobo (Batangas)".
+  final String location;
+  final GeoPoint point;
+  final double depthKm;
+  final double magnitude;
+
+  /// From Manila City Hall.
+  final double distanceKm;
+  final String? bulletinUrl;
+
+  /// The Weather page lists these (provisional): magnitude 3 and up within
+  /// 200 km.
+  static const minMagnitude = 3.0;
+  static const withinKm = 200.0;
+
+  bool get worthShowing => magnitude >= minMagnitude && distanceKm <= withinKm;
+
+  factory Earthquake.fromJson(Map<String, Object?> json) => Earthquake(
+    key: json['event_key']! as String,
+    occurredAt: timeFromJson(json['occurred_at']),
+    location: json['location']! as String,
+    point: GeoPoint(
+      (json['latitude']! as num).toDouble(),
+      (json['longitude']! as num).toDouble(),
+    ),
+    depthKm: (json['depth_km']! as num).toDouble(),
+    magnitude: (json['magnitude']! as num).toDouble(),
+    distanceKm: (json['distance_km']! as num).toDouble(),
+    bulletinUrl: json['bulletin_url'] as String?,
   );
 }
 

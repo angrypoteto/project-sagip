@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(368);
+select plan(371);
 
 select public.reset_demo_data();
 
@@ -1670,6 +1670,24 @@ select is(
   (select e.detail from public.incident_event e join __relayed r using (incident_id)
     where e.kind = 'smsReplyReceived' order by e.event_id desc limit 1),
   'YES', 'and it shows on the incident for the dispatcher');
+
+-- ------------------------------------------------ PHIVOLCS earthquakes (FR14)
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'public.record_phivolcs_events(jsonb)', 'execute')
+  and not has_function_privilege('anon', 'public.record_phivolcs_events(jsonb)', 'execute'),
+  'only ingest-phivolcs records earthquakes');
+select is(
+  public.record_phivolcs_events('[
+    {"key": "rls-1", "occurred_at": "2026-10-03T12:01:00+08:00", "latitude": 13.92, "longitude": 121.18,
+     "depth_km": 23, "magnitude": 4.5, "location": "023 km S 66° E of Lobo (Batangas)", "distance_km": 123},
+    {"key": "rls-2", "occurred_at": "2026-10-03T12:05:00+08:00", "latitude": 10.3, "longitude": 123.9,
+     "depth_km": 10, "magnitude": 5.0, "location": "far away", "distance_km": 570}]'::jsonb),
+  1, 'events within 300 km of Manila are kept; farther ones are not');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.phivolcs_event), 0, 'residents do not read the earthquake list');
 
 reset role;
 select * from finish();

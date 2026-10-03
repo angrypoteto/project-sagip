@@ -80,6 +80,44 @@ class MockBackend {
 
   /// For tests: what the feed reported.
   void setFeeds(List<FeedStatus> feeds) => _feeds.value = feeds;
+
+  /// Sample PHIVOLCS events near Manila (from the saved page of
+  /// 2026-10-03), hours before now.
+  late final _quakes = LiveValue<List<Earthquake>>([
+    for (final (hours, lat, lng, depth, mag, km, place) in const [
+      (2, 13.92, 121.18, 23.0, 4.5, 123.0, '023 km S 66° E of Lobo (Batangas)'),
+      (
+        5,
+        14.95,
+        120.52,
+        12.0,
+        3.1,
+        64.2,
+        '012 km N 70° W of Dinalupihan (Bataan)',
+      ),
+      (
+        9,
+        13.17,
+        120.14,
+        26.0,
+        2.0,
+        182.4,
+        '044 km S 52° W of Paluan (Occidental Mindoro)',
+      ),
+    ])
+      Earthquake(
+        key: 'sample-$hours',
+        occurredAt: _clock().subtract(Duration(hours: hours)),
+        location: place,
+        point: GeoPoint(lat, lng),
+        depthKm: depth,
+        magnitude: mag,
+        distanceKm: km,
+      ),
+  ]);
+
+  Stream<List<Earthquake>> watchEarthquakes() => _quakes.watch();
+  void setEarthquakes(List<Earthquake> quakes) => _quakes.value = quakes;
   var _nextReportNumber = 1;
   var _nextAlertNumber = 1;
   var _weatherSimulated = false;
@@ -1580,6 +1618,7 @@ class MockBackend {
     unawaited(_expired.close());
     for (final live in <LiveValue<Object?>>[
       _feeds,
+      _quakes,
       _incidents,
       _resolved,
       _units,

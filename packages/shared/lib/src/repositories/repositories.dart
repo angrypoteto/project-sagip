@@ -152,6 +152,9 @@ abstract interface class WeatherRepository {
 /// feed is not connected (sample data).
 abstract interface class FeedStatusRepository {
   Stream<List<FeedStatus>> watchFeeds();
+
+  /// PHIVOLCS earthquakes near Manila from the last 48 hours, newest first.
+  Stream<List<Earthquake>> watchEarthquakes();
 }
 
 /// The 72-hour forecast for every barangay (D8, FR4).

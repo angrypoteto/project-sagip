@@ -202,4 +202,37 @@ void main() {
     });
     expect(e.action, AuditAction.settingChanged);
   });
+
+  test('a PHIVOLCS event and its feed row from the hosted project parse', () {
+    final q = Earthquake.fromJson({
+      'event_key': '2026-10-02T23:10:00+08:00|14.56|119.12',
+      'occurred_at': '2026-10-02T15:10:00+00:00',
+      'latitude': 14.56,
+      'longitude': 119.12,
+      'depth_km': 17,
+      'magnitude': 4.5,
+      'location': '113 km S 67° W of San Antonio (Zambales)',
+      'distance_km': 200.3,
+      'bulletin_url': 'https://earthquake.phivolcs.dost.gov.ph/2026_Earthquake_Information/October/2026_1002_1510_B3.html',
+      'first_seen_at': '2026-10-03T12:58:46.3834+00:00',
+    });
+    expect(q.magnitude, 4.5);
+    expect(q.occurredAt.toUtc(), DateTime.utc(2026, 10, 2, 15, 10));
+    expect(q.worthShowing, isFalse, reason: 'just beyond 200 km');
+    final f = FeedStatus.fromJson({
+      'source': 'phivolcs',
+      'checked_at': '2026-10-03T13:00:01.524895+00:00',
+      'ok': true,
+      'last_success_at': '2026-10-03T13:00:01.524895+00:00',
+      'last_error': null,
+      'failures': 0,
+      'seen': {
+        'events': 2147,
+        'newest': '2026-10-03T20:33:00+08:00',
+        'near_manila': 42,
+      },
+    });
+    expect(f.source, FeedSource.phivolcs);
+    expect(f.seen['near_manila'], 42);
+  });
 }

@@ -549,7 +549,7 @@ void main() {
     await signIn(tester, 'dispatcher@sagip.test');
     await tester.tap(find.byTooltip('Weather and advisories'));
     await settle(tester);
-    expect(find.text('PAGASA feed'), findsOneWidget);
+    expect(find.text('PAGASA and PHIVOLCS feeds'), findsOneWidget);
     expect(
       find.text('Not connected: sample data uses simulated weather.'),
       findsOneWidget,
@@ -585,6 +585,53 @@ void main() {
     );
     expect(
       find.textContaining('Could not read it 3 times in a row; last read'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('D10: PHIVOLCS earthquakes near Manila, relayed by hand', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2400);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+    // The sample: M4.5 at 123 km and M3.1 at 64 km are listed; M2.0 is not.
+    expect(find.text('PHIVOLCS earthquakes near Manila'), findsOneWidget);
+    expect(
+      find.textContaining('Magnitude 4.5 · 123 km from Manila'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Magnitude 3.1 · 64 km from Manila'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Magnitude 2.0'), findsNothing);
+
+    // Relaying fills in the advisory; the dispatcher still reviews it.
+    final relay = find.text('Relay as advisory').first;
+    await tester.ensureVisible(relay);
+    await tester.tap(relay);
+    await settle(tester);
+    expect(
+      find.text('Magnitude 4.5 earthquake, 123 km from Manila'),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'PHIVOLCS'))
+          .selected,
+      isTrue,
+    );
+
+    backend.setEarthquakes(const []);
+    await tester.tap(find.text('Cancel'));
+    await settle(tester);
+    expect(
+      find.text(
+        'No earthquake of magnitude 3 or more within 200 km in the last 48 hours.',
+      ),
       findsOneWidget,
     );
   });

@@ -118,11 +118,7 @@ class WeatherPage extends ConsumerWidget {
               message: l10n.efcosNotConnected,
             ),
             const SizedBox(height: SagipSpace.md),
-            _FeedNotice(
-              icon: Symbols.volcano_rounded,
-              title: l10n.phivolcsTitle,
-              message: l10n.phivolcsNotConnected,
-            ),
+            const _Earthquakes(),
           ],
         ),
       ),
@@ -410,6 +406,10 @@ class _PagasaFeed extends ConsumerWidget {
         },
         _ => l10n.feedNoWarning,
       },
+      FeedSource.phivolcs => l10n.feedQuakes(
+        (seen['events'] as num?)?.toInt() ?? 0,
+        (seen['near_manila'] as num?)?.toInt() ?? 0,
+      ),
       FeedSource.pagasaCyclone => switch (seen['state']) {
         'bulletin' => l10n.feedBulletin(
           number,
@@ -432,9 +432,11 @@ class _PagasaFeed extends ConsumerWidget {
     final feeds = ref.watch(feedStatusProvider).value;
 
     Widget line(FeedStatus f) {
-      final label = f.source == FeedSource.pagasaRainfall
-          ? l10n.feedRainfall
-          : l10n.feedCyclone;
+      final label = switch (f.source) {
+        FeedSource.pagasaRainfall => l10n.feedRainfall,
+        FeedSource.pagasaCyclone => l10n.feedCyclone,
+        FeedSource.phivolcs => l10n.feedPhivolcs,
+      };
       final lastGood = f.lastSuccessAt;
       return Padding(
         key: ValueKey('feed-${f.source.name}'),
@@ -537,6 +539,114 @@ class _FeedNotice extends StatelessWidget {
                   Text(title, style: text.titleSmall),
                   const SizedBox(height: SagipSpace.xs),
                   Text(message, style: text.bodySmall),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// PHIVOLCS earthquakes near Manila (FR14, advisory relay only): the
+/// dispatcher decides whether to pass one on.
+class _Earthquakes extends ConsumerWidget {
+  const _Earthquakes();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final online = ref.watch(isOnlineProvider);
+    final quakes = [
+      for (final q
+          in ref.watch(earthquakesProvider).value ?? const <Earthquake>[])
+        if (q.worthShowing) q,
+    ];
+
+    AdvisoryDraft draft(Earthquake q) {
+      final magnitude = q.magnitude.toStringAsFixed(1);
+      final distance = q.distanceKm.round().toString();
+      return AdvisoryDraft(
+        source: AlertSource.phivolcs,
+        level: AlertLevel.info,
+        title: l10n.phivolcsDraftTitle(magnitude, distance),
+        body: l10n.phivolcsDraftBody(
+          magnitude,
+          formatDateTime(q.occurredAt, locale),
+          q.location,
+          q.depthKm.round().toString(),
+        ),
+        steps: l10n.phivolcsDraftSteps,
+      );
+    }
+
+    return Card(
+      key: const ValueKey('earthquakes'),
+      child: Padding(
+        padding: const EdgeInsets.all(SagipSpace.xl),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Symbols.earthquake_rounded, size: 22),
+            const SizedBox(width: SagipSpace.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.phivolcsTitle, style: text.titleSmall),
+                  const SizedBox(height: SagipSpace.xs),
+                  Text(l10n.phivolcsNote, style: text.bodySmall),
+                  const SizedBox(height: SagipSpace.sm),
+                  if (quakes.isEmpty)
+                    Text(l10n.phivolcsNone, style: text.bodyMedium)
+                  else
+                    for (final q in quakes)
+                      Padding(
+                        key: ValueKey('quake-${q.key}'),
+                        padding: const EdgeInsets.only(top: SagipSpace.sm),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.phivolcsRow(
+                                      q.magnitude.toStringAsFixed(1),
+                                      q.distanceKm.round().toString(),
+                                      formatDateTime(q.occurredAt, locale),
+                                    ),
+                                    style: text.bodyMedium!.copyWith(
+                                      fontWeight: q.magnitude >= 5
+                                          ? FontWeight.w600
+                                          : null,
+                                    ),
+                                  ),
+                                  Text(
+                                    q.location,
+                                    style: text.bodySmall!.copyWith(
+                                      color: p.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: online
+                                  ? () => showAdvisoryDialog(
+                                      context,
+                                      draft: draft(q),
+                                    )
+                                  : null,
+                              child: Text(l10n.phivolcsRelay),
+                            ),
+                          ],
+                        ),
+                      ),
                 ],
               ),
             ),

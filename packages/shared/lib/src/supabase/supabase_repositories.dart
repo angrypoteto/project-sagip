@@ -904,6 +904,21 @@ class SupabaseFeedStatusRepository implements FeedStatusRepository {
         FeedStatus.fromJson(r),
     ],
   );
+
+  @override
+  Stream<List<Earthquake>> watchEarthquakes() => liveQuery(
+    _client,
+    tables: const ['phivolcs_event'],
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('phivolcs_event')
+              .select()
+              .gte('occurred_at', _utcAgo(const Duration(hours: 48)))
+              .order('occurred_at', ascending: false))
+        Earthquake.fromJson(r),
+    ],
+  );
 }
 
 // --------------------------------------------------------------- forecast

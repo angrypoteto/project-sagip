@@ -12,15 +12,38 @@ import '../../providers.dart';
 /// hand from PAGASA, PHIVOLCS, or EFCOS. Two steps: write it, then review
 /// it as residents will see it, with where it goes, before it is sent.
 /// Returns true once the advisory is issued.
-Future<bool> showAdvisoryDialog(BuildContext context) async =>
+Future<bool> showAdvisoryDialog(
+  BuildContext context, {
+  AdvisoryDraft? draft,
+}) async =>
     await showDialog<bool>(
       context: context,
-      builder: (context) => const _AdvisoryDialog(),
+      builder: (context) => _AdvisoryDialog(draft: draft),
     ) ??
     false;
 
+/// A filled-in start for the dialog, for example a PHIVOLCS earthquake to
+/// relay; the dispatcher edits and reviews it as usual.
+class AdvisoryDraft {
+  const AdvisoryDraft({
+    required this.source,
+    required this.level,
+    required this.title,
+    required this.body,
+    this.steps = '',
+  });
+
+  final AlertSource source;
+  final AlertLevel level;
+  final String title;
+  final String body;
+  final String steps;
+}
+
 class _AdvisoryDialog extends ConsumerStatefulWidget {
-  const _AdvisoryDialog();
+  const _AdvisoryDialog({this.draft});
+
+  final AdvisoryDraft? draft;
 
   @override
   ConsumerState<_AdvisoryDialog> createState() => _AdvisoryDialogState();
@@ -38,6 +61,19 @@ class _AdvisoryDialogState extends ConsumerState<_AdvisoryDialog> {
   var _checked = false;
   var _reviewing = false;
   var _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final d = widget.draft;
+    if (d != null) {
+      _source = d.source;
+      _level = d.level;
+      _title.text = d.title;
+      _body.text = d.body;
+      _steps.text = d.steps;
+    }
+  }
 
   @override
   void dispose() {

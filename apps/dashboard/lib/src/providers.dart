@@ -207,6 +207,14 @@ final weatherProvider = StreamProvider<WeatherStatus>(
 );
 
 /// D10: the PAGASA feed's health; empty on sample data.
+/// PHIVOLCS earthquakes near Manila from the last 48 hours (D10).
+final earthquakesProvider = StreamProvider<List<Earthquake>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(feedStatusRepositoryProvider).watchEarthquakes(),
+  ),
+);
+
 final feedStatusProvider = StreamProvider<List<FeedStatus>>(
   (ref) => _forAccount(
     ref,

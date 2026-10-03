@@ -242,6 +242,9 @@ class MockFeedStatusRepository implements FeedStatusRepository {
 
   @override
   Stream<List<FeedStatus>> watchFeeds() => _backend.watchFeeds();
+
+  @override
+  Stream<List<Earthquake>> watchEarthquakes() => _backend.watchEarthquakes();
 }
 
 class MockSimulationRepository implements SimulationRepository {

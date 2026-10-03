@@ -1663,7 +1663,7 @@ abstract class AppLocalizations {
   /// No description provided for @feedTitle.
   ///
   /// In en, this message translates to:
-  /// **'PAGASA feed'**
+  /// **'PAGASA and PHIVOLCS feeds'**
   String get feedTitle;
 
   /// No description provided for @feedNotConnected.
@@ -1813,14 +1813,67 @@ abstract class AppLocalizations {
   /// No description provided for @phivolcsTitle.
   ///
   /// In en, this message translates to:
-  /// **'PHIVOLCS advisories'**
+  /// **'PHIVOLCS earthquakes near Manila'**
   String get phivolcsTitle;
 
-  /// No description provided for @phivolcsNotConnected.
+  /// No description provided for @phivolcsNote.
   ///
   /// In en, this message translates to:
-  /// **'Not connected yet. Advisories will be relayed to residents as notifications (FR14).'**
-  String get phivolcsNotConnected;
+  /// **'Magnitude 3 and up within 200 km in the last 48 hours (provisional). Earthquakes are relayed by hand: nothing is sent to residents by itself.'**
+  String get phivolcsNote;
+
+  /// No description provided for @phivolcsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No earthquake of magnitude 3 or more within 200 km in the last 48 hours.'**
+  String get phivolcsNone;
+
+  /// No description provided for @phivolcsRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnitude {magnitude} · {distance} km from Manila · {time}'**
+  String phivolcsRow(String magnitude, String distance, String time);
+
+  /// No description provided for @phivolcsRelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Relay as advisory'**
+  String get phivolcsRelay;
+
+  /// No description provided for @phivolcsDraftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnitude {magnitude} earthquake, {distance} km from Manila'**
+  String phivolcsDraftTitle(String magnitude, String distance);
+
+  /// No description provided for @phivolcsDraftBody.
+  ///
+  /// In en, this message translates to:
+  /// **'PHIVOLCS reports a magnitude {magnitude} earthquake at {time}, {location}, {depth} km deep. Check your home for cracks and be ready for aftershocks.'**
+  String phivolcsDraftBody(
+    String magnitude,
+    String time,
+    String location,
+    String depth,
+  );
+
+  /// No description provided for @phivolcsDraftSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop, cover, and hold on if the ground shakes again\nStay away from damaged buildings and walls\nCall MDRRMD if someone is hurt or trapped'**
+  String get phivolcsDraftSteps;
+
+  /// No description provided for @feedPhivolcs.
+  ///
+  /// In en, this message translates to:
+  /// **'PHIVOLCS earthquake list'**
+  String get feedPhivolcs;
+
+  /// No description provided for @feedQuakes.
+  ///
+  /// In en, this message translates to:
+  /// **'{events} events listed, {near} within 300 km of Manila'**
+  String feedQuakes(int events, int near);
 
   /// No description provided for @auditTitle.
   ///
