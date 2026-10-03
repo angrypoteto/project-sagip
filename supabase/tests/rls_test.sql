@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(333);
+select plan(343);
 
 select public.reset_demo_data();
 
@@ -1506,6 +1506,67 @@ select ok(
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 select is((select count(*)::int from public.feed_status), 0, 'residents cannot read the feed status');
+
+-- ------------------------------------------------ tier 3: SOS relayed over Bluetooth
+
+reset role;
+select ok(
+  not has_function_privilege('anon', 'public.relay_sos(uuid, timestamptz, double precision, double precision, boolean, int)', 'execute')
+  and has_function_privilege('authenticated', 'public.relay_sos(uuid, timestamptz, double precision, double precision, boolean, int)', 'execute')
+  and not has_table_privilege('authenticated', 'public.sos_relay_log', 'select'),
+  'any signed-in phone may relay an SOS; no app reads the relay log');
+
+set local role authenticated;
+-- A signed-in phone (no resident record, no staff role) heard an SOS.
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
+select is(
+  public.relay_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6091, 120.9925, true, 2) ->> 'duplicate',
+  'false', 'a relayed SOS is filed');
+select is(
+  public.relay_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6091, 120.9925, true, 3) ->> 'duplicate',
+  'true', 'the same SOS from another hop is one incident');
+select throws_ok(
+  $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a2', now(), 14.5547, 121.0244, false, 1) $$,
+  'P0001', 'outside_manila', 'a relayed SOS outside Manila is refused');
+select throws_ok(
+  $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a3', now(), 14.6091, 120.9925, false, 7) $$,
+  'P0001', 'invalid_value', 'a hop count the packet cannot hold is refused');
+
+reset role;
+select ok(
+  (select channel = 'bleRelay' and status = 'pendingVerification' and not account_verified
+          and manila_resident_id is null and mock_location
+          and captured_at < received_at - interval '3 minutes'
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000007a1'),
+  'on the board at once, unverified, from an unknown sender, with its capture time (FR8)');
+select is(
+  (select string_agg(hops || ':' || duplicate, ',' order by relay_id) from public.sos_relay_log
+    where client_uuid = '00000000-0000-4000-8000-0000000007a1'),
+  '2:false,3:true', 'every upload is logged with its hops');
+
+-- The resident's own phone gets online and sends its copy.
+create temp table __relayed as
+  select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000007a1';
+grant select on __relayed to authenticated;
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  public.submit_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6091, 120.9925, 8),
+  (select incident_id from __relayed),
+  'the resident''s own copy finds the relayed incident');
+reset role;
+select ok(
+  (select manila_resident_id = 'res-001' and account_verified
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000007a1'),
+  'and attaches the resident');
+
+insert into public.sos_relay_log (client_uuid, relayed_by, hops, duplicate)
+select gen_random_uuid(), '00000000-0000-4000-8000-00000000000e', 1, false from generate_series(1, 30);
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a4', now(), 14.6091, 120.9925, false, 1) $$,
+  'P0001', 'rate_limited', 'a phone that uploads too many in an hour is stopped');
 
 reset role;
 select * from finish();

@@ -213,6 +213,7 @@ List<Override> liveOverrides({
   BatteryOptimization battery = const DeviceBatteryOptimization(),
   MapSaver? maps,
   TileProvider? tiles,
+  bool relayTier = false,
   Future<void> Function()? recheckSignal,
   Stream<PushOpen>? pushOpens,
 }) {
@@ -224,7 +225,7 @@ List<Override> liveOverrides({
     capabilitiesProvider.overrideWith(
       (ref) => DeviceCapabilities(
         smsTier: ref.watch(smsGatewayProvider).isNotEmpty,
-        relayTier: false,
+        relayTier: relayTier,
         offlineMaps: maps != null,
       ),
     ),

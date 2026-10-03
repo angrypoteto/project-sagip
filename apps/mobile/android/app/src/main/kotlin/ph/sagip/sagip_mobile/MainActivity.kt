@@ -20,6 +20,7 @@ import android.provider.Settings
 import android.telephony.SmsManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -31,6 +32,14 @@ import java.util.concurrent.atomic.AtomicBoolean
  * push (plan part 7).
  */
 class MainActivity : FlutterActivity() {
+    private val relay by lazy { BleRelay(applicationContext) }
+
+    override fun onDestroy() {
+        relay.stopAll()
+        relay.stopScan()
+        super.onDestroy()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createNotificationChannels()
@@ -77,6 +86,37 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/relay")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "hasHardware" -> result.success(relay.hasHardware())
+                    "isSupported" -> result.success(relay.isSupported())
+                    "advertise" -> {
+                        val key = call.argument<String>("key")
+                        val packet = call.argument<ByteArray>("packet")
+                        if (key == null || packet == null) {
+                            result.success(false)
+                        } else {
+                            relay.advertise(key, packet) { ok -> result.success(ok) }
+                        }
+                    }
+                    "stop" -> {
+                        call.argument<String>("key")?.let(relay::stop)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/relay/heard")
+            .setStreamHandler(object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+                    if (!relay.startScan { packet -> events.success(packet) }) {
+                        events.error("unavailable", "Bluetooth scanning is not possible", null)
+                    }
+                }
+
+                override fun onCancel(arguments: Any?) = relay.stopScan()
+            })
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/battery")
             .setMethodCallHandler { call, result ->
                 when (call.method) {

@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 import 'src/app.dart';
 import 'src/device/device_location_service.dart';
 import 'src/device/device_permission_service.dart';
+import 'src/device/device_relay_radio.dart';
 import 'src/device/device_sms_sender.dart';
 import 'src/device/fcm_push_device.dart';
 import 'src/device/hive_store.dart';
@@ -83,12 +84,36 @@ Future<List<Override>> _live() async {
         _smsGateway.isNotEmpty ? _smsGateway : config.saved.smsGateway,
     available: signal.watch().map((s) => s == SignalState.smsOnly).distinct(),
   );
+  // Tier 3: Bluetooth LE between phones, when neither internet nor
+  // cellular works (proof of concept; needs the Nearby devices permission).
+  const radio = DeviceRelayRadio();
+  final relayHardware = await DeviceRelayRadio.hasHardware();
   final engine = SyncEngine(
     store: store,
     sender: ServerSender(backend.remote),
     online: online(),
     account: () => backend.accounts.currentUser?.id,
     sms: sms,
+    relay: relayHardware
+        ? RelayTier(
+            radio: radio,
+            available: signal
+                .watch()
+                .map((s) => s == SignalState.noSignal)
+                .distinct(),
+          )
+        : null,
+  );
+  // This phone passes on SOS it hears from others and uploads them.
+  final relayNode = RelayNode(
+    radio: radio,
+    store: store,
+    online: online(),
+    upload: backend.remote.relaySos,
+    ownIds: () => {
+      for (final e in engine.entries)
+        if (e.action == OutboxAction.sos) e.id,
+    },
   );
   final sharer = ResponderLocationSharer(
     server: backend.remote,
@@ -108,6 +133,12 @@ Future<List<Override>> _live() async {
   if (push != null) backend.accounts.beforeSignOut = push.forgetHere;
   backend.accounts.watchUser().listen((user) {
     if (push != null) unawaited(_syncPush(push, backend, store, user));
+    // Any signed-in phone relays (relay_sos needs an account).
+    if (relayHardware && user != null) {
+      unawaited(relayNode.start());
+    } else {
+      unawaited(relayNode.stop());
+    }
     // Records made by this account can go now; another account's wait.
     engine.accountChanged();
     if (user?.role == UserRole.responder) {
@@ -126,6 +157,7 @@ Future<List<Override>> _live() async {
   return liveOverrides(
     maps: TileMapSaver(cache: tileCache),
     tiles: NetworkTileProvider(cachingProvider: tileCache),
+    relayTier: relayHardware,
     backend: backend,
     store: store,
     engine: engine,

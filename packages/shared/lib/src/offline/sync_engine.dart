@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import '../algorithms/sos_relay.dart';
 import '../algorithms/sos_sms.dart';
 import '../mock/live_value.dart';
 import '../models/assignment.dart';
@@ -11,6 +12,7 @@ import '../models/sos.dart';
 import '../repositories/repositories.dart';
 import 'mobile_server.dart';
 import 'outbox.dart';
+import 'relay.dart';
 
 /// Sends one outbox record. Returns the server's id for it, if any.
 abstract interface class OutboxSender {
@@ -114,8 +116,10 @@ class SyncEngine {
     DateTime Function()? clock,
     Duration Function(int attempts)? retryDelay,
     SmsTier? sms,
+    RelayTier? relay,
   }) : _store = store,
        _sms = sms,
+       _relay = relay,
        _clock = clock ?? DateTime.now,
        _retryDelay = retryDelay ?? defaultRetryDelay {
     final now = _clock();
@@ -126,9 +130,11 @@ class SyncEngine {
         unawaited(store.deleteEntry(e.id));
         continue;
       }
-      // A send cut off when the app closed counts as not sent.
+      // A send cut off when the app closed counts as not sent; an advert
+      // stopped with the app, so a relaying SOS is advertised again.
       kept.add(
-        e.delivery == DeliveryState.sending
+        e.delivery == DeliveryState.sending ||
+                e.delivery == DeliveryState.relaying
             ? e.copyWith(delivery: _notSent(e), waited: true)
             : e,
       );
@@ -140,6 +146,10 @@ class SyncEngine {
     });
     _smsSub = sms?.available.listen((ok) {
       _smsOk = ok;
+      if (ok) unawaited(pump());
+    });
+    _relaySub = relay?.available.listen((ok) {
+      _relayOk = ok;
       if (ok) unawaited(pump());
     });
   }
@@ -168,6 +178,9 @@ class SyncEngine {
   final SmsTier? _sms;
   StreamSubscription<bool>? _smsSub;
   var _smsOk = false;
+  final RelayTier? _relay;
+  StreamSubscription<bool>? _relaySub;
+  var _relayOk = false;
   Timer? _smsRetry;
   final _deliveries = StreamController<QueuedRecord>.broadcast();
   Timer? _retry;
@@ -249,6 +262,10 @@ class SyncEngine {
                 e.action == OutboxAction.sos &&
                 e.delivery == DeliveryState.savedOnPhone) {
               await _sendSms(e);
+            } else if (_relayOk &&
+                e.action == OutboxAction.sos &&
+                e.delivery == DeliveryState.savedOnPhone) {
+              await _sendRelay(e);
             } else if (!e.waited) {
               await _put(e.copyWith(waited: true));
             }
@@ -273,6 +290,10 @@ class SyncEngine {
         deliveredAt: _clock(),
       );
       await _put(done);
+      if (e.delivery == DeliveryState.relaying ||
+          (e.action == OutboxAction.sos && _relay != null)) {
+        await _stopRelay(e);
+      }
       if (!_deliveries.isClosed) _deliveries.add(done.toQueued());
       return true;
     } on ActionRejected catch (err) {
@@ -324,6 +345,37 @@ class SyncEngine {
     }
   }
 
+  /// Tier 3: advertises the SOS to nearby phones (Bluetooth LE). It stays
+  /// pending (relaying) so it still goes over the internet later; the
+  /// server keeps one incident whichever copy arrives first.
+  Future<void> _sendRelay(OutboxEntry e) async {
+    final relay = _relay!;
+    var started = false;
+    try {
+      final sos = SosRequest.fromJson(e.payload);
+      started = await relay.radio.advertise(
+        RelayTier.ownKey(sos.clientId),
+        SosRelayPacket.of(sos).encode(),
+      );
+    } catch (_) {
+      started = false;
+    }
+    await _put(
+      started
+          ? e.copyWith(delivery: DeliveryState.relaying, waited: true)
+          : e.copyWith(waited: true),
+    );
+  }
+
+  Future<void> _stopRelay(OutboxEntry e) async {
+    try {
+      final id = e.payload['client_id'] as String?;
+      if (id != null) await _relay?.radio.stop(RelayTier.ownKey(id));
+    } catch (_) {
+      // The advert ends with the app anyway.
+    }
+  }
+
   Future<void> _reject(OutboxEntry e, String reason) =>
       _put(e.copyWith(delivery: DeliveryState.rejected, rejectReason: reason));
 
@@ -346,6 +398,7 @@ class SyncEngine {
     _retry?.cancel();
     _smsRetry?.cancel();
     await _smsSub?.cancel();
+    await _relaySub?.cancel();
     await _onlineSub.cancel();
     await _deliveries.close();
   }

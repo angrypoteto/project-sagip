@@ -560,6 +560,22 @@ class SupabaseMobileRemote implements MobileServer {
     ),
   );
 
+  /// Tier 3: uploads an SOS this phone heard over Bluetooth (`relay_sos`).
+  /// The server keeps one incident per SOS, however many phones send it.
+  Future<void> relaySos(SosRelayPacket packet) => _call(
+    () => _client.rpc<Object?>(
+      'relay_sos',
+      params: {
+        'p_client_uuid': packet.clientId,
+        'p_captured_at': _utc(packet.capturedAt),
+        'p_latitude': packet.location?.lat,
+        'p_longitude': packet.location?.lng,
+        'p_mock_location': packet.mockLocation,
+        'p_hops': packet.hops,
+      },
+    ),
+  );
+
   @override
   Future<void> addSosDetails(String clientId, SosDetails details) => _call(
     () => _client.rpc<void>(
