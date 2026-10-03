@@ -1026,7 +1026,7 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 **Dispatcher dashboard**
 
 - [x] Realtime Triage Queue with new-SOS sound and toast (built; ticked in the Oct 3 review)
-- [~] Verification actions: callback link, "Mark verified", "Mark as false report"; two-way SMS once the gateway exists (the three actions are built; the SMS check is sent but a YES reply through the gateway is not read yet)
+- [x] Verification actions: callback link, "Mark verified", "Mark as false report"; two-way SMS once the gateway exists (Oct 3: the SMS check is texted and a YES or NO reply through the gateway shows on the incident, migration `sms_checks`)
 - [x] Confirm or override incident type (built; ticked in the Oct 3 review)
 - [x] Assign with suggestions (straight-line ranking until Dijkstra lands), reassign, override reason, and conflict handling between two dispatchers (built; ticked in the Oct 3 review)
 
@@ -1130,7 +1130,7 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [ ] SMS gateway receiver: GSM modem service or Android gateway app, forwarding to `sms-intake`, which parses, validates, removes duplicates, and creates the incident with channel = SMS *(Oct 3: `sms-intake` deployed; waits for its secret and Joshua's spare phone as the gateway)*
 - [x] SMS acknowledgement reply from the gateway SIM, so the resident knows the SOS arrived (Oct 3: `sms-intake` v2 asks SMS Gateway for Android to send it; needs the app's cloud login as secrets)
 - [ ] SMS field test with real phones and the gateway SIM **(Team)**
-- [ ] Tier 3 BLE proof of concept: advertise a compact SOS packet (legacy advertising fits only about 24 bytes), scan and store on nearby phones, hop limit, duplicate check by ID, upload from any phone that gets online; run as a foreground service *(Oct 3: built and tested in code (24-byte packet, relay node, hop limit 3, `relay_sos`); it runs while the app is open, not yet as a foreground service; not yet tried on phones)*
+- [ ] Tier 3 BLE proof of concept: advertise a compact SOS packet (legacy advertising fits only about 24 bytes), scan and store on nearby phones, hop limit, duplicate check by ID, upload from any phone that gets online; run as a foreground service *(Oct 3: built and tested in code (24-byte packet, relay node, hop limit 3, `relay_sos`); since Oct 3 it keeps running in the background as a foreground service with a notice; not yet tried on phones)*
 - [x] Escalation controller: Tier 1 always, Tier 2 when there is cellular signal but no data, Tier 3 when there is neither; drives the SOS button states (Oct 3: `SyncEngine` with `SmsTier` and `RelayTier`)
 - [ ] BLE field test with three phones at about 10, 20, and 30 m **(Team)**
 - [x] Responder cache (FR13): save the assignment on receipt; make sure map tiles for the assigned zone (route area plus a buffer, zoom 13 to 17) are on the phone. Simplest route: download the whole Manila tile file once over Wi-Fi and verify it at dispatch. (Oct 3: tiles along the route saved when the job is offered, zoom 13 to 16 on OSM's server; seen on the emulator against the hosted project, 54 tiles; an offline restart keeps the job)
@@ -1146,10 +1146,10 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [ ] Confirm how to get PAGASA data (API key, feed, or published bulletins); contact PAGASA if a formal request is needed **(Data)**
 - [x] Build the scheduled `ingest-pagasa` job (Oct 3: Joshua chose a parser of PAGASA's public pages; plan in `docs/PAGASA-PARSER-PLAN.md`. Built, deployed, and run every 10 minutes by `pg_cron`)
 - [ ] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation
-- [ ] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14). *Relay by hand from D10 ("Issue an advisory") is built (2026-10-02); the automatic ingest is not.*
+- [x] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14). (Oct 3: PHIVOLCS's public earthquake list read every 15 minutes; D10 lists the ones near Manila with "Relay as advisory"; relayed by hand, never automatically) *Relay by hand from D10 ("Issue an advisory") is built (2026-10-02); the automatic ingest is not.*
 - [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
 - [~] Push by barangay topic to residents; standby alerts to responders (Oct 3: topics `area-<barangay>` and `manila`; responders on `manila`; works once the Firebase project exists)
-- [ ] Semaphore broadcast to registered residents in affected barangays, with a delivery log and a spending cap
+- [x] Semaphore broadcast to registered residents in affected barangays, with a delivery log and a spending cap (built; Oct 3: the gateway phone's SIM is the free route, Semaphore the fallback; waits for one of them to be set up)
 - [~] Rescue confirmations by push and SMS on status changes (FR6) (Oct 2 and 3: in the app at assignment, arrival, and closing; by push at each; one SMS at the first assignment; push and SMS go out once `send-alerts` is deployed with Firebase and Semaphore)
 - [ ] Facebook Page posting through the Graph API on the test page first; manual copy text as a fallback *(Oct 3: written in `send-alerts` with tests; waits for a Page token and a redeploy)*
 - [x] Simulation mode that triggers a fake typhoon signal for demos and UAT (Oct 2: A3 switch and three simulated readings; simulated alerts stay in the apps)

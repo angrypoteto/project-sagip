@@ -42,9 +42,12 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_sos_delivery_report.sql` | `sos_delivery_report()` for the Objective 3 trials (admins only; see "Objective 3: SOS delivery report") |
 | `migrations/*_simulated_incidents.sql` | `simulate_sos()` and `simulate_crowd_reports()` (admins, simulation mode only, audited), `is_simulated` on incidents and crowd reports, simulated incidents left out of A4, Objective 3, and NDRRMC figures |
 | `migrations/*_report_pdfs.sql` | The private `ndrrmc-reports` bucket (admins read; one file per final report, added once) and `attach_report_pdf()` |
+| `migrations/*_sms_checks.sql` | Two-way SMS check: `sms_check` (service role only), `send_sms_check()` queues the text, `claim_sms_checks()` and `finish_sms_check()` for the sender, `record_sms_check_reply()` for `sms-intake` |
+| `migrations/*_phivolcs_feed.sql` | `phivolcs_event` (dispatchers and admins read it), `record_phivolcs_events()` (service role), and a `pg_cron` job every 15 minutes for `ingest-phivolcs` |
+| `functions/ingest-phivolcs/` | Reads PHIVOLCS's earthquake list; `phivolcs.test.ts` runs the parser on a saved page with `node --test` |
 | `migrations/20261003130000_forecast_live.sql` | **Not applied yet.** `forecast_model`, `forecast_replay`, `forecast_live_input()` and `record_forecast_run()` (service role), and a `pg_cron` job every six hours for `run-forecast` |
 | `functions/run-forecast/` | The forecast's live feed: the LSTM in TypeScript on replayed weather, the provisional rule; `forecast.test.ts` checks it against Keras with `node --test` |
-| `tests/rls_test.sql` | 362 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 371 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -100,6 +103,17 @@ The app asks Supabase to text a code; Supabase hands the code to the `send-sms` 
 6. **For demos without texts at all:** Authentication > Sign In / Providers > Phone > Test phone numbers: for example `639170004821=123456` (Maria's sample number). Test numbers never call the hook.
 
 The function never logs full numbers (only "0917 ••• 4821"), and `sms_log` is not readable from the apps.
+
+## Free SMS: the gateway phone instead of Semaphore
+
+Semaphore charges per text. The free route is the gateway phone itself: **SMS Gateway for Android** (free and open source, by capcom6, on Google Play and GitHub) turns a spare Android phone with a prepaid SIM into an SMS gateway. The SIM's own load pays for the texts, and an unlimited-text promo from the network (for example a weekly unli-text add-on) keeps the cost to a few pesos for a whole demo or trial. The same phone also receives the SOS texts (Tier 2 below), so one phone does both directions.
+
+With the three secrets below set, every text goes from the gateway SIM: sign-in codes (`send-sms`), alert broadcasts, rescue confirmations, and SMS checks (`send-alerts`), and the replies to SOS texts (`sms-intake`). Semaphore stays as the fallback when they are not set. All three functions are deployed with this (2026-10-03).
+
+1. Install SMS Gateway for Android on the spare phone, sign in to its **cloud server** mode (Settings, Cloud server), and note the username and password it shows. Allow it to send and receive SMS and to run in the background (battery: unrestricted).
+2. Edge Functions > Secrets: `SMS_GATEWAY_SEND_URL` = `https://api.sms-gate.app/3rdparty/v1/messages`, `SMS_GATEWAY_USERNAME`, `SMS_GATEWAY_PASSWORD`.
+3. Check it: the check in "Sending alerts by SMS" step 2 now says `gateway: set: texts go from the gateway phone`.
+4. Limits to know: Android asks for confirmation after many texts in a short time (the app has a setting to space them out), networks may block a SIM that sends thousands of identical texts a day, and each text takes a second or two. The A3 "SMS alert limit" (500 a day by default) protects the SIM; for the capstone's numbers (a pilot barangay, UAT) this is enough. A city-wide rollout would go back to a paid bulk sender.
 
 ## Tier 2: SOS by SMS (for Joshua, when the gateway SIM exists)
 
@@ -213,6 +227,14 @@ The code is in the repo with tests (`node --test supabase/functions/send-alerts/
 
 The token is a secret: it is sent only in the request body to Facebook and is never logged.
 
+## Two-way SMS check (migration `sms_checks`)
+
+"Send SMS check" in the D4 drawer now texts the SOS sender (the resident's number, or the number an SMS SOS came from): "MDRRMD got an SOS from this number (INC-0147). Reply YES if you need rescue, or NO if it was a mistake." `send-alerts` sends it (gateway SIM or Semaphore). When `sms-intake` receives YES (Y, OO, OPO) or NO (N, HINDI) from that number within two hours, `record_sms_check_reply()` adds the answer to the incident's timeline, the drawer shows it, and the sender is thanked. The dispatcher still decides. `sms_check` holds full numbers and is service-role only.
+
+## PHIVOLCS earthquakes (migration `phivolcs_feed`, FR14)
+
+`ingest-phivolcs` reads PHIVOLCS's public earthquake list (earthquake.phivolcs.dost.gov.ph, about 120 KB compressed) every 15 minutes and keeps the events within 300 km of Manila from the last 48 hours in `phivolcs_event` (dispatchers and admins read it). The Weather page lists those of magnitude 3 and up within 200 km (provisional) with "Relay as advisory", which opens the advisory dialog filled in (source PHIVOLCS, level info, title, text, three safety steps) for the dispatcher to check and send. Nothing reaches residents by itself: earthquakes are relayed, never forecast. The feed's health is the third line of the feeds card (`feed_status`, source `phivolcs`). Deployed and running since 2026-10-03; the first run kept 42 events.
+
 ## Simulated incidents for demos (migration `simulated_incidents`)
 
 With simulation mode on (Configuration page), an admin can make a **simulated SOS** (optionally with a senior citizen in the household) or **three simulated crowd reports** of a chosen type in any barangay. They go through the same triggers as real ones: the classifier tags the reports and DBSCAN turns the three into one confirmed incident within seconds. They show on the board with a "Simulated" tag and can be verified, assigned, and resolved like any incident, so the whole SOS-to-resolved flow can be shown without a resident phone. `is_simulated` marks them; A4 analytics, the Objective 3 report, and NDRRMC report figures leave them out. Each one is in the audit log (`sosSimulated`, `reportsSimulated`).
@@ -223,10 +245,10 @@ When an admin marks a report final (A6), the dashboard builds its PDF and keeps 
 
 ## The forecast's live feed (migration `forecast_live`, **not applied yet**)
 
-`run-forecast` makes a forecast run every six hours without TensorFlow: `ml/forecast/export_live.py` writes `supabase/data/forecast_live_v1.json` (the three LSTMs' weights and scalers, three years of replayed sample weather, the KDE density per barangay, the provisional rule), and the function runs the same LSTM in TypeScript (its tests match Keras's own output to 0.00001), moving one replayed day per run. Rows are marked simulated and say which day was replayed (D8 shows it). To switch it on (Joshua's approval; the migration creates a `pg_cron` job):
+`run-forecast` makes a forecast run every six hours without TensorFlow: `ml/forecast/export_live.py` writes `supabase/data/forecast_live_v1.json` (the three LSTMs' weights and scalers, three years of replayed sample weather, the KDE density per barangay, the provisional rule), and the function runs the same LSTM in TypeScript (its tests match Keras's own output to 0.00001), moving one replayed day per run. Rows are marked simulated and say which day was replayed (D8 shows it). To switch it on: Joshua approved on 2026-10-03, but the Supabase connector declined the migration every time it was tried (it creates tables and a `pg_cron` job), so paste the file into the SQL editor yourself:
 
 1. Apply `supabase/migrations/20261003130000_forecast_live.sql` (rename it to the version `list_migrations` gives).
-2. Deploy: `supabase functions deploy run-forecast --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+2. The function: deployed by Claude on 2026-10-03 (version 1); it does nothing until the migration and the model are there.
 3. Load the model once the file is on GitHub (pinned commit), in the SQL editor:
 
    ```sql
