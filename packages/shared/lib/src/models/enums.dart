@@ -98,6 +98,10 @@ enum AuditAction {
   /// An NDRRMC report drafted or marked final (A6).
   reportDrafted,
   reportFinalized,
+
+  /// A simulated SOS or simulated crowd reports (simulation mode, A3).
+  sosSimulated,
+  reportsSimulated,
 }
 
 /// Reads a timestamp from JSON and converts it to local time (the database

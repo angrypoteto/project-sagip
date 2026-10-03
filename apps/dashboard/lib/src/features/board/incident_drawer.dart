@@ -480,6 +480,8 @@ class _Verification extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SectionTitle(l10n.verificationTitle),
+          if (incident.isSimulated)
+            _Check(Symbols.science_rounded, p.info.text, l10n.checkSimulated),
           if (!isSos)
             _Check(
               Symbols.check_circle_rounded,

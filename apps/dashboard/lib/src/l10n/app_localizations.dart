@@ -4240,6 +4240,90 @@ abstract class AppLocalizations {
   /// **'Marked an NDRRMC report final'**
   String get actionReportFinalized;
 
+  /// No description provided for @actionSosSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated an SOS'**
+  String get actionSosSimulated;
+
+  /// No description provided for @actionReportsSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated crowd reports'**
+  String get actionReportsSimulated;
+
+  /// No description provided for @simulateIncidentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated incidents'**
+  String get simulateIncidentsTitle;
+
+  /// No description provided for @simulateIncidentsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'They appear on the board marked Simulated and can be verified, assigned, and resolved like real ones. They are left out of analytics and NDRRMC reports.'**
+  String get simulateIncidentsNote;
+
+  /// No description provided for @simulateBarangayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay'**
+  String get simulateBarangayLabel;
+
+  /// No description provided for @simulateBarangayError.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a barangay from the list'**
+  String get simulateBarangayError;
+
+  /// No description provided for @simulateSosButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated SOS'**
+  String get simulateSosButton;
+
+  /// No description provided for @simulateSosVulnerableButton.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS with a senior citizen'**
+  String get simulateSosVulnerableButton;
+
+  /// No description provided for @simulateReportType.
+  ///
+  /// In en, this message translates to:
+  /// **'Report type'**
+  String get simulateReportType;
+
+  /// No description provided for @simulateReportsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'3 crowd reports'**
+  String get simulateReportsButton;
+
+  /// No description provided for @simulatedSosSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated SOS sent. It is on the board.'**
+  String get simulatedSosSent;
+
+  /// No description provided for @simulatedReportsSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Three simulated reports sent. DBSCAN groups them into one incident.'**
+  String get simulatedReportsSent;
+
+  /// No description provided for @simulatedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated'**
+  String get simulatedTag;
+
+  /// No description provided for @checkSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated for a demo; left out of analytics and reports'**
+  String get checkSimulated;
+
   /// No description provided for @errorAlreadyFinal.
   ///
   /// In en, this message translates to:

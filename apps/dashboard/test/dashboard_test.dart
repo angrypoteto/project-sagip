@@ -445,6 +445,29 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('simulate-typhoon')));
     await settle(tester);
 
+    // Simulated incidents: an SOS, and three reports DBSCAN clusters.
+    final barangay = find.byKey(const ValueKey('simulate-barangay'));
+    await tester.ensureVisible(barangay);
+    await tester.enterText(barangay, 'Nowhere');
+    await tester.pump();
+    expect(find.text('Choose a barangay from the list'), findsOneWidget);
+    expect(enabled('simulate-sos'), isFalse);
+    await tester.enterText(barangay, 'Barangay 700');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('simulate-sos-vulnerable')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('simulate-reports')));
+    await settle(tester);
+    final simulated = [
+      for (final i in container.read(activeIncidentsProvider).value!)
+        if (i.isSimulated) i,
+    ];
+    expect(simulated.map((i) => (i.origin, i.barangay)).toSet(), {
+      (IncidentOrigin.sos, 'Barangay 700'),
+      (IncidentOrigin.crowdCluster, 'Barangay 700'),
+    });
+
     // D10: the reading against the thresholds, and the alerts it raised.
     await tester.tap(find.byTooltip('Weather and advisories'));
     await settle(tester);

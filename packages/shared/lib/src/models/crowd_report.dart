@@ -19,6 +19,7 @@ class CrowdReport {
     this.suggestedType,
     this.suggestionConfidence,
     this.incidentId,
+    this.isSimulated = false,
   });
 
   final String id;
@@ -39,6 +40,9 @@ class CrowdReport {
   /// Set when the report belongs to a confirmed cluster.
   final String? incidentId;
 
+  /// Made with the simulation tools for a demo.
+  final bool isSimulated;
+
   bool get isClustered => incidentId != null;
 
   String get place => '$barangay, $district';
@@ -55,6 +59,7 @@ class CrowdReport {
     suggestedType: suggestedType,
     suggestionConfidence: suggestionConfidence,
     incidentId: incidentId ?? this.incidentId,
+    isSimulated: isSimulated,
   );
 
   factory CrowdReport.fromJson(Map<String, Object?> json) => CrowdReport(
@@ -72,6 +77,7 @@ class CrowdReport {
     suggestedType: enumFromJsonOrNull(IncidentType.values, json['category']),
     suggestionConfidence: (json['category_confidence'] as num?)?.toDouble(),
     incidentId: json['incident_id'] as String?,
+    isSimulated: json['is_simulated'] as bool? ?? false,
   );
 
   Map<String, Object?> toJson() => {
@@ -87,5 +93,6 @@ class CrowdReport {
     'category': suggestedType?.name,
     'category_confidence': suggestionConfidence,
     'incident_id': incidentId,
+    'is_simulated': isSimulated,
   };
 }

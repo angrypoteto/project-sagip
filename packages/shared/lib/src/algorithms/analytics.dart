@@ -6,7 +6,8 @@ import '../models/road_route.dart';
 
 /// A4 analytics from incidents in memory (the mock backend), with the same
 /// definitions as `public.analytics_report` in the database: incidents
-/// received in [from, to), times from each incident's timeline.
+/// received in [from, to), times from each incident's timeline. Simulated
+/// incidents are left out.
 AnalyticsReport buildAnalytics({
   required Iterable<Incident> incidents,
   required Map<String, ResponseUnit> units,
@@ -16,7 +17,10 @@ AnalyticsReport buildAnalytics({
 }) {
   final rows = [
     for (final i in incidents)
-      if (!i.receivedAt.isBefore(from) && i.receivedAt.isBefore(to)) _Row(i),
+      if (!i.receivedAt.isBefore(from) &&
+          i.receivedAt.isBefore(to) &&
+          !i.isSimulated)
+        _Row(i),
   ];
 
   List<AnalyticsGroup> groups(
@@ -129,7 +133,7 @@ AnalyticsReport buildAnalytics({
 SosDeliveryReport sosDelivery(Iterable<Incident> incidents) {
   final byChannel = <ReportChannel, List<double>>{};
   for (final i in incidents) {
-    if (i.origin != IncidentOrigin.sos) continue;
+    if (i.origin != IncidentOrigin.sos || i.isSimulated) continue;
     final s = i.receivedAt.difference(i.capturedAt).inMicroseconds / 1e6;
     byChannel.putIfAbsent(i.channel, () => []).add(s < 0 ? 0 : s);
   }

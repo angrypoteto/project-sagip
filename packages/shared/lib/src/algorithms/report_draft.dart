@@ -56,7 +56,7 @@ ReportSource buildReportSource({
   bool within(DateTime t) => !t.isBefore(from) && t.isBefore(to);
   final rows = [
     for (final i in incidents)
-      if (within(i.receivedAt)) i,
+      if (within(i.receivedAt) && !i.isSimulated) i,
   ];
   final filed = [for (final i in rows) ?completions[i.id]];
   bool real(Incident i) =>

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(347);
+select plan(357);
 
 select public.reset_demo_data();
 
@@ -633,6 +633,10 @@ select ok(
   has_function_privilege('anon', 'public.client_config()', 'execute')
   and not has_function_privilege('anon', 'public.simulate_weather(int, numeric, numeric)', 'execute'),
   'anyone may read the hotline and gateway number; anon cannot simulate weather');
+select ok(
+  not has_function_privilege('anon', 'public.simulate_sos(text, boolean)', 'execute')
+  and not has_function_privilege('anon', 'public.simulate_crowd_reports(text, text, int)', 'execute'),
+  'anon cannot simulate incidents');
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
@@ -646,10 +650,14 @@ select is(
   '4,12', 'a dispatcher reads the log: sample alerts are in the app and never sent outside it');
 select throws_ok($$ select public.simulate_weather(3, 35, 2.5) $$,
   'P0001', 'not_allowed', 'a dispatcher cannot simulate weather');
+select throws_ok($$ select public.simulate_sos('Barangay 700') $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot simulate incidents');
 
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
 select throws_ok($$ select public.simulate_weather(3, 35, 2.5) $$,
   'P0001', 'not_allowed', 'simulated weather needs simulation mode');
+select throws_ok($$ select public.simulate_crowd_reports('Barangay 700', 'fire', 3) $$,
+  'P0001', 'not_allowed', 'simulated incidents need simulation mode');
 select throws_ok($$ select public.set_setting('demo.simulation', '1') $$,
   'P0001', 'invalid_value', 'a switch stays a switch');
 select lives_ok($$ select public.set_setting('demo.simulation', 'true') $$,
@@ -691,6 +699,33 @@ select is(
   (select string_agg(level, ',') from public.public_alert
     where hazard = 'signal' and (expires_at is null or expires_at > now())),
   'critical', 'a warning that becomes critical is replaced, not doubled');
+
+-- Simulated incidents (migration simulated_incidents). Barangay 700 has no
+-- demo reports nearby, so DBSCAN sees only the three simulated ones.
+select throws_ok($$ select public.simulate_sos('Nowhere') $$,
+  'P0001', 'invalid_value', 'a simulated SOS needs a real barangay');
+select throws_ok($$ select public.simulate_crowd_reports('Barangay 700', 'fire', 6) $$,
+  'P0001', 'invalid_value', 'at most five simulated reports at a time');
+select lives_ok($$ select public.simulate_sos('Barangay 700', true) $$,
+  'an admin simulates an SOS with a senior citizen');
+select lives_ok($$ select public.simulate_crowd_reports('Barangay 700', 'fire', 3) $$,
+  'an admin simulates three crowd reports');
+select is(
+  (select string_agg(origin || ':' || cardinality(crowd_report_ids) || ':' || array_to_string(vulnerable, '+'), ',' order by origin)
+     from public.incident_board where is_simulated and barangay = 'Barangay 700'),
+  'crowdCluster:3:,sos:0:seniorCitizen',
+  'both reach the board marked simulated; the three reports became one DBSCAN cluster');
+select is(
+  (select sum((c->>'count')::int)::int
+     from jsonb_array_elements(public.sos_delivery_report(
+            now() - interval '1 day', now() + interval '1 minute') -> 'channels') c),
+  (select count(*)::int from public.incident_board
+    where origin = 'sos' and not is_simulated and received_at >= now() - interval '1 day'),
+  'the Objective 3 report leaves the simulated SOS out');
+select ok(
+  (select count(*) = 2 from public.audit_log
+    where account_name = 'Test Admin' and action_type in ('sosSimulated', 'reportsSimulated')),
+  'both are in the audit log (FR11)');
 
 select throws_ok($$ select public.set_setting('alerts.rainfall_warning', '40') $$,
   'P0001', 'invalid_value', 'a warning threshold cannot go above its critical one');

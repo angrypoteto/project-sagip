@@ -2400,6 +2400,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionReportFinalized => 'Marked an NDRRMC report final';
 
   @override
+  String get actionSosSimulated => 'Simulated an SOS';
+
+  @override
+  String get actionReportsSimulated => 'Simulated crowd reports';
+
+  @override
+  String get simulateIncidentsTitle => 'Simulated incidents';
+
+  @override
+  String get simulateIncidentsNote =>
+      'They appear on the board marked Simulated and can be verified, assigned, and resolved like real ones. They are left out of analytics and NDRRMC reports.';
+
+  @override
+  String get simulateBarangayLabel => 'Barangay';
+
+  @override
+  String get simulateBarangayError => 'Choose a barangay from the list';
+
+  @override
+  String get simulateSosButton => 'Simulated SOS';
+
+  @override
+  String get simulateSosVulnerableButton => 'SOS with a senior citizen';
+
+  @override
+  String get simulateReportType => 'Report type';
+
+  @override
+  String get simulateReportsButton => '3 crowd reports';
+
+  @override
+  String get simulatedSosSent => 'Simulated SOS sent. It is on the board.';
+
+  @override
+  String get simulatedReportsSent =>
+      'Three simulated reports sent. DBSCAN groups them into one incident.';
+
+  @override
+  String get simulatedTag => 'Simulated';
+
+  @override
+  String get checkSimulated =>
+      'Simulated for a demo; left out of analytics and reports';
+
+  @override
   String get errorAlreadyFinal =>
       'This report is final and can no longer be changed.';
 

@@ -117,6 +117,8 @@ extension DomainLabels on AppLocalizations {
     AuditAction.alertEnded => actionAlertEnded,
     AuditAction.reportDrafted => actionReportDrafted,
     AuditAction.reportFinalized => actionReportFinalized,
+    AuditAction.sosSimulated => actionSosSimulated,
+    AuditAction.reportsSimulated => actionReportsSimulated,
   };
 
   String reportCheck(ReportCheck c) => switch (c) {

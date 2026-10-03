@@ -308,6 +308,14 @@ class QueueRow extends ConsumerWidget {
                                   .join(', '),
                               style: strong,
                             ),
+                          if (incident.isSimulated)
+                            _Meta(
+                              icon: Symbols.science_rounded,
+                              label: l10n.simulatedTag,
+                              style: text.labelSmall!.copyWith(
+                                color: p.info.text,
+                              ),
+                            ),
                           if (incident.mockLocationSuspected)
                             _Meta(
                               icon: Symbols.gps_off_rounded,

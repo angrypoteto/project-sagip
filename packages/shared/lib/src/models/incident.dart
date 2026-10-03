@@ -82,6 +82,7 @@ class Incident {
     this.falseReport = false,
     this.resolvedAt,
     this.events = const [],
+    this.isSimulated = false,
   });
 
   final String id;
@@ -141,6 +142,10 @@ class Incident {
   final DateTime? resolvedAt;
   final List<IncidentEvent> events;
 
+  /// Made with the simulation tools (A3, simulation mode) for a demo. Left
+  /// out of analytics, the Objective 3 report, and NDRRMC figures.
+  final bool isSimulated;
+
   /// The type to display: the confirmed one if set, else the suggestion.
   IncidentType? get type => confirmedType ?? suggestedType;
 
@@ -163,6 +168,7 @@ class Incident {
     DateTime? resolvedAt,
     List<String>? crowdReportIds,
     List<IncidentEvent>? events,
+    bool? isSimulated,
   }) {
     return Incident(
       id: id,
@@ -194,6 +200,7 @@ class Incident {
       falseReport: falseReport ?? this.falseReport,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       events: events ?? this.events,
+      isSimulated: isSimulated ?? this.isSimulated,
     );
   }
 
@@ -249,6 +256,7 @@ class Incident {
       for (final e in (json['events'] as List<Object?>? ?? const []))
         IncidentEvent.fromJson(e! as Map<String, Object?>),
     ],
+    isSimulated: json['is_simulated'] as bool? ?? false,
   );
 
   Map<String, Object?> toJson() => {
@@ -280,5 +288,6 @@ class Incident {
     'false_report': falseReport,
     'resolved_at': resolvedAt?.toIso8601String(),
     'events': [for (final e in events) e.toJson()],
+    'is_simulated': isSimulated,
   };
 }

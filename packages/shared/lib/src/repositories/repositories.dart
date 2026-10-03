@@ -299,6 +299,20 @@ abstract interface class SimulationRepository {
     required double rainfallMmPerHour,
     double? surgeMeters,
   });
+
+  /// A simulated SOS near the centre of [barangay], on the board at once as
+  /// Pending Verification, from an unknown sender; [vulnerable] adds a
+  /// senior citizen. Returns the incident id. Audited.
+  Future<String> simulateSos({required String barangay, bool vulnerable});
+
+  /// [count] simulated crowd reports (1 to 5) of [type] within about 20 m
+  /// of each other in [barangay]; three or more become a confirmed incident
+  /// through DBSCAN (FR7). Audited.
+  Future<void> simulateCrowdReports({
+    required String barangay,
+    required IncidentType type,
+    int count,
+  });
 }
 
 /// The hotline and the SMS gateway number an administrator set on A3,

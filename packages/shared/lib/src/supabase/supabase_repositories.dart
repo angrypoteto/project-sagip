@@ -422,6 +422,29 @@ class SupabaseSimulationRepository implements SimulationRepository {
       },
     ),
   );
+
+  @override
+  Future<String> simulateSos({
+    required String barangay,
+    bool vulnerable = false,
+  }) => _call(
+    () => _client.rpc<String>(
+      'simulate_sos',
+      params: {'p_barangay': barangay, 'p_vulnerable': vulnerable},
+    ),
+  );
+
+  @override
+  Future<void> simulateCrowdReports({
+    required String barangay,
+    required IncidentType type,
+    int count = 3,
+  }) => _call(
+    () => _client.rpc<void>(
+      'simulate_crowd_reports',
+      params: {'p_barangay': barangay, 'p_type': type.name, 'p_count': count},
+    ),
+  );
 }
 
 /// The hotline and SMS gateway number from `client_config()`, which needs

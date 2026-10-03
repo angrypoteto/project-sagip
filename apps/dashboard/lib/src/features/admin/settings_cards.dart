@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/actions.dart';
+import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 
@@ -527,6 +528,31 @@ class SimulationCard extends ConsumerStatefulWidget {
 
 class _SimulationCardState extends ConsumerState<SimulationCard> {
   var _busy = false;
+  final _barangay = TextEditingController(text: 'Barangay 412');
+  var _type = IncidentType.flood;
+
+  @override
+  void dispose() {
+    _barangay.dispose();
+    super.dispose();
+  }
+
+  Barangay? get _chosen => barangayNamed(_barangay.text.trim());
+
+  Future<void> _simulate(
+    Future<void> Function(SimulationRepository repo, String barangay) action,
+    String success,
+  ) async {
+    final b = _chosen;
+    if (b == null) return;
+    setState(() => _busy = true);
+    await runAction(
+      context,
+      () => action(ref.read(simulationRepositoryProvider), b.name),
+      success: success,
+    );
+    if (mounted) setState(() => _busy = false);
+  }
 
   Future<void> _send({
     required int signal,
@@ -598,7 +624,166 @@ class _SimulationCardState extends ConsumerState<SimulationCard> {
                 ),
               ],
             ),
+            const SizedBox(height: SagipSpace.lg),
+            Text(l10n.simulateIncidentsTitle, style: text.titleSmall),
+            const SizedBox(height: SagipSpace.xs),
+            Text(l10n.simulateIncidentsNote, style: text.bodySmall),
+            const SizedBox(height: SagipSpace.md),
+            _BarangayField(
+              controller: _barangay,
+              enabled: ready,
+              onChanged: () => setState(() {}),
+            ),
+            const SizedBox(height: SagipSpace.md),
+            Wrap(
+              spacing: SagipSpace.sm,
+              runSpacing: SagipSpace.sm,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                OutlinedButton(
+                  key: const ValueKey('simulate-sos'),
+                  onPressed: ready && _chosen != null
+                      ? () => _simulate(
+                          (repo, b) => repo.simulateSos(barangay: b),
+                          l10n.simulatedSosSent,
+                        )
+                      : null,
+                  child: Text(l10n.simulateSosButton),
+                ),
+                OutlinedButton(
+                  key: const ValueKey('simulate-sos-vulnerable'),
+                  onPressed: ready && _chosen != null
+                      ? () => _simulate(
+                          (repo, b) =>
+                              repo.simulateSos(barangay: b, vulnerable: true),
+                          l10n.simulatedSosSent,
+                        )
+                      : null,
+                  child: Text(l10n.simulateSosVulnerableButton),
+                ),
+                SizedBox(
+                  width: 220,
+                  child: DropdownButtonFormField<IncidentType>(
+                    key: const ValueKey('simulate-report-type'),
+                    isExpanded: true,
+                    initialValue: _type,
+                    decoration: InputDecoration(
+                      labelText: l10n.simulateReportType,
+                    ),
+                    items: [
+                      for (final t in IncidentType.values)
+                        DropdownMenuItem(
+                          value: t,
+                          child: Text(l10n.incidentType(t)),
+                        ),
+                    ],
+                    onChanged: ready
+                        ? (t) => setState(() => _type = t ?? _type)
+                        : null,
+                  ),
+                ),
+                OutlinedButton(
+                  key: const ValueKey('simulate-reports'),
+                  onPressed: ready && _chosen != null
+                      ? () => _simulate(
+                          (repo, b) => repo.simulateCrowdReports(
+                            barangay: b,
+                            type: _type,
+                          ),
+                          l10n.simulatedReportsSent,
+                        )
+                      : null,
+                  child: Text(l10n.simulateReportsButton),
+                ),
+              ],
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A barangay by number, name, or district, picked from the 897.
+class _BarangayField extends StatefulWidget {
+  const _BarangayField({
+    required this.controller,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final bool enabled;
+  final VoidCallback onChanged;
+
+  @override
+  State<_BarangayField> createState() => _BarangayFieldState();
+}
+
+class _BarangayFieldState extends State<_BarangayField> {
+  final _focus = FocusNode();
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final controller = widget.controller;
+    final enabled = widget.enabled;
+    final onChanged = widget.onChanged;
+    final known = barangayNamed(controller.text.trim()) != null;
+    return SizedBox(
+      width: 360,
+      child: RawAutocomplete<Barangay>(
+        textEditingController: controller,
+        focusNode: _focus,
+        displayStringForOption: (b) => b.name,
+        optionsBuilder: (value) {
+          final q = value.text.trim().toLowerCase();
+          if (q.isEmpty) return const [];
+          return manilaBarangays
+              .where(
+                (b) =>
+                    b.name.toLowerCase().contains(q) ||
+                    b.district.toLowerCase().contains(q),
+              )
+              .take(8);
+        },
+        onSelected: (_) => onChanged(),
+        fieldViewBuilder: (context, field, focus, onSubmit) => TextField(
+          key: const ValueKey('simulate-barangay'),
+          controller: field,
+          focusNode: focus,
+          enabled: enabled,
+          onChanged: (_) => onChanged(),
+          decoration: InputDecoration(
+            labelText: l10n.simulateBarangayLabel,
+            errorText: known ? null : l10n.simulateBarangayError,
+          ),
+        ),
+        optionsViewBuilder: (context, onSelect, options) => Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 280, maxWidth: 360),
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final b in options)
+                    ListTile(
+                      title: Text(b.name),
+                      subtitle: Text(b.district),
+                      onTap: () => onSelect(b),
+                    ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

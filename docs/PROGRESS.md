@@ -26,7 +26,7 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-03 | f47c816b (Claude) | Paused. Built since the last push: the PAGASA feed, the offline-restart fix, the forecast run over 897 barangays, the Tier 3 Bluetooth relay proof of concept, the Objective 3 harness, Facebook posting (code), the boundary-based Manila check, the S6 "Text it myself" fallback, and the Vercel hosting steps. Next: Joshua approves the push (11 commits after `b5e3311`), then I run the full RLS test (347) on the hosted project from GitHub | none | Paused |
+| 2026-10-03 | f47c816b (Claude) | Building (Joshua's choice): the simulated live forecast feed, dashboard simulation tools (simulated SOS and crowd reports), spoken directions, PDF storage for final reports, the flooded-road penalty in Dijkstra, the gateway auto-reply; plan ticks. Push of the earlier 11 commits still waits for Joshua | `ml/forecast/`, `supabase/` (new migrations, functions), `packages/shared`, `apps/dashboard`, `apps/mobile`, docs | Active |
 
 ---
 

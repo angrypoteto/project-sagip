@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
@@ -352,6 +353,137 @@ class MockBackend {
       'sim-$_nextAuditNumber',
       'Signal $signal, ${_plain(rainfallMmPerHour)} mm/hr'
           '${surge == null ? '' : ', surge ${_plain(surge)} m'}',
+    );
+  }
+
+  /// Simulation mode (`simulate_sos`): a simulated SOS near the centre of
+  /// [barangay]. Admins only, only while the mode is on, audited.
+  Future<String> simulateSos({
+    required String barangay,
+    bool vulnerable = false,
+  }) async {
+    final actor = await _authorize();
+    if (!actor.isAdmin || !_flag(SettingKeys.simulation)) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final b = barangayNamed(barangay);
+    final centre = b?.center;
+    if (b == null || centre == null) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final now = _clock();
+    final id = 'INC-${(_nextIncidentNumber++).toString().padLeft(4, '0')}';
+    _putIncident(
+      Incident(
+        id: id,
+        origin: IncidentOrigin.sos,
+        channel: ReportChannel.app,
+        status: IncidentStatus.pendingVerification,
+        location: _jitter(centre, 60),
+        barangay: b.name,
+        district: b.district,
+        accuracyMeters: 8,
+        capturedAt: now.subtract(const Duration(seconds: 2)),
+        receivedAt: now,
+        vulnerable: [if (vulnerable) VulnerabilityType.seniorCitizen],
+        events: [IncidentEvent(kind: IncidentEventKind.received, at: now)],
+        isSimulated: true,
+      ),
+    );
+    _log(
+      actor,
+      AuditAction.sosSimulated,
+      'incident_report',
+      id,
+      '${b.name}, ${b.district}',
+    );
+    return id;
+  }
+
+  /// Simulation mode (`simulate_crowd_reports`): [count] reports of [type]
+  /// within about 20 m in [barangay]; DBSCAN clusters three or more.
+  Future<void> simulateCrowdReports({
+    required String barangay,
+    required IncidentType type,
+    int count = 3,
+  }) async {
+    final actor = await _authorize();
+    if (!actor.isAdmin || !_flag(SettingKeys.simulation)) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final b = barangayNamed(barangay);
+    final centre = b?.center;
+    if (b == null || centre == null || count < 1 || count > 5) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final now = _clock();
+    final spot = _jitter(centre, 60);
+    final added = [
+      for (var i = 0; i < count; i++)
+        CrowdReport(
+          id: 'rep-sim-$_nextAuditNumber-$i',
+          description: _simulatedTexts[type]![i],
+          location: _jitter(spot, 20),
+          barangay: b.name,
+          district: b.district,
+          channel: ReportChannel.app,
+          submittedAt: now,
+          suggestedType: type,
+          suggestionConfidence: 0.9,
+          isSimulated: true,
+        ),
+    ];
+    _reports.value = [..._reports.value, ...added];
+    recluster();
+    _log(
+      actor,
+      AuditAction.reportsSimulated,
+      'crowd_report',
+      added.first.id,
+      '$count ${type.name} reports in ${b.name}, ${b.district}',
+    );
+  }
+
+  static const _simulatedTexts = {
+    IncidentType.flood: [
+      'Baha na dito sa kalsada, hanggang tuhod na ang tubig',
+      'Flooded street, the water is rising fast',
+      'Lubog na yung daan, may mga bata dito',
+      'Baha sa kanto, hindi na madaanan ng sasakyan',
+      'Flood water entering the houses here',
+    ],
+    IncidentType.fire: [
+      'May sunog sa kabilang bahay, makapal ang usok',
+      'Fire spreading to the nearby houses',
+      'Nasusunog ang bodega sa kanto',
+      'Malaking apoy, may naiipit na tao',
+      'Smoke and fire from the second floor',
+    ],
+    IncidentType.medical: [
+      'May nahimatay dito, kailangan ng ambulansya',
+      'An injured man needs help, he is bleeding',
+      'Hindi makahinga ang matanda',
+      'Nabangga ng motor, sugatan',
+      'A woman collapsed on the sidewalk',
+    ],
+    IncidentType.structural: [
+      'Gumuho ang pader ng bahay',
+      'A wall collapsed, people may be trapped',
+      'Bumagsak ang bubong ng tindahan',
+      'May bitak ang gusali, delikado',
+      'Part of the building fell on the street',
+    ],
+  };
+
+  final _random = math.Random();
+
+  /// A point up to [meters] from [p] in a random direction.
+  GeoPoint _jitter(GeoPoint p, double meters) {
+    final d = _random.nextDouble() * meters;
+    final a = _random.nextDouble() * 2 * math.pi;
+    return GeoPoint(
+      p.lat + d * math.cos(a) / 110574,
+      p.lng + d * math.sin(a) / (111320 * math.cos(p.lat * math.pi / 180)),
     );
   }
 
@@ -1316,9 +1448,13 @@ class MockBackend {
 
       if (existingId != null && _incidents.value.containsKey(existingId)) {
         final incident = _incidents.value[existingId]!;
+        final memberIds = {...incident.crowdReportIds, ...ids};
         _putIncident(
           incident.copyWith(
-            crowdReportIds: {...incident.crowdReportIds, ...ids}.toList(),
+            crowdReportIds: memberIds.toList(),
+            isSimulated: memberIds.every(
+              (id) => reports[id]?.isSimulated ?? false,
+            ),
           ),
         );
         for (final r in members) {
@@ -1373,6 +1509,7 @@ class MockBackend {
       receivedAt: now,
       crowdReportIds: [for (final r in members) r.id],
       events: [IncidentEvent(kind: IncidentEventKind.received, at: now)],
+      isSimulated: members.every((r) => r.isSimulated),
     );
   }
 

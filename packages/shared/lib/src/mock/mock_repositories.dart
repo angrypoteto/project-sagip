@@ -257,6 +257,23 @@ class MockSimulationRepository implements SimulationRepository {
     rainfallMmPerHour: rainfallMmPerHour,
     surgeMeters: surgeMeters,
   );
+
+  @override
+  Future<String> simulateSos({
+    required String barangay,
+    bool vulnerable = false,
+  }) => _backend.simulateSos(barangay: barangay, vulnerable: vulnerable);
+
+  @override
+  Future<void> simulateCrowdReports({
+    required String barangay,
+    required IncidentType type,
+    int count = 3,
+  }) => _backend.simulateCrowdReports(
+    barangay: barangay,
+    type: type,
+    count: count,
+  );
 }
 
 /// The hotline and gateway number as set on the mock's A3.
