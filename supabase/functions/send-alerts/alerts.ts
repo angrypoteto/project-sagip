@@ -112,6 +112,56 @@ export function smsOutcome(
   };
 }
 
+/** Facebook allows far longer posts; this keeps one readable. */
+const facebookLimit = 2000;
+
+/**
+ * The alert as a post on the MDRRMD Facebook Page (FR6): the level, the
+ * title, the text, and where it applies. Plain text; the Page's own name
+ * shows who posted it.
+ */
+export function facebookPostText(alert: ClaimedDelivery["alert"]): string {
+  const level = alert.level === "critical"
+    ? "CRITICAL"
+    : alert.level === "warning"
+    ? "WARNING"
+    : "ADVISORY";
+  const where = alert.barangays.length === 0
+    ? "All of Manila"
+    : alert.barangays.length <= 20
+    ? alert.barangays.join(", ")
+    : `${alert.barangays.slice(0, 20).join(", ")}, and ${alert.barangays.length - 20} more`;
+  const text = [
+    `[${level}] ${alert.title.trim()}`,
+    alert.body.trim(),
+    `Areas: ${where}`,
+    "Sent through S.A.G.I.P. For rescue, hold SOS in the S.A.G.I.P. app or call MDRRMD.",
+  ].join("\n\n");
+  return text.length <= facebookLimit ? text : `${text.slice(0, facebookLimit - 1)}…`;
+}
+
+/**
+ * The outcome of one Page post. The Graph API answers {"id": "<page>_<post>"}
+ * on success and {"error": {"message", "code"}} otherwise.
+ */
+export function facebookOutcome(httpOk: boolean, body: unknown, status: number): Outcome {
+  const b = typeof body === "object" && body !== null ? body as Record<string, unknown> : {};
+  if (httpOk && typeof b.id === "string") {
+    return { status: "sent", recipients: null, delivered: null, failed: null, detail: `post ${b.id}` };
+  }
+  const e = typeof b.error === "object" && b.error !== null ? b.error as Record<string, unknown> : {};
+  const message = typeof e.message === "string" ? e.message.slice(0, 160) : null;
+  return {
+    status: "failed",
+    recipients: null,
+    delivered: null,
+    failed: null,
+    detail: message
+      ? `Facebook refused the post (HTTP ${status}): ${message}`
+      : `Facebook refused the post (HTTP ${status})`,
+  };
+}
+
 /** Why a channel with no provider was not sent. */
 export function notSetUp(channel: string): Outcome {
   const why = channel === "push"

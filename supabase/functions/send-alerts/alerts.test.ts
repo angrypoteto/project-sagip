@@ -11,6 +11,8 @@ import {
   cleanNumbers,
   confirmationSmsText,
   ended,
+  facebookOutcome,
+  facebookPostText,
   notSetUp,
   planBroadcast,
   smsOutcome,
@@ -149,4 +151,34 @@ test("every rescue confirmation fits one SMS and names the incident", () => {
     confirmationSmsText({ ...base, unit_call_sign: null }),
     "S.A.G.I.P.: A rescue team has been sent to your location. Stay where you are if it is safe and keep your phone on. Ref INC-0147.",
   );
+});
+
+test("a Facebook post names the level and the areas", () => {
+  const alert = {
+    alert_id: "alert-a",
+    level: "critical",
+    title: "Flood warning ",
+    body: "Water is rising along the Pasig River.",
+    barangays: ["Barangay 649", "Barangay 650"],
+    ended: false,
+  };
+  assert.equal(
+    facebookPostText(alert),
+    "[CRITICAL] Flood warning\n\nWater is rising along the Pasig River.\n\n" +
+      "Areas: Barangay 649, Barangay 650\n\n" +
+      "Sent through S.A.G.I.P. For rescue, hold SOS in the S.A.G.I.P. app or call MDRRMD.",
+  );
+  const many = Array.from({ length: 25 }, (_, i) => `Barangay ${i + 1}`);
+  assert.ok(facebookPostText({ ...alert, barangays: many }).includes("Barangay 20, and 5 more"));
+  assert.ok(facebookPostText({ ...alert, body: "x".repeat(5000) }).length <= 2000);
+});
+
+test("the Graph API's answer becomes the delivery outcome", () => {
+  assert.equal(facebookOutcome(true, { id: "1_2" }, 200).status, "sent");
+  assert.equal(facebookOutcome(true, { id: "1_2" }, 200).detail, "post 1_2");
+  assert.equal(
+    facebookOutcome(false, { error: { message: "Bad token", code: 190 } }, 400).detail,
+    "Facebook refused the post (HTTP 400): Bad token",
+  );
+  assert.equal(facebookOutcome(false, null, 502).detail, "Facebook refused the post (HTTP 502)");
 });

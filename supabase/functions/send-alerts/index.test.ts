@@ -62,6 +62,7 @@ const vaultKey = "vault-secret-for-the-tests-0123456789";
 let recipients: string[] = [];
 let left = 500;
 let semaphoreStatus = 200;
+let facebookStatus = 200;
 
 globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
   const url = String(input);
@@ -100,6 +101,11 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
   }
   if (url.endsWith("/rpc/finish_alert_delivery")) return reply(null, 204);
   if (url.endsWith("/sms_log")) return reply(null, 201);
+  if (url.startsWith("https://graph.facebook.com/")) {
+    return facebookStatus === 200
+      ? reply({ id: "1234_5678" })
+      : reply({ error: { message: "Invalid OAuth access token.", code: 190 } }, facebookStatus);
+  }
   if (url.startsWith("https://api.semaphore.co/")) {
     const numbers = String((body as Record<string, string>).number).split(",");
     return reply(
@@ -182,6 +188,9 @@ function reset() {
   left = 500;
   semaphoreStatus = 200;
   env.SEMAPHORE_API_KEY = "test-semaphore-key";
+  env.FACEBOOK_PAGE_ID = undefined;
+  env.FACEBOOK_PAGE_TOKEN = undefined;
+  facebookStatus = 200;
 }
 
 test("a call without the shared secret does nothing", async () => {
@@ -490,6 +499,7 @@ test("a check reports what is set up and sends nothing", async () => {
   assert.deepEqual(await res.json(), {
     firebase: "FIREBASE_SERVICE_ACCOUNT is not set",
     semaphore: "SEMAPHORE_API_KEY is not set",
+    facebook: "FACEBOOK_PAGE_ID or FACEBOOK_PAGE_TOKEN is not set",
     secret: "ALERTS_SECRET",
   });
 
@@ -511,10 +521,39 @@ test("a check reports what is set up and sends nothing", async () => {
   assert.deepEqual(await res.json(), {
     firebase: "ready: signed in to project sagip-test",
     semaphore: "key set",
+    facebook: "FACEBOOK_PAGE_ID or FACEBOOK_PAGE_TOKEN is not set",
     secret: "ALERTS_SECRET",
   });
   assert.ok(
     !calls.some((c) => /claim_/.test(c.url)),
     "a check claims nothing",
+  );
+});
+
+test("with the Page token an alert is posted on Facebook; a refusal fails it", async () => {
+  reset();
+  env.FACEBOOK_PAGE_ID = "100200300";
+  env.FACEBOOK_PAGE_TOKEN = "test-page-token";
+  queue = [delivery(1, "facebook", "alert-a")];
+  let res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual((await res.json()).results, { "alert-a:facebook": "sent" });
+  const post = calls.find((c) => c.url.startsWith("https://graph.facebook.com/"))!;
+  assert.equal(post.url, "https://graph.facebook.com/v24.0/100200300/feed");
+  const form = post.body as Record<string, string>;
+  assert.equal(form.access_token, "test-page-token");
+  assert.ok(form.message.startsWith("[WARNING] Heavy rainfall warning\n\nPAGASA reports"));
+  assert.ok(form.message.includes("Areas: All of Manila"));
+  assert.equal(finished()[1].p_detail, "post 1234_5678");
+
+  reset();
+  env.FACEBOOK_PAGE_ID = "100200300";
+  env.FACEBOOK_PAGE_TOKEN = "expired-page-token";
+  facebookStatus = 400;
+  queue = [delivery(2, "facebook", "alert-b")];
+  res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual((await res.json()).results, { "alert-b:facebook": "failed" });
+  assert.equal(
+    finished()[2].p_detail,
+    "Facebook refused the post (HTTP 400): Invalid OAuth access token.",
   );
 });

@@ -10,7 +10,9 @@
 //   alert for all of Manila, else the topics of its barangays (the app
 //   subscribes each resident to both). Marked "not set up" without the
 //   FIREBASE_SERVICE_ACCOUNT secret.
-// - Facebook: marked "not set up" until the Facebook Page token exists.
+// - Facebook: posted on the MDRRMD Facebook Page through the Graph API
+//   with the Page's access token (FACEBOOK_PAGE_ID, FACEBOOK_PAGE_TOKEN);
+//   marked "not set up" without them. The channel is off on A3 by default.
 // Simulated alerts never reach this function: their deliveries are logged
 // as "simulated" when the alert is issued.
 //
@@ -36,7 +38,9 @@
 //
 // Secrets (Edge Functions > Secrets): SEMAPHORE_API_KEY, optional
 // SEMAPHORE_SENDER_NAME, FIREBASE_SERVICE_ACCOUNT (the whole JSON key
-// file), optional ALERTS_SECRET. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+// file), FACEBOOK_PAGE_ID and FACEBOOK_PAGE_TOKEN (a long-lived Page access
+// token that may post), optional FACEBOOK_GRAPH_VERSION, optional
+// ALERTS_SECRET. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
 // are provided by the platform.
 //
 // Deploy with JWT checking off (the webhook uses the shared secret):
@@ -54,6 +58,8 @@ import {
   type ConfirmationOutcome,
   confirmationSmsText,
   ended,
+  facebookOutcome,
+  facebookPostText,
   notSetUp,
   type Outcome,
   planBroadcast,
@@ -356,6 +362,42 @@ async function sendAlertPush(d: ClaimedDelivery, fcm: Fcm | Error): Promise<Outc
   };
 }
 
+// ------------------------------------------------------------ Facebook
+
+/** The Page and its token, or null when Facebook posting is not set up. */
+function facebookPage(): { id: string; token: string } | null {
+  const id = Deno.env.get("FACEBOOK_PAGE_ID");
+  const token = Deno.env.get("FACEBOOK_PAGE_TOKEN");
+  return id && token ? { id, token } : null;
+}
+
+/** One post on the Page. The token goes in the body and is never logged. */
+async function postToFacebook(
+  d: ClaimedDelivery,
+  page: { id: string; token: string },
+): Promise<Outcome> {
+  const version = Deno.env.get("FACEBOOK_GRAPH_VERSION") ?? "v24.0";
+  const form = new URLSearchParams({
+    message: facebookPostText(d.alert),
+    access_token: page.token,
+  });
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}/feed`,
+      { method: "POST", body: form },
+    );
+    return facebookOutcome(res.ok, await res.json().catch(() => null), res.status);
+  } catch {
+    return {
+      status: "failed",
+      recipients: null,
+      delivered: null,
+      failed: null,
+      detail: "Facebook could not be reached",
+    };
+  }
+}
+
 Deno.serve(async (req) => {
   if (!url || !serviceKey) return json(500, { error: "send-alerts is not set up" });
   const secret = await sharedSecret();
@@ -373,6 +415,9 @@ Deno.serve(async (req) => {
         ? f.message
         : `ready: signed in to project ${f.account.project_id}`,
       semaphore: Deno.env.get("SEMAPHORE_API_KEY") ? "key set" : "SEMAPHORE_API_KEY is not set",
+      facebook: facebookPage()
+        ? "page and token set"
+        : "FACEBOOK_PAGE_ID or FACEBOOK_PAGE_TOKEN is not set",
       secret: Deno.env.get("ALERTS_SECRET") ? "ALERTS_SECRET" : "the database vault",
     });
   }
@@ -408,6 +453,8 @@ Deno.serve(async (req) => {
         outcome = await sendSms(d, apiKey);
       } else if (d.channel === "push" && (await getFcm()) !== null) {
         outcome = await sendAlertPush(d, (await getFcm())!);
+      } else if (d.channel === "facebook" && facebookPage()) {
+        outcome = await postToFacebook(d, facebookPage()!);
       } else {
         outcome = notSetUp(d.channel);
       }

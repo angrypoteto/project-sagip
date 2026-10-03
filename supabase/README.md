@@ -38,7 +38,9 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_pagasa_feed.sql` | The PAGASA feed: `feed_status` (dispatchers and admins read it), `record_pagasa_reading()` and `record_feed_status()` (service role only), and a `pg_cron` job that calls `ingest-pagasa` every 10 minutes |
 | `functions/ingest-pagasa/` | Reads PAGASA's public pages (FR5): the NCR Heavy Rainfall Warning and the latest Tropical Cyclone Bulletin (PDF), and records Manila's rainfall level, wind signal, and storm surge. `pagasa.test.ts` runs the parsers on saved pages and bulletins with `node --test` |
 | `migrations/*_sender_wakeup.sql` | `pg_net` and triggers on `alert_delivery`, `rescue_confirmation`, and `push_message` that call `send-alerts` when something is queued, with a random shared secret kept in Supabase Vault (`sender_secret()`, service role only) |
-| `tests/rls_test.sql` | 307 pgTAP checks of who can see and do what |
+| `migrations/*_ble_relay.sql` | Tier 3 Bluetooth relay (proof of concept): `relay_sos()` for any signed-in phone that heard an SOS (checked, at most 30 an hour per account, files it as an unverified SOS from an unknown sender until the resident's own copy arrives) and `sos_relay_log` (service role only) |
+| `migrations/*_sos_delivery_report.sql` | `sos_delivery_report()` for the Objective 3 trials (admins only; see "Objective 3: SOS delivery report") |
+| `tests/rls_test.sql` | 347 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -86,7 +88,7 @@ select public.create_staff_account('name@example.com', 'a-strong-password', 'R. 
 
 The app asks Supabase to text a code; Supabase hands the code to the `send-sms` Edge Function (a "Send SMS hook"), which sends it through Semaphore. Until the Semaphore account exists, the function sends nothing and keeps the message (with the code) in the `sms_log` table for an hour, so the demo still works.
 
-1. **Deploy the function** (Supabase CLI, in the repo root): `supabase functions deploy send-sms --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`. Or ask Claude to deploy it through the Supabase connector.
+1. **The function:** deployed by Claude on 2026-10-03 (version 1, JWT check off). Until step 4 it answers "The SMS hook is not set up." To redeploy after a change: `supabase functions deploy send-sms --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
 2. **Turn on phone sign-in:** Authentication > Sign In / Providers > Phone: enable it. The SMS provider fields can stay empty when the hook is used.
 3. **Point the hook at the function:** Authentication > Hooks > Send SMS hook > Add: type HTTPS, URL `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/send-sms`. Click "Generate secret" and copy it (it starts with `v1,whsec_`).
 4. **Give the function its secrets:** Edge Functions > Secrets: `SEND_SMS_HOOK_SECRET` = the secret from step 3. Later, when the account exists: `SEMAPHORE_API_KEY`, and `SEMAPHORE_SENDER_NAME` once Semaphore approves it.
@@ -100,8 +102,8 @@ The function never logs full numbers (only "0917 ••• 4821"), and `sms_log`
 When a phone has signal but no data, the app texts the SOS to the MDRRMD gateway SIM in a short checked format (`SAGIP1 SOS <id> <lat>,<lng> <accuracy> <time> <flags> <crc>`). The gateway forwards each text to `sms-intake`, which files the SOS; the app's later internet copy is recognised by the same id.
 
 1. **Gateway phone:** a spare Android phone with the gateway SIM, running an SMS gateway app that forwards received texts to a webhook (for example SMS Gateway for Android). Set its webhook to `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake` with the header `x-sagip-key: <secret>`.
-2. **Deploy:** `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
-3. **Secrets:** `SMS_INTAKE_SECRET` = the same secret. Optional: `SMS_ACK_VIA_SEMAPHORE=true` to send the reply through Semaphore; otherwise the response's `reply` is for the gateway to send from its SIM.
+2. **The function:** deployed by Claude on 2026-10-03 (version 1, JWT check off). Until step 3 it answers `sms-intake is not set up` and files nothing. To redeploy after a change: `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+3. **Secrets:** `SMS_INTAKE_SECRET` = the same secret (make one with at least 32 random characters, for example from a password manager; it never goes in the repo). Optional: `SMS_ACK_VIA_SEMAPHORE=true` to send the reply through Semaphore; otherwise the response's `reply` is for the gateway to send from its SIM.
 4. **Phones:** an admin enters the gateway SIM's number on the dashboard's Configuration page ("Numbers shown in the apps"). Phones read it when the app starts and keep the last copy, so it is there with no data. No rebuild is needed; `SMS_GATEWAY_NUMBER` in `apps/mobile/.env` still works and takes priority. Residents allow SMS on the welcome screen.
 5. **Try it:** turn off mobile data on a test phone (keep signal), hold SOS; the board shows it as an SMS SOS within seconds. Unreadable texts are in `sms_log` (`kind = 'inbound'`, `status = 'unreadable'`).
 
@@ -129,7 +131,7 @@ flutter build web --release -t lib/main_webform.dart -o build/webform --dart-def
 - **Simulation mode.** With the switch on (Configuration page), an admin can send a simulated reading (`simulate_weather`): a typhoon, heavy rain, or calm. The engine treats it like any reading, but the alerts are marked simulated and their deliveries are `simulated`: shown in the apps, never texted or posted. From the SQL editor a real-looking reading is `insert into public.weather_alert (signal_level, rainfall_intensity, storm_surge_m) values (3, 35, 2.5);` (that one queues real deliveries).
 - **The numbers.** `contact.hotline` and `contact.sms_gateway` are the hotline and the gateway SIM the apps show and use. `client_config()` returns them and can be called without signing in (they are public numbers).
 - **Advisories by hand.** On the Weather page, "Issue an advisory" calls `issue_alert()`: the dispatcher picks who it is from (MDRRMD, or a PAGASA, PHIVOLCS, or EFCOS notice being passed on), the level, the text, up to 8 "what to do" steps, and all of Manila or chosen barangays, then reviews it before sending. It goes out like any other alert (the deliveries above). "End alert" calls `end_alert()`: the apps stop showing it, it stays in the log, and anything still queued for it is not sent.
-- **Not done:** the data retention period (which records are removed and when is a decision for the team and MDRRMD), EFCOS levels, push (needs the Firebase project), and Facebook posting (needs the page token). `send-alerts` marks those two channels "not set up" for now.
+- **Not done:** the data retention period (which records are removed and when is a decision for the team and MDRRMD) and EFCOS levels. Push works (Firebase `sagip-a4b9e`). Facebook posting is written (below) and waits on the Page token.
 
 ## Sending alerts by SMS (for Joshua, when the Semaphore account exists)
 
@@ -192,6 +194,24 @@ The A3 switch "Send alerts as push notifications" (`channels.push`) turns all th
 5. **Try it:** build and install the app with `.env`, sign in as a resident on a phone or the emulator (with Google Play), send an SOS, and assign it a unit on the dashboard: the phone gets "A rescue team is coming" even with the app closed. In the SQL editor, `select status, devices, delivered, detail from public.push_message order by message_id desc limit 5;` shows what happened.
 
 **Privacy:** tokens identify an install, not a person; only the service role reads them. FCM sees the topic names (barangay level) and the notification text. A phone's row stays after sign-out, marked `forgotten_at`; how long such rows are kept belongs to the data retention rule that is still to be decided.
+
+## Posting alerts on the MDRRMD Facebook Page (for Joshua, when MDRRMD gives access)
+
+`send-alerts` posts each queued `facebook` delivery on the Page through the Graph API (`POST /{page-id}/feed`): the level, the title, the text, the affected barangays (or "All of Manila"), and a line on how to ask for rescue. The delivery row gets the post id, or Facebook's reason when it refuses (an expired token, for example). Simulated alerts are never posted. The channel is off by default on the Configuration page.
+
+The code is in the repo with tests (`node --test supabase/functions/send-alerts/*.test.ts`); the deployed copy (version 2) does not have it yet, so it marks Facebook deliveries "not set up" until it is redeployed.
+
+1. **Access:** a Page admin at MDRRMD makes a Meta app (developers.facebook.com, type Business), adds the Page, and creates a long-lived **Page** access token that may post (`pages_manage_posts`, `pages_read_engagement`). For the capstone a test Page you own works the same way.
+2. **Secrets** (Edge Functions > Secrets): `FACEBOOK_PAGE_ID`, `FACEBOOK_PAGE_TOKEN`. Optional `FACEBOOK_GRAPH_VERSION` (default `v24.0`).
+3. **Redeploy:** `supabase functions deploy send-alerts --no-verify-jwt --project-ref imssgenjfirpohkwxwbv` (or ask Claude).
+4. **Check:** the check in "Sending alerts by SMS" step 2 now also says `facebook: page and token set`.
+5. **Switch it on:** Configuration page, "Post alerts on the MDRRMD Facebook Page". Issue a test advisory to a test Page first.
+
+The token is a secret: it is sent only in the request body to Facebook and is never logged.
+
+## Objective 3: SOS delivery report
+
+`sos_delivery_report(from, to)` (admins only) counts the SOS received in a period by the tier that delivered them first (app, SMS, Bluetooth relay), with the delay from the phone's capture time to the server's receipt: median, 95th percentile, longest, and how many arrived within 1, 5, and 15 minutes. It also reads `sos_relay_log`: relayed packets uploaded, for how many SOS, and the most hops. The dashboard's Analytics page shows it as "SOS delivery (Objective 3)"; the trial team types in how many attempts they made on the phones and the page shows the success rate for each window. Which window counts as a success is plan Q44. The page's periods are the last 24 hours, 7 days, and 30 days, so count the SOS already in the period before the trial starts and subtract them, or run the trial on a project without demo SOS.
 
 ## Incident type classifier (FR12)
 
