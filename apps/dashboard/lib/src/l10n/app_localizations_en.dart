@@ -907,6 +907,72 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weatherTitle => 'Weather and advisories';
 
   @override
+  String get feedTitle => 'PAGASA feed';
+
+  @override
+  String get feedNotConnected =>
+      'Not connected: sample data uses simulated weather.';
+
+  @override
+  String get feedRainfall => 'Rainfall warnings (NCR page)';
+
+  @override
+  String get feedCyclone => 'Tropical cyclone bulletins';
+
+  @override
+  String feedChecked(String time) {
+    return 'Checked $time';
+  }
+
+  @override
+  String get feedNoWarning => 'No heavy rainfall warning';
+
+  @override
+  String feedWarningElsewhere(int number) {
+    return 'Warning No. $number in effect, not for Metro Manila';
+  }
+
+  @override
+  String feedWarningManila(int number, String level) {
+    return 'Warning No. $number: $level over Metro Manila';
+  }
+
+  @override
+  String get feedNoCyclone => 'No tropical cyclone in the area';
+
+  @override
+  String feedBulletin(int number, String name, String signal) {
+    return 'Bulletin No. $number ($name): $signal';
+  }
+
+  @override
+  String get feedNoSignalManila => 'no wind signal for Metro Manila';
+
+  @override
+  String feedDown(int count, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count times in a row',
+      one: 'once',
+    );
+    return 'Could not read it $_temp0; last read $time. Relay PAGASA warnings by hand with Issue an advisory.';
+  }
+
+  @override
+  String get feedDownNever =>
+      'Could not read it yet. Relay PAGASA warnings by hand with Issue an advisory.';
+
+  @override
+  String get rainLevelYellow => 'Yellow';
+
+  @override
+  String get rainLevelOrange => 'Orange';
+
+  @override
+  String get rainLevelRed => 'Red';
+
+  @override
   String get signalCard => 'Tropical cyclone wind signal';
 
   @override

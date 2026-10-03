@@ -110,6 +110,8 @@ class WeatherPage extends ConsumerWidget {
             const SizedBox(height: SagipSpace.xxl),
             const _AlertLog(),
             const SizedBox(height: SagipSpace.xxl),
+            const _PagasaFeed(),
+            const SizedBox(height: SagipSpace.md),
             _FeedNotice(
               icon: Symbols.water_rounded,
               title: l10n.efcosTitle,
@@ -383,6 +385,125 @@ class _AlertRow extends ConsumerWidget {
                 style: text.bodySmall,
               ),
         ],
+      ),
+    );
+  }
+}
+
+/// Whether the PAGASA feed is reading PAGASA's pages, and what it read
+/// last (FR5). When a page cannot be read, dispatchers relay by hand.
+class _PagasaFeed extends ConsumerWidget {
+  const _PagasaFeed();
+
+  String _what(AppLocalizations l10n, FeedStatus f) {
+    final seen = f.seen;
+    final number = (seen['number'] as num?)?.toInt() ?? 0;
+    return switch (f.source) {
+      FeedSource.pagasaRainfall => switch (seen['state']) {
+        'warning' => switch (seen['level']) {
+          final String level => l10n.feedWarningManila(number, switch (level) {
+            'red' => l10n.rainLevelRed,
+            'orange' => l10n.rainLevelOrange,
+            _ => l10n.rainLevelYellow,
+          }),
+          _ => l10n.feedWarningElsewhere(number),
+        },
+        _ => l10n.feedNoWarning,
+      },
+      FeedSource.pagasaCyclone => switch (seen['state']) {
+        'bulletin' => l10n.feedBulletin(
+          number,
+          (seen['name'] as String?) ?? '-',
+          ((seen['signal'] as num?)?.toInt() ?? 0) > 0
+              ? l10n.signalLevel((seen['signal']! as num).toInt())
+              : l10n.feedNoSignalManila,
+        ),
+        _ => l10n.feedNoCyclone,
+      },
+    };
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final locale = Localizations.localeOf(context).toString();
+    final feeds = ref.watch(feedStatusProvider).value;
+
+    Widget line(FeedStatus f) {
+      final label = f.source == FeedSource.pagasaRainfall
+          ? l10n.feedRainfall
+          : l10n.feedCyclone;
+      final lastGood = f.lastSuccessAt;
+      return Padding(
+        key: ValueKey('feed-${f.source.name}'),
+        padding: const EdgeInsets.only(top: SagipSpace.sm),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              f.ok ? Symbols.check_circle_rounded : Symbols.error_rounded,
+              size: 18,
+              color: f.ok ? p.success.text : p.critical.text,
+            ),
+            const SizedBox(width: SagipSpace.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$label · ${l10n.feedChecked(formatTime(f.checkedAt, locale))}',
+                    style: text.bodySmall,
+                  ),
+                  Text(
+                    f.ok
+                        ? _what(l10n, f)
+                        : lastGood == null
+                        ? l10n.feedDownNever
+                        : l10n.feedDown(
+                            f.failures,
+                            formatTime(lastGood, locale),
+                          ),
+                    style: text.bodyMedium!.copyWith(
+                      color: f.ok ? null : p.critical.text,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(SagipSpace.xl),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Symbols.rss_feed_rounded, size: 22),
+            const SizedBox(width: SagipSpace.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.feedTitle, style: text.titleSmall),
+                  if (feeds == null)
+                    const SizedBox.shrink()
+                  else if (feeds.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: SagipSpace.xs),
+                      child: Text(l10n.feedNotConnected, style: text.bodySmall),
+                    )
+                  else
+                    for (final f in feeds) line(f),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

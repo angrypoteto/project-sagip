@@ -3,6 +3,40 @@ import 'package:sagip_shared/sagip_shared.dart';
 
 // Rows in the shape the Supabase views return (supabase/migrations).
 void main() {
+  test('feed_status rows parse (shape from the hosted project)', () {
+    final ok = FeedStatus.fromJson({
+      'source': 'pagasa_cyclone',
+      'checked_at': '2026-10-03T03:27:12.641508+00:00',
+      'ok': true,
+      'last_success_at': '2026-10-03T03:27:12.641508+00:00',
+      'last_error': null,
+      'failures': 0,
+      'seen': {'state': 'none'},
+    });
+    expect(ok.source, FeedSource.pagasaCyclone);
+    expect(ok.ok, isTrue);
+    expect(ok.seen['state'], 'none');
+    final down = FeedStatus.fromJson({
+      'source': 'pagasa_rainfall',
+      'checked_at': '2026-10-03T03:37:00+00:00',
+      'ok': false,
+      'last_success_at': null,
+      'last_error': 'HTTP 503',
+      'failures': 2,
+      'seen': <String, Object?>{},
+    });
+    expect(down.lastSuccessAt, isNull);
+    expect(down.failures, 2);
+    expect(
+      () => FeedStatus.fromJson({
+        ...{'source': 'efcos'},
+        'ok': true,
+        'checked_at': '2026-10-03T03:37:00Z',
+      }),
+      throwsFormatException,
+    );
+  });
+
   test('incident_notices rows parse: statuses, no app, and read time', () {
     final sent = ResidentNotice.fromJson({
       'confirmation_id': 41,

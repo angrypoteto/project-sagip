@@ -519,6 +519,53 @@ void main() {
     expect(find.text('Leave without saving?'), findsNothing);
   });
 
+  testWidgets('D10: the PAGASA feed, read fine or down', (tester) async {
+    // Sample data: not connected.
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2400);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+    expect(find.text('PAGASA feed'), findsOneWidget);
+    expect(
+      find.text('Not connected: sample data uses simulated weather.'),
+      findsOneWidget,
+    );
+
+    // A cyclone bulletin read fine, the NCR page down three times.
+    backend.setFeeds([
+      FeedStatus(
+        source: FeedSource.pagasaCyclone,
+        ok: true,
+        checkedAt: now,
+        lastSuccessAt: now,
+        seen: const {
+          'state': 'bulletin',
+          'number': 18,
+          'name': 'KRISTINE',
+          'signal': 2,
+        },
+      ),
+      FeedStatus(
+        source: FeedSource.pagasaRainfall,
+        ok: false,
+        checkedAt: now,
+        lastSuccessAt: now.subtract(const Duration(minutes: 30)),
+        lastError: 'HTTP 503',
+        failures: 3,
+      ),
+    ]);
+    await settle(tester);
+    expect(
+      find.text('Bulletin No. 18 (KRISTINE): Signal No. 2'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Could not read it 3 times in a row; last read'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('D10: readings against the thresholds and the alert log', (
     tester,
   ) async {

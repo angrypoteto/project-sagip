@@ -36,6 +36,9 @@ final weatherRepositoryProvider = Provider<WeatherRepository>(
 final reportRepositoryProvider = Provider<ReportRepository>(
   (ref) => throw UnimplementedError('override reportRepositoryProvider'),
 );
+final feedStatusRepositoryProvider = Provider<FeedStatusRepository>(
+  (ref) => _missing('FeedStatusRepository'),
+);
 final forecastRepositoryProvider = Provider<ForecastRepository>(
   (ref) => throw UnimplementedError('override forecastRepositoryProvider'),
 );
@@ -99,6 +102,9 @@ List<Override> _mockOverrides(
   ),
   residentRepositoryProvider.overrideWithValue(MockResidentRepository(backend)),
   weatherRepositoryProvider.overrideWithValue(MockWeatherRepository(backend)),
+  feedStatusRepositoryProvider.overrideWithValue(
+    MockFeedStatusRepository(backend),
+  ),
   forecastRepositoryProvider.overrideWithValue(MockForecastRepository(backend)),
   reportRepositoryProvider.overrideWithValue(MockReportRepository(backend)),
   auditRepositoryProvider.overrideWithValue(MockAuditRepository(backend)),
@@ -126,6 +132,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   crowdReportRepositoryProvider.overrideWithValue(backend.crowdReports),
   residentRepositoryProvider.overrideWithValue(backend.residents),
   weatherRepositoryProvider.overrideWithValue(backend.weather),
+  feedStatusRepositoryProvider.overrideWithValue(backend.feeds),
   forecastRepositoryProvider.overrideWithValue(backend.forecasts),
   reportRepositoryProvider.overrideWithValue(backend.reports),
   auditRepositoryProvider.overrideWithValue(backend.audit),
@@ -196,6 +203,14 @@ final weatherProvider = StreamProvider<WeatherStatus>(
   (ref) => _forAccount(
     ref,
     () => ref.watch(weatherRepositoryProvider).watchCurrent(),
+  ),
+);
+
+/// D10: the PAGASA feed's health; empty on sample data.
+final feedStatusProvider = StreamProvider<List<FeedStatus>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(feedStatusRepositoryProvider).watchFeeds(),
   ),
 );
 

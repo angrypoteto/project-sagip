@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(322);
+select plan(333);
 
 select public.reset_demo_data();
 
@@ -1406,7 +1406,8 @@ select is(
                      || coalesce(n.push_status, 'noApp'), ',')
      from public.incident_notices(
        (select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1')) n),
-  'assigned:R-20:queued:sending,resolved:R-20:none:off',
+  -- SMS was switched off in the rescue section above, so the text is "off".
+  'assigned:R-20:off:sending,resolved:R-20:none:off',
   'a dispatcher sees each notice with its text and push outcome, oldest first');
 select is(
   (select string_agg(coalesce(n.push_status, 'noApp'), ',') from public.incident_notices('INC-0142') n),
@@ -1461,6 +1462,50 @@ select ok(private.inside_manila(14.6000, 120.9914),
   '43 m past the edge still counts (GPS error, simplified boundaries)');
 select ok(not private.inside_manila(14.6000, 120.9920),
   'over 100 m from any part of the city is outside Manila');
+
+-- ------------------------------------------------ the PAGASA feed (FR5)
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'public.record_pagasa_reading(numeric, int, numeric)', 'execute')
+  and not has_function_privilege('anon', 'public.record_pagasa_reading(numeric, int, numeric)', 'execute')
+  and not has_function_privilege('authenticated', 'public.record_feed_status(text, boolean, text, jsonb)', 'execute')
+  and not has_function_privilege('authenticated', 'private.call_ingest_pagasa()', 'execute')
+  and has_function_privilege('service_role', 'public.record_pagasa_reading(numeric, int, numeric)', 'execute'),
+  'only the feed (service role) records PAGASA readings and feed status');
+select is((select count(*)::int from cron.job where jobname = 'ingest-pagasa' and schedule = '*/10 * * * *'), 1,
+  'the feed runs every 10 minutes');
+
+update public.app_setting set value = 'true' where key = 'demo.simulation';
+create temp table __feed as select (select count(*) from public.weather_alert) as rows_before;
+select is(public.record_pagasa_reading(15, 2, 0), 'paused',
+  'in simulation mode real readings are not recorded');
+select is((select count(*) from public.weather_alert), (select rows_before from __feed),
+  'and no reading was added');
+update public.app_setting set value = 'false' where key = 'demo.simulation';
+select is(public.record_pagasa_reading(15, 2, 0), 'recorded', 'a new reading is recorded');
+select ok(
+  (select rainfall_intensity = 15 and signal_level = 2 and storm_surge_m = 0 and not is_simulated
+     from public.weather_alert order by issued_at desc, alert_id desc limit 1),
+  'as a real (not simulated) row');
+select is(public.record_pagasa_reading(15, 2, 0), 'unchanged', 'the same reading again adds nothing');
+select is(public.record_pagasa_reading(null, 3, null), 'recorded', 'an unreadable source keeps its last value');
+select ok(
+  (select rainfall_intensity = 15 and signal_level = 3
+     from public.weather_alert order by issued_at desc, alert_id desc limit 1),
+  'rainfall stays 15 while the signal moves to 3');
+
+select public.record_feed_status('pagasa_cyclone', true, null, '{"number": 18}');
+select public.record_feed_status('pagasa_cyclone', false, 'HTTP 503', null);
+select ok(
+  (select not ok and failures = 1 and last_error = 'HTTP 503' and last_success_at is not null
+          and seen = '{"number": 18}'::jsonb
+     from public.feed_status where source = 'pagasa_cyclone'),
+  'a failed check is counted and keeps the last good reading and time');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.feed_status), 0, 'residents cannot read the feed status');
 
 reset role;
 select * from finish();

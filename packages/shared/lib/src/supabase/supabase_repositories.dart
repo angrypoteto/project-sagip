@@ -48,6 +48,7 @@ class SupabaseBackend {
       crowdReports = SupabaseCrowdReportRepository(client),
       residents = SupabaseResidentRepository(client),
       weather = SupabaseWeatherRepository(client),
+      feeds = SupabaseFeedStatusRepository(client),
       forecasts = SupabaseForecastRepository(client),
       reports = SupabaseReportRepository(client),
       audit = SupabaseAuditRepository(client),
@@ -66,6 +67,7 @@ class SupabaseBackend {
   final SupabaseCrowdReportRepository crowdReports;
   final SupabaseResidentRepository residents;
   final SupabaseWeatherRepository weather;
+  final SupabaseFeedStatusRepository feeds;
   final SupabaseForecastRepository forecasts;
   final SupabaseReportRepository reports;
   final SupabaseAuditRepository audit;
@@ -849,6 +851,24 @@ class SupabaseWeatherRepository implements WeatherRepository {
       if (row == null) throw StateError('No weather reading yet');
       return WeatherStatus.fromJson(row);
     },
+  );
+}
+
+/// D10: `feed_status` (dispatchers and admins).
+class SupabaseFeedStatusRepository implements FeedStatusRepository {
+  const SupabaseFeedStatusRepository(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  Stream<List<FeedStatus>> watchFeeds() => liveQuery(
+    _client,
+    tables: const ['feed_status'],
+    fetch: () async => [
+      for (final r
+          in await _client.from('feed_status').select().order('source'))
+        FeedStatus.fromJson(r),
+    ],
   );
 }
 

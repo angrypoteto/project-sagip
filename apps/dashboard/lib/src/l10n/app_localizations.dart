@@ -1654,6 +1654,102 @@ abstract class AppLocalizations {
   /// **'Weather and advisories'**
   String get weatherTitle;
 
+  /// No description provided for @feedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PAGASA feed'**
+  String get feedTitle;
+
+  /// No description provided for @feedNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected: sample data uses simulated weather.'**
+  String get feedNotConnected;
+
+  /// No description provided for @feedRainfall.
+  ///
+  /// In en, this message translates to:
+  /// **'Rainfall warnings (NCR page)'**
+  String get feedRainfall;
+
+  /// No description provided for @feedCyclone.
+  ///
+  /// In en, this message translates to:
+  /// **'Tropical cyclone bulletins'**
+  String get feedCyclone;
+
+  /// No description provided for @feedChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked {time}'**
+  String feedChecked(String time);
+
+  /// No description provided for @feedNoWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'No heavy rainfall warning'**
+  String get feedNoWarning;
+
+  /// No description provided for @feedWarningElsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning No. {number} in effect, not for Metro Manila'**
+  String feedWarningElsewhere(int number);
+
+  /// No description provided for @feedWarningManila.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning No. {number}: {level} over Metro Manila'**
+  String feedWarningManila(int number, String level);
+
+  /// No description provided for @feedNoCyclone.
+  ///
+  /// In en, this message translates to:
+  /// **'No tropical cyclone in the area'**
+  String get feedNoCyclone;
+
+  /// No description provided for @feedBulletin.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulletin No. {number} ({name}): {signal}'**
+  String feedBulletin(int number, String name, String signal);
+
+  /// No description provided for @feedNoSignalManila.
+  ///
+  /// In en, this message translates to:
+  /// **'no wind signal for Metro Manila'**
+  String get feedNoSignalManila;
+
+  /// No description provided for @feedDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read it {count, plural, =1{once} other{{count} times in a row}}; last read {time}. Relay PAGASA warnings by hand with Issue an advisory.'**
+  String feedDown(int count, String time);
+
+  /// No description provided for @feedDownNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read it yet. Relay PAGASA warnings by hand with Issue an advisory.'**
+  String get feedDownNever;
+
+  /// No description provided for @rainLevelYellow.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get rainLevelYellow;
+
+  /// No description provided for @rainLevelOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get rainLevelOrange;
+
+  /// No description provided for @rainLevelRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get rainLevelRed;
+
   /// No description provided for @signalCard.
   ///
   /// In en, this message translates to:

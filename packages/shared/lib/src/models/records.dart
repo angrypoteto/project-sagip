@@ -29,6 +29,53 @@ class UnitSuggestion {
   final RoutingMethod method;
 }
 
+/// The two pages the PAGASA feed reads (ingest-pagasa).
+enum FeedSource { pagasaRainfall, pagasaCyclone }
+
+/// How the last check of one PAGASA source went (`feed_status`, D10).
+@immutable
+class FeedStatus {
+  const FeedStatus({
+    required this.source,
+    required this.ok,
+    required this.checkedAt,
+    this.lastSuccessAt,
+    this.lastError,
+    this.failures = 0,
+    this.seen = const {},
+  });
+
+  final FeedSource source;
+  final bool ok;
+  final DateTime checkedAt;
+  final DateTime? lastSuccessAt;
+
+  /// Why the last check failed; null after a success.
+  final String? lastError;
+
+  /// Failed checks in a row.
+  final int failures;
+
+  /// What the last successful check read: `state` (none, warning,
+  /// bulletin), and `level` and `number` for a warning, `number`, `name`,
+  /// `signal`, and `surgeM` for a bulletin.
+  final Map<String, Object?> seen;
+
+  factory FeedStatus.fromJson(Map<String, Object?> json) => FeedStatus(
+    source: switch (json['source']) {
+      'pagasa_rainfall' => FeedSource.pagasaRainfall,
+      'pagasa_cyclone' => FeedSource.pagasaCyclone,
+      final other => throw FormatException('Unknown feed source $other'),
+    },
+    ok: json['ok']! as bool,
+    checkedAt: timeFromJson(json['checked_at']),
+    lastSuccessAt: timeFromJsonOrNull(json['last_success_at']),
+    lastError: json['last_error'] as String?,
+    failures: (json['failures'] as int?) ?? 0,
+    seen: (json['seen'] as Map?)?.cast<String, Object?>() ?? const {},
+  );
+}
+
 /// Current PAGASA conditions for Manila (WEATHER_ALERT, Figure 3.6d).
 @immutable
 class WeatherStatus {

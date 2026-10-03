@@ -70,6 +70,8 @@ jobs:
           supabase/functions/send-alerts/alerts.test.ts
           supabase/functions/send-alerts/fcm.test.ts
           supabase/functions/send-alerts/index.test.ts
+      - name: ingest-pagasa parsers on saved PAGASA pages and bulletins, and one run with the network stood in
+        run: node --test supabase/functions/ingest-pagasa/pagasa.test.ts
 
   forecast:
     name: Forecast data preparation and KDE

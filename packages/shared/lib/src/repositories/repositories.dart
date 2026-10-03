@@ -146,6 +146,12 @@ abstract interface class WeatherRepository {
   Stream<WeatherStatus> watchCurrent();
 }
 
+/// The PAGASA feed's health (D10): one row per source; empty when the
+/// feed is not connected (sample data).
+abstract interface class FeedStatusRepository {
+  Stream<List<FeedStatus>> watchFeeds();
+}
+
 /// The 72-hour forecast for every barangay (D8, FR4).
 abstract interface class ForecastRepository {
   /// The latest run of the model, or null when none has been generated.

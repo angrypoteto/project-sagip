@@ -72,6 +72,13 @@ class MockBackend {
   /// phones, so only the past rescues have one).
   late final Map<String, DamageRecord> _completions;
   final _ndrrmcReports = LiveValue<List<NdrrmcReport>>(const []);
+  final _feeds = LiveValue<List<FeedStatus>>(const []);
+
+  /// The PAGASA feed's health (D10); none on sample data.
+  Stream<List<FeedStatus>> watchFeeds() => _feeds.watch();
+
+  /// For tests: what the feed reported.
+  void setFeeds(List<FeedStatus> feeds) => _feeds.value = feeds;
   var _nextReportNumber = 1;
   var _nextAlertNumber = 1;
   var _weatherSimulated = false;
@@ -1412,6 +1419,7 @@ class MockBackend {
     stopSimulation();
     unawaited(_expired.close());
     for (final live in <LiveValue<Object?>>[
+      _feeds,
       _incidents,
       _resolved,
       _units,

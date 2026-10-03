@@ -231,6 +231,17 @@ class MockAlertLogRepository implements AlertLogRepository {
   Future<void> end(String alertId) => _backend.endAlert(alertId);
 }
 
+/// Sample data has no PAGASA feed (its weather is simulated) until a test
+/// sets one ([MockBackend.setFeeds]).
+class MockFeedStatusRepository implements FeedStatusRepository {
+  const MockFeedStatusRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<FeedStatus>> watchFeeds() => _backend.watchFeeds();
+}
+
 class MockSimulationRepository implements SimulationRepository {
   const MockSimulationRepository(this._backend);
 

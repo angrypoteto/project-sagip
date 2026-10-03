@@ -35,6 +35,8 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_incident_notices.sql` | `incident_notices(incident)` for dispatchers and admins: what the resident was told about their SOS (each rescue confirmation) with its text and push outcome, for the incident drawer (D4) |
 | `migrations/*_barangays_full.sql` | `barangay.psgc_code`, `manila_outline` (the city as one shape), `private.load_barangays(json)`, and the Manila check (FR15) against the outline with 50 m to spare |
 | `data/` | All 897 barangays: `fetch_barangays.py` (downloads PSA's boundaries, checks them against the PSGC, writes the files), `manila_barangays.json` (what the database loads), `manila_barangays.csv` (name, district, code, center, area) |
+| `migrations/*_pagasa_feed.sql` | The PAGASA feed: `feed_status` (dispatchers and admins read it), `record_pagasa_reading()` and `record_feed_status()` (service role only), and a `pg_cron` job that calls `ingest-pagasa` every 10 minutes |
+| `functions/ingest-pagasa/` | Reads PAGASA's public pages (FR5): the NCR Heavy Rainfall Warning and the latest Tropical Cyclone Bulletin (PDF), and records Manila's rainfall level, wind signal, and storm surge. `pagasa.test.ts` runs the parsers on saved pages and bulletins with `node --test` |
 | `migrations/*_sender_wakeup.sql` | `pg_net` and triggers on `alert_delivery`, `rescue_confirmation`, and `push_message` that call `send-alerts` when something is queued, with a random shared secret kept in Supabase Vault (`sender_secret()`, service role only) |
 | `tests/rls_test.sql` | 307 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
@@ -231,6 +233,21 @@ select kind, platform, count(*), round(avg(compute_ms), 2) as avg_ms,
        percentile_cont(0.95) within group (order by compute_ms) as p95_ms, max(compute_ms) as max_ms
 from public.routing_run group by kind, platform order by kind, platform;
 ```
+
+## The PAGASA feed (FR5)
+
+PAGASA gives no public API in time (plan Q35), so `ingest-pagasa` reads what PAGASA publishes (Joshua's decision, 2026-10-03; plan in `docs/PAGASA-PARSER-PLAN.md`):
+
+- **Rainfall:** the Heavy Rainfall Warning on the NCR page (`bagong.pagasa.dost.gov.ph/regional-forecast/ncrprsd`). The level over Metro Manila becomes its lower bound in mm/hr: Yellow 7.5, Orange 15, Red 30. With today's A3 thresholds (15 and 30), Orange raises a warning and Red a critical alert.
+- **Wind signal and storm surge:** the latest Tropical Cyclone Bulletin (a PDF linked from the bulletin page). The highest Wind Signal that names Metro Manila (a "portion of Metro Manila" counts only when its list names Manila), and the highest storm surge height given for coasts that include Metro Manila.
+
+**How it runs.** A `pg_cron` job calls the function every 10 minutes with the shared secret (the same vault secret as `send-alerts`). The database adds a `weather_alert` row only when a value changed (or the current row is simulated), and the threshold engine raises or ends alerts. A page that cannot be read keeps the last value and is counted in `feed_status`, which D10 shows ("PAGASA feed"); dispatchers then relay by hand with "Issue an advisory". **While simulation mode is on, readings are not recorded**, so a demo keeps its simulated weather.
+
+**Real alerts.** With simulation mode off, a real PAGASA warning raises real alerts: shown in the apps and pushed to phones (push works), and texted once Semaphore is set up.
+
+**Check it** in the SQL editor: `select source, ok, checked_at, last_error, seen from public.feed_status;` and `select * from cron.job_run_details order by start_time desc limit 5;`. Run it once now: `select private.call_ingest_pagasa();`. To stop it: `select cron.unschedule('ingest-pagasa');`.
+
+**Redeploy:** `supabase functions deploy ingest-pagasa --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`. Deployed 2026-10-03 (version 1).
 
 ## Loading all 897 barangays
 
