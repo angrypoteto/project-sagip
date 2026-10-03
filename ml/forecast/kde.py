@@ -11,15 +11,17 @@ It follows the thesis parameters (CLAUDE.md, "Algorithm parameters"):
 Densities are reported as incidents per square kilometre over the period of
 the records, so they can be read and compared.
 
-Two things are PROVISIONAL and marked so in the summary:
-  - Barangay boundaries have not been delivered. Until they are, "per
-    barangay" is the average over the grid cells within 400 m of the
-    barangay's centre point (the ten sample barangays). Put a GeoJSON file
-    of boundaries at ml/forecast/data/barangay_boundaries.geojson (each
-    feature with a "name" property) and the cells inside each boundary are
-    used instead.
-  - How this density and the LSTM probability become a risk level is not
-    decided (plan Q22), so no risk levels are written.
+"Per barangay" uses the 897 barangay boundaries in
+supabase/data/manila_barangays.json (PSA, indicative; see
+supabase/data/fetch_barangays.py): the mean over the grid cells inside each
+boundary, and the grid covers the whole city. A GeoJSON file at
+ml/forecast/data/barangay_boundaries.geojson (each feature with a "name"
+property) takes precedence; with neither, the cells within 400 m of each
+centre are used.
+
+PROVISIONAL and marked so in the summary: how this density and the LSTM
+probability become a risk level is not decided (plan Q22); run_forecast.py
+applies a provisional rule.
 
 Usage:
   python ml/forecast/kde.py
@@ -42,6 +44,13 @@ from sklearn.neighbors import KernelDensity
 from prepare_windows import HAZARDS, MANILA_BOX, clean_incidents, load_weather, read_csv
 
 HERE = Path(__file__).parent
+ROOT = HERE.parent.parent
+
+
+def default_boundaries():
+    """The GeoJSON file if someone put one there, else the 897 barangays."""
+    geojson = HERE / "data" / "barangay_boundaries.geojson"
+    return geojson if geojson.exists() else ROOT / "supabase" / "data" / "manila_barangays.json"
 EARTH_RADIUS_M = 6_371_008.8
 BANDWIDTHS_M = (100, 200, 300, 400, 500)
 FOLDS = 5
@@ -125,15 +134,24 @@ def _inside_ring(lat, lng, ring):
 
 def inside_geometry(grid_deg, geometry):
     """Which grid points fall inside a GeoJSON Polygon or MultiPolygon
-    (holes are respected)."""
+    (holes are respected). Points outside the bounding box are skipped
+    first, which keeps 897 barangays over a city-wide grid fast."""
     lat, lng = grid_deg[:, 0], grid_deg[:, 1]
     polygons = geometry["coordinates"] if geometry["type"] == "MultiPolygon" else [geometry["coordinates"]]
     inside = np.zeros(len(grid_deg), dtype=bool)
     for rings in polygons:
-        here = _inside_ring(lat, lng, rings[0])
+        outer = np.asarray(rings[0], dtype=float)
+        box = (
+            (lng >= outer[:, 0].min()) & (lng <= outer[:, 0].max())
+            & (lat >= outer[:, 1].min()) & (lat <= outer[:, 1].max())
+        )
+        if not box.any():
+            continue
+        idx = np.flatnonzero(box)
+        here = _inside_ring(lat[idx], lng[idx], rings[0])
         for hole in rings[1:]:
-            here &= ~_inside_ring(lat, lng, hole)
-        inside |= here
+            here &= ~_inside_ring(lat[idx], lng[idx], hole)
+        inside[idx] |= here
     return inside
 
 
@@ -183,16 +201,61 @@ def load_barangays(path):
 
 
 def load_boundaries(path):
-    """{barangay name: GeoJSON geometry}, or None when there is no file."""
+    """{barangay name: GeoJSON geometry}, or None when there is no file.
+    Reads a GeoJSON file, or the database's barangay file
+    (supabase/data/manila_barangays.json, rings as encoded polylines)."""
     path = Path(path)
     if not path.exists():
         return None
-    features = json.loads(path.read_text(encoding="utf-8"))["features"]
-    return {f["properties"]["name"]: f["geometry"] for f in features}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if "features" in data:
+        return {f["properties"]["name"]: f["geometry"] for f in data["features"]}
+    return {
+        b["name"]: {
+            "type": "MultiPolygon",
+            "coordinates": [[decode_polyline(r) for r in poly] for poly in b["polygons"]],
+        }
+        for b in data["barangays"]
+    }
+
+
+def decode_polyline(text):
+    """An encoded polyline (precision 1e-5) as a closed ring of [lng, lat]."""
+    points, i, lat, lng = [], 0, 0, 0
+    while i < len(text):
+        values = []
+        for _ in range(2):
+            result = shift = 0
+            while True:
+                b = ord(text[i]) - 63
+                i += 1
+                result |= (b & 0x1F) << shift
+                shift += 5
+                if b < 0x20:
+                    break
+            values.append(-(result >> 1) - 1 if result & 1 else result >> 1)
+        lat += values[0]
+        lng += values[1]
+        points.append([lng / 1e5, lat / 1e5])
+    if points and points[0] != points[-1]:
+        points.append(points[0])
+    return points
+
+
+def bounding_box(boundaries, margin_deg=0.002):
+    """The box around every boundary, with a small margin, as MANILA_BOX."""
+    lngs = [c[0] for g in boundaries.values() for poly in g["coordinates"] for c in poly[0]]
+    lats = [c[1] for g in boundaries.values() for poly in g["coordinates"] for c in poly[0]]
+    return {
+        "south": min(lats) - margin_deg,
+        "north": max(lats) + margin_deg,
+        "west": min(lngs) - margin_deg,
+        "east": max(lngs) + margin_deg,
+    }
 
 
 def run(incidents, barangays, boundaries=None, out_dir=None):
-    grid = make_grid()
+    grid = make_grid(bounding_box(boundaries)) if boundaries else make_grid()
     summary = {}
     for hazard in HAZARDS:
         points = np.array(
@@ -229,18 +292,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--incidents", default=HERE / "data" / "sample_incidents.csv")
     parser.add_argument("--weather", default=HERE / "data" / "sample_weather_daily.csv")
-    parser.add_argument("--barangays", default=HERE / "data" / "sample_barangays.csv")
-    parser.add_argument("--boundaries", default=HERE / "data" / "barangay_boundaries.geojson")
+    parser.add_argument("--barangays", default=ROOT / "supabase" / "data" / "manila_barangays.csv")
+    parser.add_argument("--boundaries", default=None)
     args = parser.parse_args()
 
     # The same cleaning as the LSTM's data preparation, over the same period.
     days, _ = load_weather(read_csv(args.weather))
     incidents, log = clean_incidents(read_csv(args.incidents), days[0], days[-1])
-    boundaries = load_boundaries(args.boundaries)
+    boundaries = load_boundaries(args.boundaries or default_boundaries())
     hazards = run(incidents, load_barangays(args.barangays), boundaries, out_dir=HERE / "build")
 
     sample = "sample_" in Path(args.incidents).name
-    provisional = ["no risk levels: how the density and the LSTM probability combine is not decided (plan Q22)"]
+    provisional = ["risk levels: how the density and the LSTM probability combine is not decided (plan Q22); run_forecast.py uses a provisional rule"]
     if boundaries is None:
         provisional.insert(0, f"no barangay boundaries: the average is over the cells within {CENTRE_RADIUS_M} m of each centre")
     summary = {
@@ -263,7 +326,7 @@ def main():
         first = min(h["barangays"], key=lambda name: h["barangays"][name]["rank"])
         print(
             f"  {hazard}: {h['incidents']} incidents, bandwidth {h['bandwidth_m']} m, "
-            f"densest sample barangay {first} ({h['barangays'][first]['mean_per_km2']} per km2)"
+            f"densest barangay {first} ({h['barangays'][first]['mean_per_km2']} per km2)"
         )
 
 

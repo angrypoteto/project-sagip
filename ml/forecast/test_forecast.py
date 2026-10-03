@@ -12,6 +12,7 @@ import numpy as np
 
 import kde
 import prepare_windows as prep
+import run_forecast
 
 
 def weather_rows(days, rain=None):
@@ -285,6 +286,48 @@ class Kde(unittest.TestCase):
             [False, True, False, True],
         )
 
+
+
+class ForecastRun(unittest.TestCase):
+    def test_provisional_levels(self):
+        level = run_forecast.risk_level
+        self.assertEqual(level(0.66, 1.0), "high")
+        self.assertEqual(level(0.66, 0.3), "moderate")
+        self.assertEqual(level(0.30, 0.8), "moderate")
+        self.assertEqual(level(0.30, 0.3), "low")
+        self.assertEqual(level(0.10, 1.0), "low")
+
+    def test_levels_for_every_scored_barangay(self):
+        kde_summary = {"hazards": {
+            "flood": {"barangays": {"A": {"relative": 1.0}, "B": {"relative": 0.1}}},
+            "fire": {"barangays": {"A": {"relative": 0.3}, "B": {"relative": 1.0}}},
+            "storm_surge": {"barangays": {"A": {"relative": 0.0}, "B": {"relative": 0.0}}},
+        }}
+        levels = run_forecast.run({"flood": 0.6, "fire": 0.3, "storm_surge": 0.9}, kde_summary)
+        self.assertEqual(levels["A"], {"flood": "high", "fire": "low", "storm_surge": "low"})
+        self.assertEqual(levels["B"], {"flood": "low", "fire": "moderate", "storm_surge": "low"})
+
+    def test_insert_names_only_barangays_above_low(self):
+        sql = run_forecast.insert_sql(
+            {"Barangay 1": {"flood": "high", "fire": "low", "storm_surge": "moderate"},
+             "Barangay 2": {"flood": "low", "fire": "low", "storm_surge": "low"}},
+            "2026-10-03T00:00:00+00:00",
+        )
+        self.assertIn("('Barangay 1', 'hlm')", sql)
+        self.assertNotIn("Barangay 2", sql)
+        self.assertIn("from public.barangay b", sql)  # every barangay gets a row
+        self.assertIn("interval '72 hours'", sql)
+
+
+class AllBarangays(unittest.TestCase):
+    def test_the_database_file_gives_897_closed_rings(self):
+        boundaries = kde.load_boundaries(kde.default_boundaries())
+        if boundaries is None:
+            self.skipTest("supabase/data/manila_barangays.json is missing")
+        self.assertEqual(len(boundaries), 897)
+        ring = boundaries["Barangay 412"]["coordinates"][0][0]
+        self.assertEqual(ring[0], ring[-1])
+        self.assertTrue(all(120.9 < x < 121.1 and 14.5 < y < 14.7 for x, y in ring))
 
 
 @unittest.skipUnless(
