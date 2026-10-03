@@ -1000,7 +1000,8 @@ set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", 
 select ok(
   (select (s ->> 'incidents')::int = (select count(*)::int from public.incident_report
                                        where received_at >= now() - interval '1 day'
-                                         and received_at < now() + interval '1 minute')
+                                         and received_at < now() + interval '1 minute'
+                                         and not is_simulated)
       and (s ->> 'incidents')::int = (s ->> 'resolved')::int + (s ->> 'open')::int + (s ->> 'false_reports')::int
       and (s ->> 'incidents')::int = (s ->> 'sos')::int + (s ->> 'clusters')::int
       and (select sum((t ->> 'count')::int) from jsonb_array_elements(s -> 'by_type') t) = (s ->> 'incidents')::int
@@ -1580,6 +1581,7 @@ set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", 
 select is((select count(*)::int from public.feed_status), 0, 'residents cannot read the feed status');
 
 -- ------------------------------------------------ tier 3: SOS relayed over Bluetooth
+-- (Points inside the test squares the barangay section loaded above.)
 
 reset role;
 select ok(
@@ -1592,16 +1594,16 @@ set local role authenticated;
 -- A signed-in phone (no resident record, no staff role) heard an SOS.
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
 select is(
-  public.relay_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6091, 120.9925, true, 2) ->> 'duplicate',
+  public.relay_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6000, 120.9900, true, 2) ->> 'duplicate',
   'false', 'a relayed SOS is filed');
 select is(
-  public.relay_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6091, 120.9925, true, 3) ->> 'duplicate',
+  public.relay_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6000, 120.9900, true, 3) ->> 'duplicate',
   'true', 'the same SOS from another hop is one incident');
 select throws_ok(
   $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a2', now(), 14.5547, 121.0244, false, 1) $$,
   'P0001', 'outside_manila', 'a relayed SOS outside Manila is refused');
 select throws_ok(
-  $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a3', now(), 14.6091, 120.9925, false, 7) $$,
+  $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a3', now(), 14.6000, 120.9900, false, 7) $$,
   'P0001', 'invalid_value', 'a hop count the packet cannot hold is refused');
 
 reset role;
@@ -1623,7 +1625,7 @@ grant select on __relayed to authenticated;
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 select is(
-  public.submit_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6091, 120.9925, 8),
+  public.submit_sos('00000000-0000-4000-8000-0000000007a1', now() - interval '4 minutes', 14.6000, 120.9900, 8),
   (select incident_id from __relayed),
   'the resident''s own copy finds the relayed incident');
 reset role;
@@ -1637,7 +1639,7 @@ select gen_random_uuid(), '00000000-0000-4000-8000-00000000000e', 1, false from 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
 select throws_ok(
-  $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a4', now(), 14.6091, 120.9925, false, 1) $$,
+  $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a4', now(), 14.6000, 120.9900, false, 1) $$,
   'P0001', 'rate_limited', 'a phone that uploads too many in an hour is stopped');
 
 reset role;
