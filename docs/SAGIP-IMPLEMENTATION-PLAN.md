@@ -996,10 +996,10 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 - [x] RLS tests for every role, including "resident cannot read another resident's SOS" and "dispatcher cannot read configuration" (Sep 30: `supabase/tests/rls_test.sql`, 87 checks; add configuration checks with that table)
 - [x] Audit triggers for every dispatch action, status change, and verification (FR11) (Sep 30)
 - [x] Functions: Manila boundary check (FR15) and per-account rate limit (FR15, NFR7) (Sep 30: rough box until boundaries load; 5 an hour, provisional)
-- [ ] Realtime publication for incidents, dispatches, units, and responder positions (partial Sep 30: incidents, timeline, crowd reports, units with last position, weather, audit log, completion reports, alerts, forecasts)
-- [ ] Storage buckets: NDRRMC PDFs (private) and map tiles and road graph (public read)
+- [x] Realtime publication for incidents, dispatches, units, and responder positions (partial Sep 30: incidents, timeline, crowd reports, units with last position, weather, audit log, completion reports, alerts, forecasts) (built; ticked in the Oct 3 review)
+- [ ] Storage buckets: NDRRMC PDFs (private) and map tiles and road graph (public read) *(Oct 3: the private PDF bucket is done; the road graph is bundled in the apps; tiles wait on the hosting decision)*
 - [ ] Seed data: barangays, units and responders (mock until the roster arrives), sample incidents (partial Sep 30: `reset_demo_data()` loads units, residents, incidents, reports; no barangays or responders yet)
-- [ ] Edge Function skeletons: `sms-intake`, `compute-priority`, `classify-report`, `send-alerts`, `ingest-pagasa`, `ingest-phivolcs`, `generate-report`
+- [ ] Edge Function skeletons: `sms-intake`, `compute-priority`, `classify-report`, `send-alerts`, `ingest-pagasa`, `ingest-phivolcs`, `generate-report` *(Oct 3: `sms-intake`, `send-alerts`, `ingest-pagasa`, `send-sms`, and `run-forecast` written (all but `run-forecast` deployed); the priority score and the classifier run in the database instead; `ingest-phivolcs` and `generate-report` (RAG) not started)*
 - [x] Check that `packages/shared` models match the schema (Sep 30: `supabase_json_test.dart` and the browser check)
 
 **Exit:** schema, RLS, and audit triggers are live with passing tests, and seed data loads with `supabase db reset`.
@@ -1012,31 +1012,31 @@ Tier 1 screens also get the full review checklist from the design skill (side-by
 
 **Swap mocks for Supabase**
 
-- [ ] Supabase implementations of every repository, behind the same interfaces; switch with provider overrides
+- [x] Supabase implementations of every repository, behind the same interfaces; switch with provider overrides (built; ticked in the Oct 3 review)
 
 **Resident**
 
-- [ ] Register, OTP, and sign-in
-- [ ] SOS online path: write to the local queue first, send, wait for acknowledgement; measure press-to-acknowledgement time for NFR2
-- [ ] Mock-location detection flag on every SOS (FR8)
-- [ ] Tracking: responder position, ETA, and status timeline
-- [ ] Crowd report submission with the boundary check and rate limit
-- [ ] Vulnerability profile with consent (NFR4)
+- [~] Register, OTP, and sign-in (built and tested on sample data; on Supabase it waits for Joshua to switch on Phone sign-in and the Send SMS hook)
+- [x] SOS online path: write to the local queue first, send, wait for acknowledgement; measure press-to-acknowledgement time for NFR2 (built; ticked in the Oct 3 review)
+- [x] Mock-location detection flag on every SOS (FR8) (built; ticked in the Oct 3 review)
+- [x] Tracking: responder position, ETA, and status timeline (built; ticked in the Oct 3 review)
+- [x] Crowd report submission with the boundary check and rate limit (built; ticked in the Oct 3 review)
+- [x] Vulnerability profile with consent (NFR4) (built; ticked in the Oct 3 review)
 
 **Dispatcher dashboard**
 
-- [ ] Realtime Triage Queue with new-SOS sound and toast
-- [ ] Verification actions: callback link, "Mark verified", "Mark as false report"; two-way SMS once the gateway exists
-- [ ] Confirm or override incident type
-- [ ] Assign with suggestions (straight-line ranking until Dijkstra lands), reassign, override reason, and conflict handling between two dispatchers
+- [x] Realtime Triage Queue with new-SOS sound and toast (built; ticked in the Oct 3 review)
+- [~] Verification actions: callback link, "Mark verified", "Mark as false report"; two-way SMS once the gateway exists (the three actions are built; the SMS check is sent but a YES reply through the gateway is not read yet)
+- [x] Confirm or override incident type (built; ticked in the Oct 3 review)
+- [x] Assign with suggestions (straight-line ranking until Dijkstra lands), reassign, override reason, and conflict handling between two dispatchers (built; ticked in the Oct 3 review)
 
 **Responder**
 
 - [~] Push notifications through FCM for new assignments and rescue confirmations (Oct 3: built and tested; works once the Firebase project exists)
-- [ ] Receive assignments by push and realtime
-- [ ] Status updates (FR9)
+- [x] Receive assignments by push and realtime (built; ticked in the Oct 3 review)
+- [x] Status updates (FR9) (built; ticked in the Oct 3 review)
 - [x] Background GPS with an Android foreground service (Oct 2; started while the app is open, so "While using the app" location is enough and "Allow all the time" is not asked for; checked on the emulator, not yet on a real phone)
-- [ ] On-scene confirmation and the completion and damage report
+- [x] On-scene confirmation and the completion and damage report (built; ticked in the Oct 3 review)
 
 **Tier 3 screens, built directly on Supabase**
 
@@ -1075,14 +1075,14 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [x] Nearest-unit suggestions: run Dijkstra once from the incident on the reversed graph to get the travel time from every Available unit, then return the top three. Running it in the dispatcher's browser avoids server cold starts.
 - [x] Store the chosen route (encoded polyline and turn list) on the dispatch record; the responder app caches it (Sep 30; the phone also re-routes on its own)
 - [x] Log execution time for every run (the thesis formula T_end minus T_start) for Chapter 4 (Sep 30: `routing_run`, one sample per job a minute)
-- [ ] Could: add a travel-time penalty for roads inside confirmed flood incidents
+- [x] Could: add a travel-time penalty for roads inside confirmed flood incidents (Oct 3: `FloodPenalty`, roads within 150 m of a confirmed flood take 4 times as long, provisional; dashboard suggestions and assignment routes; the phone's own re-routing does not see other incidents)
 
 ### 10.3 DBSCAN clustering (FR7, FR15). Medium.
 
-- [ ] Decide the implementation (Q25). Recommended: PostGIS `ST_ClusterDBSCAN` in a metric projection for Manila (EPSG:32651), eps 50 m, minPts 3, reports from the last 60 minutes. At 50 m the difference from haversine distance is negligible; state the choice in the thesis.
-- [ ] Run on every crowd report insert; create or update the confirmed incident and link its reports
-- [ ] Simulated report generator for demos (the thesis promises simulated input)
-- [ ] Tests: two reports do not cluster; three within 50 m do; three spread over 80 m do not; reports older than 60 minutes are ignored
+- [x] Decide the implementation (Q25). Recommended: PostGIS `ST_ClusterDBSCAN` in a metric projection for Manila (EPSG:32651), eps 50 m, minPts 3, reports from the last 60 minutes. At 50 m the difference from haversine distance is negligible; state the choice in the thesis. (built; ticked in the Oct 3 review)
+- [x] Run on every crowd report insert; create or update the confirmed incident and link its reports (built; ticked in the Oct 3 review)
+- [x] Simulated report generator for demos (the thesis promises simulated input) (Oct 3: A3 simulation tools, `simulate_crowd_reports` and `simulate_sos`, marked simulated and left out of measurements)
+- [x] Tests: two reports do not cluster; three within 50 m do; three spread over 80 m do not; reports older than 60 minutes are ignored (built; ticked in the Oct 3 review)
 
 ### 10.4 Incident type classifier (FR12). Medium.
 
@@ -1102,7 +1102,7 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [~] Evaluate: confusion-matrix accuracy (target at least 80%), plus precision, recall, F1, and the no-skill baseline; RMSE as the thesis requires (Q23); compare with PAGASA advisories for the same period (Oct 3: all but the PAGASA comparison computed in `lstm_metrics.json`, on sample data)
 - [x] KDE: Gaussian kernel, haversine distance, bandwidth chosen from 100 to 500 m by 5-fold cross-validated log-likelihood, 100 m grid averaged per barangay (Oct 3, `ml/forecast/kde.py`, on sample data; per barangay by centre until boundaries arrive)
 - [ ] Define and document how the LSTM probability and the KDE density combine into a risk level (Q22)
-- [ ] Batch inference script that writes forecast rows; a simulated live feed that replays historical weather, with forecasts marked as simulated *(Oct 3: `ml/forecast/run_forecast.py` writes a run for all 897 barangays with provisional levels (Q22), loaded on the hosted project; the replayed live feed is not built)*
+- [~] Batch inference script that writes forecast rows; a simulated live feed that replays historical weather, with forecasts marked as simulated *(Oct 3: `run_forecast.py` for one run; the live feed (`export_live.py`, the `run-forecast` Edge Function, migration `forecast_live`) is built and tested but not switched on: applying its migration waits for Joshua)*
 - [ ] Polish D8 (forecast heatmap) and the R7 forecast tab on real forecast rows
 - [ ] Decide whether TensorFlow Lite on the device is still needed (Q2)
 
@@ -1126,9 +1126,9 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 - [x] Connectivity check that pings Supabase instead of trusting the network type
 - [x] Sync engine: send in capture order, retry with backoff, mark synced only on server acknowledgement, notify the user on delivery (NFR1); unit tests
 - [x] Tier 2 SMS format: short, versioned, with a checksum, under 160 characters (Oct 1: `SAGIP1`, CRC-16, about 85 characters; the sender number identifies the resident)
-- [~] Tier 2 sending: direct send with the SMS permission on the sideloaded APK, or open the SMS app with the message filled in as a fallback (Q29) (Oct 1: direct send done; the fallback is not built)
+- [x] Tier 2 sending: direct send with the SMS permission on the sideloaded APK, or open the SMS app with the message filled in as a fallback (Q29) (Oct 1: direct send; Oct 3: the S6 "Text it myself" fallback)
 - [ ] SMS gateway receiver: GSM modem service or Android gateway app, forwarding to `sms-intake`, which parses, validates, removes duplicates, and creates the incident with channel = SMS *(Oct 3: `sms-intake` deployed; waits for its secret and Joshua's spare phone as the gateway)*
-- [ ] SMS acknowledgement reply from the gateway SIM, so the resident knows the SOS arrived
+- [x] SMS acknowledgement reply from the gateway SIM, so the resident knows the SOS arrived (Oct 3: `sms-intake` v2 asks SMS Gateway for Android to send it; needs the app's cloud login as secrets)
 - [ ] SMS field test with real phones and the gateway SIM **(Team)**
 - [ ] Tier 3 BLE proof of concept: advertise a compact SOS packet (legacy advertising fits only about 24 bytes), scan and store on nearby phones, hop limit, duplicate check by ID, upload from any phone that gets online; run as a foreground service *(Oct 3: built and tested in code (24-byte packet, relay node, hop limit 3, `relay_sos`); it runs while the app is open, not yet as a foreground service; not yet tried on phones)*
 - [x] Escalation controller: Tier 1 always, Tier 2 when there is cellular signal but no data, Tier 3 when there is neither; drives the SOS button states (Oct 3: `SyncEngine` with `SmsTier` and `RelayTier`)

@@ -40,7 +40,11 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_sender_wakeup.sql` | `pg_net` and triggers on `alert_delivery`, `rescue_confirmation`, and `push_message` that call `send-alerts` when something is queued, with a random shared secret kept in Supabase Vault (`sender_secret()`, service role only) |
 | `migrations/*_ble_relay.sql` | Tier 3 Bluetooth relay (proof of concept): `relay_sos()` for any signed-in phone that heard an SOS (checked, at most 30 an hour per account, files it as an unverified SOS from an unknown sender until the resident's own copy arrives) and `sos_relay_log` (service role only) |
 | `migrations/*_sos_delivery_report.sql` | `sos_delivery_report()` for the Objective 3 trials (admins only; see "Objective 3: SOS delivery report") |
-| `tests/rls_test.sql` | 347 pgTAP checks of who can see and do what |
+| `migrations/*_simulated_incidents.sql` | `simulate_sos()` and `simulate_crowd_reports()` (admins, simulation mode only, audited), `is_simulated` on incidents and crowd reports, simulated incidents left out of A4, Objective 3, and NDRRMC figures |
+| `migrations/*_report_pdfs.sql` | The private `ndrrmc-reports` bucket (admins read; one file per final report, added once) and `attach_report_pdf()` |
+| `migrations/20261003130000_forecast_live.sql` | **Not applied yet.** `forecast_model`, `forecast_replay`, `forecast_live_input()` and `record_forecast_run()` (service role), and a `pg_cron` job every six hours for `run-forecast` |
+| `functions/run-forecast/` | The forecast's live feed: the LSTM in TypeScript on replayed weather, the provisional rule; `forecast.test.ts` checks it against Keras with `node --test` |
+| `tests/rls_test.sql` | 362 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
