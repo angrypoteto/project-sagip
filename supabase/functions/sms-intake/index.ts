@@ -6,13 +6,18 @@
 // later by the app over the internet is recognised by its id. Every inbound
 // text is kept in sms_log (no client access).
 //
-// The reply to the resident comes back in the response as `reply`, for the
-// gateway to send from its SIM (plan: acknowledgement from the gateway).
-// With SEMAPHORE_API_KEY set and SMS_ACK_VIA_SEMAPHORE=true, it is sent
-// through Semaphore instead.
+// The reply to the resident (plan: acknowledgement from the gateway SIM):
+// - with SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME, and
+//   SMS_GATEWAY_PASSWORD set, this function asks the gateway phone's app
+//   (SMS Gateway for Android, cloud mode) to send it from the SIM;
+// - else with SEMAPHORE_API_KEY and SMS_ACK_VIA_SEMAPHORE=true, through
+//   Semaphore;
+// - else it comes back in the response as `reply` for the gateway to send.
+// Either way it is logged in sms_log (kind `ack`).
 //
 // Secrets (Edge Functions > Secrets): SMS_INTAKE_SECRET (shared with the
-// gateway), optional SEMAPHORE_API_KEY, SEMAPHORE_SENDER_NAME,
+// gateway), optional SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME,
+// SMS_GATEWAY_PASSWORD, SEMAPHORE_API_KEY, SEMAPHORE_SENDER_NAME,
 // SMS_ACK_VIA_SEMAPHORE. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are
 // provided by the platform.
 //
@@ -24,6 +29,7 @@ import { maskNumber, semaphoreNumber } from "../send-sms/sms.ts";
 import {
   ackMessage,
   authorized,
+  gatewaySendRequest,
   parseGatewayPayload,
   unreadableMessage,
 } from "./intake.ts";
@@ -75,6 +81,34 @@ async function sendAckViaSemaphore(to: string, message: string): Promise<boolean
     detail: res.ok ? null : `HTTP ${res.status}`,
   });
   return res.ok;
+}
+
+/** The reply from the gateway SIM, through the gateway app's API. */
+async function sendAckViaGateway(to: string, message: string): Promise<boolean> {
+  const endpoint = Deno.env.get("SMS_GATEWAY_SEND_URL");
+  const username = Deno.env.get("SMS_GATEWAY_USERNAME");
+  const password = Deno.env.get("SMS_GATEWAY_PASSWORD");
+  if (!endpoint || !username || !password) return false;
+  const request = gatewaySendRequest(endpoint, username, password, to, message);
+  if (!request) return false;
+  let ok = false;
+  let detail: string | null = null;
+  try {
+    const res = await fetch(request.url, request.init);
+    ok = res.ok;
+    if (!ok) detail = `HTTP ${res.status}`;
+  } catch {
+    detail = "the gateway app could not be reached";
+  }
+  await logSms({
+    kind: "ack",
+    to_number: to,
+    body: message,
+    provider: "gateway",
+    status: ok ? "sent" : "failed",
+    detail,
+  });
+  return ok;
 }
 
 Deno.serve(async (req) => {
@@ -136,13 +170,16 @@ Deno.serve(async (req) => {
 
   const reply = ackMessage(result.incident_id, result.known);
   let replySent = false;
-  if (!result.duplicate && Deno.env.get("SMS_ACK_VIA_SEMAPHORE") === "true") {
-    replySent = await sendAckViaSemaphore(inbound.from, reply);
+  if (!result.duplicate) {
+    replySent = await sendAckViaGateway(inbound.from, reply);
+    if (!replySent && Deno.env.get("SMS_ACK_VIA_SEMAPHORE") === "true") {
+      replySent = await sendAckViaSemaphore(inbound.from, reply);
+    }
   }
   return json(200, {
     status: result.duplicate ? "duplicate" : "created",
     incident_id: result.incident_id,
-    // The gateway sends this from its SIM unless Semaphore already did.
+    // The gateway sends this from its SIM unless it was already sent.
     reply: replySent || result.duplicate ? null : reply,
   });
 });

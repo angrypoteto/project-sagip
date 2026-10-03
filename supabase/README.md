@@ -103,7 +103,7 @@ When a phone has signal but no data, the app texts the SOS to the MDRRMD gateway
 
 1. **Gateway phone:** a spare Android phone with the gateway SIM, running an SMS gateway app that forwards received texts to a webhook (for example SMS Gateway for Android). Set its webhook to `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake` with the header `x-sagip-key: <secret>`.
 2. **The function:** deployed by Claude on 2026-10-03 (version 1, JWT check off). Until step 3 it answers `sms-intake is not set up` and files nothing. To redeploy after a change: `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
-3. **Secrets:** `SMS_INTAKE_SECRET` = the same secret (make one with at least 32 random characters, for example from a password manager; it never goes in the repo). Optional: `SMS_ACK_VIA_SEMAPHORE=true` to send the reply through Semaphore; otherwise the response's `reply` is for the gateway to send from its SIM.
+3. **Secrets:** `SMS_INTAKE_SECRET` = the same secret (make one with at least 32 random characters, for example from a password manager; it never goes in the repo). **The reply from the gateway SIM** (version 2, deployed 2026-10-03): in SMS Gateway for Android turn on cloud mode, then add `SMS_GATEWAY_SEND_URL` = `https://api.sms-gate.app/3rdparty/v1/messages` and the app's `SMS_GATEWAY_USERNAME` and `SMS_GATEWAY_PASSWORD` (shown in the app). The function then asks the phone to text "Your SOS was received (INC-...)" back from the SIM, logged in `sms_log` (`kind = 'ack'`, `provider = 'gateway'`). The app's local mode cannot be used: Supabase cannot reach a phone on your Wi-Fi. Without those secrets, `SMS_ACK_VIA_SEMAPHORE=true` sends the reply through Semaphore; with neither, the response's `reply` is for the gateway to send.
 4. **Phones:** an admin enters the gateway SIM's number on the dashboard's Configuration page ("Numbers shown in the apps"). Phones read it when the app starts and keep the last copy, so it is there with no data. No rebuild is needed; `SMS_GATEWAY_NUMBER` in `apps/mobile/.env` still works and takes priority. Residents allow SMS on the welcome screen.
 5. **Try it:** turn off mobile data on a test phone (keep signal), hold SOS; the board shows it as an SMS SOS within seconds. Unreadable texts are in `sms_log` (`kind = 'inbound'`, `status = 'unreadable'`).
 
@@ -208,6 +208,30 @@ The code is in the repo with tests (`node --test supabase/functions/send-alerts/
 5. **Switch it on:** Configuration page, "Post alerts on the MDRRMD Facebook Page". Issue a test advisory to a test Page first.
 
 The token is a secret: it is sent only in the request body to Facebook and is never logged.
+
+## Simulated incidents for demos (migration `simulated_incidents`)
+
+With simulation mode on (Configuration page), an admin can make a **simulated SOS** (optionally with a senior citizen in the household) or **three simulated crowd reports** of a chosen type in any barangay. They go through the same triggers as real ones: the classifier tags the reports and DBSCAN turns the three into one confirmed incident within seconds. They show on the board with a "Simulated" tag and can be verified, assigned, and resolved like any incident, so the whole SOS-to-resolved flow can be shown without a resident phone. `is_simulated` marks them; A4 analytics, the Objective 3 report, and NDRRMC report figures leave them out. Each one is in the audit log (`sosSimulated`, `reportsSimulated`).
+
+## Final NDRRMC report PDFs (migration `report_pdfs`)
+
+When an admin marks a report final (A6), the dashboard builds its PDF and keeps it in the private Storage bucket `ndrrmc-reports` as `<report id>.pdf`; `attach_report_pdf()` records it on the report. Only active admins can read the bucket, a file can be added only for a final report and only once, and there is no update or delete, so the stored copy stays as issued. "Download PDF" on a final report gives the stored copy. If storing fails (no connection), the report is still final and "Store the PDF" tries again.
+
+## The forecast's live feed (migration `forecast_live`, **not applied yet**)
+
+`run-forecast` makes a forecast run every six hours without TensorFlow: `ml/forecast/export_live.py` writes `supabase/data/forecast_live_v1.json` (the three LSTMs' weights and scalers, three years of replayed sample weather, the KDE density per barangay, the provisional rule), and the function runs the same LSTM in TypeScript (its tests match Keras's own output to 0.00001), moving one replayed day per run. Rows are marked simulated and say which day was replayed (D8 shows it). To switch it on (Joshua's approval; the migration creates a `pg_cron` job):
+
+1. Apply `supabase/migrations/20261003130000_forecast_live.sql` (rename it to the version `list_migrations` gives).
+2. Deploy: `supabase functions deploy run-forecast --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+3. Load the model once the file is on GitHub (pinned commit), in the SQL editor:
+
+   ```sql
+   select net.http_get('https://raw.githubusercontent.com/angrypoteto/project-sagip/<commit>/supabase/data/forecast_live_v1.json');
+   -- a few seconds later, with the id it returned:
+   select private.load_forecast_model(content::jsonb) from net._http_response where id = <id>;
+   ```
+
+4. First run without waiting: `select private.call_run_forecast();`
 
 ## Objective 3: SOS delivery report
 

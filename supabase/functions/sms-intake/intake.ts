@@ -64,3 +64,46 @@ export function authorized(
   }
   return diff === 0;
 }
+
+/** A Philippine mobile number in E.164 ("+639171234567"), or null. */
+export function e164(phone: string): string | null {
+  let digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("63")) digits = digits.slice(2);
+  if (digits.startsWith("0")) digits = digits.slice(1);
+  if (digits.length !== 10 || !digits.startsWith("9")) return null;
+  return `+63${digits}`;
+}
+
+/**
+ * The request that asks the gateway phone's app (SMS Gateway for Android,
+ * cloud mode: https://api.sms-gate.app/3rdparty/v1/messages) to send the
+ * reply from the gateway SIM itself. High priority, so the app's rate limit
+ * never holds back an SOS acknowledgement. Null for a number that is not a
+ * Philippine mobile.
+ */
+export function gatewaySendRequest(
+  url: string,
+  username: string,
+  password: string,
+  to: string,
+  text: string,
+): { url: string; init: RequestInit } | null {
+  const number = e164(to);
+  if (!number) return null;
+  return {
+    url,
+    init: {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`${username}:${password}`)}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        textMessage: { text },
+        phoneNumbers: [number],
+        priority: 100,
+        ttl: 3600,
+      }),
+    },
+  };
+}

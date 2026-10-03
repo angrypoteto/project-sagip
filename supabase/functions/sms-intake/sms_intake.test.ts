@@ -12,6 +12,8 @@ import {
 import {
   ackMessage,
   authorized,
+  e164,
+  gatewaySendRequest,
   parseGatewayPayload,
   unreadableMessage,
 } from "./intake.ts";
@@ -88,4 +90,25 @@ test("the gateway must send the shared secret", () => {
   assert.ok(authorized(h({ authorization: "Bearer s3cret-value" }), "s3cret-value"));
   assert.equal(authorized(h({ "x-sagip-key": "wrong-value!" }), "s3cret-value"), false);
   assert.equal(authorized(h({}), "s3cret-value"), false);
+});
+
+test("the reply goes back through the gateway app, from the SIM", () => {
+  assert.equal(e164("0917 123 4567"), "+639171234567");
+  assert.equal(e164("639171234567"), "+639171234567");
+  assert.equal(e164("+63 917 123 4567"), "+639171234567");
+  assert.equal(e164("(02) 8527 0000"), null);
+
+  const url = "https://api.sms-gate.app/3rdparty/v1/messages";
+  const r = gatewaySendRequest(url, "user", "pass", "09171234567", "S.A.G.I.P.: received")!;
+  assert.equal(r.url, url);
+  assert.equal(r.init.method, "POST");
+  const headers = r.init.headers as Record<string, string>;
+  assert.equal(headers.Authorization, `Basic ${btoa("user:pass")}`);
+  assert.deepEqual(JSON.parse(r.init.body as string), {
+    textMessage: { text: "S.A.G.I.P.: received" },
+    phoneNumbers: ["+639171234567"],
+    priority: 100,
+    ttl: 3600,
+  });
+  assert.equal(gatewaySendRequest(url, "u", "p", "0285270000", "x"), null);
 });
