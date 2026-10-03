@@ -24,7 +24,7 @@ The build runs on your computer, not on Vercel (Vercel's build machines have no 
    vercel deploy build/web-form --prod
    ```
 
-   The first run of each asks which Vercel account to use and what to call the project (for example `sagip-dashboard` and `sagip-report`); it remembers the answer in a `.vercel` folder inside the build folder, which is git-ignored with the rest of `build/`. Later runs update the same address.
+   The first run of each asks which Vercel account to use and what to call the project (for example `sagip-dashboard` and `sagip-report`); it remembers the answer in a `.vercel` folder inside the build folder, which is git-ignored with the rest of `build/`. Later runs update the same address; if it asks again after a rebuild, link it to the existing project.
 
 3. **Supabase:** Authentication > URL Configuration: add the two addresses to the Redirect URLs. Sign-in works without it (it uses passwords and codes, not links), but password-reset and email links would point at localhost.
 
