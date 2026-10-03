@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(362);
+select plan(368);
 
 select public.reset_demo_data();
 
@@ -1641,6 +1641,35 @@ set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", 
 select throws_ok(
   $$ select public.relay_sos('00000000-0000-4000-8000-0000000007a4', now(), 14.6000, 120.9900, false, 1) $$,
   'P0001', 'rate_limited', 'a phone that uploads too many in an hour is stopped');
+
+-- ------------------------------------------------ two-way SMS check (FR8)
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'public.claim_sms_checks()', 'execute')
+  and not has_function_privilege('authenticated', 'public.record_sms_check_reply(text, text)', 'execute')
+  and not has_table_privilege('authenticated', 'public.sms_check', 'select'),
+  'only the sender and sms-intake touch SMS checks (they hold full numbers)');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select lives_ok($$ select public.send_sms_check((select incident_id from __relayed)) $$,
+  'a dispatcher sends an SMS check');
+reset role;
+select is(
+  (select count(*)::int from public.sms_check c join __relayed r using (incident_id)
+    where private.phone_key(c.to_number) = private.phone_key('09170004821')),
+  1, 'one text is queued to the resident''s number');
+-- As the sender would after texting it.
+update public.sms_check set status = 'sent', updated_at = now()
+ where incident_id = (select incident_id from __relayed);
+select ok(public.record_sms_check_reply('09170004821', 'Hello po') is null,
+  'a text that is not YES or NO is no answer');
+select is(public.record_sms_check_reply('+63 917 000 4821', 'Oo po, tulong') ->> 'answer', 'YES',
+  'OO from that number is a YES');
+select is(
+  (select e.detail from public.incident_event e join __relayed r using (incident_id)
+    where e.kind = 'smsReplyReceived' order by e.event_id desc limit 1),
+  'YES', 'and it shows on the incident for the dispatcher');
 
 reset role;
 select * from finish();
