@@ -93,12 +93,14 @@ class ShortestPaths {
 /// Dijkstra's shortest paths from [source] over [graph], by travel time.
 ///
 /// Stops early once every node in [targets] is settled (all of them when
-/// null), or when the next node is farther than [maxSeconds].
+/// null), or when the next node is farther than [maxSeconds]. [weights]
+/// replaces the graph's travel time of each edge (the flood penalty).
 ShortestPaths dijkstra(
   RoadGraph graph,
   int source, {
   Set<int>? targets,
   double maxSeconds = double.infinity,
+  Float64List? weights,
 }) {
   final n = graph.nodeCount;
   final dist = Float64List(n)..fillRange(0, n, double.infinity);
@@ -119,7 +121,7 @@ ShortestPaths dijkstra(
     if (targets != null && targets.contains(u) && --remaining == 0) break;
     for (var e = graph.offsets[u]; e < graph.offsets[u + 1]; e++) {
       final v = graph.targets[e];
-      final nd = d + graph.seconds[e];
+      final nd = d + (weights == null ? graph.seconds[e] : weights[e]);
       if (nd < dist[v]) {
         dist[v] = nd;
         via[v] = e;

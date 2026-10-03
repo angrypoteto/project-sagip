@@ -441,4 +441,70 @@ void main() {
     expect(turnBetween(90, 265), TurnDirection.uTurn);
     expect(turnBetween(180, 40), TurnDirection.sharpLeft);
   });
+
+  group('flooded roads (plan 10.2, "Could")', () {
+    const top = GeoPoint(14.600, 120.985); // the middle of Top St (0 to 1)
+    const from = GeoPoint(14.600, 120.980);
+    const to = GeoPoint(14.590, 120.990);
+
+    Incident flood(
+      String id, {
+      IncidentStatus status = IncidentStatus.confirmed,
+      IncidentType type = IncidentType.flood,
+      bool falseReport = false,
+    }) => Incident(
+      id: id,
+      origin: IncidentOrigin.crowdCluster,
+      channel: ReportChannel.app,
+      status: status,
+      suggestedType: type,
+      location: top,
+      barangay: 'Barangay 412',
+      district: 'Sampaloc',
+      capturedAt: DateTime(2026, 10, 3),
+      receivedAt: DateTime(2026, 10, 3),
+      falseReport: falseReport,
+    );
+
+    test('a flood on the short way sends the route around it', () {
+      final router = RoadRouter(block());
+      final dry = router.route(from, to)!;
+      expect(dry.seconds, closeTo(120, 1));
+      final wet = router.route(from, to, penalty: const FloodPenalty([top]))!;
+      expect(wet.seconds, closeTo(200, 1), reason: 'by West and Bottom St');
+      expect(wet.steps.map((s) => s.street), contains('West St'));
+      // A flood elsewhere changes nothing.
+      expect(
+        router
+            .route(
+              from,
+              to,
+              penalty: const FloodPenalty([GeoPoint(14.65, 121.02)]),
+            )!
+            .seconds,
+        closeTo(120, 1),
+      );
+    });
+
+    test('unit times from the reversed graph see it too', () {
+      final router = RoadRouter(block());
+      final times = router.timesTo(to, {
+        'R-01': from,
+      }, penalty: const FloodPenalty([top]));
+      expect(times.times['R-01']!.seconds, closeTo(200, 1));
+    });
+
+    test('only confirmed, open, real floods, not the incident itself', () {
+      final p = FloodPenalty.fromIncidents([
+        flood('INC-1'),
+        flood('INC-2', status: IncidentStatus.resolved),
+        flood('INC-3', type: IncidentType.fire),
+        flood('INC-4', falseReport: true),
+        flood('INC-5'),
+      ], except: 'INC-5');
+      expect(p.zones, [top]);
+      expect(FloodPenalty.fromIncidents(const []).isEmpty, isTrue);
+      expect(const FloodPenalty([]).weightsFor(block()), isNull);
+    });
+  });
 }

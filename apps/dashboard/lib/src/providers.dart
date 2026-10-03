@@ -417,6 +417,7 @@ final unitSuggesterProvider = Provider<UnitSuggester>(
   (ref) => RoadNetworkSuggester(
     () => ref.read(roadRouterProvider.future),
     onRun: ref.read(routingLogProvider).log,
+    floods: () => ref.read(activeIncidentsProvider).value ?? const [],
   ),
 );
 
@@ -433,7 +434,14 @@ Future<RoadRoute?> routeForAssignment(
   if (from == null) return null;
   try {
     final router = await ref.read(roadRouterProvider.future);
-    final route = router.route(from, incident.location);
+    final route = router.route(
+      from,
+      incident.location,
+      penalty: FloodPenalty.fromIncidents(
+        ref.read(activeIncidentsProvider).value ?? const [],
+        except: incident.id,
+      ),
+    );
     if (route != null) {
       ref
           .read(routingLogProvider)

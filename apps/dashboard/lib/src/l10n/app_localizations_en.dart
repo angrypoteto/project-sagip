@@ -617,6 +617,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Available units, by travel time on the road network';
 
   @override
+  String suggestedAvoidsFloods(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Roads near $count confirmed floods count as 4 times slower.',
+      one: 'Roads near 1 confirmed flood count as 4 times slower.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get suggestedByDistance =>
       'Available units, estimated by straight-line distance';
 

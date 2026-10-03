@@ -1150,6 +1150,12 @@ abstract class AppLocalizations {
   /// **'Available units, by travel time on the road network'**
   String get suggestedByRoad;
 
+  /// No description provided for @suggestedAvoidsFloods.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Roads near 1 confirmed flood count as 4 times slower.} other{Roads near {count} confirmed floods count as 4 times slower.}}'**
+  String suggestedAvoidsFloods(int count);
+
   /// No description provided for @suggestedByDistance.
   ///
   /// In en, this message translates to:

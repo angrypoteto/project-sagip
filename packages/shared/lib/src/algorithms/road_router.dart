@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/services.dart';
 
 import '../models/geo_point.dart';
@@ -6,6 +8,7 @@ import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import 'dijkstra.dart';
+import 'flood_penalty.dart';
 import 'road_graph.dart';
 import 'unit_suggester.dart';
 
@@ -29,6 +32,19 @@ class RoadRouter {
 
   double _accessSeconds(double meters) => meters / (accessSpeedKmh / 3.6);
 
+  // The penalised weights of the last penalty, per graph direction.
+  FloodPenalty? _penalty;
+  final _weights = <RoadGraph, Float64List?>{};
+
+  Float64List? _weightsFor(RoadGraph g, FloodPenalty penalty) {
+    if (penalty.isEmpty) return null;
+    if (penalty != _penalty) {
+      _penalty = penalty;
+      _weights.clear();
+    }
+    return _weights.putIfAbsent(g, () => penalty.weightsFor(g));
+  }
+
   /// The timing-log entry for [route] (plan 10.2, Chapter 4).
   RoutingRun runFor(
     RoadRoute route, {
@@ -46,13 +62,22 @@ class RoadRouter {
   );
 
   /// The fastest route from [from] to [to], or null when either end is off
-  /// the road graph.
-  RoadRoute? route(GeoPoint from, GeoPoint to) {
+  /// the road graph. [penalty] slows roads in confirmed floods.
+  RoadRoute? route(
+    GeoPoint from,
+    GeoPoint to, {
+    FloodPenalty penalty = FloodPenalty.none,
+  }) {
     final watch = Stopwatch()..start();
     final a = graph.nearestNode(from, maxMeters: maxSnapMeters);
     final b = graph.nearestNode(to, maxMeters: maxSnapMeters);
     if (a == null || b == null) return null;
-    final paths = dijkstra(graph, a.node, targets: {b.node});
+    final paths = dijkstra(
+      graph,
+      a.node,
+      targets: {b.node},
+      weights: _weightsFor(graph, penalty),
+    );
     final edges = paths.edgesTo(b.node);
     watch.stop();
     if (edges == null) return null;
@@ -81,7 +106,11 @@ class RoadRouter {
   /// single Dijkstra run on the reversed graph (plan 10.2). Origins off the
   /// road graph are left out.
   ({Map<K, ({double seconds, double meters})> times, Duration computeTime})
-  timesTo<K>(GeoPoint destination, Map<K, GeoPoint> origins) {
+  timesTo<K>(
+    GeoPoint destination,
+    Map<K, GeoPoint> origins, {
+    FloodPenalty penalty = FloodPenalty.none,
+  }) {
     final watch = Stopwatch()..start();
     final dest = graph.nearestNode(destination, maxMeters: maxSnapMeters);
     final times = <K, ({double seconds, double meters})>{};
@@ -97,6 +126,7 @@ class RoadRouter {
       reversed,
       dest.node,
       targets: {for (final s in starts.values) s.node},
+      weights: _weightsFor(reversed, penalty),
     );
     for (final entry in starts.entries) {
       final node = entry.value.node;
@@ -214,8 +244,12 @@ class RoadNetworkSuggester implements UnitSuggester {
     this._loadRouter, {
     this.fallback = const StraightLineSuggester(),
     this.onRun,
+    this.floods,
     RoutingPlatform? platform,
   }) : platform = platform ?? RoutingPlatform.current;
+
+  /// The confirmed flood incidents to route around (plan 10.2, "Could").
+  final Iterable<Incident> Function()? floods;
 
   final Future<RoadRouter> Function() _loadRouter;
   final StraightLineSuggester fallback;
@@ -245,9 +279,13 @@ class RoadNetworkSuggester implements UnitSuggester {
       return fallback.suggest(incident, units, limit: limit);
     }
 
-    final result = router.timesTo(incident.location, {
-      for (final u in candidates) u.id: u.location!,
-    });
+    final result = router.timesTo(
+      incident.location,
+      {for (final u in candidates) u.id: u.location!},
+      penalty: floods == null
+          ? FloodPenalty.none
+          : FloodPenalty.fromIncidents(floods!(), except: incident.id),
+    );
     onRun?.call(
       RoutingRun(
         kind: RoutingRunKind.suggestions,

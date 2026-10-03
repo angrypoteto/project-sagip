@@ -222,6 +222,8 @@
 
   "suggestedUnitsTitle": "Suggested units",
   "suggestedByRoad": "Available units, by travel time on the road network",
+  "suggestedAvoidsFloods": "{count, plural, =1{Roads near 1 confirmed flood count as 4 times slower.} other{Roads near {count} confirmed floods count as 4 times slower.}}",
+  "@suggestedAvoidsFloods": {"placeholders": {"count": {"type": "int"}}},
   "suggestedByDistance": "Available units, estimated by straight-line distance",
   "chooseAnotherUnit": "Choose another unit",
   "noAvailableUnits": "No available units",

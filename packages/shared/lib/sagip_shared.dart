@@ -7,6 +7,7 @@ export 'src/algorithms/alert_thresholds.dart';
 export 'src/algorithms/analytics.dart';
 export 'src/algorithms/dbscan.dart';
 export 'src/algorithms/dijkstra.dart';
+export 'src/algorithms/flood_penalty.dart';
 export 'src/algorithms/incident_classifier.dart';
 export 'src/algorithms/map_tiles.dart';
 export 'src/algorithms/polyline.dart';

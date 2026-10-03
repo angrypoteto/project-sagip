@@ -807,6 +807,10 @@ class _UnitsSection extends ConsumerWidget {
         ref.watch(suggestionsProvider(incident.id)).value ?? const [];
     final byRoad =
         ranked.isNotEmpty && ranked.first.method == RoutingMethod.roadNetwork;
+    final floods = FloodPenalty.fromIncidents(
+      ref.watch(activeIncidentsProvider).value ?? const [],
+      except: incident.id,
+    ).zones.length;
     final selectedId =
         (chosen ?? (ranked.isEmpty ? null : ranked.first))?.unit.id;
     final tiles = [
@@ -847,6 +851,8 @@ class _UnitsSection extends ConsumerWidget {
             byRoad ? l10n.suggestedByRoad : l10n.suggestedByDistance,
             style: text.bodySmall,
           ),
+          if (byRoad && floods > 0)
+            Text(l10n.suggestedAvoidsFloods(floods), style: text.bodySmall),
           const SizedBox(height: SagipSpace.sm),
           if (tiles.isEmpty)
             Container(
