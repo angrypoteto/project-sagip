@@ -1180,6 +1180,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get colAvgTravel => 'Average travel';
 
   @override
+  String get deliveryTitle => 'SOS delivery (Objective 3)';
+
+  @override
+  String get deliveryNote =>
+      'Each SOS counts once, on the tier that reached the server first. The delay runs from the moment the resident pressed SOS (by the phone\'s clock) to the server\'s receipt. For a trial, pick a period that holds only the trial\'s SOS. Which window counts as a success is still to be agreed (plan Q44).';
+
+  @override
+  String get colFirstTier => 'First tier';
+
+  @override
+  String get colDelivered => 'Delivered';
+
+  @override
+  String get colMedianDelay => 'Median delay';
+
+  @override
+  String get colP95Delay => '95th percentile';
+
+  @override
+  String get colMaxDelay => 'Longest';
+
+  @override
+  String colWithin(int minutes) {
+    return 'Within $minutes min';
+  }
+
+  @override
+  String get deliveryAllTiers => 'All tiers';
+
+  @override
+  String relayLine(int uploads, int sos, String hops) {
+    return 'Bluetooth relay: $uploads packets uploaded for $sos SOS; the farthest went $hops hops.';
+  }
+
+  @override
+  String get relayNone => 'No Bluetooth relay uploads in this period.';
+
+  @override
+  String get attemptsLabel => 'SOS attempts in the trial';
+
+  @override
+  String get attemptsHelp => 'Counted on the test phones';
+
+  @override
+  String get attemptsTooFew =>
+      'Fewer than the SOS delivered; check the count or the period';
+
+  @override
+  String successRate(int minutes, int delivered, int attempts, String percent) {
+    return 'Within $minutes min: $delivered of $attempts ($percent%)';
+  }
+
+  @override
   String get noValue => '–';
 
   @override

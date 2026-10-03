@@ -120,6 +120,34 @@ AnalyticsReport buildAnalytics({
             p95Ms: percentile(ofKind.map((r) => r.computeMs), 0.95)!,
           ),
     ],
+    delivery: sosDelivery([for (final r in rows) r.i]),
+  );
+}
+
+/// The Objective 3 figures from SOS already in the period, with the same
+/// definitions as `sos_delivery_report`. The mock has no relay log.
+SosDeliveryReport sosDelivery(Iterable<Incident> incidents) {
+  final byChannel = <ReportChannel, List<double>>{};
+  for (final i in incidents) {
+    if (i.origin != IncidentOrigin.sos) continue;
+    final s = i.receivedAt.difference(i.capturedAt).inMicroseconds / 1e6;
+    byChannel.putIfAbsent(i.channel, () => []).add(s < 0 ? 0 : s);
+  }
+  return SosDeliveryReport(
+    channels: [
+      for (final c in ReportChannel.values)
+        if (byChannel[c] case final delays?)
+          SosDelivery(
+            channel: c,
+            count: delays.length,
+            medianS: median(delays),
+            p95S: percentile(delays, 0.95),
+            maxS: delays.reduce((a, b) => a > b ? a : b),
+            within60: delays.where((d) => d <= 60).length,
+            within300: delays.where((d) => d <= 300).length,
+            within900: delays.where((d) => d <= 900).length,
+          ),
+    ],
   );
 }
 
@@ -238,5 +266,31 @@ String analyticsCsv(AnalyticsReport r) {
   for (final s in r.routing) {
     row([s.kind.name, s.runs, s.avgMs, s.p95Ms]);
   }
+  out.writeln();
+  row([
+    'sos_first_channel',
+    'delivered',
+    'median_delay_s',
+    'p95_delay_s',
+    'max_delay_s',
+    'within_60s',
+    'within_300s',
+    'within_900s',
+  ]);
+  for (final c in r.delivery.channels) {
+    row([
+      c.channel.name,
+      c.count,
+      c.medianS,
+      c.p95S,
+      c.maxS,
+      c.within60,
+      c.within300,
+      c.within900,
+    ]);
+  }
+  row(['relay_uploads', r.delivery.relayUploads]);
+  row(['relayed_sos', r.delivery.relayedSos]);
+  row(['relay_max_hops', r.delivery.relayMaxHops]);
   return out.toString();
 }

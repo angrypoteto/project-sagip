@@ -933,6 +933,32 @@ void main() {
     await tester.pump();
     expect(lastDownload!.name, endsWith('.csv'));
     expect(lastDownload!.text, contains('median_dispatch_s'));
+    expect(lastDownload!.text, contains('sos_first_channel'));
+
+    // Objective 3: the trial team enters its attempts; A4 divides.
+    final today = container.read(analyticsProvider).value!;
+    final delivered = today.delivery.delivered;
+    expect(delivered, today.sos);
+    expect(delivered, greaterThan(0));
+    expect(find.text('SOS delivery (Objective 3)'), findsOneWidget);
+    final attempts = find.byKey(const ValueKey('sos-attempts'));
+    await tester.ensureVisible(attempts);
+    await tester.enterText(attempts, '${delivered - 1}');
+    await tester.pump();
+    expect(
+      find.text('Fewer than the SOS delivered; check the count or the period'),
+      findsOneWidget,
+    );
+    await tester.enterText(attempts, '${delivered * 2}');
+    await tester.pump();
+    final within15 = today.delivery.deliveredWithin(900);
+    expect(
+      find.text(
+        'Within 15 min: $within15 of ${delivered * 2} '
+        '(${(100 * within15 / (delivered * 2)).toStringAsFixed(1)}%)',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('A5 and A6: draft a report from the records, edit, finalize', (

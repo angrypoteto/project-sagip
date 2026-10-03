@@ -12,6 +12,7 @@ void main() {
     IncidentType? type,
     String? unit,
     Map<IncidentEventKind, Duration> events = const {},
+    Duration delay = Duration.zero,
   }) => Incident(
     id: id,
     origin: origin,
@@ -20,7 +21,7 @@ void main() {
     location: const GeoPoint(14.6, 121.0),
     barangay: 'Barangay $id',
     district: 'Sampaloc',
-    capturedAt: t0.subtract(receivedAgo),
+    capturedAt: t0.subtract(receivedAgo + delay),
     receivedAt: t0.subtract(receivedAgo),
     suggestedType: type,
     assignedUnitId: unit,
@@ -237,5 +238,109 @@ void main() {
       now.add(const Duration(minutes: 1)),
     );
     expect(r.incidents, greaterThan(0));
+  });
+
+  group('SOS delivery (Objective 3)', () {
+    final trial = [
+      inc('A1', receivedAgo: Duration.zero, delay: const Duration(seconds: 2)),
+      inc('A2', receivedAgo: Duration.zero, delay: const Duration(seconds: 4)),
+      inc('A3', receivedAgo: Duration.zero, delay: const Duration(minutes: 3)),
+      // The phone's clock was ahead: no delay, not a negative one.
+      inc('A4', receivedAgo: Duration.zero, delay: const Duration(seconds: -5)),
+      inc(
+        'S1',
+        receivedAgo: Duration.zero,
+        channel: ReportChannel.sms,
+        delay: const Duration(minutes: 20),
+      ),
+      inc(
+        'B1',
+        receivedAgo: Duration.zero,
+        channel: ReportChannel.bleRelay,
+        delay: const Duration(minutes: 8),
+      ),
+      inc(
+        'C1',
+        receivedAgo: Duration.zero,
+        origin: IncidentOrigin.crowdCluster,
+        delay: const Duration(hours: 2),
+      ),
+    ];
+
+    test('per first channel, crowd clusters left out', () {
+      final d = sosDelivery(trial);
+      expect(d.channels.map((c) => c.channel), [
+        ReportChannel.app,
+        ReportChannel.sms,
+        ReportChannel.bleRelay,
+      ]);
+      final app = d.channels.first;
+      expect(app.count, 4);
+      expect(app.medianS, 3); // 0, 2, 4, 180
+      expect(app.maxS, 180);
+      expect(app.p95S, closeTo(153.6, 1e-9));
+      expect([app.within60, app.within300, app.within900], [3, 4, 4]);
+      expect(d.delivered, 6);
+      expect(d.deliveredWithin(60), 3);
+      expect(d.deliveredWithin(300), 4);
+      expect(d.deliveredWithin(900), 5);
+    });
+
+    test('in the report, the CSV, and from the database JSON', () {
+      final r = buildAnalytics(
+        incidents: trial,
+        units: const {},
+        from: t0.subtract(const Duration(hours: 1)),
+        to: t0.add(const Duration(minutes: 1)),
+      );
+      expect(r.delivery.delivered, 6);
+      expect(analyticsCsv(r), contains('sms,1,1200.0,1200.0,1200.0,0,0,0'));
+
+      final json = AnalyticsReport.fromJson({
+        'from': '2026-09-30T00:00:00Z',
+        'to': '2026-10-01T00:00:00Z',
+        'incidents': 0,
+        'resolved': 0,
+        'false_reports': 0,
+        'sos': 0,
+        'clusters': 0,
+        'sos_delivery': {
+          'channels': [
+            {
+              'channel': 'bleRelay',
+              'count': 2,
+              'median_s': 61.5,
+              'p95_s': 90,
+              'max_s': 93,
+              'within_60': 0,
+              'within_300': 2,
+              'within_900': 2,
+            },
+          ],
+          'relay_uploads': 5,
+          'relayed_sos': 2,
+          'relay_max_hops': 2,
+        },
+      });
+      final ble = json.delivery.channels.single;
+      expect(ble.channel, ReportChannel.bleRelay);
+      expect(ble.medianS, 61.5);
+      expect(ble.within(300), 2);
+      expect(json.delivery.relayUploads, 5);
+      expect(json.delivery.relayMaxHops, 2);
+      // A report without the section (an older database) reads as empty.
+      expect(
+        AnalyticsReport.fromJson({
+          'from': '2026-09-30T00:00:00Z',
+          'to': '2026-10-01T00:00:00Z',
+          'incidents': 0,
+          'resolved': 0,
+          'false_reports': 0,
+          'sos': 0,
+          'clusters': 0,
+        }).delivery.channels,
+        isEmpty,
+      );
+    });
   });
 }

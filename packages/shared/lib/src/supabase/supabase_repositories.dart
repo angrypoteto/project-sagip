@@ -284,16 +284,25 @@ class SupabaseAnalyticsRepository implements AnalyticsRepository {
 
   @override
   Future<AnalyticsReport> report(DateTime from, DateTime to) async {
-    final json = await _call(
+    final params = {
+      'p_from': from.toUtc().toIso8601String(),
+      'p_to': to.toUtc().toIso8601String(),
+    };
+    // Both at once; awaited one by one so a refusal stays an ActionRejected.
+    final report = _call(
+      () =>
+          _client.rpc<Map<String, dynamic>>('analytics_report', params: params),
+    );
+    final sos = _call(
       () => _client.rpc<Map<String, dynamic>>(
-        'analytics_report',
-        params: {
-          'p_from': from.toUtc().toIso8601String(),
-          'p_to': to.toUtc().toIso8601String(),
-        },
+        'sos_delivery_report',
+        params: params,
       ),
     );
-    return AnalyticsReport.fromJson(json);
+    sos.ignore(); // no unhandled error if the first one throws
+    final json = await report;
+    final delivery = await sos;
+    return AnalyticsReport.fromJson({...json, 'sos_delivery': delivery});
   }
 }
 

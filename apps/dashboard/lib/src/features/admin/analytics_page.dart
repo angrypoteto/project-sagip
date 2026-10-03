@@ -195,6 +195,8 @@ class _Report extends StatelessWidget {
           name: (g) => g.label,
           travel: true,
         ),
+        const SizedBox(height: SagipSpace.xl),
+        _Delivery(delivery: r.delivery),
       ],
     );
   }
@@ -385,6 +387,153 @@ class _GroupTable extends StatelessWidget {
                 ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The Objective 3 harness: SOS by the tier that delivered them first, the
+/// delay from capture to receipt, and the success rate once the trial team
+/// enters how many attempts they made on the phones.
+class _Delivery extends StatefulWidget {
+  const _Delivery({required this.delivery});
+
+  final SosDeliveryReport delivery;
+
+  @override
+  State<_Delivery> createState() => _DeliveryState();
+}
+
+class _DeliveryState extends State<_Delivery> {
+  final _attempts = TextEditingController();
+
+  @override
+  void dispose() {
+    _attempts.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final tabular = text.bodyMedium!.copyWith(
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    final d = widget.delivery;
+    final attempts = int.tryParse(_attempts.text.trim());
+    final tooFew = attempts != null && attempts < d.delivered;
+
+    DataRow row(String name, List<Object?> cells, {bool bold = false}) =>
+        DataRow(
+          cells: [
+            DataCell(
+              Text(
+                name,
+                style: bold
+                    ? text.bodyMedium!.copyWith(fontWeight: FontWeight.w600)
+                    : null,
+              ),
+            ),
+            for (final c in cells)
+              DataCell(
+                Text(switch (c) {
+                  final double s => _time(l10n, s),
+                  null => l10n.noValue,
+                  _ => '$c',
+                }, style: tabular),
+              ),
+          ],
+        );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.deliveryTitle, style: text.titleMedium),
+        const SizedBox(height: SagipSpace.xs),
+        Text(l10n.deliveryNote, style: text.bodySmall),
+        const SizedBox(height: SagipSpace.sm),
+        TableCard(
+          table: DataTable(
+            columns: [
+              DataColumn(label: Text(l10n.colFirstTier)),
+              DataColumn(label: Text(l10n.colDelivered), numeric: true),
+              DataColumn(label: Text(l10n.colMedianDelay), numeric: true),
+              DataColumn(label: Text(l10n.colP95Delay), numeric: true),
+              DataColumn(label: Text(l10n.colMaxDelay), numeric: true),
+              for (final w in SosDeliveryReport.windows)
+                DataColumn(label: Text(l10n.colWithin(w ~/ 60)), numeric: true),
+            ],
+            rows: [
+              for (final c in d.channels)
+                row(l10n.channel(c.channel), [
+                  c.count,
+                  c.medianS,
+                  c.p95S,
+                  c.maxS,
+                  c.within60,
+                  c.within300,
+                  c.within900,
+                ]),
+              row(l10n.deliveryAllTiers, [
+                d.delivered,
+                null,
+                null,
+                null,
+                for (final w in SosDeliveryReport.windows) d.deliveredWithin(w),
+              ], bold: true),
+            ],
+          ),
+        ),
+        const SizedBox(height: SagipSpace.md),
+        Text(
+          d.relayUploads == 0
+              ? l10n.relayNone
+              : l10n.relayLine(
+                  d.relayUploads,
+                  d.relayedSos,
+                  '${d.relayMaxHops ?? 0}',
+                ),
+          style: text.bodySmall,
+        ),
+        const SizedBox(height: SagipSpace.lg),
+        Wrap(
+          spacing: SagipSpace.xl,
+          runSpacing: SagipSpace.md,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            SizedBox(
+              width: 260,
+              child: TextField(
+                key: const ValueKey('sos-attempts'),
+                controller: _attempts,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: l10n.attemptsLabel,
+                  helperText: l10n.attemptsHelp,
+                  errorText: tooFew ? l10n.attemptsTooFew : null,
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            if (attempts != null && attempts > 0 && !tooFew)
+              for (final w in SosDeliveryReport.windows)
+                Text(
+                  l10n.successRate(
+                    w ~/ 60,
+                    d.deliveredWithin(w),
+                    attempts,
+                    (100 * d.deliveredWithin(w) / attempts).toStringAsFixed(1),
+                  ),
+                  style: tabular.copyWith(
+                    color: d.deliveredWithin(w) / attempts >= 0.95
+                        ? p.success.text
+                        : p.textPrimary,
+                  ),
+                ),
+          ],
         ),
       ],
     );

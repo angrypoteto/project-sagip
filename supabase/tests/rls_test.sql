@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(343);
+select plan(347);
 
 select public.reset_demo_data();
 
@@ -63,6 +63,8 @@ select ok(not has_function_privilege('anon', 'public.set_setting(text, jsonb)', 
   'anon cannot change settings');
 select ok(not has_function_privilege('anon', 'public.analytics_report(timestamptz, timestamptz)', 'execute'),
   'anon cannot read analytics');
+select ok(not has_function_privilege('anon', 'public.sos_delivery_report(timestamptz, timestamptz)', 'execute'),
+  'anon cannot read the SOS delivery report');
 select ok(not has_function_privilege('anon', 'public.save_unit(text, text, text, text, int)', 'execute'),
   'anon cannot change units');
 select ok(not has_function_privilege('anon', 'public.admin_create_staff(text, text, text, text)', 'execute'),
@@ -139,6 +141,8 @@ select throws_ok($$ select public.set_setting('priority.sos', '60') $$,
   'P0001', 'not_allowed', 'a dispatcher cannot change settings');
 select throws_ok($$ select public.analytics_report(now() - interval '1 day', now()) $$,
   'P0001', 'not_allowed', 'a dispatcher cannot read analytics (admins only)');
+select throws_ok($$ select public.sos_delivery_report(now() - interval '1 day', now()) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot read the SOS delivery report (admins only)');
 select throws_ok($$ select public.save_unit(null, 'R-20', 'rescueTeam', 'Paco', 5) $$,
   'P0001', 'not_allowed', 'a dispatcher cannot add units (admins only)');
 select throws_ok($$ select public.admin_create_staff('x@test.local', 'X', 'dispatcher') $$,
@@ -245,6 +249,17 @@ select is(
   2, 'analytics include the Dijkstra timings (suggestions and routes)');
 select throws_ok($$ select public.analytics_report(now(), now() - interval '1 day') $$,
   'P0001', 'invalid_value', 'a period that ends before it starts is refused');
+-- Objective 3: the four demo SOS (two by app, two by SMS), each counted
+-- once on its first tier, all received seconds after capture.
+select results_eq(
+  $$ select sum((c->>'count')::int)::int, sum((c->>'within_900')::int)::int,
+            string_agg(c->>'channel', ',' order by c->>'channel')
+       from jsonb_array_elements(public.sos_delivery_report(
+              now() - interval '1 day', now() + interval '1 minute') -> 'channels') c $$,
+  $$ values (4, 4, 'app,sms') $$,
+  'SOS delivery: one row per first tier, delays from capture to receipt');
+select throws_ok($$ select public.sos_delivery_report(now(), now() - interval '1 day') $$,
+  'P0001', 'invalid_value', 'the SOS delivery report refuses a period that ends before it starts');
 select is(public.save_unit(null, ' r-20 ', 'rescueTeam', 'Paco station', 5), 'unit-r20',
   'an admin can add a unit (call sign tidied, id from it)');
 select throws_ok($$ select public.save_unit(null, 'r-03', 'ambulance', 'Tondo station', 3) $$,

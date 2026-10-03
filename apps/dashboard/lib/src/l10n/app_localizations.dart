@@ -2116,6 +2116,96 @@ abstract class AppLocalizations {
   /// **'Average travel'**
   String get colAvgTravel;
 
+  /// No description provided for @deliveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS delivery (Objective 3)'**
+  String get deliveryTitle;
+
+  /// No description provided for @deliveryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Each SOS counts once, on the tier that reached the server first. The delay runs from the moment the resident pressed SOS (by the phone\'s clock) to the server\'s receipt. For a trial, pick a period that holds only the trial\'s SOS. Which window counts as a success is still to be agreed (plan Q44).'**
+  String get deliveryNote;
+
+  /// No description provided for @colFirstTier.
+  ///
+  /// In en, this message translates to:
+  /// **'First tier'**
+  String get colFirstTier;
+
+  /// No description provided for @colDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get colDelivered;
+
+  /// No description provided for @colMedianDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Median delay'**
+  String get colMedianDelay;
+
+  /// No description provided for @colP95Delay.
+  ///
+  /// In en, this message translates to:
+  /// **'95th percentile'**
+  String get colP95Delay;
+
+  /// No description provided for @colMaxDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest'**
+  String get colMaxDelay;
+
+  /// No description provided for @colWithin.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {minutes} min'**
+  String colWithin(int minutes);
+
+  /// No description provided for @deliveryAllTiers.
+  ///
+  /// In en, this message translates to:
+  /// **'All tiers'**
+  String get deliveryAllTiers;
+
+  /// No description provided for @relayLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth relay: {uploads} packets uploaded for {sos} SOS; the farthest went {hops} hops.'**
+  String relayLine(int uploads, int sos, String hops);
+
+  /// No description provided for @relayNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No Bluetooth relay uploads in this period.'**
+  String get relayNone;
+
+  /// No description provided for @attemptsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS attempts in the trial'**
+  String get attemptsLabel;
+
+  /// No description provided for @attemptsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted on the test phones'**
+  String get attemptsHelp;
+
+  /// No description provided for @attemptsTooFew.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer than the SOS delivered; check the count or the period'**
+  String get attemptsTooFew;
+
+  /// No description provided for @successRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {minutes} min: {delivered} of {attempts} ({percent}%)'**
+  String successRate(int minutes, int delivered, int attempts, String percent);
+
   /// No description provided for @noValue.
   ///
   /// In en, this message translates to:
