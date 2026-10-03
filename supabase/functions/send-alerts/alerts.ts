@@ -168,7 +168,7 @@ export function notSetUp(channel: string): Outcome {
     ? "Push needs the Firebase project"
     : channel === "facebook"
     ? "Facebook posting needs the page's access token"
-    : "No Semaphore key";
+    : "No SMS provider (the gateway phone or Semaphore)";
   return { status: "notSetUp", recipients: null, delivered: null, failed: null, detail: why };
 }
 

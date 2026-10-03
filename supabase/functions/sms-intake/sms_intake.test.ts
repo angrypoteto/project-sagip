@@ -13,6 +13,7 @@ import {
   ackMessage,
   authorized,
   e164,
+  gatewayLogin,
   gatewaySendRequest,
   parseGatewayPayload,
   unreadableMessage,
@@ -111,4 +112,12 @@ test("the reply goes back through the gateway app, from the SIM", () => {
     ttl: 3600,
   });
   assert.equal(gatewaySendRequest(url, "u", "p", "0285270000", "x"), null);
+  // Several at once, landlines and repeats dropped.
+  const many = gatewaySendRequest(url, "u", "p", ["09171234567", "0285270000", "639171234567", "09180003310"], "x")!;
+  assert.deepEqual(JSON.parse(many.init.body as string).phoneNumbers, ["+639171234567", "+639180003310"]);
+  assert.deepEqual(
+    gatewayLogin((n) => ({ SMS_GATEWAY_SEND_URL: url, SMS_GATEWAY_USERNAME: "u", SMS_GATEWAY_PASSWORD: "p" } as Record<string, string>)[n]),
+    { url, username: "u", password: "p" },
+  );
+  assert.equal(gatewayLogin((n) => (n === "SMS_GATEWAY_SEND_URL" ? url : undefined)), null);
 });

@@ -29,6 +29,7 @@ import { maskNumber, semaphoreNumber } from "../send-sms/sms.ts";
 import {
   ackMessage,
   authorized,
+  gatewayLogin,
   gatewaySendRequest,
   parseGatewayPayload,
   unreadableMessage,
@@ -85,11 +86,9 @@ async function sendAckViaSemaphore(to: string, message: string): Promise<boolean
 
 /** The reply from the gateway SIM, through the gateway app's API. */
 async function sendAckViaGateway(to: string, message: string): Promise<boolean> {
-  const endpoint = Deno.env.get("SMS_GATEWAY_SEND_URL");
-  const username = Deno.env.get("SMS_GATEWAY_USERNAME");
-  const password = Deno.env.get("SMS_GATEWAY_PASSWORD");
-  if (!endpoint || !username || !password) return false;
-  const request = gatewaySendRequest(endpoint, username, password, to, message);
+  const login = gatewayLogin((name) => Deno.env.get(name));
+  if (!login) return false;
+  const request = gatewaySendRequest(login.url, login.username, login.password, to, message);
   if (!request) return false;
   let ok = false;
   let detail: string | null = null;

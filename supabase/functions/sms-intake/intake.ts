@@ -74,22 +74,44 @@ export function e164(phone: string): string | null {
   return `+63${digits}`;
 }
 
+/** The gateway phone's API (SMS Gateway for Android) from the secrets. */
+export interface GatewayLogin {
+  url: string;
+  username: string;
+  password: string;
+}
+
+/**
+ * SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME, and SMS_GATEWAY_PASSWORD, or
+ * null when any is missing.
+ */
+export function gatewayLogin(get: (name: string) => string | undefined): GatewayLogin | null {
+  const url = get("SMS_GATEWAY_SEND_URL");
+  const username = get("SMS_GATEWAY_USERNAME");
+  const password = get("SMS_GATEWAY_PASSWORD");
+  return url && username && password ? { url, username, password } : null;
+}
+
 /**
  * The request that asks the gateway phone's app (SMS Gateway for Android,
- * cloud mode: https://api.sms-gate.app/3rdparty/v1/messages) to send the
- * reply from the gateway SIM itself. High priority, so the app's rate limit
- * never holds back an SOS acknowledgement. Null for a number that is not a
- * Philippine mobile.
+ * cloud mode: https://api.sms-gate.app/3rdparty/v1/messages) to send a text
+ * from the gateway SIM itself: the free alternative to Semaphore (the SIM's
+ * own load or unlimited-text promo pays). High priority, so the app's rate
+ * limit never holds back a reply to an SOS. [to] is one number or several;
+ * numbers that are not Philippine mobiles are dropped, and null comes back
+ * when none is left.
  */
 export function gatewaySendRequest(
   url: string,
   username: string,
   password: string,
-  to: string,
+  to: string | string[],
   text: string,
 ): { url: string; init: RequestInit } | null {
-  const number = e164(to);
-  if (!number) return null;
+  const numbers = [
+    ...new Set((Array.isArray(to) ? to : [to]).map(e164).filter((n): n is string => n !== null)),
+  ];
+  if (numbers.length === 0) return null;
   return {
     url,
     init: {
@@ -100,7 +122,7 @@ export function gatewaySendRequest(
       },
       body: JSON.stringify({
         textMessage: { text },
-        phoneNumbers: [number],
+        phoneNumbers: numbers,
         priority: 100,
         ttl: 3600,
       }),

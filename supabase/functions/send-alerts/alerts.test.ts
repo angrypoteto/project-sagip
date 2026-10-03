@@ -126,7 +126,7 @@ test("channels with no provider say why", () => {
   assert.equal(notSetUp("push").status, "notSetUp");
   assert.equal(notSetUp("push").detail, "Push needs the Firebase project");
   assert.equal(notSetUp("facebook").detail, "Facebook posting needs the page's access token");
-  assert.equal(notSetUp("sms").detail, "No Semaphore key");
+  assert.equal(notSetUp("sms").detail, "No SMS provider (the gateway phone or Semaphore)");
   assert.equal(ended.status, "ended");
 });
 

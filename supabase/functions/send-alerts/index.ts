@@ -2,9 +2,11 @@
 //
 // Each alert (from the threshold engine or MDRRMD) has one delivery row per
 // channel. This function claims the queued ones and:
-// - SMS: texts the registered residents of the affected barangays through
-//   Semaphore, one SMS each, up to the daily cap set on A3
-//   (channels.sms_daily_cap). Every text is kept in sms_log; the delivery
+// - SMS: texts the registered residents of the affected barangays, one SMS
+//   each, up to the daily cap set on A3 (channels.sms_daily_cap): from the
+//   gateway phone's SIM when SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME, and
+//   SMS_GATEWAY_PASSWORD are set (SMS Gateway for Android, cloud mode; the
+//   free route), else through Semaphore. Every text is kept in sms_log; the delivery
 //   row gets the counts.
 // - Push: sent through Firebase Cloud Messaging to topics: "manila" for an
 //   alert for all of Manila, else the topics of its barangays (the app
@@ -36,8 +38,8 @@
 // POST {"check": true} with the secret reports what is set up (Firebase
 // signed in or why not, Semaphore key present) and sends nothing.
 //
-// Secrets (Edge Functions > Secrets): SEMAPHORE_API_KEY, optional
-// SEMAPHORE_SENDER_NAME, FIREBASE_SERVICE_ACCOUNT (the whole JSON key
+// Secrets (Edge Functions > Secrets): the three SMS_GATEWAY_ secrets or
+// SEMAPHORE_API_KEY (optional SEMAPHORE_SENDER_NAME), FIREBASE_SERVICE_ACCOUNT (the whole JSON key
 // file), FACEBOOK_PAGE_ID and FACEBOOK_PAGE_TOKEN (a long-lived Page access
 // token that may post), optional FACEBOOK_GRAPH_VERSION, optional
 // ALERTS_SECRET. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
@@ -47,7 +49,7 @@
 //   supabase functions deploy send-alerts --no-verify-jwt
 
 import { maskNumber, semaphoreNumber } from "../send-sms/sms.ts";
-import { authorized } from "../sms-intake/intake.ts";
+import { authorized, type GatewayLogin, gatewayLogin, gatewaySendRequest } from "../sms-intake/intake.ts";
 import {
   acceptedCount,
   alertSmsText,
@@ -131,7 +133,72 @@ async function finish(d: ClaimedDelivery, o: Outcome): Promise<void> {
   });
 }
 
-async function sendSms(d: ClaimedDelivery, apiKey: string): Promise<Outcome> {
+/** Where texts go: the gateway phone's SIM (free) or Semaphore (paid). */
+type SmsRoute = { kind: "gateway"; login: GatewayLogin } | { kind: "semaphore"; apiKey: string };
+
+function smsRoute(): SmsRoute | null {
+  const login = gatewayLogin((name) => Deno.env.get(name));
+  if (login) return { kind: "gateway", login };
+  const apiKey = Deno.env.get("SEMAPHORE_API_KEY");
+  return apiKey ? { kind: "semaphore", apiKey } : null;
+}
+
+/** The gateway takes this many numbers per request; the phone sends each. */
+const gatewayBatch = 50;
+
+/** One request to the gateway app: how many of [batch] it took. */
+async function gatewaySend(
+  login: GatewayLogin,
+  batch: string[],
+  message: string,
+): Promise<{ ok: number; detail: string | null }> {
+  const request = gatewaySendRequest(login.url, login.username, login.password, batch, message);
+  if (!request) return { ok: 0, detail: "no mobile numbers" };
+  try {
+    const res = await fetch(request.url, request.init);
+    return res.ok ? { ok: batch.length, detail: null } : { ok: 0, detail: `HTTP ${res.status}` };
+  } catch {
+    return { ok: 0, detail: "the gateway app could not be reached" };
+  }
+}
+
+async function sendSms(d: ClaimedDelivery, route: SmsRoute): Promise<Outcome> {
+  if (route.kind === "gateway") return await sendSmsViaGateway(d, route.login);
+  return await sendSmsViaSemaphore(d, route.apiKey);
+}
+
+/** The alert from the gateway SIM, in batches, logged per number. */
+async function sendSmsViaGateway(d: ClaimedDelivery, login: GatewayLogin): Promise<Outcome> {
+  const numbers = cleanNumbers(
+    await rpc<string[]>("alert_sms_recipients", { p_alert_id: d.alert.alert_id }),
+    semaphoreNumber,
+  );
+  const budget = await rpc<{ left: number }>("alert_sms_budget");
+  const plan = planBroadcast(numbers, budget.left);
+  const message = alertSmsText(d.alert.title, d.alert.body);
+  let accepted = 0;
+  for (const batch of chunk(plan.send, gatewayBatch)) {
+    const { ok, detail } = await gatewaySend(login, batch, message);
+    accepted += ok;
+    await rest(
+      "sms_log",
+      batch.map((to) => ({
+        kind: "alert",
+        to_number: to,
+        body: message,
+        provider: "gateway",
+        status: ok > 0 ? "sent" : "failed",
+        detail: ok > 0 ? d.alert.alert_id : `${d.alert.alert_id}: ${detail}`,
+      })),
+    ).catch(() => {});
+    if (batch.length > 0) {
+      console.log(`send-alerts: gateway took ${ok} of ${batch.length}, first ${maskNumber(batch[0])}`);
+    }
+  }
+  return smsOutcome(numbers.length, accepted, plan.overCap);
+}
+
+async function sendSmsViaSemaphore(d: ClaimedDelivery, apiKey: string): Promise<Outcome> {
   const numbers = cleanNumbers(
     await rpc<string[]>("alert_sms_recipients", { p_alert_id: d.alert.alert_id }),
     semaphoreNumber,
@@ -182,12 +249,26 @@ async function sendSms(d: ClaimedDelivery, apiKey: string): Promise<Outcome> {
 /** One rescue text to one resident. The number is never logged in full. */
 async function sendConfirmation(
   c: ClaimedConfirmation,
-  apiKey: string | undefined,
+  route: SmsRoute | null,
 ): Promise<ConfirmationOutcome> {
-  if (!apiKey) return { status: "notSetUp", detail: "No Semaphore key" };
+  if (!route) return { status: "notSetUp", detail: "No SMS provider (the gateway phone or Semaphore)" };
   const to = semaphoreNumber(c.to ?? "");
   if (!to) return { status: "failed", detail: "No mobile number on record" };
   const message = confirmationSmsText(c);
+  if (route.kind === "gateway") {
+    const { ok, detail } = await gatewaySend(route.login, [to], message);
+    await rest("sms_log", {
+      kind: "rescue",
+      to_number: to,
+      body: message,
+      provider: "gateway",
+      status: ok ? "sent" : "failed",
+      detail: ok ? c.incident_id : `${c.incident_id}: ${detail}`,
+    }).catch(() => {});
+    console.log(`send-alerts: ${c.incident_id} ${c.kind} ${ok ? "sent" : "failed"} to ${maskNumber(to)} (gateway)`);
+    return { status: ok ? "sent" : "failed", detail };
+  }
+  const apiKey = route.apiKey;
   const form = new URLSearchParams({ apikey: apiKey, number: to, message });
   const sender = Deno.env.get("SEMAPHORE_SENDER_NAME");
   if (sender) form.set("sendername", sender);
@@ -219,7 +300,7 @@ async function sendConfirmation(
 }
 
 /** Works through the rescue texts waiting to go. Returns each outcome. */
-async function sendConfirmations(apiKey: string | undefined): Promise<Record<string, string>> {
+async function sendConfirmations(route: SmsRoute | null): Promise<Record<string, string>> {
   let claimed: ClaimedConfirmation[];
   try {
     claimed = await rpc<ClaimedConfirmation[]>("claim_rescue_confirmations");
@@ -232,7 +313,7 @@ async function sendConfirmations(apiKey: string | undefined): Promise<Record<str
   for (const c of claimed) {
     let outcome: ConfirmationOutcome;
     try {
-      outcome = await sendConfirmation(c, apiKey);
+      outcome = await sendConfirmation(c, route);
     } catch (e) {
       outcome = { status: "failed", detail: (e as Error).message.slice(0, 200) };
     }
@@ -415,6 +496,9 @@ Deno.serve(async (req) => {
         ? f.message
         : `ready: signed in to project ${f.account.project_id}`,
       semaphore: Deno.env.get("SEMAPHORE_API_KEY") ? "key set" : "SEMAPHORE_API_KEY is not set",
+      gateway: gatewayLogin((name) => Deno.env.get(name))
+        ? "set: texts go from the gateway phone"
+        : "SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME, or SMS_GATEWAY_PASSWORD is not set",
       facebook: facebookPage()
         ? "page and token set"
         : "FACEBOOK_PAGE_ID or FACEBOOK_PAGE_TOKEN is not set",
@@ -422,9 +506,9 @@ Deno.serve(async (req) => {
     });
   }
 
-  const apiKey = Deno.env.get("SEMAPHORE_API_KEY");
+  const route = smsRoute();
   // A resident waiting for rescue comes before a broadcast.
-  const results = await sendConfirmations(apiKey);
+  const results = await sendConfirmations(route);
   let signedIn: Promise<Fcm | null | Error> | undefined;
   const getFcm = () => {
     signedIn ??= firebase().then((f) => {
@@ -449,8 +533,8 @@ Deno.serve(async (req) => {
     try {
       if (d.alert.ended) {
         outcome = ended;
-      } else if (d.channel === "sms" && apiKey) {
-        outcome = await sendSms(d, apiKey);
+      } else if (d.channel === "sms" && route) {
+        outcome = await sendSms(d, route);
       } else if (d.channel === "push" && (await getFcm()) !== null) {
         outcome = await sendAlertPush(d, (await getFcm())!);
       } else if (d.channel === "facebook" && facebookPage()) {

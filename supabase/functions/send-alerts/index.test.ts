@@ -63,6 +63,7 @@ let recipients: string[] = [];
 let left = 500;
 let semaphoreStatus = 200;
 let facebookStatus = 200;
+let gatewayStatus = 202;
 
 globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
   const url = String(input);
@@ -101,6 +102,9 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
   }
   if (url.endsWith("/rpc/finish_alert_delivery")) return reply(null, 204);
   if (url.endsWith("/sms_log")) return reply(null, 201);
+  if (url === "https://gateway.example/3rdparty/v1/messages") {
+    return reply({ id: "msg-1", state: "Pending" }, gatewayStatus);
+  }
   if (url.startsWith("https://graph.facebook.com/")) {
     return facebookStatus === 200
       ? reply({ id: "1234_5678" })
@@ -191,6 +195,10 @@ function reset() {
   env.FACEBOOK_PAGE_ID = undefined;
   env.FACEBOOK_PAGE_TOKEN = undefined;
   facebookStatus = 200;
+  env.SMS_GATEWAY_SEND_URL = undefined;
+  env.SMS_GATEWAY_USERNAME = undefined;
+  env.SMS_GATEWAY_PASSWORD = undefined;
+  gatewayStatus = 202;
 }
 
 test("a call without the shared secret does nothing", async () => {
@@ -286,7 +294,7 @@ test("without a Semaphore key nothing is texted", async () => {
   await call(env.ALERTS_SECRET!);
   assert.equal(calls.filter((c) => c.url.startsWith("https://api.semaphore.co/")).length, 0);
   assert.equal(finished()[7].p_status, "notSetUp");
-  assert.equal(finished()[7].p_detail, "No Semaphore key");
+  assert.equal(finished()[7].p_detail, "No SMS provider (the gateway phone or Semaphore)");
 });
 
 test("nothing queued: nothing happens", async () => {
@@ -352,7 +360,7 @@ test("without a Semaphore key a rescue text is marked not set up", async () => {
   assert.equal(calls.filter((c) => c.url.startsWith("https://api.semaphore.co/")).length, 0);
   assert.deepEqual(
     [rescued()[14].p_status, rescued()[14].p_detail],
-    ["notSetUp", "No Semaphore key"],
+    ["notSetUp", "No SMS provider (the gateway phone or Semaphore)"],
   );
 });
 
@@ -499,6 +507,7 @@ test("a check reports what is set up and sends nothing", async () => {
   assert.deepEqual(await res.json(), {
     firebase: "FIREBASE_SERVICE_ACCOUNT is not set",
     semaphore: "SEMAPHORE_API_KEY is not set",
+    gateway: "SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME, or SMS_GATEWAY_PASSWORD is not set",
     facebook: "FACEBOOK_PAGE_ID or FACEBOOK_PAGE_TOKEN is not set",
     secret: "ALERTS_SECRET",
   });
@@ -521,6 +530,7 @@ test("a check reports what is set up and sends nothing", async () => {
   assert.deepEqual(await res.json(), {
     firebase: "ready: signed in to project sagip-test",
     semaphore: "key set",
+    gateway: "SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME, or SMS_GATEWAY_PASSWORD is not set",
     facebook: "FACEBOOK_PAGE_ID or FACEBOOK_PAGE_TOKEN is not set",
     secret: "ALERTS_SECRET",
   });
@@ -556,4 +566,46 @@ test("with the Page token an alert is posted on Facebook; a refusal fails it", a
     finished()[2].p_detail,
     "Facebook refused the post (HTTP 400): Invalid OAuth access token.",
   );
+});
+
+function useGateway() {
+  env.SMS_GATEWAY_SEND_URL = "https://gateway.example/3rdparty/v1/messages";
+  env.SMS_GATEWAY_USERNAME = "gw-user";
+  env.SMS_GATEWAY_PASSWORD = "gw-pass";
+}
+
+test("with the gateway phone set up, alerts go from its SIM, not Semaphore", async () => {
+  reset();
+  useGateway();
+  queue = [delivery(1, "sms", "alert-a")];
+  recipients = ["+63 917 000 4821", "09170004821", "639180003310", "0285270000"];
+  const res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual((await res.json()).results, { "alert-a:sms": "sent" });
+  assert.equal(calls.filter((c) => c.url.startsWith("https://api.semaphore.co/")).length, 0);
+  const sent = calls.filter((c) => c.url === env.SMS_GATEWAY_SEND_URL);
+  assert.equal(sent.length, 1);
+  const body = sent[0].body as { textMessage: { text: string }; phoneNumbers: string[]; priority: number };
+  assert.deepEqual(body.phoneNumbers, ["+639170004821", "+639180003310"]);
+  assert.ok(body.textMessage.text.startsWith("S.A.G.I.P.: Heavy rainfall warning."));
+  assert.equal(finished()[1].p_delivered, 2);
+  const log = calls.find((c) => c.url.endsWith("/sms_log"))!.body as Record<string, string>[];
+  assert.deepEqual(log.map((r) => [r.provider, r.status]), [["gateway", "sent"], ["gateway", "sent"]]);
+});
+
+test("a rescue text goes from the gateway SIM; a refusal fails it", async () => {
+  reset();
+  useGateway();
+  env.SEMAPHORE_API_KEY = undefined;
+  rescues = [rescue(14, "INC-0152", "09170004821")];
+  await call(env.ALERTS_SECRET!);
+  assert.equal(rescued()[14].p_status, "sent");
+  const sent = calls.find((c) => c.url === env.SMS_GATEWAY_SEND_URL)!;
+  assert.deepEqual((sent.body as { phoneNumbers: string[] }).phoneNumbers, ["+639170004821"]);
+
+  reset();
+  useGateway();
+  gatewayStatus = 401;
+  rescues = [rescue(15, "INC-0153", "09170004821")];
+  await call(env.ALERTS_SECRET!);
+  assert.deepEqual([rescued()[15].p_status, rescued()[15].p_detail], ["failed", "HTTP 401"]);
 });
