@@ -17,8 +17,12 @@ String encodePolyline(List<GeoPoint> points) {
   return out.toString();
 }
 
+// Arithmetic instead of `~` and `<<` on negative numbers: compiled to
+// JavaScript (the dashboard), Dart's bit operators give unsigned 32-bit
+// results, which turned every negative step into a jump of about 43,000
+// degrees.
 void _encodeValue(int value, StringBuffer out) {
-  var v = value < 0 ? ~(value << 1) : value << 1;
+  var v = value < 0 ? -2 * value - 1 : 2 * value;
   while (v >= 0x20) {
     out.writeCharCode((0x20 | (v & 0x1f)) + 63);
     v >>= 5;
@@ -44,7 +48,7 @@ List<GeoPoint> decodePolyline(String encoded) {
       result |= (b & 0x1f) << shift;
       shift += 5;
     } while (b >= 0x20);
-    return (result & 1) != 0 ? ~(result >> 1) : result >> 1;
+    return (result & 1) != 0 ? -(result >> 1) - 1 : result >> 1;
   }
 
   while (i < encoded.length) {

@@ -24,6 +24,7 @@ Writes:
 
 Run from the repo root with any Python 3.10+ (standard library only):
   python supabase/data/fetch_barangays.py
+  dart format packages/shared/lib/src/data
 """
 
 from __future__ import annotations
@@ -79,8 +80,11 @@ def rings_of(geometry: dict) -> list[list[list[tuple[float, float]]]]:
             pts = [(round(x, 5), round(y, 5)) for x, y in ring]
             if pts[0] == pts[-1]:
                 pts = pts[:-1]
-            # Drop points that repeat after rounding.
+            # Drop points that repeat after rounding, including a last point
+            # that came back to the first (map painters divide by zero on it).
             clean = [p for i, p in enumerate(pts) if i == 0 or p != pts[i - 1]]
+            while len(clean) > 1 and clean[-1] == clean[0]:
+                clean.pop()
             if len(clean) >= 3:
                 rings.append(clean)
         if rings:
