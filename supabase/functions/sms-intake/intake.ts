@@ -129,3 +129,10 @@ export function gatewaySendRequest(
     },
   };
 }
+
+/** The thanks for a YES or NO to a dispatcher's SMS check. */
+export function checkReplyThanks(incidentId: string, answer: "YES" | "NO"): string {
+  return answer === "YES"
+    ? `S.A.G.I.P.: Thank you. MDRRMD got your YES for ${incidentId}. Help is being arranged; keep your phone on.`
+    : `S.A.G.I.P.: Thank you. MDRRMD got your NO for ${incidentId}. If you need help later, send a new SOS.`;
+}

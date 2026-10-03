@@ -54,6 +54,7 @@ import {
   acceptedCount,
   alertSmsText,
   chunk,
+  type ClaimedCheck,
   type ClaimedConfirmation,
   type ClaimedDelivery,
   cleanNumbers,
@@ -65,6 +66,7 @@ import {
   notSetUp,
   type Outcome,
   planBroadcast,
+  smsCheckText,
   smsOutcome,
 } from "./alerts.ts";
 import {
@@ -327,6 +329,66 @@ async function sendConfirmations(route: SmsRoute | null): Promise<Record<string,
   return results;
 }
 
+/** The dispatchers' SMS checks (FR8), one text each. */
+async function sendChecks(route: SmsRoute | null): Promise<Record<string, string>> {
+  let claimed: ClaimedCheck[];
+  try {
+    claimed = await rpc<ClaimedCheck[]>("claim_sms_checks");
+  } catch (e) {
+    console.log(`send-alerts: could not claim SMS checks (${(e as Error).message})`);
+    return {};
+  }
+  const results: Record<string, string> = {};
+  for (const c of claimed) {
+    const message = smsCheckText(c.incident_id);
+    const to = semaphoreNumber(c.to ?? "");
+    let status: "sent" | "failed" | "notSetUp";
+    let detail: string | null = null;
+    if (!route) {
+      status = "notSetUp";
+      detail = "No SMS provider (the gateway phone or Semaphore)";
+    } else if (!to) {
+      status = "failed";
+      detail = "Not a mobile number";
+    } else {
+      if (route.kind === "gateway") {
+        const r = await gatewaySend(route.login, [to], message);
+        status = r.ok > 0 ? "sent" : "failed";
+        detail = r.detail;
+      } else {
+        try {
+          const res = await fetch("https://api.semaphore.co/api/v4/messages", {
+            method: "POST",
+            body: new URLSearchParams({ apikey: route.apiKey, number: to, message }),
+          });
+          const ok = acceptedCount(res.ok, await res.json().catch(() => null), 1) === 1;
+          status = ok ? "sent" : "failed";
+          detail = ok ? null : `HTTP ${res.status}`;
+        } catch {
+          status = "failed";
+          detail = "Semaphore could not be reached";
+        }
+      }
+      await rest("sms_log", {
+        kind: "check",
+        to_number: to,
+        body: message,
+        provider: route.kind,
+        status: status === "sent" ? "sent" : "failed",
+        detail: status === "sent" ? c.incident_id : `${c.incident_id}: ${detail}`,
+      }).catch(() => {});
+      console.log(`send-alerts: SMS check for ${c.incident_id} ${status} to ${maskNumber(to)}`);
+    }
+    await rpc("finish_sms_check", {
+      p_check_id: c.check_id,
+      p_status: status,
+      p_detail: detail,
+    }).catch(() => {});
+    results[`check:${c.incident_id}`] = status;
+  }
+  return results;
+}
+
 // ------------------------------------------------------------ push (FCM)
 
 /** Firebase, signed in once per run; null when it is not set up. */
@@ -509,6 +571,7 @@ Deno.serve(async (req) => {
   const route = smsRoute();
   // A resident waiting for rescue comes before a broadcast.
   const results = await sendConfirmations(route);
+  Object.assign(results, await sendChecks(route));
   let signedIn: Promise<Fcm | null | Error> | undefined;
   const getFcm = () => {
     signedIn ??= firebase().then((f) => {

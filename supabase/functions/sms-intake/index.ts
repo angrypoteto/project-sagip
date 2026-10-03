@@ -29,6 +29,7 @@ import { maskNumber, semaphoreNumber } from "../send-sms/sms.ts";
 import {
   ackMessage,
   authorized,
+  checkReplyThanks,
   gatewayLogin,
   gatewaySendRequest,
   parseGatewayPayload,
@@ -123,6 +124,27 @@ Deno.serve(async (req) => {
   try {
     sos = decodeSosSms(inbound.text);
   } catch (e) {
+    // Not an SOS: it may answer a dispatcher's SMS check (FR8).
+    const answer = await rest("rpc/record_sms_check_reply", {
+      p_from: inbound.from,
+      p_text: inbound.text,
+    }).then(async (r) => (r.ok ? await r.json() : null)).catch(() => null) as
+      | { incident_id: string; answer: "YES" | "NO" }
+      | null;
+    if (answer) {
+      await logSms({
+        kind: "inbound",
+        to_number: inbound.from,
+        body: inbound.text.slice(0, 1000),
+        provider: "gateway",
+        status: "received",
+        detail: `${answer.incident_id} check reply ${answer.answer}`,
+      });
+      console.log(`sms-intake: check reply ${answer.answer} for ${answer.incident_id} from ${who}`);
+      const thanks = checkReplyThanks(answer.incident_id, answer.answer);
+      const sent = await sendAckViaGateway(inbound.from, thanks);
+      return json(200, { status: "check_reply", incident_id: answer.incident_id, reply: sent ? null : thanks });
+    }
     const reason = e instanceof SosSmsError ? e.reason : "not_sagip";
     await logSms({
       kind: "inbound",

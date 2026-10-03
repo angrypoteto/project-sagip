@@ -212,3 +212,19 @@ export const ended: Outcome = {
   failed: null,
   detail: "The alert ended before it was sent",
 };
+
+/** An SMS check claimed from the database (claim_sms_checks()). */
+export interface ClaimedCheck {
+  check_id: number;
+  incident_id: string;
+  /** The SOS sender's number as stored; full, so never logged. */
+  to: string;
+}
+
+/**
+ * The dispatcher's SMS check (FR8): one SMS asking the sender to answer
+ * YES or NO; sms-intake reads the reply.
+ */
+export function smsCheckText(incidentId: string): string {
+  return `S.A.G.I.P.: MDRRMD got an SOS from this number (${incidentId}). Reply YES if you need rescue, or NO if it was a mistake.`;
+}

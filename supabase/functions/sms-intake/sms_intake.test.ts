@@ -12,6 +12,7 @@ import {
 import {
   ackMessage,
   authorized,
+  checkReplyThanks,
   e164,
   gatewayLogin,
   gatewaySendRequest,
@@ -120,4 +121,12 @@ test("the reply goes back through the gateway app, from the SIM", () => {
     { url, username: "u", password: "p" },
   );
   assert.equal(gatewayLogin((n) => (n === "SMS_GATEWAY_SEND_URL" ? url : undefined)), null);
+});
+
+test("the thanks for a check reply fits one SMS", () => {
+  for (const answer of ["YES", "NO"] as const) {
+    const text = checkReplyThanks("INC-0147", answer);
+    assert.ok(text.length <= 160, `${answer}: ${text.length}`);
+    assert.ok(text.includes("INC-0147"));
+  }
 });

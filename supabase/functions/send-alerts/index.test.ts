@@ -54,6 +54,7 @@ let calls: Call[] = [];
 let queue: unknown[] = [];
 let rescues: unknown[] = [];
 let rescueClaimStatus = 200;
+let checks: unknown[] = [];
 let pushes: unknown[] = [];
 /** FCM's answer per token (default: accepted). */
 let fcmReplies: Record<string, { status: number; body: unknown }> = {};
@@ -94,6 +95,8 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
     return r ? reply(r.body, r.status) : reply({ name: "projects/sagip-test/messages/1" });
   }
   if (url.endsWith("/rpc/claim_rescue_confirmations")) return reply(rescues, rescueClaimStatus);
+  if (url.endsWith("/rpc/claim_sms_checks")) return reply(checks);
+  if (url.endsWith("/rpc/finish_sms_check")) return reply(null, 204);
   if (url.endsWith("/rpc/finish_rescue_confirmation")) return reply(null, 204);
   if (url.endsWith("/rpc/claim_alert_deliveries")) return reply(queue);
   if (url.endsWith("/rpc/alert_sms_recipients")) return reply(recipients);
@@ -184,6 +187,7 @@ function reset() {
   queue = [];
   rescues = [];
   rescueClaimStatus = 200;
+  checks = [];
   pushes = [];
   fcmReplies = {};
   googleSignIn = 200;
@@ -301,7 +305,7 @@ test("nothing queued: nothing happens", async () => {
   reset();
   const res = await call(env.ALERTS_SECRET!);
   assert.deepEqual(await res.json(), { processed: 0, results: {} });
-  assert.equal(calls.length, 3, "only the three claims; no Firebase sign-in");
+  assert.equal(calls.length, 4, "only the four claims; no Firebase sign-in");
 });
 
 test("a rescue confirmation is texted to its resident, before any alert", async () => {
@@ -608,4 +612,26 @@ test("a rescue text goes from the gateway SIM; a refusal fails it", async () => 
   rescues = [rescue(15, "INC-0153", "09170004821")];
   await call(env.ALERTS_SECRET!);
   assert.deepEqual([rescued()[15].p_status, rescued()[15].p_detail], ["failed", "HTTP 401"]);
+});
+
+test("a dispatcher's SMS check is texted, from the gateway or Semaphore", async () => {
+  reset();
+  useGateway();
+  checks = [{ check_id: 3, incident_id: "INC-0147", to: "639170004821" }];
+  let res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual((await res.json()).results, { "check:INC-0147": "sent" });
+  const sent = calls.find((c) => c.url === env.SMS_GATEWAY_SEND_URL)!;
+  const body = sent.body as { textMessage: { text: string }; phoneNumbers: string[] };
+  assert.deepEqual(body.phoneNumbers, ["+639170004821"]);
+  assert.ok(body.textMessage.text.includes("Reply YES"));
+  const finish = calls.find((c) => c.url.endsWith("/rpc/finish_sms_check"))!.body as Record<string, unknown>;
+  assert.deepEqual([finish.p_check_id, finish.p_status], [3, "sent"]);
+  const log = calls.find((c) => c.url.endsWith("/sms_log"))!.body as Record<string, string>;
+  assert.deepEqual([log.kind, log.provider, log.status], ["check", "gateway", "sent"]);
+
+  reset();
+  env.SEMAPHORE_API_KEY = undefined;
+  checks = [{ check_id: 4, incident_id: "INC-0148", to: "639170004821" }];
+  res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual((await res.json()).results, { "check:INC-0148": "notSetUp" });
 });

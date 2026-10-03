@@ -14,6 +14,7 @@ import {
   facebookOutcome,
   facebookPostText,
   notSetUp,
+  smsCheckText,
   planBroadcast,
   smsOutcome,
 } from "./alerts.ts";
@@ -181,4 +182,10 @@ test("the Graph API's answer becomes the delivery outcome", () => {
     "Facebook refused the post (HTTP 400): Bad token",
   );
   assert.equal(facebookOutcome(false, null, 502).detail, "Facebook refused the post (HTTP 502)");
+});
+
+test("the SMS check asks for YES or NO in one text", () => {
+  const text = smsCheckText("INC-0147");
+  assert.ok(text.length <= 160, `${text.length} characters`);
+  assert.ok(text.includes("INC-0147") && text.includes("YES") && text.includes("NO"));
 });
