@@ -26,7 +26,7 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-03 | f47c816b (Claude) | Paused. Built: barangay boundaries on D6 and D8, the responder's map saved at dispatch (FR13), and a fix for the polyline codec on the web. Next: Joshua approves the push (6 commits), then I load the 897 barangays on the hosted project and run the full RLS test | none | Paused |
+| 2026-10-03 | f47c816b (Claude) | Paused. Built: barangay boundaries on D6 and D8, the responder's map saved at dispatch (FR13), and a fix for the polyline codec on the web. Next: Joshua approves the push (8 commits, up to the one that adds these rows), then I load the 897 barangays on the hosted project and run the full RLS test | none | Paused |
 
 ---
 
@@ -556,6 +556,10 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 | `d2521d6` | 2026-10-03 | Docs: send-alerts is deployed; push works on the emulator |
 | `6350955` | 2026-10-03 | D4 "What the resident was told" (migration `incident_notices`), the responder battery prompt (`ph.sagip/battery`), all 897 barangays (`supabase/data/`, migration `barangays_full`, the bundled list and boundary lookup, the advisory picker search), RLS test at 322 |
 | `7620a93` | 2026-10-03 | Docs: the above, and `docs/PAGASA-PARSER-PLAN.md` |
+| `3d9b9d4` | 2026-10-03 | Docs: progress brought up to date; what is left |
+| `56ab27f` | 2026-10-03 | Fix: `decodePolyline` in the browser (unsigned bit operators in JavaScript); two barangay rings no longer repeat their first point; `polyline_test.dart` |
+| `b378dea` | 2026-10-03 | Barangay boundaries on D6 (layer) and D8 (shaded by risk); the responder's map saved at dispatch (`map_tiles.dart`, `MapSaver`, `TileMapSaver`, `MAP_TILE_URL`) with tests |
+| `dec5133` | 2026-10-03 | Docs: the above, and Joshua's finished items checked |
 | `12013d1` | 2026-09-30 | Routes on dispatch records, `my_assignments` routes, `routing_run` timing log (migration `routing`, RLS test at 99); dashboard sends routes; phone navigation by road with the next turn |
 
 `git log --oneline` shows newer commits; add a row here for each one.
