@@ -6,8 +6,8 @@
 //   each, up to the daily cap set on A3 (channels.sms_daily_cap): from the
 //   gateway phone's SIM when SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME, and
 //   SMS_GATEWAY_PASSWORD are set (SMS Gateway for Android, cloud mode; the
-//   free route), else through Semaphore. Every text is kept in sms_log; the delivery
-//   row gets the counts.
+//   free route), else through Semaphore. Every text is kept in sms_log;
+//   the delivery row gets the counts.
 // - Push: sent through Firebase Cloud Messaging to topics: "manila" for an
 //   alert for all of Manila, else the topics of its barangays (the app
 //   subscribes each resident to both). Marked "not set up" without the
@@ -20,7 +20,8 @@
 //
 // It also sends rescue confirmations (FR6): the one text that tells a
 // resident a unit was assigned to their SOS. These go first, one SMS each,
-// and are not counted against the daily cap on alert texts.
+// and are not counted against the daily cap on alert texts. Then the
+// dispatchers' SMS checks (FR8, migration sms_checks), one text each.
 //
 // And the personal pushes in push_message: rescue confirmations to the
 // resident's phones, new assignments to the phones of the unit's
@@ -39,11 +40,11 @@
 // signed in or why not, Semaphore key present) and sends nothing.
 //
 // Secrets (Edge Functions > Secrets): the three SMS_GATEWAY_ secrets or
-// SEMAPHORE_API_KEY (optional SEMAPHORE_SENDER_NAME), FIREBASE_SERVICE_ACCOUNT (the whole JSON key
-// file), FACEBOOK_PAGE_ID and FACEBOOK_PAGE_TOKEN (a long-lived Page access
-// token that may post), optional FACEBOOK_GRAPH_VERSION, optional
-// ALERTS_SECRET. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
-// are provided by the platform.
+// SEMAPHORE_API_KEY (optional SEMAPHORE_SENDER_NAME),
+// FIREBASE_SERVICE_ACCOUNT (the whole JSON key file), FACEBOOK_PAGE_ID and
+// FACEBOOK_PAGE_TOKEN (a long-lived Page access token that may post),
+// optional FACEBOOK_GRAPH_VERSION, optional ALERTS_SECRET. SUPABASE_URL
+// and SUPABASE_SERVICE_ROLE_KEY are provided by the platform.
 //
 // Deploy with JWT checking off (the webhook uses the shared secret):
 //   supabase functions deploy send-alerts --no-verify-jwt
