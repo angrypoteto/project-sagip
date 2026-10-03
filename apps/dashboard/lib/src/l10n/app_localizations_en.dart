@@ -1822,6 +1822,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advisoryAreaError => 'Choose at least one barangay.';
 
   @override
+  String get advisoryFindBarangay => 'Find a barangay: number or district';
+
+  @override
+  String advisoryMoreBarangays(int count) {
+    return '$count more match. Type more to narrow the list.';
+  }
+
+  @override
   String get advisoryReview => 'Review';
 
   @override
@@ -2397,6 +2405,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deliveryNotSetUp => 'Not set up';
+
+  @override
+  String get noticesTitle => 'What the resident was told';
+
+  @override
+  String get noticesNone =>
+      'Nothing yet. The resident is told when a unit is sent, when it arrives, and when the SOS is closed.';
+
+  @override
+  String get noticesError => 'Could not load what the resident was told.';
+
+  @override
+  String noticeAssigned(String unit) {
+    return '$unit is on the way';
+  }
+
+  @override
+  String get noticeAssignedNoUnit => 'A rescue team is on the way';
+
+  @override
+  String noticeOnScene(String unit) {
+    return '$unit has arrived';
+  }
+
+  @override
+  String get noticeOnSceneNoUnit => 'The rescue team has arrived';
+
+  @override
+  String get noticeResolved => 'The SOS was closed';
+
+  @override
+  String noticeAppRead(String time) {
+    return 'App: opened $time';
+  }
+
+  @override
+  String get noticeAppUnread => 'App: not opened yet';
+
+  @override
+  String get noticeChannelText => 'Text';
+
+  @override
+  String get noticeNotTexted => 'not texted (only the first unit is)';
+
+  @override
+  String get noticeWaiting => 'waiting to send';
+
+  @override
+  String get noticeExpired => 'not sent (waited over 30 minutes)';
+
+  @override
+  String get noticeNoDevice => 'no phone signed in';
+
+  @override
+  String get noticeNoApp => 'no app account';
 
   @override
   String deliveryLine(String channel, String status) {

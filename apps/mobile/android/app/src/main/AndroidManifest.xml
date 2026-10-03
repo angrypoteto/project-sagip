@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- A responder's phone asks to be left running (battery prompt on F1). -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <!-- Alerts and delivery notices (S2 step 2). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Tier 2: an SOS by SMS to the MDRRMD gateway; the APK is installed

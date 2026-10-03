@@ -3,6 +3,46 @@ import 'package:sagip_shared/sagip_shared.dart';
 
 // Rows in the shape the Supabase views return (supabase/migrations).
 void main() {
+  test('incident_notices rows parse: statuses, no app, and read time', () {
+    final sent = ResidentNotice.fromJson({
+      'confirmation_id': 41,
+      'kind': 'assigned',
+      'unit_call_sign': 'R-03',
+      'created_at': '2026-10-03T06:00:00Z',
+      'read_at': '2026-10-03T06:01:00Z',
+      'sms_status': 'sending',
+      'push_status': 'noDevice',
+    });
+    expect(sent.id, '41');
+    expect(sent.kind, RescueConfirmationKind.assigned);
+    expect(sent.sms, NoticeDelivery.waiting);
+    expect(sent.push, NoticeDelivery.noDevice);
+    expect(sent.readAt, DateTime.utc(2026, 10, 3, 6, 1).toLocal());
+    final closed = ResidentNotice.fromJson({
+      'confirmation_id': 42,
+      'kind': 'resolved',
+      'unit_call_sign': null,
+      'created_at': '2026-10-03T07:00:00Z',
+      'read_at': null,
+      'sms_status': 'none',
+      'push_status': null,
+    });
+    expect(closed.sms, NoticeDelivery.none);
+    expect(closed.push, NoticeDelivery.noApp);
+    expect(closed.readAt, isNull);
+    for (final s in [
+      'sent',
+      'failed',
+      'off',
+      'simulated',
+      'notSetUp',
+      'expired',
+    ]) {
+      expect(NoticeDelivery.fromStatus(s).name, s);
+    }
+    expect(NoticeDelivery.fromStatus('queued'), NoticeDelivery.waiting);
+  });
+
   test('an incident_board row parses, with UTC times made local', () {
     final incident = Incident.fromJson({
       'id': 'INC-0147',

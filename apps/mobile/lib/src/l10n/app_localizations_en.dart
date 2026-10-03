@@ -115,6 +115,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSettings => 'Open settings';
 
   @override
+  String get batteryTitle => 'Keep S.A.G.I.P. running';
+
+  @override
+  String get batteryBody =>
+      'To save battery, this phone may stop S.A.G.I.P. in the background, and the board would lose your unit\'s position. Allow it to keep running.';
+
+  @override
+  String get batteryAllow => 'Allow';
+
+  @override
   String get reportHazard => 'Report a hazard';
 
   @override

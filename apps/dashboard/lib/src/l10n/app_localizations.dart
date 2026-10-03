@@ -3292,6 +3292,18 @@ abstract class AppLocalizations {
   /// **'Choose at least one barangay.'**
   String get advisoryAreaError;
 
+  /// No description provided for @advisoryFindBarangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a barangay: number or district'**
+  String get advisoryFindBarangay;
+
+  /// No description provided for @advisoryMoreBarangays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more match. Type more to narrow the list.'**
+  String advisoryMoreBarangays(int count);
+
   /// No description provided for @advisoryReview.
   ///
   /// In en, this message translates to:
@@ -4257,6 +4269,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not set up'**
   String get deliveryNotSetUp;
+
+  /// No description provided for @noticesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What the resident was told'**
+  String get noticesTitle;
+
+  /// No description provided for @noticesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet. The resident is told when a unit is sent, when it arrives, and when the SOS is closed.'**
+  String get noticesNone;
+
+  /// No description provided for @noticesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load what the resident was told.'**
+  String get noticesError;
+
+  /// No description provided for @noticeAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} is on the way'**
+  String noticeAssigned(String unit);
+
+  /// No description provided for @noticeAssignedNoUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'A rescue team is on the way'**
+  String get noticeAssignedNoUnit;
+
+  /// No description provided for @noticeOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} has arrived'**
+  String noticeOnScene(String unit);
+
+  /// No description provided for @noticeOnSceneNoUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'The rescue team has arrived'**
+  String get noticeOnSceneNoUnit;
+
+  /// No description provided for @noticeResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'The SOS was closed'**
+  String get noticeResolved;
+
+  /// No description provided for @noticeAppRead.
+  ///
+  /// In en, this message translates to:
+  /// **'App: opened {time}'**
+  String noticeAppRead(String time);
+
+  /// No description provided for @noticeAppUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'App: not opened yet'**
+  String get noticeAppUnread;
+
+  /// No description provided for @noticeChannelText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get noticeChannelText;
+
+  /// No description provided for @noticeNotTexted.
+  ///
+  /// In en, this message translates to:
+  /// **'not texted (only the first unit is)'**
+  String get noticeNotTexted;
+
+  /// No description provided for @noticeWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting to send'**
+  String get noticeWaiting;
+
+  /// No description provided for @noticeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'not sent (waited over 30 minutes)'**
+  String get noticeExpired;
+
+  /// No description provided for @noticeNoDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'no phone signed in'**
+  String get noticeNoDevice;
+
+  /// No description provided for @noticeNoApp.
+  ///
+  /// In en, this message translates to:
+  /// **'no app account'**
+  String get noticeNoApp;
 
   /// No description provided for @deliveryLine.
   ///

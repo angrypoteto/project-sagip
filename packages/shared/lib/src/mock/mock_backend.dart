@@ -233,7 +233,7 @@ class MockBackend {
       for (final b in barangays)
         if (b.trim().isNotEmpty) b.trim(),
     }.toList()..sort();
-    final known = {for (final b in sampleManilaBarangays) b.name};
+    final known = {for (final b in manilaBarangays) b.name};
     if (!AdvisoryRules.accepts(title: title, body: body, guidance: steps) ||
         areas.any((a) => !known.contains(a))) {
       throw const ActionRejected(ActionRejection.invalidValue);
@@ -524,6 +524,68 @@ class MockBackend {
 
   Stream<List<Incident>> watchActive() =>
       _incidents.watch().map((m) => m.values.toList(growable: false));
+
+  /// What the resident was told (D4). Follows the database trigger: one
+  /// notice per unit assigned, on scene, and closed, for an SOS from a
+  /// known resident; only the first unit is texted. The mock pretends every
+  /// text and push went out, except push for an SOS sent by SMS (no app).
+  Stream<List<ResidentNotice>> watchNotices(String incidentId) {
+    List<ResidentNotice> current() {
+      final incident =
+          _incidents.value[incidentId] ??
+          _resolved.value.where((i) => i.id == incidentId).firstOrNull;
+      if (incident == null ||
+          incident.origin != IncidentOrigin.sos ||
+          incident.residentId == null ||
+          incident.falseReport) {
+        return const [];
+      }
+      final push = incident.channel == ReportChannel.sms
+          ? NoticeDelivery.noApp
+          : NoticeDelivery.sent;
+      final notices = <ResidentNotice>[];
+      String? unit;
+      for (final e in incident.events) {
+        final kind = switch (e.kind) {
+          IncidentEventKind.assigned => RescueConfirmationKind.assigned,
+          IncidentEventKind.onScene => RescueConfirmationKind.onScene,
+          IncidentEventKind.resolved => RescueConfirmationKind.resolved,
+          _ => null,
+        };
+        if (kind == null) continue;
+        if (kind == RescueConfirmationKind.assigned) unit = e.detail;
+        final firstText =
+            kind == RescueConfirmationKind.assigned &&
+            !notices.any((n) => n.kind == RescueConfirmationKind.assigned);
+        notices.add(
+          ResidentNotice(
+            id: '${incident.id}-${notices.length}',
+            kind: kind,
+            unitCallSign: unit,
+            at: e.at,
+            sms: firstText ? NoticeDelivery.sent : NoticeDelivery.none,
+            push: push,
+          ),
+        );
+      }
+      return notices;
+    }
+
+    final out = StreamController<List<ResidentNotice>>();
+    final subs = <StreamSubscription<Object?>>[];
+    out
+      ..onListen = () {
+        subs
+          ..add(_incidents.watch().listen((_) => out.add(current())))
+          ..add(_resolved.watch().listen((_) => out.add(current())));
+      }
+      ..onCancel = () async {
+        for (final s in subs) {
+          await s.cancel();
+        }
+      };
+    return out.stream.distinct(listEquals);
+  }
 
   Stream<List<Incident>> watchResolved(Duration since) =>
       _resolved.watch().map((all) {

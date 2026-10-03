@@ -397,6 +397,52 @@ void main() {
     await settle(tester);
   }
 
+  testWidgets(
+    'responder: asked once to keep the app running in the background',
+    (tester) async {
+      final battery = MockBatteryOptimization();
+      container.dispose();
+      container = ProviderContainer(
+        overrides: [
+          ...mockOverrides(backend, demoTools: false),
+          mapTilesEnabledProvider.overrideWithValue(false),
+          welcomeSeenProvider.overrideWith(WelcomeDone.new),
+          clockProvider.overrideWith((ref) => Stream.value(now)),
+          batteryOptimizationProvider.overrideWithValue(battery),
+        ],
+      );
+      await pumpApp(tester);
+      await signInAsResponder(tester);
+      expect(find.text('Keep S.A.G.I.P. running'), findsOneWidget);
+      await tapAndSettle(tester, 'Allow');
+      expect(battery.requests, 1);
+      expect(find.text('Keep S.A.G.I.P. running'), findsNothing);
+      await finish(tester);
+    },
+  );
+
+  testWidgets('responder: no battery prompt when the phone already allows it', (
+    tester,
+  ) async {
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        ...mockOverrides(backend, demoTools: false),
+        mapTilesEnabledProvider.overrideWithValue(false),
+        welcomeSeenProvider.overrideWith(WelcomeDone.new),
+        clockProvider.overrideWith((ref) => Stream.value(now)),
+        batteryOptimizationProvider.overrideWithValue(
+          MockBatteryOptimization(exempt: true),
+        ),
+      ],
+    );
+    await pumpApp(tester);
+    await signInAsResponder(tester);
+    expect(find.text('No assignment. Stay available.'), findsOneWidget);
+    expect(find.text('Keep S.A.G.I.P. running'), findsNothing);
+    await finish(tester);
+  });
+
   testWidgets('responder: offer, accept, navigate, on scene, report', (
     tester,
   ) async {

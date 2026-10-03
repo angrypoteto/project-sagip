@@ -30,6 +30,7 @@ class _AdvisoryDialogState extends ConsumerState<_AdvisoryDialog> {
   final _title = TextEditingController();
   final _body = TextEditingController();
   final _steps = TextEditingController();
+  final _search = TextEditingController();
   var _source = AlertSource.mdrrmd;
   var _level = AlertLevel.warning;
   var _everywhere = true;
@@ -43,6 +44,7 @@ class _AdvisoryDialogState extends ConsumerState<_AdvisoryDialog> {
     _title.dispose();
     _body.dispose();
     _steps.dispose();
+    _search.dispose();
     super.dispose();
   }
 
@@ -63,6 +65,39 @@ class _AdvisoryDialogState extends ConsumerState<_AdvisoryDialog> {
   }
 
   bool get _areaMissing => !_everywhere && _barangays.isEmpty;
+
+  /// How many chips to show at once: 897 barangays do not fit.
+  static const _chipLimit = 24;
+
+  /// Barangays matching the search (number, name, or district).
+  List<Barangay> get _matches {
+    final q = _search.text.trim().toLowerCase();
+    if (q.isEmpty) return const [];
+    return [
+      for (final b in manilaBarangays)
+        if (b.name.toLowerCase().contains(q) ||
+            b.district.toLowerCase().contains(q))
+          b,
+    ];
+  }
+
+  /// The chosen barangays first, then the first matches.
+  List<Barangay> get _shownBarangays {
+    final chosen = [
+      for (final b in manilaBarangays)
+        if (_barangays.contains(b.name)) b,
+    ];
+    final rest = [
+      for (final b in _matches)
+        if (!_barangays.contains(b.name)) b,
+    ];
+    return [...chosen, ...rest.take(_chipLimit)];
+  }
+
+  int get _moreBarangays {
+    final rest = _matches.where((b) => !_barangays.contains(b.name)).length;
+    return rest > _chipLimit ? rest - _chipLimit : 0;
+  }
 
   void _review() {
     final l10n = AppLocalizations.of(context);
@@ -245,11 +280,21 @@ class _AdvisoryDialogState extends ConsumerState<_AdvisoryDialog> {
         ),
         if (!_everywhere) ...[
           const SizedBox(height: SagipSpace.sm),
+          TextField(
+            key: const ValueKey('advisory-barangay-search'),
+            controller: _search,
+            decoration: InputDecoration(
+              labelText: l10n.advisoryFindBarangay,
+              prefixIcon: const Icon(Symbols.search_rounded),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: SagipSpace.sm),
           Wrap(
             spacing: SagipSpace.sm,
             runSpacing: SagipSpace.sm,
             children: [
-              for (final b in sampleManilaBarangays)
+              for (final b in _shownBarangays)
                 FilterChip(
                   label: Text(b.name),
                   selected: _barangays.contains(b.name),
@@ -260,6 +305,14 @@ class _AdvisoryDialogState extends ConsumerState<_AdvisoryDialog> {
                 ),
             ],
           ),
+          if (_moreBarangays > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: SagipSpace.xs),
+              child: Text(
+                l10n.advisoryMoreBarangays(_moreBarangays),
+                style: text.bodySmall,
+              ),
+            ),
           if (_checked && _areaMissing)
             Padding(
               padding: const EdgeInsets.only(top: SagipSpace.sm),

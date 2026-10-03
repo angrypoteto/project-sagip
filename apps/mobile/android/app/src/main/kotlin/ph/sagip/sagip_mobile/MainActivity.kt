@@ -10,10 +10,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
+import android.provider.Settings
 import android.telephony.SmsManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -74,6 +77,44 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/battery")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "isExempt" -> result.success(isBatteryExempt())
+                    "request" -> result.success(requestBatteryExemption())
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    /** Whether Android leaves the app running in the background. */
+    private fun isBatteryExempt(): Boolean {
+        val power = getSystemService(PowerManager::class.java) ?: return true
+        return power.isIgnoringBatteryOptimizations(packageName)
+    }
+
+    /**
+     * Asks Android to leave the app running, so a responder's phone keeps
+     * sharing the unit's position (FR9). Falls back to the settings list
+     * when the dialog cannot open. True when something was shown.
+     */
+    private fun requestBatteryExemption(): Boolean {
+        if (isBatteryExempt()) return true
+        val ask = Intent(
+            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:$packageName"),
+        )
+        return try {
+            startActivity(ask)
+            true
+        } catch (_: Exception) {
+            try {
+                startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                true
+            } catch (_: Exception) {
+                false
+            }
+        }
     }
 
     private fun canSend(): Boolean =

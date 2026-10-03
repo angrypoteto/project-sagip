@@ -11,7 +11,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_dispatch_actions.sql` | Every write the app can make (verify, SMS check, false report, confirm type, assign, resolve, reveal a number), the audit trigger, and DBSCAN clustering of crowd reports |
 | `migrations/*_demo_data.sql` | Sample Manila data and demo tools (SQL editor only) |
 | `migrations/*_private_rls_helpers.sql` | Role-check helpers moved out of the API |
-| `migrations/*_mobile_schema.sql` | For the phones: barangays (10 samples), client ids and capture times on SOS and reports, the on-scene check, completion reports, alerts and read state, 72-hour forecasts, data deletion requests |
+| `migrations/*_mobile_schema.sql` | For the phones: barangays (10 samples; all 897 come from `data/`, see "Loading all 897 barangays"), client ids and capture times on SOS and reports, the on-scene check, completion reports, alerts and read state, 72-hour forecasts, data deletion requests |
 | `migrations/*_mobile_actions.sql` | Every write the phones can make (resident sign-up and linking, SOS and details, crowd reports with the Manila check and hourly limit, consent and household, responder accept, arrive, on-scene check, status, completion report, position, alert read) and the reads in the app's shapes (`my_sos`, `my_crowd_reports`, `my_assignments`, `my_unit_history`, `my_alerts`); DBSCAN now counts from capture time |
 | `migrations/*_mobile_demo_data.sql` | `reset_demo_data()` also loads past rescues for R-03 and Maria, four sample alerts, and sample forecasts |
 | `migrations/*_sms_log.sql` | The SMS log: every text sent or kept; no client access |
@@ -32,6 +32,9 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `functions/send-alerts/` | Works through queued alert deliveries: texts residents of the affected barangays through Semaphore (one SMS each, up to the daily cap), logs every text in `sms_log`, and records each channel's outcome. Also sends rescue confirmations: one text to the resident whose SOS got a unit. And push through Firebase Cloud Messaging: alerts to topics, rescue confirmations and new assignments to the account's phones (`fcm.ts`). `alerts.test.ts`, `fcm.test.ts`, and `index.test.ts` run with `node --test` |
 | `functions/sms-intake/` | Receives texts from the gateway SIM, checks the SAGIP1 format and checksum, files the SOS, and returns the reply for the gateway to send; `sms_intake.test.ts` runs with `node --test` |
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
+| `migrations/*_incident_notices.sql` | `incident_notices(incident)` for dispatchers and admins: what the resident was told about their SOS (each rescue confirmation) with its text and push outcome, for the incident drawer (D4) |
+| `migrations/*_barangays_full.sql` | `barangay.psgc_code`, `manila_outline` (the city as one shape), `private.load_barangays(json)`, and the Manila check (FR15) against the outline with 50 m to spare |
+| `data/` | All 897 barangays: `fetch_barangays.py` (downloads PSA's boundaries, checks them against the PSGC, writes the files), `manila_barangays.json` (what the database loads), `manila_barangays.csv` (name, district, code, center, area) |
 | `migrations/*_sender_wakeup.sql` | `pg_net` and triggers on `alert_delivery`, `rescue_confirmation`, and `push_message` that call `send-alerts` when something is queued, with a random shared secret kept in Supabase Vault (`sender_secret()`, service role only) |
 | `tests/rls_test.sql` | 307 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
@@ -231,7 +234,18 @@ from public.routing_run group by kind, platform order by kind, platform;
 
 ## Loading all 897 barangays
 
-`barangay` holds 10 sample rows. When the Data role delivers the full list (name, district, and ideally boundaries), load it in the Table Editor (import CSV) or a new migration. With boundaries (`boundary`, multipolygon), the Manila check for crowd reports switches from the rough box to the real boundaries automatically.
+**Where the data comes from.** `data/fetch_barangays.py` downloads the barangay boundaries the Philippine Statistics Authority (PSA) publishes through GeoRiskPH (PSA calls them indicative boundaries; they were made for the 2015 census) and checks every name and 10-digit code against the official PSGC list. It stops if anything differs. Manila has 897 barangays in 14 districts (PSA's sub-municipalities; "Tondo I / II" is written "Tondo"). The layer also has two areas that are in no barangay, Tutuban Mall (claimed by five Tondo barangays) and Manila North Cemetery: they count as Manila but are not barangays. Credit: Philippine Statistics Authority. Run it again with `python supabase/data/fetch_barangays.py` (standard library only); it rewrites the JSON, the CSV, and the apps' bundled copy (`packages/shared/lib/src/data/manila_barangays_data.dart`).
+
+**Loading it.** `private.load_barangays(json)` adds the barangays that are missing and updates the rest (district, code, center, boundary). It never removes a name, since residents, reports, and forecasts refer to barangays by name. It also replaces `manila_outline`, and from then on the Manila check for SOS and reports uses that outline (within 50 m). The file is too big to paste, so the database fetches it from GitHub once the commit is pushed. In the SQL editor:
+
+```sql
+select net.http_get('https://raw.githubusercontent.com/angrypoteto/project-sagip/main/supabase/data/manila_barangays.json');
+-- a few seconds later, with the id the first line returned:
+select private.load_barangays(content::jsonb) from net._http_response where id = <id> and status_code = 200;
+select count(*), count(boundary), count(psgc_code) from public.barangay;   -- 897 or more, 897, 897
+```
+
+The 10 sample barangays keep their names; their centers move to the real ones. The demo records keep their made-up coordinates, so some lie in a different barangay than their label says (Barangay 412's sample SOS is really in Barangay 460).
 
 ## Running the RLS test
 

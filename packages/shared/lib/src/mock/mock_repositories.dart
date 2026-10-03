@@ -88,6 +88,10 @@ class MockIncidentRepository implements IncidentRepository {
 
   @override
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);
+
+  @override
+  Stream<List<ResidentNotice>> watchNotices(String incidentId) =>
+      _backend.watchNotices(incidentId);
 }
 
 class MockAccountRepository implements AccountRepository {

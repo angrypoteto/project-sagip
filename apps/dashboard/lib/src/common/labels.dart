@@ -159,6 +159,32 @@ extension DomainLabels on AppLocalizations {
     AlertChannel.facebook => alertChannelFacebook,
   };
 
+  /// One line of the drawer's "What the resident was told" (D4).
+  String noticeText(ResidentNotice n) => switch (n.kind) {
+    RescueConfirmationKind.assigned =>
+      n.unitCallSign == null
+          ? noticeAssignedNoUnit
+          : noticeAssigned(n.unitCallSign!),
+    RescueConfirmationKind.onScene =>
+      n.unitCallSign == null
+          ? noticeOnSceneNoUnit
+          : noticeOnScene(n.unitCallSign!),
+    RescueConfirmationKind.resolved => noticeResolved,
+  };
+
+  String noticeDelivery(NoticeDelivery d) => switch (d) {
+    NoticeDelivery.none => noticeNotTexted,
+    NoticeDelivery.waiting => noticeWaiting,
+    NoticeDelivery.sent => deliverySent.toLowerCase(),
+    NoticeDelivery.failed => deliveryFailed.toLowerCase(),
+    NoticeDelivery.off => deliveryOff.toLowerCase(),
+    NoticeDelivery.simulated => deliverySimulated.toLowerCase(),
+    NoticeDelivery.notSetUp => deliveryNotSetUp.toLowerCase(),
+    NoticeDelivery.expired => noticeExpired,
+    NoticeDelivery.noDevice => noticeNoDevice,
+    NoticeDelivery.noApp => noticeNoApp,
+  };
+
   String deliveryStatus(AlertDeliveryStatus status) => switch (status) {
     AlertDeliveryStatus.queued => deliveryQueued,
     AlertDeliveryStatus.sending => deliverySending,

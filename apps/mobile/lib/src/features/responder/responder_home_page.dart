@@ -64,6 +64,7 @@ class ResponderHomePage extends ConsumerWidget {
         ),
         const SizedBox(height: SagipSpace.md),
         _SharingLine(state: s),
+        const _BatteryPrompt(),
         const SizedBox(height: SagipSpace.xl),
         if (s.offer != null) ...[
           _OfferCard(offer: s.offer!),
@@ -127,6 +128,82 @@ class _SharingLine extends ConsumerWidget {
           child: Text(line, style: text.bodySmall!.copyWith(color: color)),
         ),
       ],
+    );
+  }
+}
+
+/// Asks to be left running in the background when the phone's battery
+/// saver could stop location sharing. Gone once the phone says exempt.
+class _BatteryPrompt extends ConsumerStatefulWidget {
+  const _BatteryPrompt();
+
+  @override
+  ConsumerState<_BatteryPrompt> createState() => _BatteryPromptState();
+}
+
+class _BatteryPromptState extends ConsumerState<_BatteryPrompt> {
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // The phone's question opens over the app; check again on return.
+    _lifecycle = AppLifecycleListener(
+      onResume: () => ref.invalidate(batteryExemptProvider),
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  Future<void> _allow() async {
+    await ref.read(batteryOptimizationProvider).requestExemption();
+    ref.invalidate(batteryExemptProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final exempt = ref.watch(batteryExemptProvider).value ?? true;
+    if (exempt) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: SagipSpace.lg),
+      child: Container(
+        padding: const EdgeInsets.all(SagipSpace.lg),
+        decoration: BoxDecoration(
+          color: p.panelRaised,
+          borderRadius: BorderRadius.circular(SagipRadius.card),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Symbols.battery_alert_rounded, color: p.warning.text),
+                const SizedBox(width: SagipSpace.sm),
+                Expanded(
+                  child: Text(l10n.batteryTitle, style: text.titleSmall),
+                ),
+              ],
+            ),
+            const SizedBox(height: SagipSpace.sm),
+            Text(l10n.batteryBody, style: text.bodyMedium),
+            const SizedBox(height: SagipSpace.sm),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton(
+                onPressed: _allow,
+                child: Text(l10n.batteryAllow),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

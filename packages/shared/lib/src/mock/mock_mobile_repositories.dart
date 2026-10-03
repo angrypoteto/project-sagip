@@ -209,6 +209,29 @@ class MockResidentAccountRepository implements ResidentAccountRepository {
   Future<void> requestDataDeletion() => _backend.requestDataDeletion();
 }
 
+/// The battery setting on sample data: not exempt until asked, so the
+/// responder home shows the prompt in the demo.
+class MockBatteryOptimization implements BatteryOptimization {
+  MockBatteryOptimization({this.exempt = false, this.grants = true});
+
+  bool exempt;
+
+  /// Whether the pretend person says yes when asked.
+  bool grants;
+
+  /// How many times the question was shown.
+  int requests = 0;
+
+  @override
+  Future<bool> isExempt() async => exempt;
+
+  @override
+  Future<void> requestExemption() async {
+    requests++;
+    if (grants) exempt = true;
+  }
+}
+
 class MockPermissionService implements PermissionService {
   const MockPermissionService(this._backend);
 

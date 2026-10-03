@@ -229,6 +229,15 @@ final residentProvider = StreamProvider.family<Resident?, String>(
   ),
 );
 
+/// D4: what the resident who sent an SOS was told, and how it went out.
+final incidentNoticesProvider =
+    StreamProvider.family<List<ResidentNotice>, String>(
+      (ref, id) => _forAccount(
+        ref,
+        () => ref.watch(incidentRepositoryProvider).watchNotices(id),
+      ),
+    );
+
 final auditLogProvider = StreamProvider<List<AuditEntry>>(
   (ref) =>
       _forAccount(ref, () => ref.watch(auditRepositoryProvider).watchRecent()),

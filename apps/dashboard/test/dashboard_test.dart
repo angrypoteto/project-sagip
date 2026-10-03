@@ -140,7 +140,28 @@ void main() {
     final route = backend.routeFor('INC-0147')!;
     expect(route.points.last, incident.location);
     expect(route.steps, isNotEmpty);
+
+    // What the resident was told (FR6), and how it went out.
+    await revealInDrawer(tester, find.text('What the resident was told'));
+    await revealInDrawer(tester, find.text('R-03 is on the way'));
+    expect(find.text('R-03 is on the way'), findsOneWidget);
+    expect(find.text('App: not opened yet'), findsOneWidget);
+    expect(find.text('Text: sent'), findsOneWidget);
+    expect(find.text('Push: sent'), findsOneWidget);
   });
+
+  testWidgets(
+    'before any unit, the drawer says the resident was told nothing',
+    (tester) async {
+      await pumpApp(tester);
+      await signIn(tester, 'dispatcher@sagip.test');
+      await tester.tap(find.text('SOS, flood').first);
+      await settle(tester);
+      await revealInDrawer(tester, find.text('What the resident was told'));
+      await revealInDrawer(tester, find.textContaining('Nothing yet.'));
+      expect(find.textContaining('Nothing yet.'), findsOneWidget);
+    },
+  );
 
   testWidgets('choosing a unit other than the top one asks for a reason', (
     tester,
@@ -568,9 +589,30 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('advisory-review')));
     await settle(tester);
     expect(find.text('Choose at least one barangay.'), findsOneWidget);
+    // 897 barangays: found by number or district, chosen ones kept.
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-barangay-search')),
+      'Sampaloc',
+    );
+    await settle(tester);
+    expect(
+      find.text('219 more match. Type more to narrow the list.'),
+      findsOneWidget,
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-barangay-search')),
+      '490',
+    );
+    await settle(tester);
     await tester.tap(find.widgetWithText(FilterChip, 'Barangay 490'));
+    await tester.enterText(
+      find.byKey(const ValueKey('advisory-barangay-search')),
+      'Barangay 412',
+    );
+    await settle(tester);
     await tester.tap(find.widgetWithText(FilterChip, 'Barangay 412'));
     await settle(tester);
+    expect(find.widgetWithText(FilterChip, 'Barangay 490'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('advisory-review')));
     await settle(tester);
 
@@ -777,8 +819,10 @@ void main() {
 
     // Barangays the run has nothing for are listed apart, without a risk.
     expect(find.text('No forecast'), findsOneWidget);
+    // All 897 barangays are listed; the first ones the run has nothing for
+    // come right after the heading.
     expect(
-      find.byKey(const ValueKey('forecast-row-Barangay 306')),
+      find.byKey(const ValueKey('forecast-row-Barangay 1')),
       findsOneWidget,
     );
 

@@ -115,6 +115,11 @@ abstract interface class IncidentRepository {
     RoadRoute? route,
   });
   Future<void> resolve(String incidentId);
+
+  /// What the resident who sent this SOS was told about it, and whether
+  /// each text and push went out (FR6), oldest first. Empty for crowd
+  /// clusters and for an SOS no unit has been sent to yet.
+  Stream<List<ResidentNotice>> watchNotices(String incidentId);
 }
 
 abstract interface class UnitRepository {
@@ -484,6 +489,19 @@ abstract interface class AlertRepository {
 
   /// The resident has seen a rescue confirmation (FR6).
   Future<void> markConfirmationRead(String confirmationId);
+}
+
+/// Android's battery saver may stop an app in the background, which would
+/// stop a responder's phone sharing the unit's position (FR9). The app asks
+/// to be left running.
+abstract interface class BatteryOptimization {
+  /// True when the app may run in the background, or the phone has no such
+  /// setting.
+  Future<bool> isExempt();
+
+  /// Shows the phone's own question. Check [isExempt] again afterwards: the
+  /// person may say no.
+  Future<void> requestExemption();
 }
 
 /// The phone's permissions (S2, S7).

@@ -31,7 +31,7 @@ class _BarangayPickerState extends State<_BarangayPicker> {
     final p = SagipPalette.of(context);
     final q = _query.trim().toLowerCase();
     final matches = [
-      for (final b in sampleManilaBarangays)
+      for (final b in manilaBarangays)
         if (q.isEmpty ||
             b.name.toLowerCase().contains(q) ||
             b.district.toLowerCase().contains(q))

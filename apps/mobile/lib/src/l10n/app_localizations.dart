@@ -280,6 +280,24 @@ abstract class AppLocalizations {
   /// **'Open settings'**
   String get openSettings;
 
+  /// No description provided for @batteryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep S.A.G.I.P. running'**
+  String get batteryTitle;
+
+  /// No description provided for @batteryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To save battery, this phone may stop S.A.G.I.P. in the background, and the board would lose your unit\'s position. Allow it to keep running.'**
+  String get batteryBody;
+
+  /// No description provided for @batteryAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get batteryAllow;
+
   /// No description provided for @reportHazard.
   ///
   /// In en, this message translates to:

@@ -175,6 +175,11 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                           onChoose: (s) => setState(() => _chosen = s),
                           onChooseAnother: () => _chooseAnother(incident),
                         ),
+                        if (incident.origin == IncidentOrigin.sos &&
+                            incident.residentId != null) ...[
+                          const SizedBox(height: SagipSpace.xl),
+                          _NoticesSection(incident: incident),
+                        ],
                         const SizedBox(height: SagipSpace.xl),
                         _Timeline(incident: incident),
                       ],
@@ -964,6 +969,117 @@ class _SuggestionTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// What the resident was told about their SOS (FR6) and whether each text
+/// and push went out, so a dispatcher answering a call knows what the
+/// resident already knows.
+class _NoticesSection extends ConsumerWidget {
+  const _NoticesSection({required this.incident});
+
+  final Incident incident;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final locale = Localizations.localeOf(context).toString();
+    final notices = ref.watch(incidentNoticesProvider(incident.id));
+
+    Color tone(NoticeDelivery d) => switch (d) {
+      NoticeDelivery.sent => p.success.text,
+      NoticeDelivery.waiting => p.warning.text,
+      NoticeDelivery.failed || NoticeDelivery.expired => p.critical.text,
+      _ => p.textSecondary,
+    };
+
+    final Widget body;
+    if (notices.hasError && !notices.hasValue) {
+      body = Text(
+        l10n.noticesError,
+        style: text.bodySmall!.copyWith(color: p.critical.text),
+      );
+    } else if (!notices.hasValue) {
+      body = const LinearProgressIndicator();
+    } else if (notices.value!.isEmpty) {
+      body = Text(l10n.noticesNone, style: text.bodySmall);
+    } else {
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final n in notices.value!)
+            Padding(
+              key: ValueKey('notice-${n.id}'),
+              padding: const EdgeInsets.symmetric(vertical: SagipSpace.xs),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 96,
+                    child: Text(
+                      formatClock(n.at, locale),
+                      style: text.bodySmall!.copyWith(
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.noticeText(n),
+                          style: text.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Wrap(
+                          spacing: SagipSpace.lg,
+                          children: [
+                            Text(
+                              n.readAt == null
+                                  ? l10n.noticeAppUnread
+                                  : l10n.noticeAppRead(
+                                      formatClock(n.readAt!, locale),
+                                    ),
+                              style: text.bodySmall,
+                            ),
+                            Text(
+                              l10n.deliveryLine(
+                                l10n.noticeChannelText,
+                                l10n.noticeDelivery(n.sms),
+                              ),
+                              style: text.bodySmall!.copyWith(
+                                color: tone(n.sms),
+                              ),
+                            ),
+                            Text(
+                              l10n.deliveryLine(
+                                l10n.alertChannelPush,
+                                l10n.noticeDelivery(n.push),
+                              ),
+                              style: text.bodySmall!.copyWith(
+                                color: tone(n.push),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [_SectionTitle(l10n.noticesTitle), body],
     );
   }
 }

@@ -118,9 +118,7 @@ void main() {
       await b.register(
         fullName: 'Leo Cruz',
         phone: '0918 222 3333',
-        barangay: sampleManilaBarangays.firstWhere(
-          (x) => x.name == 'Barangay 461',
-        ),
+        barangay: manilaBarangays.firstWhere((x) => x.name == 'Barangay 461'),
       );
       await b.verifyCode('0918 222 3333', MockMobileBackend.demoCode);
       expect((await b.watchAlerts().first).forecast, isNull);
@@ -231,7 +229,7 @@ void main() {
       await b.register(
         fullName: 'Leo Cruz',
         phone: '0918 222 3333',
-        barangay: sampleManilaBarangays.first,
+        barangay: manilaBarangays.first,
       );
       await b.verifyCode('0918 222 3333', MockMobileBackend.demoCode);
       expect(await b.watchSos().first, isEmpty);
@@ -294,12 +292,63 @@ void main() {
     });
   });
 
-  test('the nearest sample barangay, only when close', () {
-    expect(
-      nearestBarangay(const GeoPoint(14.6093, 120.9927))?.name,
-      'Barangay 412',
-    );
-    expect(nearestBarangay(const GeoPoint(14.5500, 121.0500)), isNull);
+  group('Manila barangays (PSA boundaries, bundled)', () {
+    test('all 897, each named once, in the 14 districts', () {
+      expect(manilaBarangays, hasLength(897));
+      expect({for (final b in manilaBarangays) b.name}, hasLength(897));
+      expect(
+        {for (final b in manilaBarangays) b.district},
+        {
+          'Tondo',
+          'Binondo',
+          'Quiapo',
+          'San Nicolas',
+          'Santa Cruz',
+          'Sampaloc',
+          'San Miguel',
+          'Ermita',
+          'Intramuros',
+          'Malate',
+          'Paco',
+          'Pandacan',
+          'Port Area',
+          'Santa Ana',
+        },
+      );
+      expect(barangayNamed('Barangay 818-A')?.district, 'Santa Ana');
+      expect(barangayNamed('Barangay 21'), isNull); // no such number
+    });
+
+    test('each center lies in its own barangay', () {
+      for (final b in manilaBarangays) {
+        expect(nearestBarangay(b.center!)?.name, b.name);
+      }
+    });
+
+    test('a point gets the barangay whose boundary holds it', () {
+      expect(
+        nearestBarangay(const GeoPoint(14.6008, 120.99462))?.name,
+        'Barangay 412',
+      );
+      // Where the demo data once put Barangay 412 is really Barangay 460.
+      expect(
+        nearestBarangay(const GeoPoint(14.6093, 120.9927))?.name,
+        'Barangay 460',
+      );
+    });
+
+    test('in no barangay, just off the shore, and outside Manila', () {
+      // Manila North Cemetery and Tutuban Mall are in no barangay.
+      expect(nearestBarangay(const GeoPoint(14.634, 120.98522)), isNull);
+      expect(nearestBarangay(const GeoPoint(14.60832, 120.97274)), isNull);
+      // 30 m into the bay from Baseco still counts; 200 m does not.
+      expect(
+        nearestBarangay(const GeoPoint(14.59109, 120.95358))?.name,
+        'Barangay 649',
+      );
+      expect(nearestBarangay(const GeoPoint(14.59109, 120.952)), isNull);
+      expect(nearestBarangay(const GeoPoint(14.5500, 121.0500)), isNull);
+    });
   });
 
   test('new fields survive JSON', () {

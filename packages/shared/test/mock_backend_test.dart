@@ -115,6 +115,39 @@ void main() {
       expect((await audit()).first.action, AuditAction.unitReassigned);
     });
 
+    test(
+      'the resident is told of each unit, the arrival, and the close',
+      () async {
+        await backend.signIn('dispatcher@sagip.test', MockSeed.demoPassword);
+        expect(await backend.watchNotices('INC-0147').first, isEmpty);
+        await backend.assignUnit('INC-0147', 'unit-r03');
+        await backend.assignUnit('INC-0147', 'unit-r07');
+        await backend.resolve('INC-0147');
+        final notices = await backend.watchNotices('INC-0147').first;
+        expect(
+          [for (final n in notices) '${n.kind.name} ${n.unitCallSign}'],
+          ['assigned R-03', 'assigned R-07', 'resolved R-07'],
+        );
+        // Only the first unit is texted; the resident has the app.
+        expect(
+          [for (final n in notices) n.sms],
+          [NoticeDelivery.sent, NoticeDelivery.none, NoticeDelivery.none],
+        );
+        expect(notices.every((n) => n.push == NoticeDelivery.sent), isTrue);
+      },
+    );
+
+    test('a false report or a crowd cluster tells no resident', () async {
+      await backend.signIn('dispatcher@sagip.test', MockSeed.demoPassword);
+      await backend.assignUnit('INC-0147', 'unit-r03');
+      await backend.markFalseReport('INC-0147');
+      expect(await backend.watchNotices('INC-0147').first, isEmpty);
+      final cluster = (await active()).firstWhere(
+        (i) => i.origin == IncidentOrigin.crowdCluster,
+      );
+      expect(await backend.watchNotices(cluster.id).first, isEmpty);
+    });
+
     test('a false report leaves the queue and frees its unit', () async {
       await backend.signIn('dispatcher@sagip.test', MockSeed.demoPassword);
       await backend.assignUnit('INC-0147', 'unit-r03');

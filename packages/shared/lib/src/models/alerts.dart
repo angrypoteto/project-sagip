@@ -482,6 +482,92 @@ class RescueConfirmation {
   };
 }
 
+/// What happened to one rescue confirmation on one channel, as the
+/// dispatcher sees it on the incident drawer (D4).
+enum NoticeDelivery {
+  /// This step is not sent on this channel (only the first unit is texted).
+  none,
+
+  /// Queued or being sent.
+  waiting,
+  sent,
+  failed,
+
+  /// The channel was switched off on A3.
+  off,
+
+  /// Simulation mode: nothing went out.
+  simulated,
+
+  /// The channel has no provider yet (no Semaphore key, no Firebase key).
+  notSetUp,
+
+  /// Not sent within 30 minutes.
+  expired,
+
+  /// Push only: the resident's account has no phone registered.
+  noDevice,
+
+  /// Push only: the resident has no app account, so no push was queued.
+  noApp;
+
+  static NoticeDelivery fromStatus(String? status) => switch (status) {
+    null => noApp,
+    'queued' || 'sending' => waiting,
+    _ => NoticeDelivery.values.byName(status),
+  };
+}
+
+/// One thing the resident was told about their SOS (FR6), with how it went
+/// out: the Alerts tab always, plus a text and a push (`incident_notices`).
+@immutable
+class ResidentNotice {
+  const ResidentNotice({
+    required this.id,
+    required this.kind,
+    required this.at,
+    required this.sms,
+    required this.push,
+    this.unitCallSign,
+    this.readAt,
+  });
+
+  final String id;
+  final RescueConfirmationKind kind;
+  final String? unitCallSign;
+  final DateTime at;
+
+  /// When the resident opened it in the app; null if not yet.
+  final DateTime? readAt;
+  final NoticeDelivery sms;
+  final NoticeDelivery push;
+
+  factory ResidentNotice.fromJson(Map<String, Object?> json) => ResidentNotice(
+    id: '${json['confirmation_id']}',
+    kind: enumFromJson(RescueConfirmationKind.values, json['kind']),
+    unitCallSign: json['unit_call_sign'] as String?,
+    at: timeFromJson(json['created_at']),
+    readAt: timeFromJsonOrNull(json['read_at']),
+    sms: NoticeDelivery.fromStatus(json['sms_status'] as String? ?? 'none'),
+    push: NoticeDelivery.fromStatus(json['push_status'] as String?),
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is ResidentNotice &&
+      other.id == id &&
+      other.kind == kind &&
+      other.unitCallSign == unitCallSign &&
+      other.at == at &&
+      other.readAt == readAt &&
+      other.sms == sms &&
+      other.push == push;
+
+  @override
+  int get hashCode =>
+      Object.hash(id, kind, unitCallSign, at, readAt, sms, push);
+}
+
 /// Everything the Alerts tab shows, plus when the phone last received it,
 /// so the offline state can say "Last updated 2:15 PM".
 @immutable

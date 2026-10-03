@@ -630,6 +630,21 @@ class SupabaseIncidentRepository implements IncidentRepository {
     'crowd_report',
   ];
 
+  @override
+  Stream<List<ResidentNotice>> watchNotices(String incidentId) => liveQuery(
+    _client,
+    tables: const ['rescue_confirmation'],
+    // Push and SMS outcomes change in tables dispatchers cannot watch.
+    refreshEvery: const Duration(seconds: 20),
+    fetch: () async {
+      final rows = await _client.rpc<List<dynamic>>(
+        'incident_notices',
+        params: {'p_incident_id': incidentId},
+      );
+      return [for (final r in rows) ResidentNotice.fromJson(r as _Row)];
+    },
+  );
+
   List<Incident> _incidents(List<_Row> rows) => [
     for (final r in rows) Incident.fromJson(r),
   ];

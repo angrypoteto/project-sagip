@@ -32,7 +32,7 @@ class _BarangayDialogState extends State<_BarangayDialog> {
     final l10n = AppLocalizations.of(context);
     final q = _query.trim().toLowerCase();
     final matches = [
-      for (final b in sampleManilaBarangays)
+      for (final b in manilaBarangays)
         if ((!widget.needsCenter || b.center != null) &&
             (q.isEmpty || '${b.name} ${b.district}'.toLowerCase().contains(q)))
           b,

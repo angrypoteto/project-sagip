@@ -148,7 +148,7 @@ class _LocationPickerState extends ConsumerState<LocationPickerPage> {
     final matches = q.isEmpty
         ? const <Barangay>[]
         : [
-            for (final b in sampleManilaBarangays)
+            for (final b in manilaBarangays)
               if (b.center != null &&
                   ('${b.name} ${b.district}').toLowerCase().contains(q))
                 b,

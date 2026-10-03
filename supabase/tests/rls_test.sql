@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(307);
+select plan(322);
 
 select public.reset_demo_data();
 
@@ -1375,6 +1375,92 @@ select ok(
           and headers ->> 'x-sagip-key' = public.sender_secret()
      from net.http_request_queue order by id desc limit 1),
   'at its address, with the shared secret');
+
+-- ------------------------------------------------ what the resident was told (D4)
+
+reset role;
+select ok(
+  not has_function_privilege('anon', 'public.incident_notices(text)', 'execute'),
+  'anon cannot read what a resident was told');
+-- What the drawer should show, read straight from both tables.
+create temp table __told as
+  select c.incident_id,
+         string_agg(c.kind || ':' || coalesce(c.unit_call_sign, '-') || ':' || c.sms_status || ':'
+                    || coalesce((select m.status from public.push_message m
+                                  where m.kind = 'rescue' and m.data ->> 'confirmation_id' = c.confirmation_id::text
+                                  order by m.message_id desc limit 1), 'noApp'),
+                    ',' order by c.created_at, c.confirmation_id) as told
+    from public.rescue_confirmation c group by c.incident_id;
+grant select on __told to authenticated;
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok($$ select * from public.incident_notices('INC-0147') $$,
+  'P0001', 'not_allowed', 'a resident cannot read the notices on the dashboard drawer');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select throws_ok($$ select * from public.incident_notices('INC-0142') $$,
+  'P0001', 'not_allowed', 'a responder cannot either');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is(
+  (select string_agg(n.kind || ':' || coalesce(n.unit_call_sign, '-') || ':' || n.sms_status || ':'
+                     || coalesce(n.push_status, 'noApp'), ',')
+     from public.incident_notices(
+       (select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005a1')) n),
+  'assigned:R-20:queued:sending,resolved:R-20:none:off',
+  'a dispatcher sees each notice with its text and push outcome, oldest first');
+select is(
+  (select string_agg(coalesce(n.push_status, 'noApp'), ',') from public.incident_notices('INC-0142') n),
+  (select regexp_replace(told, '[^,]*:', '', 'g') from __told where incident_id = 'INC-0142'),
+  'a resident with no app account shows no push');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select is(
+  (select count(*)::int from __told t
+    where t.told is distinct from (
+      select string_agg(n.kind || ':' || coalesce(n.unit_call_sign, '-') || ':' || n.sms_status || ':'
+                        || coalesce(n.push_status, 'noApp'), ',')
+        from public.incident_notices(t.incident_id) n)),
+  0, 'an admin sees the same as the tables hold, for every incident');
+
+-- ------------------------------------------------ all 897 barangays (FR15)
+
+reset role;
+select ok(
+  not has_function_privilege('anon', 'private.load_barangays(jsonb)', 'execute')
+  and not has_function_privilege('authenticated', 'private.load_barangays(jsonb)', 'execute')
+  and has_function_privilege('service_role', 'private.load_barangays(jsonb)', 'execute'),
+  'only the SQL editor and the service role can load barangays');
+select ok(
+  not has_table_privilege('anon', 'public.manila_outline', 'select')
+  and not has_table_privilege('authenticated', 'public.manila_outline', 'insert'),
+  'anon cannot read the city outline and no client can change it');
+select throws_ok($$ select private.load_barangays('{"barangays": []}') $$,
+  'P0001', 'invalid_value', 'an empty barangay list is refused');
+create temp table __brgy as select count(*)::int as before from public.barangay;
+select is(
+  private.load_barangays($j${
+    "source": "RLS test squares",
+    "barangays": [
+      {"name": "Barangay 412", "district": "Sampaloc", "psgc": "1380606018",
+       "polygons": [["wjbxAgtmaV?oKoK??nK"]], "center": [14.6, 120.99]},
+      {"name": "Barangay Test", "district": "Sampaloc", "psgc": "1380699999",
+       "polygons": [["wjbxAgmnaV?oKoK??nK"]], "center": [14.6, 120.994]}],
+    "other": [{"name": "Not a barangay", "district": "Tondo", "polygons": [["kihxA{xkaV?gEgE??fE"]]}]
+  }$j$::jsonb),
+  2, 'loading writes each barangay in the file');
+select is((select count(*)::int from public.barangay) - (select before from __brgy), 1,
+  'a barangay already there is updated, not added again; a new one is added');
+select ok(
+  (select psgc_code = '1380606018' and center_latitude = 14.6 and center_longitude = 120.99
+          and round(extensions.st_area(boundary)) between 45000 and 50000
+     from public.barangay where name = 'Barangay 412'),
+  'the existing barangay gets its code, center, and boundary (about 4.7 ha)');
+select ok(
+  private.inside_manila(14.6000, 120.9900) and private.inside_manila(14.6300, 120.9800),
+  'inside a barangay, and inside an area in no barangay, is inside Manila');
+select ok(private.inside_manila(14.6000, 120.9914),
+  '43 m past the edge still counts (GPS error, simplified boundaries)');
+select ok(not private.inside_manila(14.6000, 120.9920),
+  'over 100 m from any part of the city is outside Manila');
 
 reset role;
 select * from finish();

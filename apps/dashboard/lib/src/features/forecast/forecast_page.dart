@@ -15,7 +15,7 @@ import '../board/map_parts.dart';
 /// Where each barangay sits on the map. Centers only: boundaries arrive
 /// with the full list of Manila's barangays.
 final _centers = {
-  for (final b in sampleManilaBarangays)
+  for (final b in manilaBarangays)
     if (b.center != null) b.name: b.center!,
 };
 
@@ -208,11 +208,12 @@ class _RankedList extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final now = ref.watch(slowClockProvider).value ?? DateTime.now();
     final without = [
-      for (final b in sampleManilaBarangays)
+      for (final b in manilaBarangays)
         if (run.forBarangay(b.name) == null) b,
     ];
 
     return ListView(
+      key: const ValueKey('forecast-list'),
       padding: const EdgeInsets.only(bottom: SagipSpace.xxl),
       children: [
         Padding(

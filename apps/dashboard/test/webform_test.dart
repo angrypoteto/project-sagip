@@ -336,7 +336,8 @@ void main() {
     location.point = sampaloc;
     await tester.tap(find.text('Use my location'));
     await settle(tester);
-    expect(find.text('Near Barangay 412, Sampaloc'), findsOneWidget);
+    // PSA's boundaries put this point in Barangay 460.
+    expect(find.text('Near Barangay 460, Sampaloc'), findsOneWidget);
     expect(find.text('From your browser, accurate to 25 m'), findsOneWidget);
     expect(
       find.textContaining('Your browser did not share your location.'),

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:sagip_shared/sagip_shared.dart';
 
+import 'device/device_battery_optimization.dart';
+
 // ---------------------------------------------------------------------------
 // Repositories. Each throws until main.dart overrides it, so screens only
 // reach data through these interfaces (CLAUDE.md architecture rule).
@@ -19,6 +21,19 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final residentAccountRepositoryProvider = Provider<ResidentAccountRepository>(
   (ref) => _missing('ResidentAccountRepository'),
 );
+
+/// Android's battery setting (responders only). Sample data starts not
+/// exempt so the prompt can be seen; the real app reads the phone.
+final batteryOptimizationProvider = Provider<BatteryOptimization>(
+  (ref) => MockBatteryOptimization(),
+);
+
+/// Whether the app may run in the background; checked again whenever the
+/// app comes back to the front (after the phone's question).
+final batteryExemptProvider = FutureProvider<bool>(
+  (ref) => ref.watch(batteryOptimizationProvider).isExempt(),
+);
+
 final permissionServiceProvider = Provider<PermissionService>(
   (ref) => _missing('PermissionService'),
 );
@@ -189,6 +204,7 @@ List<Override> liveOverrides({
   required LocationService location,
   required PermissionService permissions,
   required ClientConfigRepository config,
+  BatteryOptimization battery = const DeviceBatteryOptimization(),
   Future<void> Function()? recheckSignal,
   Stream<PushOpen>? pushOpens,
 }) {
@@ -207,6 +223,7 @@ List<Override> liveOverrides({
     authRepositoryProvider.overrideWithValue(backend.accounts),
     residentAccountRepositoryProvider.overrideWithValue(backend.accounts),
     permissionServiceProvider.overrideWithValue(permissions),
+    batteryOptimizationProvider.overrideWithValue(battery),
     sosRepositoryProvider.overrideWithValue(
       OutboxSosRepository(
         engine: engine,
