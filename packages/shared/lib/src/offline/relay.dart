@@ -24,6 +24,10 @@ abstract interface class RelayRadio {
 
   /// The service data of every SOS packet heard nearby (repeats included).
   Stream<Uint8List> heard();
+
+  /// Keeps the relay going with the app in the background (Android: a
+  /// foreground service with a notice), or lets it stop with the app.
+  Future<void> keepRunning(bool on);
 }
 
 /// Tier 3 for the phone's own SOS: [SyncEngine] advertises it when there
@@ -168,6 +172,7 @@ class RelayNode {
   Future<void> start() async {
     await _heardSub?.cancel();
     _heardSub = _radio.heard().listen(_onHeard, onError: (Object _) {});
+    if (await _radio.isSupported()) await _radio.keepRunning(true);
     _onlineSub ??= _onlineSource.listen((on) {
       _online = on;
       if (on) {
@@ -262,6 +267,7 @@ class RelayNode {
       await _radio.stop(_relayKey(id));
     }
     _passing.clear();
+    await _radio.keepRunning(false);
   }
 
   Future<void> dispose() => stop();

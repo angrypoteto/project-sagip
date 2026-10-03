@@ -37,6 +37,7 @@ class MainActivity : FlutterActivity() {
     override fun onDestroy() {
         relay.stopAll()
         relay.stopScan()
+        RelayService.stop(applicationContext)
         super.onDestroy()
     }
 
@@ -107,6 +108,14 @@ class MainActivity : FlutterActivity() {
                     }
                     "stop" -> {
                         call.argument<String>("key")?.let(relay::stop)
+                        result.success(null)
+                    }
+                    "keepRunning" -> {
+                        if (call.argument<Boolean>("on") == true) {
+                            RelayService.start(applicationContext)
+                        } else {
+                            RelayService.stop(applicationContext)
+                        }
                         result.success(null)
                     }
                     else -> result.notImplemented()

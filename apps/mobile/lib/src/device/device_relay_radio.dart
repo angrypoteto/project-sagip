@@ -51,6 +51,15 @@ class DeviceRelayRadio implements RelayRadio {
   }
 
   @override
+  Future<void> keepRunning(bool on) async {
+    try {
+      await _methods.invokeMethod<void>('keepRunning', {'on': on});
+    } on Object {
+      // Android refused the background service; the relay runs while open.
+    }
+  }
+
+  @override
   Stream<Uint8List> heard() => _events
       .receiveBroadcastStream()
       .where((e) => e is Uint8List)

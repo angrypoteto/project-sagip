@@ -9,6 +9,10 @@ class FakeRadio implements RelayRadio {
   final adverts = <String, Uint8List>{};
   final _heard = StreamController<Uint8List>.broadcast();
   var supported = true;
+  var keptRunning = false;
+
+  @override
+  Future<void> keepRunning(bool on) async => keptRunning = on;
 
   void hear(Uint8List packet) => _heard.add(packet);
 
@@ -244,6 +248,12 @@ void main() {
     });
 
     tearDown(() => node.dispose());
+
+    test('the relay keeps running in the background until it stops', () async {
+      expect(radio.keptRunning, isTrue);
+      await node.stop();
+      expect(radio.keptRunning, isFalse);
+    });
 
     test('offline: kept and passed on one hop further', () async {
       online.add(false);

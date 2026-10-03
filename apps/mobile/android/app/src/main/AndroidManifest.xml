@@ -27,6 +27,9 @@
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <!-- Tier 3 keeps passing SOS on with the app in the background: a
+         foreground service of the "connected device" type (Android 14). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
     <application
         android:label="S.A.G.I.P."
         android:name="${applicationName}"
@@ -53,6 +56,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <service
+            android:name=".RelayService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
         <!-- Push notifications (Firebase Cloud Messaging): the icon, its tint,
              and the category of a notification that names none. The
              categories are created in MainActivity. -->
