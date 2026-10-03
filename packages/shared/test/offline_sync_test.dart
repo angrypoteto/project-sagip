@@ -728,6 +728,42 @@ void main() {
       },
     );
 
+    test('the map around an offered job is saved at once (FR13)', () async {
+      account = 'rsp-r03';
+      final maps = _FakeMapSaver();
+      final repo = OutboxResponderRepository(
+        engine: engine,
+        server: server,
+        store: store,
+        account: () => account,
+        maps: maps,
+        clock: () => now,
+      );
+      final states = <ResponderState>[];
+      final sub = repo.watch().listen(states.add);
+      server.unit.add(
+        unitR03.copyWith(location: const GeoPoint(14.5995, 120.9842)),
+      );
+      server.jobs.add([job(IncidentStatus.assigned)]);
+      await pumpEventQueue();
+      // Saved from the unit to the incident, once, before it is accepted.
+      expect(maps.paths, [
+        [const GeoPoint(14.5995, 120.9842), const GeoPoint(14.6091, 120.9925)],
+      ]);
+      expect(states.last.offer?.mapSaved, 0);
+      maps.progress.add(0.5);
+      await pumpEventQueue();
+      expect(states.last.offer?.mapSaved, 0.5);
+
+      await repo.accept('INC-0147');
+      maps.progress.add(1);
+      await pumpEventQueue();
+      expect(states.last.current?.mapSaved, 1);
+      expect(maps.paths, hasLength(1));
+      await sub.cancel();
+      await maps.progress.close();
+    });
+
     test(
       'a job the dispatcher closes stays with a banner until Available',
       () async {
@@ -910,4 +946,16 @@ class _Config implements ClientConfigRepository {
 
   @override
   Future<ClientConfig> fetch() async => _read();
+}
+
+/// Records what was asked to be saved; the test drives the progress.
+class _FakeMapSaver implements MapSaver {
+  final paths = <List<GeoPoint>>[];
+  final progress = StreamController<double>.broadcast();
+
+  @override
+  Stream<double> save(List<GeoPoint> path) {
+    paths.add(path);
+    return progress.stream;
+  }
 }

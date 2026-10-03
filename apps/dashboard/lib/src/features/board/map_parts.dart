@@ -1,5 +1,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -16,6 +17,54 @@ class SagipBaseMap extends ConsumerWidget {
     userAgentPackageName: 'ph.sagip.dashboard',
     enabled: ref.watch(mapTilesEnabledProvider),
   );
+}
+
+/// Every barangay's outline as map points, made once.
+final Map<String, List<List<LatLng>>> _outlines = {
+  for (final b in manilaBarangays)
+    b.name: [
+      for (final ring in barangayOutline(b.name))
+        [for (final p in ring) toLatLng(p)],
+    ],
+};
+
+/// Manila's 897 barangay boundaries (PSA, indicative): thin lines, an
+/// optional fill per barangay, and one highlighted barangay.
+class BarangayBoundaries extends StatelessWidget {
+  const BarangayBoundaries({super.key, this.fills = const {}, this.highlight});
+
+  /// Fill color by barangay name; barangays not listed are not filled.
+  final Map<String, Color> fills;
+
+  /// Drawn with a stronger, thicker line.
+  final String? highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = SagipPalette.of(context);
+    final polygons = <Polygon>[];
+    Polygon<Object> shape(String name, List<LatLng> ring, {bool top = false}) =>
+        Polygon(
+          points: ring,
+          color: fills[name],
+          // Quiet but visible over the muted basemap in both themes.
+          borderColor: top
+              ? p.textPrimary
+              : p.textSecondary.withValues(alpha: 0.55),
+          borderStrokeWidth: top ? 2.5 : 1,
+        );
+    for (final entry in _outlines.entries) {
+      if (entry.key == highlight) continue;
+      for (final ring in entry.value) {
+        polygons.add(shape(entry.key, ring));
+      }
+    }
+    // The highlighted barangay last, so its line is on top.
+    for (final ring in _outlines[highlight] ?? const <List<LatLng>>[]) {
+      polygons.add(shape(highlight!, ring, top: true));
+    }
+    return PolygonLayer(polygons: polygons);
+  }
 }
 
 /// The OpenStreetMap credit with the dashboard's wording.

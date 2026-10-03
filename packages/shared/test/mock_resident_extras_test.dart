@@ -319,6 +319,16 @@ void main() {
       expect(barangayNamed('Barangay 21'), isNull); // no such number
     });
 
+    test('outlines for the maps: one or more rings each, two areas apart', () {
+      for (final b in manilaBarangays) {
+        final rings = barangayOutline(b.name);
+        expect(rings, isNotEmpty, reason: b.name);
+        expect(rings.every((r) => r.length >= 3), isTrue, reason: b.name);
+      }
+      expect(barangayOutline('Barangay 21'), isEmpty);
+      expect(manilaOtherOutlines, hasLength(2));
+    });
+
     test('each center lies in its own barangay', () {
       for (final b in manilaBarangays) {
         expect(nearestBarangay(b.center!)?.name, b.name);

@@ -356,6 +356,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get layerReports => 'Crowd reports';
 
   @override
+  String get layerBoundaries => 'Barangay boundaries';
+
+  @override
   String get zoomIn => 'Zoom in';
 
   @override
@@ -1933,7 +1936,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forecastLegendNote =>
-      'Circles mark barangay centers, not boundaries.';
+      'Each barangay is shaded by its risk. Boundaries: PSA, indicative.';
 
   @override
   String get forecastRisks => 'Risk by hazard';

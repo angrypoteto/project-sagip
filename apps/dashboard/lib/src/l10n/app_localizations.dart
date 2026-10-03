@@ -724,6 +724,12 @@ abstract class AppLocalizations {
   /// **'Crowd reports'**
   String get layerReports;
 
+  /// No description provided for @layerBoundaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay boundaries'**
+  String get layerBoundaries;
+
   /// No description provided for @zoomIn.
   ///
   /// In en, this message translates to:
@@ -3469,7 +3475,7 @@ abstract class AppLocalizations {
   /// No description provided for @forecastLegendNote.
   ///
   /// In en, this message translates to:
-  /// **'Circles mark barangay centers, not boundaries.'**
+  /// **'Each barangay is shaded by its risk. Boundaries: PSA, indicative.'**
   String get forecastLegendNote;
 
   /// No description provided for @forecastRisks.

@@ -176,7 +176,11 @@ class _LocationPickerState extends ConsumerState<LocationPickerPage> {
             ),
           ),
           children: [
-            SagipTiles(userAgentPackageName: 'ph.sagip.mobile', enabled: tiles),
+            SagipTiles(
+              userAgentPackageName: 'ph.sagip.mobile',
+              enabled: tiles,
+              tileProvider: ref.watch(tileProviderProvider),
+            ),
             if (gps != null) ...[
               CircleLayer(
                 circles: [

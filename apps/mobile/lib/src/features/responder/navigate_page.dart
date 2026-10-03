@@ -96,6 +96,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                     SagipTiles(
                       userAgentPackageName: 'ph.sagip.mobile',
                       enabled: tiles,
+                      tileProvider: ref.watch(tileProviderProvider),
                     ),
                     if (unit != null)
                       GlidingLayer(

@@ -12,8 +12,7 @@ import '../../providers.dart';
 import '../../router.dart';
 import '../board/map_parts.dart';
 
-/// Where each barangay sits on the map. Centers only: boundaries arrive
-/// with the full list of Manila's barangays.
+/// Where each barangay's marker sits: its center (inside its boundary).
 final _centers = {
   for (final b in manilaBarangays)
     if (b.center != null) b.name: b.center!,
@@ -99,13 +98,11 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 ),
                 children: [
                   const SagipBaseMap(),
+                  BarangayBoundaries(
+                    fills: run == null ? const {} : _riskFills(run, p),
+                    highlight: selected,
+                  ),
                   if (run != null) ...[
-                    CircleLayer(
-                      circles: [
-                        for (final f in run.forecasts)
-                          if (_centers[f.barangay] != null) _riskCircle(f, p),
-                      ],
-                    ),
                     MarkerLayer(
                       markers: [
                         for (final f in run.forecasts)
@@ -165,24 +162,16 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
     );
   }
 
-  /// The risk drawn as a soft disc around the barangay's center: nothing
-  /// for low, ember for moderate, signal for high.
-  CircleMarker _riskCircle(BarangayForecast f, SagipPalette p) {
-    final risk = f.riskOf(_hazard);
-    final tone = riskVisual(risk, p).tone;
-    return CircleMarker(
-      point: toLatLng(_centers[f.barangay]!),
-      radius: 350,
-      useRadiusInMeter: true,
-      color: switch (risk) {
-        RiskLevel.low => const Color(0x00000000),
-        RiskLevel.moderate => tone.fill.withValues(alpha: 0.2),
-        RiskLevel.high => tone.fill.withValues(alpha: 0.28),
-      },
-      borderColor: risk == RiskLevel.low ? p.hairlineStrong : tone.fill,
-      borderStrokeWidth: 1,
-    );
-  }
+  /// Each barangay shaded by the chosen hazard's risk: nothing for low,
+  /// ember for moderate, signal for high. The icon marker carries the level
+  /// too, so color is never the only cue.
+  Map<String, Color> _riskFills(ForecastRun run, SagipPalette p) => {
+    for (final f in run.forecasts)
+      if (f.riskOf(_hazard) != RiskLevel.low)
+        f.barangay: riskVisual(f.riskOf(_hazard), p).tone.fill.withValues(
+          alpha: f.riskOf(_hazard) == RiskLevel.high ? 0.35 : 0.22,
+        ),
+  };
 }
 
 class _RankedList extends ConsumerWidget {

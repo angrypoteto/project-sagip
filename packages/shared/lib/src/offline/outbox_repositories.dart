@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../mock/live_value.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
@@ -311,6 +312,7 @@ class OutboxResponderRepository implements ResponderRepository {
     required this._store,
     required this._account,
     this._location,
+    this._maps,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
@@ -320,6 +322,17 @@ class OutboxResponderRepository implements ResponderRepository {
   final String? Function() _account;
   final Stream<LocationStatus>? _location;
   final DateTime Function() _clock;
+
+  /// Saves the map around each job as soon as it is offered (FR13); null
+  /// when this phone cannot save maps.
+  final MapSaver? _maps;
+
+  /// How long to wait before trying a failed map save again.
+  static const mapRetryAfter = Duration(seconds: 30);
+
+  /// How much of each job's map is saved, by incident.
+  final _mapSaved = LiveValue<Map<String, double>>(const {});
+  final _mapSaving = <String>{};
 
   /// The last state shown, for the checks in [setStatus].
   ResponderState? _latest;
@@ -360,17 +373,56 @@ class OutboxResponderRepository implements ResponderRepository {
       ),
     );
     final gps = _location ?? Stream<LocationStatus?>.value(null);
-    return combineLatest([unit, jobs, _engine.watch(), gps], (v) {
-      final state = _state(
-        me,
-        v[0] as ResponseUnit?,
-        v[1] as List<Assignment>?,
-        v[2]! as List<OutboxEntry>,
-        v[3] as LocationStatus?,
-      );
-      if (state != null) _latest = state;
-      return state;
-    }).where((s) => s != null).cast<ResponderState>();
+    return combineLatest(
+      [unit, jobs, _engine.watch(), gps, _mapSaved.watch()],
+      (v) {
+        var state = _state(
+          me,
+          v[0] as ResponseUnit?,
+          v[1] as List<Assignment>?,
+          v[2]! as List<OutboxEntry>,
+          v[3] as LocationStatus?,
+        );
+        if (state != null) {
+          state = _withMaps(state, v[4]! as Map<String, double>);
+          _latest = state;
+        }
+        return state;
+      },
+    ).where((s) => s != null).cast<ResponderState>();
+  }
+
+  /// Starts saving the map for a job the first time it is seen, and puts
+  /// the share saved on the job.
+  ResponderState _withMaps(ResponderState s, Map<String, double> saved) {
+    final maps = _maps;
+    if (maps == null) return s;
+    for (final job in [?s.offer, ?s.current]) {
+      if (job.closedByDispatcher || !_mapSaving.add(job.incidentId)) continue;
+      final path = job.route?.points.isNotEmpty == true
+          ? job.route!.points
+          : [?s.unit.location, job.location];
+      final id = job.incidentId;
+      maps
+          .save(path)
+          .listen(
+            (share) =>
+                _mapSaved.value = {..._mapSaved.value, id: share.clamp(0, 1)},
+            // A lost signal stops the save; it starts again (skipping what
+            // is saved) the next time the state changes after a pause.
+            onError: (Object _) =>
+                Timer(mapRetryAfter, () => _mapSaving.remove(id)),
+          );
+    }
+    Assignment? apply(Assignment? a) =>
+        a?.copyWith(mapSaved: saved[a.incidentId] ?? a.mapSaved);
+    return ResponderState(
+      unit: s.unit,
+      current: apply(s.current),
+      offer: apply(s.offer),
+      locationSentAt: s.locationSentAt,
+      gpsOn: s.gpsOn,
+    );
   }
 
   ResponderState? _state(

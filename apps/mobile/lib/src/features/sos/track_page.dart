@@ -96,7 +96,11 @@ class _TrackBody extends ConsumerWidget {
             ),
           ),
           children: [
-            SagipTiles(userAgentPackageName: 'ph.sagip.mobile', enabled: tiles),
+            SagipTiles(
+              userAgentPackageName: 'ph.sagip.mobile',
+              enabled: tiles,
+              tileProvider: ref.watch(tileProviderProvider),
+            ),
             if (you != null && unit != null)
               GlidingLayer(
                 target: unit,

@@ -111,10 +111,25 @@ Barangay? nearestBarangay(GeoPoint point, {double withinMeters = 50}) {
   return best;
 }
 
+final Map<String, int> _index = {
+  for (var i = 0; i < manilaBarangays.length; i++) manilaBarangays[i].name: i,
+};
+
 /// The barangay with this exact name, if it exists.
 Barangay? barangayNamed(String name) {
-  for (final b in manilaBarangays) {
-    if (b.name == name) return b;
-  }
-  return null;
+  final i = _index[name];
+  return i == null ? null : manilaBarangays[i];
 }
+
+/// A barangay's outline: the outer ring of each of its parts (most have
+/// one). Empty for a name that is not one of Manila's barangays.
+List<List<GeoPoint>> barangayOutline(String name) {
+  final i = _index[name];
+  return i == null ? const [] : _shapes[i].rings;
+}
+
+/// The two parts of Manila that are in no barangay (Tutuban Mall, Manila
+/// North Cemetery).
+List<List<GeoPoint>> get manilaOtherOutlines => [
+  for (final s in _otherShapes) ...s.rings,
+];

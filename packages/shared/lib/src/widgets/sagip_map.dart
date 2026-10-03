@@ -2,6 +2,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../algorithms/map_tiles.dart';
 import '../models/geo_point.dart';
 import '../theme/sagip_palette.dart';
 import '../theme/sagip_tokens.dart';
@@ -22,7 +23,16 @@ class SagipTiles extends StatelessWidget {
     super.key,
     required this.userAgentPackageName,
     this.enabled = true,
+    this.urlTemplate = mapTileUrl,
+    this.tileProvider,
   });
+
+  /// Where tiles come from ([mapTileUrl] unless a test says otherwise).
+  final String urlTemplate;
+
+  /// Null: flutter_map's own network provider. The phone app passes one
+  /// that reads the tiles saved for a job (FR13).
+  final TileProvider? tileProvider;
 
   /// Identifies the app to the tile server, for example "ph.sagip.mobile".
   final String userAgentPackageName;
@@ -35,8 +45,9 @@ class SagipTiles extends StatelessWidget {
     if (!enabled) return const SizedBox.shrink();
     final dark = Theme.of(context).brightness == Brightness.dark;
     return TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      urlTemplate: urlTemplate,
       userAgentPackageName: userAgentPackageName,
+      tileProvider: tileProvider,
       maxNativeZoom: 19,
       tileBuilder: (context, tile, image) => ColorFiltered(
         colorFilter: dark ? _mutedDark : _mutedLight,

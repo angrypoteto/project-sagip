@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -7,6 +8,7 @@ import 'package:sagip_dashboard/src/common/chime.dart';
 import 'package:sagip_dashboard/src/common/download.dart';
 import 'package:sagip_dashboard/src/features/admin/report_pdf.dart';
 import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
+import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
 import 'package:sagip_dashboard/src/providers.dart';
 import 'package:sagip_dashboard/src/router.dart';
@@ -745,6 +747,17 @@ void main() {
     expect(find.text('2 high, 1 moderate, 5 low'), findsOneWidget);
     expect(top('Barangay 649'), lessThan(top('Barangay 105')));
     expect(top('Barangay 105'), lessThan(top('Barangay 412')));
+    // The map shades each barangay's real boundary by its risk (low is
+    // not shaded); all 897 outlines are drawn.
+    final shading = tester.widget<BarangayBoundaries>(
+      find.byType(BarangayBoundaries),
+    );
+    expect(shading.fills.keys, hasLength(3));
+    expect(shading.fills.keys, contains('Barangay 649'));
+    expect(
+      tester.widget<PolygonLayer>(find.byType(PolygonLayer)).polygons.length,
+      greaterThanOrEqualTo(897),
+    );
 
     // No barangay chosen yet: no panel.
     expect(find.byKey(const ValueKey('forecast-panel')), findsNothing);

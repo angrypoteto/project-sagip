@@ -105,6 +105,7 @@ class _Body extends ConsumerWidget {
                 SagipTiles(
                   userAgentPackageName: 'ph.sagip.mobile',
                   enabled: tiles,
+                  tileProvider: ref.watch(tileProviderProvider),
                 ),
                 if (road != null)
                   PolylineLayer(

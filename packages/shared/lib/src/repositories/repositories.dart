@@ -491,6 +491,16 @@ abstract interface class AlertRepository {
   Future<void> markConfirmationRead(String confirmationId);
 }
 
+/// Saves the map around a job on the phone, so the responder can still see
+/// it with no signal (FR13: map tiles are downloaded at dispatch time).
+abstract interface class MapSaver {
+  /// Saves the map along [path] (the route, or the unit and the incident).
+  /// Emits the share saved so far, from 0 to 1, and closes when done. Tiles
+  /// already saved are not fetched again. Errors end the stream early; the
+  /// last share saved stays.
+  Stream<double> save(List<GeoPoint> path);
+}
+
 /// Android's battery saver may stop an app in the background, which would
 /// stop a responder's phone sharing the unit's position (FR9). The app asks
 /// to be left running.

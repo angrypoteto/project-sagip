@@ -8,7 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import 'map_parts.dart';
 
-enum _Layer { units, reports }
+enum _Layer { units, reports, boundaries }
 
 /// D2 map view: active incidents, unverified crowd reports, and units.
 class IncidentMap extends ConsumerStatefulWidget {
@@ -27,7 +27,7 @@ class IncidentMap extends ConsumerStatefulWidget {
 
 class _IncidentMapState extends ConsumerState<IncidentMap> {
   final _controller = MapController();
-  final _layers = {_Layer.units, _Layer.reports};
+  final _layers = {_Layer.units, _Layer.reports, _Layer.boundaries};
   bool _ready = false;
 
   @override
@@ -127,6 +127,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
           ),
           children: [
             const SagipBaseMap(),
+            if (_layers.contains(_Layer.boundaries)) const BarangayBoundaries(),
             MarkerLayer(markers: markers),
             const MapAttribution(),
           ],
@@ -205,6 +206,7 @@ class _LayersCard extends StatelessWidget {
         for (final (layer, label) in [
           (_Layer.units, l10n.layerUnits),
           (_Layer.reports, l10n.layerReports),
+          (_Layer.boundaries, l10n.layerBoundaries),
         ])
           CheckboxListTile(
             value: layers.contains(layer),

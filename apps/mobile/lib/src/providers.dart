@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show immutable;
+import 'package:flutter_map/flutter_map.dart' show TileProvider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart' show ThemeMode;
@@ -21,6 +22,11 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final residentAccountRepositoryProvider = Provider<ResidentAccountRepository>(
   (ref) => _missing('ResidentAccountRepository'),
 );
+
+/// Where the maps get their tiles: null for flutter_map's own provider
+/// (sample data, tests); the real app passes one on the phone's tile cache,
+/// which also holds the tiles saved for a job (FR13).
+final tileProviderProvider = Provider<TileProvider?>((ref) => null);
 
 /// Android's battery setting (responders only). Sample data starts not
 /// exempt so the prompt can be seen; the real app reads the phone.
@@ -205,6 +211,8 @@ List<Override> liveOverrides({
   required PermissionService permissions,
   required ClientConfigRepository config,
   BatteryOptimization battery = const DeviceBatteryOptimization(),
+  MapSaver? maps,
+  TileProvider? tiles,
   Future<void> Function()? recheckSignal,
   Stream<PushOpen>? pushOpens,
 }) {
@@ -217,9 +225,10 @@ List<Override> liveOverrides({
       (ref) => DeviceCapabilities(
         smsTier: ref.watch(smsGatewayProvider).isNotEmpty,
         relayTier: false,
-        offlineMaps: false,
+        offlineMaps: maps != null,
       ),
     ),
+    tileProviderProvider.overrideWithValue(tiles),
     authRepositoryProvider.overrideWithValue(backend.accounts),
     residentAccountRepositoryProvider.overrideWithValue(backend.accounts),
     permissionServiceProvider.overrideWithValue(permissions),
@@ -247,6 +256,7 @@ List<Override> liveOverrides({
         store: store,
         account: account,
         location: location.watch(),
+        maps: maps,
       ),
     ),
     offlineQueueProvider.overrideWithValue(

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_map/flutter_map.dart' show NetworkTileProvider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart';
@@ -13,6 +14,7 @@ import 'src/device/device_sms_sender.dart';
 import 'src/device/fcm_push_device.dart';
 import 'src/device/hive_store.dart';
 import 'src/device/reachability_signal_monitor.dart';
+import 'src/device/tile_map_saver.dart';
 import 'src/l10n/app_localizations.dart';
 import 'src/providers.dart';
 
@@ -118,7 +120,12 @@ Future<List<Override>> _live() async {
       unawaited(location.setBackground(null));
     }
   });
+  // The map tiles: one cache on the phone for every map, which also keeps
+  // the tiles saved for a responder's job (FR13).
+  final tileCache = phoneTileCache();
   return liveOverrides(
+    maps: TileMapSaver(cache: tileCache),
+    tiles: NetworkTileProvider(cachingProvider: tileCache),
     backend: backend,
     store: store,
     engine: engine,
