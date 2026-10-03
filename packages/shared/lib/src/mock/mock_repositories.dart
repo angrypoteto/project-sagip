@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../algorithms/routing_log.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
@@ -363,6 +365,13 @@ class MockReportRepository implements ReportRepository {
 
   @override
   Future<void> finalize(String id) => _backend.finalizeNdrrmcReport(id);
+
+  @override
+  Future<void> storePdf(String id, Uint8List bytes) =>
+      _backend.storeReportPdf(id, bytes);
+
+  @override
+  Future<Uint8List> storedPdf(String id) => _backend.storedReportPdf(id);
 }
 
 class MockForecastRepository implements ForecastRepository {

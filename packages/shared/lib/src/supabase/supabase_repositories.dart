@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:supabase/supabase.dart' hide AuthException;
 import 'package:supabase/supabase.dart'
@@ -1018,6 +1019,48 @@ class SupabaseReportRepository implements ReportRepository {
       params: {'p_report_id': id},
     ),
   );
+
+  static const _bucket = 'ndrrmc-reports';
+
+  @override
+  Future<void> storePdf(String id, Uint8List bytes) async {
+    try {
+      await _client.storage
+          .from(_bucket)
+          .uploadBinary(
+            '$id.pdf',
+            bytes,
+            fileOptions: const FileOptions(
+              contentType: 'application/pdf',
+              upsert: false,
+            ),
+          );
+    } on StorageException catch (e) {
+      // Already there (a retry after the record step failed): keep it.
+      if (e.statusCode != '409' && !e.message.contains('exists')) {
+        throw _storageRefusal(e);
+      }
+    }
+    await _report(
+      () => _client.rpc<void>('attach_report_pdf', params: {'p_report_id': id}),
+    );
+  }
+
+  @override
+  Future<Uint8List> storedPdf(String id) async {
+    try {
+      return await _client.storage.from(_bucket).download('$id.pdf');
+    } on StorageException catch (e) {
+      throw _storageRefusal(e);
+    }
+  }
+
+  static ActionRejected _storageRefusal(StorageException e) =>
+      switch (e.statusCode) {
+        '400' || '404' => const ActionRejected(ActionRejection.notFound),
+        '401' || '403' => const ActionRejected(ActionRejection.notAllowed),
+        _ => const ActionRejected(ActionRejection.offline),
+      };
 }
 
 // ------------------------------------------------------------------ audit

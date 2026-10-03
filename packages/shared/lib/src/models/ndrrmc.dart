@@ -283,6 +283,7 @@ class NdrrmcReport {
     this.generationMs,
     this.finalizedAt,
     this.finalizedByName,
+    this.pdfStoredAt,
   });
 
   final String id;
@@ -300,6 +301,28 @@ class NdrrmcReport {
   final int? generationMs;
   final DateTime? finalizedAt;
   final String? finalizedByName;
+
+  /// When the final report's PDF was kept in storage (plan 10.6); null
+  /// until then.
+  final DateTime? pdfStoredAt;
+
+  bool get pdfStored => pdfStoredAt != null;
+
+  NdrrmcReport withPdfStoredAt(DateTime at) => NdrrmcReport(
+    id: id,
+    title: title,
+    status: status,
+    source: source,
+    sections: sections,
+    createdByName: createdByName,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    method: method,
+    generationMs: generationMs,
+    finalizedAt: finalizedAt,
+    finalizedByName: finalizedByName,
+    pdfStoredAt: at,
+  );
 
   DateTime get periodStart => source.from;
   DateTime get periodEnd => source.to;
@@ -323,5 +346,6 @@ class NdrrmcReport {
     generationMs: (json['generation_ms'] as num?)?.toInt(),
     finalizedAt: timeFromJsonOrNull(json['finalized_at']),
     finalizedByName: json['finalized_by_name'] as String?,
+    pdfStoredAt: timeFromJsonOrNull(json['pdf_stored_at']),
   );
 }

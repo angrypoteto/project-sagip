@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -129,7 +130,8 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
     final before = _saved;
     if (before != null &&
         before.updatedAt == report.updatedAt &&
-        before.status == report.status) {
+        before.status == report.status &&
+        before.pdfStoredAt == report.pdfStoredAt) {
       return;
     }
     final keepTyping = before != null && _dirty && !report.isFinal;
@@ -296,18 +298,76 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
     if (mounted) setState(() => _busy = true);
     try {
       await repository.finalize(id);
-      messenger.showSnackBar(statusSnack(l10n.reportFinalized));
     } on ActionRejected catch (e) {
       messenger.showSnackBar(statusSnack(l10n.actionRejection(e.reason)));
+      if (mounted) setState(() => _busy = false);
+      return;
     }
+    // The final record, then its PDF kept in storage (plan 10.6).
+    final stored = await _storePdf(id);
+    messenger.showSnackBar(
+      statusSnack(stored ? l10n.reportFinalizedStored : l10n.reportFinalized),
+    );
+    if (mounted) setState(() => _busy = false);
+  }
+
+  /// Builds the final report's PDF and keeps it in storage. False when it
+  /// could not be stored (the report is final either way; "Store the PDF"
+  /// tries again).
+  Future<bool> _storePdf(String id) async {
+    final repository = ref.read(reportRepositoryProvider);
+    try {
+      final report = await repository
+          .watchReports()
+          .map((all) => all.where((r) => r.id == id && r.isFinal).firstOrNull)
+          .firstWhere((r) => r != null)
+          .timeout(const Duration(seconds: 15));
+      if (!mounted) return false;
+      await repository.storePdf(id, await _pdfBytes(report));
+      return true;
+    } on Object {
+      return false;
+    }
+  }
+
+  Future<void> _storeAgain() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final id = _saved?.id;
+    if (id == null) return;
+    setState(() => _busy = true);
+    final stored = await _storePdf(id);
+    messenger.showSnackBar(
+      statusSnack(stored ? l10n.reportPdfStored : l10n.reportPdfNotStored),
+    );
     if (mounted) setState(() => _busy = false);
   }
 
   Future<void> _download() async {
+    final saved = _saved;
+    if (saved != null && saved.pdfStored) {
+      // The copy kept when the report became final.
+      try {
+        final bytes = await ref
+            .read(reportRepositoryProvider)
+            .storedPdf(saved.id);
+        downloadBytes('${saved.id}.pdf', bytes);
+        return;
+      } on Object {
+        // Fall back to building it again from the record.
+      }
+    }
+    if (!mounted) return;
+    downloadBytes(
+      '${saved?.id ?? 'ndrrmc-report-draft'}.pdf',
+      await _pdfBytes(saved),
+    );
+  }
+
+  Future<Uint8List> _pdfBytes(NdrrmcReport? saved) async {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toString();
-    final saved = _saved;
-    final bytes = await buildReportPdf(
+    return buildReportPdf(
       title: _title.text.trim(),
       sections: _current,
       labels: ReportPdfLabels(
@@ -332,7 +392,6 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
         emptySection: l10n.reportPdfEmptySection,
       ),
     );
-    downloadBytes('${saved?.id ?? 'ndrrmc-report-draft'}.pdf', bytes);
   }
 
   @override
@@ -544,6 +603,12 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
             icon: const Icon(Symbols.download_rounded),
             label: Text(l10n.reportDownload),
           ),
+          if (isFinal && saved != null && !saved.pdfStored)
+            OutlinedButton(
+              key: const ValueKey('report-store-pdf'),
+              onPressed: online && !_busy ? _storeAgain : null,
+              child: Text(l10n.reportStorePdf),
+            ),
           if (!isFinal) ...[
             OutlinedButton(
               key: const ValueKey('report-finalize'),

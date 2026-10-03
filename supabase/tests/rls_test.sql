@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(357);
+select plan(362);
 
 select public.reset_demo_data();
 
@@ -1079,6 +1079,28 @@ select throws_ok(
        now() - interval '1 day', now(), 'Changed',
        '[{"key": "overview", "title": "Situation overview", "body": "Changed."}]'::jsonb) $$,
   'P0001', 'already_final', 'a final report cannot be edited');
+
+-- Its PDF is kept in the private bucket (migration report_pdfs).
+select ok(not has_function_privilege('anon', 'public.attach_report_pdf(text)', 'execute'),
+  'anon cannot record a stored PDF');
+select throws_ok(
+  $$ select public.attach_report_pdf(
+       (select report_id from public.ndrrmc_report where title = 'Flood report, revised')) $$,
+  'P0001', 'not_found', 'a PDF is recorded only once its file is in the bucket');
+select throws_ok(
+  $$ insert into storage.objects (bucket_id, name)
+     select 'ndrrmc-reports', report_id || '-copy.pdf' from public.ndrrmc_report
+      where title = 'Flood report, revised' $$,
+  '42501', null, 'the bucket takes only a final report''s own file name');
+select lives_ok(
+  $$ insert into storage.objects (bucket_id, name)
+     select 'ndrrmc-reports', report_id || '.pdf' from public.ndrrmc_report
+      where title = 'Flood report, revised' $$,
+  'an admin stores the final report''s PDF');
+select ok(
+  public.attach_report_pdf(
+    (select report_id from public.ndrrmc_report where title = 'Flood report, revised')) is not null,
+  'and records it on the report');
 select is(
   (select string_agg(action_type || ' ' || detail, '; ' order by log_id) from public.audit_log
     where action_type in ('reportDrafted', 'reportFinalized')),

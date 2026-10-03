@@ -1064,11 +1064,21 @@ void main() {
     await settle(tester);
     await tester.pump(const Duration(seconds: 5));
     await settle(tester);
+    // Building the PDF to keep needs real time (fonts, compression).
+    for (var i = 0; i < 20; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 200)),
+      );
+      await tester.pump();
+    }
+    await settle(tester);
 
     saved = (await tester.runAsync(
       () => MockReportRepository(backend).watchReports().first,
     ))!.single;
     expect(saved.isFinal, isTrue);
+    expect(saved.pdfStored, isTrue, reason: 'the PDF is kept on finalizing');
+    expect(find.byKey(const ValueKey('report-store-pdf')), findsNothing);
     expect(
       saved.sections.last.body,
       'Clear the drains on Dapitan St before the next rain.',

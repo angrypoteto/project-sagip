@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
@@ -466,8 +468,22 @@ void main() {
         rejected(ActionRejection.invalidValue),
       );
 
+      // A draft's PDF is not kept; a final one's is, once.
+      final pdf = Uint8List.fromList('%PDF-1.7 sample'.codeUnits);
+      await expectLater(
+        reports.storePdf(id, pdf),
+        rejected(ActionRejection.invalidValue),
+      );
+      await expectLater(
+        reports.storedPdf(id),
+        rejected(ActionRejection.notFound),
+      );
       await reports.finalize(id);
+      await reports.storePdf(id, pdf);
+      await reports.storePdf(id, Uint8List.fromList([1, 2, 3]));
+      expect(await reports.storedPdf(id), pdf, reason: 'the first copy stays');
       saved = (await reports.watchReports().first).single;
+      expect(saved.pdfStored, isTrue);
       expect(saved.isFinal, isTrue);
       expect(saved.finalizedByName, 'E. Navarro');
       await expectLater(

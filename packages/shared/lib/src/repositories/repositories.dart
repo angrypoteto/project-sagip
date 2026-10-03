@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
@@ -249,6 +251,15 @@ abstract interface class ReportRepository {
 
   /// Marks a draft final; it can no longer be edited. Audited.
   Future<void> finalize(String id);
+
+  /// Keeps a final report's PDF in private storage (plan 10.6), once; a
+  /// second call leaves the first copy. Throws [ActionRejected]:
+  /// `invalidValue` for a draft.
+  Future<void> storePdf(String id, Uint8List bytes);
+
+  /// The stored PDF of a final report. Throws [ActionRejected] `notFound`
+  /// when none is stored.
+  Future<Uint8List> storedPdf(String id);
 }
 
 /// A3 Configuration: values an administrator can change (`app_setting`).

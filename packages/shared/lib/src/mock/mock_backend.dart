@@ -610,6 +610,29 @@ class MockBackend {
     );
   }
 
+  final _reportPdfs = <String, Uint8List>{};
+
+  /// The stored copy of a final report's PDF (`attach_report_pdf` and the
+  /// private bucket): admins only, once.
+  Future<void> storeReportPdf(String id, Uint8List bytes) async {
+    await _authorizeAdmin();
+    final existing = _ndrrmcReports.value.where((r) => r.id == id).firstOrNull;
+    if (existing == null) throw const ActionRejected(ActionRejection.notFound);
+    if (!existing.isFinal) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    if (existing.pdfStored) return;
+    _reportPdfs[id] = Uint8List.fromList(bytes);
+    _replaceReport(existing.withPdfStoredAt(_clock()));
+  }
+
+  Future<Uint8List> storedReportPdf(String id) async {
+    await _authorizeAdmin();
+    final bytes = _reportPdfs[id];
+    if (bytes == null) throw const ActionRejected(ActionRejection.notFound);
+    return bytes;
+  }
+
   void _replaceReport(NdrrmcReport report) {
     _ndrrmcReports.value = [
       for (final r in _ndrrmcReports.value) r.id == report.id ? report : r,

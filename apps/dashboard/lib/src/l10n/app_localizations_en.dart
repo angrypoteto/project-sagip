@@ -2285,6 +2285,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportFinalized => 'Report marked as final';
 
   @override
+  String get reportFinalizedStored =>
+      'Report marked as final. Its PDF is kept in storage.';
+
+  @override
+  String get reportStorePdf => 'Store the PDF';
+
+  @override
+  String get reportPdfStored => 'The PDF is kept in storage.';
+
+  @override
+  String get reportPdfNotStored =>
+      'The PDF could not be stored. Check the connection and try again.';
+
+  @override
   String get reportDownload => 'Download PDF';
 
   @override

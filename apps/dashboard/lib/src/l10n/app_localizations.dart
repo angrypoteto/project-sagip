@@ -4024,6 +4024,30 @@ abstract class AppLocalizations {
   /// **'Report marked as final'**
   String get reportFinalized;
 
+  /// No description provided for @reportFinalizedStored.
+  ///
+  /// In en, this message translates to:
+  /// **'Report marked as final. Its PDF is kept in storage.'**
+  String get reportFinalizedStored;
+
+  /// No description provided for @reportStorePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Store the PDF'**
+  String get reportStorePdf;
+
+  /// No description provided for @reportPdfStored.
+  ///
+  /// In en, this message translates to:
+  /// **'The PDF is kept in storage.'**
+  String get reportPdfStored;
+
+  /// No description provided for @reportPdfNotStored.
+  ///
+  /// In en, this message translates to:
+  /// **'The PDF could not be stored. Check the connection and try again.'**
+  String get reportPdfNotStored;
+
   /// No description provided for @reportDownload.
   ///
   /// In en, this message translates to:
