@@ -359,6 +359,18 @@ void main() {
       expect(nearestBarangay(const GeoPoint(14.59109, 120.952)), isNull);
       expect(nearestBarangay(const GeoPoint(14.5500, 121.0500)), isNull);
     });
+
+    test('the Manila check follows the city boundary, not a box', () {
+      expect(insideManila(const GeoPoint(14.6091, 120.9925)), isTrue);
+      // The two areas in no barangay are still Manila.
+      expect(insideManila(const GeoPoint(14.634, 120.98522)), isTrue);
+      // 30 m into the bay from Baseco counts; 200 m does not.
+      expect(insideManila(const GeoPoint(14.59109, 120.95358)), isTrue);
+      expect(insideManila(const GeoPoint(14.59109, 120.952)), isFalse);
+      // Inside the old rough box, but Quezon City and Makati.
+      expect(insideManila(const GeoPoint(14.635, 121.02)), isFalse);
+      expect(insideManila(const GeoPoint(14.555, 121.025)), isFalse);
+    });
   });
 
   test('new fields survive JSON', () {

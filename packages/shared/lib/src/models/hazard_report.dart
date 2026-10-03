@@ -213,8 +213,3 @@ class ReportRejected implements Exception {
   @override
   String toString() => 'ReportRejected($reason)';
 }
-
-/// A rough box around Manila City. Stands in for the bundled barangay
-/// boundaries (plan R4) until those are added; the server checks again.
-bool roughlyInsideManila(GeoPoint p) =>
-    p.lat >= 14.550 && p.lat <= 14.640 && p.lng >= 120.940 && p.lng <= 121.030;

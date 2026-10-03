@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../data/manila_barangays.dart';
 import '../mock/live_value.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
@@ -247,7 +248,7 @@ class OutboxHazardReportRepository implements HazardReportRepository {
       throw const ReportRejected(ReportRejection.emptyDescription);
     }
     if (fix == null) throw const ReportRejected(ReportRejection.noLocation);
-    if (!roughlyInsideManila(fix.point)) {
+    if (!insideManila(fix.point)) {
       throw const ReportRejected(ReportRejection.outsideManila);
     }
     final now = _clock();

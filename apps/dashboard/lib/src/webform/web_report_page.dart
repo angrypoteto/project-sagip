@@ -111,7 +111,7 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
       return;
     }
     if (location == null) return;
-    if (!roughlyInsideManila(location)) {
+    if (!insideManila(location)) {
       setState(() => _error = ReportRejection.outsideManila);
       return;
     }

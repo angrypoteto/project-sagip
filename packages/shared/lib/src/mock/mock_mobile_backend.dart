@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../algorithms/incident_classifier.dart';
+import '../data/manila_barangays.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/assignment.dart';
@@ -399,7 +400,7 @@ class MockMobileBackend {
       throw const ReportRejected(ReportRejection.emptyDescription);
     }
     if (fix == null) throw const ReportRejected(ReportRejection.noLocation);
-    if (!roughlyInsideManila(fix.point)) {
+    if (!insideManila(fix.point)) {
       throw const ReportRejected(ReportRejection.outsideManila);
     }
     final since = _clock().subtract(reportWindow);
@@ -458,7 +459,7 @@ class MockMobileBackend {
       }
       return existing;
     }
-    if (!roughlyInsideManila(location)) {
+    if (!insideManila(location)) {
       throw const ReportRejected(ReportRejection.outsideManila);
     }
     if (_quota().remaining == 0) {

@@ -111,6 +111,22 @@ Barangay? nearestBarangay(GeoPoint point, {double withinMeters = 50}) {
   return best;
 }
 
+/// Whether [point] is in Manila: inside a barangay or one of the two areas
+/// in none, or within [withinMeters] of one (the server's `inside_manila`
+/// allows the same 50 m). Bundled, so it works offline; the server checks
+/// again.
+bool insideManila(GeoPoint point, {double withinMeters = 50}) {
+  if (_shapes.any((s) => s.contains(point)) ||
+      _otherShapes.any((s) => s.contains(point))) {
+    return true;
+  }
+  for (final s in [..._shapes, ..._otherShapes]) {
+    final d = s.metersTo(point, withinMeters);
+    if (d != null && d <= withinMeters) return true;
+  }
+  return false;
+}
+
 final Map<String, int> _index = {
   for (var i = 0; i < manilaBarangays.length; i++) manilaBarangays[i].name: i,
 };
