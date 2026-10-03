@@ -1582,6 +1582,30 @@ abstract class AppLocalizations {
   /// **'You\'re at the scene'**
   String get atScene;
 
+  /// No description provided for @voiceAheadMeters.
+  ///
+  /// In en, this message translates to:
+  /// **'In {meters} meters, {turn}'**
+  String voiceAheadMeters(int meters, String turn);
+
+  /// No description provided for @voiceAheadKilometers.
+  ///
+  /// In en, this message translates to:
+  /// **'In {kilometers} kilometers, {turn}'**
+  String voiceAheadKilometers(String kilometers, String turn);
+
+  /// No description provided for @voiceOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoken directions are on. Tap to mute.'**
+  String get voiceOn;
+
+  /// No description provided for @voiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoken directions are off. Tap to turn them on.'**
+  String get voiceOff;
+
   /// No description provided for @distanceAway.
   ///
   /// In en, this message translates to:

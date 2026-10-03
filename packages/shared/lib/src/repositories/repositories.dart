@@ -532,6 +532,14 @@ abstract interface class MapSaver {
   Stream<double> save(List<GeoPoint> path);
 }
 
+/// Reads text aloud (the responder's spoken directions on F4).
+abstract interface class Speaker {
+  /// Says [text], cutting off anything still being said.
+  Future<void> say(String text);
+
+  Future<void> stop();
+}
+
 /// Android's battery saver may stop an app in the background, which would
 /// stop a responder's phone sharing the unit's position (FR9). The app asks
 /// to be left running.

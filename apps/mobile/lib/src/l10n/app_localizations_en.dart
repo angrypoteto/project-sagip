@@ -903,6 +903,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get atScene => 'You\'re at the scene';
 
   @override
+  String voiceAheadMeters(int meters, String turn) {
+    return 'In $meters meters, $turn';
+  }
+
+  @override
+  String voiceAheadKilometers(String kilometers, String turn) {
+    return 'In $kilometers kilometers, $turn';
+  }
+
+  @override
+  String get voiceOn => 'Spoken directions are on. Tap to mute.';
+
+  @override
+  String get voiceOff => 'Spoken directions are off. Tap to turn them on.';
+
+  @override
   String distanceAway(String distance) {
     return '$distance away';
   }

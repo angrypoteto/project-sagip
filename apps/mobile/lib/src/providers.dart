@@ -7,6 +7,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 
 import 'device/device_battery_optimization.dart';
 import 'device/device_sms_sender.dart';
+import 'device/tts_speaker.dart';
 
 // ---------------------------------------------------------------------------
 // Repositories. Each throws until main.dart overrides it, so screens only
@@ -39,6 +40,27 @@ final batteryOptimizationProvider = Provider<BatteryOptimization>(
 /// app comes back to the front (after the phone's question).
 final batteryExemptProvider = FutureProvider<bool>(
   (ref) => ref.watch(batteryOptimizationProvider).isExempt(),
+);
+
+/// Says F4's directions aloud.
+final speakerProvider = Provider<Speaker>((ref) => MockSpeaker());
+
+/// Spoken directions on F4, on unless the responder turned them off (kept
+/// on the phone).
+class VoiceGuidanceController extends Notifier<bool> {
+  static const _key = 'settings:voice';
+
+  @override
+  bool build() => ref.read(localStoreProvider).read(_key) != 'off';
+
+  void set(bool on) {
+    state = on;
+    ref.read(localStoreProvider).write(_key, on ? 'on' : 'off');
+  }
+}
+
+final voiceGuidanceProvider = NotifierProvider<VoiceGuidanceController, bool>(
+  VoiceGuidanceController.new,
 );
 
 /// Opens the messages app with an SOS ready (S6, when the app may not
@@ -240,6 +262,7 @@ List<Override> liveOverrides({
     permissionServiceProvider.overrideWithValue(permissions),
     batteryOptimizationProvider.overrideWithValue(battery),
     smsComposerProvider.overrideWithValue(const DeviceSmsSender()),
+    speakerProvider.overrideWithValue(TtsSpeaker()),
     sosRepositoryProvider.overrideWithValue(
       OutboxSosRepository(
         engine: engine,

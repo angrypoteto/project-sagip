@@ -487,9 +487,30 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Arrived'), findsNothing);
+    // The next turn is said aloud once, with its distance.
+    final speaker = container.read(speakerProvider) as MockSpeaker;
+    expect(speaker.said, hasLength(1));
+    expect(
+      speaker.said.single,
+      matches(
+        RegExp(
+          r'^In \d[\d.]* (meters|kilometers), (Turn|Keep|Continue|Make|Go)',
+        ),
+      ),
+    );
     await tester.pump(const Duration(seconds: 7));
     await settle(tester);
     expect(find.text("You're at the scene"), findsOneWidget);
+    expect(speaker.said.last, "You're at the scene");
+    expect(
+      speaker.said.where((t) => t == "You're at the scene"),
+      hasLength(1),
+      reason: 'said once',
+    );
+    // The responder can mute it; the choice is kept on the phone.
+    await tester.tap(find.byKey(const ValueKey('voice-toggle')));
+    await tester.pump();
+    expect(container.read(voiceGuidanceProvider), isFalse);
     expect(find.textContaining('Head '), findsNothing);
     await tapAndSettle(tester, 'Arrived');
 

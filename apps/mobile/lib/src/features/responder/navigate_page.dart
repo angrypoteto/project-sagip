@@ -11,6 +11,7 @@ import '../../common/offline_banner.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
+import 'voice_guide.dart';
 
 /// F4 Navigation: full-bleed map, one floating card, nothing else (design
 /// skill). The route is Dijkstra over the bundled road graph, computed on
@@ -28,6 +29,45 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
   final _map = MapController();
   var _follow = true;
   var _ready = false;
+  final _voice = VoiceGuide();
+  late final Speaker _speaker;
+
+  @override
+  void initState() {
+    super.initState();
+    _speaker = ref.read(speakerProvider);
+  }
+
+  @override
+  void dispose() {
+    _speaker.stop();
+    super.dispose();
+  }
+
+  /// Says the next turn or the arrival once, after the frame that shows it.
+  void _speak(RouteEstimate? e) {
+    if (e == null) return;
+    final l10n = AppLocalizations.of(context);
+    final next = e.road?.nextTurn;
+    final line = _voice.update(
+      atScene: e.straightMeters <= arrivalRadiusMeters,
+      turn: next == null ? null : l10n.turnInstruction(next),
+      meters: next == null ? null : e.road!.metersToNextTurn,
+    );
+    if (line == null || !ref.read(voiceGuidanceProvider)) return;
+    final String text;
+    if (line.isScene) {
+      text = l10n.atScene;
+    } else if (line.meters == null) {
+      text = line.turn!;
+    } else {
+      final d = spokenDistance(line.meters!);
+      text = d.meters != null
+          ? l10n.voiceAheadMeters(d.meters!, line.turn!)
+          : l10n.voiceAheadKilometers(d.kilometers!, line.turn!);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _speaker.say(text));
+  }
 
   void _recenter(ResponderState s) {
     final at = s.unit.location;
@@ -66,11 +106,28 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
 
     final unit = state.unit.location;
     final estimate = routeEstimate(ref, state, a);
+    if (state.gpsOn) _speak(estimate);
+    final voiceOn = ref.watch(voiceGuidanceProvider);
     final heading = estimate?.bearing;
     final tiles = ref.watch(mapTilesEnabledProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navigateTitle)),
+      appBar: AppBar(
+        title: Text(l10n.navigateTitle),
+        actions: [
+          IconButton(
+            key: const ValueKey('voice-toggle'),
+            tooltip: voiceOn ? l10n.voiceOn : l10n.voiceOff,
+            onPressed: () {
+              ref.read(voiceGuidanceProvider.notifier).set(!voiceOn);
+              if (voiceOn) _speaker.stop();
+            },
+            icon: Icon(
+              voiceOn ? Symbols.volume_up_rounded : Symbols.volume_off_rounded,
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           const OfflineBanner(),

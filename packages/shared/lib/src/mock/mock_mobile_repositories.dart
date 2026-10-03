@@ -209,6 +209,17 @@ class MockResidentAccountRepository implements ResidentAccountRepository {
   Future<void> requestDataDeletion() => _backend.requestDataDeletion();
 }
 
+/// Records what would be said aloud.
+class MockSpeaker implements Speaker {
+  final said = <String>[];
+
+  @override
+  Future<void> say(String text) async => said.add(text);
+
+  @override
+  Future<void> stop() async {}
+}
+
 /// The battery setting on sample data: not exempt until asked, so the
 /// responder home shows the prompt in the demo.
 class MockBatteryOptimization implements BatteryOptimization {
