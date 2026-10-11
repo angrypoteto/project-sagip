@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
@@ -30,7 +31,12 @@ final Map<String, List<List<LatLng>>> _outlines = {
 
 /// Manila's 897 barangay boundaries (PSA, indicative): thin lines, an
 /// optional fill per barangay, and one highlighted barangay.
-class BarangayBoundaries extends StatelessWidget {
+///
+/// The shapes are made once and kept until the fills, the highlight, or
+/// the theme change: flutter_map keeps what it worked out for a list of
+/// polygons only while it is handed the same list, and working that out
+/// again for 897 shapes on every rebuild made the map stutter.
+class BarangayBoundaries extends StatefulWidget {
   const BarangayBoundaries({super.key, this.fills = const {}, this.highlight});
 
   /// Fill color by barangay name; barangays not listed are not filled.
@@ -40,8 +46,35 @@ class BarangayBoundaries extends StatelessWidget {
   final String? highlight;
 
   @override
+  State<BarangayBoundaries> createState() => _BarangayBoundariesState();
+}
+
+class _BarangayBoundariesState extends State<BarangayBoundaries> {
+  List<Polygon>? _polygons;
+  SagipPalette? _palette;
+
+  @override
+  void didUpdateWidget(BarangayBoundaries old) {
+    super.didUpdateWidget(old);
+    if (old.highlight != widget.highlight ||
+        !mapEquals(old.fills, widget.fills)) {
+      _polygons = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final p = SagipPalette.of(context);
+    if (!identical(p, _palette)) {
+      _palette = p;
+      _polygons = null;
+    }
+    return PolygonLayer(polygons: _polygons ??= _build(p));
+  }
+
+  List<Polygon> _build(SagipPalette p) {
+    final fills = widget.fills;
+    final highlight = widget.highlight;
     final polygons = <Polygon>[];
     Polygon<Object> shape(String name, List<LatLng> ring, {bool top = false}) =>
         Polygon(
@@ -63,7 +96,7 @@ class BarangayBoundaries extends StatelessWidget {
     for (final ring in _outlines[highlight] ?? const <List<LatLng>>[]) {
       polygons.add(shape(highlight!, ring, top: true));
     }
-    return PolygonLayer(polygons: polygons);
+    return polygons;
   }
 }
 

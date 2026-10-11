@@ -2220,7 +2220,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forecastLegendNote =>
-      'Each barangay is shaded by its risk. Boundaries: PSA, indicative.';
+      'Each barangay is shaded by its risk. Zoom in for the markers of lower risk. Boundaries: PSA, indicative.';
 
   @override
   String get forecastRisks => 'Risk by hazard';

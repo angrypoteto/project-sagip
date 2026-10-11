@@ -764,7 +764,7 @@
   "@forecastMarker": {"placeholders": {"barangay": {"type": "String"}, "risk": {"type": "String"}}},
   "forecastLegend": "{hazard} risk, next 72 hours",
   "@forecastLegend": {"placeholders": {"hazard": {"type": "String"}}},
-  "forecastLegendNote": "Each barangay is shaded by its risk. Boundaries: PSA, indicative.",
+  "forecastLegendNote": "Each barangay is shaded by its risk. Zoom in for the markers of lower risk. Boundaries: PSA, indicative.",
   "forecastRisks": "Risk by hazard",
   "forecastVulnerable": "Registered vulnerable residents",
   "forecastVulnerableCount": "{count, plural, =0{None registered here} =1{1 resident} other{{count} residents}}",

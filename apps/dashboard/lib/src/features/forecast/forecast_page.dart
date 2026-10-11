@@ -102,32 +102,13 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                     fills: run == null ? const {} : _riskFills(run, p),
                     highlight: selected,
                   ),
-                  if (run != null) ...[
-                    MarkerLayer(
-                      markers: [
-                        for (final f in run.forecasts)
-                          if (_centers[f.barangay] != null)
-                            Marker(
-                              point: toLatLng(_centers[f.barangay]!),
-                              width: _RiskMarker.size,
-                              height: _RiskMarker.size,
-                              child: Tooltip(
-                                message: l10n.forecastMarker(
-                                  f.barangay,
-                                  l10n.risk(f.riskOf(_hazard)),
-                                ),
-                                child: GestureDetector(
-                                  onTap: () => _select(f.barangay),
-                                  child: _RiskMarker(
-                                    risk: f.riskOf(_hazard),
-                                    selected: f.barangay == selected,
-                                  ),
-                                ),
-                              ),
-                            ),
-                      ],
+                  if (run != null)
+                    _RiskMarkers(
+                      run: run,
+                      hazard: _hazard,
+                      selected: selected,
+                      onSelect: _select,
                     ),
-                  ],
                   const MapAttribution(),
                 ],
               ),
@@ -409,6 +390,66 @@ class _BarangayRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The risk markers. Zoomed out, only the barangays that matter get one:
+/// 897 markers at city zoom hid the map and made it stutter (each is a
+/// widget moved on every frame of a pan). High risk always shows, moderate
+/// from [moderateFrom], low from [lowFrom]; the chosen barangay always.
+/// The shading of the boundaries carries the rest.
+class _RiskMarkers extends StatelessWidget {
+  const _RiskMarkers({
+    required this.run,
+    required this.hazard,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final ForecastRun run;
+  final ForecastHazard hazard;
+  final String? selected;
+  final ValueChanged<String> onSelect;
+
+  static const moderateFrom = 13.0;
+  static const lowFrom = 15.0;
+
+  static bool shows(RiskLevel risk, double zoom) => switch (risk) {
+    RiskLevel.high => true,
+    RiskLevel.moderate => zoom >= moderateFrom,
+    RiskLevel.low => zoom >= lowFrom,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final zoom = MapCamera.of(context).zoom;
+    return MarkerLayer(
+      markers: [
+        for (final f in run.forecasts)
+          if (_centers[f.barangay] != null &&
+              (f.barangay == selected || shows(f.riskOf(hazard), zoom)))
+            Marker(
+              key: ValueKey('risk-${f.barangay}'),
+              point: toLatLng(_centers[f.barangay]!),
+              width: _RiskMarker.size,
+              height: _RiskMarker.size,
+              child: Tooltip(
+                message: l10n.forecastMarker(
+                  f.barangay,
+                  l10n.risk(f.riskOf(hazard)),
+                ),
+                child: GestureDetector(
+                  onTap: () => onSelect(f.barangay),
+                  child: _RiskMarker(
+                    risk: f.riskOf(hazard),
+                    selected: f.barangay == selected,
+                  ),
+                ),
+              ),
+            ),
+      ],
     );
   }
 }

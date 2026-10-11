@@ -3906,7 +3906,7 @@ abstract class AppLocalizations {
   /// No description provided for @forecastLegendNote.
   ///
   /// In en, this message translates to:
-  /// **'Each barangay is shaded by its risk. Boundaries: PSA, indicative.'**
+  /// **'Each barangay is shaded by its risk. Zoom in for the markers of lower risk. Boundaries: PSA, indicative.'**
   String get forecastLegendNote;
 
   /// No description provided for @forecastRisks.
