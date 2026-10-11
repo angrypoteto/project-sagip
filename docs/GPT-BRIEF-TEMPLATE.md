@@ -64,6 +64,12 @@ codex exec -s workspace-write -c 'windows.sandbox="unelevated"' --color never -o
 - The sandbox lets Codex write only inside the repo and gives it no network.
   `flutter` and `dart format` cannot start there (the SDK in `C:\src\flutter`
   is outside the sandbox), so Codex writes the code and Claude runs the checks.
+- Give Codex its own copy of the repo so its branch does not move the files
+  under Claude: `git worktree add -b gpt/<name> <scratch folder>`, run Codex
+  there (`cd` into it first), copy the reviewed files back, then
+  `git worktree remove`.
+- `node --test` needs `--test-isolation=none` inside the sandbox; Claude reruns
+  the plain command outside it.
 - Never use `danger-full-access` or `--dangerously-bypass-approvals-and-sandbox`.
 - Each run uses Joshua's ChatGPT plan limits (the first, a 60-line test file,
   took about 53,000 tokens).

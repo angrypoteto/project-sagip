@@ -1,4 +1,4 @@
-# Feature checklist (as of 2026-10-11)
+# Feature checklist (as of 2026-10-11, evening)
 
 For Joshua to check by hand, one line at a time. Tick the box when you have seen
 it work. The details behind each line are in `docs/PROGRESS.md`.
@@ -14,7 +14,7 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 
 Marks: **[S]** works on sample data only for now. **[P]** needs a real phone to
 check properly. **[W]** built, but waits on a setting or a decision from you
-before it works for real (listed in part 3).
+before it works for real (listed in part 6).
 
 ---
 
@@ -146,36 +146,49 @@ before it works for real (listed in part 3).
 | SOS by SMS coming in, and the YES/NO reply to an SMS check | The same gateway phone, plus `SMS_INTAKE_SECRET` and its webhook |
 | Live forecast feed (a new forecast every 6 hours) | Paste `20261003130000_forecast_live.sql` in the SQL editor |
 | Posting alerts to the Facebook Page | A Page token |
+| River levels, Cancel SOS, data retention, the language model on the real database | Paste the four migrations of 2026-10-11 in the SQL editor; a Gemini key for the language model |
 | Dashboard and web form on the internet | Your yes to deploying on Vercel |
 | New sample data (alerts, forecasts, past rescues) on the real database | Run `select public.reset_demo_data();` |
 | Hotline number in the apps | MDRRMD gives the number; you enter it on A3 |
 
 ---
 
-## 7. Not built yet
+## 7. Built on 2026-10-11 (check these after the four migrations are applied)
+
+These work on sample data now. On the real database they need the four
+migrations in `supabase/README.md` ("The migrations of 2026-10-11"), which you
+paste in the SQL editor; two also need a function deployed by Claude afterwards.
+
+- [ ] D10 "River water levels": stations with their levels, raised ones first, "Relay as advisory" (real data: needs the migration and `ingest-efcos`)
+- [ ] R2 "Cancel SOS": choose a reason; the card says the SOS is still open; "I still need help" takes it back
+- [ ] D4 "Asked to cancel" on the queue row; "Close as cancelled" in the drawer (asks first)
+- [ ] R2 shows "SOS cancelled" after the dispatcher closes it
+- [ ] The resident's newest position: move the emulator's location while an SOS is open; the drawer says how far the resident moved **[P]**
+- [ ] F3 shows "The resident asked to cancel" and goes to the resident's newest position
+- [ ] A3 "Data retention": 6 to 60 months, saved and in the audit log
+- [ ] A6 "Rewrite with the language model": without a key it says it is not set up **[W]** (needs a Gemini key)
+- [ ] Me, Language, Filipino: the whole mobile app reads in Filipino (read it with the team)
+- [ ] D3 List view: with the drawer open the table ends where the drawer starts
+
+## 8. Not built yet
 
 | Feature | Why not |
 |---|---|
-| Report writing with a language model (RAG) for A6 | Needs a provider choice; today the draft is assembled from the figures |
-| Data retention period on A3 | Needs a rule: which records are removed and when |
-| Cancel SOS | Open question Q10 |
-| EFCOS water levels | No public feed found; advisories by hand from D10 instead |
-| Resident location updates while an SOS is open | Open question Q33 |
 | Self-hosted Manila map tiles | Needs a host; the app uses public OpenStreetMap tiles for now |
 | Classifier and forecast trained on real MDRRMD records | Waits for the MDRRMD data |
 | Forecast accuracy figures and a run selector on D8 | Waits for the real model |
 | Risk level rule for the forecast (final) | Open questions Q21, Q22; a provisional rule is in use |
-| Filipino language | The strings are ready to translate; no translation yet |
-| List view: hide columns when the drawer is open at 1440 px | Small polish item |
+| Declining an assignment (responder) | Open question Q10, second half |
+| Filipino for the dashboard and the web form | Not asked for; the dashboard is for staff |
 
-## 8. Dropped (Joshua, 2026-10-11)
+## 9. Dropped (Joshua, 2026-10-11)
 
 - Nearest evacuation center on R7 (Q38). The thesis still promises it to
   residents, so the Docs role removes that line from the thesis.
 - A separate pin for a household member who lives elsewhere. Household members
   use the resident's home address.
 
-## 9. Never tested on a real phone
+## 10. Never tested on a real phone
 
 Everything marked **[P]** above, plus: the Bluetooth relay between three phones,
 the SMS fallback end to end, and the Objective 3 trial.

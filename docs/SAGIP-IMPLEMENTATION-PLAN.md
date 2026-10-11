@@ -449,7 +449,7 @@ Every screen handles four states: loading, empty, error, offline. Rules that app
 - Offline: normal behavior; this sheet exists for the offline case.
 
 **S7 Me: profile and settings** (offline: read-only)
-- Components: name, number, barangay (resident) or unit and call sign (responder); theme (system, light, dark); language (English now, Filipino later); test notification; privacy notice; request data deletion (NFR4); sign out, with a warning if the queue is not empty. Resident only: links to R6 and R9.
+- Components: name, number, barangay (resident) or unit and call sign (responder); theme (system, light, dark); language (English or Filipino; Filipino added Oct 11, to be read by the team); test notification; privacy notice; request data deletion (NFR4); sign out, with a warning if the queue is not empty. Resident only: links to R6 and R9.
 - Loading: skeleton.
 - Empty: not applicable.
 - Error: save failed, with retry.
@@ -1110,8 +1110,8 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 
 - [ ] Get the NDRRMC template and 5 to 10 past reports (Table 3.1 item 5) **(Data)**
 - [ ] Define the report sections from the template. *A provisional outline of six sections is in place (`ReportSections`); replace it when the template arrives.*
-- [ ] Retrieval: SQL for the period's incidents, dispatches, and damage records; pgvector search over template sections and past reports. *The SQL half is done (`report_source()`, Oct 2); pgvector waits for the template and past reports.*
-- [ ] Generation through the chosen LLM from an Edge Function, with the key in Supabase secrets
+- [~] Retrieval: SQL for the period's incidents, dispatches, and damage records; pgvector search over template sections and past reports. *The SQL half is done (`report_source()`, Oct 2); pgvector waits for the template and past reports.* *Oct 11: retrieval over `report_reference` by embedding (cosine similarity in the Edge Function, shared words as the fallback) instead of pgvector: a few dozen passages need no index. The passages are provisional until the template arrives.*
+- [~] Generation through the chosen LLM from an Edge Function, with the key in Supabase secrets *(Oct 11: `generate-report` with Google Gemini, key `GEMINI_API_KEY`; A6 "Rewrite with the language model" with a check on the numbers. Not deployed and never run against Gemini yet.)*
 - [x] Remove names and phone numbers before any data leaves Supabase (RA 10173). *`report_source()` returns counts only; the RLS test checks it holds no names, contact details, addresses, or coordinates.*
 - [x] A6 screen: human review and edit step, then PDF export with the Dart `pdf` package to Storage and a report record. *Built Oct 2: review beside the figures, a completeness checklist, save, mark final, PDF download. The PDF is downloaded, not stored (no Storage bucket yet).*
 - [ ] Time trial with an administrator: manual preparation against the assisted draft (Objective 4, at least 30% faster) **(UAT)**
@@ -1145,7 +1145,7 @@ For each algorithm, finish with a one-page explanation in your own words of how 
 
 - [ ] Confirm how to get PAGASA data (API key, feed, or published bulletins); contact PAGASA if a formal request is needed **(Data)**
 - [x] Build the scheduled `ingest-pagasa` job (Oct 3: Joshua chose a parser of PAGASA's public pages; plan in `docs/PAGASA-PARSER-PLAN.md`. Built, deployed, and run every 10 minutes by `pg_cron`)
-- [ ] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation
+- [~] Confirm the EFCOS format; parse stations near Manila; if unavailable, use the FR5 fallback and document the limitation *(Oct 11: no public EFCOS feed; `ingest-efcos` reads PAGASA's river level list every 10 minutes, D10 lists the stations against their own levels, relayed by hand. Written and tested; the migration is not applied and the function not deployed yet.)*
 - [x] Confirm the PHIVOLCS source; build `ingest-phivolcs`; relay as informational notifications to affected areas (FR14). (Oct 3: PHIVOLCS's public earthquake list read every 15 minutes; D10 lists the ones near Manila with "Relay as advisory"; relayed by hand, never automatically) *Relay by hand from D10 ("Issue an advisory") is built (2026-10-02); the automatic ingest is not.*
 - [~] Threshold engine using the A3 configuration: a crossing creates an alert record and sends it on each channel (Oct 2: the engine, the alert record, and one delivery row per channel are done; the in-app alert is immediate; the sender for push, SMS, and Facebook is not built)
 - [~] Push by barangay topic to residents; standby alerts to responders (Oct 3: topics `area-<barangay>` and `manila`; responders on `manila`; works once the Firebase project exists)
@@ -1226,14 +1226,14 @@ Each item lists what the thesis says, why it matters, and a suggested resolution
 - **Q3. Where server-side logic runs.** The thesis says "no on-premise server" but has Python models and pipelines that must run somewhere. *Suggest: PostGIS and Edge Functions for DBSCAN, priority, and classifier inference; a scheduled Python job for forecasts. Add this to Figure 3.8.*
 - **Q4. Push provider.** FR6 and FR14 need push notifications, but no provider appears in the figures. *Add Firebase Cloud Messaging to Figure 3.8.*
 - **Q5. Data store numbering.** Figure 3.8 says "D1 to D13", but the DFDs define D1 to D8 and D10 to D12, the text calls User Accounts D9 while Figure 3.7c leaves it unnumbered, and D13 is never defined. *Fix the numbering.*
-- **Q6. EFCOS.** FR5 includes EFCOS water levels, but EFCOS is missing from Figures 1.1b, 3.2b, 3.7b, 3.8, and the schema. *Add it or mark it optional.*
+- **Q6. EFCOS.** FR5 includes EFCOS water levels, but EFCOS is missing from Figures 1.1b, 3.2b, 3.7b, 3.8, and the schema. *Add it or mark it optional.* **Oct 11: built from PAGASA's public river levels for the Pasig, Marikina, and Tullahan rivers (the rivers EFCOS watches), shown on D10 and relayed by hand; say so in the thesis instead of "EFCOS".**
 
 ### Roles and access
 
 - **Q7. Number of account types.** FR10 says "three separate user accounts", while the RBAC definition lists four roles and Process 7.0 lists three for sign-in. *Clarify: four roles, of which three are MDRRMD staff account types.*
 - **Q8. Admin and Dispatcher tables.** Figure 3.3c makes the Admin a specialization of the Dispatcher, but Figure 3.6b keeps separate tables, which forces paired columns such as `verified_by_dispatcher_id` and `verified_by_admin_id`. **Decide:** keep separate tables as written, or one staff table with a role column (simpler RLS and audit).
 - **Q9. Responders and vulnerability data.** NFR4 limits the Vulnerable Resident Priority List to admins and dispatchers, but a responder should know the victim uses a wheelchair or is pregnant. *Suggest: show the vulnerability type on the assigned incident only.*
-- **Q10. Closing and cancelling.** The thesis does not say who marks an incident Resolved (responder completion or dispatcher), whether a resident can cancel a false-alarm SOS, or whether a responder can decline an assignment. **Decide.**
+- **Q10. Closing and cancelling.** The thesis does not say who marks an incident Resolved (responder completion or dispatcher), whether a resident can cancel a false-alarm SOS, or whether a responder can decline an assignment. **Decide.** **Decided Oct 11 (Joshua): a resident may ask to cancel until the unit is on scene; a dispatcher closes it (built). Declining an assignment is still open.**
 - **Q11. Unit status.** FR9 has only Available, En route, and On scene, with no Off duty or Returning. Status also appears on both RESPONSE_UNIT and RESPONDER. **Decide** which one FR9 displays and whether more states are needed.
 - **Q12. Manual escalation of a single crowd report.** FR15 says no single report is auto-escalated. Can a dispatcher escalate one manually? FR7 also says administrators verify through clustering, while FR2 gives verification to dispatchers. **Decide.**
 - **Q13. Web form sign-up.** FR15 requires a registered account for the web form and also targets people "before the app is installed", but registration is only described in the app. *Suggest: allow phone OTP registration on the web form.*
@@ -1255,7 +1255,7 @@ Each item lists what the thesis says, why it matters, and a suggested resolution
 - **Q23. Metrics.** RMSE is unusual for a yes/no classifier, and 80% accuracy can be reached by always predicting "no incident" when incidents are rare. *Also report precision, recall, F1, and the always-no baseline.*
 - **Q24. Classifier model.** Only the features (TF-IDF) are named, not the classifier, and the language of descriptions (English, Filipino, Taglish) is not stated. *Name the classifier; confirm the language.*
 - **Q25. DBSCAN distance.** The thesis says haversine distance. A PostGIS implementation uses metric projected distance. **Decide** and state it; the difference at 50 m is negligible.
-- **Q26. RAG details.** No LLM is named, sending incident data to an external API is not covered under RA 10173, and Chapter 3 says "drafts" while Chapter 1 says the "completed PDF is exported". *Name the provider, add personal-data removal and a human review step.*
+- **Q26. RAG details.** No LLM is named, sending incident data to an external API is not covered under RA 10173, and Chapter 3 says "drafts" while Chapter 1 says the "completed PDF is exported". *Name the provider, add personal-data removal and a human review step.* **Decided Oct 11 (Joshua): Google Gemini's free tier; only counts, barangay names, and times are sent; the administrator reviews the text before saving (built, proof of concept).**
 - **Q27. "Prescriptive analytics".** Process 6.0 calls the analytics prescriptive, which implies recommendations, but none are described. *Rename to descriptive, or define the recommendations.*
 
 ### Offline and SMS
@@ -1265,7 +1265,7 @@ Each item lists what the thesis says, why it matters, and a suggested resolution
 - **Q30. Two-way SMS verification.** FR8 mentions a two-way SMS prompt, but Semaphore sender names cannot receive replies. *Route verification SMS through the gateway SIM and describe it in the thesis.*
 - **Q31. Duplicate SOS.** An SOS sent by SMS stays queued and syncs again later, and BLE relays may upload copies. Figure 3.8 mentions a duplicate check for BLE only. *Give every SOS a client ID used across all tiers.*
 - **Q32. "BLE mesh networking".** Bluetooth SIG Mesh is not available to Flutter apps. A realistic proof of concept is store-and-forward over BLE advertising with very small payloads, and relay phones must have the app running. *Adjust the wording in Chapters 1 and 3.*
-- **Q33. Resident live location.** Chapter 1 mentions storing live GPS telemetry for residents. Does the resident's location keep updating after an SOS? *Suggest: yes, while the SOS is active.*
+- **Q33. Resident live location.** Chapter 1 mentions storing live GPS telemetry for residents. Does the resident's location keep updating after an SOS? *Suggest: yes, while the SOS is active.* **Decided Oct 11 (Joshua): yes, while the SOS is open and the app is on (built).**
 - **Q34. Signed-out residents.** FR8 requires a registered account for every SOS. If a session expires while offline, the SOS cannot be linked. *Suggest long-lived sessions and including the resident ID in the SMS format.*
 
 ### Integrations

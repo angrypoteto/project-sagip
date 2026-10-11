@@ -205,6 +205,26 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('Me: the app can be read in Filipino, and back', (tester) async {
+    await pumpApp(tester);
+    await tap(tester, 'Continue as resident');
+    await tap(tester, 'Me');
+    await tap(tester, 'Language');
+    expect(find.text('Choose a language'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('language-fil')));
+    await tester.pumpAndSettle();
+    expect(container.read(languageProvider), 'fil');
+    expect(find.text('Wika'), findsOneWidget);
+    expect(find.text('Ako'), findsWidgets);
+    expect(find.text('Language'), findsNothing);
+
+    // Each language is named in itself, so the way back can be read.
+    await tap(tester, 'Wika');
+    await tester.tap(find.byKey(const ValueKey('language-en')));
+    await tester.pumpAndSettle();
+    expect(find.text('Language'), findsOneWidget);
+  });
+
   testWidgets('Me: theme, data deletion request, sign-out warning', (
     tester,
   ) async {
