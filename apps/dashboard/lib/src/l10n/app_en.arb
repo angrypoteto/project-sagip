@@ -27,6 +27,8 @@
   "demoAccountsHint": "Demo accounts: dispatcher@sagip.test or admin@sagip.test. Password: {password}",
   "@demoAccountsHint": {"placeholders": {"password": {"type": "String"}}},
 
+  "navMenuKeep": "Keep the menu open",
+  "navMenuClose": "Close the menu",
   "navCommandBoard": "Command Board",
   "navCrowdReports": "Crowd reports",
   "navUnits": "Units",

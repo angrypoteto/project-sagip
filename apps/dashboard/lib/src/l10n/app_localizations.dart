@@ -232,6 +232,18 @@ abstract class AppLocalizations {
   /// **'Demo accounts: dispatcher@sagip.test or admin@sagip.test. Password: {password}'**
   String demoAccountsHint(String password);
 
+  /// No description provided for @navMenuKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the menu open'**
+  String get navMenuKeep;
+
+  /// No description provided for @navMenuClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the menu'**
+  String get navMenuClose;
+
   /// No description provided for @navCommandBoard.
   ///
   /// In en, this message translates to:

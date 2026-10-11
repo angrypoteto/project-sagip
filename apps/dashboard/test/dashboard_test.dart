@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -312,6 +313,54 @@ void main() {
       findsOneWidget,
     );
     expect(find.byTooltip('4 reports'), findsOneWidget);
+  });
+
+  testWidgets('the menu opens while pointed at, and stays open when pinned', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    final menu = find.byKey(const ValueKey('nav-menu'));
+    final button = find.byKey(const ValueKey('nav-menu-button'));
+    double width() => tester.getSize(menu).width;
+    Finder name(String text) =>
+        find.descendant(of: menu, matching: find.text(text));
+    expect(width(), 64);
+    expect(name('Units'), findsNothing, reason: 'closed: icons only');
+
+    // Pointing at it opens it; moving away closes it.
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: const Offset(700, 500));
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(menu));
+    await settle(tester);
+    expect(width(), 248);
+    expect(name('Units'), findsOneWidget);
+    await mouse.moveTo(const Offset(700, 500));
+    await settle(tester);
+    expect(width(), 64);
+    expect(name('Units'), findsNothing);
+
+    // The menu button keeps it open with the pointer elsewhere, and the
+    // page makes room.
+    final pageLeft = tester.getTopLeft(find.byType(QueuePanel)).dx;
+    await tester.tap(button);
+    await mouse.moveTo(const Offset(700, 500));
+    await settle(tester);
+    expect(width(), 248);
+    expect(name('Units'), findsOneWidget);
+    expect(tester.getTopLeft(find.byType(QueuePanel)).dx, pageLeft + 184);
+
+    // Its items still go to their pages.
+    await tester.tap(name('Units'));
+    await settle(tester);
+    expect(width(), 248, reason: 'still open on the next page');
+
+    // Pressed again, it closes.
+    await tester.tap(button);
+    await mouse.moveTo(const Offset(700, 500));
+    await settle(tester);
+    expect(width(), 64);
   });
 
   testWidgets('admin pages are hidden from dispatchers', (tester) async {
