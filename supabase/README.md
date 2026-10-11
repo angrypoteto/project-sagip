@@ -47,12 +47,12 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `functions/ingest-phivolcs/` | Reads PHIVOLCS's earthquake list; `phivolcs.test.ts` runs the parser on a saved page with `node --test` |
 | `migrations/20261003130000_forecast_live.sql` | **Not applied yet.** `forecast_model`, `forecast_replay`, `forecast_live_input()` and `record_forecast_run()` (service role), and a `pg_cron` job every six hours for `run-forecast` |
 | `functions/run-forecast/` | The forecast's live feed: the LSTM in TypeScript on replayed weather, the provisional rule; `forecast.test.ts` checks it against Keras with `node --test` |
-| `migrations/20261011010000_river_levels.sql` | **Not applied yet.** `river_level` (dispatchers and admins read it), `record_river_levels()` (service role), `feed_status` source `efcos`, and a `pg_cron` job every 10 minutes for `ingest-efcos` |
-| `functions/ingest-efcos/` | Reads PAGASA's river level list for the Pasig, Marikina, and Tullahan rivers; `efcos.test.ts` runs the parser on a saved copy with `node --test`. **Not deployed yet** |
-| `migrations/20261011020000_sos_followups.sql` | **Not applied yet.** Cancel SOS (`request_sos_cancel()`, `withdraw_sos_cancel()`, `confirm_sos_cancel()`) and the resident's newest position while an SOS is open (`update_sos_location()`); the board, `my_sos()`, and `my_assignments()` carry both |
+| `migrations/*_river_levels.sql` | `river_level` (dispatchers and admins read it), `record_river_levels()` (service role), `feed_status` source `efcos`, and a `pg_cron` job every 10 minutes for `ingest-efcos` |
+| `functions/ingest-efcos/` | Reads PAGASA's river level list for the Pasig, Marikina, and Tullahan rivers; `efcos.test.ts` runs the parser on a saved copy with `node --test`. Deployed (version 2); `intermediate.ts` holds the certificate PAGASA's server leaves out |
+| `migrations/*_sos_followups.sql` | Cancel SOS (`request_sos_cancel()`, `withdraw_sos_cancel()`, `confirm_sos_cancel()`) and the resident's newest position while an SOS is open (`update_sos_location()`); the board, `my_sos()`, and `my_assignments()` carry both |
 | `migrations/20261011030000_data_retention.sql` | **Not applied yet.** The setting `privacy.retention_months` (6 to 60, 12 by default), `private.apply_retention()`, and a `pg_cron` job every night |
-| `migrations/20261011040000_report_rag.sql` | **Not applied yet.** `report_reference` (the passages, provisional), `report_rewrite` (the log and the hourly limit), `begin_report_rewrite()`, and `save_ndrrmc_report()` with the method |
-| `functions/generate-report/` | The RAG step: finds the passages for each section and asks Gemini to write it from the figures; `rag.test.ts` runs with `node --test`. **Not deployed yet** |
+| `migrations/*_report_rag.sql` | `report_reference` (the passages, provisional), `report_rewrite` (the log and the hourly limit), `begin_report_rewrite()`, and `mark_report_rag()` |
+| `functions/generate-report/` | The RAG step: finds the passages for each section and asks Gemini to write it from the figures (several keys in turn, Groq after them); `rag.test.ts` runs with `node --test`. Deployed (version 1); answers "not set up" until the keys are added |
 | `tests/rls_test.sql` | 410 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
@@ -265,20 +265,15 @@ When an admin marks a report final (A6), the dashboard builds its PDF and keeps 
 
 4. First run without waiting: `select private.call_run_forecast();`
 
-## The migrations of 2026-10-11 (for Joshua: not applied yet)
+## The migrations of 2026-10-11
 
-The Supabase connector was not reachable on 2026-10-11, so these four were written and tested only as far as the apps' own tests go: **none has run on a database yet.** Paste each in the SQL editor and run it, in this order (the later ones need the earlier ones):
+Three are applied (2026-10-11, through the connector once it came back): `river_levels`, `sos_followups`, and `report_rag`. Both new functions are deployed, and the river feed runs (17 stations on its first read).
 
-1. `20261011010000_river_levels.sql`
-2. `20261011020000_sos_followups.sql`
-3. `20261011030000_data_retention.sql`
-4. `20261011040000_report_rag.sql`
-
-If one stops with an error, send Claude the message and do not run the next. Afterwards Claude renames each file to the version the project gives it, deploys `ingest-efcos` and `generate-report`, and runs the RLS test (410 checks). Until then the apps keep working: the new screens show "not set up" or nothing new.
+**One is left for Joshua: `20261011030000_data_retention.sql`.** The connector declined it (it contains `delete` statements, which it does not run). Paste it in the SQL editor and run it; if it stops with an error, send Claude the message. Until then the A3 "Data retention" card has no setting to show on the real database, and nothing is removed. Afterwards Claude renames the file and runs the RLS test (410 checks; the 39 new ones have not run yet).
 
 ## River levels (migration `river_levels`, FR5)
 
-EFCOS itself has no public feed. PAGASA publishes the levels of the same rivers (its Pasig-Marikina-Tullahan flood forecasting and warning system) as JSON, with each station's own alert, alarm, and critical level: `https://pasig-marikina-tullahanffws.pagasa.dost.gov.ph/water/main_list.do`. `ingest-efcos` reads it every 10 minutes and keeps each station's newest reading. D10 lists the stations, raised ones first; "Relay as advisory" fills in an advisory with source EFCOS for the dispatcher to review. Nothing is sent to residents by itself: on the day the list was saved, one station (Ugong) read above its critical level while its neighbours were normal, which is what a faulty sensor looks like. The thesis should say the levels come from PAGASA's stations on the rivers EFCOS watches, not from EFCOS.
+EFCOS itself has no public feed. PAGASA's server sends its certificate without the intermediate one, which the function carries in `intermediate.ts` (valid to June 2029; if the feed fails with "invalid peer certificate", PAGASA changed it: replace the file). PAGASA publishes the levels of the same rivers (its Pasig-Marikina-Tullahan flood forecasting and warning system) as JSON, with each station's own alert, alarm, and critical level: `https://pasig-marikina-tullahanffws.pagasa.dost.gov.ph/water/main_list.do`. `ingest-efcos` reads it every 10 minutes and keeps each station's newest reading. D10 lists the stations, raised ones first; "Relay as advisory" fills in an advisory with source EFCOS for the dispatcher to review. Nothing is sent to residents by itself: on the day the list was saved, one station (Ugong) read above its critical level while its neighbours were normal, which is what a faulty sensor looks like. The thesis should say the levels come from PAGASA's stations on the rivers EFCOS watches, not from EFCOS.
 
 ## Cancel SOS and the newest position (migration `sos_followups`; plan Q10, Q33)
 
@@ -292,19 +287,21 @@ An administrator sets the period on A3 (6 to 60 months, 12 by default; provision
 
 ## The RAG step of the NDRRMC report (migration `report_rag`; for Joshua: the Gemini key)
 
-On A6, "Rewrite with the language model" sends the draft's figures and its assembled sections to `generate-report`. For each section the function finds the three closest reference passages in `report_reference` (by embedding; by shared words if embeddings fail), and asks Google Gemini to write the section from the figures, following the passages. The new text goes into the editor unsaved, with the passages used and a list of any numbers that are in none of the figures; "Put the earlier text back" undoes it. A draft saved after a rewrite is marked `rag`.
+On A6, "Rewrite with the language model" sends the draft's figures and its assembled sections to `generate-report`. For each section the function finds the three closest reference passages in `report_reference` (by embedding; by shared words if embeddings fail), and asks Google Gemini to write the section from the figures, following the passages. The new text goes into the editor unsaved, with the passages used and a list of any numbers that are in none of the figures; "Put the earlier text back" undoes it. A draft saved after a rewrite is marked `rag` (`mark_report_rag()`).
 
 - What is sent to Google: counts, barangay names, and times. No names, numbers, addresses, or coordinates (`report_source()` never had them).
 - The twelve passages are provisional, written from the outline of a situation report. Replace them with the NDRRMC template and sample reports when MDRRMD sends them (`delete` and `insert` on `report_reference` in the SQL editor; embeddings are made again by themselves).
 - Admins only, 20 rewrites an hour each (`report_rewrite` keeps when, how long, and whether it worked, for Objective 4).
 
-To switch it on:
+To switch it on, add two Edge Function secrets (Supabase dashboard, Edge Functions, Secrets). **Keys go only there: never in the repo, a `.env` that is committed, or a chat.**
 
-1. Create a free API key at Google AI Studio (aistudio.google.com, "Get API key").
-2. Add it as an Edge Function secret named `GEMINI_API_KEY` (Supabase dashboard, Edge Functions, Secrets).
-3. Optional: `GEMINI_MODEL` (default `gemini-3.8-flash`; use `gemini-3.5-flash-lite` if the free tier refuses the default) and `GEMINI_EMBEDDING_MODEL` (default `gemini-embedding-001`).
+1. `GEMINI_API_KEYS`: the Gemini keys from Google AI Studio, separated by commas (one is enough). Each rewrite starts at a different key; a key that is refused or over its limit is skipped and the next is tried.
+2. `GROQ_API_KEYS` (optional): Groq keys, separated by commas. Used only when every Gemini key has failed. Groq's model (`openai/gpt-oss-120b`) follows the rules less closely: in a trial it wrote numbers as words, which the check on numbers cannot read, so its drafts need a slower read.
+3. Optional: `GEMINI_MODEL` (default `gemini-3.8-flash`), `GEMINI_EMBEDDING_MODEL` (default `gemini-embedding-001`), `GROQ_MODEL`.
 
-Without the key the button says the language model is not set up, and the assembled draft is unchanged. **Not yet run against Gemini:** the request and answer shapes follow Google's documentation; the first real call will show whether anything needs adjusting.
+Without any key the button says the language model is not set up, and the assembled draft is unchanged.
+
+Tried on 2026-10-11 from Claude's machine with the function's own prompt and checks (six sections of sample figures): Gemini answered in about 19 seconds with every number kept and none added; Groq in about 3 seconds. The embedding call returned 768 numbers as expected. **Not yet tried:** the deployed function end to end from A6 (it needs the secrets).
 
 ## Objective 3: SOS delivery report
 

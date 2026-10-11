@@ -117,62 +117,27 @@ revoke all on function public.record_reference_embedding(bigint, text, jsonb) fr
 grant execute on function public.record_reference_embedding(bigint, text, jsonb) to service_role;
 grant select on public.report_reference to service_role;
 
--- A draft now records how its text was first written (`assembled` or
--- `rag`). The old six-argument function is replaced by one with a seventh,
--- optional argument, so callers that do not send it still work.
-drop function public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int);
-create function public.save_ndrrmc_report(
-  p_report_id text,
-  p_from timestamptz,
-  p_to timestamptz,
-  p_title text,
-  p_sections jsonb,
-  p_generation_ms int default null,
-  p_method text default null
-)
-returns text
+-- A draft whose text the language model rewrote is marked `rag` (the
+-- column has been there since ndrrmc_reports). The dashboard calls this
+-- right after saving such a draft. Admins only; a final report keeps what
+-- it had.
+create function public.mark_report_rag(p_report_id text)
+returns void
 language plpgsql security definer set search_path = ''
 as $$
 declare
   me public.staff := private.require_admin();
-  r public.ndrrmc_report;
-  new_id text;
 begin
-  if not private.report_text_ok(p_title, p_sections)
-     or (p_generation_ms is not null and p_generation_ms < 0)
-     or (p_method is not null and p_method not in ('assembled', 'rag')) then
-    raise exception 'invalid_value' using errcode = 'P0001';
-  end if;
-
-  if p_report_id is null then
-    insert into public.ndrrmc_report (
-      period_start, period_end, title, source, sections, generation_ms, method,
-      created_by, created_by_name
-    ) values (
-      p_from, p_to, btrim(p_title), public.report_source(p_from, p_to), p_sections,
-      p_generation_ms, coalesce(p_method, 'assembled'), me.id, me.display_name
-    ) returning report_id into new_id;
-    perform private.audit_admin(me, 'reportDrafted', 'ndrrmc_report', new_id, btrim(p_title));
-    return new_id;
-  end if;
-
-  select * into r from public.ndrrmc_report where report_id = p_report_id for update;
+  update public.ndrrmc_report
+     set method = 'rag'
+   where report_id = p_report_id and status = 'draft';
   if not found then
     raise exception 'not_found' using errcode = 'P0001';
   end if;
-  if r.status = 'final' then
-    raise exception 'already_final' using errcode = 'P0001';
-  end if;
-  -- Once the language model has written into a draft, it stays marked.
-  update public.ndrrmc_report
-     set title = btrim(p_title), sections = p_sections, updated_at = now(),
-         method = case when p_method = 'rag' then 'rag' else method end
-   where report_id = p_report_id;
-  return p_report_id;
 end $$;
 
-revoke all on function public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int, text) from public, anon;
-grant execute on function public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int, text) to authenticated;
+revoke all on function public.mark_report_rag(text) from public, anon;
+grant execute on function public.mark_report_rag(text) to authenticated;
 
 -- ------------------------------------------------------------ passages
 

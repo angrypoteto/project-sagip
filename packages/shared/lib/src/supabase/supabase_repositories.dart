@@ -1028,8 +1028,8 @@ class SupabaseReportRepository implements ReportRepository {
     required List<ReportSection> sections,
     int? generationMs,
     ReportMethod? method,
-  }) => _report(
-    () => _client.rpc<String>(
+  }) => _report(() async {
+    final saved = await _client.rpc<String>(
       'save_ndrrmc_report',
       params: {
         'p_report_id': id,
@@ -1038,12 +1038,17 @@ class SupabaseReportRepository implements ReportRepository {
         'p_title': title,
         'p_sections': [for (final s in sections) s.toJson()],
         'p_generation_ms': generationMs,
-        // Sent only for a rewritten draft, so saving works before the
-        // migration report_rag is applied.
-        if (method == ReportMethod.rag) 'p_method': 'rag',
       },
-    ),
-  );
+    );
+    // A draft the language model rewrote says so.
+    if (method == ReportMethod.rag) {
+      await _client.rpc<void>(
+        'mark_report_rag',
+        params: {'p_report_id': saved},
+      );
+    }
+    return saved;
+  });
 
   @override
   Future<ReportRewrite> rewrite({

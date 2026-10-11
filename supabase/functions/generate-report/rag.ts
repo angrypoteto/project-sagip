@@ -25,6 +25,54 @@ export const maxBody = 6000;
 /** Passages given to the model for each section. */
 export const passagesPerSection = 3;
 
+/**
+ * The keys in one or more secrets: several may be given, separated by
+ * commas, spaces, or line breaks, so that when one is refused or over its
+ * limit the next is tried. Duplicates and blanks are dropped.
+ */
+export function keysFrom(...secrets: (string | undefined | null)[]): string[] {
+  const out: string[] = [];
+  for (const s of secrets) {
+    for (const k of (s ?? "").split(/[\s,;]+/)) {
+      if (k && !out.includes(k)) out.push(k);
+    }
+  }
+  return out;
+}
+
+/** The same list starting at `start`, wrapping round: spreads the calls
+ * over the keys instead of always using up the first. */
+export function rotated<T>(list: T[], start: number): T[] {
+  if (list.length === 0) return [];
+  const n = ((Math.trunc(start) % list.length) + list.length) % list.length;
+  return [...list.slice(n), ...list.slice(0, n)];
+}
+
+/**
+ * Tries `call` with each key in turn until one works. A key that is
+ * refused, over its limit, or slow does not stop the rewrite. Gives up
+ * once `budgetMs` has passed, and throws the last failure.
+ */
+export async function withKeys<T>(
+  keys: string[],
+  call: (key: string) => Promise<T>,
+  budgetMs = 100_000,
+  now: () => number = Date.now,
+): Promise<T> {
+  if (keys.length === 0) throw new Error("no key");
+  const started = now();
+  let last: unknown = new Error("no key");
+  for (const key of keys) {
+    if (now() - started > budgetMs) break;
+    try {
+      return await call(key);
+    } catch (e) {
+      last = e;
+    }
+  }
+  throw last;
+}
+
 /** The request body, checked: the assembled draft and the figures. */
 export function readRequest(body: unknown): { sections: Section[]; source: Record<string, unknown> } | null {
   if (!body || typeof body !== "object") return null;
@@ -107,9 +155,9 @@ export const systemInstruction = [
   "For each section you are given: the facts (a draft assembled from the records, and the figures as JSON) and reference passages on how that section is written.",
   "Rules:",
   "1. Use only the facts given. Never add a number, place, date, name, or event that is not in them.",
-  "2. Keep every number exactly as given. Do not round, convert, or estimate.",
+  "2. Keep every number exactly as given, in digits (write 14, not fourteen). Do not round, convert, or estimate.",
   "3. Where a fact is missing, say it is not available. Do not fill the gap.",
-  "4. Follow the reference passages for structure and wording. They are guidance, not facts: take no figures from them.",
+  "4. Follow the reference passages for structure and wording. They are guidance, not facts: take no figures from them. Use a passage only for the section it is listed under, and do not repeat one section's content in another.",
   "5. Formal, plain English. Short sentences. No headings, no bullet symbols, no markdown: plain paragraphs only.",
   "6. No names of persons, contact numbers, addresses, or coordinates.",
   "7. At most 1,200 characters per section.",

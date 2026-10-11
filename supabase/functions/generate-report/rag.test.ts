@@ -4,14 +4,17 @@ import assert from "node:assert/strict";
 import {
   buildPrompt,
   cosine,
+  keysFrom,
   numbersIn,
   overlap,
   readAnswer,
   readRequest,
   type Reference,
   retrieve,
+  rotated,
   type Section,
   unknownNumbers,
+  withKeys,
 } from "./rag.ts";
 
 const sections: Section[] = [
@@ -40,6 +43,47 @@ test("the request must be sections and figures, within the report's limits", () 
   assert.equal(readRequest({ sections: [{ key: "a", title: "A", body: "x".repeat(6001) }], source }), null);
   assert.equal(readRequest({ sections: [sections[0], sections[0]], source }), null, "keys are unique");
   assert.equal(readRequest({ sections: Array.from({ length: 13 }, (_, i) => ({ key: `k${i}`, title: "T", body: "" })), source }), null);
+});
+
+test("several keys may be given in one secret, or across secrets", () => {
+  assert.deepEqual(keysFrom("a, b ,c\n d;e", undefined, "b", " f "), ["a", "b", "c", "d", "e", "f"]);
+  assert.deepEqual(keysFrom(undefined, "", null), []);
+});
+
+test("calls start at a different key each time", () => {
+  assert.deepEqual(rotated(["a", "b", "c"], 0), ["a", "b", "c"]);
+  assert.deepEqual(rotated(["a", "b", "c"], 4), ["b", "c", "a"]);
+  assert.deepEqual(rotated(["a", "b", "c"], -1), ["c", "a", "b"]);
+  assert.deepEqual(rotated([], 3), []);
+});
+
+test("when a key fails the next is tried; the last failure is the one reported", async () => {
+  const tried: string[] = [];
+  const got = await withKeys(["bad", "limited", "good", "unused"], (k) => {
+    tried.push(k);
+    if (k !== "good") return Promise.reject(new Error(`HTTP 429 ${k}`));
+    return Promise.resolve(`answer from ${k}`);
+  });
+  assert.equal(got, "answer from good");
+  assert.deepEqual(tried, ["bad", "limited", "good"]);
+
+  await assert.rejects(
+    withKeys(["x", "y"], (k) => Promise.reject(new Error(`refused ${k}`))),
+    /refused y/,
+  );
+  await assert.rejects(withKeys([], () => Promise.resolve(1)), /no key/);
+
+  // Slow keys do not hold the administrator for ever.
+  let clock = 0;
+  const slow: string[] = [];
+  await assert.rejects(
+    withKeys(["a", "b", "c"], (k) => {
+      slow.push(k);
+      clock += 60_000;
+      return Promise.reject(new Error("timeout"));
+    }, 100_000, () => clock),
+  );
+  assert.deepEqual(slow, ["a", "b"]);
 });
 
 test("cosine similarity", () => {

@@ -982,7 +982,7 @@ update public.classifier_model set is_active = true where model_id = 'v1-sample'
 select ok(
   not has_function_privilege('anon', 'public.report_source(timestamptz, timestamptz)', 'execute')
   and not has_function_privilege('anon',
-        'public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int, text)', 'execute')
+        'public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int)', 'execute')
   and not has_function_privilege('anon', 'public.finalize_ndrrmc_report(text)', 'execute'),
   'anon cannot read report figures or save reports');
 
@@ -1854,16 +1854,15 @@ set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", 
 select ok(public.begin_report_rewrite() > 0, 'an admin can');
 select ok((select count(*) >= 12 from public.report_reference), 'and reads the passages');
 select lives_ok(
-  $$ select public.save_ndrrmc_report(null, now() - interval '1 day', now() + interval '1 minute', 'RAG draft',
-       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb, null, 'rag') $$,
-  'a rewritten draft is saved');
+  $$ select public.mark_report_rag(public.save_ndrrmc_report(null, now() - interval '1 day', now() + interval '1 minute', 'RAG draft',
+       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb)) $$,
+  'a rewritten draft is saved and marked');
 select is(
   (select method from public.ndrrmc_report where title = 'RAG draft'), 'rag',
-  'marked as written with the language model');
+  'as written with the language model');
 select throws_ok(
-  $$ select public.save_ndrrmc_report(null, now() - interval '1 day', now() + interval '1 minute', 'Bad',
-       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb, null, 'magic') $$,
-  'P0001', 'invalid_value', 'only the two known methods');
+  $$ select public.mark_report_rag('RPT-9999') $$,
+  'P0001', 'not_found', 'only a draft that exists');
 reset role;
 insert into public.report_rewrite (staff_id)
 select '00000000-0000-4000-8000-00000000000a' from generate_series(1, 20);

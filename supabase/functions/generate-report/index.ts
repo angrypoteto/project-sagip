@@ -14,32 +14,44 @@
 // Admins only: the caller's own sign-in is checked by
 // begin_report_rewrite(), which also limits rewrites to 20 an hour each.
 //
-// Secrets: GEMINI_API_KEY (from Google AI Studio). Without it the function
-// answers `not_set_up` and A6 keeps the assembled draft. Optional:
-// GEMINI_MODEL (default gemini-3.8-flash), GEMINI_EMBEDDING_MODEL
-// (default gemini-embedding-001).
+// Secrets: GEMINI_API_KEYS (from Google AI Studio; one key, or several
+// separated by commas: when one is refused or over its limit the next is
+// tried). If every Gemini key fails, the text is written through Groq
+// instead when GROQ_API_KEYS is set (same figures, same rules; passages
+// are then matched by shared words unless Gemini's embeddings worked).
+// With no key at all the function answers `not_set_up` and A6 keeps the
+// assembled draft. GEMINI_API_KEY and GROQ_API_KEY (one key each) are
+// read too. Optional: GEMINI_MODEL (default gemini-3.8-flash),
+// GEMINI_EMBEDDING_MODEL (default gemini-embedding-001), GROQ_MODEL
+// (default openai/gpt-oss-120b).
 //
 // Deploy with JWT checking on (the default):
 //   supabase functions deploy generate-report
 
 import {
   buildPrompt,
+  keysFrom,
   readAnswer,
   readRequest,
   type Reference,
   retrieve,
+  rotated,
   type Section,
   systemInstruction,
   unknownNumbers,
+  withKeys,
 } from "./rag.ts";
 
 const url = Deno.env.get("SUPABASE_URL");
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-const geminiKey = Deno.env.get("GEMINI_API_KEY");
+const geminiKeys = keysFrom(Deno.env.get("GEMINI_API_KEYS"), Deno.env.get("GEMINI_API_KEY"));
+const groqKeys = keysFrom(Deno.env.get("GROQ_API_KEYS"), Deno.env.get("GROQ_API_KEY"));
 const model = Deno.env.get("GEMINI_MODEL") || "gemini-3.8-flash";
 const embeddingModel = Deno.env.get("GEMINI_EMBEDDING_MODEL") || "gemini-embedding-001";
+const groqModel = Deno.env.get("GROQ_MODEL") || "openai/gpt-oss-120b";
 const gemini = "https://generativelanguage.googleapis.com/v1beta";
+const groq = "https://api.groq.com/openai/v1/chat/completions";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -101,10 +113,10 @@ async function references(): Promise<Reference[]> {
   }));
 }
 
-async function embed(texts: string[], taskType: string): Promise<number[][]> {
+async function embed(key: string, texts: string[], taskType: string): Promise<number[][]> {
   const res = await fetch(`${gemini}/models/${embeddingModel}:batchEmbedContents`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey! },
+    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({
       requests: texts.map((text) => ({
         model: `models/${embeddingModel}`,
@@ -124,10 +136,10 @@ async function embed(texts: string[], taskType: string): Promise<number[][]> {
   return out;
 }
 
-async function write(prompt: string): Promise<string> {
+async function writeWithGemini(key: string, prompt: string): Promise<string> {
   const res = await fetch(`${gemini}/models/${model}:generateContent`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey! },
+    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemInstruction }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -142,6 +154,62 @@ async function write(prompt: string): Promise<string> {
   const text = (data.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
   if (!text) throw new Error("model: empty answer");
   return text;
+}
+
+async function writeWithGroq(key: string, prompt: string): Promise<string> {
+  const res = await fetch(groq, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model: groqModel,
+      temperature: 0.2,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: systemInstruction },
+        { role: "user", content: prompt },
+      ],
+    }),
+    signal: AbortSignal.timeout(90_000),
+  });
+  if (!res.ok) throw new Error(`groq: HTTP ${res.status}`);
+  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const text = data.choices?.[0]?.message?.content ?? "";
+  if (!text) throw new Error("groq: empty answer");
+  return text;
+}
+
+/** The sections from the first model that answers with them: each Gemini
+ * key in turn, then each Groq key. */
+async function write(
+  prompt: string,
+  asked: Section[],
+  turn: number,
+): Promise<{ sections: Section[]; model: string }> {
+  const read = (text: string): Section[] => {
+    const sections = readAnswer(text, asked);
+    if (!sections) throw new Error("model: the answer was not the sections asked for");
+    return sections;
+  };
+  let failure: unknown = new Error("no key");
+  if (geminiKeys.length) {
+    try {
+      const sections = await withKeys(
+        rotated(geminiKeys, turn),
+        async (k) => read(await writeWithGemini(k, prompt)),
+      );
+      return { sections, model };
+    } catch (e) {
+      failure = e;
+    }
+  }
+  if (groqKeys.length) {
+    const sections = await withKeys(
+      rotated(groqKeys, turn),
+      async (k) => read(await writeWithGroq(k, prompt)),
+    );
+    return { sections, model: groqModel };
+  }
+  throw failure;
 }
 
 Deno.serve(async (req) => {
@@ -162,16 +230,17 @@ Deno.serve(async (req) => {
   }
   const rewriteId = begun.data;
   const started = Date.now();
+  let usedModel = model;
   const finish = (ok: boolean, detail: string | null) =>
     rpc("finish_report_rewrite", {
       p_rewrite_id: rewriteId,
       p_ok: ok,
-      p_model: model,
+      p_model: usedModel,
       p_duration_ms: Date.now() - started,
       p_detail: detail,
     }).catch(() => {});
 
-  if (!geminiKey) {
+  if (geminiKeys.length + groqKeys.length === 0) {
     await finish(false, "not set up");
     return json(503, { error: "not_set_up" });
   }
@@ -183,12 +252,11 @@ Deno.serve(async (req) => {
     let sectionVectors: (number[] | null)[] = input.sections.map(() => null);
     let retrieval = "words";
     try {
+      const keys = rotated(geminiKeys, rewriteId);
       const missing = refs.filter((r) => !r.embedding);
       if (missing.length) {
-        const made = await embed(
-          missing.map((r) => `${r.title}\n${r.body}`),
-          "RETRIEVAL_DOCUMENT",
-        );
+        const made = await withKeys(keys, (k) =>
+          embed(k, missing.map((r) => `${r.title}\n${r.body}`), "RETRIEVAL_DOCUMENT"), 40_000);
         await Promise.all(missing.map((r, i) => {
           r.embedding = made[i];
           return rpc("record_reference_embedding", {
@@ -198,10 +266,8 @@ Deno.serve(async (req) => {
           });
         }));
       }
-      sectionVectors = await embed(
-        input.sections.map((s) => `${s.title}\n${s.body}`),
-        "RETRIEVAL_QUERY",
-      );
+      sectionVectors = await withKeys(keys, (k) =>
+        embed(k, input.sections.map((s) => `${s.title}\n${s.body}`), "RETRIEVAL_QUERY"), 40_000);
       retrieval = "embedding";
     } catch {
       for (const r of refs) r.embedding = null;
@@ -209,9 +275,13 @@ Deno.serve(async (req) => {
 
     const passages = new Map<string, Reference[]>();
     input.sections.forEach((s, i) => passages.set(s.key, retrieve(s, sectionVectors[i], refs)));
-    const answer = await write(buildPrompt(input.sections, input.source, passages));
-    const sections: Section[] | null = readAnswer(answer, input.sections);
-    if (!sections) throw new Error("model: the answer was not the sections asked for");
+    const written = await write(
+      buildPrompt(input.sections, input.source, passages),
+      input.sections,
+      rewriteId,
+    );
+    const sections = written.sections;
+    usedModel = written.model;
 
     const used = new Map<number, Reference>();
     for (const list of passages.values()) for (const r of list) used.set(r.id, r);
@@ -220,7 +290,7 @@ Deno.serve(async (req) => {
       sections,
       references: [...used.values()].map((r) => ({ id: r.id, title: r.title })),
       check: unknownNumbers(sections, input.sections, input.source),
-      model,
+      model: usedModel,
       retrieval,
       ms: Date.now() - started,
     });

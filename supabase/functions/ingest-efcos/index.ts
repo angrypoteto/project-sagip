@@ -14,6 +14,7 @@
 
 import { authorized } from "../sms-intake/intake.ts";
 import { levelState, parseLevels, riverPage } from "./efcos.ts";
+import { pagasaIntermediate } from "./intermediate.ts";
 
 const url = Deno.env.get("SUPABASE_URL");
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -63,12 +64,22 @@ Deno.serve(async (req) => {
     return json(401, { error: "not allowed" });
   }
   try {
-    const res = await fetch(riverPage, {
-      headers: { "User-Agent": userAgent },
-      signal: AbortSignal.timeout(30_000),
-    });
-    if (!res.ok) throw new Error(`PAGASA river list: HTTP ${res.status}`);
-    const levels = parseLevels(await res.text());
+    // PAGASA's server leaves out its intermediate certificate (see
+    // intermediate.ts); this client knows it, for this request only.
+    const client = Deno.createHttpClient({ caCerts: [pagasaIntermediate] });
+    let body: string;
+    try {
+      const res = await fetch(riverPage, {
+        headers: { "User-Agent": userAgent },
+        signal: AbortSignal.timeout(30_000),
+        client,
+      } as RequestInit);
+      if (!res.ok) throw new Error(`PAGASA river list: HTTP ${res.status}`);
+      body = await res.text();
+    } finally {
+      client.close();
+    }
+    const levels = parseLevels(body);
     if (levels.length === 0) throw new Error("No stations on the PAGASA river list");
     await rpc("record_river_levels", {
       p_levels: levels.map((l) => ({
