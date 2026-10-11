@@ -201,6 +201,29 @@ void main() {
     expect(find.byType(IncidentDrawer), findsNothing);
   });
 
+  testWidgets('D3: with the drawer open the table keeps to what fits', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    tester.view.physicalSize = const Size(1920, 1000);
+    await tester.tap(find.text('List'));
+    await settle(tester);
+    expect(find.text('Channel'), findsOneWidget);
+    expect(find.text('Vulnerable'), findsOneWidget);
+
+    tester.view.physicalSize = const Size(1440, 900);
+    await settle(tester);
+
+    await tester.tap(find.text('SOS, flood').first);
+    await settle(tester);
+    expect(find.byType(IncidentDrawer), findsOneWidget);
+    // The drawer shows these; the table drops them.
+    expect(find.text('Channel'), findsNothing);
+    expect(find.text('Verified'), findsNothing);
+    expect(find.text('Unit'), findsOneWidget);
+  });
+
   testWidgets('choosing a unit other than the top one asks for a reason', (
     tester,
   ) async {

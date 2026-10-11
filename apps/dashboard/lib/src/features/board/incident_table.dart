@@ -6,9 +6,12 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import 'incident_drawer.dart';
 import 'queue_panel.dart';
 
-/// D3 list view: the same queue as a table.
+/// D3 list view: the same queue as a table. With the drawer open, or on a
+/// narrow window, the columns the drawer already shows (channel, verified,
+/// vulnerable) are left out so the table never scrolls sideways under it.
 class IncidentTable extends ConsumerWidget {
   const IncidentTable({
     super.key,
@@ -18,6 +21,9 @@ class IncidentTable extends ConsumerWidget {
 
   final String? selectedId;
   final ValueChanged<String> onSelect;
+
+  /// Below this width the table shows its short set of columns.
+  static const fullWidth = 1100.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,37 +48,58 @@ class IncidentTable extends ConsumerWidget {
 
     return ColoredBox(
       color: p.canvas,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          SagipSpace.xxl,
-          72,
-          SagipSpace.xxl,
-          SagipSpace.xxl,
-        ),
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              showCheckboxColumn: false,
-              columns: [
-                DataColumn(label: Text(l10n.colPriority)),
-                DataColumn(label: Text(l10n.colWaiting), numeric: true),
-                DataColumn(label: Text(l10n.colStatus)),
-                DataColumn(label: Text(l10n.colType)),
-                DataColumn(label: Text(l10n.colPlace)),
-                DataColumn(label: Text(l10n.colChannel)),
-                DataColumn(label: Text(l10n.colVerified)),
-                DataColumn(label: Text(l10n.colVulnerable)),
-                DataColumn(label: Text(l10n.colUnit)),
-              ],
-              rows: [
-                for (final i in queue)
-                  _row(context, i, now, rules, units, l10n, p, tabular),
-              ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The drawer lies over the right side of this area.
+          final covered = selectedId == null ? 0.0 : IncidentDrawer.width;
+          final full =
+              constraints.maxWidth - covered - 2 * SagipSpace.xxl >= fullWidth;
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              SagipSpace.xxl,
+              72,
+              SagipSpace.xxl + covered,
+              SagipSpace.xxl,
             ),
-          ),
-        ),
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  showCheckboxColumn: false,
+                  columnSpacing: full ? null : SagipSpace.xl,
+                  columns: [
+                    DataColumn(label: Text(l10n.colPriority)),
+                    DataColumn(label: Text(l10n.colWaiting), numeric: true),
+                    DataColumn(label: Text(l10n.colStatus)),
+                    DataColumn(label: Text(l10n.colType)),
+                    DataColumn(label: Text(l10n.colPlace)),
+                    if (full) ...[
+                      DataColumn(label: Text(l10n.colChannel)),
+                      DataColumn(label: Text(l10n.colVerified)),
+                      DataColumn(label: Text(l10n.colVulnerable)),
+                    ],
+                    DataColumn(label: Text(l10n.colUnit)),
+                  ],
+                  rows: [
+                    for (final i in queue)
+                      _row(
+                        context,
+                        i,
+                        now,
+                        rules,
+                        units,
+                        l10n,
+                        p,
+                        tabular,
+                        full: full,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -85,8 +112,9 @@ class IncidentTable extends ConsumerWidget {
     Map<String, ResponseUnit> units,
     AppLocalizations l10n,
     SagipPalette p,
-    TextStyle tabular,
-  ) {
+    TextStyle tabular, {
+    required bool full,
+  }) {
     final score = rules.score(i, now);
     final visual = incidentStatusVisual(i.status, p);
     return DataRow(
@@ -119,9 +147,11 @@ class IncidentTable extends ConsumerWidget {
         ),
         DataCell(Text(l10n.incidentTitle(i))),
         DataCell(Text(i.place)),
-        DataCell(Text(l10n.channel(i.channel))),
-        DataCell(Text(i.isVerified ? l10n.yes : l10n.no)),
-        DataCell(Text(i.vulnerable.map(l10n.vulnerability).join(', '))),
+        if (full) ...[
+          DataCell(Text(l10n.channel(i.channel))),
+          DataCell(Text(i.isVerified ? l10n.yes : l10n.no)),
+          DataCell(Text(i.vulnerable.map(l10n.vulnerability).join(', '))),
+        ],
         DataCell(Text(units[i.assignedUnitId]?.callSign ?? '')),
       ],
     );
