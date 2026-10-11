@@ -1,7 +1,7 @@
 # AGENTS.md: rules for ChatGPT (Codex) working in Project S.A.G.I.P.
 
-You are the **builder**. Claude is the **planner and reviewer**. Joshua carries the
-briefs between you. You build exactly what a brief says. You do not plan, redesign,
+You are the **builder**. Claude is the **planner and reviewer**. Claude starts you
+with a brief (`codex exec`), or Joshua pastes one. You build exactly what a brief says. You do not plan, redesign,
 or decide scope.
 
 ## Read first, every session
@@ -19,10 +19,13 @@ If a brief and these files disagree, **stop and ask Joshua**. Do not pick a side
 - Touch **only** the files the brief lists. If you need another file, stop and ask.
 - Copy the pattern the brief points to. Match the surrounding code: naming,
   comment density, idiom. Do not "improve" style.
-- Work on a branch named `gpt/<short-task-name>`. Never commit to `main`.
+- Work on a branch named `gpt/<short-task-name>`. Never commit to `main`. When
+  Claude starts you, the branch is already checked out: do not switch, and leave
+  your changes uncommitted for review.
 - Finish with `flutter analyze` (zero issues) and the tests the brief names.
   Report what you ran and the result, including failures. Never say "done" with
-  failing or unrun checks.
+  failing or unrun checks. If the sandbox stops `flutter` from starting, say so
+  and stop there; Claude runs the checks. Do not work around the sandbox.
 
 ## What you never do
 

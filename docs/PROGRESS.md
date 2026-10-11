@@ -24,6 +24,8 @@ Related files: `CLAUDE.md` (rules), `docs/SAGIP-IMPLEMENTATION-PLAN.md` (the ful
 
 ## Working with ChatGPT (from 2026-10-10)
 
+From 2026-10-11 Claude runs Codex itself (`codex exec`, Joshua's ChatGPT sign-in, sandboxed to the repo; command and limits in `docs/GPT-BRIEF-TEMPLATE.md`). First run: `packages/shared/test/earthquake_test.dart` (5 tests), reviewed and merged. Codex cannot run `flutter` in its sandbox, so Claude always runs analyze and the tests.
+
 Claude is the planner and reviewer; ChatGPT (Codex) is a builder that gets one small brief at a time. Rules for ChatGPT are in `AGENTS.md`, the brief shape and the review steps in `docs/GPT-BRIEF-TEMPLATE.md`. ChatGPT works on branches named `gpt/<task>`, never edits the plan, `CLAUDE.md`, `AGENTS.md`, or this file, and never pushes. Claude reviews each branch (diff, `flutter analyze`, tests) before it is merged, and updates this file afterwards. Joshua carries briefs and results between the two. Rows ChatGPT works under appear in "Active work" as `gpt/<task>`, written by Claude.
 
 ---

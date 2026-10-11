@@ -1,6 +1,7 @@
 # Brief template for ChatGPT (Codex)
 
-Claude writes one brief per task and Joshua pastes it to ChatGPT. Keep each brief
+Claude writes one brief per task and runs Codex with it (below); Joshua can also
+paste a brief into ChatGPT by hand. Keep each brief
 small: one task, few files. A small brief is what stops ChatGPT drifting from the
 plan. Start every brief with the line below, then fill the sections.
 
@@ -48,9 +49,29 @@ Files changed / Commands run (with results) / Not done or unsure.
 
 ---
 
+## How Claude runs Codex (from 2026-10-11)
+
+Codex CLI is installed on Joshua's PC and signed in with his ChatGPT account
+(`codex login`, done by Joshua; Claude never sees the password).
+
+```
+git checkout -b gpt/<name>
+codex exec -s workspace-write -c 'windows.sandbox="unelevated"' --color never -o <reply file> - < <brief file>
+```
+
+- Without the `windows.sandbox` setting the session is read-only on Windows and
+  every command is refused.
+- The sandbox lets Codex write only inside the repo and gives it no network.
+  `flutter` and `dart format` cannot start there (the SDK in `C:\src\flutter`
+  is outside the sandbox), so Codex writes the code and Claude runs the checks.
+- Never use `danger-full-access` or `--dangerously-bypass-approvals-and-sandbox`.
+- Each run uses Joshua's ChatGPT plan limits (the first, a 60-line test file,
+  took about 53,000 tokens).
+
 ## How Claude reviews the result
 
-1. Joshua pastes ChatGPT's reply, or says the branch name.
+1. Codex leaves its changes uncommitted on the branch (or Joshua pastes
+   ChatGPT's reply, or says the branch name).
 2. Claude reads the diff (`git diff main...gpt/<name>`) and checks it against the
    plan, `CLAUDE.md`, and `docs/CONVENTIONS.md`: scope, style, tests, security
    rules, domain vocabulary, no stray files.
