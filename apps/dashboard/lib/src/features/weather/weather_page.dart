@@ -112,11 +112,7 @@ class WeatherPage extends ConsumerWidget {
             const SizedBox(height: SagipSpace.xxl),
             const _PagasaFeed(),
             const SizedBox(height: SagipSpace.md),
-            _FeedNotice(
-              icon: Symbols.water_rounded,
-              title: l10n.efcosTitle,
-              message: l10n.efcosNotConnected,
-            ),
+            const _RiverLevels(),
             const SizedBox(height: SagipSpace.md),
             const _Earthquakes(),
           ],
@@ -406,6 +402,10 @@ class _PagasaFeed extends ConsumerWidget {
         },
         _ => l10n.feedNoWarning,
       },
+      FeedSource.efcos => l10n.feedRivers(
+        (seen['stations'] as num?)?.toInt() ?? 0,
+        (seen['raised'] as num?)?.toInt() ?? 0,
+      ),
       FeedSource.phivolcs => l10n.feedQuakes(
         (seen['events'] as num?)?.toInt() ?? 0,
         (seen['near_manila'] as num?)?.toInt() ?? 0,
@@ -436,6 +436,7 @@ class _PagasaFeed extends ConsumerWidget {
         FeedSource.pagasaRainfall => l10n.feedRainfall,
         FeedSource.pagasaCyclone => l10n.feedCyclone,
         FeedSource.phivolcs => l10n.feedPhivolcs,
+        FeedSource.efcos => l10n.feedEfcos,
       };
       final lastGood = f.lastSuccessAt;
       return Padding(
@@ -511,34 +512,131 @@ class _PagasaFeed extends ConsumerWidget {
   }
 }
 
-class _FeedNotice extends StatelessWidget {
-  const _FeedNotice({
-    required this.icon,
-    required this.title,
-    required this.message,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
+/// River levels from PAGASA's stations on the rivers EFCOS watches (FR5).
+/// Each is read against the station's own levels; the dispatcher decides
+/// whether to pass a raised one on.
+class _RiverLevels extends ConsumerWidget {
+  const _RiverLevels();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final online = ref.watch(isOnlineProvider);
+    final now = ref.watch(slowClockProvider).value ?? DateTime.now();
+    final levels = sortedRiverLevels(
+      ref.watch(riverLevelsProvider).value ?? const <RiverLevel>[],
+    );
+
+    String stateLabel(RiverState s) => switch (s) {
+      RiverState.normal => l10n.riverNormal,
+      RiverState.alert => l10n.riverAlert,
+      RiverState.alarm => l10n.riverAlarm,
+      RiverState.critical => l10n.riverCritical,
+    };
+
+    AdvisoryDraft draft(RiverLevel r) {
+      final state = stateLabel(r.state!).toLowerCase();
+      return AdvisoryDraft(
+        source: AlertSource.efcos,
+        level: switch (r.state!) {
+          RiverState.critical => AlertLevel.critical,
+          RiverState.alarm => AlertLevel.warning,
+          _ => AlertLevel.info,
+        },
+        title: l10n.efcosDraftTitle(r.name, state),
+        body: l10n.efcosDraftBody(
+          r.name,
+          r.levelM.toStringAsFixed(2),
+          formatDateTime(r.observedAt, locale),
+          state,
+          r.reachedM!.toStringAsFixed(2),
+        ),
+        steps: l10n.efcosDraftSteps,
+      );
+    }
+
     return Card(
+      key: const ValueKey('river-levels'),
       child: Padding(
         padding: const EdgeInsets.all(SagipSpace.xl),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 22),
+            const Icon(Symbols.water_rounded, size: 22),
             const SizedBox(width: SagipSpace.lg),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: text.titleSmall),
+                  Text(l10n.efcosTitle, style: text.titleSmall),
                   const SizedBox(height: SagipSpace.xs),
-                  Text(message, style: text.bodySmall),
+                  Text(l10n.efcosNote, style: text.bodySmall),
+                  const SizedBox(height: SagipSpace.sm),
+                  if (levels.isEmpty)
+                    Text(l10n.efcosNone, style: text.bodyMedium)
+                  else
+                    for (final r in levels)
+                      Padding(
+                        key: ValueKey('river-${r.code}'),
+                        padding: const EdgeInsets.only(top: SagipSpace.sm),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    [
+                                      r.name,
+                                      if (r.state != null) stateLabel(r.state!),
+                                      if (r.isStale(now)) l10n.efcosOld,
+                                    ].join(' · '),
+                                    style: text.bodyMedium!.copyWith(
+                                      fontWeight: r.raised
+                                          ? FontWeight.w600
+                                          : null,
+                                    ),
+                                  ),
+                                  Text(
+                                    [
+                                      l10n.efcosReading(
+                                        r.levelM.toStringAsFixed(2),
+                                        formatDateTime(r.observedAt, locale),
+                                      ),
+                                      if (r.alertM == null)
+                                        l10n.efcosNoLevels
+                                      else
+                                        l10n.efcosLevels(
+                                          r.alertM!.toStringAsFixed(2),
+                                          r.alarmM?.toStringAsFixed(2) ?? '-',
+                                          r.criticalM?.toStringAsFixed(2) ??
+                                              '-',
+                                        ),
+                                      if (r.flagged) l10n.efcosFlagged,
+                                    ].join(' · '),
+                                    style: text.bodySmall!.copyWith(
+                                      color: p.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (r.raised)
+                              TextButton(
+                                onPressed: online
+                                    ? () => showAdvisoryDialog(
+                                        context,
+                                        draft: draft(r),
+                                      )
+                                    : null,
+                                child: Text(l10n.phivolcsRelay),
+                              ),
+                          ],
+                        ),
+                      ),
                 ],
               ),
             ),

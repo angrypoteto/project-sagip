@@ -919,6 +919,16 @@ class SupabaseFeedStatusRepository implements FeedStatusRepository {
         Earthquake.fromJson(r),
     ],
   );
+
+  @override
+  Stream<List<RiverLevel>> watchRiverLevels() => liveQuery(
+    _client,
+    tables: const ['river_level'],
+    fetch: () async => [
+      for (final r in await _client.from('river_level').select())
+        RiverLevel.fromJson(r),
+    ],
+  );
 }
 
 // --------------------------------------------------------------- forecast

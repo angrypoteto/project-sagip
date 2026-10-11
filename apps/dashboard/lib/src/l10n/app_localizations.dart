@@ -1663,7 +1663,7 @@ abstract class AppLocalizations {
   /// No description provided for @feedTitle.
   ///
   /// In en, this message translates to:
-  /// **'PAGASA and PHIVOLCS feeds'**
+  /// **'PAGASA, PHIVOLCS, and river feeds'**
   String get feedTitle;
 
   /// No description provided for @feedNotConnected.
@@ -1801,14 +1801,110 @@ abstract class AppLocalizations {
   /// No description provided for @efcosTitle.
   ///
   /// In en, this message translates to:
-  /// **'EFCOS water levels'**
+  /// **'River water levels'**
   String get efcosTitle;
 
-  /// No description provided for @efcosNotConnected.
+  /// No description provided for @efcosNote.
   ///
   /// In en, this message translates to:
-  /// **'Not connected yet. Alerts use PAGASA thresholds only (FR5 fallback).'**
-  String get efcosNotConnected;
+  /// **'PAGASA\'s stations on the Pasig, Marikina, and Tullahan rivers (the rivers EFCOS watches), read every 10 minutes, each against its own alert, alarm, and critical level. Levels are relayed by hand: nothing is sent to residents by itself.'**
+  String get efcosNote;
+
+  /// No description provided for @efcosNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No river levels yet. Alerts use PAGASA thresholds only (FR5 fallback).'**
+  String get efcosNone;
+
+  /// No description provided for @efcosReading.
+  ///
+  /// In en, this message translates to:
+  /// **'{level} m · {time}'**
+  String efcosReading(String level, String time);
+
+  /// No description provided for @efcosLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert {alert} m · Alarm {alarm} m · Critical {critical} m'**
+  String efcosLevels(String alert, String alarm, String critical);
+
+  /// No description provided for @efcosNoLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'No alert levels set for this station'**
+  String get efcosNoLevels;
+
+  /// No description provided for @efcosOld.
+  ///
+  /// In en, this message translates to:
+  /// **'Old reading'**
+  String get efcosOld;
+
+  /// No description provided for @efcosFlagged.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked (*) by PAGASA'**
+  String get efcosFlagged;
+
+  /// No description provided for @riverNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get riverNormal;
+
+  /// No description provided for @riverAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get riverAlert;
+
+  /// No description provided for @riverAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm'**
+  String get riverAlarm;
+
+  /// No description provided for @riverCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get riverCritical;
+
+  /// No description provided for @efcosDraftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'River at {station}: {state} level'**
+  String efcosDraftTitle(String station, String state);
+
+  /// No description provided for @efcosDraftBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The water at {station} was {level} m at {time}, at or above its {state} level of {reached} m (PAGASA river monitoring). Low areas near the river may flood.'**
+  String efcosDraftBody(
+    String station,
+    String level,
+    String time,
+    String state,
+    String reached,
+  );
+
+  /// No description provided for @efcosDraftSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to higher ground if water rises near you\nKeep away from the river and flooded streets\nCall MDRRMD if you need rescue'**
+  String get efcosDraftSteps;
+
+  /// No description provided for @feedEfcos.
+  ///
+  /// In en, this message translates to:
+  /// **'River levels (PAGASA)'**
+  String get feedEfcos;
+
+  /// No description provided for @feedRivers.
+  ///
+  /// In en, this message translates to:
+  /// **'{stations} stations read, {raised} at alert level or higher'**
+  String feedRivers(int stations, int raised);
 
   /// No description provided for @phivolcsTitle.
   ///
@@ -3210,7 +3306,7 @@ abstract class AppLocalizations {
   /// No description provided for @configAlertsNote.
   ///
   /// In en, this message translates to:
-  /// **'A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. EFCOS water levels are not connected yet.'**
+  /// **'A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. River levels are shown on the Weather page and relayed by hand.'**
   String get configAlertsNote;
 
   /// No description provided for @settingRainfallWarning.

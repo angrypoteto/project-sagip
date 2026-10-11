@@ -215,6 +215,14 @@ final earthquakesProvider = StreamProvider<List<Earthquake>>(
   ),
 );
 
+/// The newest water level of each river station (D10).
+final riverLevelsProvider = StreamProvider<List<RiverLevel>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(feedStatusRepositoryProvider).watchRiverLevels(),
+  ),
+);
+
 final feedStatusProvider = StreamProvider<List<FeedStatus>>(
   (ref) => _forAccount(
     ref,

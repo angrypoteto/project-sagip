@@ -118,6 +118,51 @@ class MockBackend {
 
   Stream<List<Earthquake>> watchEarthquakes() => _quakes.watch();
   void setEarthquakes(List<Earthquake> quakes) => _quakes.value = quakes;
+
+  /// Sample river stations (levels as PAGASA listed them on 2026-10-11,
+  /// with Sto Nino raised to its alarm level), read 10 minutes ago.
+  late final _rivers = LiveValue<List<RiverLevel>>([
+    for (final (code, name, lat, lng, level, alert, alarm, critical)
+        in const <
+          (String, String, double, double, double, double?, double?, double?)
+        >[
+          (
+            '11204202',
+            'Fort Santiago',
+            14.5953,
+            120.9697,
+            11.42,
+            12.0,
+            12.5,
+            13.0,
+          ),
+          ('11204201', 'Pandacan', 14.5896, 121.0122, 10.94, 12.0, 12.5, 13.0),
+          (
+            '11104204',
+            'Sto Nino(MMDA)',
+            14.6359,
+            121.0931,
+            16.2,
+            15.0,
+            16.0,
+            17.0,
+          ),
+          ('11105201', 'Angono', 14.5268, 121.1424, 12.04, null, null, null),
+        ])
+      RiverLevel(
+        code: code,
+        name: name,
+        point: GeoPoint(lat, lng),
+        observedAt: _clock().subtract(const Duration(minutes: 10)),
+        levelM: level,
+        alertM: alert,
+        alarmM: alarm,
+        criticalM: critical,
+      ),
+  ]);
+
+  Stream<List<RiverLevel>> watchRiverLevels() => _rivers.watch();
+  void setRiverLevels(List<RiverLevel> levels) => _rivers.value = levels;
   var _nextReportNumber = 1;
   var _nextAlertNumber = 1;
   var _weatherSimulated = false;
@@ -1619,6 +1664,7 @@ class MockBackend {
     for (final live in <LiveValue<Object?>>[
       _feeds,
       _quakes,
+      _rivers,
       _incidents,
       _resolved,
       _units,

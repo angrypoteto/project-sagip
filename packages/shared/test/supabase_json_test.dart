@@ -29,7 +29,7 @@ void main() {
     expect(down.failures, 2);
     expect(
       () => FeedStatus.fromJson({
-        ...{'source': 'efcos'},
+        ...{'source': 'somethingElse'},
         'ok': true,
         'checked_at': '2026-10-03T03:37:00Z',
       }),

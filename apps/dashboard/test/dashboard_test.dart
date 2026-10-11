@@ -549,7 +549,7 @@ void main() {
     await signIn(tester, 'dispatcher@sagip.test');
     await tester.tap(find.byTooltip('Weather and advisories'));
     await settle(tester);
-    expect(find.text('PAGASA and PHIVOLCS feeds'), findsOneWidget);
+    expect(find.text('PAGASA, PHIVOLCS, and river feeds'), findsOneWidget);
     expect(
       find.text('Not connected: sample data uses simulated weather.'),
       findsOneWidget,
@@ -610,7 +610,12 @@ void main() {
     expect(find.textContaining('Magnitude 2.0'), findsNothing);
 
     // Relaying fills in the advisory; the dispatcher still reviews it.
-    final relay = find.text('Relay as advisory').first;
+    final relay = find
+        .descendant(
+          of: find.byKey(const ValueKey('earthquakes')),
+          matching: find.text('Relay as advisory'),
+        )
+        .first;
     await tester.ensureVisible(relay);
     await tester.tap(relay);
     await settle(tester);
@@ -634,6 +639,44 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('D10: river levels against each station level', (tester) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2800);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+    expect(find.text('River water levels'), findsOneWidget);
+    // The raised station comes first and is the only one that can be relayed.
+    expect(find.text('Sto Nino(MMDA) · Alarm'), findsOneWidget);
+    expect(find.text('Fort Santiago · Normal'), findsOneWidget);
+    expect(find.text('Angono'), findsOneWidget);
+    expect(
+      find.textContaining('No alert levels set for this station'),
+      findsOneWidget,
+    );
+    final card = find.byKey(const ValueKey('river-levels'));
+    final relay = find.descendant(
+      of: card,
+      matching: find.text('Relay as advisory'),
+    );
+    expect(relay, findsOneWidget);
+    await tester.ensureVisible(relay);
+    await tester.tap(relay);
+    await settle(tester);
+    expect(find.text('River at Sto Nino(MMDA): alarm level'), findsOneWidget);
+    expect(
+      tester
+          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'EFCOS'))
+          .selected,
+      isTrue,
+    );
+
+    backend.setRiverLevels(const []);
+    await tester.tap(find.text('Cancel'));
+    await settle(tester);
+    expect(find.textContaining('No river levels yet.'), findsOneWidget);
   });
 
   testWidgets('D10: readings against the thresholds and the alert log', (

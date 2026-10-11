@@ -30,9 +30,10 @@ class UnitSuggestion {
   final RoutingMethod method;
 }
 
-/// The pages the feeds read: PAGASA's two (ingest-pagasa) and PHIVOLCS's
-/// earthquake list (ingest-phivolcs).
-enum FeedSource { pagasaRainfall, pagasaCyclone, phivolcs }
+/// The pages the feeds read: PAGASA's two (ingest-pagasa), PHIVOLCS's
+/// earthquake list (ingest-phivolcs), and PAGASA's river levels for the
+/// rivers EFCOS watches (ingest-efcos).
+enum FeedSource { pagasaRainfall, pagasaCyclone, phivolcs, efcos }
 
 /// How the last check of one PAGASA source went (`feed_status`, D10).
 @immutable
@@ -68,6 +69,7 @@ class FeedStatus {
       'pagasa_rainfall' => FeedSource.pagasaRainfall,
       'pagasa_cyclone' => FeedSource.pagasaCyclone,
       'phivolcs' => FeedSource.phivolcs,
+      'efcos' => FeedSource.efcos,
       final other => throw FormatException('Unknown feed source $other'),
     },
     ok: json['ok']! as bool,
@@ -128,6 +130,93 @@ class Earthquake {
     bulletinUrl: json['bulletin_url'] as String?,
   );
 }
+
+/// How high the water is against a station's own levels.
+enum RiverState { normal, alert, alarm, critical }
+
+/// The newest water level of one Pasig-Marikina-Tullahan station
+/// (`river_level`, D10). Relayed by hand only (FR5): nothing reaches
+/// residents by itself.
+@immutable
+class RiverLevel {
+  const RiverLevel({
+    required this.code,
+    required this.name,
+    required this.point,
+    required this.observedAt,
+    required this.levelM,
+    this.changeM,
+    this.alertM,
+    this.alarmM,
+    this.criticalM,
+    this.flagged = false,
+  });
+
+  final String code;
+  final String name;
+  final GeoPoint point;
+  final DateTime observedAt;
+  final double levelM;
+
+  /// Change since the reading before, as PAGASA gives it.
+  final double? changeM;
+  final double? alertM;
+  final double? alarmM;
+  final double? criticalM;
+
+  /// PAGASA marks some readings with (*).
+  final bool flagged;
+
+  /// A reading older than this is shown as old.
+  static const staleAfter = Duration(hours: 1);
+
+  /// The highest of the station's levels the water has reached; null when
+  /// the station has none.
+  RiverState? get state {
+    final alert = alertM;
+    if (alert == null) return null;
+    final critical = criticalM;
+    final alarm = alarmM;
+    if (critical != null && levelM >= critical) return RiverState.critical;
+    if (alarm != null && levelM >= alarm) return RiverState.alarm;
+    return levelM >= alert ? RiverState.alert : RiverState.normal;
+  }
+
+  bool get raised => state != null && state != RiverState.normal;
+
+  /// The level the water has reached, for the advisory text.
+  double? get reachedM => switch (state) {
+    RiverState.critical => criticalM,
+    RiverState.alarm => alarmM,
+    RiverState.alert => alertM,
+    _ => null,
+  };
+
+  bool isStale(DateTime now) => now.difference(observedAt) > staleAfter;
+
+  factory RiverLevel.fromJson(Map<String, Object?> json) => RiverLevel(
+    code: json['station_code']! as String,
+    name: json['name']! as String,
+    point: GeoPoint(
+      (json['latitude']! as num).toDouble(),
+      (json['longitude']! as num).toDouble(),
+    ),
+    observedAt: timeFromJson(json['observed_at']),
+    levelM: (json['level_m']! as num).toDouble(),
+    changeM: (json['change_m'] as num?)?.toDouble(),
+    alertM: (json['alert_m'] as num?)?.toDouble(),
+    alarmM: (json['alarm_m'] as num?)?.toDouble(),
+    criticalM: (json['critical_m'] as num?)?.toDouble(),
+    flagged: json['flagged'] as bool? ?? false,
+  );
+}
+
+/// Raised stations first (highest first), then by name.
+List<RiverLevel> sortedRiverLevels(Iterable<RiverLevel> levels) =>
+    levels.toList()..sort((a, b) {
+      final byState = (b.state?.index ?? -1).compareTo(a.state?.index ?? -1);
+      return byState != 0 ? byState : a.name.compareTo(b.name);
+    });
 
 /// Current PAGASA conditions for Manila (WEATHER_ALERT, Figure 3.6d).
 @immutable

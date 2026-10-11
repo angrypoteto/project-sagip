@@ -155,6 +155,9 @@ abstract interface class FeedStatusRepository {
 
   /// PHIVOLCS earthquakes near Manila from the last 48 hours, newest first.
   Stream<List<Earthquake>> watchEarthquakes();
+
+  /// The newest water level of each river station.
+  Stream<List<RiverLevel>> watchRiverLevels();
 }
 
 /// The 72-hour forecast for every barangay (D8, FR4).

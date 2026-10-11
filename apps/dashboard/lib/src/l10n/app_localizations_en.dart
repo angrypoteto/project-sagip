@@ -918,7 +918,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weatherTitle => 'Weather and advisories';
 
   @override
-  String get feedTitle => 'PAGASA and PHIVOLCS feeds';
+  String get feedTitle => 'PAGASA, PHIVOLCS, and river feeds';
 
   @override
   String get feedNotConnected =>
@@ -1010,11 +1010,74 @@ class AppLocalizationsEn extends AppLocalizations {
       'Replaying recorded data. The live PAGASA feed is not connected yet.';
 
   @override
-  String get efcosTitle => 'EFCOS water levels';
+  String get efcosTitle => 'River water levels';
 
   @override
-  String get efcosNotConnected =>
-      'Not connected yet. Alerts use PAGASA thresholds only (FR5 fallback).';
+  String get efcosNote =>
+      'PAGASA\'s stations on the Pasig, Marikina, and Tullahan rivers (the rivers EFCOS watches), read every 10 minutes, each against its own alert, alarm, and critical level. Levels are relayed by hand: nothing is sent to residents by itself.';
+
+  @override
+  String get efcosNone =>
+      'No river levels yet. Alerts use PAGASA thresholds only (FR5 fallback).';
+
+  @override
+  String efcosReading(String level, String time) {
+    return '$level m · $time';
+  }
+
+  @override
+  String efcosLevels(String alert, String alarm, String critical) {
+    return 'Alert $alert m · Alarm $alarm m · Critical $critical m';
+  }
+
+  @override
+  String get efcosNoLevels => 'No alert levels set for this station';
+
+  @override
+  String get efcosOld => 'Old reading';
+
+  @override
+  String get efcosFlagged => 'Marked (*) by PAGASA';
+
+  @override
+  String get riverNormal => 'Normal';
+
+  @override
+  String get riverAlert => 'Alert';
+
+  @override
+  String get riverAlarm => 'Alarm';
+
+  @override
+  String get riverCritical => 'Critical';
+
+  @override
+  String efcosDraftTitle(String station, String state) {
+    return 'River at $station: $state level';
+  }
+
+  @override
+  String efcosDraftBody(
+    String station,
+    String level,
+    String time,
+    String state,
+    String reached,
+  ) {
+    return 'The water at $station was $level m at $time, at or above its $state level of $reached m (PAGASA river monitoring). Low areas near the river may flood.';
+  }
+
+  @override
+  String get efcosDraftSteps =>
+      'Move to higher ground if water rises near you\nKeep away from the river and flooded streets\nCall MDRRMD if you need rescue';
+
+  @override
+  String get feedEfcos => 'River levels (PAGASA)';
+
+  @override
+  String feedRivers(int stations, int raised) {
+    return '$stations stations read, $raised at alert level or higher';
+  }
 
   @override
   String get phivolcsTitle => 'PHIVOLCS earthquakes near Manila';
@@ -1813,7 +1876,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get configAlertsNote =>
-      'A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. EFCOS water levels are not connected yet.';
+      'A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. River levels are shown on the Weather page and relayed by hand.';
 
   @override
   String get settingRainfallWarning => 'Rainfall warning, mm per hour';
