@@ -21,7 +21,7 @@ class AppSetting {
   final String key;
 
   /// The group the setting belongs to: `priority`, `reports`, `alerts`,
-  /// `channels`, `contact`, or `demo`.
+  /// `channels`, `contact`, `demo`, or `privacy`.
   final String category;
 
   /// A number (weights, limits, thresholds), a switch (`bool`), or text
@@ -126,6 +126,10 @@ abstract final class SettingKeys {
   /// Simulation mode for demos and UAT (plan section 12).
   static const simulation = 'demo.simulation';
 
+  /// Months after an incident is closed before personal details are
+  /// removed from it (RA 10173).
+  static const retentionMonths = 'privacy.retention_months';
+
   /// Pairs where the first value must stay at or below the second.
   static const pairs = [
     ('priority.high_at', 'priority.critical_at'),
@@ -220,6 +224,14 @@ const defaultOtherSettings = [
     min: 0,
     max: 100000,
     description: 'Most alert texts sent in one day (Manila time)',
+  ),
+  AppSetting(
+    key: SettingKeys.retentionMonths,
+    category: 'privacy',
+    value: 12,
+    min: 6,
+    max: 60,
+    description: 'Months after an incident is closed before personal details are removed from it',
   ),
   AppSetting(
     key: SettingKeys.hotline,

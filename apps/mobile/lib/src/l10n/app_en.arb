@@ -480,7 +480,7 @@
   "privacyWhoTitle": "Who can see it",
   "privacyWhoBody": "MDRRMD dispatchers and administrators. Rescue personnel see only the incident they are assigned to, and vulnerability types, never names.",
   "privacyKeepTitle": "How long we keep it",
-  "privacyKeepBody": "As long as you have an account, and incident records as long as the law requires.",
+  "privacyKeepBody": "Your account details, as long as you have an account. One year after an SOS or a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name, your note, and the exact place. The record itself stays for MDRRMD's reports.",
   "privacyRightsTitle": "Your rights",
   "privacyRightsBody": "Under the Data Privacy Act (RA 10173) you can see, correct, or ask us to delete your data, and withdraw consent at any time in Me.",
 

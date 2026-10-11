@@ -105,6 +105,10 @@ enum AuditAction {
 
   /// An SOS closed because the resident asked to cancel it (D4).
   sosCancelled,
+
+  /// The nightly job removed personal details older than the retention
+  /// period (A3).
+  retentionApplied,
 }
 
 /// Why a resident asks to cancel their SOS (R2). A dispatcher decides.

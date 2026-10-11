@@ -2588,6 +2588,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionSosCancelled => 'Closed an SOS the resident cancelled';
 
   @override
+  String get actionRetentionApplied => 'Removed old personal details';
+
+  @override
+  String get configRetentionTitle => 'Data retention';
+
+  @override
+  String get configRetentionNote =>
+      'Every night, incidents closed for longer than this lose what points at a person: the link to the resident, their note and address, and the exact position (rounded to about 110 m). Counts, barangays, times, and the audit log are kept for reports (RA 10173). Provisional until MDRRMD confirms the period.';
+
+  @override
+  String get settingRetentionMonths => 'Months to keep personal details';
+
+  @override
   String get simulateIncidentsTitle => 'Simulated incidents';
 
   @override
@@ -2987,7 +3000,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webPrivacyKeepBody =>
-      'As long as you have an account, and incident records as long as the law requires.';
+      'Your account details, as long as you have an account. One year after a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name and the exact place. The record itself stays for MDRRMD\'s reports.';
 
   @override
   String get webPrivacyRightsTitle => 'Your rights';

@@ -404,6 +404,39 @@ void main() {
     expect(find.text('5 → 8'), findsOneWidget);
   });
 
+  testWidgets('A3: the data retention period, within 6 to 60 months', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 5200);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Configuration'));
+    await settle(tester);
+    expect(find.text('Data retention'), findsOneWidget);
+
+    final field = find.byKey(
+      const ValueKey('setting-privacy.retention_months'),
+    );
+    final saveKey = find.byKey(const ValueKey('save-retention'));
+    FilledButton save() => tester.widget<FilledButton>(saveKey);
+    expect(tester.widget<TextField>(field).controller!.text, '12');
+
+    await tester.enterText(field, '3');
+    await tester.pump();
+    expect(find.text('Use a number from 6 to 60.'), findsOneWidget);
+    expect(save().onPressed, isNull);
+
+    await tester.enterText(field, '24');
+    await tester.pump();
+    await tester.tap(saveKey);
+    await settle(tester);
+    final settings = container.read(settingsProvider).requireValue;
+    expect(
+      settings.firstWhere((s) => s.key == SettingKeys.retentionMonths).value,
+      24,
+    );
+  });
+
   testWidgets('A3: thresholds, channels, numbers, and a simulated typhoon', (
     tester,
   ) async {

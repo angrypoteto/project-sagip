@@ -111,6 +111,16 @@ class ConfigurationPage extends ConsumerWidget {
               settings: settings,
             ),
             const SizedBox(height: SagipSpace.xl),
+            NumberSettingsCard(
+              id: 'retention',
+              title: l10n.configRetentionTitle,
+              note: l10n.configRetentionNote,
+              labels: {
+                SettingKeys.retentionMonths: l10n.settingRetentionMonths,
+              },
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
             SimulationCard(settings: settings),
             const SizedBox(height: SagipSpace.xl),
             const _AlgorithmCard(),
