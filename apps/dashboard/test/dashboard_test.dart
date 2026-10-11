@@ -1275,6 +1275,88 @@ void main() {
     expect(find.text('Page not found'), findsOneWidget);
   });
 
+  testWidgets('A6: a rewrite by the language model, reviewed before saving', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 3200);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('NDRRMC reports'));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('report-new')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('report-collect')));
+    await settle(tester);
+    TextField section(String key) =>
+        tester.widget<TextField>(find.byKey(ValueKey('report-section-$key')));
+    final assembled = section('population').controller!.text;
+    final button = find.byKey(const ValueKey('report-rewrite-button'));
+
+    // No key yet: said plainly, and the draft is untouched.
+    await tester.tap(button);
+    await settle(tester);
+    expect(
+      find.textContaining('The language model is not set up yet'),
+      findsOneWidget,
+    );
+    expect(section('population').controller!.text, assembled);
+    expect(find.textContaining('put together from the figures'), findsOne);
+
+    // With a model: only figures go to it, and what comes back is checked.
+    ReportSource? sent;
+    backend.reportRewriter = (source, sections) {
+      sent = source;
+      return ReportRewrite(
+        model: 'test-model',
+        sections: [
+          for (final s in sections)
+            s.withBody(
+              s.key == 'population'
+                  ? 'Field rescue personnel filed 2 completion reports and assisted 99 persons.'
+                  : 'Rewritten: ${s.title}.',
+            ),
+        ],
+        references: const ['Affected population and casualties'],
+        unknownNumbers: const {
+          'population': ['99'],
+        },
+      );
+    };
+    ScaffoldMessenger.of(tester.element(button)).clearSnackBars();
+    await settle(tester);
+    await tester.tap(button);
+    await settle(tester);
+    expect(sent, isNotNull);
+    expect(section('population').controller!.text, contains('99 persons'));
+    expect(
+      find.textContaining('Rewritten by test-model from the figures and 1'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Affected population and casualties: 99'),
+      findsOneWidget,
+      reason: 'a number that is in none of the figures is pointed out',
+    );
+    expect(find.textContaining('rewritten by a language model'), findsOne);
+
+    // The earlier text can be put back.
+    await tester.tap(find.text('Put the earlier text back'));
+    await settle(tester);
+    expect(section('population').controller!.text, assembled);
+    expect(find.textContaining('put together from the figures'), findsOne);
+
+    // Rewritten again and saved: the report says how it was written.
+    await tester.tap(button);
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('report-save')));
+    await settle(tester);
+    final saved = (await tester.runAsync(
+      () => MockReportRepository(backend).watchReports().first,
+    ))!.single;
+    expect(saved.method, ReportMethod.rag);
+    expect(saved.sections.first.body, startsWith('Rewritten: '));
+  });
+
   testWidgets('A6: the report as a PDF', (tester) async {
     final bytes = await tester.runAsync(
       () => buildReportPdf(

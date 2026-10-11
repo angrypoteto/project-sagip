@@ -1027,6 +1027,7 @@ class SupabaseReportRepository implements ReportRepository {
     required String title,
     required List<ReportSection> sections,
     int? generationMs,
+    ReportMethod? method,
   }) => _report(
     () => _client.rpc<String>(
       'save_ndrrmc_report',
@@ -1037,9 +1038,42 @@ class SupabaseReportRepository implements ReportRepository {
         'p_title': title,
         'p_sections': [for (final s in sections) s.toJson()],
         'p_generation_ms': generationMs,
+        // Sent only for a rewritten draft, so saving works before the
+        // migration report_rag is applied.
+        if (method == ReportMethod.rag) 'p_method': 'rag',
       },
     ),
   );
+
+  @override
+  Future<ReportRewrite> rewrite({
+    required ReportSource source,
+    required List<ReportSection> sections,
+  }) async {
+    try {
+      final res = await _client.functions.invoke(
+        'generate-report',
+        body: {
+          'source': source.toJson(),
+          'sections': [for (final s in sections) s.toJson()],
+        },
+      );
+      return ReportRewrite.fromJson((res.data as Map).cast<String, Object?>());
+    } on FunctionException catch (e) {
+      throw ActionRejected(switch (e.status) {
+        400 => ActionRejection.invalidValue,
+        401 || 403 => ActionRejection.notAllowed,
+        // 404: the function is not deployed yet.
+        404 || 503 => ActionRejection.notSetUp,
+        429 => ActionRejection.rateLimited,
+        _ => ActionRejection.failed,
+      });
+    } on ActionRejected {
+      rethrow;
+    } on Exception {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+  }
 
   @override
   Future<void> finalize(String id) => _report(

@@ -71,6 +71,15 @@ enum ActionRejection {
 
   /// A final NDRRMC report cannot be changed.
   alreadyFinal,
+
+  /// The service behind the action has no key yet (the language model).
+  notSetUp,
+
+  /// Asked too often; try again later.
+  rateLimited,
+
+  /// The service answered, but not with something usable.
+  failed,
 }
 
 abstract interface class AuthRepository {
@@ -257,6 +266,17 @@ abstract interface class ReportRepository {
     required String title,
     required List<ReportSection> sections,
     int? generationMs,
+    ReportMethod? method,
+  });
+
+  /// Asks the language model to rewrite [sections] from [source] and the
+  /// reference passages (RAG, plan 10.6). Nothing is saved: the
+  /// administrator reviews the text first. Only figures are sent, never
+  /// personal details. Throws [ActionRejected]: `notSetUp` without a key,
+  /// `rateLimited`, `failed`.
+  Future<ReportRewrite> rewrite({
+    required ReportSource source,
+    required List<ReportSection> sections,
   });
 
   /// Marks a draft final; it can no longer be edited. Audited.

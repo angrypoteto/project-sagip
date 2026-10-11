@@ -605,6 +605,7 @@ class MockBackend {
     required String title,
     required List<ReportSection> sections,
     int? generationMs,
+    ReportMethod? method,
   }) async {
     final actor = await _authorizeAdmin();
     if (!reportTextAccepted(title, sections)) {
@@ -625,6 +626,7 @@ class MockBackend {
           createdByName: actor.displayName,
           createdAt: now,
           updatedAt: now,
+          method: method ?? ReportMethod.assembled,
           generationMs: generationMs,
         ),
       ];
@@ -652,11 +654,30 @@ class MockBackend {
         createdByName: existing.createdByName,
         createdAt: existing.createdAt,
         updatedAt: now,
-        method: existing.method,
+        method: method == ReportMethod.rag ? ReportMethod.rag : existing.method,
         generationMs: existing.generationMs,
       ),
     );
     return id;
+  }
+
+  /// Stands in for the language model on sample data. Null (the default)
+  /// answers "not set up", as the real function does without a key; tests
+  /// and demos set it.
+  ReportRewrite Function(ReportSource source, List<ReportSection> sections)?
+  reportRewriter;
+
+  /// A6 (`generate-report`): admins only; nothing is saved.
+  Future<ReportRewrite> rewriteReport(
+    ReportSource source,
+    List<ReportSection> sections,
+  ) async {
+    await _authorizeAdmin();
+    final rewriter = reportRewriter;
+    if (rewriter == null) {
+      throw const ActionRejected(ActionRejection.notSetUp);
+    }
+    return rewriter(source, sections);
   }
 
   /// A6 (`finalize_ndrrmc_report`).

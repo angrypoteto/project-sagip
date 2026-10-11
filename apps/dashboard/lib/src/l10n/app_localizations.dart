@@ -4356,8 +4356,110 @@ abstract class AppLocalizations {
   /// No description provided for @reportMethodNote.
   ///
   /// In en, this message translates to:
-  /// **'The text is put together from the figures with fixed wording. The RAG engine is not connected yet.'**
+  /// **'The text is put together from the figures with fixed wording.'**
   String get reportMethodNote;
+
+  /// No description provided for @reportMethodRagNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This draft was rewritten by a language model from the figures and reference passages, then reviewed by an administrator.'**
+  String get reportMethodRagNote;
+
+  /// No description provided for @reportRewriteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language model (proof of concept)'**
+  String get reportRewriteTitle;
+
+  /// No description provided for @reportRewriteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewrites each section from the figures, following reference passages on how an NDRRMC report is written. Only counts, barangay names, and times are sent: no names, numbers, or addresses. Nothing is saved until you save.'**
+  String get reportRewriteBody;
+
+  /// No description provided for @reportRewrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewrite with the language model'**
+  String get reportRewrite;
+
+  /// No description provided for @reportRewriting.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewriting'**
+  String get reportRewriting;
+
+  /// No description provided for @reportRewriteUnsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Save or discard your changes first: a rewrite replaces the text.'**
+  String get reportRewriteUnsaved;
+
+  /// No description provided for @reportRewriteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewritten by {model} from the figures and {count, plural, =0{no reference passages} =1{1 reference passage} other{{count} reference passages}}. Read every sentence against the figures before you save.'**
+  String reportRewriteDone(String model, int count);
+
+  /// No description provided for @reportRewriteReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Passages used: {titles}'**
+  String reportRewriteReferences(String titles);
+
+  /// No description provided for @reportRewriteByWords.
+  ///
+  /// In en, this message translates to:
+  /// **'The passages were matched by shared words, because embeddings were not available.'**
+  String get reportRewriteByWords;
+
+  /// No description provided for @reportRewriteNumbersOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Every number in the new text is in the figures or the draft it was written from.'**
+  String get reportRewriteNumbersOk;
+
+  /// No description provided for @reportRewriteNumbersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check these numbers first: they are in none of the figures.'**
+  String get reportRewriteNumbersTitle;
+
+  /// No description provided for @reportRewriteNumbersRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{section}: {numbers}'**
+  String reportRewriteNumbersRow(String section, String numbers);
+
+  /// No description provided for @reportRewriteUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Put the earlier text back'**
+  String get reportRewriteUndo;
+
+  /// No description provided for @reportRewriteNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'The language model is not set up yet (it needs a Gemini key, see supabase/README.md). The draft from the figures is unchanged.'**
+  String get reportRewriteNotSetUp;
+
+  /// No description provided for @errorNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not set up yet.'**
+  String get errorNotSetUp;
+
+  /// No description provided for @errorRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked too often. Try again in an hour.'**
+  String get errorRateLimited;
+
+  /// No description provided for @errorFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The service did not give a usable answer. Try again.'**
+  String get errorFailed;
 
   /// No description provided for @reportPdfAgency.
   ///

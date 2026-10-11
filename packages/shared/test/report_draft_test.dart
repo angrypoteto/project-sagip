@@ -543,4 +543,37 @@ void main() {
       expect(report.periodEnd.isAfter(report.periodStart), isTrue);
     });
   });
+
+  test('generate-report answers parse', () {
+    final r = ReportRewrite.fromJson({
+      'sections': [
+        {'key': 'overview', 'title': 'Situation overview', 'body': 'Text.'},
+      ],
+      'references': [
+        {'id': 1, 'title': 'Situation overview: what it must say'},
+      ],
+      'check': [
+        {
+          'key': 'overview',
+          'numbers': ['37', 12],
+        },
+      ],
+      'model': 'gemini-3.8-flash',
+      'retrieval': 'words',
+      'ms': 2140,
+    });
+    expect(r.sections.single.body, 'Text.');
+    expect(r.references, ['Situation overview: what it must say']);
+    expect(r.unknownNumbers, {
+      'overview': ['37', '12'],
+    });
+    expect(r.byEmbedding, isFalse);
+    expect(r.ms, 2140);
+    final bare = ReportRewrite.fromJson({
+      'sections': <Object?>[],
+      'model': 'm',
+    });
+    expect(bare.unknownNumbers, isEmpty);
+    expect(bare.byEmbedding, isTrue);
+  });
 }

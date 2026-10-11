@@ -2494,7 +2494,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportMethodNote =>
-      'The text is put together from the figures with fixed wording. The RAG engine is not connected yet.';
+      'The text is put together from the figures with fixed wording.';
+
+  @override
+  String get reportMethodRagNote =>
+      'This draft was rewritten by a language model from the figures and reference passages, then reviewed by an administrator.';
+
+  @override
+  String get reportRewriteTitle => 'Language model (proof of concept)';
+
+  @override
+  String get reportRewriteBody =>
+      'Rewrites each section from the figures, following reference passages on how an NDRRMC report is written. Only counts, barangay names, and times are sent: no names, numbers, or addresses. Nothing is saved until you save.';
+
+  @override
+  String get reportRewrite => 'Rewrite with the language model';
+
+  @override
+  String get reportRewriting => 'Rewriting';
+
+  @override
+  String get reportRewriteUnsaved =>
+      'Save or discard your changes first: a rewrite replaces the text.';
+
+  @override
+  String reportRewriteDone(String model, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reference passages',
+      one: '1 reference passage',
+      zero: 'no reference passages',
+    );
+    return 'Rewritten by $model from the figures and $_temp0. Read every sentence against the figures before you save.';
+  }
+
+  @override
+  String reportRewriteReferences(String titles) {
+    return 'Passages used: $titles';
+  }
+
+  @override
+  String get reportRewriteByWords =>
+      'The passages were matched by shared words, because embeddings were not available.';
+
+  @override
+  String get reportRewriteNumbersOk =>
+      'Every number in the new text is in the figures or the draft it was written from.';
+
+  @override
+  String get reportRewriteNumbersTitle =>
+      'Check these numbers first: they are in none of the figures.';
+
+  @override
+  String reportRewriteNumbersRow(String section, String numbers) {
+    return '$section: $numbers';
+  }
+
+  @override
+  String get reportRewriteUndo => 'Put the earlier text back';
+
+  @override
+  String get reportRewriteNotSetUp =>
+      'The language model is not set up yet (it needs a Gemini key, see supabase/README.md). The draft from the figures is unchanged.';
+
+  @override
+  String get errorNotSetUp => 'That is not set up yet.';
+
+  @override
+  String get errorRateLimited => 'Asked too often. Try again in an hour.';
+
+  @override
+  String get errorFailed =>
+      'The service did not give a usable answer. Try again.';
 
   @override
   String get reportPdfAgency =>

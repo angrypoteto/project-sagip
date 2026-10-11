@@ -52,6 +52,15 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
   ReportSource? _source;
   int? _generationMs;
 
+  /// What the language model last wrote here, and the text it replaced.
+  ReportRewrite? _rewrite;
+  List<ReportSection>? _beforeRewrite;
+
+  /// The text now in the fields came from the language model (or the saved
+  /// draft did): saved as `rag`.
+  var _fromModel = false;
+  var _rewriting = false;
+
   /// The report as the server last gave it; null for a draft not saved yet.
   NdrrmcReport? _saved;
 
@@ -140,6 +149,7 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
     _from = report.periodStart;
     _to = report.periodEnd;
     _generationMs = report.generationMs;
+    if (report.method == ReportMethod.rag) _fromModel = true;
     _step = _Step.review;
     if (!keepTyping) {
       final incoming = _textOf(report.title, report.sections);
@@ -216,6 +226,62 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
     }
   }
 
+  /// Asks the language model to rewrite the sections (RAG). The new text
+  /// goes into the fields unsaved, for the administrator to review.
+  Future<void> _rewriteWithModel() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final before = _current;
+    setState(() => _rewriting = true);
+    try {
+      final result = await ref
+          .read(reportRepositoryProvider)
+          .rewrite(source: _source!, sections: before);
+      if (!mounted) return;
+      final byKey = {for (final s in result.sections) s.key: s.body};
+      _filling = true;
+      for (final s in _sections) {
+        final body = byKey[s.key];
+        if (body != null) _bodies[s.key]!.text = body;
+      }
+      _filling = false;
+      setState(() {
+        _rewrite = result;
+        _beforeRewrite = before;
+        _fromModel = true;
+      });
+      _typed();
+    } on ActionRejected catch (e) {
+      messenger.showSnackBar(
+        statusSnack(
+          e.reason == ActionRejection.notSetUp
+              ? l10n.reportRewriteNotSetUp
+              : l10n.actionRejection(e.reason),
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(statusSnack(l10n.errorGeneric));
+    } finally {
+      if (mounted) setState(() => _rewriting = false);
+    }
+  }
+
+  void _undoRewrite() {
+    final before = _beforeRewrite;
+    if (before == null) return;
+    _filling = true;
+    for (final s in before) {
+      _bodies[s.key]?.text = s.body;
+    }
+    _filling = false;
+    setState(() {
+      _rewrite = null;
+      _beforeRewrite = null;
+      _fromModel = _saved?.method == ReportMethod.rag;
+    });
+    _typed();
+  }
+
   /// Saves the text. Returns the report's id, or null when it was refused.
   Future<String?> _save({bool quiet = false}) async {
     final l10n = AppLocalizations.of(context);
@@ -234,6 +300,7 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
             title: _title.text,
             sections: _current,
             generationMs: _generationMs,
+            method: _fromModel ? ReportMethod.rag : null,
           );
     }, success: quiet ? null : l10n.reportSaved);
     if (id == null) {
@@ -679,18 +746,168 @@ class _ReportEditorPageState extends ConsumerState<ReportEditorPage> {
                 _FiguresCard(source: source),
                 const SizedBox(height: SagipSpace.lg),
                 _ChecklistCard(passed: passed),
+                if (!isFinal) ...[
+                  const SizedBox(height: SagipSpace.lg),
+                  _RewriteCard(
+                    rewrite: _rewrite,
+                    titles: {for (final s in _sections) s.key: s.title},
+                    busy: _rewriting,
+                    onRewrite: online && !_busy && !_rewriting && accepted
+                        ? _rewriteWithModel
+                        : null,
+                    onUndo: _beforeRewrite == null ? null : _undoRewrite,
+                  ),
+                ],
                 const SizedBox(height: SagipSpace.lg),
                 Text(
-                  _generationMs == null
-                      ? l10n.reportMethodNote
-                      : '${l10n.reportDraftedIn((_generationMs! / 1000).toStringAsFixed(1))} '
-                            '${l10n.reportMethodNote}',
+                  [
+                    if (_generationMs != null)
+                      l10n.reportDraftedIn(
+                        (_generationMs! / 1000).toStringAsFixed(1),
+                      ),
+                    _fromModel
+                        ? l10n.reportMethodRagNote
+                        : l10n.reportMethodNote,
+                  ].join(' '),
                   style: text.bodySmall,
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The RAG step (plan 10.6): asks the language model for a rewrite and
+/// says what came back, with the numbers to check first.
+class _RewriteCard extends StatelessWidget {
+  const _RewriteCard({
+    required this.rewrite,
+    required this.titles,
+    required this.busy,
+    required this.onRewrite,
+    required this.onUndo,
+  });
+
+  final ReportRewrite? rewrite;
+
+  /// Section titles by key.
+  final Map<String, String> titles;
+  final bool busy;
+  final VoidCallback? onRewrite;
+  final VoidCallback? onUndo;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final r = rewrite;
+    return Card(
+      key: const ValueKey('report-rewrite'),
+      child: Padding(
+        padding: const EdgeInsets.all(SagipSpace.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.reportRewriteTitle, style: text.titleSmall),
+            const SizedBox(height: SagipSpace.xs),
+            Text(l10n.reportRewriteBody, style: text.bodySmall),
+            const SizedBox(height: SagipSpace.md),
+            OutlinedButton.icon(
+              key: const ValueKey('report-rewrite-button'),
+              onPressed: onRewrite,
+              icon: const Icon(Symbols.auto_fix_high_rounded),
+              label: Text(busy ? l10n.reportRewriting : l10n.reportRewrite),
+            ),
+            if (r != null) ...[
+              const SizedBox(height: SagipSpace.md),
+              Text(
+                l10n.reportRewriteDone(r.model, r.references.length),
+                style: text.bodySmall,
+              ),
+              if (r.references.isNotEmpty) ...[
+                const SizedBox(height: SagipSpace.xs),
+                Text(
+                  l10n.reportRewriteReferences(r.references.join('; ')),
+                  style: text.bodySmall!.copyWith(color: p.textSecondary),
+                ),
+              ],
+              if (!r.byEmbedding) ...[
+                const SizedBox(height: SagipSpace.xs),
+                Text(
+                  l10n.reportRewriteByWords,
+                  style: text.bodySmall!.copyWith(color: p.textSecondary),
+                ),
+              ],
+              const SizedBox(height: SagipSpace.sm),
+              if (r.unknownNumbers.isEmpty)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Symbols.check_circle_rounded,
+                      size: 18,
+                      color: p.success.text,
+                      fill: 1,
+                    ),
+                    const SizedBox(width: SagipSpace.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.reportRewriteNumbersOk,
+                        style: text.bodySmall,
+                      ),
+                    ),
+                  ],
+                )
+              else ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Symbols.warning_rounded,
+                      size: 18,
+                      color: p.warning.text,
+                      fill: 1,
+                    ),
+                    const SizedBox(width: SagipSpace.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.reportRewriteNumbersTitle,
+                        style: text.bodySmall!.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                for (final e in r.unknownNumbers.entries)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 18 + SagipSpace.sm,
+                      top: SagipSpace.xs,
+                    ),
+                    child: Text(
+                      l10n.reportRewriteNumbersRow(
+                        titles[e.key] ?? e.key,
+                        e.value.join(', '),
+                      ),
+                      style: text.bodySmall,
+                    ),
+                  ),
+              ],
+              if (onUndo != null) ...[
+                const SizedBox(height: SagipSpace.sm),
+                TextButton(
+                  onPressed: onUndo,
+                  child: Text(l10n.reportRewriteUndo),
+                ),
+              ],
+            ],
+          ],
+        ),
       ),
     );
   }

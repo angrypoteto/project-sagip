@@ -364,6 +364,7 @@ class MockReportRepository implements ReportRepository {
     required String title,
     required List<ReportSection> sections,
     int? generationMs,
+    ReportMethod? method,
   }) => _backend.saveNdrrmcReport(
     id: id,
     from: from,
@@ -371,7 +372,14 @@ class MockReportRepository implements ReportRepository {
     title: title,
     sections: sections,
     generationMs: generationMs,
+    method: method,
   );
+
+  @override
+  Future<ReportRewrite> rewrite({
+    required ReportSource source,
+    required List<ReportSection> sections,
+  }) => _backend.rewriteReport(source, sections);
 
   @override
   Future<void> finalize(String id) => _backend.finalizeNdrrmcReport(id);

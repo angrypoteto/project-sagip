@@ -261,8 +261,59 @@ enum ReportMethod {
   /// Put together from the figures with fixed wording, no language model.
   assembled,
 
-  /// Drafted by the RAG engine (plan 10.6), once it exists.
+  /// Rewritten by the language model from the figures and reference
+  /// passages (RAG, plan 10.6), then reviewed by an administrator.
   rag,
+}
+
+/// What the language model wrote for a draft (RAG, plan 10.6), before
+/// the administrator has reviewed it.
+@immutable
+class ReportRewrite {
+  const ReportRewrite({
+    required this.sections,
+    required this.model,
+    this.references = const [],
+    this.unknownNumbers = const {},
+    this.byEmbedding = true,
+    this.ms,
+  });
+
+  final List<ReportSection> sections;
+
+  /// The model's name, for the note under the draft.
+  final String model;
+
+  /// Titles of the reference passages the sections were written from.
+  final List<String> references;
+
+  /// By section key: numbers in the new text that are in none of the
+  /// figures. Those sentences are checked first.
+  final Map<String, List<String>> unknownNumbers;
+
+  /// Passages were matched by embedding (true) or by shared words.
+  final bool byEmbedding;
+  final int? ms;
+
+  factory ReportRewrite.fromJson(Map<String, Object?> json) => ReportRewrite(
+    sections: [
+      for (final s in (json['sections']! as List).cast<Map>())
+        ReportSection.fromJson(s.cast<String, Object?>()),
+    ],
+    model: json['model'] as String? ?? '',
+    references: [
+      for (final r in (json['references'] as List? ?? const []).cast<Map>())
+        r['title'] as String? ?? '',
+    ],
+    unknownNumbers: {
+      for (final c in (json['check'] as List? ?? const []).cast<Map>())
+        c['key']! as String: [
+          for (final n in (c['numbers'] as List? ?? const [])) '$n',
+        ],
+    },
+    byEmbedding: json['retrieval'] != 'words',
+    ms: (json['ms'] as num?)?.toInt(),
+  );
 }
 
 /// An NDRRMC report: a period, the figures it was drafted from (kept as

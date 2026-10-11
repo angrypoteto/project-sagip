@@ -2515,7 +2515,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyKeepBody.
   ///
   /// In en, this message translates to:
-  /// **'As long as you have an account, and incident records as long as the law requires.'**
+  /// **'Your account details, as long as you have an account. One year after an SOS or a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name, your note, and the exact place. The record itself stays for MDRRMD\'s reports.'**
   String get privacyKeepBody;
 
   /// No description provided for @privacyRightsTitle.

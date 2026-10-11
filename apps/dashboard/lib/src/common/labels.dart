@@ -220,6 +220,9 @@ extension DomainLabels on AppLocalizations {
     ActionRejection.ownAccount => errorOwnAccount,
     ActionRejection.lastAdmin => errorLastAdmin,
     ActionRejection.alreadyFinal => errorAlreadyFinal,
+    ActionRejection.notSetUp => errorNotSetUp,
+    ActionRejection.rateLimited => errorRateLimited,
+    ActionRejection.failed => errorFailed,
   };
 
   String authFailure(AuthFailure f) => switch (f) {
