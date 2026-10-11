@@ -176,10 +176,9 @@ migrations of 2026-10-11"), and the language model needs its keys as secrets.
 | Feature | Why not |
 |---|---|
 | Self-hosted Manila map tiles | Needs a host; the app uses public OpenStreetMap tiles for now |
-| Classifier and forecast trained on real MDRRMD records | Waits for the MDRRMD data |
+| Classifier and forecast trained on real MDRRMD records | The classifier's descriptions arrive Friday, 2026-10-16; the forecast waits for the incident records |
 | Forecast accuracy figures and a run selector on D8 | Waits for the real model |
-| Risk level rule for the forecast (final) | Open questions Q21, Q22; a provisional rule is in use |
-| Declining an assignment (responder) | Open question Q10, second half |
+| Checking the forecast rule's numbers | The rule is decided (plan Q21, Q22); its numbers are checked when the model is retrained |
 | Filipino for the dashboard and the web form | Not asked for; the dashboard is for staff |
 
 ## 9. Dropped (Joshua, 2026-10-11)
@@ -188,6 +187,8 @@ migrations of 2026-10-11"), and the language model needs its keys as secrets.
   residents, so the Docs role removes that line from the thesis.
 - A separate pin for a household member who lives elsewhere. Household members
   use the resident's home address.
+- A responder declining an assignment: the dispatcher is only offered
+  available units, and reassigns if a unit cannot go.
 
 ## 10. Never tested on a real phone
 
