@@ -115,9 +115,9 @@ final _adminItems = [
 
 /// The navigation menu beside the page. Closed, it is a rail of icons.
 /// Pointing at it opens it over the page, with the names beside the icons,
-/// and it closes again when the pointer leaves. The menu button at the top
-/// keeps it open (the page then makes room for it) until pressed again.
-class _NavFrame extends StatefulWidget {
+/// and it closes again when the pointer leaves. The menu button in the top
+/// bar keeps it open (the page then makes room for it) until pressed again.
+class _NavFrame extends ConsumerStatefulWidget {
   const _NavFrame({
     required this.location,
     required this.isAdmin,
@@ -133,23 +133,19 @@ class _NavFrame extends StatefulWidget {
   static const _slide = Duration(milliseconds: 160);
 
   @override
-  State<_NavFrame> createState() => _NavFrameState();
+  ConsumerState<_NavFrame> createState() => _NavFrameState();
 }
 
-class _NavFrameState extends State<_NavFrame> {
-  /// Kept open with the menu button.
-  var _pinned = false;
-
+class _NavFrameState extends ConsumerState<_NavFrame> {
   /// The pointer is over the menu.
   var _hovered = false;
-
-  bool get _open => _pinned || _hovered;
 
   @override
   Widget build(BuildContext context) {
     final p = SagipPalette.of(context);
-    final l10n = AppLocalizations.of(context);
-    final open = _open;
+    // Kept open with the menu button.
+    final pinned = ref.watch(navMenuPinnedProvider);
+    final open = pinned || _hovered;
     final width = open ? _NavFrame.openWidth : _NavFrame.closedWidth;
     return Stack(
       children: [
@@ -160,7 +156,7 @@ class _NavFrameState extends State<_NavFrame> {
           duration: _NavFrame._slide,
           curve: Curves.easeOut,
           padding: EdgeInsets.only(
-            left: _pinned ? _NavFrame.openWidth : _NavFrame.closedWidth,
+            left: pinned ? _NavFrame.openWidth : _NavFrame.closedWidth,
           ),
           child: widget.child,
         ),
@@ -180,7 +176,7 @@ class _NavFrameState extends State<_NavFrame> {
                 color: p.canvas,
                 border: Border(right: BorderSide(color: p.hairline)),
                 boxShadow: [
-                  if (open && !_pinned)
+                  if (open && !pinned)
                     const BoxShadow(
                       color: Color(0x4D000000),
                       blurRadius: 24,
@@ -202,16 +198,6 @@ class _NavFrameState extends State<_NavFrame> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _RailRow(
-                          key: const ValueKey('nav-menu-button'),
-                          icon: _pinned
-                              ? Symbols.menu_open_rounded
-                              : Symbols.menu_rounded,
-                          label: _pinned ? l10n.navMenuClose : l10n.navMenuKeep,
-                          selected: false,
-                          open: open,
-                          onTap: () => setState(() => _pinned = !_pinned),
-                        ),
                         for (final item in _mainItems)
                           _RailRow.item(item, widget.location, open, context),
                         // Admin items are hidden, not disabled, for
@@ -244,7 +230,6 @@ class _NavFrameState extends State<_NavFrame> {
 /// Closed, the name is the tooltip.
 class _RailRow extends StatelessWidget {
   const _RailRow({
-    super.key,
     required this.icon,
     required this.label,
     required this.selected,

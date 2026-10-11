@@ -18,15 +18,31 @@ class TopBar extends ConsumerWidget {
     final p = SagipPalette.of(context);
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final menuOpen = ref.watch(navMenuPinnedProvider);
     return Container(
       height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: SagipSpace.xl),
+      // The menu button sits over the rail's icons (the rail is 64 wide).
+      padding: const EdgeInsets.only(left: 10, right: SagipSpace.xl),
       decoration: BoxDecoration(
         color: p.panel,
         border: Border(bottom: BorderSide(color: p.hairline)),
       ),
       child: Row(
         children: [
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: IconButton(
+              key: const ValueKey('nav-menu-button'),
+              tooltip: menuOpen ? l10n.navMenuClose : l10n.navMenuKeep,
+              isSelected: menuOpen,
+              onPressed: () =>
+                  ref.read(navMenuPinnedProvider.notifier).toggle(),
+              icon: const Icon(Symbols.menu_rounded, size: 22),
+              selectedIcon: const Icon(Symbols.menu_open_rounded, size: 22),
+            ),
+          ),
+          const SizedBox(width: SagipSpace.md),
           Text(
             l10n.brandName,
             style: text.titleMedium!.copyWith(letterSpacing: 0.5),

@@ -517,6 +517,20 @@ class ThemeModeController extends Notifier<ThemeMode> {
   void set(ThemeMode mode) => state = mode;
 }
 
+/// Whether the side menu is kept open with the menu button in the top bar
+/// (for the session, like the theme). Closed, it still opens while the
+/// pointer is over it.
+class NavMenuController extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+}
+
+final navMenuPinnedProvider = NotifierProvider<NavMenuController, bool>(
+  NavMenuController.new,
+);
+
 final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
   ThemeModeController.new,
 );
