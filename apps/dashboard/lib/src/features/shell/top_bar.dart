@@ -220,6 +220,25 @@ class _UserMenu extends ConsumerWidget {
         _MenuAction.signOut => ref.read(authRepositoryProvider).signOut(),
       },
       itemBuilder: (context) => [
+        // Who is signed in: the bar itself shows only the circle.
+        PopupMenuItem(
+          enabled: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                user.displayName,
+                style: text.titleSmall!.copyWith(color: p.textPrimary),
+              ),
+              Text(
+                l10n.role(user.role),
+                style: text.bodySmall!.copyWith(color: p.textSecondary),
+              ),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
         PopupMenuItem(value: _MenuAction.account, child: Text(l10n.myAccount)),
         PopupMenuItem(
           value: _MenuAction.theme,
@@ -245,25 +264,20 @@ class _UserMenu extends ConsumerWidget {
         const PopupMenuDivider(),
         PopupMenuItem(value: _MenuAction.signOut, child: Text(l10n.signOut)),
       ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: SagipSpace.sm),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: p.panelRaised,
-              child: Text(
-                initials,
-                style: text.labelSmall!.copyWith(fontWeight: FontWeight.w600),
-              ),
+      // The circle alone, in a 44 px target; the name and role are in the
+      // menu and the tooltip.
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Center(
+          child: CircleAvatar(
+            radius: 16,
+            backgroundColor: p.panelRaised,
+            child: Text(
+              initials,
+              style: text.labelSmall!.copyWith(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(width: SagipSpace.sm),
-            Text(
-              l10n.userWithRole(user.displayName, l10n.role(user.role)),
-              style: text.labelMedium!.copyWith(color: p.textSecondary),
-            ),
-            Icon(Symbols.expand_more_rounded, size: 18, color: p.textSecondary),
-          ],
+          ),
         ),
       ),
     );
