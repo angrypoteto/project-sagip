@@ -185,7 +185,8 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - [ ] A custom alert sound for the assignment channel (spoken turn-by-turn done on 2026-10-03, see below)
 - [x] Real barangay boundaries for the Manila check and the picker's "Near ..." line (2026-10-03: all 897 PSA boundaries bundled; `nearestBarangay` and `insideManila`)
 - [~] Real texted codes: the Send SMS hook is written and deployed (2026-10-03); resident sign-in on Supabase works once Joshua switches Phone sign-in and the hook on (`supabase/README.md`, steps 2 to 4)
-- [ ] Cancel SOS (waits on plan Q10), nearest evacuation center card on R7 (waits on Q38 data), a separate pin for a household member who lives elsewhere (needs a schema change, plan Q14), the MDRRMD hotline number itself (an admin enters it on A3 once MDRRMD provides it; until then Call MDRRMD says it is not set)
+- Dropped by Joshua on 2026-10-11: the nearest evacuation center card on R7 (Q38) and a separate pin for a household member who lives elsewhere
+- [ ] Cancel SOS (waits on plan Q10), the MDRRMD hotline number itself (an admin enters it on A3 once MDRRMD provides it; until then Call MDRRMD says it is not set)
 - [x] The real app (part 6b): with `apps/mobile/.env` it runs on Supabase (`liveOverrides`), with an encrypted Hive store (AES key in Android secure storage), GPS through `geolocator` (keeps the last fix, flags mock locations), a signal monitor that checks the server answers (not just Wi-Fi), and real Android permission prompts on S2. Without `.env` it runs on sample data as before
 - [x] Welcome-seen and theme saved on the phone
 - [x] Screens never promise what the real app cannot do yet (`DeviceCapabilities`): offline banner and queue sheet say records are saved and sent when back online; the offline-map row on F3 is hidden
@@ -360,7 +361,8 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 | Every welcome permission can be skipped | SOS still works (it falls back to SMS, and asks for location again when needed) | None |
 | Code requests limited to 3 a minute per number (mock) | Stops texting costs from repeated taps | Set the real limit in Supabase |
 | A report's life after delivery is shown as stages: Received, Checking with nearby reports, Part of a confirmed incident, Resolved, or Not confirmed when no one else reported it within the hour | Explains FR7 to the resident without calling a single report confirmed | Mention in Ch 3 crowd reporting |
-| Household members use the resident's home address; no separate pin yet | The `vulnerable_member` table has no location column | Plan Q14; add a column if the team wants it |
+| Household members use the resident's home address; no separate pin | The `vulnerable_member` table has no location column | Decided 2026-10-11 (Joshua): no separate pin |
+| No nearest evacuation center on R7 | Joshua dropped it on 2026-10-11 (plan Q38) | Docs role: remove the nearest evacuation center from the resident features in the thesis |
 | Withdrawing consent deletes the household list at once | No profile may be kept without consent (NFR4) | Mention in Ch 3 privacy |
 | R5 names the barangay from the nearest sample barangay centre within 400 m, otherwise shows only the pin | No barangay boundaries yet; the server decides the barangay | Replace with a boundary lookup |
 | A report placed by hand is sent with no GPS accuracy | The accuracy would mean nothing | None |
@@ -499,7 +501,7 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 **Joshua + Claude (code)**
 - Mobile app: widget gallery, the Bluetooth relay between two real phones, a push check on a real phone (works on the emulator), the map save and the battery prompt on a real phone (both work on the emulator)
 - Dashboard: A5 and A6 wait on the NDRRMC template and the RAG step; A3 lacks only the data retention period; D8 waits on the model for probabilities, accuracy, and a run selector; widget gallery
-- Supabase: evacuation centers (Q38), EFCOS, storage buckets, the full RLS run after the push; Facebook posting waits for a Page token and a redeploy of `send-alerts`
+- Supabase: EFCOS, storage buckets, the full RLS run after the push; Facebook posting waits for a Page token and a redeploy of `send-alerts`
 - Algorithms: retraining the classifier on real descriptions, retraining the LSTM on the real records and writing forecast rows (preparation, KDE, and LSTM done on sample data), RAG report (proof of concept); tuning Dijkstra's road speeds with MDRRMD records; a travel-time penalty for flooded roads (plan 10.2 "Could")
 - Offline: set up Joshua's spare phone as the SMS gateway and field-test Tier 2; the Bluetooth relay on phones (a foreground service, and the three-phone test)
 - Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only). The app is ready (`MAP_TILE_URL`); what is missing is a decision on where to host them and the tiles themselves

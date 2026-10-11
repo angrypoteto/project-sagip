@@ -159,8 +159,6 @@ before it works for real (listed in part 3).
 | Report writing with a language model (RAG) for A6 | Needs a provider choice; today the draft is assembled from the figures |
 | Data retention period on A3 | Needs a rule: which records are removed and when |
 | Cancel SOS | Open question Q10 |
-| Nearest evacuation center on R7 | Needs the list of centers (Q38) |
-| A separate pin for a household member who lives elsewhere | Needs a schema change (Q14) |
 | EFCOS water levels | No public feed found; advisories by hand from D10 instead |
 | Resident location updates while an SOS is open | Open question Q33 |
 | Self-hosted Manila map tiles | Needs a host; the app uses public OpenStreetMap tiles for now |
@@ -170,7 +168,14 @@ before it works for real (listed in part 3).
 | Filipino language | The strings are ready to translate; no translation yet |
 | List view: hide columns when the drawer is open at 1440 px | Small polish item |
 
-## 8. Never tested on a real phone
+## 8. Dropped (Joshua, 2026-10-11)
+
+- Nearest evacuation center on R7 (Q38). The thesis still promises it to
+  residents, so the Docs role removes that line from the thesis.
+- A separate pin for a household member who lives elsewhere. Household members
+  use the resident's home address.
+
+## 9. Never tested on a real phone
 
 Everything marked **[P]** above, plus: the Bluetooth relay between three phones,
 the SMS fallback end to end, and the Objective 3 trial.

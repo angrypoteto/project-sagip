@@ -1273,7 +1273,7 @@ Each item lists what the thesis says, why it matters, and a suggested resolution
 - **Q35. PAGASA and PHIVOLCS "APIs".** Neither has a documented public API that the thesis confirms, yet PAGASA is listed as fully implemented. *Confirm the access method in Week 1 (risk 4).*
 - **Q36. Facebook posting.** Needs a Meta app, a page token, possibly app review, and the Table 3.1 item 8 approval. *Use a test page until approval arrives.*
 - **Q37. Resident OTP.** "Verified mobile number" needs an SMS OTP provider. Supabase has no built-in Semaphore option, so it needs a custom hook, and each OTP costs money. *Add to the design and budget.*
-- **Q38. Evacuation centers.** Residents are promised the nearest evacuation center while evacuation center management is out of scope. This works as display-only if MDRRMD provides the data (Table 3.1 item 7). *Otherwise remove it from the resident features.*
+- **Q38. Evacuation centers.** Residents are promised the nearest evacuation center while evacuation center management is out of scope. This works as display-only if MDRRMD provides the data (Table 3.1 item 7). *Otherwise remove it from the resident features.* **Decided 2026-10-11 (Joshua): dropped; remove it from the resident features in the thesis.**
 
 ### Evaluation and sampling
 
