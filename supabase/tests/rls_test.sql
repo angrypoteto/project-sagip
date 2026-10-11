@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(371);
+select plan(410);
 
 select public.reset_demo_data();
 
@@ -982,7 +982,7 @@ update public.classifier_model set is_active = true where model_id = 'v1-sample'
 select ok(
   not has_function_privilege('anon', 'public.report_source(timestamptz, timestamptz)', 'execute')
   and not has_function_privilege('anon',
-        'public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int)', 'execute')
+        'public.save_ndrrmc_report(text, timestamptz, timestamptz, text, jsonb, int, text)', 'execute')
   and not has_function_privilege('anon', 'public.finalize_ndrrmc_report(text)', 'execute'),
   'anon cannot read report figures or save reports');
 
@@ -1688,6 +1688,190 @@ select is(
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 select is((select count(*)::int from public.phivolcs_event), 0, 'residents do not read the earthquake list');
+
+-- ------------------------------------------------ river levels (FR5)
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'public.record_river_levels(jsonb)', 'execute')
+  and not has_function_privilege('anon', 'public.record_river_levels(jsonb)', 'execute'),
+  'only ingest-efcos records river levels');
+select is(
+  public.record_river_levels('[
+    {"code": "rls-a", "name": "Fort Santiago", "latitude": 14.5953, "longitude": 120.9697,
+     "observed_at": "2026-10-11T11:20:00+08:00", "level_m": 11.42, "change_m": -0.02,
+     "alert_m": 12, "alarm_m": 12.5, "critical_m": 13, "flagged": true},
+    {"code": "rls-b", "name": "Ugong", "latitude": 14.6863, "longitude": 121.0021,
+     "observed_at": "2026-10-11T11:20:00+08:00", "level_m": 20.57, "change_m": null,
+     "alert_m": 14.85, "alarm_m": 15.7, "critical_m": 16.6},
+    {"code": "rls-c", "name": "Angono", "latitude": 14.5268, "longitude": 121.1424,
+     "observed_at": "2026-10-11T11:20:00+08:00", "level_m": 12.04}]'::jsonb),
+  3, 'each station''s reading is kept');
+select is(
+  (select string_agg(coalesce(state, 'none'), ',' order by station_code) from public.river_level
+    where station_code like 'rls-%'),
+  'normal,critical,none', 'each level is read against the station''s own levels');
+select is(
+  public.record_river_levels('[
+    {"code": "rls-a", "name": "Fort Santiago", "latitude": 14.5953, "longitude": 120.9697,
+     "observed_at": "2026-10-11T11:10:00+08:00", "level_m": 12.9, "alert_m": 12, "alarm_m": 12.5, "critical_m": 13}]'::jsonb),
+  0, 'an older reading does not replace a newer one');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.river_level), 0, 'residents do not read river levels');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.river_level where station_code like 'rls-%'), 3,
+  'dispatchers do');
+
+-- ------------------------------------------------ Cancel SOS and the newest position
+
+-- The resident's own SOS from the relay section (still open).
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.request_sos_cancel('00000000-0000-4000-8000-0000000007a1', 'safeNow') $$,
+  'P0001', 'not_allowed', 'only a resident asks to cancel');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.request_sos_cancel('00000000-0000-4000-8000-0000000007a1', 'bored') $$,
+  'P0001', 'invalid_value', 'with one of the three reasons');
+select throws_ok(
+  $$ select public.request_sos_cancel('00000000-0000-4000-8000-0000000007ff', 'safeNow') $$,
+  'P0001', 'not_found', 'and only their own SOS');
+select lives_ok(
+  $$ select public.request_sos_cancel('00000000-0000-4000-8000-0000000007a1', 'safeNow', ' All good ') $$,
+  'a resident asks to cancel their SOS');
+reset role;
+select ok(
+  (select status <> 'resolved' and cancel_requested_at is not null
+          and cancel_reason = 'safeNow' and cancel_note = 'All good' and not cancelled
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000007a1'),
+  'the SOS stays open, marked as asked');
+select is(
+  (select e.detail from public.incident_event e join __relayed r using (incident_id)
+    where e.kind = 'cancelRequested'),
+  'safeNow', 'and the timeline says so');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.withdraw_sos_cancel('00000000-0000-4000-8000-0000000007a1') $$,
+  'the resident takes it back');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.confirm_sos_cancel((select incident_id from __relayed)) $$,
+  'P0001', 'invalid_value', 'a dispatcher cannot close as cancelled what nobody asked to cancel');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select ok(
+  public.update_sos_location('00000000-0000-4000-8000-0000000007a1', 14.6001, 120.9901, 9),
+  'the phone''s newest position is kept while the SOS is open');
+select ok(
+  not public.update_sos_location('00000000-0000-4000-8000-0000000007a1', 14.6002, 120.9902, 9),
+  'but not more often than every 20 seconds');
+select throws_ok(
+  $$ select public.update_sos_location('00000000-0000-4000-8000-0000000007a1', 14.2, 121.5, 9) $$,
+  'P0001', 'outside_manila', 'and not from outside Manila');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select ok(
+  (select b.last_latitude = 14.6001 and b.latitude = 14.6000
+     from public.incident_board b join __relayed r on r.incident_id = b.id),
+  'the board shows it beside the place the SOS was sent from');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.request_sos_cancel('00000000-0000-4000-8000-0000000007a1', 'mistake') $$,
+  'the resident asks again');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.confirm_sos_cancel((select incident_id from __relayed)) $$,
+  'now a dispatcher closes it as cancelled');
+reset role;
+select ok(
+  (select status = 'resolved' and cancelled and resolved_at is not null
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000007a1'),
+  'the SOS is resolved, as cancelled');
+select ok(
+  exists (select 1 from public.audit_log a join __relayed r on r.incident_id = a.target_id
+           where a.action_type = 'sosCancelled' and a.account_name = 'Test Dispatcher' and a.detail = 'mistake'),
+  'and the close is audited');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.update_sos_location('00000000-0000-4000-8000-0000000007a1', 14.6003, 120.9903, 9) $$,
+  'P0001', 'incident_closed', 'a closed SOS takes no more positions');
+
+-- ------------------------------------------------ data retention (A3, RA 10173)
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'private.apply_retention()', 'execute')
+  and not has_function_privilege('anon', 'private.apply_retention()', 'execute'),
+  'only the nightly job applies retention');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.set_setting('privacy.retention_months', '3'::jsonb) $$,
+  'P0001', 'invalid_value', 'the period cannot go below six months');
+reset role;
+-- The cancelled SOS, as if it had been closed 13 months ago.
+update public.incident_report
+   set resolved_at = now() - interval '13 months', note = 'Second floor, blue gate', address = '1482 Dapitan St'
+ where client_uuid = '00000000-0000-4000-8000-0000000007a1';
+select ok(
+  (private.apply_retention() ->> 'incidents')::int >= 1,
+  'incidents closed for longer than the period are stripped');
+select ok(
+  (select manila_resident_id is null and note is null and address is null and cancel_note is null
+          and last_latitude is null and anonymized_at is not null
+          and latitude = round(latitude::numeric, 3)::double precision
+          and barangay is not null and status = 'resolved'
+     from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000007a1'),
+  'the person and the exact place are gone; the record stays');
+select is(
+  (select count(*)::int from public.rescue_confirmation c join __relayed r using (incident_id)),
+  0, 'what the resident was told goes with it');
+select ok(
+  not exists (select 1 from public.incident_report where status <> 'resolved' and anonymized_at is not null),
+  'open incidents are never touched');
+select ok(
+  exists (select 1 from public.audit_log
+           where action_type = 'retentionApplied' and account_role = 'system'),
+  'and the run is audited as System');
+
+-- ------------------------------------------------ NDRRMC report: the RAG step
+
+select ok(
+  not has_function_privilege('authenticated', 'public.finish_report_rewrite(bigint, boolean, text, int, text)', 'execute')
+  and not has_function_privilege('authenticated', 'public.record_reference_embedding(bigint, text, jsonb)', 'execute'),
+  'only generate-report finishes a rewrite or stores an embedding');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.begin_report_rewrite() $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot ask the language model for a report');
+select is((select count(*)::int from public.report_reference), 0,
+  'and does not read the reference passages');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select ok(public.begin_report_rewrite() > 0, 'an admin can');
+select ok((select count(*) >= 12 from public.report_reference), 'and reads the passages');
+select lives_ok(
+  $$ select public.save_ndrrmc_report(null, now() - interval '1 day', now() + interval '1 minute', 'RAG draft',
+       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb, null, 'rag') $$,
+  'a rewritten draft is saved');
+select is(
+  (select method from public.ndrrmc_report where title = 'RAG draft'), 'rag',
+  'marked as written with the language model');
+select throws_ok(
+  $$ select public.save_ndrrmc_report(null, now() - interval '1 day', now() + interval '1 minute', 'Bad',
+       '[{"key": "overview", "title": "Situation overview", "body": "Text."}]'::jsonb, null, 'magic') $$,
+  'P0001', 'invalid_value', 'only the two known methods');
+reset role;
+insert into public.report_rewrite (staff_id)
+select '00000000-0000-4000-8000-00000000000a' from generate_series(1, 20);
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.begin_report_rewrite() $$,
+  'P0001', 'rate_limited', 'at most 20 rewrites an hour for each admin');
 
 reset role;
 select * from finish();
