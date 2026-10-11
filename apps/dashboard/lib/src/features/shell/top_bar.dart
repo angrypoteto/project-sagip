@@ -19,14 +19,38 @@ class TopBar extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final menuOpen = ref.watch(navMenuPinnedProvider);
+    final menuWide = menuOpen || ref.watch(navMenuHoveredProvider);
+    return Stack(
+      children: [
+        _bar(context, ref, p, l10n, text, menuOpen),
+        // The line under the bar starts where the side menu ends, so the
+        // menu joins the bar without a seam.
+        AnimatedPositioned(
+          duration: navMenuSlide,
+          curve: Curves.easeOut,
+          left: menuWide ? navMenuOpenWidth : navMenuClosedWidth,
+          right: 0,
+          bottom: 0,
+          height: 1,
+          child: ColoredBox(color: p.hairline),
+        ),
+      ],
+    );
+  }
+
+  Widget _bar(
+    BuildContext context,
+    WidgetRef ref,
+    SagipPalette p,
+    AppLocalizations l10n,
+    TextTheme text,
+    bool menuOpen,
+  ) {
     return Container(
       height: 56,
       // The menu button sits over the rail's icons (the rail is 64 wide).
       padding: const EdgeInsets.only(left: 10, right: SagipSpace.xl),
-      decoration: BoxDecoration(
-        color: p.panel,
-        border: Border(bottom: BorderSide(color: p.hairline)),
-      ),
+      color: p.panel,
       child: Row(
         children: [
           SizedBox(

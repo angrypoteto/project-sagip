@@ -531,6 +531,25 @@ final navMenuPinnedProvider = NotifierProvider<NavMenuController, bool>(
   NavMenuController.new,
 );
 
+/// Whether the pointer is over the side menu (it is open meanwhile).
+class NavMenuHoverController extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool over) => state = over;
+}
+
+final navMenuHoveredProvider = NotifierProvider<NavMenuHoverController, bool>(
+  NavMenuHoverController.new,
+);
+
+/// The side menu's widths, closed (icons only) and open (with names). The
+/// top bar ends its bottom line where the menu ends, so the two read as
+/// one surface.
+const navMenuClosedWidth = 64.0;
+const navMenuOpenWidth = 248.0;
+const navMenuSlide = Duration(milliseconds: 160);
+
 final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
   ThemeModeController.new,
 );

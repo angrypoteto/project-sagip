@@ -128,24 +128,22 @@ class _NavFrame extends ConsumerStatefulWidget {
   final bool isAdmin;
   final Widget child;
 
-  static const double closedWidth = 64;
-  static const double openWidth = 248;
-  static const _slide = Duration(milliseconds: 160);
+  static const closedWidth = navMenuClosedWidth;
+  static const openWidth = navMenuOpenWidth;
+  static const _slide = navMenuSlide;
 
   @override
   ConsumerState<_NavFrame> createState() => _NavFrameState();
 }
 
 class _NavFrameState extends ConsumerState<_NavFrame> {
-  /// The pointer is over the menu.
-  var _hovered = false;
-
   @override
   Widget build(BuildContext context) {
     final p = SagipPalette.of(context);
-    // Kept open with the menu button.
+    // Kept open with the menu button, or open while pointed at.
     final pinned = ref.watch(navMenuPinnedProvider);
-    final open = pinned || _hovered;
+    final open = pinned || ref.watch(navMenuHoveredProvider);
+    final hover = ref.read(navMenuHoveredProvider.notifier);
     final width = open ? _NavFrame.openWidth : _NavFrame.closedWidth;
     return Stack(
       children: [
@@ -165,15 +163,17 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
           top: 0,
           bottom: 0,
           child: MouseRegion(
-            onEnter: (_) => setState(() => _hovered = true),
-            onExit: (_) => setState(() => _hovered = false),
+            onEnter: (_) => hover.set(true),
+            onExit: (_) => hover.set(false),
             child: AnimatedContainer(
               key: const ValueKey('nav-menu'),
               duration: _NavFrame._slide,
               curve: Curves.easeOut,
               width: width,
+              // The top bar's color, with no line between them: the menu
+              // and the bar are one surface.
               decoration: BoxDecoration(
-                color: p.canvas,
+                color: p.panel,
                 border: Border(right: BorderSide(color: p.hairline)),
                 boxShadow: [
                   if (open && !pinned)
