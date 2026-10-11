@@ -198,6 +198,28 @@ Future<bool> confirmFalseReport(BuildContext context) async {
   return ok ?? false;
 }
 
+Future<bool> confirmCloseCancelled(BuildContext context) async {
+  final l10n = AppLocalizations.of(context);
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.cancelCloseTitle),
+      content: SizedBox(width: 420, child: Text(l10n.cancelCloseBody)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(l10n.cancelClose),
+        ),
+      ],
+    ),
+  );
+  return ok ?? false;
+}
+
 /// Shows the resident's number for a callback. Revealing it is logged.
 Future<void> showCallDialog(
   BuildContext context,

@@ -37,6 +37,33 @@ class FakeServer implements MobileServer {
   }
 
   @override
+  Future<void> requestSosCancel(
+    String clientId,
+    SosCancelReason reason,
+    String? note,
+  ) async {
+    _net();
+    calls.add('cancel ${reason.name}');
+  }
+
+  @override
+  Future<void> withdrawSosCancel(String clientId) async {
+    _net();
+    calls.add('keep');
+  }
+
+  @override
+  Future<void> updateSosLocation(
+    String clientId,
+    GeoPoint point,
+    double? accuracyMeters,
+    DateTime capturedAt,
+  ) async {
+    _net();
+    calls.add('moved');
+  }
+
+  @override
   Future<String> submitReport(HazardReport report) async {
     _net();
     final refuse = refuseNextReport;
@@ -511,6 +538,54 @@ void main() {
   });
 
   group('resident repositories', () {
+    test(
+      'asking to cancel is never queued; a position is best effort',
+      () async {
+        final repo = OutboxSosRepository(
+          engine: engine,
+          server: server,
+          store: store,
+          account: () => account,
+          clock: () => now,
+        );
+        final fix = LocationFix(
+          point: const GeoPoint(14.6091, 120.9925),
+          accuracyMeters: 8,
+          at: now,
+        );
+        await repo.requestCancel('sos-1', SosCancelReason.safeNow);
+        await repo.withdrawCancel('sos-1');
+        await repo.updateLocation('sos-1', fix);
+        expect(server.calls, ['cancel safeNow', 'keep', 'moved']);
+
+        // A point chosen on the map is not where the phone is.
+        await repo.updateLocation(
+          'sos-1',
+          LocationFix(
+            point: fix.point,
+            accuracyMeters: 0,
+            at: now,
+            manual: true,
+          ),
+        );
+        expect(server.calls, hasLength(3));
+
+        server.reachable = false;
+        await expectLater(
+          repo.requestCancel('sos-1', SosCancelReason.mistake),
+          throwsA(
+            isA<ActionRejected>().having(
+              (e) => e.reason,
+              'reason',
+              ActionRejection.offline,
+            ),
+          ),
+        );
+        await repo.updateLocation('sos-1', fix);
+        expect(engine.entries, isEmpty, reason: 'nothing waits to be sent');
+      },
+    );
+
     test('an SOS shows at once, offline, then as the server has it', () async {
       final repo = OutboxSosRepository(
         engine: engine,

@@ -92,6 +92,10 @@ class MockIncidentRepository implements IncidentRepository {
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);
 
   @override
+  Future<void> confirmCancel(String incidentId) =>
+      _backend.confirmCancel(incidentId);
+
+  @override
   Stream<List<ResidentNotice>> watchNotices(String incidentId) =>
       _backend.watchNotices(incidentId);
 }

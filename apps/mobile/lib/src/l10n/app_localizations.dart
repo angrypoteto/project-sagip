@@ -514,6 +514,126 @@ abstract class AppLocalizations {
   /// **'Your SOS is resolved. Stay safe.'**
   String get resolvedBody;
 
+  /// No description provided for @sosStateCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS cancelled'**
+  String get sosStateCancelled;
+
+  /// No description provided for @cancelledBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD closed this SOS because you asked. If you need help again, send a new SOS.'**
+  String get cancelledBody;
+
+  /// No description provided for @cancelSos.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel SOS'**
+  String get cancelSos;
+
+  /// No description provided for @cancelSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this SOS?'**
+  String get cancelSheetTitle;
+
+  /// No description provided for @cancelSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell MDRRMD why. They close the SOS, not you: until they do, it stays open and help may still come.'**
+  String get cancelSheetBody;
+
+  /// No description provided for @cancelReasonSafeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m safe now'**
+  String get cancelReasonSafeNow;
+
+  /// No description provided for @cancelReasonMistake.
+  ///
+  /// In en, this message translates to:
+  /// **'I sent it by mistake'**
+  String get cancelReasonMistake;
+
+  /// No description provided for @cancelReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Another reason'**
+  String get cancelReasonOther;
+
+  /// No description provided for @cancelAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask MDRRMD to cancel'**
+  String get cancelAsk;
+
+  /// No description provided for @cancelKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my SOS'**
+  String get cancelKeep;
+
+  /// No description provided for @cancelAskedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD was told. Your SOS stays open until they close it.'**
+  String get cancelAskedSnack;
+
+  /// No description provided for @cancelAskedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You asked to cancel this SOS'**
+  String get cancelAskedTitle;
+
+  /// No description provided for @cancelAskedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {reason}. MDRRMD will close it, or call you first. Until then it stays open and help may still come.'**
+  String cancelAskedBody(String reason);
+
+  /// No description provided for @cancelWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'I still need help'**
+  String get cancelWithdraw;
+
+  /// No description provided for @cancelWithdrawnSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SOS stays open. Help is still coming.'**
+  String get cancelWithdrawnSnack;
+
+  /// No description provided for @cancelOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline, so MDRRMD can\'t be told. Call MDRRMD to cancel.'**
+  String get cancelOffline;
+
+  /// No description provided for @cancelFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That didn\'t go through. Try again, or call MDRRMD.'**
+  String get cancelFailed;
+
+  /// No description provided for @locationShared.
+  ///
+  /// In en, this message translates to:
+  /// **'While this SOS is open and the app is on, MDRRMD is told when you move.'**
+  String get locationShared;
+
+  /// No description provided for @assignmentCancelAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'The resident asked to cancel. Keep going until dispatch tells you otherwise.'**
+  String get assignmentCancelAsked;
+
+  /// No description provided for @assignmentResidentMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'The resident has moved. This is their newest position, updated {time}.'**
+  String assignmentResidentMoved(String time);
+
   /// No description provided for @timelineTitle.
   ///
   /// In en, this message translates to:
@@ -2359,7 +2479,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyCollectBody.
   ///
   /// In en, this message translates to:
-  /// **'Your name, mobile number, and barangay; where you are when you send an SOS or a report; and, only if you agree, household members who may need priority rescue.'**
+  /// **'Your name, mobile number, and barangay; where you are when you send an SOS or a report, and where your phone moves while that SOS is open; and, only if you agree, household members who may need priority rescue.'**
   String get privacyCollectBody;
 
   /// No description provided for @privacyWhyTitle.

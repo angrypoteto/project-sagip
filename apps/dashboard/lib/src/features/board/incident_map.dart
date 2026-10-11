@@ -43,7 +43,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
     final incident = ref.read(incidentByIdProvider(widget.selectedId!));
     if (!_ready || incident == null) return;
     final camera = _controller.camera;
-    final target = toLatLng(incident.location);
+    final target = toLatLng(incident.currentLocation);
     final visible = camera.visibleBounds.contains(target);
     if (!visible) _controller.move(target, camera.zoom);
   }
@@ -87,7 +87,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
         ...incidents.where((i) => i.id == widget.selectedId),
       ])
         Marker(
-          point: toLatLng(i.location),
+          point: toLatLng(i.currentLocation),
           width: IncidentMarkerDot.size,
           height: IncidentMarkerDot.size,
           child: Semantics(

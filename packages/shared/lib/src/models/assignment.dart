@@ -38,6 +38,9 @@ class Assignment {
     this.peopleFound,
     this.closedByDispatcher = false,
     this.route,
+    this.residentLocation,
+    this.residentLocationAt,
+    this.cancelRequested = false,
   });
 
   final String incidentId;
@@ -77,6 +80,18 @@ class Assignment {
   /// from its own position; this is the fallback and the record.
   final RoadRoute? route;
 
+  /// Where the resident's phone was last, when it has moved since the SOS.
+  final GeoPoint? residentLocation;
+  final DateTime? residentLocationAt;
+
+  /// The resident asked to cancel. The job stays the unit's until dispatch
+  /// closes it.
+  final bool cancelRequested;
+
+  /// Where to go: the resident's newest position, or where the SOS was
+  /// sent from.
+  GeoPoint get destination => residentLocation ?? location;
+
   String get place => '$barangay, $district';
 
   Assignment copyWith({
@@ -89,6 +104,9 @@ class Assignment {
     int? peopleFound,
     bool? closedByDispatcher,
     RoadRoute? route,
+    GeoPoint? residentLocation,
+    DateTime? residentLocationAt,
+    bool? cancelRequested,
   }) => Assignment(
     incidentId: incidentId,
     offeredAt: offeredAt,
@@ -110,6 +128,9 @@ class Assignment {
     peopleFound: peopleFound ?? this.peopleFound,
     closedByDispatcher: closedByDispatcher ?? this.closedByDispatcher,
     route: route ?? this.route,
+    residentLocation: residentLocation ?? this.residentLocation,
+    residentLocationAt: residentLocationAt ?? this.residentLocationAt,
+    cancelRequested: cancelRequested ?? this.cancelRequested,
   );
 
   factory Assignment.fromJson(Map<String, Object?> json) => Assignment(
@@ -139,6 +160,14 @@ class Assignment {
     peopleFound: json['people_found'] as int?,
     closedByDispatcher: json['closed_by_dispatcher'] as bool? ?? false,
     route: _routeFromJson(json['route']),
+    residentLocation: json['resident_latitude'] == null
+        ? null
+        : GeoPoint(
+            (json['resident_latitude']! as num).toDouble(),
+            (json['resident_longitude']! as num).toDouble(),
+          ),
+    residentLocationAt: timeFromJsonOrNull(json['resident_location_at']),
+    cancelRequested: json['cancel_requested_at'] != null,
   );
 
   Map<String, Object?> toJson() => {
@@ -163,6 +192,11 @@ class Assignment {
     'people_found': peopleFound,
     'closed_by_dispatcher': closedByDispatcher,
     'route': route?.toJson(),
+    'resident_latitude': residentLocation?.lat,
+    'resident_longitude': residentLocation?.lng,
+    'resident_location_at': residentLocationAt?.toUtc().toIso8601String(),
+    // Only whether it was asked matters to the responder.
+    'cancel_requested_at': cancelRequested ? 'yes' : null,
   };
 }
 

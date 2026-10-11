@@ -1427,6 +1427,74 @@ class MockBackend {
     _log(actor, AuditAction.resolved, 'incident_report', id, null);
   }
 
+  /// D4 "Close as cancelled": only after the resident asked.
+  Future<void> confirmCancel(String id) async {
+    final actor = await _authorize();
+    final incident = _activeIncident(id);
+    if (!incident.cancelRequested) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final now = _clock();
+    _releaseUnit(incident.assignedUnitId);
+    _close(
+      incident
+          .copyWith(
+            status: IncidentStatus.resolved,
+            cancelled: true,
+            resolvedAt: now,
+          )
+          .withEvent(
+            IncidentEvent(
+              kind: IncidentEventKind.resolved,
+              at: now,
+              actorName: actor.displayName,
+              detail: 'cancelledByResident',
+            ),
+          ),
+    );
+    _log(
+      actor,
+      AuditAction.sosCancelled,
+      'incident_report',
+      id,
+      incident.cancelReason?.name,
+    );
+  }
+
+  /// Plays the resident for demos and tests: asks to cancel an open SOS
+  /// ([reason] null takes the request back), or moves the phone.
+  void residentAsksToCancel(String id, SosCancelReason? reason) {
+    final incident = _incidents.value[id];
+    if (incident == null) return;
+    final now = _clock();
+    _putIncident(
+      (reason == null
+              ? incident.copyWith(clearCancel: true)
+              : incident.copyWith(cancelRequestedAt: now, cancelReason: reason))
+          .withEvent(
+            IncidentEvent(
+              kind: reason == null
+                  ? IncidentEventKind.cancelWithdrawn
+                  : IncidentEventKind.cancelRequested,
+              at: now,
+              detail: reason?.name,
+            ),
+          ),
+    );
+  }
+
+  void residentMoves(String id, GeoPoint to) {
+    final incident = _incidents.value[id];
+    if (incident == null) return;
+    _putIncident(
+      incident.copyWith(
+        lastLocation: to,
+        lastLocationAt: _clock(),
+        lastAccuracyMeters: 10,
+      ),
+    );
+  }
+
   Future<String> revealContact(String residentId) async {
     final actor = await _authorize();
     final resident = _residents.value[residentId];

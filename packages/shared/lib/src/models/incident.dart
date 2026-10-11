@@ -15,6 +15,10 @@ enum IncidentEventKind {
   onScene,
   resolved,
   markedFalseReport,
+
+  /// The resident asked to cancel the SOS, or took that back.
+  cancelRequested,
+  cancelWithdrawn,
 }
 
 @immutable
@@ -83,6 +87,13 @@ class Incident {
     this.resolvedAt,
     this.events = const [],
     this.isSimulated = false,
+    this.cancelRequestedAt,
+    this.cancelReason,
+    this.cancelNote,
+    this.cancelled = false,
+    this.lastLocation,
+    this.lastLocationAt,
+    this.lastAccuracyMeters,
   });
 
   final String id;
@@ -146,6 +157,34 @@ class Incident {
   /// out of analytics, the Objective 3 report, and NDRRMC figures.
   final bool isSimulated;
 
+  /// When the resident asked to cancel the SOS, and why. The SOS stays
+  /// open until a dispatcher closes it.
+  final DateTime? cancelRequestedAt;
+  final SosCancelReason? cancelReason;
+  final String? cancelNote;
+
+  /// Closed because the resident asked.
+  final bool cancelled;
+
+  /// Where the resident's phone was last, while the SOS is open. [location]
+  /// stays the place the SOS was sent from.
+  final GeoPoint? lastLocation;
+  final DateTime? lastLocationAt;
+  final double? lastAccuracyMeters;
+
+  bool get cancelRequested => cancelRequestedAt != null;
+
+  /// Where to send a unit: the resident's newest position, or where the
+  /// SOS was sent from.
+  GeoPoint get currentLocation => lastLocation ?? location;
+
+  /// The drawer mentions a move of at least this far.
+  static const movedNoticeMeters = 25.0;
+
+  /// How far the resident is from where the SOS was sent, in metres; null
+  /// when the phone has sent no newer position.
+  double? get movedMeters => lastLocation?.distanceTo(location);
+
   /// The type to display: the confirmed one if set, else the suggestion.
   IncidentType? get type => confirmedType ?? suggestedType;
 
@@ -169,6 +208,14 @@ class Incident {
     List<String>? crowdReportIds,
     List<IncidentEvent>? events,
     bool? isSimulated,
+    DateTime? cancelRequestedAt,
+    SosCancelReason? cancelReason,
+    String? cancelNote,
+    bool clearCancel = false,
+    bool? cancelled,
+    GeoPoint? lastLocation,
+    DateTime? lastLocationAt,
+    double? lastAccuracyMeters,
   }) {
     return Incident(
       id: id,
@@ -201,6 +248,15 @@ class Incident {
       resolvedAt: resolvedAt ?? this.resolvedAt,
       events: events ?? this.events,
       isSimulated: isSimulated ?? this.isSimulated,
+      cancelRequestedAt: clearCancel
+          ? null
+          : (cancelRequestedAt ?? this.cancelRequestedAt),
+      cancelReason: clearCancel ? null : (cancelReason ?? this.cancelReason),
+      cancelNote: clearCancel ? null : (cancelNote ?? this.cancelNote),
+      cancelled: cancelled ?? this.cancelled,
+      lastLocation: lastLocation ?? this.lastLocation,
+      lastLocationAt: lastLocationAt ?? this.lastLocationAt,
+      lastAccuracyMeters: lastAccuracyMeters ?? this.lastAccuracyMeters,
     );
   }
 
@@ -257,6 +313,21 @@ class Incident {
         IncidentEvent.fromJson(e! as Map<String, Object?>),
     ],
     isSimulated: json['is_simulated'] as bool? ?? false,
+    cancelRequestedAt: timeFromJsonOrNull(json['cancel_requested_at']),
+    cancelReason: enumFromJsonOrNull(
+      SosCancelReason.values,
+      json['cancel_reason'],
+    ),
+    cancelNote: json['cancel_note'] as String?,
+    cancelled: json['cancelled'] as bool? ?? false,
+    lastLocation: json['last_latitude'] == null
+        ? null
+        : GeoPoint(
+            (json['last_latitude']! as num).toDouble(),
+            (json['last_longitude']! as num).toDouble(),
+          ),
+    lastLocationAt: timeFromJsonOrNull(json['last_location_at']),
+    lastAccuracyMeters: (json['last_accuracy_m'] as num?)?.toDouble(),
   );
 
   Map<String, Object?> toJson() => {
@@ -289,5 +360,13 @@ class Incident {
     'resolved_at': resolvedAt?.toIso8601String(),
     'events': [for (final e in events) e.toJson()],
     'is_simulated': isSimulated,
+    'cancel_requested_at': cancelRequestedAt?.toIso8601String(),
+    'cancel_reason': cancelReason?.name,
+    'cancel_note': cancelNote,
+    'cancelled': cancelled,
+    'last_latitude': lastLocation?.lat,
+    'last_longitude': lastLocation?.lng,
+    'last_location_at': lastLocationAt?.toIso8601String(),
+    'last_accuracy_m': lastAccuracyMeters,
   };
 }

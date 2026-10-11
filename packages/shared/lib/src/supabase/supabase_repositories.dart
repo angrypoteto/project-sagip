@@ -753,6 +753,10 @@ class SupabaseIncidentRepository implements IncidentRepository {
   Future<void> resolve(String incidentId) =>
       _rpc('resolve_incident', {'p_incident_id': incidentId});
 
+  @override
+  Future<void> confirmCancel(String incidentId) =>
+      _rpc('confirm_sos_cancel', {'p_incident_id': incidentId});
+
   Future<void> _rpc(String name, Map<String, Object?> params) =>
       _call(() => _client.rpc<void>(name, params: params));
 }

@@ -68,7 +68,7 @@ class _Body extends ConsumerWidget {
     final tiles = ref.watch(mapTilesEnabledProvider);
     final unit = state.unit.location;
     final points = [
-      toLatLng(assignment.location),
+      toLatLng(assignment.destination),
       if (unit != null) toLatLng(unit),
     ];
     // The phone's own road route, else the one saved at dispatch.
@@ -80,6 +80,9 @@ class _Body extends ConsumerWidget {
       children: [
         if (assignment.closedByDispatcher) ...[
           _Banner(text: l10n.assignmentReassigned),
+          const SizedBox(height: SagipSpace.lg),
+        ] else if (assignment.cancelRequested) ...[
+          _Banner(text: l10n.assignmentCancelAsked),
           const SizedBox(height: SagipSpace.lg),
         ],
         ClipRRect(
@@ -166,12 +169,25 @@ class _Body extends ConsumerWidget {
           Text(assignment.address!, style: text.bodyLarge),
         Text(assignment.place, style: text.bodyMedium),
         Text(
-          formatCoordinates(assignment.location),
+          formatCoordinates(assignment.destination),
           style: text.bodySmall!.copyWith(
             color: p.textSecondary,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
+        if (assignment.residentLocation != null &&
+            assignment.residentLocationAt != null) ...[
+          const SizedBox(height: SagipSpace.xs),
+          Text(
+            l10n.assignmentResidentMoved(
+              formatTime(
+                assignment.residentLocationAt!,
+                Localizations.localeOf(context).toString(),
+              ),
+            ),
+            style: text.bodySmall,
+          ),
+        ],
         const SizedBox(height: SagipSpace.xl),
         Text(l10n.incidentDetails, style: text.titleMedium),
         const SizedBox(height: SagipSpace.sm),

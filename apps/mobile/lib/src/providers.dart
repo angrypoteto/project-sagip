@@ -380,6 +380,11 @@ final locationProvider = StreamProvider<LocationStatus>(
   (ref) => ref.watch(locationServiceProvider).watch(),
 );
 
+/// Sends the phone's position while an SOS is open (plan Q33).
+final sosLocationSharerProvider = Provider<SosLocationSharer>(
+  (ref) => SosLocationSharer(ref.watch(sosRepositoryProvider)),
+);
+
 final mySosProvider = StreamProvider<List<SosRequest>>(
   (ref) => _forAccount(ref, () => ref.watch(sosRepositoryProvider).watchMine()),
 );
@@ -453,11 +458,11 @@ class RouteEstimate {
 RouteEstimate? routeEstimate(WidgetRef ref, ResponderState? s, Assignment? a) {
   final from = s?.unit.location;
   if (from == null || a == null) return null;
-  final straight = from.distanceTo(a.location);
+  final straight = from.distanceTo(a.destination);
   final road = ref.watch(
     navigationRouteProvider((
       from: from,
-      to: a.location,
+      to: a.destination,
       incidentId: a.incidentId,
     )),
   );
@@ -476,7 +481,7 @@ RouteEstimate? routeEstimate(WidgetRef ref, ResponderState? s, Assignment? a) {
         .minutesFor(straight)
         .ceil()
         .clamp(1, 999),
-    bearing: from.bearingTo(a.location),
+    bearing: from.bearingTo(a.destination),
     straightMeters: straight,
   );
 }

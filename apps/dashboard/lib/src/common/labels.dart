@@ -87,6 +87,14 @@ extension DomainLabels on AppLocalizations {
     IncidentEventKind.onScene => eventOnScene,
     IncidentEventKind.resolved => eventResolved,
     IncidentEventKind.markedFalseReport => eventFalseReport,
+    IncidentEventKind.cancelRequested => eventCancelRequested,
+    IncidentEventKind.cancelWithdrawn => eventCancelWithdrawn,
+  };
+
+  String cancelReason(SosCancelReason r) => switch (r) {
+    SosCancelReason.safeNow => cancelReasonSafeNow,
+    SosCancelReason.mistake => cancelReasonMistake,
+    SosCancelReason.other => cancelReasonOther,
   };
 
   String auditAction(AuditAction a) => switch (a) {
@@ -119,6 +127,7 @@ extension DomainLabels on AppLocalizations {
     AuditAction.reportFinalized => actionReportFinalized,
     AuditAction.sosSimulated => actionSosSimulated,
     AuditAction.reportsSimulated => actionReportsSimulated,
+    AuditAction.sosCancelled => actionSosCancelled,
   };
 
   String reportCheck(ReportCheck c) => switch (c) {

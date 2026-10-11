@@ -452,7 +452,7 @@ Future<RoadRoute?> routeForAssignment(
     final router = await ref.read(roadRouterProvider.future);
     final route = router.route(
       from,
-      incident.location,
+      incident.currentLocation,
       penalty: FloodPenalty.fromIncidents(
         ref.read(activeIncidentsProvider).value ?? const [],
         except: incident.id,

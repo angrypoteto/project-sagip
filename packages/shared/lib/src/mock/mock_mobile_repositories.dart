@@ -47,6 +47,20 @@ class MockSosRepository implements SosRepository {
   @override
   Future<void> addDetails(String clientId, SosDetails details) =>
       _backend.addDetails(clientId, details);
+
+  @override
+  Future<void> requestCancel(
+    String clientId,
+    SosCancelReason reason, {
+    String? note,
+  }) => _backend.requestCancel(clientId, reason);
+
+  @override
+  Future<void> withdrawCancel(String clientId) =>
+      _backend.withdrawCancel(clientId);
+
+  @override
+  Future<void> updateLocation(String clientId, LocationFix fix) async {}
 }
 
 class MockHazardReportRepository implements HazardReportRepository {

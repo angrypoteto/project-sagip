@@ -102,7 +102,13 @@ enum AuditAction {
   /// A simulated SOS or simulated crowd reports (simulation mode, A3).
   sosSimulated,
   reportsSimulated,
+
+  /// An SOS closed because the resident asked to cancel it (D4).
+  sosCancelled,
 }
+
+/// Why a resident asks to cancel their SOS (R2). A dispatcher decides.
+enum SosCancelReason { safeNow, mistake, other }
 
 /// Reads a timestamp from JSON and converts it to local time (the database
 /// returns UTC), so the UI shows Manila time.

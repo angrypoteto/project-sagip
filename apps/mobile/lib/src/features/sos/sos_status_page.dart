@@ -12,6 +12,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
 import 'add_details_sheet.dart';
+import 'cancel_sos_sheet.dart';
 
 /// R2 SOS status: where the SOS is, from "Saved on phone" to "Resolved".
 /// The local record shows immediately; server progress fills in as it
@@ -77,6 +78,49 @@ class _Body extends ConsumerWidget {
     messenger.showSnackBar(SnackBar(content: Text(l10n.detailsSaved)));
   }
 
+  /// Asks MDRRMD to cancel ([reason] set) or takes that back (null). Needs
+  /// internet: it is never queued.
+  Future<void> _cancel(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool ask,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final repo = ref.read(sosRepositoryProvider);
+    SosCancelReason? reason;
+    if (ask) {
+      reason = await showCancelSosSheet(context);
+      if (reason == null) return;
+    }
+    try {
+      if (reason != null) {
+        await repo.requestCancel(sos.clientId, reason);
+      } else {
+        await repo.withdrawCancel(sos.clientId);
+      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            reason != null ? l10n.cancelAskedSnack : l10n.cancelWithdrawnSnack,
+          ),
+        ),
+      );
+    } on ActionRejected catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            e.reason == ActionRejection.offline
+                ? l10n.cancelOffline
+                : l10n.cancelFailed,
+          ),
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.cancelFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -125,7 +169,17 @@ class _Body extends ConsumerWidget {
         ],
         if (resolved) ...[
           const SizedBox(height: SagipSpace.md),
-          Text(l10n.resolvedBody, style: text.bodyLarge),
+          Text(
+            sos.cancelled ? l10n.cancelledBody : l10n.resolvedBody,
+            style: text.bodyLarge,
+          ),
+        ],
+        if (sos.cancelRequested && !resolved) ...[
+          const SizedBox(height: SagipSpace.lg),
+          _CancelAsked(
+            sos: sos,
+            onWithdraw: () => _cancel(context, ref, ask: false),
+          ),
         ],
         if (showEta) ...[
           const SizedBox(height: SagipSpace.xl),
@@ -159,7 +213,71 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: SagipSpace.sm),
           Text(l10n.guidanceBody, style: text.bodyMedium),
         ],
+        // Last and quiet: cancelling is rare and must not be hit by mistake.
+        if (sos.canAskToCancel) ...[
+          const SizedBox(height: SagipSpace.xl),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => _cancel(context, ref, ask: true),
+              icon: const Icon(Symbols.cancel_rounded),
+              label: Text(l10n.cancelSos),
+            ),
+          ),
+        ],
       ],
+    );
+  }
+}
+
+/// The resident asked to cancel: say plainly that the SOS is still open,
+/// and offer the way back.
+class _CancelAsked extends StatelessWidget {
+  const _CancelAsked({required this.sos, required this.onWithdraw});
+
+  final SosRequest sos;
+  final VoidCallback onWithdraw;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    return DecoratedBox(
+      key: const ValueKey('cancel-asked'),
+      decoration: BoxDecoration(
+        color: p.warning.tint,
+        borderRadius: BorderRadius.circular(SagipRadius.card),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(SagipSpace.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Symbols.cancel_rounded, color: p.warning.text),
+                const SizedBox(width: SagipSpace.md),
+                Expanded(
+                  child: Text(l10n.cancelAskedTitle, style: text.titleSmall),
+                ),
+              ],
+            ),
+            const SizedBox(height: SagipSpace.sm),
+            Text(
+              l10n.cancelAskedBody(
+                l10n.cancelReason(sos.cancelReason ?? SosCancelReason.other),
+              ),
+              style: text.bodyMedium,
+            ),
+            const SizedBox(height: SagipSpace.sm),
+            OutlinedButton(
+              onPressed: onWithdraw,
+              child: Text(l10n.cancelWithdraw),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -285,6 +403,13 @@ class _LocationCard extends StatelessWidget {
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
+                  if (sos.isDelivered && sos.isActive) ...[
+                    const SizedBox(height: SagipSpace.xs),
+                    Text(
+                      l10n.locationShared,
+                      style: text.bodySmall!.copyWith(color: p.textSecondary),
+                    ),
+                  ],
                 ],
               ),
             ),

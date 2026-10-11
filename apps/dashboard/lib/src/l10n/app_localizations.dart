@@ -1300,6 +1300,96 @@ abstract class AppLocalizations {
   /// **'Marked as false report'**
   String get eventFalseReport;
 
+  /// No description provided for @eventCancelRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Resident asked to cancel'**
+  String get eventCancelRequested;
+
+  /// No description provided for @eventCancelWithdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resident still needs help'**
+  String get eventCancelWithdrawn;
+
+  /// No description provided for @eventCancelledByResident.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled by the resident'**
+  String get eventCancelledByResident;
+
+  /// No description provided for @cancelReasonSafeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe now'**
+  String get cancelReasonSafeNow;
+
+  /// No description provided for @cancelReasonMistake.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent by mistake'**
+  String get cancelReasonMistake;
+
+  /// No description provided for @cancelReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Another reason'**
+  String get cancelReasonOther;
+
+  /// No description provided for @cancelAskedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked to cancel'**
+  String get cancelAskedTag;
+
+  /// No description provided for @cancelAskedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The resident asked to cancel'**
+  String get cancelAskedTitle;
+
+  /// No description provided for @cancelAskedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{reason} · {time}. The SOS stays open until you close it. Call back first if anything seems wrong.'**
+  String cancelAskedBody(String reason, String time);
+
+  /// No description provided for @cancelAskedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Their note: {note}'**
+  String cancelAskedNote(String note);
+
+  /// No description provided for @cancelClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close as cancelled'**
+  String get cancelClose;
+
+  /// No description provided for @cancelCloseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close this SOS as cancelled?'**
+  String get cancelCloseTitle;
+
+  /// No description provided for @cancelCloseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The unit is released and the resident is told the SOS was closed. Close it only if you are sure nobody there needs help.'**
+  String get cancelCloseBody;
+
+  /// No description provided for @cancelClosedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed as cancelled by the resident'**
+  String get cancelClosedSnack;
+
+  /// No description provided for @residentMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'The resident is now {distance} from where the SOS was sent · updated {time}. Units are sent to the newest position.'**
+  String residentMoved(String distance, String time);
+
   /// No description provided for @incidentClosed.
   ///
   /// In en, this message translates to:
@@ -4430,6 +4520,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Simulated crowd reports'**
   String get actionReportsSimulated;
+
+  /// No description provided for @actionSosCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed an SOS the resident cancelled'**
+  String get actionSosCancelled;
 
   /// No description provided for @simulateIncidentsTitle.
   ///

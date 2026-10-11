@@ -174,10 +174,17 @@ extension MobileLabels on AppLocalizations {
       IncidentStatus.assigned => sosStateAssigned,
       IncidentStatus.enRoute => sosStateEnRoute,
       IncidentStatus.onScene => sosStateOnScene,
-      IncidentStatus.resolved => sosStateResolved,
+      IncidentStatus.resolved =>
+        s.cancelled ? sosStateCancelled : sosStateResolved,
       _ => sosStatePending,
     };
   }
+
+  String cancelReason(SosCancelReason r) => switch (r) {
+    SosCancelReason.safeNow => cancelReasonSafeNow,
+    SosCancelReason.mistake => cancelReasonMistake,
+    SosCancelReason.other => cancelReasonOther,
+  };
 
   /// Short status names for chips (design skill status mapping).
   String incidentStatus(IncidentStatus s) => switch (s) {

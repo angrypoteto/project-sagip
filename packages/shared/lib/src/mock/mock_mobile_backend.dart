@@ -375,6 +375,46 @@ class MockMobileBackend {
     _put(sos.copyWith(details: details));
   }
 
+  /// R2 "Cancel SOS". Needs internet; the sample dispatcher closes the SOS
+  /// a little later ([MockSosTiming.verify]) unless the resident takes the
+  /// request back first.
+  Future<void> requestCancel(String clientId, SosCancelReason reason) async {
+    if (_signal.value != SignalState.internet) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+    final sos = _find(clientId);
+    if (sos == null || !sos.canAskToCancel) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    _put(sos.copyWith(cancelRequestedAt: _clock(), cancelReason: reason));
+    if (!simulateDispatch) return;
+    _timers.add(
+      Timer(timing.verify, () {
+        final now = _find(clientId);
+        if (now == null ||
+            !now.cancelRequested ||
+            now.status == IncidentStatus.resolved) {
+          return;
+        }
+        _put(
+          now
+              .withStatus(IncidentStatus.resolved, _clock())
+              .copyWith(cancelled: true),
+        );
+      }),
+    );
+  }
+
+  /// R2 "I still need help".
+  Future<void> withdrawCancel(String clientId) async {
+    if (_signal.value != SignalState.internet) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+    final sos = _find(clientId);
+    if (sos == null || !sos.cancelRequested || !sos.isActive) return;
+    _put(sos.copyWith(clearCancel: true));
+  }
+
   Future<void> retryNow() => _pump();
 
   /// A waiting SOS as its SAGIP1 text (the S6 fallback).

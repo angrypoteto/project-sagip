@@ -118,6 +118,10 @@ abstract interface class IncidentRepository {
   });
   Future<void> resolve(String incidentId);
 
+  /// Closes an SOS the resident asked to cancel (D4). Refused with
+  /// [ActionRejection.invalidValue] when the resident did not ask.
+  Future<void> confirmCancel(String incidentId);
+
   /// What the resident who sent this SOS was told about it, and whether
   /// each text and push went out (FR6), oldest first. Empty for crowd
   /// clusters and for an SOS no unit has been sent to yet.
@@ -389,6 +393,22 @@ abstract interface class SosRepository {
 
   /// Adds optional details to an SOS that was already sent (R2).
   Future<void> addDetails(String clientId, SosDetails details);
+
+  /// Asks MDRRMD to cancel an SOS they already have (R2). The SOS stays
+  /// open until a dispatcher closes it. Needs internet: throws
+  /// [ActionRejected] with [ActionRejection.offline] without it.
+  Future<void> requestCancel(
+    String clientId,
+    SosCancelReason reason, {
+    String? note,
+  });
+
+  /// Takes a cancel request back: "I still need help" (R2).
+  Future<void> withdrawCancel(String clientId);
+
+  /// Tells MDRRMD where the phone is now, while the SOS is open. Best
+  /// effort: nothing is queued, and a failure is not an error.
+  Future<void> updateLocation(String clientId, LocationFix fix);
 }
 
 /// Hazard reports the resident sends (R4). Saved on the phone first and

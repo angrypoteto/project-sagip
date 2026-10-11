@@ -253,6 +253,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resolvedBody => 'Your SOS is resolved. Stay safe.';
 
   @override
+  String get sosStateCancelled => 'SOS cancelled';
+
+  @override
+  String get cancelledBody =>
+      'MDRRMD closed this SOS because you asked. If you need help again, send a new SOS.';
+
+  @override
+  String get cancelSos => 'Cancel SOS';
+
+  @override
+  String get cancelSheetTitle => 'Cancel this SOS?';
+
+  @override
+  String get cancelSheetBody =>
+      'Tell MDRRMD why. They close the SOS, not you: until they do, it stays open and help may still come.';
+
+  @override
+  String get cancelReasonSafeNow => 'I\'m safe now';
+
+  @override
+  String get cancelReasonMistake => 'I sent it by mistake';
+
+  @override
+  String get cancelReasonOther => 'Another reason';
+
+  @override
+  String get cancelAsk => 'Ask MDRRMD to cancel';
+
+  @override
+  String get cancelKeep => 'Keep my SOS';
+
+  @override
+  String get cancelAskedSnack =>
+      'MDRRMD was told. Your SOS stays open until they close it.';
+
+  @override
+  String get cancelAskedTitle => 'You asked to cancel this SOS';
+
+  @override
+  String cancelAskedBody(String reason) {
+    return 'Reason: $reason. MDRRMD will close it, or call you first. Until then it stays open and help may still come.';
+  }
+
+  @override
+  String get cancelWithdraw => 'I still need help';
+
+  @override
+  String get cancelWithdrawnSnack =>
+      'Your SOS stays open. Help is still coming.';
+
+  @override
+  String get cancelOffline =>
+      'You\'re offline, so MDRRMD can\'t be told. Call MDRRMD to cancel.';
+
+  @override
+  String get cancelFailed =>
+      'That didn\'t go through. Try again, or call MDRRMD.';
+
+  @override
+  String get locationShared =>
+      'While this SOS is open and the app is on, MDRRMD is told when you move.';
+
+  @override
+  String get assignmentCancelAsked =>
+      'The resident asked to cancel. Keep going until dispatch tells you otherwise.';
+
+  @override
+  String assignmentResidentMoved(String time) {
+    return 'The resident has moved. This is their newest position, updated $time.';
+  }
+
+  @override
   String get timelineTitle => 'Progress';
 
   @override
@@ -1334,7 +1406,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyCollectBody =>
-      'Your name, mobile number, and barangay; where you are when you send an SOS or a report; and, only if you agree, household members who may need priority rescue.';
+      'Your name, mobile number, and barangay; where you are when you send an SOS or a report, and where your phone moves while that SOS is open; and, only if you agree, household members who may need priority rescue.';
 
   @override
   String get privacyWhyTitle => 'Why';

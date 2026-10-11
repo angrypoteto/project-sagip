@@ -90,6 +90,18 @@ class SagipMobileApp extends ConsumerWidget {
     });
     ref.listen(currentUserProvider, (_, _) => openPending());
 
+    // While an SOS is open, MDRRMD is told where the phone is now.
+    ref.listen(locationProvider, (_, next) {
+      final user = ref.read(currentUserProvider).value;
+      if (user == null || user.role != UserRole.resident) return;
+      ref
+          .read(sosLocationSharerProvider)
+          .onFix(
+            next.value?.lastFix,
+            ref.read(mySosProvider).value ?? const [],
+          );
+    });
+
     // Fetched when the app starts and kept for as long as it runs: the
     // hotline and the SMS gateway number an administrator set on A3.
     ref.listen(clientConfigProvider, (_, _) {});

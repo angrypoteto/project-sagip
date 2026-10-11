@@ -161,6 +161,34 @@ class OutboxSosRepository implements SosRepository {
       ),
     );
   }
+
+  // Asking to cancel is not queued: a cancel that arrives hours later could
+  // close an SOS the resident needs again. Offline, the screen says to call.
+  @override
+  Future<void> requestCancel(
+    String clientId,
+    SosCancelReason reason, {
+    String? note,
+  }) => _server.requestSosCancel(clientId, reason, note);
+
+  @override
+  Future<void> withdrawCancel(String clientId) =>
+      _server.withdrawSosCancel(clientId);
+
+  @override
+  Future<void> updateLocation(String clientId, LocationFix fix) async {
+    if (fix.manual) return;
+    try {
+      await _server.updateSosLocation(
+        clientId,
+        fix.point,
+        fix.accuracyMeters,
+        fix.at,
+      );
+    } on Object {
+      // The next position will do.
+    }
+  }
 }
 
 // ----------------------------------------------------------------- reports

@@ -16,6 +16,18 @@ abstract interface class MobileServer {
   // Resident.
   Future<String> submitSos(SosRequest sos);
   Future<void> addSosDetails(String clientId, SosDetails details);
+  Future<void> requestSosCancel(
+    String clientId,
+    SosCancelReason reason,
+    String? note,
+  );
+  Future<void> withdrawSosCancel(String clientId);
+  Future<void> updateSosLocation(
+    String clientId,
+    GeoPoint point,
+    double? accuracyMeters,
+    DateTime capturedAt,
+  );
   Stream<List<SosRequest>> watchMySos();
   Future<String> submitReport(HazardReport report);
   Stream<List<HazardReport>> watchMyReports();

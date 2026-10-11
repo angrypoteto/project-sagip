@@ -169,6 +169,55 @@ void main() {
     expect(updated.details.peopleCount, 3);
   });
 
+  test('asking to cancel keeps the SOS open; it can be taken back', () async {
+    final sos = await backend.sendSos();
+    expect(sos.canAskToCancel, isFalse, reason: 'MDRRMD does not have it yet');
+    await settle();
+    await backend.requestCancel(sos.clientId, SosCancelReason.safeNow);
+    var mine = (await backend.watchSos().first).single;
+    expect(mine.cancelRequested, isTrue);
+    expect(mine.cancelReason, SosCancelReason.safeNow);
+    expect(mine.isActive, isTrue);
+    expect(mine.canAskToCancel, isFalse);
+
+    await backend.withdrawCancel(sos.clientId);
+    mine = (await backend.watchSos().first).single;
+    expect(mine.cancelRequested, isFalse);
+    expect(mine.canAskToCancel, isTrue);
+
+    backend.setSignal(SignalState.noSignal);
+    await expectLater(
+      backend.requestCancel(sos.clientId, SosCancelReason.mistake),
+      throwsA(isA<ActionRejected>()),
+    );
+  });
+
+  test('the sample dispatcher closes a cancelled SOS', () async {
+    backend.dispose();
+    backend = MockMobileBackend(
+      clock: () => now,
+      latency: Duration.zero,
+      timing: const MockSosTiming(
+        send: Duration.zero,
+        verify: Duration(milliseconds: 20),
+        assign: Duration(seconds: 30),
+        depart: Duration(seconds: 30),
+        arrive: Duration(seconds: 30),
+        resolve: Duration(seconds: 30),
+        moveEvery: Duration.zero,
+      ),
+    );
+    await backend.signIn('maria@sagip.test', MockSeed.demoPassword);
+    final sos = await backend.sendSos();
+    await settle();
+    await backend.requestCancel(sos.clientId, SosCancelReason.mistake);
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    final mine = (await backend.watchSos().first).single;
+    expect(mine.status, IncidentStatus.resolved);
+    expect(mine.cancelled, isTrue);
+    expect(mine.canAskToCancel, isFalse);
+  });
+
   test('SOS records survive a JSON round trip (for the Hive queue)', () async {
     final sos = SosRequest(
       clientId: newClientId(),

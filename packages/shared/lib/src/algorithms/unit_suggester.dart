@@ -39,7 +39,7 @@ class StraightLineSuggester implements UnitSuggester {
     final ranked = <UnitSuggestion>[
       for (final unit in units)
         if (unit.isDispatchable && unit.location != null)
-          _estimate(unit, unit.location!.distanceTo(incident.location)),
+          _estimate(unit, unit.location!.distanceTo(incident.currentLocation)),
     ]..sort((a, b) => a.etaMinutes.compareTo(b.etaMinutes));
     return ranked.take(limit).toList();
   }

@@ -69,6 +69,9 @@ class SosRequest {
     this.responderLocation,
     this.responderLocationAt,
     this.rejectReason,
+    this.cancelRequestedAt,
+    this.cancelReason,
+    this.cancelled = false,
   });
 
   /// Generated on the phone ([newClientId]).
@@ -111,7 +114,25 @@ class SosRequest {
   final DateTime? responderLocationAt;
   final String? rejectReason;
 
+  /// When the resident asked to cancel; a dispatcher closes the SOS or
+  /// carries on.
+  final DateTime? cancelRequestedAt;
+  final SosCancelReason? cancelReason;
+
+  /// Closed because the resident asked.
+  final bool cancelled;
+
   bool get isDelivered => delivery == DeliveryState.delivered;
+
+  bool get cancelRequested => cancelRequestedAt != null;
+
+  /// R2 offers "Cancel SOS" once MDRRMD has the SOS and until the unit is
+  /// on scene.
+  bool get canAskToCancel =>
+      isDelivered &&
+      !cancelRequested &&
+      status != IncidentStatus.onScene &&
+      status != IncidentStatus.resolved;
 
   /// Still needs the resident's attention: not rejected and not resolved.
   bool get isActive =>
@@ -132,6 +153,10 @@ class SosRequest {
     GeoPoint? responderLocation,
     DateTime? responderLocationAt,
     String? rejectReason,
+    DateTime? cancelRequestedAt,
+    SosCancelReason? cancelReason,
+    bool clearCancel = false,
+    bool? cancelled,
   }) => SosRequest(
     clientId: clientId,
     capturedAt: capturedAt,
@@ -154,6 +179,11 @@ class SosRequest {
     responderLocation: responderLocation ?? this.responderLocation,
     responderLocationAt: responderLocationAt ?? this.responderLocationAt,
     rejectReason: rejectReason ?? this.rejectReason,
+    cancelRequestedAt: clearCancel
+        ? null
+        : (cancelRequestedAt ?? this.cancelRequestedAt),
+    cancelReason: clearCancel ? null : (cancelReason ?? this.cancelReason),
+    cancelled: cancelled ?? this.cancelled,
   );
 
   /// Moves to [next] at [at], keeping the time for the timeline.
@@ -199,6 +229,12 @@ class SosRequest {
           ),
     responderLocationAt: timeFromJsonOrNull(json['responder_location_at']),
     rejectReason: json['reject_reason'] as String?,
+    cancelRequestedAt: timeFromJsonOrNull(json['cancel_requested_at']),
+    cancelReason: enumFromJsonOrNull(
+      SosCancelReason.values,
+      json['cancel_reason'],
+    ),
+    cancelled: json['cancelled'] as bool? ?? false,
   );
 
   Map<String, Object?> toJson() => {
@@ -228,5 +264,8 @@ class SosRequest {
     'responder_longitude': responderLocation?.lng,
     'responder_location_at': responderLocationAt?.toUtc().toIso8601String(),
     'reject_reason': rejectReason,
+    'cancel_requested_at': cancelRequestedAt?.toUtc().toIso8601String(),
+    'cancel_reason': cancelReason?.name,
+    'cancelled': cancelled,
   };
 }

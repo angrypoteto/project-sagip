@@ -308,6 +308,12 @@ class QueueRow extends ConsumerWidget {
                                   .join(', '),
                               style: strong,
                             ),
+                          if (incident.cancelRequested)
+                            _Meta(
+                              icon: Symbols.cancel_rounded,
+                              label: l10n.cancelAskedTag,
+                              style: strong,
+                            ),
                           if (incident.isSimulated)
                             _Meta(
                               icon: Symbols.science_rounded,

@@ -714,6 +714,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventFalseReport => 'Marked as false report';
 
   @override
+  String get eventCancelRequested => 'Resident asked to cancel';
+
+  @override
+  String get eventCancelWithdrawn => 'Resident still needs help';
+
+  @override
+  String get eventCancelledByResident => 'Cancelled by the resident';
+
+  @override
+  String get cancelReasonSafeNow => 'Safe now';
+
+  @override
+  String get cancelReasonMistake => 'Sent by mistake';
+
+  @override
+  String get cancelReasonOther => 'Another reason';
+
+  @override
+  String get cancelAskedTag => 'Asked to cancel';
+
+  @override
+  String get cancelAskedTitle => 'The resident asked to cancel';
+
+  @override
+  String cancelAskedBody(String reason, String time) {
+    return '$reason · $time. The SOS stays open until you close it. Call back first if anything seems wrong.';
+  }
+
+  @override
+  String cancelAskedNote(String note) {
+    return 'Their note: $note';
+  }
+
+  @override
+  String get cancelClose => 'Close as cancelled';
+
+  @override
+  String get cancelCloseTitle => 'Close this SOS as cancelled?';
+
+  @override
+  String get cancelCloseBody =>
+      'The unit is released and the resident is told the SOS was closed. Close it only if you are sure nobody there needs help.';
+
+  @override
+  String get cancelClosedSnack => 'Closed as cancelled by the resident';
+
+  @override
+  String residentMoved(String distance, String time) {
+    return 'The resident is now $distance from where the SOS was sent · updated $time. Units are sent to the newest position.';
+  }
+
+  @override
   String get incidentClosed => 'This incident was closed.';
 
   @override
@@ -2531,6 +2583,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionReportsSimulated => 'Simulated crowd reports';
+
+  @override
+  String get actionSosCancelled => 'Closed an SOS the resident cancelled';
 
   @override
   String get simulateIncidentsTitle => 'Simulated incidents';

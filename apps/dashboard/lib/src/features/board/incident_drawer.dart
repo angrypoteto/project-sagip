@@ -92,6 +92,16 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
     if (ok) widget.onClose();
   }
 
+  Future<void> _closeCancelled(Incident incident) async {
+    final l10n = AppLocalizations.of(context);
+    if (!await confirmCloseCancelled(context) || !mounted) return;
+    final ok = await _run(
+      () => _repo.confirmCancel(incident.id),
+      l10n.cancelClosedSnack,
+    );
+    if (ok) widget.onClose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -129,6 +139,14 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                       ),
                       children: [
                         _Summary(incident: incident),
+                        if (incident.cancelRequested) ...[
+                          const SizedBox(height: SagipSpace.lg),
+                          _CancelRequest(
+                            incident: incident,
+                            enabled: canAct,
+                            onClose: () => _closeCancelled(incident),
+                          ),
+                        ],
                         const SizedBox(height: SagipSpace.xl),
                         _TypeRow(
                           incident: incident,
@@ -348,7 +366,99 @@ class _Summary extends ConsumerWidget {
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
+        if ((incident.movedMeters ?? 0) >= Incident.movedNoticeMeters) ...[
+          const SizedBox(height: SagipSpace.xs),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Symbols.directions_walk_rounded,
+                size: 18,
+                color: p.info.text,
+              ),
+              const SizedBox(width: SagipSpace.sm),
+              Expanded(
+                child: Text(
+                  l10n.residentMoved(
+                    formatDistance(incident.movedMeters!),
+                    formatTime(
+                      incident.lastLocationAt!,
+                      Localizations.localeOf(context).toString(),
+                    ),
+                  ),
+                  key: const ValueKey('resident-moved'),
+                  style: text.bodySmall,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
+    );
+  }
+}
+
+/// The resident asked to cancel: the dispatcher closes the SOS or carries
+/// on. Never closed by the resident alone.
+class _CancelRequest extends StatelessWidget {
+  const _CancelRequest({
+    required this.incident,
+    required this.enabled,
+    required this.onClose,
+  });
+
+  final Incident incident;
+  final bool enabled;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final locale = Localizations.localeOf(context).toString();
+    final reason = incident.cancelReason;
+    final note = incident.cancelNote;
+    return Container(
+      key: const ValueKey('cancel-request'),
+      padding: const EdgeInsets.all(SagipSpace.lg),
+      decoration: BoxDecoration(
+        color: p.warning.tint,
+        borderRadius: BorderRadius.circular(SagipRadius.card),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Symbols.cancel_rounded, size: 20, color: p.warning.text),
+              const SizedBox(width: SagipSpace.sm),
+              Expanded(
+                child: Text(l10n.cancelAskedTitle, style: text.titleSmall),
+              ),
+            ],
+          ),
+          const SizedBox(height: SagipSpace.xs),
+          Text(
+            l10n.cancelAskedBody(
+              reason == null
+                  ? l10n.cancelReasonOther
+                  : l10n.cancelReason(reason),
+              formatTime(incident.cancelRequestedAt!, locale),
+            ),
+            style: text.bodyMedium,
+          ),
+          if (note != null && note.isNotEmpty) ...[
+            const SizedBox(height: SagipSpace.xs),
+            Text(l10n.cancelAskedNote(note), style: text.bodySmall),
+          ],
+          const SizedBox(height: SagipSpace.sm),
+          OutlinedButton(
+            onPressed: enabled ? onClose : null,
+            child: Text(l10n.cancelClose),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1107,6 +1217,11 @@ class _Timeline extends StatelessWidget {
       IncidentEventKind.verified => l10n.verificationMethod(
         VerificationMethod.values.byName(d),
       ),
+      IncidentEventKind.cancelRequested => l10n.cancelReason(
+        SosCancelReason.values.byName(d),
+      ),
+      IncidentEventKind.resolved when d == 'cancelledByResident' =>
+        l10n.eventCancelledByResident,
       _ => d,
     };
   }

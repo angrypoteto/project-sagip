@@ -590,6 +590,49 @@ class SupabaseMobileRemote implements MobileServer {
     ),
   );
 
+  @override
+  Future<void> requestSosCancel(
+    String clientId,
+    SosCancelReason reason,
+    String? note,
+  ) => _call(
+    () => _client.rpc<void>(
+      'request_sos_cancel',
+      params: {
+        'p_client_uuid': clientId,
+        'p_reason': reason.name,
+        'p_note': note,
+      },
+    ),
+  );
+
+  @override
+  Future<void> withdrawSosCancel(String clientId) => _call(
+    () => _client.rpc<void>(
+      'withdraw_sos_cancel',
+      params: {'p_client_uuid': clientId},
+    ),
+  );
+
+  @override
+  Future<void> updateSosLocation(
+    String clientId,
+    GeoPoint point,
+    double? accuracyMeters,
+    DateTime capturedAt,
+  ) => _call(
+    () => _client.rpc<Object?>(
+      'update_sos_location',
+      params: {
+        'p_client_uuid': clientId,
+        'p_latitude': point.lat,
+        'p_longitude': point.lng,
+        'p_accuracy_m': accuracyMeters,
+        'p_captured_at': _utc(capturedAt),
+      },
+    ),
+  );
+
   /// The resident's SOS requests as the server has them. Refreshes often
   /// while a unit is on the way: its position is not sent to residents by
   /// realtime.

@@ -250,6 +250,69 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('Cancel SOS: asked, taken back, asked again, closed by MDRRMD', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    await holdSos(tester);
+    await tester.pump(const Duration(milliseconds: 600));
+
+    Future<void> ask(String reason) async {
+      await tester.scrollUntilVisible(find.text('Cancel SOS'), 200);
+      await tester.tap(find.text('Cancel SOS'));
+      await settle(tester);
+      expect(find.text('Cancel this SOS?'), findsOneWidget);
+      // Nothing is sent until a reason is chosen.
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.widgetWithText(FilledButton, 'Ask MDRRMD to cancel'),
+            )
+            .onPressed,
+        isNull,
+      );
+      await tester.tap(find.text(reason));
+      await tester.pump();
+      await tester.tap(find.text('Ask MDRRMD to cancel'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    await ask("I'm safe now");
+    var sos = container.read(mySosProvider).value!.single;
+    expect(sos.cancelReason, SosCancelReason.safeNow);
+    expect(sos.isActive, isTrue, reason: 'MDRRMD closes it, not the resident');
+    await tester.scrollUntilVisible(
+      find.text('You asked to cancel this SOS'),
+      -200,
+    );
+    expect(find.text('Cancel SOS'), findsNothing);
+
+    await tester.tap(find.text('I still need help'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    sos = container.read(mySosProvider).value!.single;
+    expect(sos.cancelRequested, isFalse);
+    expect(find.text('You asked to cancel this SOS'), findsNothing);
+
+    // Messages on screen (this one, and "a unit is on the way") would
+    // cover the button.
+    await tester.pump(const Duration(seconds: 5));
+    rootMessengerKey.currentState?.clearSnackBars();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+    await ask('I sent it by mistake');
+    await tester.pump(const Duration(seconds: 3));
+    sos = container.read(mySosProvider).value!.single;
+    expect(sos.status, IncidentStatus.resolved);
+    expect(sos.cancelled, isTrue);
+    await tester.scrollUntilVisible(find.text('SOS cancelled'), -200);
+    expect(onStatus('SOS cancelled'), findsOneWidget);
+    await finish(tester);
+  });
+
   testWidgets('tracking the responder once a unit is assigned', (tester) async {
     await pumpApp(tester);
     await signInAsResident(tester);

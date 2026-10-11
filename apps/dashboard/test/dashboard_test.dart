@@ -165,6 +165,42 @@ void main() {
     },
   );
 
+  testWidgets('D4: a resident asks to cancel; the dispatcher closes it', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    final sent = container.read(incidentByIdProvider('INC-0147'))!.location;
+    backend.residentAsksToCancel('INC-0147', SosCancelReason.safeNow);
+    backend.residentMoves(
+      'INC-0147',
+      GeoPoint(sent.lat + 120 / 111320, sent.lng),
+    );
+    await settle(tester);
+    expect(find.text('Asked to cancel'), findsOneWidget);
+
+    await tester.tap(find.text('SOS, flood').first);
+    await settle(tester);
+    expect(find.text('Incident INC-0147'), findsOneWidget);
+    expect(find.text('The resident asked to cancel'), findsOneWidget);
+    expect(find.textContaining('Safe now ·'), findsOneWidget);
+    expect(
+      find.textContaining('The resident is now 120 m from where'),
+      findsOneWidget,
+    );
+
+    // It is still open until the dispatcher says so.
+    expect(container.read(incidentByIdProvider('INC-0147')), isNotNull);
+    await tester.tap(find.text('Close as cancelled'));
+    await settle(tester);
+    expect(find.text('Close this SOS as cancelled?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Close as cancelled'));
+    await settle(tester);
+    expect(find.text('Closed as cancelled by the resident'), findsOneWidget);
+    expect(container.read(incidentByIdProvider('INC-0147')), isNull);
+    expect(find.byType(IncidentDrawer), findsNothing);
+  });
+
   testWidgets('choosing a unit other than the top one asks for a reason', (
     tester,
   ) async {

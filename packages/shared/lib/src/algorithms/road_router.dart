@@ -280,7 +280,7 @@ class RoadNetworkSuggester implements UnitSuggester {
     }
 
     final result = router.timesTo(
-      incident.location,
+      incident.currentLocation,
       {for (final u in candidates) u.id: u.location!},
       penalty: floods == null
           ? FloodPenalty.none

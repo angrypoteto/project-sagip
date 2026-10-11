@@ -120,6 +120,35 @@ void main() {
     ]);
     expect(a.residentNote, isNotNull);
     expect(a.mapSaved, 0);
+    expect(a.cancelRequested, isFalse);
+    expect(a.destination, a.location);
+
+    // After the migration sos_followups: where the resident is now, and
+    // whether they asked to cancel.
+    final moved = Assignment.fromJson(
+      row(
+        '''{"type": "flood", "status": "enRoute", "address": null, "channel": "app", "barangay": "Barangay 412", "district": "Sampaloc", "latitude": 14.6091, "longitude": 120.9925, "offered_at": "2026-09-30T11:02:36.996829+00:00", "vulnerable": [], "accepted_at": "2026-09-30T11:03:00+00:00", "incident_id": "INC-0147", "on_scene_at": null, "people_count": null, "people_found": null, "resident_note": null, "real_emergency": null, "not_real_reason": null, "resident_latitude": 14.6101, "resident_longitude": 120.9925, "resident_location_at": "2026-09-30T11:05:00+00:00", "cancel_requested_at": "2026-09-30T11:06:00+00:00"}''',
+      ),
+    );
+    expect(moved.cancelRequested, isTrue);
+    expect(moved.destination, const GeoPoint(14.6101, 120.9925));
+    final again = Assignment.fromJson(moved.toJson());
+    expect(again.cancelRequested, isTrue);
+    expect(again.residentLocation, moved.residentLocation);
+    expect(again.residentLocationAt, moved.residentLocationAt);
+
+    final sos = SosRequest.fromJson({
+      'client_id': '0b9f1f0e-0000-4000-8000-000000000001',
+      'captured_at': '2026-09-30T11:00:00+00:00',
+      'delivery': 'delivered',
+      'status': 'assigned',
+      'cancel_requested_at': '2026-09-30T11:06:00+00:00',
+      'cancel_reason': 'safeNow',
+      'cancelled': false,
+    });
+    expect(sos.cancelRequested, isTrue);
+    expect(sos.cancelReason, SosCancelReason.safeNow);
+    expect(SosRequest.fromJson(sos.toJson()).cancelReason, sos.cancelReason);
 
     final done = CompletedAssignment.fromJson(
       row(

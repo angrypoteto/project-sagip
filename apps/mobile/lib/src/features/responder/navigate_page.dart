@@ -137,7 +137,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                 FlutterMap(
                   mapController: _map,
                   options: MapOptions(
-                    initialCenter: toLatLng(unit ?? a.location),
+                    initialCenter: toLatLng(unit ?? a.destination),
                     initialZoom: 17,
                     onMapReady: () => _ready = true,
                     onPositionChanged: (_, hasGesture) {
@@ -172,7 +172,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                               )
                             else
                               Polyline(
-                                points: [at, toLatLng(a.location)],
+                                points: [at, toLatLng(a.destination)],
                                 strokeWidth: 5,
                                 color: SagipPalette.of(context).info.fill,
                                 pattern: StrokePattern.dashed(
@@ -185,7 +185,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                     MarkerLayer(
                       markers: [
                         Marker(
-                          point: toLatLng(a.location),
+                          point: toLatLng(a.destination),
                           width: 44,
                           height: 44,
                           child: Semantics(

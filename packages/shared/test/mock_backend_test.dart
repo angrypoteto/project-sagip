@@ -148,6 +148,59 @@ void main() {
       expect(await backend.watchNotices(cluster.id).first, isEmpty);
     });
 
+    test(
+      'an SOS is closed as cancelled only after the resident asked',
+      () async {
+        await backend.signIn('dispatcher@sagip.test', MockSeed.demoPassword);
+        await backend.assignUnit('INC-0147', 'unit-r03');
+        await expectLater(
+          backend.confirmCancel('INC-0147'),
+          throwsA(
+            isA<ActionRejected>().having(
+              (e) => e.reason,
+              'reason',
+              ActionRejection.invalidValue,
+            ),
+          ),
+        );
+
+        backend.residentAsksToCancel('INC-0147', SosCancelReason.safeNow);
+        var inc = await incident('INC-0147');
+        expect(inc.cancelRequested, isTrue);
+        expect(inc.status, IncidentStatus.assigned, reason: 'still open');
+        expect(inc.events.last.kind, IncidentEventKind.cancelRequested);
+
+        // The resident may take it back.
+        backend.residentAsksToCancel('INC-0147', null);
+        inc = await incident('INC-0147');
+        expect(inc.cancelRequested, isFalse);
+        expect(inc.events.last.kind, IncidentEventKind.cancelWithdrawn);
+
+        backend.residentAsksToCancel('INC-0147', SosCancelReason.mistake);
+        await backend.confirmCancel('INC-0147');
+        expect((await active()).any((i) => i.id == 'INC-0147'), isFalse);
+        expect((await unit('unit-r03')).isDispatchable, isTrue);
+        final entry = (await audit()).first;
+        expect(entry.action, AuditAction.sosCancelled);
+        expect(entry.detail, 'mistake');
+      },
+    );
+
+    test('the resident\'s newest position is kept beside the SOS', () async {
+      await backend.signIn('dispatcher@sagip.test', MockSeed.demoPassword);
+      final before = await incident('INC-0147');
+      expect(before.movedMeters, isNull);
+      final to = GeoPoint(
+        before.location.lat + 120 / 111320,
+        before.location.lng,
+      );
+      backend.residentMoves('INC-0147', to);
+      final after = await incident('INC-0147');
+      expect(after.location, before.location);
+      expect(after.lastLocation, to);
+      expect(after.movedMeters, closeTo(120, 2));
+    });
+
     test('a false report leaves the queue and frees its unit', () async {
       await backend.signIn('dispatcher@sagip.test', MockSeed.demoPassword);
       await backend.assignUnit('INC-0147', 'unit-r03');
