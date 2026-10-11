@@ -50,7 +50,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_river_levels.sql` | `river_level` (dispatchers and admins read it), `record_river_levels()` (service role), `feed_status` source `efcos`, and a `pg_cron` job every 10 minutes for `ingest-efcos` |
 | `functions/ingest-efcos/` | Reads PAGASA's river level list for the Pasig, Marikina, and Tullahan rivers; `efcos.test.ts` runs the parser on a saved copy with `node --test`. Deployed (version 2); `intermediate.ts` holds the certificate PAGASA's server leaves out |
 | `migrations/*_sos_followups.sql` | Cancel SOS (`request_sos_cancel()`, `withdraw_sos_cancel()`, `confirm_sos_cancel()`) and the resident's newest position while an SOS is open (`update_sos_location()`); the board, `my_sos()`, and `my_assignments()` carry both |
-| `migrations/20261011030000_data_retention.sql` | **Not applied yet.** The setting `privacy.retention_months` (6 to 60, 12 by default), `private.apply_retention()`, and a `pg_cron` job every night |
+| `migrations/20261011030000_data_retention.sql` | The setting `privacy.retention_months` (6 to 60, 12 by default), `private.apply_retention()`, and a `pg_cron` job every night |
 | `migrations/*_report_rag.sql` | `report_reference` (the passages, provisional), `report_rewrite` (the log and the hourly limit), `begin_report_rewrite()`, and `mark_report_rag()` |
 | `functions/generate-report/` | The RAG step: finds the passages for each section and asks Gemini to write it from the figures (several keys in turn, Groq after them); `rag.test.ts` runs with `node --test`. Deployed (version 1); answers "not set up" until the keys are added |
 | `tests/rls_test.sql` | 410 pgTAP checks of who can see and do what |
@@ -269,7 +269,7 @@ When an admin marks a report final (A6), the dashboard builds its PDF and keeps 
 
 Three are applied (2026-10-11, through the connector once it came back): `river_levels`, `sos_followups`, and `report_rag`. Both new functions are deployed, and the river feed runs (17 stations on its first read).
 
-**One is left for Joshua: `20261011030000_data_retention.sql`.** The connector declined it (it contains `delete` statements, which it does not run). Paste it in the SQL editor and run it; if it stops with an error, send Claude the message. Until then the A3 "Data retention" card has no setting to show on the real database, and nothing is removed. Afterwards Claude renames the file and runs the RLS test (410 checks; the 39 new ones have not run yet).
+`20261011030000_data_retention.sql` was declined by the connector (it contains `delete` statements) and run by Joshua in the SQL editor instead, so it has no row in the migrations table and keeps its file name. The RLS test then ran in full: 410 of 410 (`9a1b210`).
 
 ## River levels (migration `river_levels`, FR5)
 
