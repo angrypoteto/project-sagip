@@ -372,6 +372,29 @@ final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
   ThemeModeController.new,
 );
 
+/// The Me screen's language choice (S7): English or Filipino, kept on the
+/// phone. English until the person chooses.
+class LanguageController extends Notifier<String> {
+  static const _key = 'settings:language';
+  static const codes = ['en', 'fil'];
+
+  @override
+  String build() {
+    final saved = ref.read(localStoreProvider).read(_key);
+    return saved is String && codes.contains(saved) ? saved : codes.first;
+  }
+
+  void set(String code) {
+    if (!codes.contains(code)) return;
+    state = code;
+    ref.read(localStoreProvider).write(_key, code);
+  }
+}
+
+final languageProvider = NotifierProvider<LanguageController, String>(
+  LanguageController.new,
+);
+
 final signalProvider = StreamProvider<SignalState>(
   (ref) => ref.watch(signalMonitorProvider).watch(),
 );

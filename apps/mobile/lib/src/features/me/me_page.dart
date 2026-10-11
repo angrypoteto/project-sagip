@@ -41,6 +41,36 @@ class MePage extends ConsumerWidget {
     await ref.read(authRepositoryProvider).signOut();
   }
 
+  /// Each language is named in itself, so it can be found from the other.
+  Future<void> _chooseLanguage(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final current = ref.read(languageProvider);
+    final picked = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.languageChoose),
+        children: [
+          for (final (code, name) in const [
+            ('en', 'English'),
+            ('fil', 'Filipino'),
+          ])
+            ListTile(
+              key: ValueKey('language-$code'),
+              minTileHeight: 56,
+              leading: Icon(
+                code == current
+                    ? Symbols.radio_button_checked_rounded
+                    : Symbols.radio_button_unchecked_rounded,
+              ),
+              title: Text(name),
+              onTap: () => Navigator.pop(context, code),
+            ),
+        ],
+      ),
+    );
+    if (picked != null) ref.read(languageProvider.notifier).set(picked);
+  }
+
   Future<void> _requestDeletion(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -151,7 +181,12 @@ class MePage extends ConsumerWidget {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Symbols.language_rounded),
           title: Text(l10n.language),
-          subtitle: Text('${l10n.languageEnglish} · ${l10n.languageSoon}'),
+          subtitle: Text(
+            ref.watch(languageProvider) == 'fil'
+                ? l10n.languageFilipino
+                : l10n.languageEnglish,
+          ),
+          onTap: () => _chooseLanguage(context, ref),
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,

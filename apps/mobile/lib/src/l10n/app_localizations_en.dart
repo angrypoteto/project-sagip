@@ -1349,7 +1349,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageEnglish => 'English';
 
   @override
-  String get languageSoon => 'Filipino is coming';
+  String get languageFilipino => 'Filipino';
+
+  @override
+  String get languageChoose => 'Choose a language';
 
   @override
   String get testNotification => 'Send a test notification';

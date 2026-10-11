@@ -2386,11 +2386,17 @@ abstract class AppLocalizations {
   /// **'English'**
   String get languageEnglish;
 
-  /// No description provided for @languageSoon.
+  /// No description provided for @languageFilipino.
   ///
   /// In en, this message translates to:
-  /// **'Filipino is coming'**
-  String get languageSoon;
+  /// **'Filipino'**
+  String get languageFilipino;
+
+  /// No description provided for @languageChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a language'**
+  String get languageChoose;
 
   /// No description provided for @testNotification.
   ///

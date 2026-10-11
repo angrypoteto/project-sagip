@@ -118,6 +118,7 @@ class SagipMobileApp extends ConsumerWidget {
         ...GlobalMaterialLocalizations.delegates,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: Locale(ref.watch(languageProvider)),
       routerConfig: ref.watch(routerProvider),
       // flutter_map still uses package:flutter/material.dart; the bridge lets
       // its widgets read our material_ui theme. Remove once flutter_map
