@@ -27,6 +27,12 @@
   "demoAccountsHint": "Demo accounts: dispatcher@sagip.test or admin@sagip.test. Password: {password}",
   "@demoAccountsHint": {"placeholders": {"password": {"type": "String"}}},
 
+  "wallOpen": "Open the map in its own window (for another screen)",
+  "wallFullScreen": "Full screen",
+  "wallExitFullScreen": "Leave full screen",
+  "wallToBoard": "Go to the Command Board",
+  "wallSummary": "{open, plural, =0{No open incidents} =1{1 open incident} other{{open} open incidents}} · {waiting, plural, =0{none waiting for a unit} =1{1 waiting for a unit} other{{waiting} waiting for a unit}}",
+  "@wallSummary": {"placeholders": {"open": {"type": "int"}, "waiting": {"type": "int"}}},
   "navMenuKeep": "Keep the menu open",
   "navMenuClose": "Close the menu",
   "navCommandBoard": "Command Board",

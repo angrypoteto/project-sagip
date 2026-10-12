@@ -4,8 +4,10 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../router.dart';
 import 'map_parts.dart';
 
 enum _Layer { units, reports, boundaries }
@@ -16,10 +18,19 @@ class IncidentMap extends ConsumerStatefulWidget {
     super.key,
     required this.selectedId,
     required this.onSelect,
+    this.wall = false,
   });
 
   final String? selectedId;
   final ValueChanged<String> onSelect;
+
+  /// The wall map (a window of its own for another monitor): markers are
+  /// drawn larger to be read from across a room, and the button that opens
+  /// that window is left out.
+  final bool wall;
+
+  /// How much larger the wall map draws its markers.
+  static const wallScale = 1.7;
 
   @override
   ConsumerState<IncidentMap> createState() => _IncidentMapState();
@@ -61,6 +72,13 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
     final incidents = ref.watch(activeIncidentsProvider).value ?? const [];
     final units = ref.watch(unitsProvider).value ?? const <ResponseUnit>[];
     final reports = ref.watch(crowdReportsProvider).value ?? const [];
+    final scale = widget.wall ? IncidentMap.wallScale : 1.0;
+    // A marker drawn [scale] times its size.
+    Widget sized(double size, Widget child) => scale == 1
+        ? child
+        : FittedBox(
+            child: SizedBox(width: size, height: size, child: child),
+          );
 
     final markers = <Marker>[
       if (_layers.contains(_Layer.reports))
@@ -68,18 +86,18 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
           if (!r.isClustered)
             Marker(
               point: toLatLng(r.location),
-              width: ReportMarkerRing.size,
-              height: ReportMarkerRing.size,
-              child: const ReportMarkerRing(),
+              width: ReportMarkerRing.size * scale,
+              height: ReportMarkerRing.size * scale,
+              child: sized(ReportMarkerRing.size, const ReportMarkerRing()),
             ),
       if (_layers.contains(_Layer.units))
         for (final u in units)
           if (u.location != null)
             Marker(
               point: toLatLng(u.location!),
-              width: UnitMarkerSquare.size,
-              height: UnitMarkerSquare.size,
-              child: UnitMarkerSquare(unit: u),
+              width: UnitMarkerSquare.size * scale,
+              height: UnitMarkerSquare.size * scale,
+              child: sized(UnitMarkerSquare.size, UnitMarkerSquare(unit: u)),
             ),
       // Incidents last so they draw on top; the selected one topmost.
       for (final i in [
@@ -88,8 +106,8 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
       ])
         Marker(
           point: toLatLng(i.currentLocation),
-          width: IncidentMarkerDot.size,
-          height: IncidentMarkerDot.size,
+          width: IncidentMarkerDot.size * scale,
+          height: IncidentMarkerDot.size * scale,
           child: Semantics(
             button: true,
             label: i.place,
@@ -97,9 +115,12 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
               onTap: () => widget.onSelect(i.id),
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
-                child: IncidentMarkerDot(
-                  incident: i,
-                  selected: i.id == widget.selectedId,
+                child: sized(
+                  IncidentMarkerDot.size,
+                  IncidentMarkerDot(
+                    incident: i,
+                    selected: i.id == widget.selectedId,
+                  ),
                 ),
               ),
             ),
@@ -152,7 +173,24 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
         Positioned(
           right: SagipSpace.lg,
           bottom: SagipSpace.x3,
-          child: ZoomControls(controller: _controller),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!widget.wall) ...[
+                Container(
+                  decoration: floatingCard(p),
+                  child: IconButton(
+                    key: const ValueKey('open-wall-map'),
+                    tooltip: l10n.wallOpen,
+                    onPressed: () => openInNewWindow(Routes.wall),
+                    icon: const Icon(Symbols.open_in_new_rounded),
+                  ),
+                ),
+                const SizedBox(height: SagipSpace.sm),
+              ],
+              ZoomControls(controller: _controller),
+            ],
+          ),
         ),
         if (incidents.isEmpty)
           Center(

@@ -82,6 +82,37 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get wallOpen => 'Open the map in its own window (for another screen)';
+
+  @override
+  String get wallFullScreen => 'Full screen';
+
+  @override
+  String get wallExitFullScreen => 'Leave full screen';
+
+  @override
+  String get wallToBoard => 'Go to the Command Board';
+
+  @override
+  String wallSummary(int open, int waiting) {
+    String _temp0 = intl.Intl.pluralLogic(
+      open,
+      locale: localeName,
+      other: '$open open incidents',
+      one: '1 open incident',
+      zero: 'No open incidents',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      waiting,
+      locale: localeName,
+      other: '$waiting waiting for a unit',
+      one: '1 waiting for a unit',
+      zero: 'none waiting for a unit',
+    );
+    return '$_temp0 · $_temp1';
+  }
+
+  @override
   String get navMenuKeep => 'Keep the menu open';
 
   @override

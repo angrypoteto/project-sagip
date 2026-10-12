@@ -13,6 +13,7 @@ import 'features/admin/resources_page.dart';
 import 'features/auth/session_expired_page.dart';
 import 'features/auth/sign_in_page.dart';
 import 'features/board/board_page.dart';
+import 'features/board/wall_map_page.dart';
 import 'features/crowd_reports/crowd_reports_page.dart';
 import 'features/forecast/forecast_page.dart';
 import 'features/shell/dashboard_shell.dart';
@@ -28,6 +29,9 @@ abstract final class Routes {
   static const sessionExpired = '/session-expired';
   static const account = '/account';
   static const board = '/board';
+
+  /// The Command Board's map by itself, for another monitor.
+  static const wall = '/wall';
   static const crowdReports = '/crowd-reports';
   static const units = '/units';
   static const forecast = '/forecast';
@@ -150,6 +154,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.sessionExpired,
         pageBuilder: (context, state) =>
             _page(SessionExpiredPage(from: state.uri.queryParameters['from'])),
+      ),
+      GoRoute(
+        path: Routes.wall,
+        pageBuilder: (context, state) => _page(const WallMapPage()),
       ),
       ShellRoute(
         pageBuilder: (context, state, child) =>

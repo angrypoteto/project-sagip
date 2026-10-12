@@ -232,6 +232,36 @@ abstract class AppLocalizations {
   /// **'Demo accounts: dispatcher@sagip.test or admin@sagip.test. Password: {password}'**
   String demoAccountsHint(String password);
 
+  /// No description provided for @wallOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the map in its own window (for another screen)'**
+  String get wallOpen;
+
+  /// No description provided for @wallFullScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get wallFullScreen;
+
+  /// No description provided for @wallExitFullScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave full screen'**
+  String get wallExitFullScreen;
+
+  /// No description provided for @wallToBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to the Command Board'**
+  String get wallToBoard;
+
+  /// No description provided for @wallSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{open, plural, =0{No open incidents} =1{1 open incident} other{{open} open incidents}} · {waiting, plural, =0{none waiting for a unit} =1{1 waiting for a unit} other{{waiting} waiting for a unit}}'**
+  String wallSummary(int open, int waiting);
+
   /// No description provided for @navMenuKeep.
   ///
   /// In en, this message translates to:

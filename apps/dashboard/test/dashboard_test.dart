@@ -7,7 +7,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_dashboard/src/app.dart';
 import 'package:sagip_dashboard/src/common/chime.dart';
 import 'package:sagip_dashboard/src/common/download.dart';
+import 'package:sagip_dashboard/src/common/screen.dart';
 import 'package:sagip_dashboard/src/features/admin/report_pdf.dart';
+import 'package:sagip_dashboard/src/features/board/incident_map.dart';
 import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
 import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
@@ -361,6 +363,51 @@ void main() {
     await mouse.moveTo(const Offset(700, 500));
     await settle(tester);
     expect(width(), 64);
+  });
+
+  testWidgets('the wall map: its own window, larger markers, full screen', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    final normal = tester.getSize(find.byType(IncidentMarkerDot).first);
+
+    // The button on the board's map opens the map in a window of its own.
+    openedWindows.clear();
+    await tester.tap(find.byKey(const ValueKey('open-wall-map')));
+    await tester.pump();
+    expect(openedWindows, ['/wall']);
+
+    // That window: the map alone, with what is open and the time.
+    container.read(routerProvider).go('/wall');
+    await settle(tester);
+    expect(find.byType(QueuePanel), findsNothing);
+    expect(find.byKey(const ValueKey('nav-menu')), findsNothing);
+    expect(find.byKey(const ValueKey('open-wall-map')), findsNothing);
+    expect(find.byKey(const ValueKey('wall-summary')), findsOneWidget);
+    expect(find.textContaining('open incidents'), findsOneWidget);
+    final large = tester.getSize(
+      find
+          .ancestor(
+            of: find.byType(IncidentMarkerDot).first,
+            matching: find.byType(FittedBox),
+          )
+          .first,
+    );
+    expect(large.width, closeTo(normal.width * IncidentMap.wallScale, 0.5));
+
+    // Full screen on and off.
+    isFullScreen = false;
+    await tester.tap(find.byTooltip('Full screen'));
+    await settle(tester);
+    expect(isFullScreen, isTrue);
+    await tester.tap(find.byTooltip('Leave full screen'));
+    await settle(tester);
+    expect(isFullScreen, isFalse);
+
+    await tester.tap(find.byTooltip('Go to the Command Board'));
+    await settle(tester);
+    expect(find.byType(QueuePanel), findsOneWidget);
   });
 
   testWidgets('admin pages are hidden from dispatchers', (tester) async {
