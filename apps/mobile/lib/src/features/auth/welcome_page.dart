@@ -59,10 +59,20 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
     }
   }
 
+  var _asking = false;
+
+  /// One request at a time: Android refuses a second while its dialog is
+  /// still open (a second tap on Allow).
   Future<void> _allow(_Step step) async {
-    final service = ref.read(permissionServiceProvider);
-    for (final p in step.permissions) {
-      await service.request(p);
+    if (_asking) return;
+    _asking = true;
+    try {
+      final service = ref.read(permissionServiceProvider);
+      for (final p in step.permissions) {
+        await service.request(p);
+      }
+    } finally {
+      _asking = false;
     }
   }
 
