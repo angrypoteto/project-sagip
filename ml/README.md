@@ -55,6 +55,20 @@ cd packages/shared && flutter test test/incident_classifier_test.dart
 - **What it writes:** the model for Dart (`packages/shared/assets/classifier/`), 38 reference cases (`packages/shared/test/fixtures/classifier_reference.json`), `metrics.json`, and `build/classifier_model.sql` (git-ignored) for a migration. The export is rounded to 5 decimals and checked against scikit-learn itself (largest difference 0.000003).
 - **Three implementations, one answer:** `classify()` in the training script, `IncidentClassifier` in Dart, and `private.classify_report` in the database must all give the numbers in the reference file. The Dart test and the RLS test check this; rerun both after retraining and update the cases in `supabase/tests/rls_test.sql`.
 
+## Forecast on real data: what is in and what is still needed (from 2026-10-12)
+
+Joshua decided on 2026-10-12 that the forecast must be real, by the thesis's method. The models in `build/` were trained on made-up sample data and say nothing about Manila. To retrain them, three inputs are needed:
+
+| Input | File | State |
+|---|---|---|
+| Daily rainfall total, wettest hour, highest wind | `forecast/data/manila_weather_daily.csv` | **Real**, 2021-01-01 to 2026-10-05, from Open-Meteo's archive (ERA5 reanalysis, CC BY 4.0) by `fetch_weather.py`. A reanalysis smooths local downpours and shows light rain on many days; PAGASA's own daily records for Port Area would be better if the team can get them |
+| Typhoon signal and storm surge per day | `forecast/data/manila_signals.csv` (`date,typhoon_signal,storm_surge_m`, only the days that had one) | **Missing.** From PAGASA's records: every day from 2021 on when a wind signal was up over Manila (the highest that day) or a storm surge was warned of for Manila Bay (the height in meters). Then run `fetch_weather.py ... --signals` |
+| Past incidents | a CSV like `forecast/data/sample_incidents.csv`: `incident_id,date,hazard,latitude,longitude` | **Missing.** From MDRRMD: every flood, fire, and storm surge incident, with its date, its type, and where (coordinates, or the barangay or street so it can be placed). Two years or more, the same years as the weather. No names or phone numbers |
+
+Until the last two arrive, `prepare_windows.py` refuses the real weather file (the two columns are empty), on purpose. With them: `prepare_windows.py --weather ... --incidents ...`, `kde.py`, `train_lstm.py`, `export_live.py`, then load the model on the hosted project.
+
+The live input, once there is a real model: PAGASA's signal and surge are already kept as they change (`weather_alert`, real rows since 2026-10-03). The daily rainfall total, the wettest hour, and the wind have to come from the same source the model was trained on, so `run-forecast` will read the last 14 days from Open-Meteo (not built yet; it is a feed the thesis does not name, to be confirmed by the team).
+
 ## Forecast: data preparation and KDE (plan 10.5)
 
 ```bash
