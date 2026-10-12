@@ -33,6 +33,22 @@ void main() {
     expect(u.startingPoint(now), scene);
   });
 
+  test('with no incident open, a free crew is not shown', () {
+    final free = unit(location: scene, fixAge: const Duration(minutes: 2));
+    expect(free.ghostPosition(now, freeCrews: false), isNull);
+    expect(free.mapPosition, station);
+    // It is still where a route would start the moment one opens.
+    expect(free.startingPoint(now), scene);
+    // A unit out on a job always shows its station.
+    final out = unit(
+      location: scene,
+      fixAge: const Duration(minutes: 2),
+      status: UnitStatus.onScene,
+      incident: 'INC-0001',
+    );
+    expect(out.ghostPosition(now, freeCrews: false), station);
+  });
+
   test('an old fix from a free unit is not shown or routed from', () {
     final u = unit(location: scene, fixAge: const Duration(minutes: 11));
     expect(u.hasLiveFix(now), isFalse);

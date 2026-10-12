@@ -75,6 +75,11 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
     final pings = ref.watch(sosPingProvider);
     // Whether a free unit's fix is recent enough to draw: a slow tick.
     final now = ref.watch(slowClockProvider).value ?? DateTime.now();
+    // Where the crews of free units are is shown only while an incident is
+    // open: one on its way back may then be the nearest. With the board
+    // empty, free units are at their stations and nothing else.
+    GeoPoint? ghostOf(ResponseUnit u) =>
+        u.ghostPosition(now, freeCrews: incidents.isNotEmpty);
     final scale = widget.wall ? IncidentMap.wallScale : 1.0;
     // A marker drawn [scale] times its size.
     Widget sized(double size, Widget child) => scale == 1
@@ -97,10 +102,10 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
         for (final u in units) ...[
           // The faint one first, so the main marker draws over it: the
           // station while the unit is out, or its crew while it is free.
-          if (u.ghostPosition(now) != null)
+          if (ghostOf(u) != null)
             Marker(
               key: ValueKey('unit-ghost-${u.id}'),
-              point: toLatLng(u.ghostPosition(now)!),
+              point: toLatLng(ghostOf(u)!),
               width: UnitMarkerSquare.size * scale,
               height: UnitMarkerSquare.size * scale,
               child: sized(
@@ -176,11 +181,11 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
               PolylineLayer(
                 polylines: [
                   for (final u in units)
-                    if (u.ghostPosition(now) != null && u.mapPosition != null)
+                    if (ghostOf(u) != null && u.mapPosition != null)
                       Polyline(
                         points: [
                           toLatLng(u.mapPosition!),
-                          toLatLng(u.ghostPosition(now)!),
+                          toLatLng(ghostOf(u)!),
                         ],
                         color: p.textSecondary.withValues(alpha: 0.7),
                         strokeWidth: 1.5 * scale,

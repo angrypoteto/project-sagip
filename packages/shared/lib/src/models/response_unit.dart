@@ -75,11 +75,15 @@ class ResponseUnit {
   /// The faint second marker: the station while the unit is out on a job,
   /// or where the crew's phone is while the unit is free (a recent fix
   /// only). Null when there is nothing else to show or both are one spot.
-  GeoPoint? ghostPosition(DateTime now) {
+  ///
+  /// [freeCrews] false leaves out where the crews of free units are: the
+  /// board shows them only while an incident is open, when a crew on its
+  /// way back may be the nearest one (Joshua, 2026-10-12).
+  GeoPoint? ghostPosition(DateTime now, {bool freeCrews = true}) {
     final main = mapPosition;
     final other = onJob
         ? (location == null ? null : home)
-        : (home != null && hasLiveFix(now) ? location : null);
+        : (freeCrews && home != null && hasLiveFix(now) ? location : null);
     if (main == null || other == null) return null;
     return main.distanceTo(other) < sameSpotMeters ? null : other;
   }
