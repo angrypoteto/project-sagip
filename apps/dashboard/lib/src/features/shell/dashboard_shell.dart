@@ -10,8 +10,9 @@ import '../../router.dart';
 import 'new_sos_toast.dart';
 import 'top_bar.dart';
 
-/// The frame around every signed-in page: top bar, navigation rail,
-/// connection banner, and the new-SOS toast.
+/// The frame around every signed-in page: the side menu from top to bottom
+/// with the S.A.G.I.P. mark at its head, and beside it the top bar, the
+/// connection banner, the page, and the new-SOS toast.
 class DashboardShell extends ConsumerStatefulWidget {
   const DashboardShell({
     super.key,
@@ -38,14 +39,14 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider).value;
     return Scaffold(
-      body: Column(
-        children: [
-          const TopBar(),
-          const _ConnectionBanner(),
-          Expanded(
-            child: _NavFrame(
-              location: widget.location,
-              isAdmin: user?.isAdmin ?? false,
+      body: _NavFrame(
+        location: widget.location,
+        isAdmin: user?.isAdmin ?? false,
+        child: Column(
+          children: [
+            const TopBar(),
+            const _ConnectionBanner(),
+            Expanded(
               child: Stack(
                 children: [
                   Positioned.fill(child: widget.child),
@@ -60,8 +61,8 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -170,8 +171,7 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
               duration: _NavFrame._slide,
               curve: Curves.easeOut,
               width: width,
-              // The top bar's color, with no line between them: the menu
-              // and the bar are one surface.
+              // The top bar's color: the menu and the bar are one surface.
               decoration: BoxDecoration(
                 color: p.panel,
                 border: Border(right: BorderSide(color: p.hairline)),
@@ -191,30 +191,12 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
                   alignment: Alignment.topLeft,
                   minWidth: width,
                   maxWidth: width,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: SagipSpace.md,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (final item in _mainItems)
-                          _RailRow.item(item, widget.location, open, context),
-                        // Admin items are hidden, not disabled, for
-                        // dispatchers.
-                        if (widget.isAdmin) ...[
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: SagipSpace.lg,
-                              vertical: SagipSpace.sm,
-                            ),
-                            child: Divider(color: p.hairline),
-                          ),
-                          for (final item in _adminItems)
-                            _RailRow.item(item, widget.location, open, context),
-                        ],
-                      ],
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _Brand(open: open),
+                      Expanded(child: _items(p, open)),
+                    ],
                   ),
                 ),
               ),
@@ -222,6 +204,86 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _items(SagipPalette p, bool open) => SingleChildScrollView(
+    padding: const EdgeInsets.only(bottom: SagipSpace.md),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final item in _mainItems)
+          _RailRow.item(item, widget.location, open, context),
+        // Admin items are hidden, not disabled, for dispatchers.
+        if (widget.isAdmin) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SagipSpace.lg,
+              vertical: SagipSpace.sm,
+            ),
+            child: Divider(color: p.hairline),
+          ),
+          for (final item in _adminItems)
+            _RailRow.item(item, widget.location, open, context),
+        ],
+      ],
+    ),
+  );
+}
+
+/// The head of the side menu, as tall as the top bar: the S.A.G.I.P. mark,
+/// and beside it the name and the office while the menu is open.
+class _Brand extends StatelessWidget {
+  const _Brand({required this.open});
+
+  final bool open;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    return SizedBox(
+      height: TopBar.height,
+      child: Padding(
+        // The mark sits over the icons below it.
+        padding: const EdgeInsets.only(left: 17),
+        child: Row(
+          children: [
+            const SagipMark(size: 30),
+            if (open) ...[
+              const SizedBox(width: SagipSpace.md),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.brandName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.titleSmall!.copyWith(
+                        letterSpacing: 0.5,
+                        fontWeight: FontWeight.w700,
+                        height: 1.1,
+                      ),
+                    ),
+                    Text(
+                      l10n.brandOffice,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.labelSmall!.copyWith(
+                        color: p.textSecondary,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

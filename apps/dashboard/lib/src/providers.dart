@@ -547,9 +547,7 @@ final navMenuHoveredProvider = NotifierProvider<NavMenuHoverController, bool>(
   NavMenuHoverController.new,
 );
 
-/// The side menu's widths, closed (icons only) and open (with names). The
-/// top bar ends its bottom line where the menu ends, so the two read as
-/// one surface.
+/// The side menu's widths, closed (icons only) and open (with names).
 const navMenuClosedWidth = 64.0;
 const navMenuOpenWidth = 248.0;
 const navMenuSlide = Duration(milliseconds: 160);

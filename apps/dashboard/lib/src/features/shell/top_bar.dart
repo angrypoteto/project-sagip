@@ -9,48 +9,26 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
 
-/// Slim top bar: brand, PAGASA conditions, connection, clock, and user menu.
+/// Slim top bar: the menu button, PAGASA's conditions, and on the right the
+/// connection, the clock, and the account. The name and mark are at the
+/// head of the side menu.
 class TopBar extends ConsumerWidget {
   const TopBar({super.key});
+
+  static const double height = 56;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = SagipPalette.of(context);
     final l10n = AppLocalizations.of(context);
-    final text = Theme.of(context).textTheme;
     final menuOpen = ref.watch(navMenuPinnedProvider);
-    final menuWide = menuOpen || ref.watch(navMenuHoveredProvider);
-    return Stack(
-      children: [
-        _bar(context, ref, p, l10n, text, menuOpen),
-        // The line under the bar starts where the side menu ends, so the
-        // menu joins the bar without a seam.
-        AnimatedPositioned(
-          duration: navMenuSlide,
-          curve: Curves.easeOut,
-          left: menuWide ? navMenuOpenWidth : navMenuClosedWidth,
-          right: 0,
-          bottom: 0,
-          height: 1,
-          child: ColoredBox(color: p.hairline),
-        ),
-      ],
-    );
-  }
-
-  Widget _bar(
-    BuildContext context,
-    WidgetRef ref,
-    SagipPalette p,
-    AppLocalizations l10n,
-    TextTheme text,
-    bool menuOpen,
-  ) {
     return Container(
-      height: 56,
-      // The menu button sits over the rail's icons (the rail is 64 wide).
-      padding: const EdgeInsets.only(left: 10, right: SagipSpace.xl),
-      color: p.panel,
+      height: height,
+      padding: const EdgeInsets.only(left: SagipSpace.md, right: SagipSpace.xl),
+      decoration: BoxDecoration(
+        color: p.panel,
+        border: Border(bottom: BorderSide(color: p.hairline)),
+      ),
       child: Row(
         children: [
           SizedBox(
@@ -66,31 +44,7 @@ class TopBar extends ConsumerWidget {
               selectedIcon: const Icon(Symbols.menu_open_rounded, size: 22),
             ),
           ),
-          const SizedBox(width: SagipSpace.md),
-          const SagipMark(size: 30),
-          const SizedBox(width: SagipSpace.md),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.brandName,
-                style: text.titleSmall!.copyWith(
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w700,
-                  height: 1.1,
-                ),
-              ),
-              Text(
-                l10n.brandOffice,
-                style: text.labelSmall!.copyWith(
-                  color: p.textSecondary,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: SagipSpace.x4),
+          const SizedBox(width: SagipSpace.lg),
           const Expanded(child: _WeatherSummary()),
           const _LinkIndicator(),
           const SizedBox(width: SagipSpace.xl),
@@ -126,19 +80,16 @@ class _WeatherSummary extends ConsumerWidget {
           dense: false,
         ),
         const SizedBox(width: SagipSpace.md),
+        // Where the reading comes from and when is in the tooltip: the bar
+        // keeps to what a dispatcher reads at a glance.
         Flexible(
-          child: Text(
-            l10n.rainfall(weather.rainfallMmPerHour.toStringAsFixed(0)),
-            style: text.labelMedium,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: SagipSpace.md),
-        Flexible(
-          child: Text(
-            l10n.pagasaAt(formatTime(weather.issuedAt, locale)),
-            style: secondary,
-            overflow: TextOverflow.ellipsis,
+          child: Tooltip(
+            message: l10n.pagasaAt(formatTime(weather.issuedAt, locale)),
+            child: Text(
+              l10n.rainfall(weather.rainfallMmPerHour.toStringAsFixed(0)),
+              style: secondary,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         if (weather.isSimulated) ...[
