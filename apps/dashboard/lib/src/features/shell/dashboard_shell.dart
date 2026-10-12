@@ -38,10 +38,12 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider).value;
+    final isResponder = user?.role == UserRole.responder;
     return Scaffold(
       body: _NavFrame(
         location: widget.location,
         isAdmin: user?.isAdmin ?? false,
+        isResponder: isResponder,
         child: Column(
           children: [
             const TopBar(),
@@ -50,14 +52,16 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
               child: Stack(
                 children: [
                   Positioned.fill(child: widget.child),
-                  const Positioned(
-                    // Below the map's floating controls so it never
-                    // covers the Map/List switch.
-                    top: 76,
-                    left: 0,
-                    right: 0,
-                    child: Center(child: NewSosToast()),
-                  ),
+                  // Dispatch's alert: not for a unit's crew.
+                  if (!isResponder)
+                    const Positioned(
+                      // Below the map's floating controls so it never
+                      // covers the Map/List switch.
+                      top: 76,
+                      left: 0,
+                      right: 0,
+                      child: Center(child: NewSosToast()),
+                    ),
                 ],
               ),
             ),
@@ -97,6 +101,11 @@ final _mainItems = [
   _NavItem(Routes.weather, Symbols.thunderstorm_rounded, (l) => l.navWeather),
 ];
 
+/// A responder's menu: their own unit.
+final _responderItems = [
+  _NavItem(Routes.myUnit, Symbols.inventory_2_rounded, (l) => l.myUnitTitle),
+];
+
 final _adminItems = [
   _NavItem(Routes.analytics, Symbols.monitoring_rounded, (l) => l.navAnalytics),
   _NavItem(Routes.reports, Symbols.description_rounded, (l) => l.navReports),
@@ -122,11 +131,13 @@ class _NavFrame extends ConsumerStatefulWidget {
   const _NavFrame({
     required this.location,
     required this.isAdmin,
+    required this.isResponder,
     required this.child,
   });
 
   final String location;
   final bool isAdmin;
+  final bool isResponder;
   final Widget child;
 
   static const closedWidth = navMenuClosedWidth;
@@ -206,7 +217,7 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final item in _mainItems)
+        for (final item in widget.isResponder ? _responderItems : _mainItems)
           _RailRow.item(item, widget.location, open, context),
         // Admin items are hidden, not disabled, for dispatchers.
         if (widget.isAdmin) ...[

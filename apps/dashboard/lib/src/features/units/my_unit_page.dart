@@ -9,10 +9,12 @@ import '../../common/async_body.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../common_page.dart';
 import 'supply_widgets.dart';
 
 /// A responder's own unit on the web: what it carries, reported by its
-/// crew (unit inventory). It is the only page responders have here, and
+/// crew (unit inventory). It sits in the same frame as the dispatcher's
+/// and the admin's pages, is the one page in a responder's menu, and is
 /// the only place a unit's supplies are changed.
 class MyUnitPage extends ConsumerWidget {
   const MyUnitPage({super.key});
@@ -20,61 +22,20 @@ class MyUnitPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final p = SagipPalette.of(context);
-    final text = Theme.of(context).textTheme;
-    final user = ref.watch(currentUserProvider).value;
     final unitAsync = ref.watch(myUnitProvider);
-
-    return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: SagipSpace.xl),
-            decoration: BoxDecoration(
-              color: p.panel,
-              border: Border(bottom: BorderSide(color: p.hairline)),
-            ),
-            child: Row(
-              children: [
-                const SagipMark(size: 30),
-                const SizedBox(width: SagipSpace.md),
-                Expanded(
-                  child: Text(
-                    l10n.myUnitTitle,
-                    style: text.titleMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (user != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: SagipSpace.md),
-                    child: Text(
-                      user.displayName,
-                      style: text.labelMedium!.copyWith(color: p.textSecondary),
-                    ),
-                  ),
-                TextButton(
-                  onPressed: () => ref.read(authRepositoryProvider).signOut(),
-                  child: Text(l10n.signOut),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: AsyncBody(
-              value: unitAsync,
-              isEmpty: (unit) => unit == null,
-              empty: EmptyState(
-                icon: Symbols.group_off_rounded,
-                title: l10n.myUnitNone,
-                message: l10n.myUnitNoneBody,
-              ),
-              onRetry: () => ref.invalidate(myUnitProvider),
-              builder: (unit) => _Body(unit: unit!),
-            ),
-          ),
-        ],
+    return PageFrame(
+      title: l10n.myUnitTitle,
+      subtitle: l10n.myUnitIntro,
+      child: AsyncBody(
+        value: unitAsync,
+        isEmpty: (unit) => unit == null,
+        empty: EmptyState(
+          icon: Symbols.group_off_rounded,
+          title: l10n.myUnitNone,
+          message: l10n.myUnitNoneBody,
+        ),
+        onRetry: () => ref.invalidate(myUnitProvider),
+        builder: (unit) => _Body(unit: unit!),
       ),
     );
   }
@@ -96,61 +57,80 @@ class _Body extends ConsumerWidget {
     final now = ref.watch(slowClockProvider).value ?? DateTime.now();
     final byItem = {for (final s in supplies) s.item: s};
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(SagipSpace.xl),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Icon(unitTypeIcon(unit.type), size: 28),
-                  const SizedBox(width: SagipSpace.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(unit.callSign, style: text.headlineSmall),
-                        Text(
-                          '${l10n.unitType(unit.type)} · ${unit.station}',
-                          style: text.bodyMedium!.copyWith(
-                            color: p.textSecondary,
-                          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: SagipSpace.sm,
+          runSpacing: SagipSpace.sm,
+          children: [
+            SagipChip.status(
+              label: l10n.unitStatus(unit.status),
+              visual: unitStatusVisual(unit.status, p),
+              dense: false,
+            ),
+          ],
+        ),
+        const SizedBox(height: SagipSpace.lg),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(SagipSpace.lg),
+            child: Row(
+              children: [
+                Icon(unitTypeIcon(unit.type), size: 28),
+                const SizedBox(width: SagipSpace.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(unit.callSign, style: text.titleLarge),
+                      Text(
+                        '${l10n.unitType(unit.type)} · '
+                        '${l10n.unitAgency(unit.agency)} · ${unit.station}',
+                        style: text.bodyMedium!.copyWith(
+                          color: p.textSecondary,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  SagipChip.status(
-                    label: l10n.unitStatus(unit.status),
-                    visual: unitStatusVisual(unit.status, p),
-                  ),
-                ],
-              ),
-              const SizedBox(height: SagipSpace.lg),
-              Text(l10n.myUnitIntro, style: text.bodyMedium),
-              const SizedBox(height: SagipSpace.xs),
-              Text(
-                l10n.suppliesLowRule(lowPercent.round()),
-                style: text.bodySmall!.copyWith(color: p.textSecondary),
-              ),
-              const SizedBox(height: SagipSpace.lg),
-              for (final item in SupplyItem.values) ...[
-                _SupplyEditor(
-                  key: ValueKey('supply-${item.name}'),
-                  item: item,
-                  current: byItem[item],
-                  lowPercent: lowPercent,
-                  now: now,
-                  enabled: online,
                 ),
-                const SizedBox(height: SagipSpace.md),
               ],
-            ],
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: SagipSpace.md),
+        Text(
+          l10n.suppliesLowRule(lowPercent.round()),
+          style: text.bodySmall!.copyWith(color: p.textSecondary),
+        ),
+        const SizedBox(height: SagipSpace.lg),
+        // Two cards across on a wide window, one on a narrow one.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const gap = SagipSpace.md;
+            final across = constraints.maxWidth >= 900 ? 2 : 1;
+            final width = (constraints.maxWidth - gap * (across - 1)) / across;
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [
+                for (final item in SupplyItem.values)
+                  SizedBox(
+                    width: width,
+                    child: _SupplyEditor(
+                      key: ValueKey('supply-${item.name}'),
+                      item: item,
+                      current: byItem[item],
+                      lowPercent: lowPercent,
+                      now: now,
+                      enabled: online,
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }

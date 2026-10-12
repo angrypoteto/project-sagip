@@ -85,17 +85,21 @@ class AccountPage extends ConsumerWidget {
               ),
             ]),
             const SizedBox(height: SagipSpace.xl),
-            card(l10n.soundTitle, [
-              SwitchListTile(
-                key: const ValueKey('sos-sound'),
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.soundNewSos),
-                subtitle: Text(l10n.soundNewSosNote),
-                value: ref.watch(sosSoundProvider),
-                onChanged: (on) => ref.read(sosSoundProvider.notifier).set(on),
-              ),
-            ]),
-            const SizedBox(height: SagipSpace.xl),
+            // The new-SOS sound is dispatch's, not a unit crew's.
+            if (user.canDispatch) ...[
+              card(l10n.soundTitle, [
+                SwitchListTile(
+                  key: const ValueKey('sos-sound'),
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.soundNewSos),
+                  subtitle: Text(l10n.soundNewSosNote),
+                  value: ref.watch(sosSoundProvider),
+                  onChanged: (on) =>
+                      ref.read(sosSoundProvider.notifier).set(on),
+                ),
+              ]),
+              const SizedBox(height: SagipSpace.xl),
+            ],
             card(l10n.passwordTitle, const [_PasswordForm()]),
             const SizedBox(height: SagipSpace.xl),
             card(l10n.shortcutsTitle, [

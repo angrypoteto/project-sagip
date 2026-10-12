@@ -13,6 +13,7 @@ import 'package:sagip_dashboard/src/features/board/incident_map.dart';
 import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
 import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
+import 'package:sagip_dashboard/src/features/shell/top_bar.dart';
 import 'package:sagip_dashboard/src/providers.dart';
 import 'package:sagip_dashboard/src/router.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -511,7 +512,13 @@ void main() {
     expect(find.text('My unit'), findsOneWidget);
     expect(find.text('R-03'), findsOneWidget);
     expect(find.byType(QueuePanel), findsNothing);
-    expect(find.byKey(const ValueKey('nav-menu')), findsNothing);
+    // The same frame as dispatch's pages, with only their unit in the menu.
+    expect(find.byKey(const ValueKey('nav-menu')), findsOneWidget);
+    expect(find.byType(TopBar), findsOneWidget);
+    expect(find.byTooltip('My unit'), findsOneWidget);
+    expect(find.byTooltip('Command Board'), findsNothing);
+    expect(find.byTooltip('Units'), findsNothing);
+    expect(find.byTooltip('Accounts'), findsNothing);
     container.read(routerProvider).go('/board');
     await settle(tester);
     expect(find.text('My unit'), findsOneWidget);

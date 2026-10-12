@@ -140,9 +140,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         ).toString();
       }
       if (atExpired) return Routes.board;
-      // Responders have one page here: their unit and what it carries.
+      // Responders have their unit and what it carries, and their own
+      // account; nothing else.
       if (user.role == UserRole.responder) {
-        return path == Routes.myUnit ? null : Routes.myUnit;
+        return path == Routes.myUnit || path == Routes.account
+            ? null
+            : Routes.myUnit;
       }
       if (!user.canDispatch) return atSignIn ? null : Routes.signIn;
       if (path == Routes.myUnit) return Routes.board;
@@ -167,10 +170,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             _page(SessionExpiredPage(from: state.uri.queryParameters['from'])),
       ),
       GoRoute(
-        path: Routes.myUnit,
-        pageBuilder: (context, state) => _page(const MyUnitPage()),
-      ),
-      GoRoute(
         path: Routes.wall,
         pageBuilder: (context, state) => _page(const WallMapPage()),
       ),
@@ -186,6 +185,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 listView: state.uri.queryParameters['view'] == 'list',
               ),
             ),
+          ),
+          GoRoute(
+            path: Routes.myUnit,
+            pageBuilder: (context, state) => _page(const MyUnitPage()),
           ),
           GoRoute(
             path: Routes.account,
