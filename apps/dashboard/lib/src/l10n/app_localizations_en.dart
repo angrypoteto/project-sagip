@@ -116,12 +116,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get navMenuKeep => 'Keep the menu open';
-
-  @override
-  String get navMenuClose => 'Close the menu';
-
-  @override
   String get navCommandBoard => 'Command Board';
 
   @override

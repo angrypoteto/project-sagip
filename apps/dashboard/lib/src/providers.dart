@@ -521,20 +521,6 @@ class ThemeModeController extends Notifier<ThemeMode> {
 /// tests turn it off: an animation that repeats never settles.
 final sosPingProvider = Provider<bool>((ref) => true);
 
-/// Whether the side menu is kept open with the menu button in the top bar
-/// (for the session, like the theme). Closed, it still opens while the
-/// pointer is over it.
-class NavMenuController extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void toggle() => state = !state;
-}
-
-final navMenuPinnedProvider = NotifierProvider<NavMenuController, bool>(
-  NavMenuController.new,
-);
-
 /// Whether the pointer is over the side menu (it is open meanwhile).
 class NavMenuHoverController extends Notifier<bool> {
   @override

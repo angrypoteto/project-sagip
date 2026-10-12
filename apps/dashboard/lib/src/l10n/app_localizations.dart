@@ -268,18 +268,6 @@ abstract class AppLocalizations {
   /// **'{open, plural, =0{No open incidents} =1{1 open incident} other{{open} open incidents}} · {waiting, plural, =0{none waiting for a unit} =1{1 waiting for a unit} other{{waiting} waiting for a unit}}'**
   String wallSummary(int open, int waiting);
 
-  /// No description provided for @navMenuKeep.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep the menu open'**
-  String get navMenuKeep;
-
-  /// No description provided for @navMenuClose.
-  ///
-  /// In en, this message translates to:
-  /// **'Close the menu'**
-  String get navMenuClose;
-
   /// No description provided for @navCommandBoard.
   ///
   /// In en, this message translates to:
