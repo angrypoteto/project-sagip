@@ -73,6 +73,19 @@ The live input, once there is a real model: PAGASA's signal and surge are alread
 
 `forecast/data/manila_incident_leads.csv` lists what a first search of news sites gave for Manila from 2021 on: 33 fires and 7 flood days, each with a date, a place as the report named it, and a link. **Every row is unchecked** (`checked` is `no`): the dates and places come from search summaries, two already disagree with their own links, and none has coordinates. No storm surge incident was found for these years. It is far too little to train on (BFP counted 212 structural fires in Manila in 2021 alone), and it holds only what made the news. It is a start for the Data role: open each link, correct the row, set `checked` to `yes`, and add rows from BFP-NCR's and MMDA's own posts. It is not read by any script.
 
+### Incidents from public news, placed on the map (2026-10-12)
+
+Joshua asked for the incident data to be built from public sources while MDRRMD's records are asked for. Two files, both real reports with a link each, both only the part of what happened that made the news:
+
+| File | What | How it was made |
+|---|---|---|
+| `forecast/data/manila_fire_news.csv` | 131 fires in the City of Manila, 2012-02 to 2025-01 (about ten a year; none for 2017 and 2018, and the archive stops in March 2025). 23 placed by barangay, 43 by street, 65 only by district | `collect_fire_news.py` reads Asia Fire News (Tokyo University of Science's archive of fire reports; every entry mentioning Manila), `locate_fire_news.py` keeps the city's and places them. The date is the report's: the day of the fire or the day after |
+| `forecast/data/manila_flood_news.csv` | 56 flooded street corners on 17 days, 2021-07 to 2026-08 | `forecast/data/manila_flood_reports.csv` was put together by hand from the MMDA flood lists that GMA, Philstar, and others reprinted (`page_read` says whether the page itself was read: 39 yes, 17 from a search summary only); `locate_flood_reports.py` places each corner where the two streets meet on OpenStreetMap |
+
+What this is not: a record of incidents. BFP counted 212 structural fires in Manila in 2021 alone; this has 8 for that year. Floods before 2021 were not gathered, and the corners are MMDA's road watch points (España, Taft, Roxas, Rizal Avenue), not homes. No storm surge incident was found. A model trained on it learns when and where incidents get reported. Nothing has been trained on it yet.
+
+Still missing before training: the typhoon signal and storm surge days (`manila_signals.csv`). `manila_weather_daily.csv` now runs from 2012-01-01.
+
 ## Forecast: data preparation and KDE (plan 10.5)
 
 ```bash

@@ -1,0 +1,57 @@
+date,street_a,street_b,as_reported,source_url,page_read
+2021-07-25,Rizal Avenue,Remigio,Remegio Street corner Rizal Avenue: gutter-deep,https://www.gmanetwork.com/news/topstories/metro/796691/list-flooded-areas-in-metro-manila-on-sunday-july-25-2021/story/,yes
+2022-08-08,Taft Avenue,Finance,Finance Road corner Taft Avenue northbound: gutter-deep,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew,yes
+2022-08-08,Taft Avenue,United Nations Avenue,UN Avenue corner Taft northbound: gutter-deep,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew,yes
+2022-08-08,Taft Avenue,Quirino,Taft corner Quirino Avenue: gutter-deep,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew,yes
+2022-08-08,Taft Avenue,Pedro Gil,Pedro Gil corner Taft southbound: gutter-deep,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew,yes
+2022-08-08,Taft Avenue,Padre Faura,Taft-Padre Faura: gutter-deep,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew,yes
+2022-10-29,Taft Avenue,Kalaw,"Taft Avenue, Padre Burgos, España, T.M. Kalaw: gutter-deep (Paeng)",https://news.abs-cbn.com/news/10/30/22/some-parts-of-metro-manila-experience-flooding-due-to-paeng,no
+2023-09-23,España,Antipolo,España at Antipolo Street: 6 inches,https://www.philstar.com/headlines/2023/09/24/2298617/floods-hit-metro-manila-roads-2-lpas-monitored,no
+2023-09-23,España,Fuente,España near Dela Fuente Street: 8 inches,https://www.philstar.com/headlines/2023/09/24/2298617/floods-hit-metro-manila-roads-2-lpas-monitored,no
+2024-07-24,España,Lacson,España-Lacson Avenue intersection: gutter high (Carina),https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday,no
+2024-07-24,España,Antipolo,España-Antipolo Street: half tire (Carina),https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday,no
+2024-07-24,Roxas Boulevard,Kalaw,Roxas-Kalaw: gutter high (Carina),https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday,no
+2024-07-25,Rizal Avenue,Recto,Rizal Avenue-Recto Avenue: gutter-deep,https://www.gmanetwork.com/news/topstories/metro/914660/flooded-areas-metro-manila-july-25-2024/story/,yes
+2024-10-25,España,Lacson,Lacson España (Kristine),https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/,yes
+2024-10-25,España,Fuente,España Boulevard-M. Dela Fuente Street (Kristine),https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/,yes
+2024-10-25,España,Cruz,España Boulevard-Vicente Cruz Street (Kristine),https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/,yes
+2025-07-18,España,Fuente,España from M. Dela Fuente to Antipolo Street (Crising),https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/,no
+2025-07-18,España,Maceda,España at Maceda (Crising),https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/,no
+2025-07-18,España,Antipolo,España at Antipolo Street (Crising),https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/,no
+2025-07-18,Taft Avenue,Padre Faura,Padre Faura intersection (Crising),https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/,no
+2025-07-21,España,Lacson,España at Lacson: knee-deep,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads,no
+2025-07-21,España,Antipolo,España at Antipolo: knee-deep,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads,no
+2025-07-22,Recto,Mendiola,Recto Mendiola Intersection: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,España,Fuente,Espana Dela Fuente: tire deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,España,Antipolo,Espana Blvd Antipolo: knee deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,España,Lacson,España Lacson westbound: knee deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Rizal Avenue,Pampanga,Rizal Ave Pampanga St: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Rizal Avenue,Aurora,Rizal Ave Aurora: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Taft Avenue,United Nations Avenue,Taft Avenue cor. UN Ave.: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Taft Avenue,Padre Faura,Taft Avenue corner Padre Faura: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Roxas Boulevard,Pedro Gil,Roxas Blvd Pedro Gil northbound: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Roxas Boulevard,Kalaw,Roxas Blvd Kalaw northbound: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Roxas Boulevard,Ocampo,Roxas Blvd. P. Ocampo Intersection and Service Road: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Quirino,Pedro Gil,Quirino Avenue corner Pedro Gil: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Abad Santos,Tayuman,Jose Abad Santos Tayuman: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-07-22,Abad Santos,Recto,Jose Abad Santos Recto: gutter deep,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/,yes
+2025-08-22,Roxas Boulevard,Quirino,Roxas Boulevard-Quirino Avenue intersection: gutter-deep,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/,yes
+2025-08-22,Roxas Boulevard,Kalaw,Roxas Boulevard-Kalaw Avenue: tire-deep (26 inches),https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/,yes
+2025-08-22,Roxas Boulevard,United Nations Avenue,Roxas Boulevard - UN Avenue service road: gutter-deep,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/,yes
+2025-08-22,Taft Avenue,Padre Faura,Taft Padre Faura: half-tire deep,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/,yes
+2025-08-22,Taft Avenue,Ayala,PNU to Ayala: knee-deep,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/,yes
+2025-08-22,Taft Avenue,Kalaw,Taft in front of Adamson (to Kalaw): knee-deep,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/,yes
+2025-09-05,Taft Avenue,Pedro Gil,"Quirino Station, Pedro Gil, and Taft",https://www.gmanetwork.com/news/topstories/metro/958113/list-flooded-roads-in-metro-manila-amid-habagat-rains/story/,no
+2026-07-10,Taft Avenue,Pedro Gil,Along Taft Avenue from Pedro Gil to in front of PGH: half gutter deep,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/,yes
+2026-07-10,España,Maceda,Espana Maceda: gutter deep,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/,yes
+2026-07-10,España,Antipolo,España Antipolo to Quintos (subsided 3:20 p.m.),https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/,yes
+2026-08-09,Taft Avenue,Quirino,Taft Avenue corner Quirino Avenue: gutter deep,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/,yes
+2026-08-09,Taft Avenue,Escoda,"Taft, Escoda: gutter deep",https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/,yes
+2026-08-09,Taft Avenue,United Nations Avenue,Taft NBI/UN: half gutter deep,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/,yes
+2026-08-10,Roxas Boulevard,Pedro Gil,Roxas Blvd. - Pedro Gil: gutter deep,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/,yes
+2026-08-10,España,Antipolo,España Blvd corner Antipolo St.: 10 inches,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/,yes
+2026-08-10,Roxas Boulevard,Kalaw,Roxas Blvd - Kalaw: 8 inches,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/,yes
+2026-08-18,España,Jhocson,España corner Jhocson: gutter-deep,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat,no
+2026-08-18,Rizal Avenue,Bambang,Rizal Avenue corner Bambang Street: gutter-deep,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat,no
+2026-08-18,Abad Santos,Yuseco,Abad Santos corner Yuseco: gutter-deep,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat,no
+2026-08-19,España,Fuente,España-Dela Fuente westbound: gutter-deep,https://www.gmanetwork.com/news/topstories/metro/999051/flood-alert-flooded-roads-in-metro-manila-on-wednesday-august-19-2026/story/,no
