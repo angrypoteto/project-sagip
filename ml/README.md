@@ -84,7 +84,17 @@ Joshua asked for the incident data to be built from public sources while MDRRMD'
 
 What this is not: a record of incidents. BFP counted 212 structural fires in Manila in 2021 alone; this has 8 for that year. Floods before 2021 were not gathered, and the corners are MMDA's road watch points (España, Taft, Roxas, Rizal Avenue), not homes. No storm surge incident was found. A model trained on it learns when and where incidents get reported. Nothing has been trained on it yet.
 
-Still missing before training: the typhoon signal and storm surge days (`manila_signals.csv`). `manila_weather_daily.csv` now runs from 2012-01-01.
+`forecast/data/manila_signals.csv` holds the 23 days a wind signal over Metro Manila was found in news reports (2013 to 2024, with the link for each). It is incomplete: storms the search did not turn up are written as no signal, and no storm surge height was found for any day.
+
+**First training on it (2026-10-12; `prep_summary_news.json`, `lstm_metrics_news.json`).** Each hazard on its own period, because the two sources cover different years: fire 2019-01-01 to 2025-01-31 (70 fires), flood 2021-01-01 to 2026-10-05 (17 days). Thesis parameters unchanged. On the test part:
+
+| Hazard | Test windows (with an incident) | LSTM accuracy | LSTM precision / recall / F1 | Best baseline F1 |
+|---|---|---|---|---|
+| Flood | 314 (11) | 0.96 | 0.33 / 0.18 / 0.24 | 0.26 (logistic regression) |
+| Fire | 331 (48) | 0.61 | 0.21 / 0.60 / 0.31 | 0.23 (logistic regression) |
+| Storm surge | not trained: no incident | | | |
+
+Neither is usable. The flood model finds 2 of the 11 flood windows and does not beat the simple baseline; its high accuracy only reflects that most days have no flood. The fire model is right about one alarm in five, and on the validation part it found none of 12. This is what so few reports can give; it is not a result about Manila. The models are in `build/news_models/` (git-ignored) and are not loaded anywhere. The commands: `fetch_weather.py --start ... --end ... --signals data/manila_signals.csv --out data/manila_weather_<hazard>.csv`, `prepare_windows.py --weather ... --incidents data/manila_<fire|flood>_news.csv` once per hazard (keeping each hazard's `build/windows_<hazard>.npz`), then `train_lstm.py`.
 
 ## Forecast: data preparation and KDE (plan 10.5)
 
