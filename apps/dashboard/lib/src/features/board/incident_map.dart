@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -9,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
 import 'map_parts.dart';
+import 'unit_glide.dart';
 
 enum _Layer { units, reports, boundaries }
 
@@ -36,10 +38,58 @@ class IncidentMap extends ConsumerStatefulWidget {
   ConsumerState<IncidentMap> createState() => _IncidentMapState();
 }
 
-class _IncidentMapState extends ConsumerState<IncidentMap> {
+class _IncidentMapState extends ConsumerState<IncidentMap>
+    with SingleTickerProviderStateMixin {
   final _controller = MapController();
   final _layers = {_Layer.units, _Layer.reports, _Layer.boundaries};
   bool _ready = false;
+
+  /// The markers on their way between two reported positions, by unit.
+  final _glides = <String, UnitGlide>{};
+
+  /// Redraws the map while any marker is on its way, and only then.
+  late final Ticker _moving = createTicker((_) {
+    final now = DateTime.now();
+    setState(() => _glides.removeWhere((_, g) => g.done(now)));
+    if (_glides.isEmpty) _moving.stop();
+  });
+
+  /// A crew's phone reported a new position: its marker sets off from
+  /// where it is drawn now, straight at first and along the streets as
+  /// soon as the road graph has the way.
+  void _unitsMoved(List<ResponseUnit>? before, List<ResponseUnit>? after) {
+    if (before == null || after == null || !ref.read(unitGlideProvider)) {
+      return;
+    }
+    final now = DateTime.now();
+    final old = {for (final u in before) u.id: u.location};
+    for (final u in after) {
+      final was = old[u.id], at = u.location;
+      if (was == null || at == null || was == at) continue;
+      final from = _glides[u.id]?.at(now) ?? was;
+      final meters = from.distanceTo(at);
+      if (meters < unitGlideMinMeters || meters > unitGlideMaxMeters) {
+        _glides.remove(u.id);
+        continue;
+      }
+      final glide = UnitGlide(points: [from, at], startedAt: now);
+      _glides[u.id] = glide;
+      if (!_moving.isActive) _moving.start();
+      ref.read(roadRouterProvider.future).then((router) {
+        // Still the same trip: a newer position has not replaced it.
+        if (!mounted || _glides[u.id] != glide) return;
+        glide.points = glidePoints(from, at, router.route(from, at)?.points);
+      }).ignore();
+    }
+  }
+
+  /// The unit as it is drawn this frame: on its way, or where it is.
+  ResponseUnit _shown(ResponseUnit u, DateTime now) {
+    final glide = _glides[u.id];
+    return glide == null || glide.to != u.location
+        ? u
+        : u.copyWith(location: glide.at(now));
+  }
 
   @override
   void didUpdateWidget(IncidentMap old) {
@@ -61,6 +111,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
 
   @override
   void dispose() {
+    _moving.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -70,7 +121,15 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
     final p = SagipPalette.of(context);
     final l10n = AppLocalizations.of(context);
     final incidents = ref.watch(activeIncidentsProvider).value ?? const [];
-    final units = ref.watch(unitsProvider).value ?? const <ResponseUnit>[];
+    ref.listen(
+      unitsProvider,
+      (before, after) => _unitsMoved(before?.value, after.value),
+    );
+    final frame = DateTime.now();
+    final units = [
+      for (final u in ref.watch(unitsProvider).value ?? const <ResponseUnit>[])
+        _shown(u, frame),
+    ];
     final reports = ref.watch(crowdReportsProvider).value ?? const [];
     final pings = ref.watch(sosPingProvider);
     // Whether a free unit's fix is recent enough to draw: a slow tick.

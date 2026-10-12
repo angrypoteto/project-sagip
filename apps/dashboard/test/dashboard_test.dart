@@ -40,6 +40,7 @@ void main() {
         mapTilesEnabledProvider.overrideWithValue(false),
         // A ping repeats for ever, so pumpAndSettle would never return.
         sosPingProvider.overrideWithValue(false),
+        unitGlideProvider.overrideWithValue(false),
         clockProvider.overrideWith((ref) => Stream.value(now)),
         slowClockProvider.overrideWith((ref) => Stream.value(now)),
         analyticsNowProvider.overrideWithValue(() => now),

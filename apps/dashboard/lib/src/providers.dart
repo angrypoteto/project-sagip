@@ -560,6 +560,11 @@ class ThemeModeController extends Notifier<ThemeMode> {
 /// tests turn it off: an animation that repeats never settles.
 final sosPingProvider = Provider<bool>((ref) => true);
 
+/// Whether a unit's marker moves along the streets between two reported
+/// positions. Tests switch it off: a marker on its way keeps the frames
+/// coming.
+final unitGlideProvider = Provider<bool>((ref) => true);
+
 /// Whether the pointer is over the side menu (it is open meanwhile).
 class NavMenuHoverController extends Notifier<bool> {
   @override

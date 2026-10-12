@@ -801,12 +801,16 @@ class OutboxOfflineQueue implements OfflineQueue {
 /// most every [every], and the same position again every [every] while the
 /// unit is standing still, so the dashboard does not mark it stale. Only
 /// while online, and never queued (only the newest position matters).
+///
+/// Every 5 seconds (it was 15 until 2026-10-12): at driving speed the
+/// positions are then some tens of meters apart, close enough for the
+/// dashboard to tell which street the unit took between them.
 class ResponderLocationSharer {
   ResponderLocationSharer({
     required this._server,
     required this._location,
     required Stream<bool> online,
-    this.every = const Duration(seconds: 15),
+    this.every = const Duration(seconds: 5),
     DateTime Function()? clock,
   }) : _onlineChanges = online,
        _clock = clock ?? DateTime.now;
