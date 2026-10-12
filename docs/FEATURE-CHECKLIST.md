@@ -1,4 +1,4 @@
-# Feature checklist (as of 2026-10-11, evening)
+# Feature checklist (as of 2026-10-12, night)
 
 For Joshua to check by hand, one line at a time. Tick the box when you have seen
 it work. The details behind each line are in `docs/PROGRESS.md`.
@@ -7,14 +7,21 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 
 | App | Command (run in the folder shown) | Sign in with |
 |---|---|---|
-| Dashboard, sample data | `apps/dashboard`: `flutter run -d chrome` | the demo account buttons |
-| Dashboard, real database | `apps/dashboard`: `flutter run -d chrome --dart-define-from-file=.env` | your admin account |
+| Dashboard, real database | `apps/dashboard`: `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` | `admin@sagip.test` or `dispatcher@sagip.test` (you set their passwords), or a unit account |
+| Dashboard, sample data | `apps/dashboard`: `flutter run -d chrome` | the same emails, password `sagip-demo` |
 | Resident web form, sample data | `apps/dashboard`: `flutter run -d chrome -t lib/main_webform.dart` | any number, the demo code shown |
-| Mobile app, sample data | `flutter emulators --launch sagip_pixel`, then `apps/mobile`: `flutter run` | the demo account buttons |
+| Mobile app on your phone, real database | already installed (release build of 2026-10-12, night) | resident: `917 000 4821`, code `123456`; responder: a unit account |
+| Mobile app, sample data | `apps/mobile`: `flutter run` (phone plugged in) | "Continue as resident" or "Continue as rescue personnel" |
 
-Marks: **[S]** works on sample data only for now. **[P]** needs a real phone to
-check properly. **[W]** built, but waits on a setting or a decision from you
-before it works for real (listed in part 6).
+**The real database today:** no made-up incidents, residents, or forecast. It
+holds 10 real stations as units (each with a responder account and made-up
+supply levels for the demo), 897 barangays, the settings, 17 river stations, and
+one resident (the test number).
+
+Marks: **[S]** can only be seen on sample data for now (the real database has
+nothing to show for it). **[P]** needs a real phone to check properly. **[W]**
+built, but waits on a setting or a decision from you (part 7). **[N]** new or
+changed on 2026-10-12.
 
 ---
 
@@ -22,13 +29,18 @@ before it works for real (listed in part 6).
 
 ### Sign-in and shell
 - [ ] D1 Staff sign in; a wrong password is explained
-- [ ] Top bar: PAGASA summary, live/offline dot, clock, user menu, theme switch
+- [ ] **[N]** Side menu: icons only; it opens with the names while the pointer is on it; the S.A.G.I.P. mark is at its head
+- [ ] **[N]** Top bar: PAGASA signal and rainfall, Live dot, clock, and the account circle (name and role inside its menu)
 - [ ] Side menu hides the admin pages when you sign in as a dispatcher
 - [ ] G1 Not found page (type a wrong address); G2 Session expired returns you to the same page
 - [ ] D11 My account: details, theme, change password, keyboard shortcuts, sound switch
 
 ### Command Board (dispatcher)
 - [ ] D2 Map view: incidents, units, unverified reports, layers, legend, zoom
+- [ ] **[N]** The map stays in view when there is no incident (no "nothing here" note on it)
+- [ ] **[N]** The map shows streets and their names under the muted colors
+- [ ] **[N]** An SOS with no unit sent yet pings on the map (rings spreading out), and stops when a unit is sent
+- [ ] **[N]** "Open the map in its own window" button: the map alone for a second monitor, larger markers, a full screen button, a summary card
 - [ ] D3 List view (table) of the same queue, ranked by priority
 - [ ] A new SOS shows at once as Pending Verification, with a toast and two short tones
 - [ ] Enter opens the first incident; arrow keys move; Esc closes
@@ -42,40 +54,71 @@ before it works for real (listed in part 6).
 - [ ] D5 Override dialog (a reason is required) and "Choose another unit"
 - [ ] D4 Reassign and Mark resolved
 - [ ] D4 "What the resident was told": each rescue update with its text and push result
-- [ ] D4 Simulated incidents carry a "Simulated" mark
+- [ ] D4 "Asked to cancel" on the queue row; "Close as cancelled" in the drawer (asks first)
+- [ ] D4 The drawer says how far the resident moved since the SOS **[P]**
+
+### Units on the map **[N]**
+- [ ] A free unit is drawn at its station
+- [ ] A unit on a job is drawn where its crew's phone is; its station is a faint outline (a house icon) joined by a dotted line
+- [ ] While any incident is open, a free unit whose phone reported in the last 10 minutes also shows a faint marker where its crew is (a person icon)
+- [ ] With no incident open, free crews are not shown: stations only
+- [ ] Hovering a faint marker says which unit it is and what it is ("its station" or "where its crew is now")
+- [ ] A moving unit's marker follows the streets between two reported positions, not a straight line through the blocks **[P]** (walk or drive with the responder phone)
+- [ ] Suggested units start from the crew's position when it is recent, otherwise from the station
 
 ### Other dispatcher pages
 - [ ] D6 Crowd reports: confirmed clusters with a 50 m ring and a count; single reports stay unverified
 - [ ] D6 Barangay boundaries layer
 - [ ] D7 Units table: status counts, stale-GPS flag
-- [ ] D7 Unit supplies: whose unit, what is low or out, a "low on supplies" count, details on click (read-only)
-- [ ] Responder on the web (`/my-unit`): reports fuel, tank water, and stocks for their own unit; no other page opens
-- [ ] A3 "Unit supplies": the percent at which a supply counts as low
-- [ ] D8 72-hour forecast: flood, fire, storm surge; ranked list, map shading, barangay panel **[S]**
+- [ ] **[N]** D7 "Whose" column (MDRRMD, BFP, EMS) and fire trucks as a unit type
+- [ ] **[N]** D7 Supplies column: "Low: ...", "Out: ...", "All enough", or "Not reported"; a "N low on supplies" count at the top (the demo levels make it 4)
+- [ ] **[N]** D7 Click a unit's supplies: every level with a bar, who reported it and when; nothing can be changed here
+- [ ] D8 72-hour forecast: ranked list, barangay panel **[S]**
+- [ ] **[N]** D8 The map is color-coded by barangay (a real heat map); click a barangay to open its panel **[S]**
 - [ ] D9 Vulnerable Resident Priority List; numbers masked; revealing one is written to the audit log
 - [ ] D10 Weather readings marked Warning or Critical against the thresholds
 - [ ] D10 "Alerts sent" list with each channel's result
 - [ ] D10 Issue an advisory (pick barangays by number, name, or district) and End it
-- [ ] D10 Feeds card: last read and last success for PAGASA and PHIVOLCS (real database)
+- [ ] D10 Feeds card: last read and last success for PAGASA and PHIVOLCS
 - [ ] D10 PHIVOLCS earthquakes near Manila with "Relay as advisory"
+- [ ] D10 "River water levels": 17 stations with their levels, raised ones first, "Relay as advisory"
 
 ### Admin pages
 - [ ] A1 Accounts: create staff (temporary password shown once), edit, reset password, deactivate, reactivate
 - [ ] A1 Suspend a resident and lift it
 - [ ] A2 Resources: add, edit, retire, restore a unit; put a responder on a unit
+- [ ] **[N]** A2 "Station position" in the unit dialog (latitude, longitude); a wrong entry is explained
 - [ ] A3 Priority weights with the live ranking preview
 - [ ] A3 Alert thresholds, channel switches, hotline and gateway number, crowd report limit
+- [ ] A3 "Data retention": 6 to 60 months, saved and in the audit log
+- [ ] **[N]** A3 "Unit supplies": the percent at which a supply counts as low (30 by default)
 - [ ] A3 Simulation mode: Typhoon, Heavy rain, Calm readings
 - [ ] A3 Simulated incidents: an SOS, an SOS with a senior citizen, three crowd reports
 - [ ] A4 Analytics: KPI tiles, incidents per day, tables by type, barangay, unit
 - [ ] A4 "SOS delivery (Objective 3)" table
 - [ ] A5 Reports list; A6 report editor: pick a period, review, edit, save draft, mark final
 - [ ] A6 Download PDF (the stored copy once the report is final)
+- [ ] A6 "Rewrite with the language model" (the keys are in place; never tried from the page)
 - [ ] A7 Audit log shows every action above with who did it
 
 ---
 
-## 2. Built: resident web form
+## 2. Built: a responder on the web **[N]**
+
+Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.test`).
+
+- [ ] The same frame as the other pages: side menu (only "My unit") and top bar
+- [ ] "My unit": the unit's call sign, type, whose it is, station, and status
+- [ ] Fuel and tank water: move the slider, Report; the level and "Low" or "Enough" change
+- [ ] Stocks (drinking water, medical kits, life vests, rescue gear): on board and a full load; wrong numbers are explained
+- [ ] After a report, the dispatcher's Units page shows the new level without a refresh
+- [ ] The panel's example: BFP-PANDACAN shows "Low: Tank water" (20%); report 90% and it clears
+- [ ] Any other address sends a responder back to "My unit"; My account still opens
+- [ ] Each report is in the audit log (sign in as admin, A7)
+
+---
+
+## 3. Built: resident web form
 
 - [ ] W1 Sign in with number and code; create an account (name, barangay, terms)
 - [ ] W2 Crowd report: description, type, location, the hourly limit explained
@@ -84,14 +127,16 @@ before it works for real (listed in part 6).
 
 ---
 
-## 3. Built: mobile app, resident
+## 4. Built: mobile app, resident
 
 - [ ] S1 Splash, then the right screens for the role
-- [ ] S2 Welcome and permissions: each one says why before asking
-- [ ] S3 Sign in by mobile number; S4 Register; S5 Code **[S]** (real texted codes: **[W]**)
+- [ ] S2 Welcome and permissions: each one says why before asking (a second tap on Allow no longer causes an error)
+- [ ] S3 Sign in by mobile number; S4 Create an account; S5 Code (real database: the test number only **[W]**)
 - [ ] R1 Home: greeting, PAGASA strip, SOS button, GPS-off warning
-- [ ] R1 Send an SOS; R2 SOS status with the timeline and elapsed time
+- [ ] R1 Send an SOS; it appears on the dashboard's Command Board (seen working on 2026-10-12)
+- [ ] R2 SOS status with the timeline and elapsed time
 - [ ] R2 Add details (type, people, extra help, note)
+- [ ] R2 "Cancel SOS": choose a reason; "I still need help" takes it back; "SOS cancelled" after the dispatcher closes it
 - [ ] R3 Track responder on the map, with ETA
 - [ ] R4 Report a hazard; outside Manila refused; 5 an hour
 - [ ] R5 Location picker: move the pin, Use my GPS, barangay search
@@ -100,21 +145,22 @@ before it works for real (listed in part 6).
 - [ ] R8 Alert detail; opening it marks it read
 - [ ] "About your SOS" notices on the Alerts tab (unit on the way, arrived, closed)
 - [ ] R9 Vulnerability profile; R10 Consent; R11 Household member; withdraw consent
-- [ ] S7 Me: details, theme, test notification, privacy notice, request deletion, sign out
+- [ ] S7 Me: details, theme, language (English or Filipino), test notification, privacy notice, request deletion, sign out
 - [ ] Offline banner on every screen (turn on airplane mode)
 - [ ] S6 Offline queue sheet: saved records, Try sending now
 - [ ] An SOS sent offline is delivered when you come back online, with its original time
 - [ ] S6 "Text it myself" opens the messages app with the SOS text ready **[P]**
 - [ ] SOS by SMS when there is signal but no data **[P] [W]**
 - [ ] SOS relayed by a nearby phone over Bluetooth, also in the background **[P]**
-- [ ] Push notifications arrive (works on the emulator; real phone still to check **[P]**)
+- [ ] Push notifications arrive **[P]** (on your phone the log said "FCM Registration failed" on 2026-10-12: not looked into)
 
-## 4. Built: mobile app, responder
+## 5. Built: mobile app, responder
 
 - [ ] F1 Home: unit, status control, location sharing line, weather strip
 - [ ] F1 "Keep S.A.G.I.P. running" battery prompt
 - [ ] F2 Incoming assignment: full screen, the app's own tone, vibration, Accept **[P]** for the sound
 - [ ] F3 Assignment detail: map, where to go, what was reported, vulnerable types
+- [ ] F3 shows "The resident asked to cancel" and goes to the resident's newest position
 - [ ] F4 Navigation: road route, next turn, ETA, re-routes when you leave the route
 - [ ] F4 Spoken directions and the mute button **[P]**
 - [ ] F4 "You're at the scene" and Arrived within 50 m
@@ -122,67 +168,59 @@ before it works for real (listed in part 6).
 - [ ] F6 Completion report: outcome, persons assisted, damage, notes; saved offline, sent later
 - [ ] F7 Assignment history
 - [ ] The map around a job is saved for offline use
-- [ ] Location keeps being shared with the screen off **[P]**
+- [ ] **[N]** The phone shares its position every 5 seconds (was 15), also with the screen off **[P]**
 
 ---
 
-## 5. Built: behind the scenes (nothing to click; I can show you each)
+## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table, with 371 written checks
+- [ ] Row Level Security on every table; 436 written checks (the last full run was 410 of 410 on 2026-10-11; the 26 added since passed in separate runs)
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
-- [ ] The classifier tags each new crowd report with a type (sample model)
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4
 - [ ] The priority score, from the A3 weights
 - [ ] The threshold engine raises alerts from weather readings
-- [ ] PAGASA feed read every 10 minutes; PHIVOLCS every 15 minutes
-- [ ] The LSTM and KDE trained on sample data (`ml/`)
+- [ ] PAGASA feed read every 10 minutes; PHIVOLCS every 15 minutes; river levels from PAGASA's Pasig-Marikina-Tullahan feed
+- [ ] Data retention: closed incidents lose their link to the resident after the set months, every night
+- [ ] The classifier (TF-IDF) and the LSTM and KDE: built and tested on sample data only (see part 8)
 
 ---
 
-## 6. Built, but waiting on you **[W]**
+## 7. Built, but waiting on you **[W]**
 
 | Feature | What it waits for |
 |---|---|
-| Texted sign-in codes for residents on the real database | Turn on Phone sign-in and the Send SMS hook in Supabase |
-| All outgoing SMS (alerts, rescue texts, SMS check, codes) | Set up the spare phone as the gateway and add its three secrets |
+| Dashboard sign-in as admin and dispatcher | You set new passwords for `admin@sagip.test` and `dispatcher@sagip.test` in the SQL editor (nobody knows the old ones) |
+| Residents signing in with any real number | Phone sign-in is on, but only the test number works. Real numbers need the Send SMS hook (`supabase/README.md`, "Turning on resident sign-in by SMS code") |
+| All outgoing SMS (alerts, rescue texts, SMS check, codes) | The spare phone as the gateway and its three secrets, or a Semaphore account |
 | SOS by SMS coming in, and the YES/NO reply to an SMS check | The same gateway phone, plus `SMS_INTAKE_SECRET` and its webhook |
-| Live forecast feed (a new forecast every 6 hours) | Paste `20261003130000_forecast_live.sql` in the SQL editor |
 | Posting alerts to the Facebook Page | A Page token |
-| Data retention on the real database | Paste `20261011030000_data_retention.sql` in the SQL editor |
-| The language model for A6 | Add the secrets `GEMINI_API_KEYS` and `GROQ_API_KEYS` in the Supabase dashboard |
 | Dashboard and web form on the internet | Your yes to deploying on Vercel |
-| New sample data (alerts, forecasts, past rescues) on the real database | Run `select public.reset_demo_data();` |
 | Hotline number in the apps | MDRRMD gives the number; you enter it on A3 |
+| The map credit ("© OpenStreetMap contributors") | It has to stay (the license requires it). Your choice of a smaller, dimmer version |
+| The 11 commits made on 2026-10-12 after the last push | Your word to push |
+| One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor |
 
 ---
 
-## 7. Built on 2026-10-11
+## 8. Not done yet
 
-These work on sample data, and on the real database too, except: "Data
-retention" needs the one migration you paste (`supabase/README.md`, "The
-migrations of 2026-10-11"), and the language model needs its keys as secrets.
-
-- [ ] D10 "River water levels": stations with their levels, raised ones first, "Relay as advisory" (live on the real database: 17 stations)
-- [ ] R2 "Cancel SOS": choose a reason; the card says the SOS is still open; "I still need help" takes it back
-- [ ] D4 "Asked to cancel" on the queue row; "Close as cancelled" in the drawer (asks first)
-- [ ] R2 shows "SOS cancelled" after the dispatcher closes it
-- [ ] The resident's newest position: move the emulator's location while an SOS is open; the drawer says how far the resident moved **[P]**
-- [ ] F3 shows "The resident asked to cancel" and goes to the resident's newest position
-- [ ] A3 "Data retention": 6 to 60 months, saved and in the audit log
-- [ ] A6 "Rewrite with the language model": without keys it says it is not set up **[W]** (add `GEMINI_API_KEYS` and `GROQ_API_KEYS` as secrets)
-- [ ] Me, Language, Filipino: the whole mobile app reads in Filipino (read it with the team)
-- [ ] D3 List view: with the drawer open the table ends where the drawer starts
-
-## 8. Not built yet
-
-| Feature | Why not |
+| What | Where it stands |
 |---|---|
-| Self-hosted Manila map tiles | Needs a host; the app uses public OpenStreetMap tiles for now |
-| Classifier and forecast trained on real MDRRMD records | The classifier's descriptions arrive Friday, 2026-10-16; the forecast waits for the incident records |
-| Forecast accuracy figures and a run selector on D8 | Waits for the real model |
-| Checking the forecast rule's numbers | The rule is decided (plan Q21, Q22); its numbers are checked when the model is retrained |
-| Filipino for the dashboard and the web form | Not asked for; the dashboard is for staff |
+| **The 72-hour forecast on the real database** | The page is empty. The thesis model needs past incidents with dates and places, which only MDRRMD has. Gathered so far from public news: 131 fires, 17 flood days, 23 signal days, real weather from 2012. A first training on that was too weak to show (flood F1 0.24, fire 0.31, storm surge not trainable). Waits for MDRRMD's records, or the team extending the lists by hand |
+| The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Built, not switched on. Its migration (`forecast_live`) needs a one-line fix that needs your explicit "yes, rewrite it", or you paste it yourself |
+| The classifier on real MDRRMD descriptions | The data is due Friday, 2026-10-16. Until then the real database has no classifier: new crowd reports are not tagged with a type |
+| Forecast accuracy figures and a run selector on D8 | After the real model |
+| The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |
+| The map legend explaining the faint unit markers | Not added |
+| A supplies screen in the mobile app | Not built: you asked for web only |
+| Real crew sizes, call signs, and the real MDRRMD unit list | The ten units are real stations from OpenStreetMap; their call signs were assigned by us and their supply levels are made up for the demo |
+| Push notifications on your phone | Registration failed in the log on 2026-10-12; not looked into |
+| The full RLS test on the real database since the data was cleared | Not run (436 checks; needs the push first) |
+| Self-hosted Manila map tiles | Decided: public OpenStreetMap tiles for the defense; self-hosted before a pilot |
+| Filipino for the dashboard and the web form | Not asked for; the mobile app has it (still to be read by the team) |
+| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, no evacuation center) |
+| Hallway test, UAT, and the Objective 3 trial | Not started |
 
 ## 9. Dropped (Joshua, 2026-10-11)
 
@@ -196,4 +234,6 @@ migrations of 2026-10-11"), and the language model needs its keys as secrets.
 ## 10. Never tested on a real phone
 
 Everything marked **[P]** above, plus: the Bluetooth relay between three phones,
-the SMS fallback end to end, and the Objective 3 trial.
+the SMS fallback end to end, and the Objective 3 trial. Seen on your phone on
+2026-10-12: sign-in with the test number, an SOS reaching the Command Board, a
+rescue from assignment to resolved, and the unit's position on the map.
