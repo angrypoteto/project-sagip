@@ -36,6 +36,8 @@ void main() {
       overrides: [
         ...mockOverrides(backend, demoTools: false),
         mapTilesEnabledProvider.overrideWithValue(false),
+        // A ping repeats for ever, so pumpAndSettle would never return.
+        sosPingProvider.overrideWithValue(false),
         clockProvider.overrideWith((ref) => Stream.value(now)),
         slowClockProvider.overrideWith((ref) => Stream.value(now)),
         analyticsNowProvider.overrideWithValue(() => now),
@@ -408,6 +410,60 @@ void main() {
     await tester.tap(find.byTooltip('Go to the Command Board'));
     await settle(tester);
     expect(find.byType(QueuePanel), findsOneWidget);
+  });
+
+  testWidgets('an SOS pings on the map until a unit is sent', (tester) async {
+    Incident sos({String? unit, IncidentOrigin origin = IncidentOrigin.sos}) =>
+        Incident(
+          id: 'INC-1',
+          origin: origin,
+          channel: ReportChannel.app,
+          status: unit == null
+              ? IncidentStatus.pendingVerification
+              : IncidentStatus.assigned,
+          location: const GeoPoint(14.6, 120.99),
+          barangay: 'Barangay 412',
+          district: 'Sampaloc',
+          capturedAt: now,
+          receivedAt: now,
+          assignedUnitId: unit,
+        );
+    expect(IncidentMarkerDot.waits(sos()), isTrue);
+    expect(IncidentMarkerDot.waits(sos(unit: 'unit-r03')), isFalse);
+    expect(
+      IncidentMarkerDot.waits(sos(origin: IncidentOrigin.crowdCluster)),
+      isFalse,
+      reason: 'clusters do not ping',
+    );
+
+    Future<void> show({required bool still}) => tester.pumpWidget(
+      MaterialApp(
+        theme: SagipTheme.dark(SagipDensity.dashboard),
+        home: MediaQuery(
+          data: MediaQueryData(disableAnimations: still),
+          child: Center(
+            child: IncidentMarkerDot(
+              incident: sos(),
+              selected: false,
+              ping: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    Finder painted() => find.descendant(
+      of: find.byType(IncidentMarkerDot),
+      matching: find.byType(CustomPaint),
+    );
+    // The rings move: something is still scheduled after a frame.
+    await show(still: false);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(painted(), findsOneWidget);
+    expect(tester.binding.hasScheduledFrame, isTrue);
+    // With animations turned off there is a still ring and nothing runs.
+    await show(still: true);
+    await tester.pumpAndSettle();
+    expect(painted(), findsNothing);
   });
 
   testWidgets('admin pages are hidden from dispatchers', (tester) async {

@@ -72,6 +72,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
     final incidents = ref.watch(activeIncidentsProvider).value ?? const [];
     final units = ref.watch(unitsProvider).value ?? const <ResponseUnit>[];
     final reports = ref.watch(crowdReportsProvider).value ?? const [];
+    final pings = ref.watch(sosPingProvider);
     final scale = widget.wall ? IncidentMap.wallScale : 1.0;
     // A marker drawn [scale] times its size.
     Widget sized(double size, Widget child) => scale == 1
@@ -120,6 +121,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
                   IncidentMarkerDot(
                     incident: i,
                     selected: i.id == widget.selectedId,
+                    ping: pings && IncidentMarkerDot.waits(i),
                   ),
                 ),
               ),

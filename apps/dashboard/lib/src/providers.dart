@@ -517,6 +517,10 @@ class ThemeModeController extends Notifier<ThemeMode> {
   void set(ThemeMode mode) => state = mode;
 }
 
+/// Whether an SOS nobody has been sent to yet pings on the map. Widget
+/// tests turn it off: an animation that repeats never settles.
+final sosPingProvider = Provider<bool>((ref) => true);
+
 /// Whether the side menu is kept open with the menu button in the top bar
 /// (for the session, like the theme). Closed, it still opens while the
 /// pointer is over it.

@@ -100,6 +100,77 @@ class _BarangayBoundariesState extends State<BarangayBoundaries> {
   }
 }
 
+/// The ping of a waiting SOS: two rings that spread from the dot to the
+/// edge of the marker and fade, one after the other, without end. It is
+/// the one looping motion on the dashboard, kept for the one thing that
+/// must not be overlooked.
+class _SosPing extends StatefulWidget {
+  const _SosPing({required this.color, required this.from, required this.to});
+
+  final Color color;
+
+  /// Diameters the ring grows between.
+  final double from;
+  final double to;
+
+  @override
+  State<_SosPing> createState() => _SosPingState();
+}
+
+class _SosPingState extends State<_SosPing>
+    with SingleTickerProviderStateMixin {
+  late final _beat = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1800),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _beat.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: CustomPaint(
+      size: Size.square(widget.to),
+      painter: _PingPainter(_beat, widget.color, widget.from, widget.to),
+    ),
+  );
+}
+
+class _PingPainter extends CustomPainter {
+  _PingPainter(this.beat, this.color, this.from, this.to)
+    : super(repaint: beat);
+
+  final Animation<double> beat;
+  final Color color;
+  final double from;
+  final double to;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    // The second ring starts half a beat after the first.
+    for (final offset in const [0.0, 0.5]) {
+      final t = Curves.easeOut.transform((beat.value + offset) % 1);
+      final radius = (from + (to - from) * t) / 2;
+      canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5 * (1 - t) + 0.5
+          ..color = color.withValues(alpha: 0.85 * (1 - t)),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PingPainter old) =>
+      old.color != color || old.from != from || old.to != to;
+}
+
 /// The OpenStreetMap credit with the dashboard's wording.
 class MapAttribution extends StatelessWidget {
   const MapAttribution({super.key});
@@ -116,10 +187,21 @@ class IncidentMarkerDot extends StatelessWidget {
     super.key,
     required this.incident,
     required this.selected,
+    this.ping = false,
   });
 
   final Incident incident;
   final bool selected;
+
+  /// Rings spread out from the marker, again and again: an SOS that still
+  /// waits for a unit. It stops the moment a unit is sent.
+  final bool ping;
+
+  /// An SOS nobody has been sent to yet.
+  static bool waits(Incident i) =>
+      i.origin == IncidentOrigin.sos &&
+      i.assignedUnitId == null &&
+      i.status != IncidentStatus.resolved;
 
   static const double size = 64;
 
@@ -148,6 +230,18 @@ class IncidentMarkerDot extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
+        if (ping)
+          // People who turned animations off get one still ring instead.
+          MediaQuery.disableAnimationsOf(context)
+              ? Container(
+                  width: size * 0.75,
+                  height: size * 0.75,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: visual.tone.fill, width: 2),
+                  ),
+                )
+              : _SosPing(color: visual.tone.fill, from: dot, to: size),
         Container(
           width: dot,
           height: dot,
