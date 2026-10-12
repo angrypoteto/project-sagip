@@ -34,9 +34,30 @@ Claude is the planner and reviewer; ChatGPT (Codex) is a builder that gets one s
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-11 | f47c816b (Claude) | Paused. Built on 2026-10-11 and pushed (`9a1b210`). All four new migrations are applied (`data_retention` by Joshua in the SQL editor) and both functions deployed: river levels on D10, Cancel SOS, the resident's newest position, data retention, the RAG step of the NDRRMC report, the list view fix, Filipino for the mobile app, and Codex as a builder. Full RLS run on the hosted project from GitHub at `9a1b210` (md5 checked): 410 of 410. Next: Joshua tries "Rewrite with the language model" on A6 (the secrets `GEMINI_API_KEYS` and `GROQ_API_KEYS`), and the hand check with `docs/FEATURE-CHECKLIST.md` | none | Paused |
+| 2026-10-12 | f47c816b (Claude) | Paused, nothing claimed. Built on 2026-10-12 (every commit after the push of `06a6953` is **not pushed**: Joshua has not said to): unit inventory with the responder's page on the web, ten real stations as units with accounts, the station pin and crew ghost on the map, markers that follow the streets, positions every 5 seconds, real weather and news-reported incidents for the forecast with a first (too weak) training, and the checklist. The hosted project has all of it (migrations `unit_inventory`, `unit_home`, `unit_ghost`; phone sign-in on with one test number). The release build on Joshua's phone is of `d3ea0fd`. **Read "Where things stand (2026-10-12)" below first.** | none | Paused |
 
 ---
+
+## Where things stand (2026-10-12, night)
+
+Read this before the long lists below; `docs/FEATURE-CHECKLIST.md` has the same state as boxes for Joshua to tick.
+
+**The hosted project (`imssgenjfirpohkwxwbv`)**
+- No made-up incidents, residents, forecast, or classifier (`clear_demo_data()` ran on 2026-10-12; **do not run it again**: it would remove the units too). `reset_demo_data()` is for the RLS test only.
+- Ten real stations as units (`supabase/data/manila_units.sql`, from OpenStreetMap): the MDRRMD building, eight BFP stations, one EMS station. The call signs and one unit per station are ours; crew sizes are empty; each has its station position (`home_*`).
+- One responder account per unit (`<call sign, lower case, dot for the dash>@sagip.test`; passwords given to Joshua in the chat, not in the repo), and **made-up supply levels** for all ten (four short on purpose, for the panel's example).
+- Staff: `admin@sagip.test`, `dispatcher@sagip.test`. Nobody knows their passwords; Joshua sets new ones in the SQL editor.
+- Phone sign-in is on, with placeholder Twilio details and one test number (`639170004821`, code `123456`, with a valid-until date). One resident is registered with it. Real numbers need the Send SMS hook.
+- Seen working end to end by Joshua on 2026-10-12, his phone and the dashboard: sign-in, an SOS reaching the Command Board, a rescue from assignment to resolved, the unit's position on the map.
+
+**Not working or not there**
+- **The forecast page is empty.** No real model: the thesis method needs MDRRMD's past incidents. What was gathered and why the first training is not shown: `ml/README.md`, "Forecast on real data". The simulated feed (migration `20261003130000_forecast_live.sql`) is still **not applied**: its one `update` without `where` makes the connector decline it, and rewriting that line was refused by the permission check as going around the connector's guard. It needs Joshua's explicit yes to the rewrite, or Joshua pasting it.
+- No classifier on the hosted project until the MDRRMD descriptions arrive (due 2026-10-16): new crowd reports get no type.
+- Joshua reported that an SOS does not ping on the full screen map. The code is the board's own; a window left open from an older build was the guess. Not confirmed either way.
+- Push registration failed on Joshua's phone ("FCM Registration failed" in the log). Not looked into.
+- The full RLS file (436 checks) has not run on the hosted project since 2026-10-11 (410 of 410 then). It is fetched from GitHub, so it needs the push first.
+
+**Joshua's PC:** 11.8 GB of memory. The emulator, a Gradle build, and the dashboard together run it out, and Claude Code then stops background commands. One thing at a time; a real phone instead of the emulator.
 
 ## Status (what exists and what doesn't)
 
@@ -250,7 +271,8 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Browser check of D8 (2026-10-02, headless Chrome at 1366 by 768, sample data, dark theme): the list, the map discs and markers, the legend, the hazard switch, and the barangay panel all fit and read well. Found and fixed: "Storm surge" wrapped in the hazard selector (the icons were dropped). Not checked: light theme, Supabase.
 
 ### Tests (last run 2026-10-03)
-- Latest counts (2026-10-12, unit inventory): `packages/shared` 296, `apps/dashboard` 49, `apps/mobile` 40; analyze clean in all three. RLS: 429 written; the 19 for unit inventory passed in a rolled-back dry run on the hosted project; **the full file has not run since the made-up data was cleared and 10 real units were loaded** (it needs the push first).
+- Latest counts (2026-10-12, night): `packages/shared` 305, `apps/dashboard` 54, `apps/mobile` 40; `ml/forecast` 19 (2 skipped without TensorFlow); analyze clean in all three. RLS: 436 written; the 19 for unit inventory and the 7 for the station position passed in rolled-back runs on the hosted project; the full file has not run since 410 of 410 on 2026-10-11.
+- Counts earlier on 2026-10-12 (unit inventory): `packages/shared` 296, `apps/dashboard` 49, `apps/mobile` 40; analyze clean in all three. RLS: 429 written; the 19 for unit inventory passed in a rolled-back dry run on the hosted project; **the full file has not run since the made-up data was cleared and 10 real units were loaded** (it needs the push first).
 - Counts of 2026-10-11: `packages/shared` 288, `apps/dashboard` 43, `apps/mobile` 40; Edge Functions (Node): `ingest-efcos` 8 and `generate-report` 12 new, the others unchanged; analyze clean in all three; strict `tsc` clean for the two new functions. RLS: 410 of 410 on the hosted project at `9a1b210` (2026-10-11, from GitHub, md5 checked, rolled back). Before that (2026-10-03, after free SMS, the SMS check, PHIVOLCS, the background relay, and the tone): `packages/shared` 266, `apps/dashboard` 38, `apps/mobile` 38, Edge Functions (Node): `send-alerts` 39, `sms-intake` 9, `send-sms` 6, `ingest-pagasa` 18, `ingest-phivolcs` 5, `run-forecast` 6; `ml/forecast` 19; analyze clean in all three; strict `tsc` clean for the four changed functions. RLS 371 written. Full run on the hosted project at `346a9a6` (pinned GitHub file, md5 checked): 361 of 362 after a fix to the relay section's points; the one failure (report figures now leave simulated incidents out) is fixed in `3279a6d`; the newer sections passed in rolled-back dry runs
 - Emulator against the hosted project (2026-10-03, temporary responder `tmp-emulator@sagip.test` on R-12, now deactivated): battery prompt, map saved at dispatch (54 tiles), offline restart keeps the job, offline on-scene and completion synced in order. INC-0156 resolved and R-12 free afterwards
 - Before that (2026-10-03, after boundaries on the maps, the map save, and the polyline fix): `packages/shared` 241, `apps/dashboard` 36, `apps/mobile` 35.
@@ -302,6 +324,8 @@ flutter test                                           # dashboard tests
 cd ../../packages/shared && flutter test
 ```
 
+**As run on 2026-10-12:** the dashboard on the hosted project with `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` (in `apps/dashboard`; if port 5555 is still held, end the process that `netstat -ano` shows listening on it, never all of Chrome). The mobile app on Joshua's phone as a release build: `flutter build apk --release --dart-define-from-file=.env`, then `flutter install --release -d <device id>` (the phone asks to allow the install: tap Install within about 10 seconds). Reinstalling signs the phone out.
+
 In VS Code, the Run and Debug panel has "Dashboard (Supabase)" and "Dashboard (mock data)" (`.vscode/launch.json`).
 
 **On Supabase:** `apps/dashboard/.env` holds the project URL and publishable key (git-ignored; copy `.env.example`). Staff accounts are `dispatcher@sagip.test` (R. Santos) and `admin@sagip.test` (E. Navarro). Their password is not in the repo; Joshua has it. Change data in the Supabase Table Editor, or run `select public.reset_demo_data();` in the SQL editor to start over (more in `supabase/README.md`).
@@ -333,6 +357,10 @@ The first screen after the splash is the welcome steps (Allow or Skip each). On 
 | What | Why | Thesis impact |
 |---|---|---|
 | Unit inventory, and other responders' stations listed as units (2026-10-12) | The panel asked to see what each unit has left (a unit low on water shows on the Units page); Joshua asked for real stations around Manila | **Chapter 1 scope must change:** "resource inventory tracking" and units outside MDRRMD were out of scope. Now: per-unit supplies as reported by the crew (no warehouse, no relief goods); BFP, volunteer, and EMS stations can be listed, each marked with whose it is. Dispatching them still needs one of their people on a responder account |
+| A unit has a station position and a live position, and the map shows both (2026-10-12) | Joshua's idea: the dispatcher sees where a unit belongs and where its crew is. Free crews are drawn only while an incident is open | Chapter 3: the unit record gains `home_latitude/longitude`; FR9's map shows station and crew |
+| The responder's phone reports every 5 seconds (was 15), and the marker follows the streets between two reports (2026-10-12) | A straight hop every 15 seconds looked like driving through houses | Chapter 3, if it states the interval. The way drawn between two real positions is the road graph's estimate: say so if asked |
+| Responders sign in to the web dashboard for one page, their unit's supplies (2026-10-12) | The panel asked for unit inventory; Joshua asked for it on the web | Table of roles and surfaces: Field Rescue Personnel also use the web for supplies |
+| Forecast inputs gathered from public sources while MDRRMD's records are asked for (2026-10-12) | Joshua wants a real forecast, not the simulated feed | Not in the thesis: daily rain and wind from Open-Meteo's archive (ERA5), fires from a news archive, floods from reprinted MMDA lists, signal days from news. If any of it is used for the defense, Chapter 3 must name the sources and their limits |
 | OpenStreetMap instead of Google Maps | Google gives no road graph for our Dijkstra and forbids offline tiles | Update Ch 3 and figures (plan Q1) |
 | Dev map tiles come from `tile.openstreetmap.org` with a dark filter | Fast start; allowed for light development use only | Must switch to self-hosted Manila tiles before the pilot (plan risk 8) |
 | `material_ui` package instead of `flutter/material.dart` | Flutter 3.47 moved Material out of the SDK | None |
@@ -505,6 +533,14 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 6. **Tier 3 on Supabase:** A1 accounts, A2 resources, A3 (all but data retention), A4 analytics with the Objective 3 section, D11, G2, and the web form W1 to W3 done. The alert sender is deployed and advisories can be issued and ended from D10. The classifier is done on sample data, D8 and R7 show a forecast run over all 897 barangays (sample data, provisional levels), and A5/A6 make NDRRMC report drafts from the records (without the RAG step). All 897 barangays are loaded on the hosted project.
 7. Later, when everything works: Joshua's UI review of both apps (including his dashboard UI changes), widget gallery, hallway test, CI.
 
+**As of 2026-10-12, what comes next, in order:**
+1. Joshua: say whether to push the commits made since `06a6953`; set the two staff passwords; go through `docs/FEATURE-CHECKLIST.md`.
+2. The forecast: either Joshua's yes to the `forecast_live` rewrite (the simulated feed the thesis promises), or wait for MDRRMD's incident records and retrain (`ml/README.md`). Do not load the two news-trained models.
+3. Friday 2026-10-16: the classifier on the MDRRMD descriptions, when the team brings them (ask for a date and a place with each record: that is also the forecast's missing input).
+4. After the push: the full RLS run on the hosted project (436 checks).
+5. Small things Joshua raised and left open: the ping on the full screen map, the map credit's size, a legend line for the faint unit markers, push registration on his phone.
+6. The Send SMS hook for real resident numbers; then the gateway phone.
+
 ## Not done yet (full list)
 
 **Joshua + Claude (code)**
@@ -659,12 +695,34 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 | `3a21fe0`, `42f7588` | 2026-10-03 | Comment wording in send-sms and send-alerts (deployed copies match) |
 | `12013d1` | 2026-09-30 | Routes on dispatch records, `my_assignments` routes, `routing_run` timing log (migration `routing`, RLS test at 99); dashboard sends routes; phone navigation by road with the next turn |
 
-`git log --oneline` shows newer commits; add a row here for each one.
+| `e231f6b`, `a0ee5aa` | 2026-10-12 | The board's map stays in view with nothing open; no empty note on it |
+| `02fe35c`, `fef44e6`, `684998f` | 2026-10-12 | The side menu runs top to bottom with the mark at its head and opens while pointed at (no menu button) |
+| `c401327` | 2026-10-12 | Map tiles keep their streets under the muted colors; D8's map is color-coded by barangay and can be clicked |
+| `0d9d2a8` | 2026-10-12 | Unit inventory (migration `unit_inventory`), the responder's page on the web, ten real stations as units |
+| `06a6953` | 2026-10-12 | Docs: responder accounts and demo supply levels (the last commit pushed) |
+| `cac11d4` | 2026-10-12 | The responder's unit page in the dashboard's frame |
+| `dca21c6`, `8ead809`, `7ecbf6c`, `a1c65f3` | 2026-10-12 | Forecast on real data: weather from Open-Meteo, fires and flooded corners from news with their positions, signal days, the first training and its metrics |
+| `a4ad63b` | 2026-10-12 | Mobile: a second tap on Allow no longer asks for a permission twice |
+| `b7f63b1`, `6ca23b7`, `90e57e2` | 2026-10-12 | Station position (migration `unit_home`), then station pin and crew ghost (migration `unit_ghost`), free crews shown only while an incident is open |
+| `d3ea0fd` | 2026-10-12 | Markers follow the streets between reported positions; positions every 5 seconds |
+| `8382a99` | 2026-10-12 | The feature checklist as of 2026-10-12 |
+
+`git log --oneline` shows newer commits; add a row here for each one. From `cac11d4` on, nothing is pushed yet.
 
 ---
 
 ## Gotchas
 
+- Supabase phone sign-in: the Phone provider form will not save a test number without "Test OTPs Valid Until", and it saves with placeholder Twilio details. Whether it is on can be read without signing in: `GET /auth/v1/settings` with the publishable key, `external.phone`.
+- A resident who signs in with a number that has no record gets "This number has no account yet": they must use "Create an account" first. The code itself was accepted.
+- Joshua's phone (Xiaomi/POCO) refuses an install from the PC unless Install is tapped on the phone within about 10 seconds (`INSTALL_FAILED_USER_RESTRICTED`).
+- The wall map opens in a browser window named `sagip-wall`. Opening it again only changes the address of the window that is already there: a window left from an older build keeps the old code until it is closed.
+- Claude Code stops background commands when the PC is critically short of memory, and says so in the notice. Do not restart them unasked.
+- The Supabase connector declines a statement with an `update` that has no `where`, and the permission check refuses a rewrite made only to get past that. Write every `update` with a `where` from the start, also on one-row tables.
+- `drop trigger` and `alter table ... drop constraint` go through the connector; `drop function` does not.
+- Reading news sites: Inquirer and Manila Bulletin refuse both `curl` and the fetch tool (403); GMA's list pages need the fetch tool (their text is filled in by script); the Tokyo University of Science fire archive and Open-Meteo answer plain requests. The public Overpass server is often busy: retry.
+- The fire archive's search lists entries with "Manila" in the title first and then, from the newest again, those that only mention it in the text: do not stop at the first old entry.
+- `RoadRouter.route` goes by the nearest intersections, so for two points on one block it can run to the corner and back. `glidePoints` drops a road way much longer than the straight line.
 - Import `package:material_ui/material_ui.dart`, not `package:flutter/material.dart`.
 - In Git Bash, `cd` into paths with spaces needs quotes: `"/c/Users/Joshua Habana/Desktop/project-sagip"`.
 - Artifact publishing needs the long Windows path (`C:\Users\Joshua Habana\...`), not the short `JOSHUA~1` form, or it is blocked by a permission rule.
@@ -1091,11 +1149,20 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - Not done: the mobile app has no supplies screen (web only, as asked); the full RLS file has not run on the hosted project with the new section; nothing here was looked at in a browser by Claude.
 - Later the same day, at Joshua's asking, for the defense demo: one responder account for each of the ten units (`<call sign in lower case, dot for the dash>@sagip.test`, named "<call sign> crew", made with `create_staff_account` in SQL; the passwords were given to Joshua in the chat and are not in the repo), and **made-up supply levels for all ten units** (48 rows, entered in SQL under each unit's account, not reported by any crew, no audit entries). Four units are short on purpose: BFP-PANDACAN tank water 20%, BFP-TONDO fuel 25%, BFP-PACO medical kits 0 of 6, BFP-GAGALANG drinking water 6 of 24. These levels are demo values: say so if the panel asks, and clear them before any real use.
 - Later still (Joshua: keep it consistent with the admin's and the dispatcher's pages): the responder's unit page now sits in the dashboard's frame (side menu with only "My unit", the top bar, the connection banner) and uses the standard page header; the supplies are two cards across on a wide window. Responders can also open their own account page (theme, password); the new-SOS toast and sound setting stay dispatch's. 49 dashboard tests. Not looked at in a browser by Claude.
+### 2026-10-12: the forecast on real data (session f47c816b)
 - Forecast: Joshua asked for it to be live and real, not the simulated feed. The page is empty because the sample forecast was cleared and no real model exists. Chosen: the thesis's method on real data. Done: `ml/forecast/fetch_weather.py` and `ml/forecast/data/manila_weather_daily.csv` (real daily rain and wind for Manila, 2021-01-01 to 2026-10-05, Open-Meteo archive). **Waiting on the team:** MDRRMD's past incidents (date, type, place) and PAGASA's signal and storm surge days (`ml/README.md`, "Forecast on real data"). Not built: the retraining, and `run-forecast` reading real weather. The `forecast_live` migration is still not applied (its `update` without `where`; a rewrite needs Joshua's explicit OK).
 - Forecast, later: Joshua asked for the incidents to be researched from public sources while MDRRMD answers. No public record with dates and places exists (MMDA and BFP give totals; UP NOAH gives hazard maps, not incidents). A first pass over news sites gave 33 fires and 7 flood days, unchecked, in `ml/forecast/data/manila_incident_leads.csv`; no storm surge incident. Not enough to train on, so nothing was trained. The Forecast page is still empty.
 - Forecast, later still: Joshua asked for the incident data to be extended now. Built from public reports: 131 Manila fires for 2012 to early 2025 (`manila_fire_news.csv`, from the Asia Fire News archive) and 56 flooded corners on 17 days for 2021 to 2026 (`manila_flood_news.csv`, from reprinted MMDA lists), each with its link and a position; real weather now from 2012. Inquirer and Manila Bulletin refuse automated reading, so their reports are only in the unchecked leads file. Not done: the signal days, the training, the live feed. The Forecast page is still empty.
 - Forecast, training on the news data (asked by Joshua): signal days gathered from news (23 days, incomplete), then the thesis LSTM trained per hazard. Test F1: flood 0.24 (baseline 0.26; 2 of 11 flood windows found), fire 0.31 (baseline 0.23; validation F1 0), storm surge not trainable. Not good enough to show as a forecast; nothing was loaded on the hosted project and the page is still empty. Numbers in `ml/forecast/lstm_metrics_news.json` and `ml/README.md`. The sample-data files (`prep_summary.json`, `lstm_metrics.json`, `build/lstm_*.keras`) are as before.
+### 2026-10-12: Joshua's phone on the hosted project (session f47c816b)
+- The emulator kept dying for lack of memory, so the app went on Joshua's own phone (2412DPC0AG, Android 16): first a debug run on mock data, then on the hosted project, then a release build installed twice (after the Allow fix, and after the 5-second change).
+- An SOS from mock mode does not reach the dashboard: that was the first "why is it not on the map". The fix was the app on the hosted project, and phone sign-in, which Joshua switched on in the Supabase dashboard with Claude reading the setting back after each try (the form needed a valid-until date for the test code; a first save left the provider off).
+- Fixed on the way: a second tap on Allow on the welcome screen threw "A request for permissions is already running" (`a4ad63b`).
+- Joshua asked to remove "© OpenStreetMap contributors" from the map. Not done: the license and the tile policy require it. Offered a smaller, dimmer version; no answer yet.
+
+### 2026-10-12: units on the map (session f47c816b)
 - Units on the map after a job (Joshua: the unit stayed where the resident was): migration `unit_home` (applied as `20261012105142`): `response_unit.home_latitude/longitude` (the station; set for the ten loaded units) and a trigger that puts a unit back at its station, marked as not a GPS fix, when it becomes available. Checked in a rolled-back run. It does not hold while the crew's phone keeps sending fixes: `update_unit_location` accepts them at any time, so in a demo where the responder's phone sits beside the resident's, the unit is drawn there again within seconds. Whether a free unit should show its station or its real position is Joshua's call (asked). The mobile app ran on Joshua's own phone (release build on the hosted project); phone sign-in is on with one test number (639170004821, code 123456, placeholder Twilio details); one resident registered.
 - Station pin and crew ghost (Joshua's idea, agreed 2026-10-12; replaces the return-to-station trigger above): migration `unit_ghost` (applied as `20261012105812`) drops that trigger (its function is left as a no-op for Joshua to drop), clears the station out of the "last position" columns, and adds `set_unit_home()` (admin, audited). `ResponseUnit` has `home`, and three rules: `mapPosition` (free: the station; on a job: the crew's last fix), `ghostPosition` (free: the crew if their fix is under 10 minutes old; on a job: the station; none within 40 m), `startingPoint` (where suggestions and routes start: a recent fix, else the station). D2 and the wall map draw the ghost as an outline with a dotted line to the main marker; A2's unit dialog has "Station position" (latitude, longitude). The responder's own map starts from the station before the phone's first fix. Tests: shared 304, dashboard 51, mobile 40; RLS 436 written, the 7 new ones passed in a rolled-back run on the hosted project. Not looked at in a browser by Claude; the map legend does not explain the ghost yet.
 - Later (Joshua): the crews of free units are drawn on D2 and the wall map only while an incident is open (one on its way back may be the nearest); with the board empty, free units show at their stations only. Display only: the phone still reports, and suggestions still start from a recent fix.
 - Units move along the streets (Joshua: the marker went straight through houses): the responder's phone now shares its position every 5 seconds (was 15), and on D2 and the wall map a unit's marker glides for 4 seconds from one reported position to the next along the road graph's way between them (`features/board/unit_glide.dart`; straight when the road way is much longer than the straight line, a jump beyond 900 m). The positions are real; the way drawn between two of them is an estimate. Tests: dashboard 54, shared 305, mobile 40. Not looked at in a browser by Claude.
+- The checklist (`docs/FEATURE-CHECKLIST.md`) was rewritten for the state of 2026-10-12 (122 lines to tick, what waits on Joshua, what is not done), and this file was brought up to date at his asking: the summary under "Where things stand", the counts, how the apps were run, the decisions, the next steps, the commit table, and the gotchas.

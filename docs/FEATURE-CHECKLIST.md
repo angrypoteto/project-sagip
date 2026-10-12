@@ -198,7 +198,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | Dashboard and web form on the internet | Your yes to deploying on Vercel |
 | Hotline number in the apps | MDRRMD gives the number; you enter it on A3 |
 | The map credit ("© OpenStreetMap contributors") | It has to stay (the license requires it). Your choice of a smaller, dimmer version |
-| The 11 commits made on 2026-10-12 after the last push | Your word to push |
+| The commits made on 2026-10-12 after the last push (`06a6953`) | Your word to push |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor |
 
 ---
