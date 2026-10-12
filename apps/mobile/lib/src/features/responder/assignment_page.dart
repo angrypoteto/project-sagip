@@ -66,7 +66,7 @@ class _Body extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final p = SagipPalette.of(context);
     final tiles = ref.watch(mapTilesEnabledProvider);
-    final unit = state.unit.location;
+    final unit = state.unit.crewPosition;
     final points = [
       toLatLng(assignment.destination),
       if (unit != null) toLatLng(unit),

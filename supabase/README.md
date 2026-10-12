@@ -307,6 +307,10 @@ Each unit's crew reports what it carries with `set_unit_supply(item, quantity, c
 
 `response_unit` has `agency` (`mdrrmd`, `bfp`, `volunteer`, `ems`) and `source`, a `fireTruck` type, and `crew_size` may be empty. `supabase/data/manila_units.sql` holds the ten real stations loaded on 2026-10-12 (OpenStreetMap; the file says what was assigned by us). It can be run again; it never changes an existing row. Do not run `clear_demo_data()` again: it would remove these units too.
 
+## A unit's station and its crew's position (migrations `unit_home`, `unit_ghost`)
+
+`response_unit.home_latitude/home_longitude` is the station; `last_latitude/last_longitude/last_location_at` is only what the crew's phone reported (`update_unit_location`, at any time, not only on a job). The dashboard draws a free unit at its station with a faint marker for its crew (a fix under 10 minutes old), and a unit on a job at its crew's position with a faint marker for the station. An admin sets the station on A2 (`set_unit_home(unit, latitude, longitude)`; both empty clears it). `private.unit_returns_home()` is a leftover that does nothing: `drop function private.unit_returns_home();` in the SQL editor removes it.
+
 ## The RAG step of the NDRRMC report (migration `report_rag`; for Joshua: the Gemini key)
 
 On A6, "Rewrite with the language model" sends the draft's figures and its assembled sections to `generate-report`. For each section the function finds the three closest reference passages in `report_reference` (by embedding; by shared words if embeddings fail), and asks Google Gemini to write the section from the figures, following the passages. The new text goes into the editor unsaved, with the passages used and a list of any numbers that are in none of the figures; "Put the earlier text back" undoes it. A draft saved after a rewrite is marked `rag` (`mark_report_rag()`).

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(429);
+select plan(436);
 
 select public.reset_demo_data();
 
@@ -1953,6 +1953,40 @@ select is(
 select is(
   (select count(*)::int from public.audit_log where action_type = 'supplyUpdated' and target_id = 'unit-r05'), 3,
   'and a refused one is not');
+
+-- ------------------------------------------------ a unit's station position
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.set_unit_home('unit-r05', 14.6, 120.99) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot set a unit''s station position');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.set_unit_home('unit-r05', 14.6, 120.99) $$,
+  'an admin can');
+select throws_ok(
+  $$ select public.set_unit_home('unit-r05', 15.2, 121.0) $$,
+  'P0001', 'invalid_value', 'only a place in or beside Manila');
+select throws_ok(
+  $$ select public.set_unit_home('unit-r05', 14.6, null) $$,
+  'P0001', 'invalid_value', 'both numbers or neither');
+select throws_ok(
+  $$ select public.set_unit_home('unit-none', 14.6, 120.99) $$,
+  'P0001', 'not_found', 'only a unit that exists');
+reset role;
+update public.response_unit
+   set status = 'onScene', last_latitude = 14.61, last_longitude = 120.98, last_location_at = now()
+ where unit_id = 'unit-r05';
+update public.response_unit set status = 'available' where unit_id = 'unit-r05';
+select results_eq(
+  $$ select home_latitude, home_longitude, last_latitude, last_location_at is not null
+       from public.response_unit where unit_id = 'unit-r05' $$,
+  $$ values (14.6::double precision, 120.99::double precision, 14.61::double precision, true) $$,
+  'the station is kept apart from the crew''s last fix, which a finished job leaves as it is');
+select is(
+  (select detail from public.audit_log where action_type = 'unitEdited' and target_id = 'unit-r05' order by log_id desc limit 1),
+  'station position set to 14.60000, 120.99000', 'and the change is audited');
 
 reset role;
 select * from finish();

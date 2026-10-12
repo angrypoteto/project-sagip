@@ -1217,6 +1217,35 @@ class MockBackend {
     return id;
   }
 
+  /// A2, checked like `set_unit_home`: a station in or beside Manila.
+  Future<void> setUnitHome(String id, GeoPoint? home) async {
+    final actor = await _authorizeAdmin();
+    if (home != null &&
+        (home.lat < 14.50 ||
+            home.lat > 14.70 ||
+            home.lng < 120.90 ||
+            home.lng > 121.07)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final old = _units.value[id];
+    if (old == null) throw const ActionRejected(ActionRejection.notFound);
+    if (old.home == home) return;
+    _units.value = {
+      ..._units.value,
+      id: old.copyWith(home: home, clearHome: home == null),
+    };
+    _log(
+      actor,
+      AuditAction.unitEdited,
+      'response_unit',
+      id,
+      home == null
+          ? 'station position cleared'
+          : 'station position set to '
+                '${home.lat.toStringAsFixed(5)}, ${home.lng.toStringAsFixed(5)}',
+    );
+  }
+
   /// A2: only a free unit; its responders come off it.
   Future<void> retireUnit(String id) async {
     final actor = await _authorizeAdmin();

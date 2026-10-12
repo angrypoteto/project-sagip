@@ -311,11 +311,23 @@ class IncidentMarkerDot extends StatelessWidget {
   }
 }
 
+/// Which faint second marker of a unit this is.
+enum UnitGhost {
+  /// Its station, while it is out on a job.
+  station,
+
+  /// Where its crew's phone is, while it is free.
+  crew,
+}
+
 /// Unit marker: a rounded square with the unit type icon, colored by status.
+/// With [ghost], the faint second marker of the same unit: an outline, no
+/// fill, so it is never taken for the unit itself.
 class UnitMarkerSquare extends StatelessWidget {
-  const UnitMarkerSquare({super.key, required this.unit});
+  const UnitMarkerSquare({super.key, required this.unit, this.ghost});
 
   final ResponseUnit unit;
+  final UnitGhost? ghost;
 
   static const double size = 28;
 
@@ -329,6 +341,30 @@ class UnitMarkerSquare extends StatelessWidget {
               .info
               .fill // Assigned but not yet moving.
         : tone.fill;
+    final l10n = AppLocalizations.of(context);
+    if (ghost != null) {
+      return Tooltip(
+        message: ghost == UnitGhost.station
+            ? l10n.unitGhostStation(unit.callSign)
+            : l10n.unitGhostCrew(unit.callSign),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: p.canvas.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(SagipRadius.control),
+            border: Border.all(color: fill.withValues(alpha: 0.8), width: 2),
+          ),
+          child: Icon(
+            ghost == UnitGhost.station
+                ? Symbols.home_rounded
+                : Symbols.person_pin_circle_rounded,
+            size: 16,
+            color: fill.withValues(alpha: 0.9),
+          ),
+        ),
+      );
+    }
     return Tooltip(
       message: unit.callSign,
       child: Container(

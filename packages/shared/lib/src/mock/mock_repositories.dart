@@ -5,6 +5,7 @@ import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
+import '../models/geo_point.dart';
 import '../models/incident.dart';
 import '../models/ndrrmc.dart';
 import '../models/people.dart';
@@ -170,6 +171,10 @@ class MockResourceRepository implements ResourceRepository {
     station: station,
     crewSize: crewSize,
   );
+
+  @override
+  Future<void> setUnitHome(String id, GeoPoint? home) =>
+      _backend.setUnitHome(id, home);
 
   @override
   Future<void> retireUnit(String id) => _backend.retireUnit(id);

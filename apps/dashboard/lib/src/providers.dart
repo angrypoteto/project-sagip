@@ -470,6 +470,7 @@ final unitSuggesterProvider = Provider<UnitSuggester>(
     () => ref.read(roadRouterProvider.future),
     onRun: ref.read(routingLogProvider).log,
     floods: () => ref.read(activeIncidentsProvider).value ?? const [],
+    now: () => ref.read(clockProvider).value ?? DateTime.now(),
   ),
 );
 
@@ -482,7 +483,9 @@ Future<RoadRoute?> routeForAssignment(
   Incident incident,
   ResponseUnit unit,
 ) async {
-  final from = unit.location;
+  final from = unit.startingPoint(
+    ref.read(clockProvider).value ?? DateTime.now(),
+  );
   if (from == null) return null;
   try {
     final router = await ref.read(roadRouterProvider.future);

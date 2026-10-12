@@ -1957,6 +1957,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldCrew => 'Crew size';
 
   @override
+  String get fieldStationPosition => 'Station position (optional)';
+
+  @override
+  String get fieldStationPositionHint => '14.59200, 121.01193';
+
+  @override
+  String get fieldStationPositionHelp =>
+      'Latitude, then longitude. The unit is drawn here while it is free.';
+
+  @override
+  String get fieldStationPositionError =>
+      'Two numbers for a place in Manila, like 14.59200, 121.01193';
+
+  @override
+  String unitGhostStation(String unit) {
+    return '$unit: its station';
+  }
+
+  @override
+  String unitGhostCrew(String unit) {
+    return '$unit: where its crew is now';
+  }
+
+  @override
   String get fieldCrewError => 'Use a number from 1 to 50.';
 
   @override

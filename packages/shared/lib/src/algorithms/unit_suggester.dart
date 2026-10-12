@@ -21,7 +21,12 @@ class StraightLineSuggester implements UnitSuggester {
   const StraightLineSuggester({
     this.averageSpeedKmh = 20,
     this.detourFactor = 1.3,
+    this.now = DateTime.now,
   });
+
+  /// The time, to tell a recent fix from an old one
+  /// ([ResponseUnit.startingPoint]).
+  final DateTime Function() now;
 
   /// Typical Manila travel speed during a storm, to be tuned with MDRRMD's
   /// dispatch records (Table 3.1 item 2).
@@ -36,10 +41,14 @@ class StraightLineSuggester implements UnitSuggester {
     List<ResponseUnit> units, {
     int limit = 3,
   }) async {
+    final at = now();
     final ranked = <UnitSuggestion>[
       for (final unit in units)
-        if (unit.isDispatchable && unit.location != null)
-          _estimate(unit, unit.location!.distanceTo(incident.currentLocation)),
+        if (unit.isDispatchable && unit.startingPoint(at) != null)
+          _estimate(
+            unit,
+            unit.startingPoint(at)!.distanceTo(incident.currentLocation),
+          ),
     ]..sort((a, b) => a.etaMinutes.compareTo(b.etaMinutes));
     return ranked.take(limit).toList();
   }

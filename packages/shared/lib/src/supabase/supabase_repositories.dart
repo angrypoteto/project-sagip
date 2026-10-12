@@ -261,6 +261,18 @@ class SupabaseResourceRepository implements ResourceRepository {
   );
 
   @override
+  Future<void> setUnitHome(String id, GeoPoint? home) => _change(
+    () => _client.rpc<void>(
+      'set_unit_home',
+      params: {
+        'p_unit_id': id,
+        'p_latitude': home?.lat,
+        'p_longitude': home?.lng,
+      },
+    ),
+  );
+
+  @override
   Future<void> retireUnit(String id) => _change(
     () => _client.rpc<void>('retire_unit', params: {'p_unit_id': id}),
   );

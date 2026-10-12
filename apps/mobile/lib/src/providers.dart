@@ -479,7 +479,7 @@ class RouteEstimate {
 /// The unit's estimate for [a]: by road when the graph can route it, else by
 /// straight-line distance (labelled as such on screen).
 RouteEstimate? routeEstimate(WidgetRef ref, ResponderState? s, Assignment? a) {
-  final from = s?.unit.location;
+  final from = s?.unit.crewPosition;
   if (from == null || a == null) return null;
   final straight = from.distanceTo(a.destination);
   final road = ref.watch(

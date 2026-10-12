@@ -73,6 +73,8 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
     final units = ref.watch(unitsProvider).value ?? const <ResponseUnit>[];
     final reports = ref.watch(crowdReportsProvider).value ?? const [];
     final pings = ref.watch(sosPingProvider);
+    // Whether a free unit's fix is recent enough to draw: a slow tick.
+    final now = ref.watch(slowClockProvider).value ?? DateTime.now();
     final scale = widget.wall ? IncidentMap.wallScale : 1.0;
     // A marker drawn [scale] times its size.
     Widget sized(double size, Widget child) => scale == 1
@@ -92,14 +94,32 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
               child: sized(ReportMarkerRing.size, const ReportMarkerRing()),
             ),
       if (_layers.contains(_Layer.units))
-        for (final u in units)
-          if (u.location != null)
+        for (final u in units) ...[
+          // The faint one first, so the main marker draws over it: the
+          // station while the unit is out, or its crew while it is free.
+          if (u.ghostPosition(now) != null)
             Marker(
-              point: toLatLng(u.location!),
+              key: ValueKey('unit-ghost-${u.id}'),
+              point: toLatLng(u.ghostPosition(now)!),
+              width: UnitMarkerSquare.size * scale,
+              height: UnitMarkerSquare.size * scale,
+              child: sized(
+                UnitMarkerSquare.size,
+                UnitMarkerSquare(
+                  unit: u,
+                  ghost: u.onJob ? UnitGhost.station : UnitGhost.crew,
+                ),
+              ),
+            ),
+          if (u.mapPosition != null)
+            Marker(
+              key: ValueKey('unit-${u.id}'),
+              point: toLatLng(u.mapPosition!),
               width: UnitMarkerSquare.size * scale,
               height: UnitMarkerSquare.size * scale,
               child: sized(UnitMarkerSquare.size, UnitMarkerSquare(unit: u)),
             ),
+        ],
       // Incidents last so they draw on top; the selected one topmost.
       for (final i in [
         ...incidents.where((i) => i.id != widget.selectedId),
@@ -151,6 +171,23 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
           children: [
             const SagipBaseMap(),
             if (_layers.contains(_Layer.boundaries)) const BarangayBoundaries(),
+            // A dotted line ties each unit to its faint second marker.
+            if (_layers.contains(_Layer.units))
+              PolylineLayer(
+                polylines: [
+                  for (final u in units)
+                    if (u.ghostPosition(now) != null && u.mapPosition != null)
+                      Polyline(
+                        points: [
+                          toLatLng(u.mapPosition!),
+                          toLatLng(u.ghostPosition(now)!),
+                        ],
+                        color: p.textSecondary.withValues(alpha: 0.7),
+                        strokeWidth: 1.5 * scale,
+                        pattern: const StrokePattern.dotted(),
+                      ),
+                ],
+              ),
             MarkerLayer(markers: markers),
             const MapAttribution(),
           ],

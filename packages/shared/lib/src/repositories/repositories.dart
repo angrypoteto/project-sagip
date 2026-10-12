@@ -250,6 +250,10 @@ abstract interface class ResourceRepository {
     required int crewSize,
   });
 
+  /// Sets where a unit's station is on the map, or clears it ([home]
+  /// null).
+  Future<void> setUnitHome(String id, GeoPoint? home);
+
   /// Only a free unit (no job, Available); its responders come off it.
   Future<void> retireUnit(String id);
   Future<void> restoreUnit(String id);

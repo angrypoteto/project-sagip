@@ -17,6 +17,7 @@ class ResponseUnit {
     required this.status,
     this.agency = UnitAgency.mdrrmd,
     this.source,
+    this.home,
     this.location,
     this.lastLocationAt,
     this.currentIncidentId,
@@ -39,8 +40,55 @@ class ResponseUnit {
 
   /// Self-reported by responders (FR9).
   final UnitStatus status;
+
+  /// The station: where the unit is when it is free. Null when no station
+  /// position was recorded for it.
+  final GeoPoint? home;
+
+  /// Where the crew's phone last was, and when. Null until it reports.
   final GeoPoint? location;
   final DateTime? lastLocationAt;
+
+  /// How long a fix from a free unit's phone still says where it is.
+  static const liveFixWindow = Duration(minutes: 10);
+
+  /// Closer than this, the station and the crew are drawn as one marker.
+  static const sameSpotMeters = 40.0;
+
+  /// Sent to an incident, or busy by its own report.
+  bool get onJob => currentIncidentId != null || status != UnitStatus.available;
+
+  /// A free unit's phone reported recently enough to trust.
+  bool hasLiveFix(DateTime now) =>
+      location != null &&
+      lastLocationAt != null &&
+      now.difference(lastLocationAt!) <= liveFixWindow;
+
+  /// Where the crew is as far as is known: their last fix, or the station
+  /// before any (the responder's own map starts from here).
+  GeoPoint? get crewPosition => location ?? home;
+
+  /// The unit's main marker. On a job that is where its crew is (the last
+  /// fix, however old: it may be offline). Free, it is the station.
+  GeoPoint? get mapPosition => onJob ? (location ?? home) : (home ?? location);
+
+  /// The faint second marker: the station while the unit is out on a job,
+  /// or where the crew's phone is while the unit is free (a recent fix
+  /// only). Null when there is nothing else to show or both are one spot.
+  GeoPoint? ghostPosition(DateTime now) {
+    final main = mapPosition;
+    final other = onJob
+        ? (location == null ? null : home)
+        : (home != null && hasLiveFix(now) ? location : null);
+    if (main == null || other == null) return null;
+    return main.distanceTo(other) < sameSpotMeters ? null : other;
+  }
+
+  /// Where a route for this unit starts: its crew if that is known well
+  /// enough, otherwise its station.
+  GeoPoint? startingPoint(DateTime now) => onJob
+      ? (location ?? home)
+      : (hasLiveFix(now) ? location : (home ?? location));
 
   /// The incident this unit is handling, if any.
   final String? currentIncidentId;
@@ -57,6 +105,8 @@ class ResponseUnit {
 
   ResponseUnit copyWith({
     UnitStatus? status,
+    GeoPoint? home,
+    bool clearHome = false,
     GeoPoint? location,
     DateTime? lastLocationAt,
     String? currentIncidentId,
@@ -76,6 +126,7 @@ class ResponseUnit {
     status: status ?? this.status,
     agency: agency,
     source: source,
+    home: clearHome ? null : (home ?? this.home),
     location: location ?? this.location,
     lastLocationAt: lastLocationAt ?? this.lastLocationAt,
     currentIncidentId: clearIncident
@@ -93,6 +144,12 @@ class ResponseUnit {
     agency: enumFromJson(UnitAgency.values, json['agency'] ?? 'mdrrmd'),
     source: json['source'] as String?,
     status: enumFromJson(UnitStatus.values, json['status']),
+    home: json['home_latitude'] == null
+        ? null
+        : GeoPoint(
+            (json['home_latitude']! as num).toDouble(),
+            (json['home_longitude']! as num).toDouble(),
+          ),
     location: json['last_latitude'] == null
         ? null
         : GeoPoint(
@@ -113,6 +170,8 @@ class ResponseUnit {
     'agency': agency.name,
     'source': source,
     'status': status.name,
+    'home_latitude': home?.lat,
+    'home_longitude': home?.lng,
     'last_latitude': location?.lat,
     'last_longitude': location?.lng,
     'last_location_at': lastLocationAt?.toIso8601String(),

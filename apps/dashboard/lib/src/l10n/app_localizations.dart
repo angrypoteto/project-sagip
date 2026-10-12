@@ -3405,6 +3405,42 @@ abstract class AppLocalizations {
   /// **'Crew size'**
   String get fieldCrew;
 
+  /// No description provided for @fieldStationPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Station position (optional)'**
+  String get fieldStationPosition;
+
+  /// No description provided for @fieldStationPositionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'14.59200, 121.01193'**
+  String get fieldStationPositionHint;
+
+  /// No description provided for @fieldStationPositionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude, then longitude. The unit is drawn here while it is free.'**
+  String get fieldStationPositionHelp;
+
+  /// No description provided for @fieldStationPositionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Two numbers for a place in Manila, like 14.59200, 121.01193'**
+  String get fieldStationPositionError;
+
+  /// No description provided for @unitGhostStation.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit}: its station'**
+  String unitGhostStation(String unit);
+
+  /// No description provided for @unitGhostCrew.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit}: where its crew is now'**
+  String unitGhostCrew(String unit);
+
   /// No description provided for @fieldCrewError.
   ///
   /// In en, this message translates to:

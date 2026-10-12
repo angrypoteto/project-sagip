@@ -70,7 +70,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
   }
 
   void _recenter(ResponderState s) {
-    final at = s.unit.location;
+    final at = s.unit.crewPosition;
     if (at == null || !_ready) return;
     _map.move(toLatLng(at), 17);
     setState(() => _follow = true);
@@ -88,7 +88,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
     final a = state?.current;
 
     ref.listen(responderProvider, (_, next) {
-      final at = next.value?.unit.location;
+      final at = next.value?.unit.crewPosition;
       if (_follow && _ready && at != null) {
         _map.move(toLatLng(at), _map.camera.zoom);
       }
@@ -104,7 +104,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
       );
     }
 
-    final unit = state.unit.location;
+    final unit = state.unit.crewPosition;
     final estimate = routeEstimate(ref, state, a);
     if (state.gpsOn) _speak(estimate);
     final voiceOn = ref.watch(voiceGuidanceProvider);

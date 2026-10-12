@@ -245,8 +245,13 @@ class RoadNetworkSuggester implements UnitSuggester {
     this.fallback = const StraightLineSuggester(),
     this.onRun,
     this.floods,
+    this.now = DateTime.now,
     RoutingPlatform? platform,
   }) : platform = platform ?? RoutingPlatform.current;
+
+  /// The time, to tell a recent fix from an old one
+  /// ([ResponseUnit.startingPoint]).
+  final DateTime Function() now;
 
   /// The confirmed flood incidents to route around (plan 10.2, "Could").
   final Iterable<Incident> Function()? floods;
@@ -267,9 +272,10 @@ class RoadNetworkSuggester implements UnitSuggester {
     List<ResponseUnit> units, {
     int limit = 3,
   }) async {
+    final at = now();
     final candidates = [
       for (final u in units)
-        if (u.isDispatchable && u.location != null) u,
+        if (u.isDispatchable && u.startingPoint(at) != null) u,
     ];
     RoadRouter router;
     try {
@@ -281,7 +287,7 @@ class RoadNetworkSuggester implements UnitSuggester {
 
     final result = router.timesTo(
       incident.currentLocation,
-      {for (final u in candidates) u.id: u.location!},
+      {for (final u in candidates) u.id: u.startingPoint(at)!},
       penalty: floods == null
           ? FloodPenalty.none
           : FloodPenalty.fromIncidents(floods!(), except: incident.id),

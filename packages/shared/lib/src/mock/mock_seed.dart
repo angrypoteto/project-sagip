@@ -317,6 +317,8 @@ class MockSeed {
     station: '$station station',
     crewSize: crew,
     status: status,
+    // The sample units start at their stations.
+    home: GeoPoint(lat, lng),
     location: GeoPoint(lat, lng),
     lastLocationAt: ago(0, 20),
     currentIncidentId: incident,

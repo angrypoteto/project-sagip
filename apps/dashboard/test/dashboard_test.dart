@@ -14,6 +14,7 @@ import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
 import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
 import 'package:sagip_dashboard/src/features/shell/top_bar.dart';
+import 'package:sagip_dashboard/src/l10n/app_localizations.dart';
 import 'package:sagip_dashboard/src/providers.dart';
 import 'package:sagip_dashboard/src/router.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -400,6 +401,58 @@ void main() {
     await tester.tap(find.byTooltip('Go to the Command Board'));
     await settle(tester);
     expect(find.byType(QueuePanel), findsOneWidget);
+  });
+
+  testWidgets('the second marker of a unit says what it is', (tester) async {
+    const unit = ResponseUnit(
+      id: 'unit-bfp-staana',
+      callSign: 'BFP-STAANA',
+      type: UnitType.fireTruck,
+      station: 'Santa Ana Fire Station',
+      status: UnitStatus.available,
+    );
+    Future<void> show(UnitGhost? ghost) => tester.pumpWidget(
+      MaterialApp(
+        theme: SagipTheme.dark(SagipDensity.dashboard),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        home: Center(
+          child: UnitMarkerSquare(unit: unit, ghost: ghost),
+        ),
+      ),
+    );
+    await show(null);
+    expect(find.byTooltip('BFP-STAANA'), findsOneWidget);
+    await show(UnitGhost.crew);
+    expect(find.byTooltip('BFP-STAANA: where its crew is now'), findsOne);
+    await show(UnitGhost.station);
+    expect(find.byTooltip('BFP-STAANA: its station'), findsOneWidget);
+  });
+
+  testWidgets('A2: the station position of a unit is set and checked', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    tester.view.physicalSize = const Size(1440, 2400);
+    container.read(routerProvider).go('/admin/resources');
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('edit-unit-r03')));
+    await settle(tester);
+    final field = find.byKey(const ValueKey('unit-home'));
+    // The sample units start with their station recorded.
+    expect(tester.widget<TextField>(field).controller!.text, isNotEmpty);
+    await tester.enterText(field, 'somewhere');
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+    expect(find.textContaining('Two numbers for a place in Manila'), findsOne);
+    await tester.enterText(field, '14.59200, 121.01193');
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+    final units = await tester.runAsync(() => backend.watchAllUnits().first);
+    expect(
+      units!.firstWhere((u) => u.id == 'unit-r03').home,
+      const GeoPoint(14.592, 121.01193),
+    );
   });
 
   testWidgets('an SOS pings on the map until a unit is sent', (tester) async {

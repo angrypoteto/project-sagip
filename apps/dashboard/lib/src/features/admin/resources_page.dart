@@ -321,6 +321,12 @@ class _UnitDialogState extends State<_UnitDialog> {
   late final _crew = TextEditingController(
     text: widget.unit?.crewSize == null ? '' : '${widget.unit!.crewSize}',
   );
+  late final _home = TextEditingController(
+    text: widget.unit?.home == null
+        ? ''
+        : '${widget.unit!.home!.lat.toStringAsFixed(5)}, '
+              '${widget.unit!.home!.lng.toStringAsFixed(5)}',
+  );
   late UnitType _type = widget.unit?.type ?? UnitType.rescueTeam;
   var _tried = false;
   var _busy = false;
@@ -332,8 +338,29 @@ class _UnitDialogState extends State<_UnitDialog> {
     _callSign.dispose();
     _station.dispose();
     _crew.dispose();
+    _home.dispose();
     super.dispose();
   }
+
+  /// "14.5920, 121.0119", or nothing for no position.
+  ({bool ok, GeoPoint? point}) get _homeValue {
+    final t = _home.text.trim();
+    if (t.isEmpty) return (ok: true, point: null);
+    final parts = t.split(RegExp(r'[,\s]+'));
+    final lat = parts.length == 2 ? double.tryParse(parts[0]) : null;
+    final lng = parts.length == 2 ? double.tryParse(parts[1]) : null;
+    final ok =
+        lat != null &&
+        lng != null &&
+        lat >= 14.50 &&
+        lat <= 14.70 &&
+        lng >= 120.90 &&
+        lng <= 121.07;
+    return (ok: ok, point: ok ? GeoPoint(lat, lng) : null);
+  }
+
+  String? _homeError(AppLocalizations l10n) =>
+      _homeValue.ok ? null : l10n.fieldStationPositionError;
 
   String? _callSignError(AppLocalizations l10n) =>
       _callSignPattern.hasMatch(_callSign.text.trim().toUpperCase())
@@ -355,24 +382,24 @@ class _UnitDialogState extends State<_UnitDialog> {
     setState(() => _tried = true);
     if (_callSignError(l10n) != null ||
         _stationError(l10n) != null ||
-        _crewError(l10n) != null) {
+        _crewError(l10n) != null ||
+        _homeError(l10n) != null) {
       return;
     }
+    final home = _homeValue.point;
     setState(() => _busy = true);
     final callSign = _callSign.text.trim().toUpperCase();
-    final ok = await runAction(
-      context,
-      () => widget.ref
-          .read(resourceRepositoryProvider)
-          .saveUnit(
-            id: widget.unit?.id,
-            callSign: callSign,
-            type: _type,
-            station: _station.text.trim(),
-            crewSize: int.parse(_crew.text.trim()),
-          ),
-      success: l10n.unitSaved(callSign),
-    );
+    final repo = widget.ref.read(resourceRepositoryProvider);
+    final ok = await runAction(context, () async {
+      final id = await repo.saveUnit(
+        id: widget.unit?.id,
+        callSign: callSign,
+        type: _type,
+        station: _station.text.trim(),
+        crewSize: int.parse(_crew.text.trim()),
+      );
+      if (home != widget.unit?.home) await repo.setUnitHome(id, home);
+    }, success: l10n.unitSaved(callSign));
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok) Navigator.pop(context);
@@ -428,6 +455,18 @@ class _UnitDialogState extends State<_UnitDialog> {
               decoration: InputDecoration(
                 labelText: l10n.fieldCrew,
                 errorText: _tried ? _crewError(l10n) : null,
+              ),
+            ),
+            const SizedBox(height: SagipSpace.md),
+            TextField(
+              key: const ValueKey('unit-home'),
+              controller: _home,
+              decoration: InputDecoration(
+                labelText: l10n.fieldStationPosition,
+                hintText: l10n.fieldStationPositionHint,
+                helperText: l10n.fieldStationPositionHelp,
+                helperMaxLines: 2,
+                errorText: _tried ? _homeError(l10n) : null,
               ),
             ),
           ],
