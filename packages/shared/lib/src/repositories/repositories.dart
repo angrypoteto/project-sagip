@@ -139,6 +139,25 @@ abstract interface class IncidentRepository {
 
 abstract interface class UnitRepository {
   Stream<List<ResponseUnit>> watchAll();
+
+  /// Every unit's supplies as their crews last reported them (D7).
+  Stream<List<UnitSupply>> watchSupplies();
+}
+
+/// A responder's own unit on the web: what it carries, reported by its
+/// crew. Only responders use it, and only for the unit they are on.
+abstract interface class UnitInventoryRepository {
+  /// The unit this responder is on; null when on none.
+  Stream<ResponseUnit?> watchMyUnit();
+
+  /// That unit's supplies.
+  Stream<List<UnitSupply>> watchMine();
+
+  /// Reports one supply. Fuel and tank water: [quantity] is a percent, 0
+  /// to 100. A stock: [quantity] on board, whole, with [capacity] (a full
+  /// load) the first time. Throws [ActionRejected]: `invalidValue`,
+  /// `notAllowed` (not a responder, or on no unit), `offline`.
+  Future<void> setSupply(SupplyItem item, num quantity, {num? capacity});
 }
 
 abstract interface class CrowdReportRepository {

@@ -712,6 +712,264 @@ abstract class AppLocalizations {
   /// **'Rescue team'**
   String get unitRescueTeam;
 
+  /// No description provided for @unitFireTruck.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire truck'**
+  String get unitFireTruck;
+
+  /// No description provided for @agencyMdrrmd.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD'**
+  String get agencyMdrrmd;
+
+  /// No description provided for @agencyBfp.
+  ///
+  /// In en, this message translates to:
+  /// **'BFP'**
+  String get agencyBfp;
+
+  /// No description provided for @agencyVolunteer.
+  ///
+  /// In en, this message translates to:
+  /// **'Volunteer brigade'**
+  String get agencyVolunteer;
+
+  /// No description provided for @agencyEms.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical service'**
+  String get agencyEms;
+
+  /// No description provided for @supplyFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get supplyFuel;
+
+  /// No description provided for @supplyTankWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Tank water'**
+  String get supplyTankWater;
+
+  /// No description provided for @supplyDrinkingWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drinking water'**
+  String get supplyDrinkingWater;
+
+  /// No description provided for @supplyMedicalKits.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical kits'**
+  String get supplyMedicalKits;
+
+  /// No description provided for @supplyLifeVests.
+  ///
+  /// In en, this message translates to:
+  /// **'Life vests'**
+  String get supplyLifeVests;
+
+  /// No description provided for @supplyRescueGear.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescue gear'**
+  String get supplyRescueGear;
+
+  /// No description provided for @supplyOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough'**
+  String get supplyOk;
+
+  /// No description provided for @supplyLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get supplyLow;
+
+  /// No description provided for @supplyOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get supplyOut;
+
+  /// No description provided for @supplyPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String supplyPercent(int percent);
+
+  /// No description provided for @supplyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{have} of {full}'**
+  String supplyCount(int have, int full);
+
+  /// No description provided for @colSupplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplies'**
+  String get colSupplies;
+
+  /// No description provided for @colAgency.
+  ///
+  /// In en, this message translates to:
+  /// **'Whose'**
+  String get colAgency;
+
+  /// No description provided for @suppliesNotReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reported'**
+  String get suppliesNotReported;
+
+  /// No description provided for @suppliesAllGood.
+  ///
+  /// In en, this message translates to:
+  /// **'All enough'**
+  String get suppliesAllGood;
+
+  /// No description provided for @suppliesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{state}: {items}'**
+  String suppliesShort(String state, String items);
+
+  /// No description provided for @countLowSupplies.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} low on supplies'**
+  String countLowSupplies(int count);
+
+  /// No description provided for @suppliesOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit}: what it carries'**
+  String suppliesOf(String unit);
+
+  /// No description provided for @suppliesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'This unit\'s crew has not reported its supplies yet. They do it from their unit\'s page on the web.'**
+  String get suppliesNone;
+
+  /// No description provided for @suppliesUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported {time} by {name}'**
+  String suppliesUpdated(String time, String name);
+
+  /// No description provided for @suppliesOld.
+  ///
+  /// In en, this message translates to:
+  /// **'Old report'**
+  String get suppliesOld;
+
+  /// No description provided for @suppliesLowRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Low means at or below {percent}% of full. Only the unit\'s own crew changes these.'**
+  String suppliesLowRule(int percent);
+
+  /// No description provided for @unitSourceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From public records: {source}'**
+  String unitSourceNote(String source);
+
+  /// No description provided for @myUnitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My unit'**
+  String get myUnitTitle;
+
+  /// No description provided for @myUnitNone.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not on a unit yet'**
+  String get myUnitNone;
+
+  /// No description provided for @myUnitNoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator puts each responder on a unit on the Resources page. Ask yours, then sign in again.'**
+  String get myUnitNoneBody;
+
+  /// No description provided for @myUnitIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.'**
+  String get myUnitIntro;
+
+  /// No description provided for @myUnitPercentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{item}: {percent}% of full'**
+  String myUnitPercentLabel(String item, int percent);
+
+  /// No description provided for @myUnitOnBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'On board'**
+  String get myUnitOnBoard;
+
+  /// No description provided for @myUnitFullLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'A full load'**
+  String get myUnitFullLoad;
+
+  /// No description provided for @myUnitNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reported yet'**
+  String get myUnitNotYet;
+
+  /// No description provided for @myUnitSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} reported'**
+  String myUnitSaved(String item);
+
+  /// No description provided for @myUnitCountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole numbers: on board from 0 up to the full load, and a full load of at least 1.'**
+  String get myUnitCountError;
+
+  /// No description provided for @myUnitReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get myUnitReport;
+
+  /// No description provided for @actionSupplyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported a unit\'s supply'**
+  String get actionSupplyUpdated;
+
+  /// No description provided for @configInventoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit supplies'**
+  String get configInventoryTitle;
+
+  /// No description provided for @configInventoryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'On the Units page a supply is shown as low at or below this share of full, and as out at zero. Crews report their own unit\'s supplies.'**
+  String get configInventoryNote;
+
+  /// No description provided for @settingInventoryLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low at or below (percent of full)'**
+  String get settingInventoryLow;
+
   /// No description provided for @unitAvailable.
   ///
   /// In en, this message translates to:

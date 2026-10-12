@@ -366,6 +366,160 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unitRescueTeam => 'Rescue team';
 
   @override
+  String get unitFireTruck => 'Fire truck';
+
+  @override
+  String get agencyMdrrmd => 'MDRRMD';
+
+  @override
+  String get agencyBfp => 'BFP';
+
+  @override
+  String get agencyVolunteer => 'Volunteer brigade';
+
+  @override
+  String get agencyEms => 'Medical service';
+
+  @override
+  String get supplyFuel => 'Fuel';
+
+  @override
+  String get supplyTankWater => 'Tank water';
+
+  @override
+  String get supplyDrinkingWater => 'Drinking water';
+
+  @override
+  String get supplyMedicalKits => 'Medical kits';
+
+  @override
+  String get supplyLifeVests => 'Life vests';
+
+  @override
+  String get supplyRescueGear => 'Rescue gear';
+
+  @override
+  String get supplyOk => 'Enough';
+
+  @override
+  String get supplyLow => 'Low';
+
+  @override
+  String get supplyOut => 'Out';
+
+  @override
+  String supplyPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String supplyCount(int have, int full) {
+    return '$have of $full';
+  }
+
+  @override
+  String get colSupplies => 'Supplies';
+
+  @override
+  String get colAgency => 'Whose';
+
+  @override
+  String get suppliesNotReported => 'Not reported';
+
+  @override
+  String get suppliesAllGood => 'All enough';
+
+  @override
+  String suppliesShort(String state, String items) {
+    return '$state: $items';
+  }
+
+  @override
+  String countLowSupplies(int count) {
+    return '$count low on supplies';
+  }
+
+  @override
+  String suppliesOf(String unit) {
+    return '$unit: what it carries';
+  }
+
+  @override
+  String get suppliesNone =>
+      'This unit\'s crew has not reported its supplies yet. They do it from their unit\'s page on the web.';
+
+  @override
+  String suppliesUpdated(String time, String name) {
+    return 'Reported $time by $name';
+  }
+
+  @override
+  String get suppliesOld => 'Old report';
+
+  @override
+  String suppliesLowRule(int percent) {
+    return 'Low means at or below $percent% of full. Only the unit\'s own crew changes these.';
+  }
+
+  @override
+  String unitSourceNote(String source) {
+    return 'From public records: $source';
+  }
+
+  @override
+  String get myUnitTitle => 'My unit';
+
+  @override
+  String get myUnitNone => 'You are not on a unit yet';
+
+  @override
+  String get myUnitNoneBody =>
+      'An administrator puts each responder on a unit on the Resources page. Ask yours, then sign in again.';
+
+  @override
+  String get myUnitIntro =>
+      'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.';
+
+  @override
+  String myUnitPercentLabel(String item, int percent) {
+    return '$item: $percent% of full';
+  }
+
+  @override
+  String get myUnitOnBoard => 'On board';
+
+  @override
+  String get myUnitFullLoad => 'A full load';
+
+  @override
+  String get myUnitNotYet => 'Not reported yet';
+
+  @override
+  String myUnitSaved(String item) {
+    return '$item reported';
+  }
+
+  @override
+  String get myUnitCountError =>
+      'Whole numbers: on board from 0 up to the full load, and a full load of at least 1.';
+
+  @override
+  String get myUnitReport => 'Report';
+
+  @override
+  String get actionSupplyUpdated => 'Reported a unit\'s supply';
+
+  @override
+  String get configInventoryTitle => 'Unit supplies';
+
+  @override
+  String get configInventoryNote =>
+      'On the Units page a supply is shown as low at or below this share of full, and as out at zero. Crews report their own unit\'s supplies.';
+
+  @override
+  String get settingInventoryLow => 'Low at or below (percent of full)';
+
+  @override
   String get unitAvailable => 'Available';
 
   @override

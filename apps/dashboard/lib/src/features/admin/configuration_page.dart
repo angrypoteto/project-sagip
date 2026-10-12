@@ -112,6 +112,16 @@ class ConfigurationPage extends ConsumerWidget {
             ),
             const SizedBox(height: SagipSpace.xl),
             NumberSettingsCard(
+              id: 'inventory',
+              title: l10n.configInventoryTitle,
+              note: l10n.configInventoryNote,
+              labels: {
+                SettingKeys.inventoryLowPercent: l10n.settingInventoryLow,
+              },
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
+            NumberSettingsCard(
               id: 'retention',
               title: l10n.configRetentionTitle,
               note: l10n.configRetentionNote,

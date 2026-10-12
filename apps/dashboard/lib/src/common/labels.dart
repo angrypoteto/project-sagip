@@ -39,6 +39,7 @@ extension DomainLabels on AppLocalizations {
   String unitType(UnitType t) => switch (t) {
     UnitType.ambulance => unitAmbulance,
     UnitType.rescueBoat => unitRescueBoat,
+    UnitType.fireTruck => unitFireTruck,
     UnitType.rescueTeam => unitRescueTeam,
   };
 
@@ -91,6 +92,33 @@ extension DomainLabels on AppLocalizations {
     IncidentEventKind.cancelWithdrawn => eventCancelWithdrawn,
   };
 
+  String unitAgency(UnitAgency a) => switch (a) {
+    UnitAgency.mdrrmd => agencyMdrrmd,
+    UnitAgency.bfp => agencyBfp,
+    UnitAgency.volunteer => agencyVolunteer,
+    UnitAgency.ems => agencyEms,
+  };
+
+  String supplyItem(SupplyItem i) => switch (i) {
+    SupplyItem.fuel => supplyFuel,
+    SupplyItem.tankWater => supplyTankWater,
+    SupplyItem.drinkingWater => supplyDrinkingWater,
+    SupplyItem.medicalKits => supplyMedicalKits,
+    SupplyItem.lifeVests => supplyLifeVests,
+    SupplyItem.rescueGear => supplyRescueGear,
+  };
+
+  String supplyState(SupplyState s) => switch (s) {
+    SupplyState.ok => supplyOk,
+    SupplyState.low => supplyLow,
+    SupplyState.out => supplyOut,
+  };
+
+  /// "25%" for fuel and tank water, "6 of 24" for a stock.
+  String supplyAmount(UnitSupply s) => s.item.isPercent
+      ? supplyPercent(s.quantity.round())
+      : supplyCount(s.quantity.round(), s.capacity.round());
+
   String cancelReason(SosCancelReason r) => switch (r) {
     SosCancelReason.safeNow => cancelReasonSafeNow,
     SosCancelReason.mistake => cancelReasonMistake,
@@ -129,6 +157,7 @@ extension DomainLabels on AppLocalizations {
     AuditAction.reportsSimulated => actionReportsSimulated,
     AuditAction.sosCancelled => actionSosCancelled,
     AuditAction.retentionApplied => actionRetentionApplied,
+    AuditAction.supplyUpdated => actionSupplyUpdated,
   };
 
   String reportCheck(ReportCheck c) => switch (c) {

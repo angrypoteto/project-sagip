@@ -47,6 +47,7 @@ class SupabaseBackend {
     : auth = SupabaseAuthRepository(client),
       incidents = SupabaseIncidentRepository(client),
       units = SupabaseUnitRepository(client),
+      inventory = SupabaseUnitInventoryRepository(client),
       crowdReports = SupabaseCrowdReportRepository(client),
       residents = SupabaseResidentRepository(client),
       weather = SupabaseWeatherRepository(client),
@@ -66,6 +67,7 @@ class SupabaseBackend {
   final SupabaseAuthRepository auth;
   final SupabaseIncidentRepository incidents;
   final SupabaseUnitRepository units;
+  final SupabaseUnitInventoryRepository inventory;
   final SupabaseCrowdReportRepository crowdReports;
   final SupabaseResidentRepository residents;
   final SupabaseWeatherRepository weather;
@@ -783,6 +785,77 @@ class SupabaseUnitRepository implements UnitRepository {
         ResponseUnit.fromJson(r),
     ],
   );
+
+  @override
+  Stream<List<UnitSupply>> watchSupplies() => liveQuery(
+    _client,
+    tables: const ['unit_supply'],
+    fetch: () async => [
+      for (final r in await _client.from('unit_supply').select())
+        UnitSupply.fromJson(r),
+    ],
+  );
+}
+
+/// The responder's own unit and its supplies (`set_unit_supply`). Row
+/// Level Security shows a responder only their own unit's supplies.
+class SupabaseUnitInventoryRepository implements UnitInventoryRepository {
+  const SupabaseUnitInventoryRepository(this._client);
+
+  final SupabaseClient _client;
+
+  Future<String?> _myUnitId() async {
+    final me = await _client
+        .from('staff')
+        .select('unit_id')
+        .eq('id', _client.auth.currentUser?.id ?? '')
+        .maybeSingle();
+    return me?['unit_id'] as String?;
+  }
+
+  @override
+  Stream<ResponseUnit?> watchMyUnit() => liveQuery(
+    _client,
+    tables: const ['response_unit', 'staff'],
+    fetch: () async {
+      final unitId = await _myUnitId();
+      if (unitId == null) return null;
+      final row = await _client
+          .from('response_unit')
+          .select()
+          .eq('unit_id', unitId)
+          .maybeSingle();
+      return row == null ? null : ResponseUnit.fromJson(row);
+    },
+  );
+
+  @override
+  Stream<List<UnitSupply>> watchMine() => liveQuery(
+    _client,
+    tables: const ['unit_supply', 'staff'],
+    fetch: () async {
+      final unitId = await _myUnitId();
+      if (unitId == null) return const <UnitSupply>[];
+      return suppliesOf(unitId, [
+        for (final r
+            in await _client.from('unit_supply').select().eq('unit_id', unitId))
+          UnitSupply.fromJson(r),
+      ]);
+    },
+  );
+
+  @override
+  Future<void> setSupply(SupplyItem item, num quantity, {num? capacity}) =>
+      _call(
+        () => _client.rpc<void>(
+          'set_unit_supply',
+          params: {
+            'p_item': item.name,
+            'p_quantity': quantity,
+            'p_capacity': capacity,
+          },
+        ),
+      );
 }
 
 // ---------------------------------------------------------- crowd reports

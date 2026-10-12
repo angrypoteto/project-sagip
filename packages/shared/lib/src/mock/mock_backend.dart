@@ -862,6 +862,90 @@ class MockBackend {
         ];
       });
 
+  // -------------------------------------------------------- inventory
+
+  /// Sample supplies: R-03 short on fuel and drinking water, A-05 out of
+  /// medical kits, R-02 full. Reported a few hours ago.
+  late final _supplies = LiveValue<List<UnitSupply>>([
+    for (final (unit, item, quantity, capacity, hours) in const [
+      ('unit-r03', SupplyItem.fuel, 25.0, 100.0, 2),
+      ('unit-r03', SupplyItem.drinkingWater, 6.0, 24.0, 2),
+      ('unit-r03', SupplyItem.lifeVests, 10.0, 12.0, 2),
+      ('unit-a05', SupplyItem.fuel, 80.0, 100.0, 5),
+      ('unit-a05', SupplyItem.medicalKits, 0.0, 6.0, 5),
+      ('unit-r02', SupplyItem.fuel, 90.0, 100.0, 1),
+      ('unit-r02', SupplyItem.drinkingWater, 20.0, 24.0, 1),
+    ])
+      UnitSupply(
+        unitId: unit,
+        item: item,
+        quantity: quantity,
+        capacity: capacity,
+        updatedAt: _clock().subtract(Duration(hours: hours)),
+        updatedByName: 'J. Reyes',
+      ),
+  ]);
+
+  Stream<List<UnitSupply>> watchSupplies() => _supplies.watch();
+
+  /// The signed-in responder's account, with the unit they are on.
+  StaffAccount? get _me => _accounts.value[_user.value?.id];
+
+  Stream<ResponseUnit?> watchMyUnit() =>
+      _units.watch().map((m) => m[_me?.unitId]);
+
+  Stream<List<UnitSupply>> watchMySupplies() =>
+      _supplies.watch().map((all) => suppliesOf(_me?.unitId ?? '', all));
+
+  /// `set_unit_supply`: the crew reports one supply of their own unit.
+  Future<void> setSupply(SupplyItem item, num quantity, {num? capacity}) async {
+    await _pause();
+    if (_link.value == LinkState.offline) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+    final user = _user.value;
+    final unitId = _me?.unitId;
+    if (user == null || user.role != UserRole.responder || unitId == null) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final before = _supplies.value
+        .where((s) => s.unitId == unitId && s.item == item)
+        .firstOrNull;
+    final full = item.isPercent ? 100 : (capacity ?? before?.capacity);
+    final whole =
+        item.isPercent ||
+        (full != null &&
+            full == full.truncate() &&
+            quantity == quantity.truncate());
+    if (full == null ||
+        !whole ||
+        quantity < 0 ||
+        full < 1 ||
+        full > 100000 ||
+        quantity > full) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    _supplies.value = [
+      for (final s in _supplies.value)
+        if (!(s.unitId == unitId && s.item == item)) s,
+      UnitSupply(
+        unitId: unitId,
+        item: item,
+        quantity: quantity.toDouble(),
+        capacity: full.toDouble(),
+        updatedAt: _clock(),
+        updatedByName: user.displayName,
+      ),
+    ];
+    _log(
+      user,
+      AuditAction.supplyUpdated,
+      'unit_supply',
+      unitId,
+      '${item.name} ${_plain(quantity)} of ${_plain(full)}',
+    );
+  }
+
   /// Units in service (the board and suggestions).
   Stream<List<ResponseUnit>> watchUnits() => _units.watch().map(
     (m) => [

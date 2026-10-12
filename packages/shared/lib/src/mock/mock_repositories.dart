@@ -305,6 +305,25 @@ class MockUnitRepository implements UnitRepository {
 
   @override
   Stream<List<ResponseUnit>> watchAll() => _backend.watchUnits();
+
+  @override
+  Stream<List<UnitSupply>> watchSupplies() => _backend.watchSupplies();
+}
+
+class MockUnitInventoryRepository implements UnitInventoryRepository {
+  const MockUnitInventoryRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<ResponseUnit?> watchMyUnit() => _backend.watchMyUnit();
+
+  @override
+  Stream<List<UnitSupply>> watchMine() => _backend.watchMySupplies();
+
+  @override
+  Future<void> setSupply(SupplyItem item, num quantity, {num? capacity}) =>
+      _backend.setSupply(item, quantity, capacity: capacity);
 }
 
 class MockCrowdReportRepository implements CrowdReportRepository {

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(410);
+select plan(429);
 
 select public.reset_demo_data();
 
@@ -1871,6 +1871,88 @@ set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", 
 select throws_ok(
   $$ select public.begin_report_rewrite() $$,
   'P0001', 'rate_limited', 'at most 20 rewrites an hour for each admin');
+
+-- ------------------------------------------------ unit inventory
+
+reset role;
+-- Wherever the checks above left them: the responder is on R-05, the
+-- second responder is on no unit.
+update public.staff set unit_id = 'unit-r05', deactivated_at = null
+ where id = '00000000-0000-4000-8000-00000000000b';
+update public.staff set unit_id = null, deactivated_at = null
+ where id = '00000000-0000-4000-8000-000000000011';
+select ok(
+  not has_table_privilege('authenticated', 'public.unit_supply', 'insert')
+  and not has_table_privilege('authenticated', 'public.unit_supply', 'update')
+  and not has_table_privilege('authenticated', 'public.unit_supply', 'delete')
+  and not has_table_privilege('anon', 'public.unit_supply', 'select')
+  and not has_function_privilege('anon', 'public.set_unit_supply(text, numeric, numeric)', 'execute'),
+  'unit supplies change only through set_unit_supply, and not for visitors');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.set_unit_supply('fuel', 50) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot report a unit''s supplies');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.set_unit_supply('fuel', 50) $$,
+  'P0001', 'not_allowed', 'nor an admin');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.set_unit_supply('fuel', 50) $$,
+  'P0001', 'not_allowed', 'nor a resident');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000011", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.set_unit_supply('fuel', 50) $$,
+  'P0001', 'not_allowed', 'nor a responder who is on no unit');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.set_unit_supply('fuel', 20) $$,
+  'a responder reports their unit''s fuel as a percent');
+select lives_ok(
+  $$ select public.set_unit_supply('drinkingWater', 6, 24) $$,
+  'and a stock as a count against a full load');
+select lives_ok(
+  $$ select public.set_unit_supply('drinkingWater', 5) $$,
+  'and again without the full load');
+select results_eq(
+  $$ select item, quantity, capacity, updated_by_name from public.unit_supply order by item $$,
+  $$ values ('drinkingWater'::text, 5::numeric, 24::numeric, 'Test Responder'::text),
+            ('fuel', 20, 100, 'Test Responder') $$,
+  'the full load is remembered, fuel is out of 100, and the crew reads its own unit''s supplies');
+select throws_ok(
+  $$ select public.set_unit_supply('fuel', 101) $$,
+  'P0001', 'invalid_value', 'no more than full');
+select throws_ok(
+  $$ select public.set_unit_supply('medicalKits', 3) $$,
+  'P0001', 'invalid_value', 'a stock''s first report needs its full load');
+select throws_ok(
+  $$ select public.set_unit_supply('lifeVests', 2.5, 5) $$,
+  'P0001', 'invalid_value', 'stocks are whole numbers');
+select throws_ok(
+  $$ select public.set_unit_supply('rescueGear', 7, 5) $$,
+  'P0001', 'invalid_value', 'no more on board than a full load');
+select throws_ok(
+  $$ select public.set_unit_supply('oxygen', 1, 2) $$,
+  'P0001', 'invalid_value', 'only the listed supplies');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.unit_supply where unit_id = 'unit-r05'), 2,
+  'a dispatcher reads every unit''s supplies');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000011", "role": "authenticated"}';
+select is((select count(*)::int from public.unit_supply), 0,
+  'a responder on another or no unit does not');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.unit_supply), 0, 'nor a resident');
+reset role;
+select is(
+  (select detail from public.audit_log where action_type = 'supplyUpdated' order by log_id desc limit 1),
+  'drinkingWater 5 of 24', 'each report is audited');
+select is(
+  (select count(*)::int from public.audit_log where action_type = 'supplyUpdated' and target_id = 'unit-r05'), 3,
+  'and a refused one is not');
 
 reset role;
 select * from finish();

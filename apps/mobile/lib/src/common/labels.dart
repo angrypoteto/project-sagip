@@ -24,6 +24,7 @@ extension MobileLabels on AppLocalizations {
   String unitType(UnitType t) => switch (t) {
     UnitType.ambulance => unitAmbulance,
     UnitType.rescueBoat => unitRescueBoat,
+    UnitType.fireTruck => unitFireTruck,
     UnitType.rescueTeam => unitRescueTeam,
   };
 

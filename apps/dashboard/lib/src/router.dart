@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:sagip_shared/sagip_shared.dart' show UserRole;
 
 import 'features/account/account_page.dart';
 import 'features/admin/accounts_page.dart';
@@ -14,6 +15,7 @@ import 'features/auth/session_expired_page.dart';
 import 'features/auth/sign_in_page.dart';
 import 'features/board/board_page.dart';
 import 'features/board/wall_map_page.dart';
+import 'features/units/my_unit_page.dart';
 import 'features/crowd_reports/crowd_reports_page.dart';
 import 'features/forecast/forecast_page.dart';
 import 'features/shell/dashboard_shell.dart';
@@ -32,6 +34,10 @@ abstract final class Routes {
 
   /// The Command Board's map by itself, for another monitor.
   static const wall = '/wall';
+
+  /// A responder's own unit and its supplies: the one page responders
+  /// have on the web.
+  static const myUnit = '/my-unit';
   static const crowdReports = '/crowd-reports';
   static const units = '/units';
   static const forecast = '/forecast';
@@ -134,7 +140,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         ).toString();
       }
       if (atExpired) return Routes.board;
+      // Responders have one page here: their unit and what it carries.
+      if (user.role == UserRole.responder) {
+        return path == Routes.myUnit ? null : Routes.myUnit;
+      }
       if (!user.canDispatch) return atSignIn ? null : Routes.signIn;
+      if (path == Routes.myUnit) return Routes.board;
       if (atSignIn) {
         final from = state.uri.queryParameters['from'];
         return (from != null && from.startsWith('/')) ? from : Routes.board;
@@ -154,6 +165,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.sessionExpired,
         pageBuilder: (context, state) =>
             _page(SessionExpiredPage(from: state.uri.queryParameters['from'])),
+      ),
+      GoRoute(
+        path: Routes.myUnit,
+        pageBuilder: (context, state) => _page(const MyUnitPage()),
       ),
       GoRoute(
         path: Routes.wall,

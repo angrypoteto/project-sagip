@@ -21,7 +21,7 @@ class AppSetting {
   final String key;
 
   /// The group the setting belongs to: `priority`, `reports`, `alerts`,
-  /// `channels`, `contact`, `demo`, or `privacy`.
+  /// `channels`, `contact`, `demo`, `privacy`, or `inventory`.
   final String category;
 
   /// A number (weights, limits, thresholds), a switch (`bool`), or text
@@ -130,6 +130,9 @@ abstract final class SettingKeys {
   /// removed from it (RA 10173).
   static const retentionMonths = 'privacy.retention_months';
 
+  /// A unit's supply is shown as low at or below this percent of full.
+  static const inventoryLowPercent = 'inventory.low_percent';
+
   /// Pairs where the first value must stay at or below the second.
   static const pairs = [
     ('priority.high_at', 'priority.critical_at'),
@@ -232,6 +235,15 @@ const defaultOtherSettings = [
     min: 6,
     max: 60,
     description: 'Months after an incident is closed before personal details are removed from it',
+  ),
+  AppSetting(
+    key: SettingKeys.inventoryLowPercent,
+    category: 'inventory',
+    value: 30,
+    min: 5,
+    max: 90,
+    description:
+        "A unit's supply is shown as low at or below this share of full",
   ),
   AppSetting(
     key: SettingKeys.hotline,

@@ -135,6 +135,7 @@
   "@unitLine": {"placeholders": {"callSign": {"type": "String"}, "unitType": {"type": "String"}}},
   "unitAmbulance": "Ambulance",
   "unitRescueBoat": "Rescue boat",
+  "unitFireTruck": "Fire truck",
   "unitRescueTeam": "Rescue team",
 
   "locationTitle": "Your location",

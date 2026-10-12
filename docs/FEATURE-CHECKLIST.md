@@ -48,6 +48,9 @@ before it works for real (listed in part 6).
 - [ ] D6 Crowd reports: confirmed clusters with a 50 m ring and a count; single reports stay unverified
 - [ ] D6 Barangay boundaries layer
 - [ ] D7 Units table: status counts, stale-GPS flag
+- [ ] D7 Unit supplies: whose unit, what is low or out, a "low on supplies" count, details on click (read-only)
+- [ ] Responder on the web (`/my-unit`): reports fuel, tank water, and stocks for their own unit; no other page opens
+- [ ] A3 "Unit supplies": the percent at which a supply counts as low
 - [ ] D8 72-hour forecast: flood, fire, storm surge; ranked list, map shading, barangay panel **[S]**
 - [ ] D9 Vulnerable Resident Priority List; numbers masked; revealing one is written to the audit log
 - [ ] D10 Weather readings marked Warning or Critical against the thresholds

@@ -83,6 +83,7 @@ IconData unitTypeIcon(UnitType type) => switch (type) {
   UnitType.ambulance => Symbols.ambulance_rounded,
   UnitType.rescueBoat => Symbols.directions_boat_rounded,
   UnitType.rescueTeam => Symbols.groups_rounded,
+  UnitType.fireTruck => Symbols.fire_truck_rounded,
 };
 
 IconData channelIcon(ReportChannel channel) => switch (channel) {

@@ -41,7 +41,28 @@ enum ReportChannel { app, sms, bleRelay, webForm }
 /// Unit status as reported by responders (FR9).
 enum UnitStatus { available, enRoute, onScene }
 
-enum UnitType { ambulance, rescueBoat, rescueTeam }
+enum UnitType { ambulance, rescueBoat, rescueTeam, fireTruck }
+
+/// Whose unit it is: MDRRMD's own, the Bureau of Fire Protection's, a
+/// volunteer fire and rescue brigade's, or an emergency medical service's.
+enum UnitAgency { mdrrmd, bfp, volunteer, ems }
+
+/// What a unit carries and reports (unit inventory). Fuel and tank water
+/// are a percent of full; the rest are counted against a full load.
+enum SupplyItem {
+  fuel,
+  tankWater,
+  drinkingWater,
+  medicalKits,
+  lifeVests,
+  rescueGear;
+
+  /// Reported as a percent of full, not as a count.
+  bool get isPercent => this == fuel || this == tankWater;
+}
+
+/// How a supply stands against a full load.
+enum SupplyState { ok, low, out }
 
 /// Severity band derived from the priority score (provisional until the
 /// MDRRMD SOP arrives, see plan Q15).
@@ -109,6 +130,9 @@ enum AuditAction {
   /// The nightly job removed personal details older than the retention
   /// period (A3).
   retentionApplied,
+
+  /// A crew reported one of its unit's supplies.
+  supplyUpdated,
 }
 
 /// Why a resident asks to cancel their SOS (R2). A dispatcher decides.

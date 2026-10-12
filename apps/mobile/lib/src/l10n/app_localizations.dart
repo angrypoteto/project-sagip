@@ -752,6 +752,12 @@ abstract class AppLocalizations {
   /// **'Rescue boat'**
   String get unitRescueBoat;
 
+  /// No description provided for @unitFireTruck.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire truck'**
+  String get unitFireTruck;
+
   /// No description provided for @unitRescueTeam.
   ///
   /// In en, this message translates to:

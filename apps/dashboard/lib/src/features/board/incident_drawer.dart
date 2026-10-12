@@ -1031,10 +1031,13 @@ class _UnitTile extends StatelessWidget {
               children: [
                 Text(unit.callSign, style: text.titleSmall),
                 Text(
-                  l10n.unitStationCrew(
-                    '${l10n.unitType(unit.type)}, ${unit.station}',
-                    unit.crewSize,
-                  ),
+                  // A crew size is not known for every unit.
+                  unit.crewSize == null
+                      ? '${l10n.unitType(unit.type)}, ${unit.station}'
+                      : l10n.unitStationCrew(
+                          '${l10n.unitType(unit.type)}, ${unit.station}',
+                          unit.crewSize!,
+                        ),
                   style: text.bodySmall,
                 ),
               ],

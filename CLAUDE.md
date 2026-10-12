@@ -111,7 +111,7 @@ select public.clear_demo_data();         # hosted project, SQL editor: remove ev
 
 ## Scope guardrails
 
-Do not build these unless the team explicitly adds them: multi-agency dispatch (BFP, PNP, Red Cross), resource inventory tracking (water levels, supplies), evacuation center management, relief goods, drones, satellite comms, earthquake/volcano forecasting (PHIVOLCS is advisory relay only), iOS.
+Do not build these unless the team explicitly adds them: multi-agency dispatch (BFP, PNP, Red Cross) beyond listing their stations as units, warehouse or relief inventory (per-unit supplies reported by the crew were added on 2026-10-12 at the panel's request), evacuation center management, relief goods, drones, satellite comms, earthquake/volcano forecasting (PHIVOLCS is advisory relay only), iOS.
 
 Build-status promises to the panel: SOS/GPS, Command Board, realtime sync, Hive, SMS fallback + Semaphore, PAGASA, Dijkstra are fully implemented. DBSCAN and the vulnerable list use simulated input. LSTM+KDE is trained but uses a simulated live feed. BLE mesh and RAG are proof-of-concept.
 

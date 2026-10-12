@@ -117,7 +117,8 @@ The thesis already states what is fully built, what uses simulated input, and wh
 | **Must** (demo fails without it) | SOS with GPS (FR1, FR8), Triage Queue and Command Board (FR2), assignment with Dijkstra suggestions (FR3), unit status (FR9), realtime sync, Hive queue (NFR1), SMS fallback Tier 2, Semaphore broadcast (FR6), PAGASA alerts (FR5), RBAC and audit log (FR10, FR11), responder offline cache (FR13) | "Fully implemented" |
 | **Should** (simulated input is acceptable) | DBSCAN clustering (FR7), Vulnerable Resident Priority List (NFR4), incident type classifier (FR12), LSTM+KDE heatmap with simulated live feed (FR4), PHIVOLCS relay (FR14), web form (FR15), performance analytics | "Simulated" or "trained, simulated feed" |
 | **Could** (proof of concept, controlled scenarios) | BLE mesh relay (Tier 3), RAG NDRRMC report, Facebook Page posting, EFCOS water levels | "Proof of concept" |
-| **Won't** | Multi-agency dispatch, resource inventory, evacuation center management, relief goods, drones, satellite, earthquake/volcano forecasting, iOS | Out of scope (Chapter 1) |
+| **Added 2026-10-12** | Per-unit supplies reported by the crew (fuel, tank water, stocks), shown on D7; stations of BFP, volunteer brigades, and EMS listed as units | Asked by the panel; Chapter 1 scope to be updated |
+| **Won't** | Multi-agency dispatch (beyond listing their stations), warehouse or relief inventory, evacuation center management, relief goods, drones, satellite, earthquake/volcano forecasting, iOS | Out of scope (Chapter 1) |
 
 **Scope checkpoint, Sunday Oct 18.** Hold a 30-minute review with the teammates. Check four things: did Phase 1 finish on time, has MDRRMD data arrived (or will it by Oct 23), is the gateway hardware in hand, and is PAGASA access confirmed. Then apply the first rule that matches:
 

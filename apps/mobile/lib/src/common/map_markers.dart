@@ -88,6 +88,7 @@ class UnitMarker extends StatelessWidget {
             switch (type) {
               UnitType.ambulance => Symbols.ambulance_rounded,
               UnitType.rescueBoat => Symbols.directions_boat_rounded,
+              UnitType.fireTruck => Symbols.fire_truck_rounded,
               _ => Symbols.groups_rounded,
             },
             color: Colors.white,

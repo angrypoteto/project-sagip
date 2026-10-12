@@ -105,7 +105,7 @@ class _UnitsTable extends ConsumerWidget {
                     ),
                     DataCell(Text(l10n.unitType(u.type))),
                     DataCell(Text(u.station)),
-                    DataCell(Text('${u.crewSize}')),
+                    DataCell(Text('${u.crewSize ?? '–'}')),
                     DataCell(
                       u.retired
                           ? SagipChip(
@@ -319,7 +319,7 @@ class _UnitDialogState extends State<_UnitDialog> {
   late final _callSign = TextEditingController(text: widget.unit?.callSign);
   late final _station = TextEditingController(text: widget.unit?.station);
   late final _crew = TextEditingController(
-    text: widget.unit == null ? '' : '${widget.unit!.crewSize}',
+    text: widget.unit?.crewSize == null ? '' : '${widget.unit!.crewSize}',
   );
   late UnitType _type = widget.unit?.type ?? UnitType.rescueTeam;
   var _tried = false;

@@ -47,11 +47,14 @@ class ResponderHomePage extends ConsumerWidget {
         Text(unit.callSign, style: text.headlineSmall),
         const SizedBox(height: SagipSpace.xs),
         Text(
-          l10n.unitDetail(
-            l10n.unitType(unit.type),
-            unit.station,
-            unit.crewSize,
-          ),
+          // A crew size is not known for every unit.
+          unit.crewSize == null
+              ? '${l10n.unitType(unit.type)} · ${unit.station}'
+              : l10n.unitDetail(
+                  l10n.unitType(unit.type),
+                  unit.station,
+                  unit.crewSize!,
+                ),
           style: text.bodyMedium!.copyWith(color: p.textSecondary),
         ),
         const SizedBox(height: SagipSpace.xl),

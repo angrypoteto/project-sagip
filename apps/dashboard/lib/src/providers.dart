@@ -21,6 +21,9 @@ final staffSessionProvider = Provider<StaffSessionRepository>(
 final incidentRepositoryProvider = Provider<IncidentRepository>(
   (ref) => _missing('IncidentRepository'),
 );
+final unitInventoryRepositoryProvider = Provider<UnitInventoryRepository>(
+  (ref) => throw UnimplementedError('override unitInventoryRepositoryProvider'),
+);
 final unitRepositoryProvider = Provider<UnitRepository>(
   (ref) => _missing('UnitRepository'),
 );
@@ -97,6 +100,9 @@ List<Override> _mockOverrides(
   staffSessionProvider.overrideWithValue(MockAuthRepository(backend)),
   incidentRepositoryProvider.overrideWithValue(MockIncidentRepository(backend)),
   unitRepositoryProvider.overrideWithValue(MockUnitRepository(backend)),
+  unitInventoryRepositoryProvider.overrideWithValue(
+    MockUnitInventoryRepository(backend),
+  ),
   crowdReportRepositoryProvider.overrideWithValue(
     MockCrowdReportRepository(backend),
   ),
@@ -129,6 +135,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   staffSessionProvider.overrideWithValue(backend.auth),
   incidentRepositoryProvider.overrideWithValue(backend.incidents),
   unitRepositoryProvider.overrideWithValue(backend.units),
+  unitInventoryRepositoryProvider.overrideWithValue(backend.inventory),
   crowdReportRepositoryProvider.overrideWithValue(backend.crowdReports),
   residentRepositoryProvider.overrideWithValue(backend.residents),
   weatherRepositoryProvider.overrideWithValue(backend.weather),
@@ -187,6 +194,35 @@ final activeIncidentsProvider = StreamProvider<List<Incident>>(
     () => ref.watch(incidentRepositoryProvider).watchActive(),
   ),
 );
+
+/// Every unit's supplies as their crews last reported them (D7).
+final unitSuppliesProvider = StreamProvider<List<UnitSupply>>(
+  (ref) =>
+      _forAccount(ref, () => ref.watch(unitRepositoryProvider).watchSupplies()),
+);
+
+/// The responder's own unit and its supplies (the "My unit" page).
+final myUnitProvider = StreamProvider<ResponseUnit?>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(unitInventoryRepositoryProvider).watchMyUnit(),
+  ),
+);
+final mySuppliesProvider = StreamProvider<List<UnitSupply>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(unitInventoryRepositoryProvider).watchMine(),
+  ),
+);
+
+/// A supply is shown as low at or below this percent of full (A3).
+final inventoryLowPercentProvider = Provider<double>((ref) {
+  final settings = ref.watch(settingsProvider).value ?? const <AppSetting>[];
+  for (final s in settings) {
+    if (s.key == SettingKeys.inventoryLowPercent) return s.number.toDouble();
+  }
+  return UnitSupply.defaultLowPercent;
+});
 
 final unitsProvider = StreamProvider<List<ResponseUnit>>(
   (ref) => _forAccount(ref, () => ref.watch(unitRepositoryProvider).watchAll()),

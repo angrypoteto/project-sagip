@@ -388,6 +388,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unitRescueBoat => 'Rescue boat';
 
   @override
+  String get unitFireTruck => 'Fire truck';
+
+  @override
   String get unitRescueTeam => 'Rescue team';
 
   @override

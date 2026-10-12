@@ -109,6 +109,7 @@
   "unitLine": "{callSign} ? {unitType}",
   "unitAmbulance": "Ambulansya",
   "unitRescueBoat": "Bangkang pangsagip",
+  "unitFireTruck": "Fire truck",
   "unitRescueTeam": "Grupong tagasagip",
   "locationTitle": "Iyong lokasyon",
   "locationAccuracy": "{coordinates} ? maaaring lumihis ng {meters} m",

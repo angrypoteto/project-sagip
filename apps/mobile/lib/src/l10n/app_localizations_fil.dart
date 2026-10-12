@@ -392,6 +392,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get unitRescueBoat => 'Bangkang pangsagip';
 
   @override
+  String get unitFireTruck => 'Fire truck';
+
+  @override
   String get unitRescueTeam => 'Grupong tagasagip';
 
   @override
