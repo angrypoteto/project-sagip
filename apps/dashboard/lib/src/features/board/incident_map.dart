@@ -194,40 +194,6 @@ class _IncidentMapState extends ConsumerState<IncidentMap> {
             ],
           ),
         ),
-        // Nothing open: a small note at the top, so the map stays in view
-        // and a new SOS shows on it at once.
-        if (incidents.isEmpty)
-          Positioned(
-            top: SagipSpace.lg,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                key: const ValueKey('map-empty-note'),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SagipSpace.lg,
-                  vertical: SagipSpace.sm,
-                ),
-                decoration: floatingCard(p),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Symbols.check_circle_rounded,
-                      size: 18,
-                      color: p.success.text,
-                      fill: 1,
-                    ),
-                    const SizedBox(width: SagipSpace.sm),
-                    Text(
-                      l10n.queueEmpty,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }
