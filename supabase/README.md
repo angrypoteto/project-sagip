@@ -239,7 +239,7 @@ The A3 switch "Send alerts as push notifications" (`channels.push`) turns all th
 
 `send-alerts` posts each queued `facebook` delivery on the Page through the Graph API (`POST /{page-id}/feed`): the level, the title, the text, the affected barangays (or "All of Manila"), and a line on how to ask for rescue. The delivery row gets the post id, or Facebook's reason when it refuses (an expired token, for example). Simulated alerts are never posted. The channel is off by default on the Configuration page.
 
-The code is in the repo with tests (`node --test supabase/functions/send-alerts/*.test.ts`); the deployed copy (version 2) does not have it yet, so it marks Facebook deliveries "not set up" until it is redeployed.
+The code is in the repo with tests (`node --test supabase/functions/send-alerts/*.test.ts`), and the deployed copy has it (version 5; its check answered `facebook: FACEBOOK_PAGE_ID or FACEBOOK_PAGE_TOKEN is not set` on 2026-10-13). Only the two secrets and the switch on the Configuration page are missing; step 3 below is not needed.
 
 1. **Access:** a Page admin at MDRRMD makes a Meta app (developers.facebook.com, type Business), adds the Page, and creates a long-lived **Page** access token that may post (`pages_manage_posts`, `pages_read_engagement`). For the capstone a test Page you own works the same way.
 2. **Secrets** (Edge Functions > Secrets): `FACEBOOK_PAGE_ID`, `FACEBOOK_PAGE_TOKEN`. Optional `FACEBOOK_GRAPH_VERSION` (default `v24.0`).
