@@ -60,7 +60,7 @@ Migration file names match the versions recorded on the hosted project. Never ed
 
 ## No made-up data on the hosted project (from 2026-10-12)
 
-Joshua asked for everything invented for demos to be removed from the real database: the sample incidents and their records, the sample residents and households, the sample rescue units, the sample forecast run, the classifier trained on invented reports, and the texts, pushes, reports, and audit entries made from them. `20261012010000_clear_demo_data.sql` defines `clear_demo_data()`; paste the file in the SQL editor, run it, then run `select public.clear_demo_data();` once. It answers with how many rows of each kind it removed.
+Joshua asked for everything invented for demos to be removed from the real database: the sample incidents and their records, the sample residents and households, the sample rescue units, the sample forecast run, the classifier trained on invented reports, and the texts, pushes, reports, and audit entries made from them. `*_clear_demo_data.sql` defines `clear_demo_data()`. **Done on 2026-10-12** (applied as `20261012023754` and run by Claude through the connector): it removed 7 incidents, 12 crowd reports, 8 residents, 12 units, 897 forecast rows, and the sample classifier; the temporary emulator account went with them.
 
 Afterwards, and until real data arrives:
 
