@@ -37,7 +37,12 @@ final Map<String, List<List<LatLng>>> _outlines = {
 /// polygons only while it is handed the same list, and working that out
 /// again for 897 shapes on every rebuild made the map stutter.
 class BarangayBoundaries extends StatefulWidget {
-  const BarangayBoundaries({super.key, this.fills = const {}, this.highlight});
+  const BarangayBoundaries({
+    super.key,
+    this.fills = const {},
+    this.highlight,
+    this.onTap,
+  });
 
   /// Fill color by barangay name; barangays not listed are not filled.
   final Map<String, Color> fills;
@@ -45,13 +50,26 @@ class BarangayBoundaries extends StatefulWidget {
   /// Drawn with a stronger, thicker line.
   final String? highlight;
 
+  /// Called with the barangay that was clicked. Null: the shapes take no
+  /// clicks, and the map under them does.
+  final ValueChanged<String>? onTap;
+
   @override
   State<BarangayBoundaries> createState() => _BarangayBoundariesState();
 }
 
 class _BarangayBoundariesState extends State<BarangayBoundaries> {
-  List<Polygon>? _polygons;
+  List<Polygon<String>>? _polygons;
   SagipPalette? _palette;
+
+  /// What the last click or pointer move landed on.
+  final _hit = ValueNotifier<LayerHitResult<String>?>(null);
+
+  @override
+  void dispose() {
+    _hit.dispose();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(BarangayBoundaries old) {
@@ -69,15 +87,32 @@ class _BarangayBoundariesState extends State<BarangayBoundaries> {
       _palette = p;
       _polygons = null;
     }
-    return PolygonLayer(polygons: _polygons ??= _build(p));
+    final onTap = widget.onTap;
+    final layer = PolygonLayer<String>(
+      hitNotifier: onTap == null ? null : _hit,
+      polygons: _polygons ??= _build(p),
+    );
+    if (onTap == null) return layer;
+    return MouseRegion(
+      hitTestBehavior: HitTestBehavior.deferToChild,
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          final names = _hit.value?.hitValues;
+          if (names != null && names.isNotEmpty) onTap(names.first);
+        },
+        child: layer,
+      ),
+    );
   }
 
-  List<Polygon> _build(SagipPalette p) {
+  List<Polygon<String>> _build(SagipPalette p) {
     final fills = widget.fills;
     final highlight = widget.highlight;
-    final polygons = <Polygon>[];
-    Polygon<Object> shape(String name, List<LatLng> ring, {bool top = false}) =>
+    final polygons = <Polygon<String>>[];
+    Polygon<String> shape(String name, List<LatLng> ring, {bool top = false}) =>
         Polygon(
+          hitValue: name,
           points: ring,
           color: fills[name],
           // Quiet but visible over the muted basemap in both themes.

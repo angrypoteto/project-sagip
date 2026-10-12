@@ -98,16 +98,18 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 ),
                 children: [
                   const SagipBaseMap(),
+                  // The heat map: every barangay of the run in its risk's
+                  // color; clicking one opens its panel.
                   BarangayBoundaries(
-                    fills: run == null ? const {} : _riskFills(run, p),
+                    fills: run == null ? const {} : riskFills(run, _hazard, p),
                     highlight: selected,
+                    onTap: run == null ? null : _select,
                   ),
-                  if (run != null)
-                    _RiskMarkers(
+                  if (run != null && selected != null)
+                    _SelectedMarker(
                       run: run,
                       hazard: _hazard,
-                      selected: selected,
-                      onSelect: _select,
+                      barangay: selected,
                     ),
                   const MapAttribution(),
                 ],
@@ -142,18 +144,31 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
       ],
     );
   }
-
-  /// Each barangay shaded by the chosen hazard's risk: nothing for low,
-  /// ember for moderate, signal for high. The icon marker carries the level
-  /// too, so color is never the only cue.
-  Map<String, Color> _riskFills(ForecastRun run, SagipPalette p) => {
-    for (final f in run.forecasts)
-      if (f.riskOf(_hazard) != RiskLevel.low)
-        f.barangay: riskVisual(f.riskOf(_hazard), p).tone.fill.withValues(
-          alpha: f.riskOf(_hazard) == RiskLevel.high ? 0.35 : 0.22,
-        ),
-  };
 }
+
+/// How strongly each level is painted over the map: low stays quiet, high
+/// is the strongest, so the levels differ in weight as well as in hue.
+const riskFillAlpha = {
+  RiskLevel.low: 0.22,
+  RiskLevel.moderate: 0.50,
+  RiskLevel.high: 0.62,
+};
+
+/// The fill of a barangay at [risk]: verdant for low, ember for moderate,
+/// signal for high.
+Color riskFill(RiskLevel risk, SagipPalette p) => switch (risk) {
+  RiskLevel.low => p.success.fill,
+  RiskLevel.moderate => p.warning.fill,
+  RiskLevel.high => p.critical.fill,
+}.withValues(alpha: riskFillAlpha[risk]);
+
+/// Every barangay of [run] in the color of its risk for [hazard]. A
+/// barangay the run has nothing for is left unpainted.
+Map<String, Color> riskFills(
+  ForecastRun run,
+  ForecastHazard hazard,
+  SagipPalette p,
+) => {for (final f in run.forecasts) f.barangay: riskFill(f.riskOf(hazard), p)};
 
 class _RankedList extends ConsumerWidget {
   const _RankedList({
@@ -394,61 +409,37 @@ class _BarangayRow extends StatelessWidget {
   }
 }
 
-/// The risk markers. Zoomed out, only the barangays that matter get one:
-/// 897 markers at city zoom hid the map and made it stutter (each is a
-/// widget moved on every frame of a pan). High risk always shows, moderate
-/// from [moderateFrom], low from [lowFrom]; the chosen barangay always.
-/// The shading of the boundaries carries the rest.
-class _RiskMarkers extends StatelessWidget {
-  const _RiskMarkers({
+/// The chosen barangay's marker, with its risk's icon: the one marker on
+/// the heat map, so the colors stay readable.
+class _SelectedMarker extends StatelessWidget {
+  const _SelectedMarker({
     required this.run,
     required this.hazard,
-    required this.selected,
-    required this.onSelect,
+    required this.barangay,
   });
 
   final ForecastRun run;
   final ForecastHazard hazard;
-  final String? selected;
-  final ValueChanged<String> onSelect;
-
-  static const moderateFrom = 13.0;
-  static const lowFrom = 15.0;
-
-  static bool shows(RiskLevel risk, double zoom) => switch (risk) {
-    RiskLevel.high => true,
-    RiskLevel.moderate => zoom >= moderateFrom,
-    RiskLevel.low => zoom >= lowFrom,
-  };
+  final String barangay;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final zoom = MapCamera.of(context).zoom;
+    final center = _centers[barangay];
+    final forecast = run.forecasts
+        .where((f) => f.barangay == barangay)
+        .firstOrNull;
+    if (center == null || forecast == null) return const SizedBox.shrink();
     return MarkerLayer(
       markers: [
-        for (final f in run.forecasts)
-          if (_centers[f.barangay] != null &&
-              (f.barangay == selected || shows(f.riskOf(hazard), zoom)))
-            Marker(
-              key: ValueKey('risk-${f.barangay}'),
-              point: toLatLng(_centers[f.barangay]!),
-              width: _RiskMarker.size,
-              height: _RiskMarker.size,
-              child: Tooltip(
-                message: l10n.forecastMarker(
-                  f.barangay,
-                  l10n.risk(f.riskOf(hazard)),
-                ),
-                child: GestureDetector(
-                  onTap: () => onSelect(f.barangay),
-                  child: _RiskMarker(
-                    risk: f.riskOf(hazard),
-                    selected: f.barangay == selected,
-                  ),
-                ),
-              ),
-            ),
+        Marker(
+          key: ValueKey('risk-$barangay'),
+          point: toLatLng(center),
+          width: _RiskMarker.size,
+          height: _RiskMarker.size,
+          child: IgnorePointer(
+            child: _RiskMarker(risk: forecast.riskOf(hazard), selected: true),
+          ),
+        ),
       ],
     );
   }
@@ -535,8 +526,19 @@ class _Legend extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               for (final r in RiskLevel.values.reversed) ...[
-                SagipChip.status(label: l10n.risk(r), visual: riskVisual(r, p)),
-                const SizedBox(width: SagipSpace.sm),
+                // The color as it looks on the map, then its name.
+                Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: Color.alphaBlend(riskFill(r, p), p.canvas),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: p.hairlineStrong),
+                  ),
+                ),
+                const SizedBox(width: SagipSpace.xs),
+                Text(l10n.risk(r), style: text.labelMedium),
+                const SizedBox(width: SagipSpace.md),
               ],
             ],
           ),

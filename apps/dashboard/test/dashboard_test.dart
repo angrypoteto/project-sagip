@@ -1151,15 +1151,26 @@ void main() {
     expect(find.text('2 high, 1 moderate, 5 low'), findsOneWidget);
     expect(top('Barangay 649'), lessThan(top('Barangay 105')));
     expect(top('Barangay 105'), lessThan(top('Barangay 412')));
-    // The map shades each barangay's real boundary by its risk (low is
-    // not shaded); all 897 outlines are drawn.
+    // The heat map: every barangay of the run is painted in its risk's
+    // color (low faintly, high strongest); all 897 outlines are drawn.
     final shading = tester.widget<BarangayBoundaries>(
       find.byType(BarangayBoundaries),
     );
-    expect(shading.fills.keys, hasLength(3));
-    expect(shading.fills.keys, contains('Barangay 649'));
+    expect(shading.fills.keys, hasLength(8));
+    final high = shading.fills['Barangay 649']!;
+    final low = shading.fills['Barangay 412']!;
+    expect(high, isNot(low));
+    expect(high.a, greaterThan(low.a));
+    expect(shading.onTap, isNotNull, reason: 'a barangay can be clicked');
+    // No markers until one is chosen.
+    expect(find.byType(MarkerLayer), findsNothing);
     expect(
-      tester.widget<PolygonLayer>(find.byType(PolygonLayer)).polygons.length,
+      tester
+          .widget<PolygonLayer<String>>(
+            find.byWidgetPredicate((w) => w is PolygonLayer<String>),
+          )
+          .polygons
+          .length,
       greaterThanOrEqualTo(897),
     );
 
