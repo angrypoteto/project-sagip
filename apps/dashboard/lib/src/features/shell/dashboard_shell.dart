@@ -116,8 +116,9 @@ final _adminItems = [
 
 /// The navigation menu beside the page. Closed, it is a rail of icons.
 /// Pointing at it opens it over the page, with the names beside the icons,
-/// and it closes again when the pointer leaves. The menu button in the top
-/// bar keeps it open (the page then makes room for it) until pressed again.
+/// and it closes again when the pointer leaves. The menu button under the
+/// mark keeps it open (the page then makes room for it) until pressed
+/// again; it stays in one place, open or closed, so it can be aimed at.
 class _NavFrame extends ConsumerStatefulWidget {
   const _NavFrame({
     required this.location,
@@ -145,6 +146,7 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
     final pinned = ref.watch(navMenuPinnedProvider);
     final open = pinned || ref.watch(navMenuHoveredProvider);
     final hover = ref.read(navMenuHoveredProvider.notifier);
+    final l10n = AppLocalizations.of(context);
     final width = open ? _NavFrame.openWidth : _NavFrame.closedWidth;
     return Stack(
       children: [
@@ -195,6 +197,19 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _Brand(open: open),
+                      KeyedSubtree(
+                        key: const ValueKey('nav-menu-button'),
+                        child: _RailRow(
+                          icon: pinned
+                              ? Symbols.menu_open_rounded
+                              : Symbols.menu_rounded,
+                          label: pinned ? l10n.navMenuClose : l10n.navMenuKeep,
+                          selected: false,
+                          open: open,
+                          onTap: () =>
+                              ref.read(navMenuPinnedProvider.notifier).toggle(),
+                        ),
+                      ),
                       Expanded(child: _items(p, open)),
                     ],
                   ),

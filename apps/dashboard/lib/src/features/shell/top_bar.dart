@@ -9,9 +9,9 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
 
-/// Slim top bar: the menu button, PAGASA's conditions, and on the right the
-/// connection, the clock, and the account. The name and mark are at the
-/// head of the side menu.
+/// Slim top bar: PAGASA's conditions, and on the right the connection, the
+/// clock, and the account. The mark, the name, and the menu button are in
+/// the side menu.
 class TopBar extends ConsumerWidget {
   const TopBar({super.key});
 
@@ -20,31 +20,15 @@ class TopBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = SagipPalette.of(context);
-    final l10n = AppLocalizations.of(context);
-    final menuOpen = ref.watch(navMenuPinnedProvider);
     return Container(
       height: height,
-      padding: const EdgeInsets.only(left: SagipSpace.md, right: SagipSpace.xl),
+      padding: const EdgeInsets.symmetric(horizontal: SagipSpace.xl),
       decoration: BoxDecoration(
         color: p.panel,
         border: Border(bottom: BorderSide(color: p.hairline)),
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 44,
-            height: 44,
-            child: IconButton(
-              key: const ValueKey('nav-menu-button'),
-              tooltip: menuOpen ? l10n.navMenuClose : l10n.navMenuKeep,
-              isSelected: menuOpen,
-              onPressed: () =>
-                  ref.read(navMenuPinnedProvider.notifier).toggle(),
-              icon: const Icon(Symbols.menu_rounded, size: 22),
-              selectedIcon: const Icon(Symbols.menu_open_rounded, size: 22),
-            ),
-          ),
-          const SizedBox(width: SagipSpace.lg),
           const Expanded(child: _WeatherSummary()),
           const _LinkIndicator(),
           const SizedBox(width: SagipSpace.xl),
