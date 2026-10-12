@@ -61,7 +61,8 @@ flutter test                             # run tests for the package you touched
 dart format .                            # format before commit
 supabase start / supabase db reset       # local database (migrations + seed); CLI not installed yet
 supabase test db                         # RLS test (supabase/tests/rls_test.sql)
-select public.reset_demo_data();         # hosted project, SQL editor: reload the demo data
+select public.clear_demo_data();         # hosted project, SQL editor: remove every made-up record (run once, 2026-10-12)
+# reset_demo_data() is for the RLS test only (it runs in a rolled-back transaction). Do not run it by hand: it puts the made-up records back.
 ```
 
 ## Architecture rules

@@ -58,6 +58,22 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
 
+## No made-up data on the hosted project (from 2026-10-12)
+
+Joshua asked for everything invented for demos to be removed from the real database: the sample incidents and their records, the sample residents and households, the sample rescue units, the sample forecast run, the classifier trained on invented reports, and the texts, pushes, reports, and audit entries made from them. `20261012010000_clear_demo_data.sql` defines `clear_demo_data()`; paste the file in the SQL editor, run it, then run `select public.clear_demo_data();` once. It answers with how many rows of each kind it removed.
+
+Afterwards, and until real data arrives:
+
+- The Command Board is empty until a real SOS, or a simulated one from A3 (simulation mode), comes in.
+- **Nothing can be dispatched until units exist:** enter MDRRMD's real units on A2 Resources.
+- Reports are not tagged with a type until the classifier trained on the real descriptions is loaded.
+- D8 says there is no forecast until the forecast model is retrained and run.
+- The Vulnerable Resident Priority List is empty until residents register.
+
+Kept: the staff accounts, the 897 barangays, the settings, what the live feeds read (river levels, PHIVOLCS, PAGASA from its next reading), the Dijkstra timing log, and the provisional reference passages for the report's language model.
+
+**Do not run `reset_demo_data()` by hand any more:** it would put the made-up records back. It stays because the RLS test loads the sample data inside a transaction that is rolled back. The apps' own sample-data mode (running without `.env`) is unchanged: it never touches the database, and the automated tests run on it.
+
 ## Changing the demo data
 
 - **Small edits:** open the Table Editor in the Supabase dashboard and edit rows directly (for example a unit's status or a resident's household). Items with an eye icon are **views** and cannot be edited; change the table they read from:
