@@ -69,6 +69,10 @@ Until the last two arrive, `prepare_windows.py` refuses the real weather file (t
 
 The live input, once there is a real model: PAGASA's signal and surge are already kept as they change (`weather_alert`, real rows since 2026-10-03). The daily rainfall total, the wettest hour, and the wind have to come from the same source the model was trained on, so `run-forecast` will read the last 14 days from Open-Meteo (not built yet; it is a feed the thesis does not name, to be confirmed by the team).
 
+### Incident leads from public news (2026-10-12)
+
+`forecast/data/manila_incident_leads.csv` lists what a first search of news sites gave for Manila from 2021 on: 33 fires and 7 flood days, each with a date, a place as the report named it, and a link. **Every row is unchecked** (`checked` is `no`): the dates and places come from search summaries, two already disagree with their own links, and none has coordinates. No storm surge incident was found for these years. It is far too little to train on (BFP counted 212 structural fires in Manila in 2021 alone), and it holds only what made the news. It is a start for the Data role: open each link, correct the row, set `checked` to `yes`, and add rows from BFP-NCR's and MMDA's own posts. It is not read by any script.
+
 ## Forecast: data preparation and KDE (plan 10.5)
 
 ```bash

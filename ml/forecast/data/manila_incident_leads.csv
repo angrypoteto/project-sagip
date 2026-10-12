@@ -1,0 +1,41 @@
+date,hazard,place,source_url,checked
+2021-03-10,fire,"Juan Luna Street, Tondo",https://www.gmanetwork.com/news/topstories/metro/779055/fire-breaks-out-in-tondo-manila/story,no
+2021-05-10,fire,"Sgt. Mabagos and Wagas Streets, Tondo",https://mb.com.ph/2021/5/10/tondo-fire-leaves-60-families-homeless,no
+2021-10-12,fire,"Tondo (street not in the summary)",,no
+2021-11-02,fire,"Loyola corner Tolentino Street, Sampaloc",https://newsinfo.inquirer.net/?p=1509493,no
+2022-02-20,fire,"Sta. Cruz (street not in the summary)",https://newsinfo.inquirer.net/1557357/4-dead-in-manila-residential-area-fire,no
+2022-07-26,fire,"Baseco, Port Area",,no
+2022-08-21,fire,"Barangay 636, Nagtahan, Santa Mesa",https://newsinfo.inquirer.net/1650619/fire-hits-residential-area-in-manila-11,no
+2022-09-07,fire,"Villafojas Street, Tondo",https://mb.com.ph/2022/9/7/2-fires-raze-homes-in-manila,no
+2022-09-07,fire,"Dagonoy, Barangay 773, San Andres Bukid",https://mb.com.ph/2022/9/7/2-fires-raze-homes-in-manila,no
+2022-10-30,fire,"Sampaloc (street not in the summary)",https://mb.com.ph/2022/10/30/fire-hits-residential-area-in-sampaloc-manila-3,no
+2023-01-21,fire,"Sandico corner Barcelona Streets, Barangay 35, Tondo",https://gmanetwork.com/news/topstories/metro/858160/fire-hits-tondo-residential-area/story,no
+2023-10-13,fire,"Baseco compound",https://newsinfo.inquirer.net/1845267/fire-hits-baseco-compound-in-tondo-manila,no
+2023-11-01,fire,"Sisa Street, Sampaloc (three fires that day)",https://newsinfo.inquirer.net/?p=1854006,no
+2023-11-08,fire,"Quezon and Chesa Streets, Tondo (the summary said 9 October; the link says 8 November)",https://mb.com.ph/2023/11/8/8-families-displaced-6-houses-damaged-in-tondo-fire,no
+2023-11-10,fire,"Arellano Street corner G. Tuazon Street, Barangay 739, San Andres (date of the report)",https://tribune.net.ph/2023/11/10/blaze-razes-malate-residential-houses,no
+2023-12-19,fire,"Tondo (street not in the summary)",https://mb.com.ph/2023/12/19/fire-hits-residential-area-in-tondo-5,no
+2024-01-11,fire,"West Zamora Street, Pandacan",https://newsinfo.inquirer.net/1887525/fire-hits-residential-area-in-pandacan-bfp,no
+2024-02-07,fire,"Maria Luisa Street, Barangay 567, Sampaloc",https://dzrh.com.ph/post/fire-hits-sampaloc-manila-residencial-area,no
+2024-02-21,fire,"Barangay 598, Sta. Mesa",https://dzrh.com.ph/post/fire-hits-residential-area-in-sta.-mesa-manila,no
+2024-03-19,fire,"Benita Street, Barangay 186, Tondo",https://newsinfo.inquirer.net/1920378/fire-residential-area-tondo-manila,no
+2024-04-05,fire,"Tomas Mapua Street, Sta. Cruz",https://mb.com.ph/2024/4/5/fire-hits-houses-in-sta-cruz-manila,no
+2024-05-23,fire,"Barangay 636, Sta. Mesa",https://newsinfo.inquirer.net/1944155/fire-burns-houses-in-sta-mesa-manila,no
+2024-11-24,fire,"Isla Puting Bato, Tondo",https://newsinfo.inquirer.net/2008521/fire-hits-isla-puting-bato-in-tondo-manila,no
+2025-01-29,fire,"Herbosa Street, Barangay 91, Tondo",https://gmanetwork.com/news/topstories/metro/934461/3-more-fire-incidents-hit-manila-on-chinese-new-year/story,no
+2025-03-12,fire,"Barangay 602, Sta. Mesa",https://newsinfo.inquirer.net/2043244,no
+2025-04-29,fire,"Barangay 595, Sta. Mesa (the summary said 2 May; the link says 29 April)",https://mb.com.ph/2025/4/29/man-72-dies-in-manila-residential-fire,no
+2025-05-19,fire,"Anonas Street, Sta. Mesa",https://www.dzrh.com.ph/post/fire-hits-residential-area-in-santa-mesa-manila,no
+2025-06-26,fire,"San Andres Bukid",https://tribune.net.ph/amp/story/2025/06/26/fire-guts-homes-in-san-andres-bukid,no
+2025-07-03,fire,"Loreto Street, Barangay 420, Sampaloc",https://mb.com.ph/2025/07/03/fire-displaces-over-200-residents-in-sampaloc-manila-1-injured,no
+2025-07-04,fire,"Barangay 375, Tambunting, Sta. Cruz",https://mb.com.ph/2025/07/04/fire-hits-houses-in-tambunting-manila,no
+2025-10-03,fire,"Leveriza Street, Barangay 705",https://mb.com.ph/2025/10/03/fire-razes-houses-in-manila,no
+2026-04-20,fire,"Delgado Street, Barangay 407, Sampaloc",https://mb.com.ph/2026/04/20/fire-hits-houses-in-sampaloc,no
+2026-07-19,fire,"Tondo (street not in the summary)",https://www.gmanetwork.com/news/topstories/metro/995362/fire-breaks-out-in-residential-area-in-tondo-manila/story/,no
+2022-10-29,flood,"Taft Avenue; Padre Burgos; España; T.M. Kalaw Street (Paeng)",https://news.abs-cbn.com/news/10/30/22/some-parts-of-metro-manila-experience-flooding-due-to-paeng,no
+2023-09-23,flood,"Bonifacio Drive",https://www.philstar.com/headlines/2023/09/24/2298617/floods-hit-metro-manila-roads-2-lpas-monitored/amp/,no
+2024-07-24,flood,"España-Lacson; España-Antipolo; Vito Cruz to Taft Avenue; Roxas-Kalaw; UN Avenue; Bonifacio Drive (Carina)",https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday,no
+2025-07-21,flood,"España-Lacson; España-Antipolo; Taft Avenue; Rizal Avenue; Roxas Boulevard",https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads,no
+2025-07-22,flood,"España-Dela Fuente; España-Antipolo; Taft at PGH; Rizal Avenue-Pampanga Street; Taft-Padre Faura; Taft-UN Avenue",https://www.gmanetwork.com/news/topstories/metro/953419/mmda-list-of-flooded-areas-as-of-tuesday-4-40-p-m/story/,no
+2026-08-18,flood,"España corner Jhocson; Rizal Avenue corner Bambang Street; Abad Santos corner Yuseco",https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat,no
+2026-08-19,flood,"España-Dela Fuente",https://www.gmanetwork.com/news/topstories/metro/999051/flood-alert-flooded-roads-in-metro-manila-on-wednesday-august-19-2026/story/,no
