@@ -106,6 +106,12 @@ abstract class AppLocalizations {
   /// **'S.A.G.I.P.'**
   String get brandName;
 
+  /// No description provided for @brandOffice.
+  ///
+  /// In en, this message translates to:
+  /// **'Manila City MDRRMD'**
+  String get brandOffice;
+
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:

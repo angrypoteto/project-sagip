@@ -16,6 +16,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get brandName => 'S.A.G.I.P.';
 
   @override
+  String get brandOffice => 'Manila City MDRRMD';
+
+  @override
   String get retry => 'Try again';
 
   @override

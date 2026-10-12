@@ -67,9 +67,28 @@ class TopBar extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: SagipSpace.md),
-          Text(
-            l10n.brandName,
-            style: text.titleMedium!.copyWith(letterSpacing: 0.5),
+          const SagipMark(size: 30),
+          const SizedBox(width: SagipSpace.md),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.brandName,
+                style: text.titleSmall!.copyWith(
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w700,
+                  height: 1.1,
+                ),
+              ),
+              Text(
+                l10n.brandOffice,
+                style: text.labelSmall!.copyWith(
+                  color: p.textSecondary,
+                  height: 1.2,
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: SagipSpace.x4),
           const Expanded(child: _WeatherSummary()),
