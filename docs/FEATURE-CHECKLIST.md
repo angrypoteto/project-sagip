@@ -163,6 +163,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 5. Built: mobile app, responder
 
+- [ ] **[N]** S3 Sign in: the logo and heading are centred and the MDRRMD hotline card sits at the bottom of the screen (sign out to see it)
 - [ ] F1 Home: unit, status control, location sharing line, weather strip
 - [ ] F1 "Keep S.A.G.I.P. running" battery prompt
 - [ ] F2 Incoming assignment: full screen, the app's own tone, vibration, Accept **[P]** for the sound

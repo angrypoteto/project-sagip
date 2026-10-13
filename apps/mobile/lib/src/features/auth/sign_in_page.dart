@@ -63,68 +63,88 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(SagipSpace.xl),
-          children: [
-            const SizedBox(height: SagipSpace.lg),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: SagipMark(size: 48),
-            ),
-            const SizedBox(height: SagipSpace.xl),
-            Text(l10n.residentSignInTitle, style: text.headlineMedium),
-            const SizedBox(height: SagipSpace.sm),
-            Text(
-              l10n.residentSignInBody,
-              style: text.bodyMedium!.copyWith(color: p.textSecondary),
-            ),
-            if (offline) ...[
-              const SizedBox(height: SagipSpace.lg),
-              _Notice(text: l10n.offlineSignIn),
-            ],
-            const SizedBox(height: SagipSpace.xl),
-            TextField(
-              controller: _phone,
-              keyboardType: TextInputType.phone,
-              autofillHints: const [AutofillHints.telephoneNumberNational],
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9 +\-]')),
-              ],
-              onTapOutside: (_) => FocusScope.of(context).unfocus(),
-              decoration: InputDecoration(
-                labelText: l10n.mobileNumber,
-                hintText: l10n.mobileNumberHint,
-                prefixText: '+63 ',
-                errorText: _error == null
-                    ? null
-                    : l10n.phoneAuthFailure(_error!),
+        // The form sits at the top and the hotline at the bottom of the
+        // screen (Joshua, 2026-10-13); on a short screen, or with the
+        // keyboard open, the whole page scrolls instead.
+        child: LayoutBuilder(
+          builder: (context, box) => SingleChildScrollView(
+            padding: const EdgeInsets.all(SagipSpace.xl),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: box.maxHeight - 2 * SagipSpace.xl,
               ),
-              onSubmitted: (_) => _sendCode(),
-            ),
-            const SizedBox(height: SagipSpace.lg),
-            SizedBox(
-              height: 56,
-              child: FilledButton(
-                onPressed: _busy || offline ? null : _sendCode,
-                child: Text(_busy ? l10n.sendingCode : l10n.sendCode),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: SagipSpace.x3),
+                    const Center(child: SagipMark(size: 64)),
+                    const SizedBox(height: SagipSpace.xl),
+                    Text(
+                      l10n.residentSignInTitle,
+                      style: text.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: SagipSpace.sm),
+                    Text(
+                      l10n.residentSignInBody,
+                      style: text.bodyMedium!.copyWith(color: p.textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                    if (offline) ...[
+                      const SizedBox(height: SagipSpace.lg),
+                      _Notice(text: l10n.offlineSignIn),
+                    ],
+                    const SizedBox(height: SagipSpace.xl),
+                    TextField(
+                      controller: _phone,
+                      keyboardType: TextInputType.phone,
+                      autofillHints: const [
+                        AutofillHints.telephoneNumberNational,
+                      ],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9 +\-]')),
+                      ],
+                      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                      decoration: InputDecoration(
+                        labelText: l10n.mobileNumber,
+                        hintText: l10n.mobileNumberHint,
+                        prefixText: '+63 ',
+                        errorText: _error == null
+                            ? null
+                            : l10n.phoneAuthFailure(_error!),
+                      ),
+                      onSubmitted: (_) => _sendCode(),
+                    ),
+                    const SizedBox(height: SagipSpace.lg),
+                    SizedBox(
+                      height: 56,
+                      child: FilledButton(
+                        onPressed: _busy || offline ? null : _sendCode,
+                        child: Text(_busy ? l10n.sendingCode : l10n.sendCode),
+                      ),
+                    ),
+                    const SizedBox(height: SagipSpace.sm),
+                    TextButton(
+                      onPressed: () => context.push(Routes.register),
+                      child: Text(l10n.createAccountPrompt),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push(Routes.staffSignIn),
+                      child: Text(l10n.staffSignInLink),
+                    ),
+                    if (demo) ...[
+                      const SizedBox(height: SagipSpace.xl),
+                      const _DemoAccounts(),
+                    ],
+                    const Spacer(),
+                    const SizedBox(height: SagipSpace.xl),
+                    const HotlineCard(),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: SagipSpace.sm),
-            TextButton(
-              onPressed: () => context.push(Routes.register),
-              child: Text(l10n.createAccountPrompt),
-            ),
-            TextButton(
-              onPressed: () => context.push(Routes.staffSignIn),
-              child: Text(l10n.staffSignInLink),
-            ),
-            const SizedBox(height: SagipSpace.xl),
-            const HotlineCard(),
-            if (demo) ...[
-              const SizedBox(height: SagipSpace.x3),
-              const _DemoAccounts(),
-            ],
-          ],
+          ),
         ),
       ),
     );
