@@ -31,3 +31,6 @@ __pycache__/
 *.pyc
 /cache/
 ml/**/cache/
+
+# Supabase CLI scratch files
+supabase/.temp/
