@@ -262,6 +262,7 @@
   "toGo": "{distance} pa",
   "straightLineNote": "Diretsong linya. Darating ang mga ruta sa kalsada sa susunod na bersyon.",
   "roadRouteNote": "Ruta sa kalsada mula sa OpenStreetMap. Tantiya ang mga oras.",
+  "routeAvoidsHazards": "Umiiwas ang ruta sa {count, plural, =1{1 kumpirmadong baha o sunog} other{{count} kumpirmadong baha at sunog}} kapag kaya.",
   "turnOnto": "{turn, select, straight{Dumiretso sa {street}} slightLeft{Bahagyang kumaliwa sa {street}} left{Kumaliwa sa {street}} sharpLeft{Kumaliwa nang matalim sa {street}} slightRight{Bahagyang kumanan sa {street}} right{Kumanan sa {street}} sharpRight{Kumanan nang matalim sa {street}} uTurn{Mag-U-turn sa {street}} other{Pumunta sa {street}}}",
   "turnHere": "{turn, select, straight{Dumiretso} slightLeft{Bahagyang kumaliwa} left{Kumaliwa} sharpLeft{Kumaliwa nang matalim} slightRight{Bahagyang kumanan} right{Kumanan} sharpRight{Kumanan nang matalim} uTurn{Mag-U-turn} other{Magpatuloy}}",
   "inDistance": "Pagkalipas ng {distance}",

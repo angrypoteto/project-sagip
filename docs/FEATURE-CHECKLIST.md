@@ -169,6 +169,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] F3 Assignment detail: map, where to go, what was reported, vulnerable types
 - [ ] F3 shows "The resident asked to cancel" and goes to the resident's newest position
 - [ ] F4 Navigation: road route, next turn, ETA, re-routes when you leave the route
+- [ ] **[N]** F4 goes around confirmed floods and fires that are not the unit's own job: each is a shaded circle on the map (blue flood, red fire), and the card says "The route goes around N confirmed floods and fires when it can." To see it: confirm a flood or fire on the dashboard between a unit and its job; within half a minute the phone's route bends
 - [ ] F4 Spoken directions and the mute button **[P]**
 - [ ] F4 "You're at the scene" and Arrived within 50 m
 - [ ] F5 On scene: real-emergency check (No needs a reason), people found
@@ -181,10 +182,11 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table; 436 written checks. On the real data on 2026-10-13: 436 of 436, rolled back (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
+- [ ] Row Level Security on every table; 444 written checks. On the real data on 2026-10-13: 444 of 444, rolled back (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4
+- [ ] **[N]** Roads near a confirmed open flood count as 4 times slower (150 m); near a confirmed open fire 20 times (100 m), so they are used only when there is no other way. Dashboard: shaded circles on the map, a legend line, and a line under the suggested units. Both numbers are provisional
 - [ ] The priority score, from the A3 weights
 - [ ] The threshold engine raises alerts from weather readings
 - [ ] PAGASA feed read every 10 minutes; PHIVOLCS every 15 minutes; river levels from PAGASA's Pasig-Marikina-Tullahan feed
@@ -215,6 +217,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 |---|---|
 | **The 72-hour forecast on the real database** | The page is empty. The thesis model needs past incidents with dates and places, which only MDRRMD has. Gathered so far from public news: 131 fires, 17 flood days, 23 signal days, real weather from 2012. A first training on that was too weak to show (flood F1 0.24, fire 0.31, storm surge not trainable). Waits for MDRRMD's records, or the team extending the lists by hand |
 | The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Built, not switched on. Its migration (`forecast_live`) needs a one-line fix that needs your explicit "yes, rewrite it", or you paste it yourself |
+| Traffic in the routes (Google Maps, as the panel was told) | Not built. Waits on your Google Cloud billing account and the key saved as `GOOGLE_MAPS_API_KEY`. Then: Google says which stretches are jammed, and our Dijkstra goes around them. Known catches: a card is required, Google's terms may not allow its data with an OpenStreetMap map, and it works only online |
 | The classifier on real MDRRMD descriptions | The data is due Friday, 2026-10-16. Until then the real database has no classifier: new crowd reports are not tagged with a type |
 | Forecast accuracy figures and a run selector on D8 | After the real model |
 | The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |

@@ -6,6 +6,7 @@ import 'package:supabase/supabase.dart'
     as supa
     show AuthException, AuthRetryableFetchException;
 
+import '../algorithms/hazard_penalty.dart';
 import '../algorithms/sos_relay.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';

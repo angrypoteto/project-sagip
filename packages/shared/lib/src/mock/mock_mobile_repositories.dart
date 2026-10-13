@@ -1,3 +1,4 @@
+import '../algorithms/hazard_penalty.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/assignment.dart';
@@ -160,6 +161,9 @@ class MockResponderRepository implements ResponderRepository {
 
   @override
   Stream<List<CompletedAssignment>> watchHistory() => _backend.watchHistory();
+
+  @override
+  Stream<List<HazardZone>> watchRoadHazards() => _backend.watchRoadHazards();
 }
 
 class MockVulnerabilityRepository implements VulnerabilityRepository {

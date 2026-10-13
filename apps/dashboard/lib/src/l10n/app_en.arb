@@ -201,6 +201,7 @@
   "legendEnRoute": "En route",
   "legendOnScene": "On scene",
   "legendUnverified": "Unverified report",
+  "legendRoadsSlowed": "Roads slowed (flood or fire)",
   "legendUnitAvailable": "Unit available",
   "legendUnitBusy": "Unit busy",
 
@@ -284,6 +285,8 @@
   "suggestedByRoad": "Available units, by travel time on the road network",
   "suggestedAvoidsFloods": "{count, plural, =1{Roads near 1 confirmed flood count as 4 times slower.} other{Roads near {count} confirmed floods count as 4 times slower.}}",
   "@suggestedAvoidsFloods": {"placeholders": {"count": {"type": "int"}}},
+  "suggestedAvoidsFires": "{count, plural, =1{Roads near 1 confirmed fire are used only when there is no other way.} other{Roads near {count} confirmed fires are used only when there is no other way.}}",
+  "@suggestedAvoidsFires": {"placeholders": {"count": {"type": "int"}}},
   "suggestedByDistance": "Available units, estimated by straight-line distance",
   "chooseAnotherUnit": "Choose another unit",
   "noAvailableUnits": "No available units",

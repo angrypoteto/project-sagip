@@ -929,6 +929,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Road route from OpenStreetMap. Times are estimates.';
 
   @override
+  String routeAvoidsHazards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count confirmed floods and fires',
+      one: '1 confirmed flood or fire',
+    );
+    return 'The route goes around $_temp0 when it can.';
+  }
+
+  @override
   String turnOnto(String turn, String street) {
     String _temp0 = intl.Intl.selectLogic(turn, {
       'straight': 'Continue onto $street',

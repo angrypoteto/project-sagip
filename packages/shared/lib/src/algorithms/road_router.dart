@@ -8,7 +8,7 @@ import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import 'dijkstra.dart';
-import 'flood_penalty.dart';
+import 'hazard_penalty.dart';
 import 'road_graph.dart';
 import 'unit_suggester.dart';
 
@@ -33,10 +33,10 @@ class RoadRouter {
   double _accessSeconds(double meters) => meters / (accessSpeedKmh / 3.6);
 
   // The penalised weights of the last penalty, per graph direction.
-  FloodPenalty? _penalty;
+  HazardPenalty? _penalty;
   final _weights = <RoadGraph, Float64List?>{};
 
-  Float64List? _weightsFor(RoadGraph g, FloodPenalty penalty) {
+  Float64List? _weightsFor(RoadGraph g, HazardPenalty penalty) {
     if (penalty.isEmpty) return null;
     if (penalty != _penalty) {
       _penalty = penalty;
@@ -62,11 +62,11 @@ class RoadRouter {
   );
 
   /// The fastest route from [from] to [to], or null when either end is off
-  /// the road graph. [penalty] slows roads in confirmed floods.
+  /// the road graph. [penalty] slows roads in confirmed floods and fires.
   RoadRoute? route(
     GeoPoint from,
     GeoPoint to, {
-    FloodPenalty penalty = FloodPenalty.none,
+    HazardPenalty penalty = HazardPenalty.none,
   }) {
     final watch = Stopwatch()..start();
     final a = graph.nearestNode(from, maxMeters: maxSnapMeters);
@@ -109,7 +109,7 @@ class RoadRouter {
   timesTo<K>(
     GeoPoint destination,
     Map<K, GeoPoint> origins, {
-    FloodPenalty penalty = FloodPenalty.none,
+    HazardPenalty penalty = HazardPenalty.none,
   }) {
     final watch = Stopwatch()..start();
     final dest = graph.nearestNode(destination, maxMeters: maxSnapMeters);
@@ -244,7 +244,7 @@ class RoadNetworkSuggester implements UnitSuggester {
     this._loadRouter, {
     this.fallback = const StraightLineSuggester(),
     this.onRun,
-    this.floods,
+    this.hazards,
     this.now = DateTime.now,
     RoutingPlatform? platform,
   }) : platform = platform ?? RoutingPlatform.current;
@@ -253,8 +253,8 @@ class RoadNetworkSuggester implements UnitSuggester {
   /// ([ResponseUnit.startingPoint]).
   final DateTime Function() now;
 
-  /// The confirmed flood incidents to route around (plan 10.2, "Could").
-  final Iterable<Incident> Function()? floods;
+  /// The open incidents; confirmed floods and fires among them are routed around (plan 10.2, "Could").
+  final Iterable<Incident> Function()? hazards;
 
   final Future<RoadRouter> Function() _loadRouter;
   final StraightLineSuggester fallback;
@@ -288,9 +288,9 @@ class RoadNetworkSuggester implements UnitSuggester {
     final result = router.timesTo(
       incident.currentLocation,
       {for (final u in candidates) u.id: u.startingPoint(at)!},
-      penalty: floods == null
-          ? FloodPenalty.none
-          : FloodPenalty.fromIncidents(floods!(), except: incident.id),
+      penalty: hazards == null
+          ? HazardPenalty.none
+          : HazardPenalty.fromIncidents(hazards!(), except: incident.id),
     );
     onRun?.call(
       RoutingRun(

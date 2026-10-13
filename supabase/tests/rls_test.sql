@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(436);
+select plan(444);
 
 select public.reset_demo_data();
 -- What the checks below assume, whatever the database is set to or holds
@@ -1996,6 +1996,63 @@ select results_eq(
 select is(
   (select detail from public.audit_log where action_type = 'unitEdited' and target_id = 'unit-r05' order by log_id desc limit 1),
   'station position set to 14.60000, 120.99000', 'and the change is audited');
+
+-- ------------------------------------------- road hazards for routing
+
+-- Three open incidents become two confirmed floods and a confirmed fire.
+create temp table __haz as
+  select incident_id, row_number() over (order by incident_id) as n
+    from public.incident_report
+   where status <> 'resolved' and not cancelled
+   order by incident_id limit 3;
+update public.incident_report i
+   set emergency_type = case when h.n = 3 then 'fire' else 'flood' end,
+       verification_method = 'callback', false_report = false
+  from __haz h where i.incident_id = h.incident_id;
+update public.response_unit set current_incident_id = null where unit_id = 'unit-r05';
+update public.staff set unit_id = 'unit-r05' where id = '00000000-0000-4000-8000-00000000000b';
+create temp table __haz_n as
+  select count(*)::int as n from public.incident_report i
+   where coalesce(i.emergency_type, i.suggested_type) in ('flood', 'fire')
+     and (i.verification_method is not null or i.origin = 'crowdCluster')
+     and i.status <> 'resolved' and not i.false_report and not i.cancelled;
+grant select on __haz, __haz_n to authenticated;
+
+select ok(
+  not has_function_privilege('anon', 'public.road_hazards()', 'execute')
+  and has_function_privilege('authenticated', 'public.road_hazards()', 'execute'),
+  'anon cannot ask where the floods and fires are');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok($$ select * from public.road_hazards() $$,
+  'P0001', 'not_allowed', 'a resident is refused');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
+select throws_ok($$ select * from public.road_hazards() $$,
+  'P0001', 'not_allowed', 'an account with no role is refused');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.road_hazards()), (select n from __haz_n),
+  'a responder gets every confirmed open flood and fire');
+select is((select string_agg(distinct type, ',' order by type) from public.road_hazards()),
+  'fire,flood', 'with its type, and nothing else but the position');
+reset role;
+update public.response_unit set current_incident_id = (select incident_id from __haz where n = 1)
+ where unit_id = 'unit-r05';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.road_hazards()), (select n - 1 from __haz_n),
+  'never the unit''s own incident');
+reset role;
+update public.incident_report set false_report = true
+ where incident_id = (select incident_id from __haz where n = 2);
+update public.incident_report set cancelled = true
+ where incident_id = (select incident_id from __haz where n = 3);
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.road_hazards()), (select n - 3 from __haz_n),
+  'a false report and a cancelled SOS no longer slow any road');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.road_hazards()), (select n - 2 from __haz_n),
+  'a dispatcher gets them all (no incident of their own to leave out)');
 
 reset role;
 select * from finish();

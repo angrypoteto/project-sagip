@@ -431,10 +431,21 @@ final roadRouterProvider = FutureProvider<RoadRouter>(
   (ref) => loadManilaRouter(),
 );
 
+/// The confirmed floods and fires the unit's route goes around (not its
+/// own incident). Empty for anyone but a responder, and until the first
+/// answer; offline it is the last list the phone was given.
+final roadHazardsProvider = StreamProvider<List<HazardZone>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(responderRepositoryProvider).watchRoadHazards(),
+  ),
+);
+
 /// The road route from [from] to a job, by Dijkstra on the phone. Recomputed
 /// for every new position (a few milliseconds), so it follows the unit and
-/// re-routes when it leaves the route. Null until the graph has loaded, or
-/// when either end is off the map.
+/// re-routes when it leaves the route, and again when a flood or a fire is
+/// confirmed or closed. Null until the graph has loaded, or when either end
+/// is off the map.
 final navigationRouteProvider = Provider.autoDispose
     .family<RoadRoute?, ({GeoPoint from, GeoPoint to, String incidentId})>((
       ref,
@@ -442,7 +453,13 @@ final navigationRouteProvider = Provider.autoDispose
     ) {
       final router = ref.watch(roadRouterProvider).value;
       if (router == null) return null;
-      final route = router.route(key.from, key.to);
+      final route = router.route(
+        key.from,
+        key.to,
+        penalty: HazardPenalty(
+          ref.watch(roadHazardsProvider).value ?? const [],
+        ),
+      );
       if (route != null) {
         ref
             .read(routingLogProvider)

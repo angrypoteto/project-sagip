@@ -566,6 +566,18 @@ void main() {
         ),
       ),
     );
+    // A fire is confirmed elsewhere: the phone is told where, routes with
+    // it, and says so.
+    expect(find.byKey(const ValueKey('route-avoids-hazards')), findsNothing);
+    backend.setRoadHazards(const [
+      HazardZone(GeoPoint(14.62, 120.97), IncidentType.fire),
+    ]);
+    await tester.pump();
+    await tester.pump();
+    expect(
+      find.text('The route goes around 1 confirmed flood or fire when it can.'),
+      findsOneWidget,
+    );
     await tester.pump(const Duration(seconds: 7));
     await settle(tester);
     expect(find.text("You're at the scene"), findsOneWidget);

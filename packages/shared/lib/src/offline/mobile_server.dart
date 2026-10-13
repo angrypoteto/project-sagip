@@ -1,3 +1,4 @@
+import '../algorithms/hazard_penalty.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
@@ -34,6 +35,7 @@ abstract interface class MobileServer {
 
   // Responder.
   Stream<ResponseUnit?> watchUnit();
+  Stream<List<HazardZone>> watchRoadHazards();
   Stream<List<Assignment>> watchAssignments();
   Future<void> accept(String incidentId, DateTime capturedAt);
   Future<void> arrive(String incidentId, DateTime capturedAt);

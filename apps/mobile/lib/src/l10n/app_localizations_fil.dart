@@ -936,6 +936,17 @@ class AppLocalizationsFil extends AppLocalizations {
       'Ruta sa kalsada mula sa OpenStreetMap. Tantiya ang mga oras.';
 
   @override
+  String routeAvoidsHazards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kumpirmadong baha at sunog',
+      one: '1 kumpirmadong baha o sunog',
+    );
+    return 'Umiiwas ang ruta sa $_temp0 kapag kaya.';
+  }
+
+  @override
   String turnOnto(String turn, String street) {
     String _temp0 = intl.Intl.selectLogic(turn, {
       'straight': 'Dumiretso sa $street',

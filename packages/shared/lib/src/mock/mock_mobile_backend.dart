@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../algorithms/hazard_penalty.dart';
 import '../algorithms/incident_classifier.dart';
 import '../algorithms/sos_sms.dart';
 import '../data/manila_barangays.dart';
@@ -280,6 +281,14 @@ class MockMobileBackend {
   Future<void> markConfirmationRead(String id) => _alerts.markRead(id);
 
   Stream<List<CompletedAssignment>> watchHistory() => _responder.watchHistory();
+
+  final _roadHazards = LiveValue<List<HazardZone>>(const []);
+
+  /// The floods and fires the responder's route goes around. The sample
+  /// data has none; [setRoadHazards] adds some.
+  Stream<List<HazardZone>> watchRoadHazards() => _roadHazards.watch();
+
+  void setRoadHazards(List<HazardZone> zones) => _roadHazards.value = zones;
 
   // ------------------------------------------------------- scenario switcher
 

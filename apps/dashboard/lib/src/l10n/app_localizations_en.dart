@@ -574,6 +574,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legendUnverified => 'Unverified report';
 
   @override
+  String get legendRoadsSlowed => 'Roads slowed (flood or fire)';
+
+  @override
   String get legendUnitAvailable => 'Unit available';
 
   @override
@@ -811,6 +814,18 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: 'Roads near $count confirmed floods count as 4 times slower.',
       one: 'Roads near 1 confirmed flood count as 4 times slower.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String suggestedAvoidsFires(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Roads near $count confirmed fires are used only when there is no other way.',
+      one: 'Roads near 1 confirmed fire are used only when there is no other way.',
     );
     return '$_temp0';
   }

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import '../algorithms/hazard_penalty.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
@@ -534,6 +535,11 @@ abstract interface class ResponderRepository {
   /// Assignments this unit finished, newest first, with whether each
   /// completion report has reached the server (F7).
   Stream<List<CompletedAssignment>> watchHistory();
+
+  /// The confirmed floods and fires this unit's route should go around:
+  /// where and which, nothing about who reported them. Never the unit's own
+  /// incident. Offline it is the last list the phone was given.
+  Stream<List<HazardZone>> watchRoadHazards();
 }
 
 /// Resident sign-in by mobile number and a code sent by SMS (S3 to S5).

@@ -466,21 +466,20 @@ void main() {
       falseReport: falseReport,
     );
 
+    HazardPenalty floodAt(GeoPoint at) =>
+        HazardPenalty([HazardZone(at, IncidentType.flood)]);
+
     test('a flood on the short way sends the route around it', () {
       final router = RoadRouter(block());
       final dry = router.route(from, to)!;
       expect(dry.seconds, closeTo(120, 1));
-      final wet = router.route(from, to, penalty: const FloodPenalty([top]))!;
+      final wet = router.route(from, to, penalty: floodAt(top))!;
       expect(wet.seconds, closeTo(200, 1), reason: 'by West and Bottom St');
       expect(wet.steps.map((s) => s.street), contains('West St'));
       // A flood elsewhere changes nothing.
       expect(
         router
-            .route(
-              from,
-              to,
-              penalty: const FloodPenalty([GeoPoint(14.65, 121.02)]),
-            )!
+            .route(from, to, penalty: floodAt(const GeoPoint(14.65, 121.02)))!
             .seconds,
         closeTo(120, 1),
       );
@@ -488,23 +487,73 @@ void main() {
 
     test('unit times from the reversed graph see it too', () {
       final router = RoadRouter(block());
-      final times = router.timesTo(to, {
-        'R-01': from,
-      }, penalty: const FloodPenalty([top]));
+      final times = router.timesTo(to, {'R-01': from}, penalty: floodAt(top));
       expect(times.times['R-01']!.seconds, closeTo(200, 1));
     });
 
-    test('only confirmed, open, real floods, not the incident itself', () {
-      final p = FloodPenalty.fromIncidents([
-        flood('INC-1'),
-        flood('INC-2', status: IncidentStatus.resolved),
-        flood('INC-3', type: IncidentType.fire),
-        flood('INC-4', falseReport: true),
-        flood('INC-5'),
-      ], except: 'INC-5');
-      expect(p.zones, [top]);
-      expect(FloodPenalty.fromIncidents(const []).isEmpty, isTrue);
-      expect(const FloodPenalty([]).weightsFor(block()), isNull);
+    test(
+      'a fire on the short way does the same, and counts as nearly closed',
+      () {
+        final router = RoadRouter(block());
+        const fire = HazardPenalty([HazardZone(top, IncidentType.fire)]);
+        final around = router.route(from, to, penalty: fire)!;
+        expect(
+          around.seconds,
+          closeTo(200, 1),
+          reason: 'by West and Bottom St',
+        );
+        expect(around.steps.map((s) => s.street), contains('West St'));
+        // A fire reaches less far than a flood and slows much more.
+        const zone = HazardZone(top, IncidentType.fire);
+        expect(
+          zone.radiusMeters,
+          lessThan(floodAt(top).zones.single.radiusMeters),
+        );
+        expect(zone.factor, greaterThan(floodAt(top).zones.single.factor));
+        // Where a flood and a fire overlap, the road takes the larger factor.
+        final both = HazardPenalty([floodAt(top).zones.single, zone]);
+        final g = block();
+        final w = both.weightsFor(g)!, f = fire.weightsFor(g)!;
+        expect(w, f);
+      },
+    );
+
+    test(
+      'only confirmed, open, real floods and fires, not the incident itself',
+      () {
+        final p = HazardPenalty.fromIncidents([
+          flood('INC-1'),
+          flood('INC-2', status: IncidentStatus.resolved),
+          flood('INC-3', type: IncidentType.fire),
+          flood('INC-4', falseReport: true),
+          flood('INC-5'),
+          flood('INC-6', type: IncidentType.medical),
+          flood('INC-7', type: IncidentType.structural),
+        ], except: 'INC-5');
+        expect(p.zones, const [
+          HazardZone(top, IncidentType.flood),
+          HazardZone(top, IncidentType.fire),
+        ]);
+        expect(p.count(IncidentType.flood), 1);
+        expect(p.count(IncidentType.fire), 1);
+        expect(HazardPenalty.fromIncidents(const []).isEmpty, isTrue);
+        expect(const HazardPenalty([]).weightsFor(block()), isNull);
+      },
+    );
+
+    test('a hazard row from the server is read; anything else is dropped', () {
+      final z = HazardZone.fromJson({
+        'type': 'fire',
+        'latitude': 14.6,
+        'longitude': 120.99,
+      })!;
+      expect(z, const HazardZone(GeoPoint(14.6, 120.99), IncidentType.fire));
+      expect(HazardZone.fromJson(z.toJson()), z);
+      expect(
+        HazardZone.fromJson({'type': 'medical', 'latitude': 1, 'longitude': 2}),
+        isNull,
+      );
+      expect(HazardZone.fromJson({'type': 'flood', 'latitude': null}), isNull);
     });
   });
 }

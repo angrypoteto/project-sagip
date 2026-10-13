@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../algorithms/hazard_penalty.dart';
 import '../data/manila_barangays.dart';
 import '../mock/live_value.dart';
 import '../models/assignment.dart';
@@ -700,6 +701,25 @@ class OutboxResponderRepository implements ResponderRepository {
         },
       ),
     );
+  }
+
+  @override
+  Stream<List<HazardZone>> watchRoadHazards() {
+    final me = _account();
+    if (me == null) return Stream.value(const []);
+    return nullOnError(
+      withSavedCopy(
+        _store,
+        'hazards:$me',
+        _server.watchRoadHazards(),
+        decode: (j) => [
+          if (j is List)
+            for (final r in j)
+              if (r is Map) ?HazardZone.fromJson(r.cast<String, dynamic>()),
+        ],
+        encode: (l) => [for (final z in l) z.toJson()],
+      ),
+    ).map((zones) => zones ?? const []);
   }
 
   @override

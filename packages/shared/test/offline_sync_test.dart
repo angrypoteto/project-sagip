@@ -125,6 +125,9 @@ class FakeServer implements MobileServer {
   Stream<List<Assignment>> watchAssignments() => jobs.stream;
   @override
   Stream<List<CompletedAssignment>> watchHistory() => history.stream;
+  final hazards = StreamController<List<HazardZone>>.broadcast();
+  @override
+  Stream<List<HazardZone>> watchRoadHazards() => hazards.stream;
 }
 
 /// A phone's SMS service the test can switch off.
@@ -839,6 +842,44 @@ void main() {
         expect(again.last.current?.status, IncidentStatus.enRoute);
         expect(again.last.unit.status, UnitStatus.enRoute);
         await sub2.cancel();
+      },
+    );
+
+    test(
+      'the floods and fires to go around survive an offline restart',
+      () async {
+        account = 'rsp-r03';
+        OutboxResponderRepository repo() => OutboxResponderRepository(
+          engine: engine,
+          server: server,
+          store: store,
+          account: () => account,
+          clock: () => now,
+        );
+        const flood = HazardZone(GeoPoint(14.6, 120.99), IncidentType.flood);
+        const fire = HazardZone(GeoPoint(14.61, 120.98), IncidentType.fire);
+        final first = <List<HazardZone>>[];
+        final sub = repo().watchRoadHazards().listen(first.add);
+        server.hazards.add([flood, fire]);
+        await pumpEventQueue();
+        expect(first.last, [flood, fire]);
+        await sub.cancel();
+
+        // Restarted with no signal: the saved list, then it stays on an error.
+        final again = <List<HazardZone>>[];
+        final sub2 = repo().watchRoadHazards().listen(again.add);
+        server.hazards.addError(const ActionRejected(ActionRejection.offline));
+        await pumpEventQueue();
+        expect(again.last, [flood, fire]);
+        // Back online with the fire out: the list follows.
+        server.hazards.add([flood]);
+        await pumpEventQueue();
+        expect(again.last, [flood]);
+        await sub2.cancel();
+
+        // Signed out: nothing.
+        account = null;
+        expect(await repo().watchRoadHazards().first, isEmpty);
       },
     );
 

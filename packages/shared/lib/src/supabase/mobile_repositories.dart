@@ -803,4 +803,18 @@ class SupabaseMobileRemote implements MobileServer {
         CompletedAssignment.fromJson(r),
     ],
   );
+
+  /// Confirmed open floods and fires other than this unit's own incident
+  /// (`road_hazards()`). A responder gets no realtime events for incidents
+  /// that are not theirs, so the list is also asked for every half minute.
+  @override
+  Stream<List<HazardZone>> watchRoadHazards() => liveQuery(
+    _client,
+    tables: const ['incident_report'],
+    refreshEvery: const Duration(seconds: 30),
+    fetch: () async => [
+      for (final r in _rows(await _client.rpc<Object?>('road_hazards')))
+        ?HazardZone.fromJson(r),
+    ],
+  );
 }

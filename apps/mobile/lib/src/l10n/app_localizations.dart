@@ -1670,6 +1670,12 @@ abstract class AppLocalizations {
   /// **'Road route from OpenStreetMap. Times are estimates.'**
   String get roadRouteNote;
 
+  /// No description provided for @routeAvoidsHazards.
+  ///
+  /// In en, this message translates to:
+  /// **'The route goes around {count, plural, =1{1 confirmed flood or fire} other{{count} confirmed floods and fires}} when it can.'**
+  String routeAvoidsHazards(int count);
+
   /// No description provided for @turnOnto.
   ///
   /// In en, this message translates to:

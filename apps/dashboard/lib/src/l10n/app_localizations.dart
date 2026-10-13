@@ -1078,6 +1078,12 @@ abstract class AppLocalizations {
   /// **'Unverified report'**
   String get legendUnverified;
 
+  /// No description provided for @legendRoadsSlowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Roads slowed (flood or fire)'**
+  String get legendRoadsSlowed;
+
   /// No description provided for @legendUnitAvailable.
   ///
   /// In en, this message translates to:
@@ -1449,6 +1455,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Roads near 1 confirmed flood count as 4 times slower.} other{Roads near {count} confirmed floods count as 4 times slower.}}'**
   String suggestedAvoidsFloods(int count);
+
+  /// No description provided for @suggestedAvoidsFires.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Roads near 1 confirmed fire are used only when there is no other way.} other{Roads near {count} confirmed fires are used only when there is no other way.}}'**
+  String suggestedAvoidsFires(int count);
 
   /// No description provided for @suggestedByDistance.
   ///

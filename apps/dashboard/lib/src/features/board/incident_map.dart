@@ -235,6 +235,24 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
           children: [
             const SagipBaseMap(),
             if (_layers.contains(_Layer.boundaries)) const BarangayBoundaries(),
+            // Where routes are slowed: confirmed open floods and fires.
+            CircleLayer(
+              circles: [
+                for (final z in HazardPenalty.fromIncidents(incidents).zones)
+                  CircleMarker(
+                    point: toLatLng(z.center),
+                    radius: z.radiusMeters,
+                    useRadiusInMeter: true,
+                    color: (z.type == IncidentType.fire ? p.critical : p.info)
+                        .fill
+                        .withValues(alpha: 0.18),
+                    borderColor:
+                        (z.type == IncidentType.fire ? p.critical : p.info)
+                            .fill,
+                    borderStrokeWidth: 1.5,
+                  ),
+              ],
+            ),
             // A dotted line ties each unit to its faint second marker.
             if (_layers.contains(_Layer.units))
               PolylineLayer(
@@ -391,6 +409,7 @@ class _Legend extends StatelessWidget {
         ),
         l10n.legendUnverified,
       ),
+      (dot(p.info.fill, ring: true), l10n.legendRoadsSlowed),
       (dot(p.success.fill, square: true), l10n.legendUnitAvailable),
       (dot(p.info.fill, square: true), l10n.legendUnitBusy),
     ];

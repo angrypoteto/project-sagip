@@ -106,6 +106,8 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
 
     final unit = state.unit.crewPosition;
     final estimate = routeEstimate(ref, state, a);
+    final hazards = ref.watch(roadHazardsProvider).value ?? const [];
+    final p = SagipPalette.of(context);
     if (state.gpsOn) _speak(estimate);
     final voiceOn = ref.watch(voiceGuidanceProvider);
     final heading = estimate?.bearing;
@@ -154,6 +156,29 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                       userAgentPackageName: 'ph.sagip.mobile',
                       enabled: tiles,
                       tileProvider: ref.watch(tileProviderProvider),
+                    ),
+                    // Where the route is slowed: confirmed floods and fires.
+                    CircleLayer(
+                      circles: [
+                        for (final z in hazards)
+                          CircleMarker(
+                            point: toLatLng(z.center),
+                            radius: z.radiusMeters,
+                            useRadiusInMeter: true,
+                            color:
+                                (z.type == IncidentType.fire
+                                        ? p.critical
+                                        : p.info)
+                                    .fill
+                                    .withValues(alpha: 0.22),
+                            borderColor:
+                                (z.type == IncidentType.fire
+                                        ? p.critical
+                                        : p.info)
+                                    .fill,
+                            borderStrokeWidth: 1.5,
+                          ),
+                      ],
                     ),
                     if (unit != null)
                       GlidingLayer(
@@ -269,6 +294,7 @@ class _NavCard extends ConsumerWidget {
     final e = estimate;
     final close = e != null && e.straightMeters <= arrivalRadiusMeters;
     final road = e?.road;
+    final hazards = ref.watch(roadHazardsProvider).value?.length ?? 0;
     final next = road?.nextTurn;
 
     return Material(
@@ -345,6 +371,12 @@ class _NavCard extends ConsumerWidget {
                     : p.warning.text,
               ),
             ),
+            if (road != null && hazards > 0)
+              Text(
+                l10n.routeAvoidsHazards(hazards),
+                key: const ValueKey('route-avoids-hazards'),
+                style: text.bodySmall!.copyWith(color: p.textSecondary),
+              ),
             if (close) ...[
               const SizedBox(height: SagipSpace.lg),
               SizedBox(
