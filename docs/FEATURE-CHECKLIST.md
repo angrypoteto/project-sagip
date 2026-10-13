@@ -1,4 +1,4 @@
-# Feature checklist (as of 2026-10-12, night)
+# Feature checklist (as of 2026-10-13)
 
 For Joshua to check by hand, one line at a time. Tick the box when you have seen
 it work. The details behind each line are in `docs/PROGRESS.md`.
@@ -8,6 +8,8 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 | App | Command (run in the folder shown) | Sign in with |
 |---|---|---|
 | Dashboard, real database | `apps/dashboard`: `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` | `admin@sagip.test` or `dispatcher@sagip.test` (you set their passwords), or a unit account |
+| Dashboard on the internet, real database | open `https://sagip-dashboard-three.vercel.app` (not the address without `-three`: that one is someone else’s) | the same accounts |
+| Resident web form on the internet, real database | open `https://sagip-report.vercel.app` | resident: `917 000 4821`, code `123456` |
 | Dashboard, sample data | `apps/dashboard`: `flutter run -d chrome` | the same emails, password `sagip-demo` |
 | Resident web form, sample data | `apps/dashboard`: `flutter run -d chrome -t lib/main_webform.dart` | any number, the demo code shown |
 | Mobile app on your phone, real database | already installed (release build of 2026-10-12, night) | resident: `917 000 4821`, code `123456`; responder: a unit account |
@@ -16,12 +18,13 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 **The real database today:** no made-up incidents, residents, or forecast. It
 holds 10 real stations as units (each with a responder account and made-up
 supply levels for the demo), 897 barangays, the settings, 17 river stations, and
-one resident (the test number).
+one resident (the test number). Posting to the test Facebook Page is switched on,
+and the hotline is set to (02) 8565-4316.
 
 Marks: **[S]** can only be seen on sample data for now (the real database has
 nothing to show for it). **[P]** needs a real phone to check properly. **[W]**
 built, but waits on a setting or a decision from you (part 7). **[N]** new or
-changed on 2026-10-12.
+changed on 2026-10-12 or 2026-10-13.
 
 ---
 
@@ -90,6 +93,9 @@ changed on 2026-10-12.
 - [ ] **[N]** A2 "Station position" in the unit dialog (latitude, longitude); a wrong entry is explained
 - [ ] A3 Priority weights with the live ranking preview
 - [ ] A3 Alert thresholds, channel switches, hotline and gateway number, crowd report limit
+- [ ] **[N]** A3 "Post alerts on the MDRRMD Facebook Page" is on; a real (not simulated) alert appears on the test Page "Project SAGIP" and its delivery line says sent (a test alert went through on 2026-10-13). While the Meta app is unpublished, the post is probably seen only by you
+- [ ] **[N]** The hotline (02) 8565-4316 shows in the mobile app and on the web form
+- [ ] **[N]** The map credit is smaller on every map (dashboard, web form, mobile after its next install)
 - [ ] A3 "Data retention": 6 to 60 months, saved and in the audit log
 - [ ] **[N]** A3 "Unit supplies": the percent at which a supply counts as low (30 by default)
 - [ ] A3 Simulation mode: Typhoon, Heavy rain, Calm readings
@@ -124,6 +130,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] W2 Crowd report: description, type, location, the hourly limit explained
 - [ ] W3 Confirmation
 - [ ] There is no SOS button on the web form (SOS is app only)
+- [ ] **[N]** Both sites open from the internet (the two addresses at the top) and sign-in works there (I checked that they load; sign-in there is yours to check)
 
 ---
 
@@ -152,7 +159,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] S6 "Text it myself" opens the messages app with the SOS text ready **[P]**
 - [ ] SOS by SMS when there is signal but no data **[P] [W]**
 - [ ] SOS relayed by a nearby phone over Bluetooth, also in the background **[P]**
-- [ ] Push notifications arrive **[P]** (on your phone the log said "FCM Registration failed" on 2026-10-12: not looked into)
+- [ ] Push notifications arrive **[P]** (your phone is registered as of 2026-10-13, and the test alert’s push was marked sent; you have not said whether it showed on the phone)
 
 ## 5. Built: mobile app, responder
 
@@ -174,7 +181,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table; 436 written checks (the last full run was 410 of 410 on 2026-10-11; the 26 added since passed in separate runs)
+- [ ] Row Level Security on every table; 436 written checks. Full run on the real data on 2026-10-13: 426 of 436, rolled back. The 10 that failed are not holes: 9 expect a clean demo database (Facebook off, a sample classifier, no other phones) and 1 is the leftover function in part 7
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4
@@ -194,12 +201,12 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | Residents signing in with any real number | Phone sign-in is on, but only the test number works. Real numbers need the Send SMS hook (`supabase/README.md`, "Turning on resident sign-in by SMS code") |
 | All outgoing SMS (alerts, rescue texts, SMS check, codes) | The spare phone as the gateway and its three secrets, or a Semaphore account |
 | SOS by SMS coming in, and the YES/NO reply to an SMS check | The same gateway phone, plus `SMS_INTAKE_SECRET` and its webhook |
-| Posting alerts to the Facebook Page | A Page token |
-| Dashboard and web form on the internet | Your yes to deploying on Vercel |
-| Hotline number in the apps | MDRRMD gives the number; you enter it on A3 |
-| The map credit ("© OpenStreetMap contributors") | It has to stay (the license requires it). Your choice of a smaller, dimmer version |
-| The commits made on 2026-10-12 after the last push (`06a6953`) | Your word to push |
-| One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor |
+| The test alert "System test: please disregard" of 2026-10-13 | Still showing in the resident app: end it on the alerts page, and remove the post from the Page if you do not want it there |
+| The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
+| The smaller map credit on your phone | The next install of the mobile app |
+| The 10 failing security checks | Your yes to a one-line migration and to making 9 checks set up their own conditions |
+| The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
+| One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. It is also the one security check that fails for a real reason: a guest holds permission on it, though a guest cannot reach it |
 
 ---
 
@@ -215,8 +222,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The map legend explaining the faint unit markers | Not added |
 | A supplies screen in the mobile app | Not built: you asked for web only |
 | Real crew sizes, call signs, and the real MDRRMD unit list | The ten units are real stations from OpenStreetMap; their call signs were assigned by us and their supply levels are made up for the demo |
-| Push notifications on your phone | Registration failed in the log on 2026-10-12; not looked into |
-| The full RLS test on the real database since the data was cleared | Not run (436 checks; needs the push first) |
+| The RLS test at 436 of 436 on the real database | 426 pass (2026-10-13). The rest wait on your yes (part 7) |
 | Self-hosted Manila map tiles | Decided: public OpenStreetMap tiles for the defense; self-hosted before a pilot |
 | Filipino for the dashboard and the web form | Not asked for; the mobile app has it (still to be read by the team) |
 | Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, no evacuation center) |
