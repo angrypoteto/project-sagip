@@ -53,7 +53,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/20261011030000_data_retention.sql` | The setting `privacy.retention_months` (6 to 60, 12 by default), `private.apply_retention()`, and a `pg_cron` job every night |
 | `migrations/*_report_rag.sql` | `report_reference` (the passages, provisional), `report_rewrite` (the log and the hourly limit), `begin_report_rewrite()`, and `mark_report_rag()` |
 | `functions/generate-report/` | The RAG step: finds the passages for each section and asks Gemini to write it from the figures (several keys in turn, Groq after them); `rag.test.ts` runs with `node --test`. Deployed (version 1); answers "not set up" until the keys are added |
-| `tests/rls_test.sql` | 410 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 436 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.
@@ -73,6 +73,8 @@ Afterwards, and until real data arrives:
 Kept: the staff accounts, the 897 barangays, the settings, what the live feeds read (river levels, PHIVOLCS, PAGASA from its next reading), the Dijkstra timing log, and the provisional reference passages for the report's language model.
 
 **Do not run `reset_demo_data()` by hand any more:** it would put the made-up records back. It stays because the RLS test loads the sample data inside a transaction that is rolled back. The apps' own sample-data mode (running without `.env`) is unchanged: it never touches the database, and the automated tests run on it.
+
+The same goes for `load_sample_classifier()` (2026-10-13): it puts the sample classifier back and makes it active, for the RLS test only. Run by hand it would tag real reports with a model trained on made-up descriptions. The test also sets the channel switches it assumes (Facebook off, push and SMS on) and counts only its own push tokens, so it passes whatever the hosted project is set to: 436 of 436 on the real data on 2026-10-13.
 
 ## Changing the demo data
 

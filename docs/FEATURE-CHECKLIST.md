@@ -181,7 +181,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table; 436 written checks. Full run on the real data on 2026-10-13: 426 of 436, rolled back. The 10 that failed are not holes: 9 expect a clean demo database (Facebook off, a sample classifier, no other phones) and 1 is the leftover function in part 7
+- [ ] Row Level Security on every table; 436 written checks. On the real data on 2026-10-13: 436 of 436, rolled back (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4
@@ -204,9 +204,8 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The test alert "System test: please disregard" of 2026-10-13 | Still showing in the resident app: end it on the alerts page, and remove the post from the Page if you do not want it there |
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The smaller map credit on your phone | The next install of the mobile app |
-| The 10 failing security checks | Your yes to a one-line migration and to making 9 checks set up their own conditions |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
-| One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. It is also the one security check that fails for a real reason: a guest holds permission on it, though a guest cannot reach it |
+| One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 
 ---
 
@@ -222,7 +221,6 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The map legend explaining the faint unit markers | Not added |
 | A supplies screen in the mobile app | Not built: you asked for web only |
 | Real crew sizes, call signs, and the real MDRRMD unit list | The ten units are real stations from OpenStreetMap; their call signs were assigned by us and their supply levels are made up for the demo |
-| The RLS test at 436 of 436 on the real database | 426 pass (2026-10-13). The rest wait on your yes (part 7) |
 | Self-hosted Manila map tiles | Decided: public OpenStreetMap tiles for the defense; self-hosted before a pilot |
 | Filipino for the dashboard and the web form | Not asked for; the mobile app has it (still to be read by the team) |
 | Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, no evacuation center) |

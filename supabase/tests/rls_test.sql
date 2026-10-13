@@ -9,6 +9,12 @@ set local search_path = public, extensions;
 select plan(436);
 
 select public.reset_demo_data();
+-- What the checks below assume, whatever the database is set to or holds
+-- (the hosted project has no sample classifier, and its switches are
+-- MDRRMD's to change).
+select public.load_sample_classifier();
+update public.app_setting set value = 'false' where key = 'channels.facebook';
+update public.app_setting set value = 'true' where key in ('channels.push', 'channels.sms');
 
 insert into auth.users (id, email, phone) values
   ('00000000-0000-4000-8000-00000000000d', 'rls-dispatcher@test.local', null),
@@ -904,8 +910,10 @@ select is(
 
 select ok(
   not has_table_privilege('anon', 'public.classifier_model', 'select')
-  and not has_function_privilege('authenticated', 'private.classify_report(text)', 'execute'),
-  'anon cannot read the model; clients cannot call the classifier directly');
+  and not has_function_privilege('authenticated', 'private.classify_report(text)', 'execute')
+  and not has_function_privilege('authenticated', 'public.load_sample_classifier()', 'execute')
+  and not has_function_privilege('anon', 'public.load_sample_classifier()', 'execute'),
+  'anon cannot read the model; clients cannot call the classifier directly or load the sample model');
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
@@ -1329,7 +1337,8 @@ select public.register_push_device('fcm-token-stranger-phone-' || g) from genera
 reset role;
 select is(
   (select string_agg(user_id::text || ' ' || token, ', ' order by token) from public.push_device
-    where token not like 'fcm-token-stranger-%' and forgotten_at is null),
+    -- Only this test's phones: the database may hold real ones.
+    where token like 'fcm-token-%' and token not like 'fcm-token-stranger-%' and forgotten_at is null),
   '00000000-0000-4000-8000-00000000000c fcm-token-resident-phone-0001, 00000000-0000-4000-8000-000000000011 fcm-token-responder-phone-0002',
   'one row per phone, with whitespace trimmed; forgetting another account''s token did nothing');
 select is((select count(*)::int from public.push_device where user_id = '00000000-0000-4000-8000-00000000000e'), 6,
