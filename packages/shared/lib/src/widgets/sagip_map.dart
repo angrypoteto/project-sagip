@@ -154,11 +154,13 @@ class MapCredit extends StatelessWidget {
       alignment: Alignment.bottomRight,
       child: Container(
         margin: const EdgeInsets.all(SagipSpace.xs),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        color: p.panel.withValues(alpha: 0.85),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        color: p.panel.withValues(alpha: 0.7),
+        // As small as it goes while staying readable: the license asks
+        // for a legible credit (Joshua, 2026-10-13).
         child: Text(
           '© $label',
-          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontSize: 11),
+          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontSize: 9),
         ),
       ),
     );
