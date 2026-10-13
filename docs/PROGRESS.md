@@ -1181,3 +1181,9 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - **Hotline set** on the hosted project: `(02) 8565-4316`, after Joshua confirmed the city page's numbers. The setting holds one number (digits, spaces, `+()-`), so the mobile number 0932-662-2322 is not shown.
 - **Map credit made smaller** at Joshua's request (`MapCredit`: 9 px text, tighter box); it stays, as the license asks. Analyzer clean on shared, dashboard, and mobile; tests not rerun for this style change. The hosted sites and the phone still have the old size until the next build.
 - Still open from the five: real phone sign-in (an SMS sender and the Send SMS hook).
+- Pushed `06a6953..90d6ef7` (14 commits; outgoing diff scanned). The push started no Vercel build.
+- **Full RLS run on the hosted project at `90d6ef7`: 426 of 436** (file fetched from GitHub, md5 checked, rolled back; counts checked afterwards: 13 accounts, 10 units, 3 incidents, 48 supply rows, no test accounts). First full run against the real data. For this run the one real resident's auth phone was set aside inside the transaction, because the test's throwaway resident uses the same test number (639170004821). The 10 failures, none of them a hole in who can read or change what:
+  - 14: `anon` holds EXECUTE on `private.unit_returns_home()`, the leftover no-op trigger function. `anon` has no USAGE on the `private` schema, so it cannot call it. Fix: revoke it in a migration, or Joshua drops the function.
+  - 208, 213, 225: the test expects the Facebook channel off; Joshua switched it on today. The test should set the channel itself.
+  - 239, 241, 242, 244, 245: no active classifier model on the hosted project since the made-up data was cleared; the test expects `v1-sample`.
+  - 305: the test expects only its own push devices; Joshua's phone is now registered (so push registration on his phone works).
