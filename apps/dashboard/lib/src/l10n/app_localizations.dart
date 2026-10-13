@@ -3831,6 +3831,18 @@ abstract class AppLocalizations {
   /// **'Needs the page\'s approval and access token.'**
   String get channelFacebookNote;
 
+  /// No description provided for @channelFacebookIncidents.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed incidents on the Facebook Page'**
+  String get channelFacebookIncidents;
+
+  /// No description provided for @channelFacebookIncidentsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Each confirmed flood, fire, or structural incident is posted once: what it is, the district, and the time. Never a medical emergency, an unverified report, an address, or a name.'**
+  String get channelFacebookIncidentsNote;
+
   /// No description provided for @configSmsCapTitle.
   ///
   /// In en, this message translates to:

@@ -94,6 +94,7 @@ changed on 2026-10-12 or 2026-10-13.
 - [ ] A3 Priority weights with the live ranking preview
 - [ ] A3 Alert thresholds, channel switches, hotline and gateway number, crowd report limit
 - [ ] **[N]** A3 "Post alerts on the MDRRMD Facebook Page" is on; a real (not simulated) alert appears on the test Page "Project SAGIP" and its delivery line says sent (a test alert went through on 2026-10-13). While the Meta app is unpublished, the post is probably seen only by you
+- [ ] **[N]** A3 "Confirmed incidents on the Facebook Page" (off until you switch it on). With it on: verify a flood, fire, or structural SOS and one post appears on the Page: what it is, the district (for example "Pandacan"), and the time. Not posted: medical, anything unverified, simulated incidents, the barangay or address, who reported it
 - [ ] **[N]** The hotline (02) 8565-4316 shows in the mobile app and on the web form
 - [ ] **[N]** The map credit is smaller on every map (dashboard, web form, mobile after its next install)
 - [ ] A3 "Data retention": 6 to 60 months, saved and in the audit log
@@ -183,7 +184,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table; 444 written checks. On the real data on 2026-10-13: 444 of 444, rolled back (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
+- [ ] Row Level Security on every table; 457 written checks. On the real data on 2026-10-13: 444 of 444, rolled back; the 13 newest (incident posts) passed 12 of 13 in their trial, with the 13th a mistake in the check itself, fixed and waiting for the next full run (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4

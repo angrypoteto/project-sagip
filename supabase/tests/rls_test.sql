@@ -6,14 +6,15 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(444);
+select plan(457);
 
 select public.reset_demo_data();
 -- What the checks below assume, whatever the database is set to or holds
 -- (the hosted project has no sample classifier, and its switches are
 -- MDRRMD's to change).
 select public.load_sample_classifier();
-update public.app_setting set value = 'false' where key = 'channels.facebook';
+update public.app_setting set value = 'false'
+ where key in ('channels.facebook', 'channels.facebook_incidents');
 update public.app_setting set value = 'true' where key in ('channels.push', 'channels.sms');
 
 insert into auth.users (id, email, phone) values
@@ -2053,6 +2054,89 @@ select is((select count(*)::int from public.road_hazards()), (select n - 3 from 
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
 select is((select count(*)::int from public.road_hazards()), (select n - 2 from __haz_n),
   'a dispatcher gets them all (no incident of their own to leave out)');
+
+-- ----------------------------------- confirmed incidents on Facebook
+
+reset role;
+select ok(
+  not has_table_privilege('anon', 'public.incident_post', 'select')
+  and not has_function_privilege('authenticated', 'public.claim_incident_posts()', 'execute')
+  and not has_function_privilege('authenticated', 'public.finish_incident_post(bigint, text, text)', 'execute')
+  and has_function_privilege('service_role', 'public.claim_incident_posts()', 'execute'),
+  'only the sender (service role) can claim incident posts or record outcomes');
+
+-- Four unverified SOS in Pandacan: three floods (the third simulated) and
+-- a medical one.
+insert into public.incident_report
+select (jsonb_populate_record(null::public.incident_report,
+         to_jsonb(i) || jsonb_build_object(
+           'incident_id', 'INC-POST-' || g, 'client_uuid', gen_random_uuid(),
+           'origin', 'sos', 'status', 'pendingVerification',
+           'verification_method', null, 'emergency_type', null,
+           'suggested_type', case g when 4 then 'medical' else 'flood' end,
+           'false_report', false, 'cancelled', false, 'is_simulated', g = 3,
+           'district', 'Pandacan', 'barangay', 'Barangay 840', 'address', '12 Sample Street',
+           'assigned_unit_id', null, 'resolved_at', null, 'manila_resident_id', null))).*
+  from (select * from public.incident_report order by incident_id limit 1) i,
+       generate_series(1, 4) g;
+select is((select count(*)::int from public.incident_post where incident_id like 'INC-POST-%'), 0,
+  'an unverified SOS is never posted');
+
+update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-1';
+select is((select status from public.incident_post where incident_id = 'INC-POST-1'), 'off',
+  'with the switch off a confirmed incident is logged, not posted');
+
+update public.app_setting set value = 'true' where key = 'channels.facebook_incidents';
+update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-2';
+select ok(
+  (select p.status = 'queued'
+      and p.message like 'Confirmed flooding in Pandacan.%'
+      and p.message like '%Confirmed at %'
+      and position('Barangay' in p.message) = 0
+      and position('Sample Street' in p.message) = 0
+     from public.incident_post p where p.incident_id = 'INC-POST-2'),
+  'with it on, the post says what, the district, and when: no barangay, no address');
+update public.incident_report set emergency_type = 'fire' where incident_id = 'INC-POST-2';
+select is(
+  (select count(*)::int || ' ' || min(left(message, 18)) from public.incident_post where incident_id = 'INC-POST-2'),
+  '1 Confirmed flooding', 'one post per incident, whatever changes afterwards');
+update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-3';
+select is((select status from public.incident_post where incident_id = 'INC-POST-3'), 'simulated',
+  'a simulated incident is logged as simulated and never posted');
+update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-4';
+select is((select count(*)::int from public.incident_post where incident_id = 'INC-POST-4'), 0,
+  'a medical emergency is never posted');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.incident_post where incident_id like 'INC-POST-%'), 3,
+  'dispatchers see what was posted, held back, or simulated');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.incident_post), 0, 'residents see none of it');
+reset role;
+
+create temp table __posts as select public.claim_incident_posts() as claimed;
+select is(
+  (select string_agg(e ->> 'incident_id', ',') from __posts, jsonb_array_elements(claimed) e
+    where e ->> 'incident_id' like 'INC-POST-%'),
+  'INC-POST-2', 'the sender is handed only the queued post');
+select public.finish_incident_post(
+  (select post_id from public.incident_post where incident_id = 'INC-POST-2'), 'sent', 'post 1_2');
+select public.finish_incident_post(
+  (select post_id from public.incident_post where incident_id = 'INC-POST-2'), 'failed', 'again');
+select is((select status || ' ' || detail from public.incident_post where incident_id = 'INC-POST-2'),
+  'sent post 1_2', 'the outcome is recorded once');
+select throws_ok(
+  $$ select public.finish_incident_post(1, 'queued', null) $$,
+  'P0001', 'invalid_value', 'only a final outcome can be recorded');
+update public.incident_post set status = 'queued' where incident_id = 'INC-POST-1';
+update public.incident_report set false_report = true where incident_id = 'INC-POST-1';
+create temp table __posts_again as select public.claim_incident_posts() as claimed;
+select is(
+  (select (select count(*)::int from __posts_again, jsonb_array_elements(claimed) e
+            where e ->> 'incident_id' = 'INC-POST-1')
+          || ' ' || (select status from public.incident_post where incident_id = 'INC-POST-1')),
+  '0 withdrawn', 'a report marked false before it was posted is withdrawn, not posted');
 
 reset role;
 select * from finish();

@@ -114,6 +114,10 @@ abstract final class SettingKeys {
   static const facebookChannel = 'channels.facebook';
   static const channels = [pushChannel, smsChannel, facebookChannel];
 
+  /// Each confirmed flood, fire, or structural incident is posted on the
+  /// Page: its type, district, and time, nothing else (2026-10-13).
+  static const facebookIncidents = 'channels.facebook_incidents';
+
   /// The most alert texts sent in one day (each costs Semaphore credit).
   static const smsDailyCap = 'channels.sms_daily_cap';
 
@@ -219,6 +223,12 @@ const defaultOtherSettings = [
     category: 'channels',
     value: false,
     description: 'Post alerts on the MDRRMD Facebook Page',
+  ),
+  AppSetting(
+    key: SettingKeys.facebookIncidents,
+    category: 'channels',
+    value: false,
+    description: 'Post confirmed incidents on the MDRRMD Facebook Page',
   ),
   AppSetting(
     key: SettingKeys.smsDailyCap,

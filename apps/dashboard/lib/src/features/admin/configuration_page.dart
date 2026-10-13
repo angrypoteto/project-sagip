@@ -70,6 +70,11 @@ class ConfigurationPage extends ConsumerWidget {
                   label: l10n.channelFacebook,
                   caption: l10n.channelFacebookNote,
                 ),
+                (
+                  key: SettingKeys.facebookIncidents,
+                  label: l10n.channelFacebookIncidents,
+                  caption: l10n.channelFacebookIncidentsNote,
+                ),
               ],
               settings: settings,
             ),

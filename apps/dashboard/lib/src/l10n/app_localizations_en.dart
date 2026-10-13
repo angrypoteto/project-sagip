@@ -2208,6 +2208,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Needs the page\'s approval and access token.';
 
   @override
+  String get channelFacebookIncidents =>
+      'Confirmed incidents on the Facebook Page';
+
+  @override
+  String get channelFacebookIncidentsNote =>
+      'Each confirmed flood, fire, or structural incident is posted once: what it is, the district, and the time. Never a medical emergency, an unverified report, an address, or a name.';
+
+  @override
   String get configSmsCapTitle => 'SMS alert limit';
 
   @override

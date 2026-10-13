@@ -755,6 +755,8 @@
   "channelSmsNote": "Sent through Semaphore; each text costs credit.",
   "channelFacebook": "MDRRMD Facebook Page",
   "channelFacebookNote": "Needs the page's approval and access token.",
+  "channelFacebookIncidents": "Confirmed incidents on the Facebook Page",
+  "channelFacebookIncidentsNote": "Each confirmed flood, fire, or structural incident is posted once: what it is, the district, and the time. Never a medical emergency, an unverified report, an address, or a name.",
   "configSmsCapTitle": "SMS alert limit",
   "configSmsCapNote": "Each text costs Semaphore credit. When the day's limit is reached, the rest of an alert's texts are not sent, and the alert log says so.",
   "settingSmsDailyCap": "Alert texts per day",
