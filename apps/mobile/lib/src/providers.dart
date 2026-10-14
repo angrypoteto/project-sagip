@@ -468,6 +468,18 @@ final navigationRouteProvider = Provider.autoDispose
       return route;
     });
 
+/// The streets from the responder to the resident, for the line on R3
+/// Track responder (Joshua, 2026-10-14: it was drawn straight over the
+/// houses). Worked out on the resident's phone from the bundled road graph;
+/// it is where the unit is likely to drive, not the unit's own route, and it
+/// knows no floods or fires (a resident is not told where those are). Null
+/// until the graph has loaded, or when either end is off the map.
+final trackRouteProvider = Provider.autoDispose
+    .family<RoadRoute?, ({GeoPoint from, GeoPoint to})>((ref, key) {
+      final router = ref.watch(roadRouterProvider).value;
+      return router?.route(key.from, key.to);
+    });
+
 /// Distance, ETA, and direction from the unit to a job.
 @immutable
 class RouteEstimate {

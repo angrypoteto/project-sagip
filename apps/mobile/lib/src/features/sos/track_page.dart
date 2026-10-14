@@ -76,6 +76,15 @@ class _TrackBody extends ConsumerWidget {
         ? null
         : toLatLng(sos.responderLocation!);
     final points = [?you, ?unit];
+    // Along the streets when the road graph can route it; else straight.
+    final road = sos.location == null || sos.responderLocation == null
+        ? null
+        : ref.watch(
+            trackRouteProvider((
+              from: sos.responderLocation!,
+              to: sos.location!,
+            )),
+          );
     final fitBoth = you != null && unit != null && you != unit;
 
     return Stack(
@@ -106,12 +115,22 @@ class _TrackBody extends ConsumerWidget {
                 target: unit,
                 builder: (at) => PolylineLayer(
                   polylines: [
-                    Polyline(
-                      points: [at, you],
-                      strokeWidth: 4,
-                      color: SagipPalette.of(context).info.fill,
-                      pattern: StrokePattern.dashed(segments: const [10, 8]),
-                    ),
+                    if (road != null)
+                      Polyline(
+                        points: [
+                          at,
+                          for (final p in road.points.skip(1)) toLatLng(p),
+                        ],
+                        strokeWidth: 5,
+                        color: SagipPalette.of(context).info.fill,
+                      )
+                    else
+                      Polyline(
+                        points: [at, you],
+                        strokeWidth: 4,
+                        color: SagipPalette.of(context).info.fill,
+                        pattern: StrokePattern.dashed(segments: const [10, 8]),
+                      ),
                   ],
                 ),
               ),
