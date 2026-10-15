@@ -190,6 +190,18 @@ abstract class AppLocalizations {
   /// **'Sign in'**
   String get signInButton;
 
+  /// No description provided for @pageTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} - {page}'**
+  String pageTabTitle(String app, String page);
+
+  /// No description provided for @pageWallMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get pageWallMap;
+
   /// No description provided for @signingIn.
   ///
   /// In en, this message translates to:

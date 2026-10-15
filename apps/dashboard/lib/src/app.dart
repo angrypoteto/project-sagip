@@ -11,6 +11,7 @@ class SagipDashboardApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
@@ -22,7 +23,7 @@ class SagipDashboardApp extends ConsumerWidget {
         ...GlobalMaterialLocalizations.delegates,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: ref.watch(routerProvider),
+      routerConfig: router,
       // flutter_map still uses package:flutter/material.dart; the bridge lets
       // its widgets read our material_ui theme (material_ui migration guide).
       // Remove once flutter_map migrates to material_ui.

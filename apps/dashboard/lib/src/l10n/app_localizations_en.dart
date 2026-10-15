@@ -58,6 +58,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInButton => 'Sign in';
 
   @override
+  String pageTabTitle(String app, String page) {
+    return '$app - $page';
+  }
+
+  @override
+  String get pageWallMap => 'Map';
+
+  @override
   String get signingIn => 'Signing in';
 
   @override

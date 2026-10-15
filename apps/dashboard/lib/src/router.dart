@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart' show UserRole;
 
+import 'features/shell/page_title.dart';
 import 'features/account/account_page.dart';
 import 'features/admin/accounts_page.dart';
 import 'features/admin/analytics_page.dart';
@@ -162,16 +163,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', redirect: (_, _) => Routes.board),
       GoRoute(
         path: Routes.signIn,
-        pageBuilder: (context, state) => _page(const SignInPage()),
+        pageBuilder: (context, state) =>
+            _page(PageTitle(path: state.uri.path, child: const SignInPage())),
       ),
       GoRoute(
         path: Routes.sessionExpired,
-        pageBuilder: (context, state) =>
-            _page(SessionExpiredPage(from: state.uri.queryParameters['from'])),
+        pageBuilder: (context, state) => _page(
+          PageTitle(
+            path: state.uri.path,
+            child: SessionExpiredPage(from: state.uri.queryParameters['from']),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.wall,
-        pageBuilder: (context, state) => _page(const WallMapPage()),
+        pageBuilder: (context, state) =>
+            _page(PageTitle(path: state.uri.path, child: const WallMapPage())),
       ),
       ShellRoute(
         pageBuilder: (context, state, child) =>

@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import 'page_title.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
@@ -39,33 +40,36 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider).value;
     final isResponder = user?.role == UserRole.responder;
-    return Scaffold(
-      body: _NavFrame(
-        location: widget.location,
-        isAdmin: user?.isAdmin ?? false,
-        isResponder: isResponder,
-        child: Column(
-          children: [
-            const TopBar(),
-            const _ConnectionBanner(),
-            Expanded(
-              child: Stack(
-                children: [
-                  Positioned.fill(child: widget.child),
-                  // Dispatch's alert: not for a unit's crew.
-                  if (!isResponder)
-                    const Positioned(
-                      // Below the map's floating controls so it never
-                      // covers the Map/List switch.
-                      top: 76,
-                      left: 0,
-                      right: 0,
-                      child: Center(child: NewSosToast()),
-                    ),
-                ],
+    return PageTitle(
+      path: widget.location,
+      child: Scaffold(
+        body: _NavFrame(
+          location: widget.location,
+          isAdmin: user?.isAdmin ?? false,
+          isResponder: isResponder,
+          child: Column(
+            children: [
+              const TopBar(),
+              const _ConnectionBanner(),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: widget.child),
+                    // Dispatch's alert: not for a unit's crew.
+                    if (!isResponder)
+                      const Positioned(
+                        // Below the map's floating controls so it never
+                        // covers the Map/List switch.
+                        top: 76,
+                        left: 0,
+                        right: 0,
+                        child: Center(child: NewSosToast()),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

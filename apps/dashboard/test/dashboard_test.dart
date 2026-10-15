@@ -103,6 +103,17 @@ void main() {
     expect(find.text('Email or password is incorrect.'), findsOneWidget);
   });
 
+  testWidgets('the browser tab names the open page', (tester) async {
+    String tab() => tester.widgetList<Title>(find.byType(Title)).last.title;
+    await pumpApp(tester);
+    expect(tab(), 'S.A.G.I.P. Command Center - Sign in');
+    await signIn(tester, 'admin@sagip.test');
+    expect(tab(), 'S.A.G.I.P. Command Center - Command Board');
+    await tester.tap(find.byTooltip('Units').first);
+    await settle(tester);
+    expect(tab(), 'S.A.G.I.P. Command Center - Units');
+  });
+
   testWidgets('the queue is ranked with the vulnerable SOS first', (
     tester,
   ) async {
