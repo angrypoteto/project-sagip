@@ -164,6 +164,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 5. Built: mobile app, responder
 
+- [ ] **[N]** Both sites show the S.A.G.I.P. beacon (the red SOS circle) in the browser tab and as the icon when added to a phone's home screen
 - [ ] **[N]** R3 Track responder: the line from the unit to you follows the streets (solid). A dashed straight line only when no road route can be worked out
 - [ ] **[N]** S3 Sign in: the logo and heading are centred and the MDRRMD hotline card sits at the bottom of the screen (sign out to see it)
 - [ ] F1 Home: unit, status control, location sharing line, weather strip
