@@ -186,7 +186,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table; 457 written checks. On the real data on 2026-10-13: 457 of 457, rolled back (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
+- [ ] Row Level Security on every table; 464 written checks. On the real data on 2026-10-16: 464 of 464, rolled back (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4
