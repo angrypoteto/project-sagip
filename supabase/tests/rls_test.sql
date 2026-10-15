@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(464);
+select plan(465);
 
 select public.reset_demo_data();
 -- What the checks below assume, whatever the database is set to or holds
@@ -2203,6 +2203,33 @@ select public.record_incident_post(post_id, 'sent', 'edited', null, 'older words
   from public.incident_post where incident_id = 'INC-POST-6';
 select is((select status from public.incident_post where incident_id = 'INC-POST-6'), 'queued',
   'an outcome for older words puts the post back in the queue');
+
+-- A cancelled SOS is not a false alarm.
+insert into public.incident_report
+select (jsonb_populate_record(null::public.incident_report,
+         to_jsonb(i) || jsonb_build_object(
+           'incident_id', 'INC-POST-' || g, 'client_uuid', gen_random_uuid(),
+           'origin', 'sos', 'status', 'pendingVerification',
+           'verification_method', null, 'emergency_type', null, 'suggested_type', 'fire',
+           'false_report', false, 'cancelled', false, 'is_simulated', false, 'real_emergency', null,
+           'district', 'Tondo', 'barangay', 'Barangay 105', 'address', '3 Sample Street',
+           'assigned_unit_id', 'unit-r03', 'resolved_at', null, 'manila_resident_id', null))).*
+  from (select * from public.incident_report order by incident_id limit 1) i,
+       generate_series(7, 8) g;
+create temp table __third as select public.claim_incident_posts() as claimed;
+select public.record_incident_post(post_id, 'sent', 'posted', '1_' || right(incident_id, 1), message)
+  from public.incident_post where incident_id in ('INC-POST-7', 'INC-POST-8');
+update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-7';
+update public.incident_report set cancelled = true, cancel_reason = 'safeNow', status = 'resolved', resolved_at = now()
+ where incident_id in ('INC-POST-7', 'INC-POST-8');
+select ok(
+  (select bool_and(case p.incident_id
+      when 'INC-POST-7' then p.stage = 'confirmed' and p.message like '%the person who asked for help is safe%'
+                             and p.message not like '%False alarm%'
+      else p.stage = 'withdrawn' and p.message like 'Update: report withdrawn.%'
+                             and p.message like '%withdrawn by the person who made it%' end)
+     from public.incident_post p where p.incident_id in ('INC-POST-7', 'INC-POST-8')), 
+  'a cancelled SOS is never called a false alarm: confirmed ones say the person is safe, others say withdrawn');
 
 reset role;
 select * from finish();

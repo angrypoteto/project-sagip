@@ -54,7 +54,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/20261011030000_data_retention.sql` | The setting `privacy.retention_months` (6 to 60, 12 by default), `private.apply_retention()`, and a `pg_cron` job every night |
 | `migrations/*_report_rag.sql` | `report_reference` (the passages, provisional), `report_rewrite` (the log and the hourly limit), `begin_report_rewrite()`, and `mark_report_rag()` |
 | `functions/generate-report/` | The RAG step: finds the passages for each section and asks Gemini to write it from the figures (several keys in turn, Groq after them); `rag.test.ts` runs with `node --test`. Deployed (version 1); answers "not set up" until the keys are added |
-| `tests/rls_test.sql` | 464 pgTAP checks of who can see and do what |
+| `tests/rls_test.sql` | 465 pgTAP checks of who can see and do what |
 | `seed.sql` | Loads the sample data on a local database |
 
 Migration file names match the versions recorded on the hosted project. Never edit an applied migration; add a new file.

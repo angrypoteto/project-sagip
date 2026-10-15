@@ -94,7 +94,7 @@ changed on 2026-10-12 or 2026-10-13.
 - [ ] A3 Priority weights with the live ranking preview
 - [ ] A3 Alert thresholds, channel switches, hotline and gateway number, crowd report limit
 - [ ] **[N]** A3 "Post alerts on the MDRRMD Facebook Page" is on; a real (not simulated) alert appears on the test Page "Project SAGIP" and its delivery line says sent (a test alert went through on 2026-10-13). While the Meta app is unpublished, the post is probably seen only by you
-- [ ] **[N]** A3 "Confirmed incidents on the Facebook Page". With it on, one post per flood, fire, or structural incident, edited as it goes: assign a unit to an unverified SOS and "Unverified report: possible ... in <district>" appears; verify it and the same post turns into "Confirmed ..."; mark a false report (or the responder answers No on scene) and it becomes "False alarm ..."; resolve a confirmed one and an "Update ..." line is added. Not posted: medical, simulated incidents, the barangay or address, who reported it (first seen working on INC-0165, 2026-10-16)
+- [ ] **[N]** A3 "Confirmed incidents on the Facebook Page". With it on, one post per flood, fire, or structural incident, edited as it goes: assign a unit to an unverified SOS and "Unverified report: possible ... in <district>" appears; verify it and the same post turns into "Confirmed ..."; mark a false report (or the responder answers No on scene) and it becomes "False alarm ..."; resolve a confirmed one and an "Update ..." line is added ("the person who asked for help is safe" when the resident cancelled it); an unverified one the resident cancels becomes "Update: report withdrawn". Not posted: medical, simulated incidents, the barangay or address, who reported it (first seen working on INC-0165, 2026-10-16)
 - [ ] **[N]** The hotline (02) 8565-4316 shows in the mobile app and on the web form
 - [ ] **[N]** The map credit is smaller on every map (dashboard, web form, mobile after its next install)
 - [ ] A3 "Data retention": 6 to 60 months, saved and in the audit log
@@ -186,7 +186,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table; 464 written checks. On the real data on 2026-10-16: 464 of 464, rolled back (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
+- [ ] Row Level Security on every table; 465 written checks. On the real data on 2026-10-16: 465 of 465, rolled back (in a trial run before the last migration was applied; the full file from GitHub after the next push) (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4
