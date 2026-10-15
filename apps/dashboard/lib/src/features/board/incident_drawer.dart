@@ -527,9 +527,14 @@ class _TypeRow extends StatelessWidget {
     final unchanged =
         incident.typeConfirmed && choice == incident.confirmedType;
 
+    // An SOS's type was picked by the resident who sent it; a crowd
+    // cluster's was guessed by the classifier (Joshua, 2026-10-16: "it
+    // should not be suggested because I chose it as a user").
     String label(IncidentType t) =>
         !incident.typeConfirmed && t == incident.suggestedType
-        ? l10n.typeSuggested(l10n.incidentType(t))
+        ? (incident.origin == IncidentOrigin.sos
+              ? l10n.typeFromResident(l10n.incidentType(t))
+              : l10n.typeSuggested(l10n.incidentType(t)))
         : l10n.incidentType(t);
 
     return Row(

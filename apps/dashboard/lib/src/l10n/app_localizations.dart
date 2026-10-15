@@ -1228,6 +1228,12 @@ abstract class AppLocalizations {
   /// **'{type} (suggested)'**
   String typeSuggested(String type);
 
+  /// No description provided for @typeFromResident.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} (resident\'s choice)'**
+  String typeFromResident(String type);
+
   /// No description provided for @typeNotSet.
   ///
   /// In en, this message translates to:

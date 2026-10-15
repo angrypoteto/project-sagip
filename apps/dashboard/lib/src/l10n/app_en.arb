@@ -237,6 +237,8 @@
   "@locationSource": {"description": "Where an incident location came from, after the word from.", "placeholders": {"channel": {"type": "String"}}},
   "incidentTypeLabel": "Incident type",
   "typeSuggested": "{type} (suggested)",
+  "typeFromResident": "{type} (resident's choice)",
+  "@typeFromResident": {"placeholders": {"type": {"type": "String"}}},
   "@typeSuggested": {"placeholders": {"type": {"type": "String"}}},
   "typeNotSet": "Not set",
   "confirmType": "Confirm type",

@@ -672,6 +672,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String typeFromResident(String type) {
+    return '$type (resident\'s choice)';
+  }
+
+  @override
   String get typeNotSet => 'Not set';
 
   @override
