@@ -157,6 +157,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] Offline banner on every screen (turn on airplane mode)
 - [ ] S6 Offline queue sheet: saved records, Try sending now
 - [ ] An SOS sent offline is delivered when you come back online, with its original time
+- [ ] **[N]** The app no longer flips to offline on one slow answer; it needs two failed checks in a row, and once offline it checks every 5 seconds, so a saved SOS goes within seconds of the connection returning (fixed 2026-10-16)
 - [ ] S6 "Text it myself" opens the messages app with the SOS text ready **[P]**
 - [ ] SOS by SMS when there is signal but no data **[P] [W]**
 - [ ] SOS relayed by a nearby phone over Bluetooth, also in the background **[P]**

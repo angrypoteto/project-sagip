@@ -164,9 +164,11 @@ class SyncEngine {
   /// server's copy catches up.
   static const keepDelivered = Duration(days: 1);
 
-  /// 5 s, 10 s, 20 s, ... up to 5 minutes.
+  /// 5 s, 10 s, 20 s, then every 30 s. It was up to 5 minutes, which on a
+  /// flaky connection looked like a saved SOS never being sent again
+  /// (2026-10-16); one small request every half minute is cheap.
   static Duration defaultRetryDelay(int attempts) =>
-      Duration(seconds: min(300, 5 * pow(2, max(0, attempts - 1)).toInt()));
+      Duration(seconds: min(30, 5 * pow(2, max(0, attempts - 1)).toInt()));
 
   final LocalStore _store;
   final OutboxSender _sender;

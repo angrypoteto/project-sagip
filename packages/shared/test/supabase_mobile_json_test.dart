@@ -209,4 +209,28 @@ void main() {
       ),
     );
   });
+
+  test('an expired sign-in or a server error is retried, not a refusal', () {
+    // A phone back after more than an hour offline sends before its
+    // token is refreshed (2026-10-16): the SOS must stay in the outbox.
+    expect(transientDatabaseError('PGRST303', 'JWT expired'), isTrue);
+    expect(transientDatabaseError('PGRST301', 'JWSError'), isTrue);
+    expect(transientDatabaseError(null, 'JWT expired'), isTrue);
+    expect(transientDatabaseError('502', 'Bad Gateway'), isTrue);
+    expect(transientDatabaseError('503', 'Service Unavailable'), isTrue);
+    expect(transientDatabaseError('429', 'Too Many Requests'), isTrue);
+    expect(transientDatabaseError('408', 'Request Timeout'), isTrue);
+    // The database function's own refusals are final.
+    expect(transientDatabaseError('P0001', 'outside_manila'), isFalse);
+    expect(transientDatabaseError('P0001', 'not_allowed'), isFalse);
+    expect(transientDatabaseError('42501', 'permission denied'), isFalse);
+    expect(transientDatabaseError('404', 'not_found'), isFalse);
+  });
+
+  test('the outbox waits at most half a minute between tries', () {
+    expect(
+      [for (var a = 1; a <= 8; a++) SyncEngine.defaultRetryDelay(a).inSeconds],
+      [5, 10, 20, 30, 30, 30, 30, 30],
+    );
+  });
 }

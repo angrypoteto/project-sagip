@@ -1317,12 +1317,33 @@ Exception databaseRefusal(String code) => switch (code) {
   _ => const ActionRejected(ActionRejection.notAllowed),
 };
 
+/// True when a database error is about the connection or the sign-in, not
+/// the record: an expired or missing sign-in token (PostgREST's PGRST30x,
+/// which a phone gets when it comes back after more than an hour offline
+/// and sends before the token is refreshed), a server or gateway error, a
+/// timeout, or too many requests. These are tried again; only a refusal
+/// raised by the database function itself refuses a record for good
+/// (Joshua, 2026-10-16: an SOS saved offline was not sent when the
+/// connection came back).
+bool transientDatabaseError(String? code, String message) {
+  final c = code ?? '';
+  if (c.startsWith('PGRST3') || message.contains('JWT')) return true;
+  // An HTTP status (three digits) from a gateway; a Postgres code such as
+  // 42501 is five characters and is a real refusal.
+  final status = c.length == 3 ? int.tryParse(c) : null;
+  return status != null && (status >= 500 || status == 408 || status == 429);
+}
+
 /// Runs a database function and turns its refusals into the app's
-/// exceptions ([databaseRefusal]); network failures become offline.
+/// exceptions ([databaseRefusal]); network failures, server errors, and an
+/// expired sign-in become offline, so the outbox tries again.
 Future<T> _call<T>(Future<T> Function() body) async {
   try {
     return await body();
   } on PostgrestException catch (e) {
+    if (transientDatabaseError(e.code, e.message)) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
     throw databaseRefusal(e.message);
   } on ActionRejected {
     rethrow;
