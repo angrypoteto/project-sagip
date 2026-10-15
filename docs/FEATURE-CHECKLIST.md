@@ -8,8 +8,8 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 | App | Command (run in the folder shown) | Sign in with |
 |---|---|---|
 | Dashboard, real database | `apps/dashboard`: `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` | `admin@sagip.test` or `dispatcher@sagip.test` (you set their passwords), or a unit account |
-| Dashboard on the internet, real database | open `https://sagip-dashboard-three.vercel.app` (not the address without `-three`: that one is someone else’s) | the same accounts |
-| Resident web form on the internet, real database | open `https://sagip-report.vercel.app` | resident: `917 000 4821`, code `123456` |
+| Dashboard on the internet, real database | open `https://sagip.me` (also `https://sagip-dashboard-three.vercel.app`) | the same accounts |
+| Resident web form on the internet, real database | open `https://report.sagip.me` (also `https://sagip-report.vercel.app`) | resident: `917 000 4821`, code `123456` |
 | Dashboard, sample data | `apps/dashboard`: `flutter run -d chrome` | the same emails, password `sagip-demo` |
 | Resident web form, sample data | `apps/dashboard`: `flutter run -d chrome -t lib/main_webform.dart` | any number, the demo code shown |
 | Mobile app on your phone, real database | already installed (release build of 2026-10-12, night) | resident: `917 000 4821`, code `123456`; responder: a unit account |
