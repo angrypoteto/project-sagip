@@ -7,6 +7,7 @@ import '../models/analytics.dart';
 import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
+import '../models/facebook_post.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
@@ -136,6 +137,10 @@ abstract interface class IncidentRepository {
   /// each text and push went out (FR6), oldest first. Empty for crowd
   /// clusters and for an SOS no unit has been sent to yet.
   Stream<List<ResidentNotice>> watchNotices(String incidentId);
+
+  /// The incident's post on the MDRRMD Facebook Page, or null when it has
+  /// none (yet).
+  Stream<IncidentPost?> watchFacebookPost(String incidentId);
 }
 
 abstract interface class UnitRepository {

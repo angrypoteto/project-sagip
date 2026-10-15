@@ -34,6 +34,7 @@ export 'src/models/analytics.dart';
 export 'src/models/assignment.dart';
 export 'src/models/crowd_report.dart';
 export 'src/models/enums.dart';
+export 'src/models/facebook_post.dart';
 export 'src/models/geo_point.dart';
 export 'src/models/hazard_report.dart';
 export 'src/models/incident.dart';

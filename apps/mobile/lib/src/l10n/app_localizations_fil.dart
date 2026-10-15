@@ -422,6 +422,10 @@ class AppLocalizationsFil extends AppLocalizations {
   String get detailsType => 'Ano ang nangyayari?';
 
   @override
+  String get whatsHappeningBody =>
+      'Naipadala na ang iyong SOS. Isang pindot para malaman ng mga rescuer kung ano ang dadalhin.';
+
+  @override
   String get typeFlood => 'Baha';
 
   @override

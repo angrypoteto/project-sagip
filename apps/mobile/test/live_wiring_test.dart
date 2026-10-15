@@ -163,6 +163,9 @@ void main() {
     await gesture.up();
     await tester.pump();
     await settle(tester);
+    // The optional "What is happening?" question comes up; skipped here.
+    await tester.tap(find.byKey(const ValueKey('whats-happening-skip')));
+    await settle(tester);
     expect(find.text('Offline · 1 waiting to send'), findsOneWidget);
     expect(store.outbox.single.action, OutboxAction.sos);
     expect(server.sent, isEmpty);

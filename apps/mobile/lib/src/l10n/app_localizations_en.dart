@@ -417,6 +417,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get detailsType => 'What is happening?';
 
   @override
+  String get whatsHappeningBody =>
+      'Your SOS is already sent. One tap tells the responders what to bring.';
+
+  @override
   String get typeFlood => 'Flood';
 
   @override

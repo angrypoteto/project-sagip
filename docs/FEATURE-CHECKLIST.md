@@ -107,6 +107,7 @@ changed on 2026-10-12 or 2026-10-13.
 - [ ] A6 Download PDF (the stored copy once the report is final)
 - [ ] A6 "Rewrite with the language model" (the keys are in place; never tried from the page)
 - [ ] A7 Audit log shows every action above with who did it
+- [ ] **[N]** Incident panel: a line under the type says where its Facebook post stands, and why it is not posted (for example "not posted until the incident type is confirmed")
 
 ---
 
@@ -155,6 +156,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] R9 Vulnerability profile; R10 Consent; R11 Household member; withdraw consent
 - [ ] S7 Me: details, theme, language (English or Filipino), test notification, privacy notice, request deletion, sign out
 - [ ] Offline banner on every screen (turn on airplane mode)
+- [ ] **[N]** After holding SOS, "What is happening?" comes up once with four big buttons and Skip; one tap sets the type (the SOS is already sent). Add details starts with the same big buttons
 - [ ] S6 Offline queue sheet: saved records, Try sending now
 - [ ] An SOS sent offline is delivered when you come back online, with its original time
 - [ ] **[N]** The app no longer flips to offline on one slow answer; it needs two failed checks in a row, and once offline it checks every 5 seconds, so a saved SOS goes within seconds of the connection returning (fixed 2026-10-16)

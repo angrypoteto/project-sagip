@@ -52,6 +52,9 @@ abstract final class Routes {
   static const alerts = '/r/alerts';
   static const me = '/r/me';
   static String sos(String clientId) => '/r/sos/$clientId';
+
+  /// R2 just after sending: it asks "What is happening?" once.
+  static String sosJustSent(String clientId) => '/r/sos/$clientId?ask=type';
   static String track(String clientId) => '/r/sos/$clientId/track';
   static String alert(String id) => '/r/alert/$id';
   static const pickLocation = '/r/location';
@@ -225,8 +228,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       // R2 and R3 open full screen, above the tabs.
       GoRoute(
         path: '/r/sos/:id',
-        builder: (context, state) =>
-            SosStatusPage(clientId: state.pathParameters['id']!),
+        builder: (context, state) => SosStatusPage(
+          clientId: state.pathParameters['id']!,
+          askType: state.uri.queryParameters['ask'] == 'type',
+        ),
         routes: [
           GoRoute(
             path: 'track',

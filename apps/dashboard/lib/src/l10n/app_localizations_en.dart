@@ -683,6 +683,31 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String facebookPostLine(String state) {
+    String _temp0 = intl.Intl.selectLogic(state, {
+      'switchedOff':
+          'Facebook: incident posts are switched off on the Configuration page',
+      'needsType': 'Facebook: not posted until the incident type is confirmed',
+      'neverPosted':
+          'Facebook: not posted; only floods, fires, and structural damage are',
+      'waitingForUnit':
+          'Facebook: posted as unverified once a unit is assigned',
+      'posting': 'Facebook: posting now',
+      'postedUnverified': 'Facebook: posted as unverified',
+      'postedConfirmed': 'Facebook: posted as confirmed',
+      'postedFalseAlarm': 'Facebook: post changed to a false alarm',
+      'postedWithdrawn': 'Facebook: post changed to withdrawn',
+      'notNeeded': 'Facebook: not posted; withdrawn or false before it went up',
+      'failed': 'Facebook: posting failed',
+      'pageNotSetUp': 'Facebook: the Page is not set up',
+      'simulated': 'Facebook: simulated incidents are never posted',
+      'heldBack': 'Facebook: not posted; posting was switched off at the time',
+      'other': 'Facebook',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get verificationTitle => 'Verification';
 
   @override

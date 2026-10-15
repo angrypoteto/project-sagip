@@ -2,7 +2,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
-import '../../common/labels.dart';
+import '../../common/incident_type_grid.dart';
 import '../../l10n/app_localizations.dart';
 
 /// R2 "Add details": optional extras after the SOS is already sent. Returns
@@ -64,17 +64,9 @@ class _AddDetailsSheetState extends State<_AddDetailsSheet> {
             const SizedBox(height: SagipSpace.xl),
             Text(l10n.detailsType, style: text.titleSmall),
             const SizedBox(height: SagipSpace.sm),
-            Wrap(
-              spacing: SagipSpace.sm,
-              runSpacing: SagipSpace.sm,
-              children: [
-                for (final t in IncidentType.values)
-                  ChoiceChip(
-                    label: Text(l10n.incidentType(t)),
-                    selected: _type == t,
-                    onSelected: (on) => setState(() => _type = on ? t : null),
-                  ),
-              ],
+            IncidentTypeGrid(
+              selected: _type,
+              onSelected: (t) => setState(() => _type = t),
             ),
             const SizedBox(height: SagipSpace.xl),
             Text(l10n.detailsPeople, style: text.titleSmall),

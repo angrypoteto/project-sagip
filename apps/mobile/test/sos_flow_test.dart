@@ -95,8 +95,9 @@ void main() {
     matching: find.text(text),
   );
 
-  /// Holds the SOS button for its full two seconds.
-  Future<void> holdSos(WidgetTester tester) async {
+  /// Holds the SOS button for its full two seconds. The "What's
+  /// happening?" question that follows is skipped unless [keepQuestion].
+  Future<void> holdSos(WidgetTester tester, {bool keepQuestion = false}) async {
     final gesture = await tester.startGesture(
       tester.getCenter(find.byType(SosButton)),
     );
@@ -105,6 +106,13 @@ void main() {
     await gesture.up();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
+    final skip = find.byKey(const ValueKey('whats-happening-skip'));
+    if (!keepQuestion && skip.evaluate().isNotEmpty) {
+      // Closed without moving the clock, so the steps each test times
+      // (delivered, verified, assigned) come when they always did.
+      await tester.tap(skip);
+      await tester.pump();
+    }
   }
 
   /// Runs every simulated step to the end and clears timers, so the test
@@ -341,6 +349,42 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
     await settle(tester);
     expect(onTrack('Your responder has arrived.'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('after the SOS, one tap says what is happening', (tester) async {
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    await holdSos(tester, keepQuestion: true);
+    // The SOS is already sent; the question sits over its status screen.
+    expect(find.text('What is happening?'), findsOneWidget);
+    expect(
+      find.text(
+        'Your SOS is already sent. One tap tells the responders what to bring.',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('type-fire')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Details added'), findsOneWidget);
+    expect(find.byKey(const ValueKey('whats-happening-skip')), findsNothing);
+    final sos = container.read(mySosProvider).value!.first;
+    expect(sos.details.type, IncidentType.fire);
+    // Add details opens with the same large buttons, fire chosen.
+    await tester.scrollUntilVisible(find.text('Edit details'), 200);
+    await tester.tap(find.text('Edit details'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('type-flood')), findsOneWidget);
+    final fire = tester.widget<Semantics>(
+      find
+          .ancestor(
+            of: find.byKey(const ValueKey('type-fire')),
+            matching: find.byType(Semantics),
+          )
+          .first,
+    );
+    expect(fire.properties.selected, isTrue);
     await finish(tester);
   });
 

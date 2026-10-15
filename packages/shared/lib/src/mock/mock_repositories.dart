@@ -5,6 +5,7 @@ import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
+import '../models/facebook_post.dart';
 import '../models/geo_point.dart';
 import '../models/incident.dart';
 import '../models/ndrrmc.dart';
@@ -99,6 +100,11 @@ class MockIncidentRepository implements IncidentRepository {
   @override
   Stream<List<ResidentNotice>> watchNotices(String incidentId) =>
       _backend.watchNotices(incidentId);
+
+  /// The sample data posts nothing on Facebook.
+  @override
+  Stream<IncidentPost?> watchFacebookPost(String incidentId) =>
+      Stream.value(null);
 }
 
 class MockAccountRepository implements AccountRepository {

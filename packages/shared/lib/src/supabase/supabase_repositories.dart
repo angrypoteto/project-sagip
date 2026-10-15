@@ -14,6 +14,7 @@ import '../models/analytics.dart';
 import '../models/assignment.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
+import '../models/facebook_post.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
@@ -693,6 +694,22 @@ class SupabaseIncidentRepository implements IncidentRepository {
         params: {'p_incident_id': incidentId},
       );
       return [for (final r in rows) ResidentNotice.fromJson(r as _Row)];
+    },
+  );
+
+  @override
+  Stream<IncidentPost?> watchFacebookPost(String incidentId) => liveQuery(
+    _client,
+    tables: const ['incident_post'],
+    // The table is not in the realtime publication: ask again now and then.
+    refreshEvery: const Duration(seconds: 10),
+    fetch: () async {
+      final row = await _client
+          .from('incident_post')
+          .select('stage, status, detail, updated_at')
+          .eq('incident_id', incidentId)
+          .maybeSingle();
+      return row == null ? null : IncidentPost.fromJson(row);
     },
   );
 

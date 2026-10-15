@@ -806,6 +806,12 @@ abstract class AppLocalizations {
   /// **'What is happening?'**
   String get detailsType;
 
+  /// No description provided for @whatsHappeningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SOS is already sent. One tap tells the responders what to bring.'**
+  String get whatsHappeningBody;
+
   /// No description provided for @typeFlood.
   ///
   /// In en, this message translates to:

@@ -1246,6 +1246,12 @@ abstract class AppLocalizations {
   /// **'Type set to {type}'**
   String typeConfirmedSnack(String type);
 
+  /// No description provided for @facebookPostLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{state, select, switchedOff{Facebook: incident posts are switched off on the Configuration page} needsType{Facebook: not posted until the incident type is confirmed} neverPosted{Facebook: not posted; only floods, fires, and structural damage are} waitingForUnit{Facebook: posted as unverified once a unit is assigned} posting{Facebook: posting now} postedUnverified{Facebook: posted as unverified} postedConfirmed{Facebook: posted as confirmed} postedFalseAlarm{Facebook: post changed to a false alarm} postedWithdrawn{Facebook: post changed to withdrawn} notNeeded{Facebook: not posted; withdrawn or false before it went up} failed{Facebook: posting failed} pageNotSetUp{Facebook: the Page is not set up} simulated{Facebook: simulated incidents are never posted} heldBack{Facebook: not posted; posting was switched off at the time} other{Facebook}}'**
+  String facebookPostLine(String state);
+
   /// No description provided for @verificationTitle.
   ///
   /// In en, this message translates to:

@@ -118,6 +118,7 @@
   "editDetails": "Baguhin ang mga detalye",
   "detailsHint": "Opsyonal. Ipinapadala na ang iyong SOS.",
   "detailsType": "Ano ang nangyayari?",
+  "whatsHappeningBody": "Naipadala na ang iyong SOS. Isang pindot para malaman ng mga rescuer kung ano ang dadalhin.",
   "typeFlood": "Baha",
   "typeFire": "Sunog",
   "typeMedical": "Medikal",

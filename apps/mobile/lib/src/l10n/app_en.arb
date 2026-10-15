@@ -147,6 +147,7 @@
   "editDetails": "Edit details",
   "detailsHint": "Optional. Your SOS is already on its way.",
   "detailsType": "What is happening?",
+  "whatsHappeningBody": "Your SOS is already sent. One tap tells the responders what to bring.",
   "typeFlood": "Flood",
   "typeFire": "Fire",
   "typeMedical": "Medical",

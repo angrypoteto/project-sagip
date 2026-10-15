@@ -13,17 +13,67 @@ import '../../providers.dart';
 import '../../router.dart';
 import 'add_details_sheet.dart';
 import 'cancel_sos_sheet.dart';
+import 'whats_happening_sheet.dart';
 
 /// R2 SOS status: where the SOS is, from "Saved on phone" to "Resolved".
 /// The local record shows immediately; server progress fills in as it
 /// arrives (plan 7.4).
-class SosStatusPage extends ConsumerWidget {
-  const SosStatusPage({super.key, required this.clientId});
+class SosStatusPage extends ConsumerStatefulWidget {
+  const SosStatusPage({
+    super.key,
+    required this.clientId,
+    this.askType = false,
+  });
 
   final String clientId;
 
+  /// Just sent: ask "What is happening?" once, over this screen (Joshua,
+  /// 2026-10-16). The SOS has already gone; the answer is an optional
+  /// detail.
+  final bool askType;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SosStatusPage> createState() => _SosStatusPageState();
+}
+
+class _SosStatusPageState extends ConsumerState<SosStatusPage> {
+  String get clientId => widget.clientId;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.askType) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _askType());
+    }
+  }
+
+  Future<void> _askType() async {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final type = await showWhatsHappeningSheet(context);
+    if (type == null || !mounted) return;
+    final now = ref.read(sosByIdProvider(clientId))?.details;
+    try {
+      await ref
+          .read(sosRepositoryProvider)
+          .addDetails(
+            clientId,
+            SosDetails(
+              type: type,
+              peopleCount: now?.peopleCount,
+              needsExtraHelp: now?.needsExtraHelp ?? false,
+              note: now?.note,
+            ),
+          );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.detailsSaved)));
+    } catch (_) {
+      // Not sent now: it can be set later under Add details.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final loading = ref.watch(mySosProvider).isLoading;
     final sos = ref.watch(sosByIdProvider(clientId));

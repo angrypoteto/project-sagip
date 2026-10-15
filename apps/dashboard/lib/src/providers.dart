@@ -305,6 +305,15 @@ final incidentNoticesProvider =
       ),
     );
 
+/// The incident's post on the MDRRMD Facebook Page, if any.
+final incidentFacebookPostProvider =
+    StreamProvider.family<IncidentPost?, String>(
+      (ref, id) => _forAccount(
+        ref,
+        () => ref.watch(incidentRepositoryProvider).watchFacebookPost(id),
+      ),
+    );
+
 final auditLogProvider = StreamProvider<List<AuditEntry>>(
   (ref) =>
       _forAccount(ref, () => ref.watch(auditRepositoryProvider).watchRecent()),

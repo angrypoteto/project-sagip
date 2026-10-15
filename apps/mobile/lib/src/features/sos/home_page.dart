@@ -21,7 +21,8 @@ class HomePage extends ConsumerWidget {
     try {
       final fix = ref.read(locationProvider).value?.lastFix;
       final sos = await ref.read(sosRepositoryProvider).send(fix: fix);
-      if (context.mounted) context.push(Routes.sos(sos.clientId));
+      // R2 asks "What is happening?" once it is on screen.
+      if (context.mounted) context.push(Routes.sosJustSent(sos.clientId));
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.sosSaveFailed)));
     }

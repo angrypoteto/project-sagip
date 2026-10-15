@@ -158,6 +158,8 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                             l10n.typeConfirmedSnack(l10n.incidentType(t)),
                           ),
                         ),
+                        const SizedBox(height: SagipSpace.sm),
+                        _FacebookLine(incident: incident),
                         const SizedBox(height: SagipSpace.xl),
                         _Verification(
                           incident: incident,
@@ -459,6 +461,46 @@ class _CancelRequest extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Whether the incident is on the MDRRMD Facebook Page, and if not, why
+/// (Joshua, 2026-10-16: a unit was assigned and nothing was posted, because
+/// the SOS had no type yet).
+class _FacebookLine extends ConsumerWidget {
+  const _FacebookLine({required this.incident});
+
+  final Incident incident;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final settings = ref.watch(settingsProvider).value ?? const [];
+    final switchOn = settings.any(
+      (s) => s.key == SettingKeys.facebookIncidents && s.value == true,
+    );
+    final post = ref.watch(incidentFacebookPostProvider(incident.id)).value;
+    final state = facebookPostState(incident, post, switchOn: switchOn);
+    final attention =
+        state == FacebookPostState.needsType ||
+        state == FacebookPostState.failed;
+    final color = attention ? p.warning.text : p.textSecondary;
+    return Row(
+      key: const ValueKey('facebook-line'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Symbols.campaign_rounded, size: 18, color: color),
+        const SizedBox(width: SagipSpace.sm),
+        Expanded(
+          child: Text(
+            l10n.facebookPostLine(state.name),
+            style: Theme.of(context).textTheme.bodySmall!
+                .copyWith(color: color),
+          ),
+        ),
+      ],
     );
   }
 }
