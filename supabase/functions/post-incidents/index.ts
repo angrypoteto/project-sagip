@@ -1,12 +1,16 @@
 // post-incidents: puts confirmed incidents on the MDRRMD Facebook Page
 // (Joshua, 2026-10-13; migration incident_posts).
 //
-// The database queues one post per confirmed flood, fire, or structural
-// incident, with the words already fixed: what it is, the district, and the
-// time. Nothing about who reported it, no barangay or address, never a
-// medical emergency, never an unverified or simulated report. This function
-// claims the queue with the service role, posts each one on the Page through
-// the Graph API, and records what happened.
+// The database keeps one post per flood, fire, or structural incident, with
+// its words already written: what it is, the district, and the time.
+// Nothing about who reported it, no barangay or address, never a medical
+// emergency, never a simulated one. Since 2026-10-16 (migration
+// incident_post_updates) the post follows the incident: it goes up marked
+// unverified once a unit is sent, and the same post is then edited to
+// confirmed, to a false alarm, or with a line when it is resolved. This
+// function claims the queue with the service role, makes the post or edits
+// the one already on the Page through the Graph API, and records what the
+// Page accepted.
 //
 // It is separate from send-alerts so that function did not have to be
 // redeployed; it uses the same Page secrets (FACEBOOK_PAGE_ID,
@@ -78,23 +82,37 @@ function facebookPage(): { id: string; token: string } | null {
   return id && token ? { id, token } : null;
 }
 
-type Outcome = { status: "sent" | "failed" | "notSetUp"; detail: string | null };
+type Outcome = {
+  status: "sent" | "failed" | "notSetUp";
+  detail: string | null;
+  postId?: string;
+};
 
-/** One post on the Page. The token goes in the body and is never logged. */
+/**
+ * A new post on the Page, or an edit of [postId] when it is already there.
+ * The token goes in the body and is never logged.
+ */
 async function postToFacebook(
   message: string,
   page: { id: string; token: string },
+  postId: string | null,
 ): Promise<Outcome> {
   const version = Deno.env.get("FACEBOOK_GRAPH_VERSION") ?? "v24.0";
   const form = new URLSearchParams({ message, access_token: page.token });
+  const target = postId ? encodeURIComponent(postId) : `${encodeURIComponent(page.id)}/feed`;
   try {
-    const res = await fetch(
-      `https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}/feed`,
-      { method: "POST", body: form },
-    );
+    const res = await fetch(`https://graph.facebook.com/${version}/${target}`, {
+      method: "POST",
+      body: form,
+    });
     const body = await res.json().catch(() => null);
     const b = typeof body === "object" && body !== null ? body as Record<string, unknown> : {};
-    if (res.ok && typeof b.id === "string") return { status: "sent", detail: `post ${b.id}` };
+    if (res.ok && !postId && typeof b.id === "string") {
+      return { status: "sent", detail: `post ${b.id}`, postId: b.id };
+    }
+    if (res.ok && postId && b.success === true) {
+      return { status: "sent", detail: `edited post ${postId}`, postId };
+    }
     const e = typeof b.error === "object" && b.error !== null ? b.error as Record<string, unknown> : {};
     const why = typeof e.message === "string" ? `: ${e.message.slice(0, 160)}` : "";
     return { status: "failed", detail: `Facebook refused the post (HTTP ${res.status})${why}` };
@@ -103,8 +121,14 @@ async function postToFacebook(
   }
 }
 
-/** A confirmed incident's post, as claim_incident_posts() hands it over. */
-type ClaimedPost = { post_id: number; incident_id: string; message: string };
+/** An incident's post, as claim_incident_posts() hands it over. */
+type ClaimedPost = {
+  post_id: number;
+  incident_id: string;
+  message: string;
+  /** The post already on the Page, to edit; null for a new one. */
+  fb_post_id?: string | null;
+};
 
 Deno.serve(async (req) => {
   if (!url || !serviceKey) return json(500, { error: "post-incidents is not set up" });
@@ -133,12 +157,16 @@ Deno.serve(async (req) => {
   const results: Record<string, string> = {};
   for (const p of posts) {
     const outcome: Outcome = page
-      ? await postToFacebook(p.message, page)
+      ? await postToFacebook(p.message, page, p.fb_post_id ?? null)
       : { status: "notSetUp", detail: "Facebook posting needs the page's access token" };
-    await rpc("finish_incident_post", {
+    // The words sent go back with the outcome: if the incident changed
+    // meanwhile, the database queues the newer words as another edit.
+    await rpc("record_incident_post", {
       p_post_id: p.post_id,
       p_status: outcome.status,
       p_detail: outcome.detail,
+      p_fb_post_id: outcome.postId ?? null,
+      p_message: p.message,
     }).catch(() => {});
     results[p.incident_id] = outcome.status;
     console.log(`post-incidents: ${p.incident_id} ${outcome.status}`);

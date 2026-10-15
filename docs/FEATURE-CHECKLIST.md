@@ -94,7 +94,7 @@ changed on 2026-10-12 or 2026-10-13.
 - [ ] A3 Priority weights with the live ranking preview
 - [ ] A3 Alert thresholds, channel switches, hotline and gateway number, crowd report limit
 - [ ] **[N]** A3 "Post alerts on the MDRRMD Facebook Page" is on; a real (not simulated) alert appears on the test Page "Project SAGIP" and its delivery line says sent (a test alert went through on 2026-10-13). While the Meta app is unpublished, the post is probably seen only by you
-- [ ] **[N]** A3 "Confirmed incidents on the Facebook Page" (off until you switch it on). With it on: verify a flood, fire, or structural SOS and one post appears on the Page: what it is, the district (for example "Pandacan"), and the time. Not posted: medical, anything unverified, simulated incidents, the barangay or address, who reported it
+- [ ] **[N]** A3 "Confirmed incidents on the Facebook Page". With it on, one post per flood, fire, or structural incident, edited as it goes: assign a unit to an unverified SOS and "Unverified report: possible ... in <district>" appears; verify it and the same post turns into "Confirmed ..."; mark a false report (or the responder answers No on scene) and it becomes "False alarm ..."; resolve a confirmed one and an "Update ..." line is added. Not posted: medical, simulated incidents, the barangay or address, who reported it (first seen working on INC-0165, 2026-10-16)
 - [ ] **[N]** The hotline (02) 8565-4316 shows in the mobile app and on the web form
 - [ ] **[N]** The map credit is smaller on every map (dashboard, web form, mobile after its next install)
 - [ ] A3 "Data retention": 6 to 60 months, saved and in the audit log

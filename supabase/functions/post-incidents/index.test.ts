@@ -43,11 +43,13 @@ globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) =>
   const reply = (value: unknown, status = 200) =>
     new Response(value === null ? "" : JSON.stringify(value), { status });
   if (url.endsWith("/rpc/claim_incident_posts")) return reply(queue, claimStatus);
-  if (url.endsWith("/rpc/finish_incident_post")) return reply(null, 204);
+  if (url.endsWith("/rpc/record_incident_post")) return reply(null, 204);
   if (url.startsWith("https://graph.facebook.com/")) {
-    return facebookStatus === 200
-      ? reply({ id: "1234_5678" })
-      : reply({ error: { message: "Invalid OAuth access token.", code: 190 } }, facebookStatus);
+    if (facebookStatus !== 200) {
+      return reply({ error: { message: "Invalid OAuth access token.", code: 190 } }, facebookStatus);
+    }
+    // A new post answers with its id; an edit of a post with success.
+    return url.endsWith("/feed") ? reply({ id: "1234_5678" }) : reply({ success: true });
   }
   throw new Error(`unexpected request to ${url}`);
 }) as typeof fetch;
@@ -76,7 +78,7 @@ function reset() {
 const words = "Confirmed fire in Pandacan.\n\nConfirmed at 2:14 PM, October 13, 2026.";
 const claimed = [{ post_id: 7, incident_id: "INC-0200", message: words }];
 const outcome = () =>
-  calls.find((c) => c.url.endsWith("/rpc/finish_incident_post"))?.body as
+  calls.find((c) => c.url.endsWith("/rpc/record_incident_post"))?.body as
     | Record<string, unknown>
     | undefined;
 const posted = () => calls.filter((c) => c.url.startsWith("https://graph.facebook.com/"));
@@ -104,7 +106,31 @@ test("a confirmed incident is posted with the database's words", async () => {
   assert.equal(posted().length, 1);
   assert.equal(posted()[0].url, "https://graph.facebook.com/v24.0/100200300/feed");
   assert.deepEqual(posted()[0].body, { message: words, access_token: "test-page-token" });
-  assert.deepEqual(outcome(), { p_post_id: 7, p_status: "sent", p_detail: "post 1234_5678" });
+  assert.deepEqual(outcome(), {
+    p_post_id: 7,
+    p_status: "sent",
+    p_detail: "post 1234_5678",
+    p_fb_post_id: "1234_5678",
+    p_message: words,
+  });
+});
+
+test("a post already on the Page is edited in place, not posted again", async () => {
+  reset();
+  const confirmed = "Confirmed fire in Pandacan.\n\nReported at 2:14 PM, October 16, confirmed at 2:20 PM.";
+  queue = [{ post_id: 7, incident_id: "INC-0200", message: confirmed, fb_post_id: "1234_5678" }];
+  const res = await call(env.ALERTS_SECRET!);
+  assert.deepEqual((await res.json()).results, { "INC-0200": "sent" });
+  assert.equal(posted().length, 1);
+  assert.equal(posted()[0].url, "https://graph.facebook.com/v24.0/1234_5678");
+  assert.deepEqual(posted()[0].body, { message: confirmed, access_token: "test-page-token" });
+  assert.deepEqual(outcome(), {
+    p_post_id: 7,
+    p_status: "sent",
+    p_detail: "edited post 1234_5678",
+    p_fb_post_id: "1234_5678",
+    p_message: confirmed,
+  });
 });
 
 test("a refusal from Facebook is recorded as failed, with why", async () => {
@@ -117,6 +143,8 @@ test("a refusal from Facebook is recorded as failed, with why", async () => {
     p_post_id: 7,
     p_status: "failed",
     p_detail: "Facebook refused the post (HTTP 400): Invalid OAuth access token.",
+    p_fb_post_id: null,
+    p_message: words,
   });
 });
 

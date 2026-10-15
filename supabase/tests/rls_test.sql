@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(457);
+select plan(464);
 
 select public.reset_demo_data();
 -- What the checks below assume, whatever the database is set to or holds
@@ -2091,15 +2091,15 @@ update public.incident_report set verification_method = 'callback' where inciden
 select ok(
   (select p.status = 'queued'
       and p.message like 'Confirmed flooding in Pandacan.%'
-      and p.message like '%Confirmed at %'
+      and p.message like '%, confirmed at %'
       and position('Barangay' in p.message) = 0
       and position('Sample Street' in p.message) = 0
      from public.incident_post p where p.incident_id = 'INC-POST-2'),
   'with it on, the post says what, the district, and when: no barangay, no address');
 update public.incident_report set emergency_type = 'fire' where incident_id = 'INC-POST-2';
 select is(
-  (select count(*)::int || ' ' || min(left(message, 18)) from public.incident_post where incident_id = 'INC-POST-2'),
-  '1 Confirmed flooding', 'one post per incident, whatever changes afterwards');
+  (select count(*)::int || ' ' || min(left(message, 26)) from public.incident_post where incident_id = 'INC-POST-2'),
+  '1 Confirmed fire in Pandacan', 'one post per incident; a change of type rewrites its words');
 update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-3';
 select is((select status from public.incident_post where incident_id = 'INC-POST-3'), 'simulated',
   'a simulated incident is logged as simulated and never posted');
@@ -2137,6 +2137,72 @@ select is(
             where e ->> 'incident_id' = 'INC-POST-1')
           || ' ' || (select status from public.incident_post where incident_id = 'INC-POST-1')),
   '0 withdrawn', 'a report marked false before it was posted is withdrawn, not posted');
+
+-- ----------------------------------- incident posts follow the incident
+
+reset role;
+select ok(
+  not has_function_privilege('authenticated', 'public.record_incident_post(bigint, text, text, text, text)', 'execute')
+  and has_function_privilege('service_role', 'public.record_incident_post(bigint, text, text, text, text)', 'execute'),
+  'only the sender records what the Page accepted');
+
+-- Two more unverified flood SOS in Pandacan.
+insert into public.incident_report
+select (jsonb_populate_record(null::public.incident_report,
+         to_jsonb(i) || jsonb_build_object(
+           'incident_id', 'INC-POST-' || g, 'client_uuid', gen_random_uuid(),
+           'origin', 'sos', 'status', 'pendingVerification',
+           'verification_method', null, 'emergency_type', null, 'suggested_type', 'flood',
+           'false_report', false, 'cancelled', false, 'is_simulated', false, 'real_emergency', null,
+           'district', 'Pandacan', 'barangay', 'Barangay 840', 'address', '12 Sample Street',
+           'assigned_unit_id', null, 'resolved_at', null, 'manila_resident_id', null))).*
+  from (select * from public.incident_report order by incident_id limit 1) i,
+       generate_series(5, 6) g;
+update public.incident_report set assigned_unit_id = 'unit-r03' where incident_id in ('INC-POST-5', 'INC-POST-6');
+select ok(
+  (select p.stage = 'unverified' and p.status = 'queued'
+      and p.message like 'Unverified report: possible flooding in Pandacan.%'
+     from public.incident_post p where p.incident_id = 'INC-POST-5'),
+  'an unverified SOS is posted once a unit is sent, marked unverified');
+
+-- The Page takes both posts.
+create temp table __first as select public.claim_incident_posts() as claimed;
+select public.record_incident_post(p.post_id, 'sent', 'post 1_' || right(p.incident_id, 1),
+                                   '1_' || right(p.incident_id, 1), p.message)
+  from public.incident_post p where p.incident_id in ('INC-POST-5', 'INC-POST-6');
+
+update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-5';
+select is(
+  (select stage || ' ' || status || ' ' || fb_post_id || ' ' || left(message, 30)
+     from public.incident_post where incident_id = 'INC-POST-5'),
+  'confirmed queued 1_5 Confirmed flooding in Pandacan',
+  'verified: the same post is queued to be edited to confirmed');
+create temp table __edit as select public.claim_incident_posts() as claimed;
+select is(
+  (select e ->> 'fb_post_id' from __edit, jsonb_array_elements(claimed) e
+    where e ->> 'incident_id' = 'INC-POST-5'),
+  '1_5', 'the sender is told which Page post to edit');
+select public.record_incident_post(post_id, 'sent', 'edited', null, message)
+  from public.incident_post where incident_id = 'INC-POST-5';
+
+update public.incident_report set status = 'resolved', resolved_at = now() where incident_id = 'INC-POST-5';
+select ok(
+  (select status = 'queued' and message like '%responders have finished. The area is clear.%'
+     from public.incident_post where incident_id = 'INC-POST-5'),
+  'resolved: the post gets an update line');
+
+update public.incident_report set real_emergency = false where incident_id = 'INC-POST-6';
+select ok(
+  (select stage = 'falseAlarm' and status = 'queued' and fb_post_id = '1_6'
+      and message like 'False alarm: no flooding in Pandacan.%'
+     from public.incident_post where incident_id = 'INC-POST-6'),
+  'not a real emergency after it was posted: the post is edited to a false alarm');
+
+create temp table __stale as select public.claim_incident_posts() as claimed;
+select public.record_incident_post(post_id, 'sent', 'edited', null, 'older words')
+  from public.incident_post where incident_id = 'INC-POST-6';
+select is((select status from public.incident_post where incident_id = 'INC-POST-6'), 'queued',
+  'an outcome for older words puts the post back in the queue');
 
 reset role;
 select * from finish();
