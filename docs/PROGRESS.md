@@ -59,7 +59,7 @@ Read this before the long lists below; `docs/FEATURE-CHECKLIST.md` has the same 
 - No classifier until the MDRRMD descriptions arrive: crowd reports get no type. An SOS gets its type from the resident's tap after sending, or from the dispatcher.
 - Real resident numbers and every outgoing SMS wait on the SMS gateway phone (Joshua has one) and the Send SMS hook.
 - Traffic in routes (Google Routes API) waits on Joshua's Google Cloud billing account and `GOOGLE_MAPS_API_KEY`.
-- The test alert "System test: please disregard" (2026-10-13) is still showing in the resident app until someone ends it.
+- (Done 2026-10-16: the test alert "System test: please disregard" was ended by Claude through `end_alert` as the admin account, at Joshua's request; audited as alertEnded by E. Navarro. Its Facebook post stays on the Page unless Joshua deletes it.)
 
 **Joshua's PC:** 11.8 GB of memory. One build at a time; a real phone instead of the emulator.
 
@@ -545,7 +545,7 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 2. The MDRRMD data (due 2026-10-16): retrain the classifier on the descriptions; with dates and places, the forecast too (`ml/README.md`). Until then, Joshua's yes to the `forecast_live` rewrite gives the simulated feed the thesis promises.
 3. Traffic: once Joshua has the Google Cloud billing account and `GOOGLE_MAPS_API_KEY`, the Routes API's slow stretches become slow zones for the same Dijkstra (with a daily quota cap).
 4. The SMS gateway phone and the Send SMS hook: real resident numbers, all outgoing SMS, SOS by SMS.
-5. Small things left: end the 2026-10-13 test alert; the map legend line for the faint unit markers; the full-screen map ping (unconfirmed); the leftover `private.unit_returns_home()` (Joshua drops it); thesis updates (below).
+5. Small things left: the map legend line for the faint unit markers; the full-screen map ping (unconfirmed); the leftover `private.unit_returns_home()` (Joshua drops it); thesis updates (below).
 
 ## Not done yet (full list)
 

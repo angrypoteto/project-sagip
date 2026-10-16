@@ -211,7 +211,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | Residents signing in with any real number | Phone sign-in is on, but only the test number works. Real numbers need the Send SMS hook (`supabase/README.md`, "Turning on resident sign-in by SMS code") |
 | All outgoing SMS (alerts, rescue texts, SMS check, codes) | The spare phone as the gateway and its three secrets, or a Semaphore account |
 | SOS by SMS coming in, and the YES/NO reply to an SMS check | The same gateway phone, plus `SMS_INTAKE_SECRET` and its webhook |
-| The test alert "System test: please disregard" of 2026-10-13 | Still showing in the resident app (checked 2026-10-16): end it on the Weather page's alert list, and remove the post from the Page if you do not want it there |
+| The test post "System test: please disregard" on the Facebook Page | The alert itself was ended on 2026-10-16 (no longer in the resident app). Remove its post from the Page if you do not want it there |
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
