@@ -127,6 +127,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navCommandBoard => 'Command Board';
 
   @override
+  String get navHistory => 'Incident history';
+
+  @override
+  String get historyTitle => 'Incident history';
+
+  @override
+  String get historySubtitle =>
+      'Closed incidents, newest first. Select a row for its details. The CSV has no names, numbers, addresses, or exact positions.';
+
+  @override
+  String get historyToday => 'Today';
+
+  @override
+  String get historyWeek => 'Last 7 days';
+
+  @override
+  String get historyMonth => 'Last 30 days';
+
+  @override
+  String get historyCustom => 'Choose dates';
+
+  @override
+  String historyRange(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String get historyAll => 'All';
+
+  @override
+  String get historyEnding => 'How it ended';
+
+  @override
+  String historyEndingName(String ending) {
+    String _temp0 = intl.Intl.selectLogic(ending, {
+      'resolved': 'Resolved',
+      'falseReport': 'False report',
+      'cancelled': 'Cancelled by resident',
+      'other': 'Closed',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get historySearch => 'Search ID or barangay';
+
+  @override
+  String get historyEmpty => 'No incidents were closed in this period.';
+
+  @override
+  String get historyNoMatch => 'No closed incidents match these filters.';
+
+  @override
+  String get historyColId => 'Incident';
+
+  @override
+  String get historyColPlace => 'Place';
+
+  @override
+  String get historyColReceived => 'Received';
+
+  @override
+  String get historyColClosed => 'Closed';
+
+  @override
+  String get historyColUnit => 'Unit';
+
+  @override
+  String get historyColResponse => 'Response time';
+
+  @override
+  String get historyNoUnit => 'None sent';
+
+  @override
+  String historyDetailsTitle(String id) {
+    return 'Incident $id';
+  }
+
+  @override
+  String get historyVerified => 'Verified';
+
+  @override
+  String get historyNotVerified => 'Not verified';
+
+  @override
+  String get historyOnScene => 'On scene';
+
+  @override
+  String get historyReportTitle => 'Completion report';
+
+  @override
+  String get historyNoReport => 'The unit filed no completion report.';
+
+  @override
+  String get historyOutcome => 'Outcome';
+
+  @override
+  String historyOutcomeName(String outcome) {
+    String _temp0 = intl.Intl.selectLogic(outcome, {
+      'rescued': 'Rescued',
+      'treated': 'Treated on scene',
+      'transported': 'Taken to hospital',
+      'noOneFound': 'No one found',
+      'falseReport': 'False report',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get historyAssisted => 'People assisted';
+
+  @override
+  String get historyHouses => 'Houses damaged';
+
+  @override
+  String get historyInjured => 'Injured';
+
+  @override
+  String get historyMissing => 'Missing';
+
+  @override
+  String get historyFamilies => 'Affected families';
+
+  @override
   String get navCrowdReports => 'Crowd reports';
 
   @override

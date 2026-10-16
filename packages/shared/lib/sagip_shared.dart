@@ -38,6 +38,7 @@ export 'src/models/facebook_post.dart';
 export 'src/models/geo_point.dart';
 export 'src/models/hazard_report.dart';
 export 'src/models/incident.dart';
+export 'src/models/incident_history.dart';
 export 'src/models/ndrrmc.dart';
 export 'src/models/offline.dart';
 export 'src/models/people.dart';

@@ -11,6 +11,7 @@ import '../models/facebook_post.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
+import '../models/incident_history.dart';
 import '../models/ndrrmc.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
@@ -141,6 +142,14 @@ abstract interface class IncidentRepository {
   /// The incident's post on the MDRRMD Facebook Page, or null when it has
   /// none (yet).
   Stream<IncidentPost?> watchFacebookPost(String incidentId);
+
+  /// Incidents closed between [from] and [to], newest first, with what
+  /// their units reported (the history page). At most [limit].
+  Stream<List<ClosedIncident>> watchHistory({
+    required DateTime from,
+    required DateTime to,
+    int limit = 1000,
+  });
 }
 
 abstract interface class UnitRepository {

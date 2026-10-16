@@ -107,6 +107,7 @@ changed on 2026-10-12 or 2026-10-13.
 - [ ] A6 Download PDF (the stored copy once the report is final)
 - [ ] A6 "Rewrite with the language model" (the keys are in place; never tried from the page)
 - [ ] A7 Audit log shows every action above with who did it
+- [ ] **[N]** Incident history (dispatchers and admins): closed incidents by period (today, 7 days, 30 days, chosen dates), filtered by type and how it ended, searched by ID or barangay; a row opens its details (timeline, completion report, Facebook status); Export CSV downloads the filtered list without personal data
 - [ ] **[N]** Incident panel: a line under the type says where its Facebook post stands, and why it is not posted (for example "not posted until the incident type is confirmed")
 
 ---

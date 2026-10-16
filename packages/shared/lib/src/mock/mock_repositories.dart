@@ -8,6 +8,7 @@ import '../models/enums.dart';
 import '../models/facebook_post.dart';
 import '../models/geo_point.dart';
 import '../models/incident.dart';
+import '../models/incident_history.dart';
 import '../models/ndrrmc.dart';
 import '../models/people.dart';
 import '../models/records.dart';
@@ -105,6 +106,43 @@ class MockIncidentRepository implements IncidentRepository {
   @override
   Stream<IncidentPost?> watchFacebookPost(String incidentId) =>
       Stream.value(null);
+
+  ClosedIncident _withReport(Incident i) {
+    final r = _backend.completionFor(i.id);
+    return r == null
+        ? ClosedIncident(incident: i)
+        : ClosedIncident(
+            incident: i,
+            outcome: r.outcome,
+            personsAssisted: r.personsAssisted,
+            housesDamaged: r.housesDamaged,
+            injured: r.injured,
+            missing: r.missing,
+            affectedFamilies: r.affectedFamilies,
+          );
+  }
+
+  /// The sample's closed incidents, with the past rescues' reports.
+  @override
+  Stream<List<ClosedIncident>> watchHistory({
+    required DateTime from,
+    required DateTime to,
+    int limit = 1000,
+  }) => _backend
+      .watchResolved(const Duration(days: 3650))
+      .map(
+        (all) => [
+          for (final i
+              in [...all]..sort(
+                (a, b) => (b.resolvedAt ?? b.receivedAt).compareTo(
+                  a.resolvedAt ?? a.receivedAt,
+                ),
+              ))
+            if (!(i.resolvedAt ?? i.receivedAt).isBefore(from) &&
+                !(i.resolvedAt ?? i.receivedAt).isAfter(to))
+              _withReport(i),
+        ].take(limit).toList(),
+      );
 }
 
 class MockAccountRepository implements AccountRepository {

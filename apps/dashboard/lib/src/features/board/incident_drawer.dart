@@ -159,7 +159,7 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                           ),
                         ),
                         const SizedBox(height: SagipSpace.sm),
-                        _FacebookLine(incident: incident),
+                        FacebookPostLine(incident: incident),
                         const SizedBox(height: SagipSpace.xl),
                         _Verification(
                           incident: incident,
@@ -198,10 +198,10 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                         if (incident.origin == IncidentOrigin.sos &&
                             incident.residentId != null) ...[
                           const SizedBox(height: SagipSpace.xl),
-                          _NoticesSection(incident: incident),
+                          ResidentNoticesSection(incident: incident),
                         ],
                         const SizedBox(height: SagipSpace.xl),
-                        _Timeline(incident: incident),
+                        IncidentTimeline(incident: incident),
                       ],
                     ),
                   ),
@@ -468,8 +468,8 @@ class _CancelRequest extends StatelessWidget {
 /// Whether the incident is on the MDRRMD Facebook Page, and if not, why
 /// (Joshua, 2026-10-16: a unit was assigned and nothing was posted, because
 /// the SOS had no type yet).
-class _FacebookLine extends ConsumerWidget {
-  const _FacebookLine({required this.incident});
+class FacebookPostLine extends ConsumerWidget {
+  const FacebookPostLine({super.key, required this.incident});
 
   final Incident incident;
 
@@ -1148,8 +1148,8 @@ class _SuggestionTile extends StatelessWidget {
 /// What the resident was told about their SOS (FR6) and whether each text
 /// and push went out, so a dispatcher answering a call knows what the
 /// resident already knows.
-class _NoticesSection extends ConsumerWidget {
-  const _NoticesSection({required this.incident});
+class ResidentNoticesSection extends ConsumerWidget {
+  const ResidentNoticesSection({super.key, required this.incident});
 
   final Incident incident;
 
@@ -1256,8 +1256,8 @@ class _NoticesSection extends ConsumerWidget {
   }
 }
 
-class _Timeline extends StatelessWidget {
-  const _Timeline({required this.incident});
+class IncidentTimeline extends StatelessWidget {
+  const IncidentTimeline({super.key, required this.incident});
 
   final Incident incident;
 

@@ -18,6 +18,7 @@ import '../models/facebook_post.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
 import '../models/incident.dart';
+import '../models/incident_history.dart';
 import '../models/ndrrmc.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
@@ -710,6 +711,44 @@ class SupabaseIncidentRepository implements IncidentRepository {
           .eq('incident_id', incidentId)
           .maybeSingle();
       return row == null ? null : IncidentPost.fromJson(row);
+    },
+  );
+
+  @override
+  Stream<List<ClosedIncident>> watchHistory({
+    required DateTime from,
+    required DateTime to,
+    int limit = 1000,
+  }) => liveQuery(
+    _client,
+    tables: const ['incident_report', 'completion_report'],
+    fetch: () async {
+      final incidents = _incidents(
+        await _client
+            .from('incident_board')
+            .select()
+            .eq('status', IncidentStatus.resolved.name)
+            .gte('resolved_at', from.toUtc().toIso8601String())
+            .lte('resolved_at', to.toUtc().toIso8601String())
+            .order('resolved_at', ascending: false)
+            .limit(limit),
+      );
+      if (incidents.isEmpty) return const <ClosedIncident>[];
+      final reports = <String, _Row>{
+        for (final r
+            in await _client
+                .from('completion_report')
+                .select(
+                  'incident_id, outcome, persons_assisted, houses_damaged, '
+                  'injured, missing, affected_families',
+                )
+                .inFilter('incident_id', [for (final i in incidents) i.id]))
+          r['incident_id'] as String: r,
+      };
+      return [
+        for (final i in incidents)
+          ClosedIncident(incident: i).withReport(reports[i.id]),
+      ];
     },
   );
 

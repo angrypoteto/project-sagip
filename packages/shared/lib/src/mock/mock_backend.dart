@@ -72,6 +72,9 @@ class MockBackend {
   /// What responders reported, by incident (the dashboard mock has no
   /// phones, so only the past rescues have one).
   late final Map<String, DamageRecord> _completions;
+
+  /// What the unit reported for [incidentId], if it did.
+  DamageRecord? completionFor(String incidentId) => _completions[incidentId];
   final _ndrrmcReports = LiveValue<List<NdrrmcReport>>(const []);
   final _feeds = LiveValue<List<FeedStatus>>(const []);
 

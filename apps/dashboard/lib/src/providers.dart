@@ -399,6 +399,62 @@ final analyticsPeriodProvider =
       AnalyticsPeriodController.new,
     );
 
+/// The incident history's period (Joshua, 2026-10-16).
+enum HistoryPreset { today, week, month, custom }
+
+@immutable
+class HistoryRange {
+  const HistoryRange(this.preset, this.from, this.to);
+
+  final HistoryPreset preset;
+  final DateTime from;
+  final DateTime to;
+}
+
+class HistoryRangeController extends Notifier<HistoryRange> {
+  @override
+  HistoryRange build() => _range(HistoryPreset.week);
+
+  HistoryRange _range(HistoryPreset preset) {
+    final now = ref.read(historyNowProvider)();
+    final from = switch (preset) {
+      HistoryPreset.today => DateTime(now.year, now.month, now.day),
+      HistoryPreset.month => now.subtract(const Duration(days: 30)),
+      _ => now.subtract(const Duration(days: 7)),
+    };
+    // Open at the end, so incidents closed while the page is open appear.
+    return HistoryRange(preset, from, now.add(const Duration(days: 1)));
+  }
+
+  void preset(HistoryPreset p) => state = _range(p);
+
+  /// Whole days from [start] to [end], both included.
+  void custom(DateTime start, DateTime end) => state = HistoryRange(
+    HistoryPreset.custom,
+    DateTime(start.year, start.month, start.day),
+    DateTime(end.year, end.month, end.day).add(const Duration(days: 1)),
+  );
+}
+
+final historyRangeProvider =
+    NotifierProvider<HistoryRangeController, HistoryRange>(
+      HistoryRangeController.new,
+    );
+
+/// The time the history counts back from (tests fix it).
+final historyNowProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
+/// Closed incidents in the chosen period.
+final historyProvider = StreamProvider.autoDispose<List<ClosedIncident>>((ref) {
+  final range = ref.watch(historyRangeProvider);
+  return _forAccount(
+    ref,
+    () => ref
+        .watch(incidentRepositoryProvider)
+        .watchHistory(from: range.from, to: range.to),
+  );
+});
+
 /// The time A4 counts back from (tests fix it).
 final analyticsNowProvider = Provider<DateTime Function()>(
   (ref) => DateTime.now,

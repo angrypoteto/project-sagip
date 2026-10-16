@@ -44,6 +44,7 @@ void main() {
         clockProvider.overrideWith((ref) => Stream.value(now)),
         slowClockProvider.overrideWith((ref) => Stream.value(now)),
         analyticsNowProvider.overrideWithValue(() => now),
+        historyNowProvider.overrideWithValue(() => now),
       ],
     );
   });
@@ -112,6 +113,59 @@ void main() {
     await tester.tap(find.byTooltip('Units').first);
     await settle(tester);
     expect(tab(), 'S.A.G.I.P. Command Center - Units');
+  });
+
+  testWidgets('incident history: closed incidents, filters, details', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Incident history').first);
+    await settle(tester);
+    expect(find.text('Incident history'), findsWidgets);
+    // The last 7 days by default: the two most recent past rescues.
+    expect(find.text('INC-0141'), findsOneWidget);
+    expect(find.text('INC-0131'), findsOneWidget);
+    expect(find.text('INC-0124'), findsNothing);
+
+    await tester.tap(find.text('Last 30 days'));
+    await settle(tester);
+    expect(find.text('INC-0124'), findsOneWidget);
+    expect(find.text('INC-0118'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('history-search')),
+      'inc-0124',
+    );
+    await settle(tester);
+    expect(find.text('INC-0124'), findsOneWidget);
+    expect(find.text('INC-0118'), findsNothing);
+    final csv = tester.widget<ButtonStyleButton>(
+      find.byKey(const ValueKey('history-csv')),
+    );
+    expect(csv.onPressed, isNotNull);
+
+    await tester.tap(find.text('INC-0124'));
+    await settle(tester);
+    final details = find.byKey(const ValueKey('history-details'));
+    expect(details, findsOneWidget);
+    expect(
+      find.descendant(of: details, matching: find.text('Completion report')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: details, matching: find.text('Rescued')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: details, matching: find.text('Timeline')),
+      findsWidgets,
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('history-search')),
+      'nowhere',
+    );
   });
 
   testWidgets('the queue is ranked with the vulnerable SOS first', (

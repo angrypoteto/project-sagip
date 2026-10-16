@@ -14,6 +14,7 @@ import 'features/admin/reports_page.dart';
 import 'features/admin/resources_page.dart';
 import 'features/auth/session_expired_page.dart';
 import 'features/auth/sign_in_page.dart';
+import 'features/history/history_page.dart';
 import 'features/board/board_page.dart';
 import 'features/board/wall_map_page.dart';
 import 'features/units/my_unit_page.dart';
@@ -40,6 +41,7 @@ abstract final class Routes {
   /// have on the web.
   static const myUnit = '/my-unit';
   static const crowdReports = '/crowd-reports';
+  static const history = '/history';
   static const units = '/units';
   static const forecast = '/forecast';
   static const vulnerable = '/vulnerable';
@@ -204,6 +206,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.crowdReports,
             pageBuilder: (context, state) => _page(const CrowdReportsPage()),
+          ),
+          GoRoute(
+            path: Routes.history,
+            pageBuilder: (context, state) => _page(const HistoryPage()),
           ),
           GoRoute(
             path: Routes.units,

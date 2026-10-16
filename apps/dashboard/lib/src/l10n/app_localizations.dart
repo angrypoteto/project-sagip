@@ -286,6 +286,210 @@ abstract class AppLocalizations {
   /// **'Command Board'**
   String get navCommandBoard;
 
+  /// No description provided for @navHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident history'**
+  String get navHistory;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident history'**
+  String get historyTitle;
+
+  /// No description provided for @historySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed incidents, newest first. Select a row for its details. The CSV has no names, numbers, addresses, or exact positions.'**
+  String get historySubtitle;
+
+  /// No description provided for @historyToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get historyToday;
+
+  /// No description provided for @historyWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get historyWeek;
+
+  /// No description provided for @historyMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get historyMonth;
+
+  /// No description provided for @historyCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose dates'**
+  String get historyCustom;
+
+  /// No description provided for @historyRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String historyRange(String from, String to);
+
+  /// No description provided for @historyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyAll;
+
+  /// No description provided for @historyEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'How it ended'**
+  String get historyEnding;
+
+  /// No description provided for @historyEndingName.
+  ///
+  /// In en, this message translates to:
+  /// **'{ending, select, resolved{Resolved} falseReport{False report} cancelled{Cancelled by resident} other{Closed}}'**
+  String historyEndingName(String ending);
+
+  /// No description provided for @historySearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search ID or barangay'**
+  String get historySearch;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No incidents were closed in this period.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No closed incidents match these filters.'**
+  String get historyNoMatch;
+
+  /// No description provided for @historyColId.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident'**
+  String get historyColId;
+
+  /// No description provided for @historyColPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Place'**
+  String get historyColPlace;
+
+  /// No description provided for @historyColReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get historyColReceived;
+
+  /// No description provided for @historyColClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get historyColClosed;
+
+  /// No description provided for @historyColUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get historyColUnit;
+
+  /// No description provided for @historyColResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Response time'**
+  String get historyColResponse;
+
+  /// No description provided for @historyNoUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'None sent'**
+  String get historyNoUnit;
+
+  /// No description provided for @historyDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident {id}'**
+  String historyDetailsTitle(String id);
+
+  /// No description provided for @historyVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get historyVerified;
+
+  /// No description provided for @historyNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not verified'**
+  String get historyNotVerified;
+
+  /// No description provided for @historyOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'On scene'**
+  String get historyOnScene;
+
+  /// No description provided for @historyReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion report'**
+  String get historyReportTitle;
+
+  /// No description provided for @historyNoReport.
+  ///
+  /// In en, this message translates to:
+  /// **'The unit filed no completion report.'**
+  String get historyNoReport;
+
+  /// No description provided for @historyOutcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Outcome'**
+  String get historyOutcome;
+
+  /// No description provided for @historyOutcomeName.
+  ///
+  /// In en, this message translates to:
+  /// **'{outcome, select, rescued{Rescued} treated{Treated on scene} transported{Taken to hospital} noOneFound{No one found} falseReport{False report} other{Other}}'**
+  String historyOutcomeName(String outcome);
+
+  /// No description provided for @historyAssisted.
+  ///
+  /// In en, this message translates to:
+  /// **'People assisted'**
+  String get historyAssisted;
+
+  /// No description provided for @historyHouses.
+  ///
+  /// In en, this message translates to:
+  /// **'Houses damaged'**
+  String get historyHouses;
+
+  /// No description provided for @historyInjured.
+  ///
+  /// In en, this message translates to:
+  /// **'Injured'**
+  String get historyInjured;
+
+  /// No description provided for @historyMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get historyMissing;
+
+  /// No description provided for @historyFamilies.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected families'**
+  String get historyFamilies;
+
   /// No description provided for @navCrowdReports.
   ///
   /// In en, this message translates to:

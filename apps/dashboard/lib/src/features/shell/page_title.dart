@@ -34,6 +34,7 @@ String? pageName(String path, AppLocalizations l10n) {
   if (at(Routes.myUnit)) return l10n.myUnitTitle;
   if (at(Routes.account)) return l10n.myAccount;
   if (at(Routes.crowdReports)) return l10n.navCrowdReports;
+  if (at(Routes.history)) return l10n.navHistory;
   if (at(Routes.units)) return l10n.navUnits;
   if (at(Routes.forecast)) return l10n.navForecast;
   if (at(Routes.vulnerable)) return l10n.navVulnerable;
