@@ -1,4 +1,4 @@
-# Feature checklist (as of 2026-10-13)
+# Feature checklist (as of 2026-10-16)
 
 For Joshua to check by hand, one line at a time. Tick the box when you have seen
 it work. The details behind each line are in `docs/PROGRESS.md`.
@@ -7,24 +7,25 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 
 | App | Command (run in the folder shown) | Sign in with |
 |---|---|---|
-| Dashboard, real database | `apps/dashboard`: `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` | `admin@sagip.test` or `dispatcher@sagip.test` (you set their passwords), or a unit account |
+| Dashboard, real database | `apps/dashboard`: `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` | `admin@sagip.test` or `dispatcher@sagip.test` (your passwords), or a unit account |
 | Dashboard on the internet, real database | open `https://staff.sagip.me` (also `https://sagip-dashboard-three.vercel.app`) | the same accounts |
 | Resident web form on the internet, real database | open `https://sagip.me` (`www.sagip.me` and `report.sagip.me` forward to it; also `https://sagip-report.vercel.app`) | resident: `917 000 4821`, code `123456` |
 | Dashboard, sample data | `apps/dashboard`: `flutter run -d chrome` | the same emails, password `sagip-demo` |
 | Resident web form, sample data | `apps/dashboard`: `flutter run -d chrome -t lib/main_webform.dart` | any number, the demo code shown |
-| Mobile app on your phone, real database | already installed (release build of 2026-10-12, night) | resident: `917 000 4821`, code `123456`; responder: a unit account |
+| Mobile app on your phone, real database | already installed (release build of 2026-10-16); for others, `SAGIP-2026-10-16.apk` on your Desktop | resident: `917 000 4821`, code `123456`; responder: a unit account |
 | Mobile app, sample data | `apps/mobile`: `flutter run` (phone plugged in) | "Continue as resident" or "Continue as rescue personnel" |
 
 **The real database today:** no made-up incidents, residents, or forecast. It
 holds 10 real stations as units (each with a responder account and made-up
-supply levels for the demo), 897 barangays, the settings, 17 river stations, and
-one resident (the test number). Posting to the test Facebook Page is switched on,
-and the hotline is set to (02) 8565-4316.
+supply levels for the demo), 897 barangays, the settings, 17 river stations, one
+resident (the test number), and the incidents you made while testing (12, all
+closed). Facebook posting of alerts and incidents is switched on (test Page
+"Project SAGIP"), and the hotline is set to (02) 8565-4316.
 
 Marks: **[S]** can only be seen on sample data for now (the real database has
 nothing to show for it). **[P]** needs a real phone to check properly. **[W]**
 built, but waits on a setting or a decision from you (part 7). **[N]** new or
-changed on 2026-10-12 or 2026-10-13.
+changed between 2026-10-12 and 2026-10-16.
 
 ---
 
@@ -207,13 +208,11 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 | Feature | What it waits for |
 |---|---|
-| Dashboard sign-in as admin and dispatcher | You set new passwords for `admin@sagip.test` and `dispatcher@sagip.test` in the SQL editor (nobody knows the old ones) |
 | Residents signing in with any real number | Phone sign-in is on, but only the test number works. Real numbers need the Send SMS hook (`supabase/README.md`, "Turning on resident sign-in by SMS code") |
 | All outgoing SMS (alerts, rescue texts, SMS check, codes) | The spare phone as the gateway and its three secrets, or a Semaphore account |
 | SOS by SMS coming in, and the YES/NO reply to an SMS check | The same gateway phone, plus `SMS_INTAKE_SECRET` and its webhook |
-| The test alert "System test: please disregard" of 2026-10-13 | Still showing in the resident app: end it on the alerts page, and remove the post from the Page if you do not want it there |
+| The test alert "System test: please disregard" of 2026-10-13 | Still showing in the resident app (checked 2026-10-16): end it on the Weather page's alert list, and remove the post from the Page if you do not want it there |
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
-| The smaller map credit on your phone | The next install of the mobile app |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 
@@ -226,7 +225,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | **The 72-hour forecast on the real database** | The page is empty. The thesis model needs past incidents with dates and places, which only MDRRMD has. Gathered so far from public news: 131 fires, 17 flood days, 23 signal days, real weather from 2012. A first training on that was too weak to show (flood F1 0.24, fire 0.31, storm surge not trainable). Waits for MDRRMD's records, or the team extending the lists by hand |
 | The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Built, not switched on. Its migration (`forecast_live`) needs a one-line fix that needs your explicit "yes, rewrite it", or you paste it yourself |
 | Traffic in the routes (Google Maps, as the panel was told) | Not built. Waits on your Google Cloud billing account and the key saved as `GOOGLE_MAPS_API_KEY`. Then: Google says which stretches are jammed, and our Dijkstra goes around them. Known catches: a card is required, Google's terms may not allow its data with an OpenStreetMap map, and it works only online |
-| The classifier on real MDRRMD descriptions | The data is due Friday, 2026-10-16. Until then the real database has no classifier: new crowd reports are not tagged with a type |
+| The classifier on real MDRRMD descriptions | Waits on the MDRRMD descriptions (due 2026-10-16). Until then crowd reports get no type; an SOS gets one from the resident's tap or the dispatcher |
 | Forecast accuracy figures and a run selector on D8 | After the real model |
 | The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |
 | The map legend explaining the faint unit markers | Not added |

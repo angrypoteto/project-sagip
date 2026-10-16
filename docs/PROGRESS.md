@@ -34,30 +34,34 @@ Claude is the planner and reviewer; ChatGPT (Codex) is a builder that gets one s
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-12 | f47c816b (Claude) | Paused, nothing claimed. Built on 2026-10-12 (every commit after the push of `06a6953` is **not pushed**: Joshua has not said to): unit inventory with the responder's page on the web, ten real stations as units with accounts, the station pin and crew ghost on the map, markers that follow the streets, positions every 5 seconds, real weather and news-reported incidents for the forecast with a first (too weak) training, and the checklist. The hosted project has all of it (migrations `unit_inventory`, `unit_home`, `unit_ghost`; phone sign-in on with one test number). The release build on Joshua's phone is of `d3ea0fd`. **Read "Where things stand (2026-10-12)" below first.** | none | Paused |
+| 2026-10-16 | f47c816b (Claude) | Paused, nothing claimed. Everything is pushed (last `79d9a46`, the incident history page). The hosted project has every migration up to `incident_post_cancellations`; both sites are live at `sagip.me` (residents) and `staff.sagip.me` (staff); Joshua's phone has the release build of 2026-10-16 (`dbd4ea9` app code). **Read "Where things stand (2026-10-16)" below first.** | none | Paused |
 
 ---
 
-## Where things stand (2026-10-12, night)
+## Where things stand (2026-10-16)
 
-Read this before the long lists below; `docs/FEATURE-CHECKLIST.md` has the same state as boxes for Joshua to tick.
+Read this before the long lists below; `docs/FEATURE-CHECKLIST.md` has the same state as boxes for Joshua to tick. The days 2026-10-13 to 2026-10-16 are in the session log at the end.
+
+**Where it runs**
+- Resident web form: `https://sagip.me` (`www.sagip.me` and `report.sagip.me` forward to it). Dashboard for staff: `https://staff.sagip.me`. Vercel team `axiomcodes-projects`, projects `sagip-report` and `sagip-dashboard` (not connected to GitHub on purpose); Claude rebuilds and deploys both after web changes. The domain is Joshua's (Namecheap, GitHub Student Pack, free until October 2027).
+- Mobile app: release build on Joshua's phone; `SAGIP-<date>.apk` on his Desktop for the groupmates.
 
 **The hosted project (`imssgenjfirpohkwxwbv`)**
-- No made-up incidents, residents, forecast, or classifier (`clear_demo_data()` ran on 2026-10-12; **do not run it again**: it would remove the units too). `reset_demo_data()` is for the RLS test only.
-- Ten real stations as units (`supabase/data/manila_units.sql`, from OpenStreetMap): the MDRRMD building, eight BFP stations, one EMS station. The call signs and one unit per station are ours; crew sizes are empty; each has its station position (`home_*`).
-- One responder account per unit (`<call sign, lower case, dot for the dash>@sagip.test`; passwords given to Joshua in the chat, not in the repo), and **made-up supply levels** for all ten (four short on purpose, for the panel's example).
-- Staff: `admin@sagip.test`, `dispatcher@sagip.test`. Nobody knows their passwords; Joshua sets new ones in the SQL editor.
-- Phone sign-in is on, with placeholder Twilio details and one test number (`639170004821`, code `123456`, with a valid-until date). One resident is registered with it. Real numbers need the Send SMS hook.
-- Seen working end to end by Joshua on 2026-10-12, his phone and the dashboard: sign-in, an SOS reaching the Command Board, a rescue from assignment to resolved, the unit's position on the map.
+- No made-up records (`clear_demo_data()` ran on 2026-10-12; **do not run it again**: it would remove the real units). `reset_demo_data()` is for the RLS test only.
+- Ten real stations as units, one responder account each, made-up supply levels for the panel's example. Staff `admin@sagip.test` and `dispatcher@sagip.test`: Joshua has set their passwords.
+- Phone sign-in: on, one test number (`639170004821`, code `123456`; Joshua extended its valid-until date on 2026-10-16), shared by everyone until the SMS gateway phone is set up. One resident, Joshua.
+- Facebook: alerts and incident posts both switched on, to the test Page "Project SAGIP" (Meta app "SAGIP Alerts", unpublished, so posts are probably seen only by Joshua). Incident posts go up unverified when a unit is sent, and the same post is edited to confirmed, false alarm, withdrawn, or resolved; medical, simulated, and anything but the district are never posted.
+- Routes go around confirmed floods and fires, on the dashboard and on the responder's phone. Push works on Joshua's phone. Hotline `(02) 8565-4316`.
+- RLS: **465 of 465** on the real data (2026-10-16, from GitHub at `ad8045c`, rolled back).
 
 **Not working or not there**
-- **The forecast page is empty.** No real model: the thesis method needs MDRRMD's past incidents. What was gathered and why the first training is not shown: `ml/README.md`, "Forecast on real data". The simulated feed (migration `20261003130000_forecast_live.sql`) is still **not applied**: its one `update` without `where` makes the connector decline it, and rewriting that line was refused by the permission check as going around the connector's guard. It needs Joshua's explicit yes to the rewrite, or Joshua pasting it.
-- No classifier on the hosted project until the MDRRMD descriptions arrive (due 2026-10-16): new crowd reports get no type.
-- Joshua reported that an SOS does not ping on the full screen map. The code is the board's own; a window left open from an older build was the guess. Not confirmed either way.
-- Push registration failed on Joshua's phone ("FCM Registration failed" in the log). Not looked into.
-- The full RLS file (436 checks) has not run on the hosted project since 2026-10-11 (410 of 410 then). It is fetched from GitHub, so it needs the push first.
+- **The forecast page is empty**: no real model (MDRRMD's past incidents are needed; `ml/README.md`). The simulated feed (`20261003130000_forecast_live.sql`) is still not applied: it needs Joshua's explicit yes to rewriting its `update` line, or Joshua pasting it.
+- No classifier until the MDRRMD descriptions arrive: crowd reports get no type. An SOS gets its type from the resident's tap after sending, or from the dispatcher.
+- Real resident numbers and every outgoing SMS wait on the SMS gateway phone (Joshua has one) and the Send SMS hook.
+- Traffic in routes (Google Routes API) waits on Joshua's Google Cloud billing account and `GOOGLE_MAPS_API_KEY`.
+- The test alert "System test: please disregard" (2026-10-13) is still showing in the resident app until someone ends it.
 
-**Joshua's PC:** 11.8 GB of memory. The emulator, a Gradle build, and the dashboard together run it out, and Claude Code then stops background commands. One thing at a time; a real phone instead of the emulator.
+**Joshua's PC:** 11.8 GB of memory. One build at a time; a real phone instead of the emulator.
 
 ## Status (what exists and what doesn't)
 
@@ -270,7 +274,8 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Browser check of A5 and A6 (2026-10-02, headless Chrome at 1366 by 768, sample data, dark theme): the period step, the review with figures and checklist, saving (the address becomes the report's own), the list, and the downloaded PDF opened and read correctly. Found and fixed: "5 min 0 s" now reads "5 min". Not checked: the date picker, light theme, Supabase.
 - Browser check of D8 (2026-10-02, headless Chrome at 1366 by 768, sample data, dark theme): the list, the map discs and markers, the legend, the hazard switch, and the barangay panel all fit and read well. Found and fixed: "Storm surge" wrapped in the hazard selector (the icons were dropped). Not checked: light theme, Supabase.
 
-### Tests (last run 2026-10-03)
+### Tests (last run 2026-10-16)
+- Latest counts (2026-10-16): `packages/shared` 315, `apps/dashboard` 56, `apps/mobile` 45; Edge Function `post-incidents` 8 (`node --test`), `send-alerts` 39; analyze clean in all three. RLS: 465 written, **465 of 465** on the hosted project (from GitHub at `ad8045c`, md5 checked, rolled back).
 - Latest counts (2026-10-12, night): `packages/shared` 305, `apps/dashboard` 54, `apps/mobile` 40; `ml/forecast` 19 (2 skipped without TensorFlow); analyze clean in all three. RLS: 436 written; the 19 for unit inventory and the 7 for the station position passed in rolled-back runs on the hosted project; the full file has not run since 410 of 410 on 2026-10-11.
 - Counts earlier on 2026-10-12 (unit inventory): `packages/shared` 296, `apps/dashboard` 49, `apps/mobile` 40; analyze clean in all three. RLS: 429 written; the 19 for unit inventory passed in a rolled-back dry run on the hosted project; **the full file has not run since the made-up data was cleared and 10 real units were loaded** (it needs the push first).
 - Counts of 2026-10-11: `packages/shared` 288, `apps/dashboard` 43, `apps/mobile` 40; Edge Functions (Node): `ingest-efcos` 8 and `generate-report` 12 new, the others unchanged; analyze clean in all three; strict `tsc` clean for the two new functions. RLS: 410 of 410 on the hosted project at `9a1b210` (2026-10-11, from GitHub, md5 checked, rolled back). Before that (2026-10-03, after free SMS, the SMS check, PHIVOLCS, the background relay, and the tone): `packages/shared` 266, `apps/dashboard` 38, `apps/mobile` 38, Edge Functions (Node): `send-alerts` 39, `sms-intake` 9, `send-sms` 6, `ingest-pagasa` 18, `ingest-phivolcs` 5, `run-forecast` 6; `ml/forecast` 19; analyze clean in all three; strict `tsc` clean for the four changed functions. RLS 371 written. Full run on the hosted project at `346a9a6` (pinned GitHub file, md5 checked): 361 of 362 after a fix to the relay section's points; the one failure (report figures now leave simulated incidents out) is fixed in `3279a6d`; the newer sections passed in rolled-back dry runs
@@ -323,6 +328,8 @@ flutter run -d chrome                                  # on mock data
 flutter test                                           # dashboard tests
 cd ../../packages/shared && flutter test
 ```
+
+**As run on 2026-10-16:** the hosted sites are used instead of a local run: `https://staff.sagip.me` and `https://sagip.me`. To publish web changes, rebuild in `apps/dashboard` (`flutter build web --release --dart-define-from-file=.env -o "$PWD/build/web-dashboard"`, and with `-t lib/main_webform.dart -o "$PWD/build/web-form"`), keeping each folder's `.vercel` link, then `npx vercel deploy --prod --yes` in each build folder. The phone: `flutter build apk --release --dart-define-from-file=.env`, then `adb install -r build/app/outputs/flutter-apk/app-release.apk` (keeps the sign-in).
 
 **As run on 2026-10-12:** the dashboard on the hosted project with `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` (in `apps/dashboard`; if port 5555 is still held, end the process that `netstat -ano` shows listening on it, never all of Chrome). The mobile app on Joshua's phone as a release build: `flutter build apk --release --dart-define-from-file=.env`, then `flutter install --release -d <device id>` (the phone asks to allow the install: tap Install within about 10 seconds). Reinstalling signs the phone out.
 
@@ -533,28 +540,27 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 6. **Tier 3 on Supabase:** A1 accounts, A2 resources, A3 (all but data retention), A4 analytics with the Objective 3 section, D11, G2, and the web form W1 to W3 done. The alert sender is deployed and advisories can be issued and ended from D10. The classifier is done on sample data, D8 and R7 show a forecast run over all 897 barangays (sample data, provisional levels), and A5/A6 make NDRRMC report drafts from the records (without the RAG step). All 897 barangays are loaded on the hosted project.
 7. Later, when everything works: Joshua's UI review of both apps (including his dashboard UI changes), widget gallery, hallway test, CI.
 
-**As of 2026-10-12, what comes next, in order:**
-1. Joshua: say whether to push the commits made since `06a6953`; set the two staff passwords; go through `docs/FEATURE-CHECKLIST.md`.
-2. The forecast: either Joshua's yes to the `forecast_live` rewrite (the simulated feed the thesis promises), or wait for MDRRMD's incident records and retrain (`ml/README.md`). Do not load the two news-trained models.
-3. Friday 2026-10-16: the classifier on the MDRRMD descriptions, when the team brings them (ask for a date and a place with each record: that is also the forecast's missing input).
-4. After the push: the full RLS run on the hosted project (436 checks).
-5. Small things Joshua raised and left open: the ping on the full screen map, the map credit's size, a legend line for the faint unit markers, push registration on his phone.
-6. The Send SMS hook for real resident numbers; then the gateway phone.
+**As of 2026-10-16, what comes next, in order:**
+1. Joshua: go through `docs/FEATURE-CHECKLIST.md` on the hosted sites and the phone (the history page, incident posts, the type question after an SOS, the offline fix on mobile data).
+2. The MDRRMD data (due 2026-10-16): retrain the classifier on the descriptions; with dates and places, the forecast too (`ml/README.md`). Until then, Joshua's yes to the `forecast_live` rewrite gives the simulated feed the thesis promises.
+3. Traffic: once Joshua has the Google Cloud billing account and `GOOGLE_MAPS_API_KEY`, the Routes API's slow stretches become slow zones for the same Dijkstra (with a daily quota cap).
+4. The SMS gateway phone and the Send SMS hook: real resident numbers, all outgoing SMS, SOS by SMS.
+5. Small things left: end the 2026-10-13 test alert; the map legend line for the faint unit markers; the full-screen map ping (unconfirmed); the leftover `private.unit_returns_home()` (Joshua drops it); thesis updates (below).
 
 ## Not done yet (full list)
 
 **Joshua + Claude (code)**
 - Mobile app: widget gallery, the Bluetooth relay between two real phones, a push check on a real phone (works on the emulator), the map save and the battery prompt on a real phone (both work on the emulator)
 - Dashboard: A5 and A6 wait on the NDRRMC template (the RAG step is built, waiting on a Gemini key); D8 waits on the model for probabilities, accuracy, and a run selector; widget gallery
-- Supabase: storage buckets, the full RLS run after the push; Facebook posting waits for a Page token and a redeploy of `send-alerts`
-- Algorithms: retraining the classifier on real descriptions, retraining the LSTM on the real records and writing forecast rows (preparation, KDE, and LSTM done on sample data), RAG report (proof of concept); tuning Dijkstra's road speeds with MDRRMD records; a travel-time penalty for flooded roads (plan 10.2 "Could")
+- Supabase: storage buckets. (Done: the full RLS run, 465 of 465 on 2026-10-16; Facebook posting, alerts and incidents, since 2026-10-13.)
+- Algorithms: retraining the classifier on real descriptions, retraining the LSTM on the real records and writing forecast rows (preparation, KDE, and LSTM done on sample data), RAG report (proof of concept); tuning Dijkstra's road speeds with MDRRMD records; traffic from Google's Routes API (waits on Joshua's key). (Done: the travel-time penalty for confirmed floods, and fires, on the dashboard and the phone, 2026-10-13.)
 - Offline: set up Joshua's spare phone as the SMS gateway and field-test Tier 2; the Bluetooth relay on phones (a foreground service, and the three-phone test)
 - Self-hosted Manila map tiles (dev tiles come from tile.openstreetmap.org, allowed for light development only). The app is ready (`MAP_TILE_URL`); what is missing is a decision on where to host them and the tiles themselves
 - CI has not run on GitHub: the runs on 2026-10-02 were refused for a billing lock on the account, before any step (Joshua cleared it on 2026-10-03; the next push will show); admin sign-in and the audit log, crowd reports, units, and weather pages not yet browser-checked on Supabase
 
 **Joshua (settings and decisions)**
 - Resident sign-in by SMS code: `send-sms` is deployed (2026-10-03). Joshua switches Phone sign-in and the Send SMS hook on and adds `SEND_SMS_HOOK_SECRET` (`supabase/README.md`, steps 2 to 4); test phone numbers make demos work without texts. Until Semaphore exists, the code is kept in `sms_log` for an hour. **This is what the resident app, the web form, and the two-phone relay test on Supabase wait for.**
-- Hosting: say yes to putting the dashboard and the web form on Vercel (the connected team is "AxiomCode's projects"); steps in `apps/dashboard/README.md`
+- ~~Hosting~~ done 2026-10-13 to 15: Vercel, `sagip.me` and `staff.sagip.me`.
 - Delete the temporary emulator account: `delete from auth.users where email = 'tmp-emulator@sagip.test';` (deactivated, off R-12); and create a lasting demo responder on A1 for the teacher's demo
 - Decide plan Q44 (which delivery window counts as a successful SOS for Objective 3; A4 shows 1, 5, and 15 minutes)
 - Paste `supabase/migrations/20261003130000_forecast_live.sql` in the Supabase SQL editor and run it (the connector declined it even after your approval); then tell me and I load the model and run the first forecast
@@ -570,7 +576,7 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 - Confirm the one-`staff`-table design against the thesis (plan Q8)
 - Decide plan Q13 (creating an account on the web form; it is on by default) and where the web form is hosted
 - Add `SEMAPHORE_API_KEY` (Edge Function secret) when the Semaphore account exists (`send-alerts` is deployed and called by the database); send one test alert to your own number first
-- Confirm the alert thresholds and the six automatic alert texts with MDRRMD; enter the hotline and the gateway number on the Configuration page when they exist; decide the data retention rule
+- Confirm the alert thresholds and the six automatic alert texts with MDRRMD; the hotline is set ((02) 8565-4316, 2026-10-13); enter the gateway number on the Configuration page when it exists; decide the data retention rule
 - Confirm the classifier's "not sure, no tag" rule (under 50% a report is left untagged and the resident's own choice is used); FR12 reads as if every report is tagged
 - NDRRMC reports: confirm the six provisional sections or send the real template; decide whether a report assembled from the figures (no language model) is enough for the proof of concept or the RAG step is still wanted; measure the manual baseline for Objective 4 (plan Q41)
 - Forecast (plan Q21, Q22; `ml/README.md`, "Forecast"): the forecast unit (the scripts use the whole city, one series per hazard, for now); how the LSTM probability and the KDE density become a risk level; and two questions the sample already raises: should the window's last day carry PAGASA's own forecast for the next 72 hours (the thesis window holds only past weather, so rain that has not fallen yet cannot be seen), and should validation be chosen per season (with three years, a chronological 15% falls in one season)
