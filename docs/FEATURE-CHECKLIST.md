@@ -1,4 +1,4 @@
-# Feature checklist (as of 2026-10-16)
+# Feature checklist (as of 2026-10-19)
 
 For Joshua to check by hand, one line at a time. Tick the box when you have seen
 it work. The details behind each line are in `docs/PROGRESS.md`.
@@ -218,23 +218,60 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ---
 
-## 8. Not done yet
+## 8. Not done yet (as of 2026-10-19)
+
+The data request letter to MDRRMD (TO Director Angeles, THRU Mr. Verano) is
+ready on Joshua's Desktop, `SAGIP-MDRRMD-Data-Request-Letter.docx` (2026-10-19).
+Its items A to H are what 8b waits for. MDRRMD's files never go into the
+public GitHub repo (the letter promises it); only the trained models do.
+
+### 8a. Can be done now, without waiting on anyone
 
 | What | Where it stands |
 |---|---|
-| **The 72-hour forecast on the real database** | The page is empty. The thesis model needs past incidents with dates and places, which only MDRRMD has. Gathered so far from public news: 131 fires, 17 flood days, 23 signal days, real weather from 2012. A first training on that was too weak to show (flood F1 0.24, fire 0.31, storm surge not trainable). Waits for MDRRMD's records, or the team extending the lists by hand |
-| The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Built, not switched on. Its migration (`forecast_live`) needs a one-line fix that needs your explicit "yes, rewrite it", or you paste it yourself |
-| Traffic in the routes (Google Maps, as the panel was told) | Not built. Waits on your Google Cloud billing account and the key saved as `GOOGLE_MAPS_API_KEY`. Then: Google says which stretches are jammed, and our Dijkstra goes around them. Known catches: a card is required, Google's terms may not allow its data with an OpenStreetMap map, and it works only online |
-| The classifier on real MDRRMD descriptions | Waits on the MDRRMD descriptions (due 2026-10-16). Until then crowd reports get no type; an SOS gets one from the resident's tap or the dispatcher |
-| Forecast accuracy figures and a run selector on D8 | After the real model |
+| The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Built, not switched on. Its migration (`forecast_live`) needs a one-line fix that needs your explicit "yes, rewrite it", or you paste it yourself. Then D8 and the resident's Forecast tab show risk levels instead of an empty page |
+| Typhoon signal and storm surge days, 2021 to now, from public records | The forecast's two missing columns (`ml/forecast/data/manila_signals.csv`). 23 signal days gathered so far from news; PAGASA's tropical cyclone reports and the news can fill the rest. Claude can do this; MDRRMD's situational reports (letter item G) would check it |
+| A team-labelled set of incident descriptions | The plan's fallback for the classifier (plan 10.4): the team writes and labels a few hundred flood, fire, medical, and structural reports per type in English, Filipino, and Taglish, disclosed as such in the thesis. Claude retrains and loads it, so crowd reports get a type before MDRRMD's data arrives |
+| The map legend explaining the faint unit markers | Not added (a small dashboard change) |
 | The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |
-| The map legend explaining the faint unit markers | Not added |
+| A Storage bucket for final NDRRMC reports | The PDF is made in the browser and downloaded; the plan says "to Storage". Only if you or MDRRMD want the files kept on the server |
+| Filipino for the dashboard and the web form | Not asked for; the mobile app has it |
 | A supplies screen in the mobile app | Not built: you asked for web only |
-| Real crew sizes, call signs, and the real MDRRMD unit list | The ten units are real stations from OpenStreetMap; their call signs were assigned by us and their supply levels are made up for the demo |
-| Self-hosted Manila map tiles | Decided: public OpenStreetMap tiles for the defense; self-hosted before a pilot |
-| Filipino for the dashboard and the web form | Not asked for; the mobile app has it (still to be read by the team) |
-| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, no evacuation center) |
-| Hallway test, UAT, and the Objective 3 trial | Not started |
+| Widget gallery (a page showing every shared widget) | Plan item for the design review; low value now |
+
+### 8b. Waits on MDRRMD (the letter)
+
+| What | Letter item | Where it stands |
+|---|---|---|
+| **The 72-hour forecast on real data** (LSTM and KDE) | A, G | The page is empty. Gathered so far from public news: 131 fires, 17 flood days, 23 signal days, real weather from 2012. A first training on that was too weak to show (flood F1 0.24, fire 0.31, storm surge not trainable) |
+| Forecast accuracy figures and a run selector on D8 | A | After the real model |
+| The classifier on real descriptions | B | Until then crowd reports get no type; an SOS gets one from the resident's tap or the dispatcher |
+| The dispatch-time baseline (before and after) | C | Our side is built (A4 Analytics measures our times); MDRRMD's current times are the "before" |
+| Real call signs, unit types, and crew sizes | D | The ten units are real stations from OpenStreetMap; their call signs were assigned by us and their supply levels are made up for the demo |
+| Final priority weights on the Triage Queue | E | The A3 weights are provisional until the SOP |
+| NDRRMC report sections (A5, A6) | F | Six provisional sections; the real template replaces them. Also tuning Dijkstra's road speeds with their records |
+| Posting on the real MDRRMD Facebook Page | H | Works on the test Page; the real Page needs written approval |
+| Alert thresholds and texts, and the retention period | H | Provisional values in A3 (retention 12 months) |
+
+### 8c. Waits on you (accounts, keys, hardware)
+
+| What | What it waits for |
+|---|---|
+| Traffic in the routes (Google Maps, as the panel was told) | Not built. Your Google Cloud billing account and the key saved as `GOOGLE_MAPS_API_KEY`. Then Google says which stretches are jammed, and our Dijkstra goes around them. Known catches: a card is required, Google's terms may not allow its data with an OpenStreetMap map, and it works only online |
+| Real resident sign-in, all outgoing SMS, SOS by SMS | The spare phone as the SMS gateway, with a SIM (part 7) |
+| CI on GitHub (analyze, tests, key scan on every push) | **It has never run**: every run is refused before it starts because "your account is locked due to a billing issue" (all 22 recent runs, up to 2026-10-16). Fix it in GitHub's billing settings; the tests pass on this PC |
+| Leaked-password protection, and the project under a team account on a paid plan | Supabase's Pro plan; before a pilot, not needed for the defense |
+| Self-hosted Manila map tiles | Decided: public OpenStreetMap tiles for the defense; self-hosted before a pilot (needs a host) |
+| Decisions: plan Q44 (which delivery window counts as a delivered SOS for Objective 3; A4 shows 1, 5, and 15 minutes) and Q21/Q22 (how the forecast becomes a risk level) | Your answer |
+
+### 8d. The team (not code)
+
+| What | Where it stands |
+|---|---|
+| UAT on 2026-11-23 to 27 (3 admins, 16 field personnel, 31 residents) and the ISO/IEC 25010 questionnaire validated by 2026-10-30 | Not started as far as this file knows |
+| Hallway test, the Objective 3 trial (SOS delivery offline), the Objective 4 trial (report time), the Bluetooth relay with three phones, everything marked **[P]** | Not started; needs phones and people |
+| Read the mobile app's Filipino text (privacy notice and consent first) | Not done |
+| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, no evacuation center, incident posts on Facebook, incident history) |
 
 ## 9. Dropped (Joshua, 2026-10-11)
 
