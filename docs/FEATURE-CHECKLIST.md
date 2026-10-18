@@ -68,6 +68,7 @@ changed between 2026-10-12 and 2026-10-19.
 - [ ] While any incident is open, a free unit whose phone reported in the last 10 minutes also shows a faint marker where its crew is (a person icon)
 - [ ] With no incident open, free crews are not shown: stations only
 - [ ] Hovering a faint marker says which unit it is and what it is ("its station" or "where its crew is now")
+- [ ] **[N]** The legend explains both faint markers: "Station of a unit that is out" (house) and "Where a free crew is" (person) (2026-10-19)
 - [ ] A moving unit's marker follows the streets between two reported positions, not a straight line through the blocks **[P]** (walk or drive with the responder phone)
 - [ ] Suggested units start from the crew's position when it is recent, otherwise from the station
 
@@ -237,7 +238,6 @@ public GitHub repo (the letter promises it); only the trained models do.
 | The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Built, not switched on. Its migration (`forecast_live`) needs a one-line fix that needs your explicit "yes, rewrite it", or you paste it yourself. Then D8 and the resident's Forecast tab show risk levels instead of an empty page |
 | Typhoon signal and storm surge days, 2021 to now, from public records | The forecast's two missing columns (`ml/forecast/data/manila_signals.csv`). 23 signal days gathered so far from news; PAGASA's tropical cyclone reports and the news can fill the rest. Claude can do this; MDRRMD's situational reports (letter item G) would check it |
 | A team-labelled set of incident descriptions | The plan's fallback for the classifier (plan 10.4): the team writes and labels a few hundred flood, fire, medical, and structural reports per type in English, Filipino, and Taglish, disclosed as such in the thesis. Claude retrains and loads it, so crowd reports get a type before MDRRMD's data arrives |
-| The map legend explaining the faint unit markers | Not added (a small dashboard change) |
 | The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |
 | A Storage bucket for final NDRRMC reports | The PDF is made in the browser and downloaded; the plan says "to Storage". Only if you or MDRRMD want the files kept on the server |
 | Filipino for the dashboard and the web form | Not asked for; the mobile app has it |

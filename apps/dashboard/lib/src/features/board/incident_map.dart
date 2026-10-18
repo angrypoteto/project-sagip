@@ -424,6 +424,17 @@ class _Legend extends StatelessWidget {
           ),
         );
 
+    Widget ghost(Color color, IconData icon) => Container(
+      width: 14,
+      height: 14,
+      decoration: BoxDecoration(
+        color: p.canvas.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: color.withValues(alpha: 0.8), width: 1.5),
+      ),
+      child: Icon(icon, size: 10, color: color.withValues(alpha: 0.9)),
+    );
+
     final entries = [
       (dot(p.warning.fill), l10n.legendPending),
       (dot(p.critical.fill), l10n.legendConfirmed),
@@ -444,6 +455,13 @@ class _Legend extends StatelessWidget {
       (dot(p.info.fill, ring: true), l10n.legendRoadsSlowed),
       (dot(p.success.fill, square: true), l10n.legendUnitAvailable),
       (dot(p.info.fill, square: true), l10n.legendUnitBusy),
+      // The faint second markers (2026-10-12): a unit's station while it
+      // is out, and where a free unit's crew is.
+      (ghost(p.info.fill, Symbols.home_rounded), l10n.legendUnitStation),
+      (
+        ghost(p.success.fill, Symbols.person_pin_circle_rounded),
+        l10n.legendUnitCrew,
+      ),
       if (safePlaces) (dot(p.success.fill, ring: true), l10n.legendSafePlace),
     ];
 

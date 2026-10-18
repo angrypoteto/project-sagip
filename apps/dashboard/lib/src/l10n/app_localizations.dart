@@ -1312,6 +1312,18 @@ abstract class AppLocalizations {
   /// **'Unit busy'**
   String get legendUnitBusy;
 
+  /// No description provided for @legendUnitStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Station of a unit that is out'**
+  String get legendUnitStation;
+
+  /// No description provided for @legendUnitCrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Where a free crew is'**
+  String get legendUnitCrew;
+
   /// No description provided for @newSosTitle.
   ///
   /// In en, this message translates to:

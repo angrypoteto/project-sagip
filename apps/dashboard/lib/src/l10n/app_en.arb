@@ -245,6 +245,8 @@
   "legendRoadsSlowed": "Roads slowed (flood or fire)",
   "legendUnitAvailable": "Unit available",
   "legendUnitBusy": "Unit busy",
+  "legendUnitStation": "Station of a unit that is out",
+  "legendUnitCrew": "Where a free crew is",
 
   "newSosTitle": "New SOS",
   "newSosBody": "{place}, {ago}",

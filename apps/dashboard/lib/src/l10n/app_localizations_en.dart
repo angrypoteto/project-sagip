@@ -716,6 +716,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legendUnitBusy => 'Unit busy';
 
   @override
+  String get legendUnitStation => 'Station of a unit that is out';
+
+  @override
+  String get legendUnitCrew => 'Where a free crew is';
+
+  @override
   String get newSosTitle => 'New SOS';
 
   @override
