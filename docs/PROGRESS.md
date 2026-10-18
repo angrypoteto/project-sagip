@@ -548,7 +548,7 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
 2. The MDRRMD data (due 2026-10-16): retrain the classifier on the descriptions; with dates and places, the forecast too (`ml/README.md`). Until then, Joshua's yes to the `forecast_live` rewrite gives the simulated feed the thesis promises.
 3. Traffic: once Joshua has the Google Cloud billing account and `GOOGLE_MAPS_API_KEY`, the Routes API's slow stretches become slow zones for the same Dijkstra (with a daily quota cap).
 4. The SMS gateway phone and the Send SMS hook: real resident numbers, all outgoing SMS, SOS by SMS.
-5. Small things left: the map legend line for the faint unit markers; the full-screen map ping (unconfirmed); the leftover `private.unit_returns_home()` (Joshua drops it); thesis updates (below).
+5. Small things left: ~~the map legend line for the faint unit markers~~ (done 2026-10-19); the full-screen map ping (unconfirmed); the leftover `private.unit_returns_home()` (Joshua drops it); thesis updates (below).
 
 ## Not done yet (full list)
 
@@ -1247,3 +1247,4 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
   - Dashboard: admin page "Safe places" (`/admin/safe-places`, in the menu after Resources); board layer "Safe places" (off by default) with a legend line. Mobile: R2 card, the Safe places screen (`/r/safe-places`), R8 button; the walk is Dijkstra on the bundled road graph both ways, the shorter one, at 4.5 km/h.
   - Also fixed: `apps/mobile/test/tile_map_saver_test.dart` used a fixed date, and the tile cache's stale check reads the real clock, so it failed from 2026-10-17; the test now uses today.
   - Hosted project: the places loaded from GitHub (md5 checked); 13 sports centres that turned out to be businesses (billiards, bowling, badminton, fitness, a members' club, a cockpit; "Manila Center Billiard Hall" came up for a fire near Quiapo) were then filtered out of the script and hidden: 750 visible. A check near Quiapo gave schools and barangay halls for a flood, Plaza Miranda and a basketball court for a collapse, open places over 300 m away for a fire, and the nearest hospitals. Full RLS from GitHub at `92831bc`: **495 of 495**. Both sites rebuilt and deployed (`staff.sagip.me`, `sagip.me`). `SAGIP-2026-10-19.apk` on the Desktop; not installed (no phone connected).
+- **Legend line for the faint unit markers** (2026-10-19, from the not-done list): the board's legend has "Station of a unit that is out" (a faint square with a house) and "Where a free crew is" (a faint square with a person), drawn like the markers. Dashboard tests 57; deployed to `staff.sagip.me`.
