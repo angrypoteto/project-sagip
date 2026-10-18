@@ -12,6 +12,7 @@ import 'features/admin/configuration_page.dart';
 import 'features/admin/report_editor_page.dart';
 import 'features/admin/reports_page.dart';
 import 'features/admin/resources_page.dart';
+import 'features/admin/safe_places_page.dart';
 import 'features/auth/session_expired_page.dart';
 import 'features/auth/sign_in_page.dart';
 import 'features/history/history_page.dart';
@@ -54,6 +55,7 @@ abstract final class Routes {
   static String report(String id) => '$reports/$id';
   static const accounts = '/admin/accounts';
   static const resources = '/admin/resources';
+  static const safePlaces = '/admin/safe-places';
   static const settings = '/admin/settings';
   static const auditLog = '/admin/audit-log';
   static const notFound = '/not-found';
@@ -256,6 +258,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.resources,
             pageBuilder: (context, state) => _page(const ResourcesPage()),
+          ),
+          GoRoute(
+            path: Routes.safePlaces,
+            pageBuilder: (context, state) => _page(const SafePlacesPage()),
           ),
           GoRoute(
             path: Routes.settings,

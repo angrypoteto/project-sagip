@@ -43,6 +43,7 @@ String? pageName(String path, AppLocalizations l10n) {
   if (at(Routes.reports)) return l10n.navReports;
   if (at(Routes.accounts)) return l10n.navAccounts;
   if (at(Routes.resources)) return l10n.navResources;
+  if (at(Routes.safePlaces)) return l10n.navSafePlaces;
   if (at(Routes.settings)) return l10n.navSettings;
   if (at(Routes.auditLog)) return l10n.navAuditLog;
   if (at(Routes.signIn) || at(Routes.sessionExpired)) return l10n.signInButton;

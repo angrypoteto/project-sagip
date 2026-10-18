@@ -29,7 +29,8 @@ class SupabaseMobileBackend {
       remote = SupabaseMobileRemote(client),
       routing = SupabaseRoutingLog(client),
       config = SupabaseClientConfigRepository(client),
-      push = SupabasePushRegistry(client);
+      push = SupabasePushRegistry(client),
+      safePlaces = SupabaseSafePlaceRepository(client);
 
   final StreamController<Object?> _profileChanged;
   final SupabaseMobileAccounts accounts;
@@ -47,6 +48,9 @@ class SupabaseMobileBackend {
 
   /// This account's phones for push notifications.
   final SupabasePushRegistry push;
+
+  /// The nearest safe places (the bundled list when offline).
+  final SupabaseSafePlaceRepository safePlaces;
 
   Future<void> dispose() => _profileChanged.close();
 }

@@ -124,6 +124,11 @@ final _adminItems = [
     Symbols.inventory_2_rounded,
     (l) => l.navResources,
   ),
+  _NavItem(
+    Routes.safePlaces,
+    Symbols.night_shelter_rounded,
+    (l) => l.navSafePlaces,
+  ),
   _NavItem(Routes.settings, Symbols.tune_rounded, (l) => l.navSettings),
   _NavItem(Routes.auditLog, Symbols.history_rounded, (l) => l.navAuditLog),
 ];

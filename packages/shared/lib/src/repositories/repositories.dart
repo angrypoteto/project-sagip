@@ -18,6 +18,7 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/safe_place.dart';
 import '../models/settings.dart';
 import '../models/sos.dart';
 
@@ -275,6 +276,35 @@ abstract interface class ResourceRepository {
 
   /// Puts a responder on a unit, or takes them off ([unitId] null).
   Future<void> setResponderUnit(String staffId, String? unitId);
+}
+
+/// Safe places (Joshua, 2026-10-19): the nearest place that suits the
+/// emergency, for residents; the list on the dashboard's map and A2, where
+/// admins hide wrong places and add MDRRMD's evacuation centers (audited).
+abstract interface class SafePlaceRepository {
+  /// Every place; hidden ones too for dispatchers and admins.
+  Stream<List<SafePlace>> watchPlaces();
+
+  /// The nearest places that suit [need] from [from], nearest first. Never
+  /// throws for lack of a connection: offline, the phone's bundled list is
+  /// used (without the server's knowledge of confirmed floods and fires).
+  Future<List<SafePlaceOption>> nearest(
+    GeoPoint from,
+    IncidentType need, {
+    int limit = SafePlaceRules.defaultLimit,
+  });
+
+  /// Adds a place ([id] null) or edits one; returns its id. Admins only.
+  Future<String> savePlace({
+    String? id,
+    String? name,
+    required SafePlaceKind kind,
+    required GeoPoint location,
+    required bool official,
+  });
+
+  /// Hides a wrong place, or shows it again. Admins only.
+  Future<void> setHidden(String id, bool hidden);
 }
 
 /// A4 Performance analytics (admins only).

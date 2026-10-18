@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -7,6 +8,7 @@ import '../../common/labels.dart';
 import '../../common/offline_banner.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../router.dart';
 import 'alerts_page.dart';
 
 /// R8 Alert detail: the full text, affected areas, and what to do (FR14).
@@ -124,6 +126,19 @@ class _Body extends StatelessWidget {
           section(l10n.alertWhatToDo),
           for (final g in alert.guidance) BulletText(text: g),
         ],
+        const SizedBox(height: SagipSpace.xl),
+        // Weather alerts (rain, a signal, a storm surge) point to places
+        // that stay dry; for others the resident picks the emergency.
+        OutlinedButton.icon(
+          key: const ValueKey('alert-safe-places'),
+          onPressed: () => context.push(
+            Routes.safePlaces(
+              need: alert.hazard == null ? null : IncidentType.flood,
+            ),
+          ),
+          icon: const Icon(Symbols.night_shelter_rounded),
+          label: Text(l10n.alertSafePlacesButton),
+        ),
       ],
     );
   }

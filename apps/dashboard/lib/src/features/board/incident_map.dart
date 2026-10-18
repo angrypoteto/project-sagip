@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/labels.dart';
 import '../../common/screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -12,7 +13,10 @@ import '../../router.dart';
 import 'map_parts.dart';
 import 'unit_glide.dart';
 
-enum _Layer { units, reports, boundaries }
+enum _Layer { units, reports, boundaries, safePlaces }
+
+/// A safe place's marker on the board: smaller than a unit's.
+const safePlaceMarkerSize = 22.0;
 
 /// D2 map view: active incidents, unverified crowd reports, and units.
 class IncidentMap extends ConsumerStatefulWidget {
@@ -131,6 +135,14 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
         _shown(u, frame),
     ];
     final reports = ref.watch(crowdReportsProvider).value ?? const [];
+    // Off by default: 763 places would hide the incidents.
+    final safePlaces = _layers.contains(_Layer.safePlaces)
+        ? [
+            for (final s
+                in ref.watch(safePlacesProvider).value ?? const <SafePlace>[])
+              if (!s.hidden) s,
+          ]
+        : const <SafePlace>[];
     final pings = ref.watch(sosPingProvider);
     // Whether a free unit's fix is recent enough to draw: a slow tick.
     final now = ref.watch(slowClockProvider).value ?? DateTime.now();
@@ -148,6 +160,22 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
           );
 
     final markers = <Marker>[
+      for (final s in safePlaces)
+        Marker(
+          key: ValueKey('safe-${s.id}'),
+          point: toLatLng(s.location),
+          width: safePlaceMarkerSize * scale,
+          height: safePlaceMarkerSize * scale,
+          child: sized(
+            safePlaceMarkerSize,
+            SafePlaceMarker(
+              kind: s.kind,
+              official: s.official,
+              label: l10n.safePlaceName(s),
+              size: safePlaceMarkerSize,
+            ),
+          ),
+        ),
       if (_layers.contains(_Layer.reports))
         for (final r in reports)
           if (!r.isClustered)
@@ -286,10 +314,10 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
             }),
           ),
         ),
-        const Positioned(
+        Positioned(
           left: SagipSpace.lg,
           bottom: SagipSpace.x3,
-          child: _Legend(),
+          child: _Legend(safePlaces: _layers.contains(_Layer.safePlaces)),
         ),
         Positioned(
           right: SagipSpace.lg,
@@ -355,6 +383,7 @@ class _LayersCard extends StatelessWidget {
           (_Layer.units, l10n.layerUnits),
           (_Layer.reports, l10n.layerReports),
           (_Layer.boundaries, l10n.layerBoundaries),
+          (_Layer.safePlaces, l10n.layerSafePlaces),
         ])
           CheckboxListTile(
             value: layers.contains(layer),
@@ -371,7 +400,10 @@ class _LayersCard extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const _Legend();
+  const _Legend({this.safePlaces = false});
+
+  /// The safe places layer is on: explain its marker too.
+  final bool safePlaces;
 
   @override
   Widget build(BuildContext context) {
@@ -412,6 +444,7 @@ class _Legend extends StatelessWidget {
       (dot(p.info.fill, ring: true), l10n.legendRoadsSlowed),
       (dot(p.success.fill, square: true), l10n.legendUnitAvailable),
       (dot(p.info.fill, square: true), l10n.legendUnitBusy),
+      if (safePlaces) (dot(p.success.fill, ring: true), l10n.legendSafePlace),
     ];
 
     return Container(

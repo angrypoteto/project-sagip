@@ -29,7 +29,9 @@ class _MemoryCache implements MapCachingProvider {
 
 void main() {
   const path = [GeoPoint(14.5995, 120.9842), GeoPoint(14.6091, 120.9925)];
-  final now = DateTime.utc(2026, 10, 3, 6);
+  // Today, not a fixed date: the cache's "stale" check reads the real
+  // clock, so a fixed date stopped working 14 days after it.
+  final now = DateTime.now().toUtc();
   const template = 'https://tiles.sagip.example/{z}/{x}/{y}.png';
 
   test('saves every tile along the route, fresh for two weeks', () async {

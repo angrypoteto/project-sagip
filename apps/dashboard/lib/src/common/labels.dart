@@ -36,6 +36,23 @@ extension DomainLabels on AppLocalizations {
     VulnerabilityType.other => vulnOther,
   };
 
+  String safePlaceKind(SafePlaceKind k) => switch (k) {
+    SafePlaceKind.evacuationCenter => kindEvacuationCenter,
+    SafePlaceKind.school => kindSchool,
+    SafePlaceKind.barangayHall => kindBarangayHall,
+    SafePlaceKind.coveredCourt => kindCoveredCourt,
+    SafePlaceKind.basketballCourt => kindBasketballCourt,
+    SafePlaceKind.openSpace => kindOpenSpace,
+    SafePlaceKind.hospital => kindHospital,
+  };
+
+  /// A place's name, or its kind and barangay when the map has no name.
+  String safePlaceName(SafePlace p) =>
+      p.name ??
+      (p.barangay == null
+          ? safePlaceKind(p.kind)
+          : safePlaceUnnamed(safePlaceKind(p.kind), p.barangay!));
+
   String unitType(UnitType t) => switch (t) {
     UnitType.ambulance => unitAmbulance,
     UnitType.rescueBoat => unitRescueBoat,
@@ -158,6 +175,9 @@ extension DomainLabels on AppLocalizations {
     AuditAction.sosCancelled => actionSosCancelled,
     AuditAction.retentionApplied => actionRetentionApplied,
     AuditAction.supplyUpdated => actionSupplyUpdated,
+    AuditAction.safePlaceSaved => actionSafePlaceSaved,
+    AuditAction.safePlaceHidden => actionSafePlaceHidden,
+    AuditAction.safePlaceRestored => actionSafePlaceRestored,
   };
 
   String reportCheck(ReportCheck c) => switch (c) {

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(465);
+select plan(495);
 
 select public.reset_demo_data();
 -- What the checks below assume, whatever the database is set to or holds
@@ -2230,6 +2230,185 @@ select ok(
                              and p.message like '%withdrawn by the person who made it%' end)
      from public.incident_post p where p.incident_id in ('INC-POST-7', 'INC-POST-8')), 
   'a cancelled SOS is never called a false alarm: confirmed ones say the person is safe, others say withdrawn');
+
+
+-- ------------------------------------------------------ safe places
+
+-- Six places around one point (14.6000, 120.9900), with the loaded ones
+-- hidden so only these count: a school 100 m north, a basketball court
+-- 50 m north, a hospital 200 m north, a park 440 m north, a covered court
+-- 350 m east, and a hidden evacuation center 50 m south.
+reset role;
+update public.safe_place set hidden_at = now() where hidden_at is null;
+-- No other confirmed open flood or fire may leave a test place out.
+update public.incident_report set false_report = true
+ where coalesce(emergency_type, suggested_type) in ('flood', 'fire')
+   and status <> 'resolved' and not cancelled and not false_report;
+insert into public.safe_place (place_id, name, kind, latitude, longitude, barangay, district, source, hidden_at) values
+  ('adm-00000000a1', 'Test School', 'school', 14.6009, 120.9900, 'Barangay 400', 'Sampaloc', 'test', null),
+  ('adm-00000000b2', null, 'basketballCourt', 14.60045, 120.9900, 'Barangay 400', 'Sampaloc', 'test', null),
+  ('adm-00000000c3', 'Test Hospital', 'hospital', 14.6018, 120.9900, 'Barangay 400', 'Sampaloc', 'test', null),
+  ('adm-00000000d4', 'Test Park', 'openSpace', 14.6040, 120.9900, 'Barangay 400', 'Sampaloc', 'test', null),
+  ('adm-00000000e5', 'Test Covered Court', 'coveredCourt', 14.6000, 120.99325, 'Barangay 400', 'Sampaloc', 'test', null),
+  ('adm-00000000f6', 'Test Hidden Center', 'evacuationCenter', 14.59955, 120.9900, 'Barangay 400', 'Sampaloc', 'test', now());
+
+select ok(
+  not has_table_privilege('anon', 'public.safe_place', 'select')
+  and has_table_privilege('authenticated', 'public.safe_place', 'select')
+  and not has_table_privilege('authenticated', 'public.safe_place', 'insert')
+  and not has_table_privilege('authenticated', 'public.safe_place', 'update')
+  and not has_table_privilege('authenticated', 'public.safe_place', 'delete'),
+  'safe places: signed-in users may only read; changes go through the admin functions');
+select ok(
+  not has_function_privilege('anon', 'public.safe_places_near(double precision, double precision, text, int)', 'execute')
+  and not has_function_privilege('anon', 'public.save_safe_place(text, text, text, double precision, double precision, boolean)', 'execute')
+  and not has_function_privilege('anon', 'public.set_safe_place_hidden(text, boolean)', 'execute')
+  and not has_function_privilege('authenticated', 'private.safe_kinds(text)', 'execute'),
+  'anon can call none of the safe place functions; the rule helpers are private');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select string_agg(place_id, ',' order by place_id) from public.safe_place where source = 'test'),
+  'adm-00000000a1,adm-00000000b2,adm-00000000c3,adm-00000000d4,adm-00000000e5',
+  'a resident reads the visible places, never a hidden one');
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'flood')),
+  'adm-00000000a1,adm-00000000e5',
+  'flood: somewhere high (a school, a covered court), nearest first; never open ground or a hidden place');
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'fire')),
+  'adm-00000000e5,adm-00000000d4',
+  'fire: open ground at least 300 m from the fire');
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'structural')),
+  'adm-00000000d4',
+  'collapse: open ground at least 100 m away, not a covered court');
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'medical')),
+  'adm-00000000c3',
+  'medical: a hospital');
+select is(
+  (select count(*)::int from public.safe_places_near(14.6000, 120.9900, 'fire', 1)),
+  1, 'the limit is kept');
+select is(
+  (select round(meters)::int from public.safe_places_near(14.6000, 120.9900, 'medical')),
+  199, 'with the straight-line distance in meters');
+select throws_ok($$ select * from public.safe_places_near(14.6000, 120.9900, 'earthquake') $$,
+  'P0001', 'invalid_value', 'an emergency with no rule is refused');
+select throws_ok(
+  $$ update public.safe_place set hidden_at = now() where place_id = 'adm-00000000a1' $$,
+  '42501', null, 'a resident cannot hide a place directly');
+select throws_ok(
+  $$ select public.save_safe_place(null, 'Mine', 'school', 14.6, 120.99, false) $$,
+  'P0001', 'not_allowed', 'a resident cannot add a place');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is(
+  (select count(*)::int from public.safe_place where source = 'test'), 6,
+  'a dispatcher also reads the hidden place');
+select throws_ok(
+  $$ select public.set_safe_place_hidden('adm-00000000a1', true) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot hide a place');
+
+-- A confirmed open flood at the school, then a confirmed open fire at the park.
+reset role;
+insert into public.incident_report
+select (jsonb_populate_record(null::public.incident_report,
+         to_jsonb(i) || jsonb_build_object(
+           'incident_id', 'INC-SAFE-' || g, 'client_uuid', gen_random_uuid(),
+           'origin', 'sos', 'status', 'pendingVerification',
+           'verification_method', null, 'emergency_type', null, 'suggested_type', null,
+           'false_report', false, 'cancelled', false, 'is_simulated', false, 'real_emergency', null,
+           'latitude', case g when 1 then 14.6009 else 14.6040 end, 'longitude', 120.9900,
+           'district', 'Sampaloc', 'barangay', 'Barangay 400', 'address', null,
+           'assigned_unit_id', null, 'resolved_at', null, 'manila_resident_id', null))).*
+  from (select * from public.incident_report order by incident_id limit 1) i,
+       generate_series(1, 2) g;
+update public.incident_report
+   set emergency_type = case incident_id when 'INC-SAFE-1' then 'flood' else 'fire' end
+ where incident_id in ('INC-SAFE-1', 'INC-SAFE-2');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'flood')),
+  'adm-00000000a1,adm-00000000e5',
+  'an unverified flood report leaves the places as they are');
+reset role;
+update public.incident_report set verification_method = 'callback'
+ where incident_id in ('INC-SAFE-1', 'INC-SAFE-2');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'flood')),
+  'adm-00000000e5',
+  'a place within 150 m of a confirmed open flood is left out');
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'fire')),
+  'adm-00000000e5',
+  'a place within 300 m of a confirmed open fire is left out');
+reset role;
+update public.incident_report set false_report = true where incident_id = 'INC-SAFE-1';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'flood')),
+  'adm-00000000a1,adm-00000000e5',
+  'a false report no longer leaves anything out');
+
+-- Admin (A2): add, edit, hide, show again; each one in the audit log.
+reset role;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+create temp table __safe_new as
+  select public.save_safe_place(null, '  Barangay 400 Evacuation Center ', 'evacuationCenter', 14.6002, 120.9902, true) as id;
+grant select on __safe_new to authenticated;
+set local role authenticated;
+select ok(
+  (select id ~ '^adm-[0-9a-f]{10}$' from __safe_new)
+  and exists (select 1 from public.safe_place s, __safe_new n
+               where s.place_id = n.id and s.name = 'Barangay 400 Evacuation Center'
+                 and s.official and s.barangay is not null and s.district is not null
+                 and s.updated_by = '00000000-0000-4000-8000-00000000000a'),
+  'an admin adds an official evacuation center; its barangay comes from the position');
+select ok(
+  exists (select 1 from public.audit_log a, __safe_new n
+           where a.action_type = 'safePlaceSaved' and a.target_id = n.id
+             and a.account_id = '00000000-0000-4000-8000-00000000000a'),
+  'adding a place is in the audit log');
+select throws_ok(
+  $$ select public.save_safe_place(null, 'Far away', 'school', 14.45, 120.99, false) $$,
+  'P0001', 'outside_manila', 'a place outside Manila is refused');
+select throws_ok(
+  $$ select public.save_safe_place(null, '  ', 'evacuationCenter', 14.6002, 120.9902, true) $$,
+  'P0001', 'invalid_value', 'an evacuation center needs a name');
+select throws_ok(
+  $$ select public.save_safe_place(null, 'Odd', 'mall', 14.6002, 120.9902, false) $$,
+  'P0001', 'invalid_value', 'a kind with no rule is refused');
+select lives_ok(
+  $$ select public.save_safe_place('adm-00000000b2', 'Test Court', 'basketballCourt', 14.60045, 120.9900, false) $$,
+  'an admin names a place from the map');
+select ok(
+  (select name = 'Test Court' and updated_by = '00000000-0000-4000-8000-00000000000a'
+     from public.safe_place where place_id = 'adm-00000000b2')
+  and exists (select 1 from public.audit_log where action_type = 'safePlaceSaved'
+                 and target_id = 'adm-00000000b2' and detail like 'name (none) → Test Court%'),
+  'the change is kept from a reload (updated_by) and in the audit log');
+select lives_ok($$ select public.set_safe_place_hidden('adm-00000000a1', true) $$,
+  'an admin hides a wrong place');
+select ok(
+  exists (select 1 from public.audit_log where action_type = 'safePlaceHidden' and target_id = 'adm-00000000a1'),
+  'hiding is in the audit log');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select string_agg(place_id, ',') from public.safe_places_near(14.6000, 120.9900, 'flood', 2)),
+  (select n.id || ',adm-00000000e5' from __safe_new n),
+  'a hidden place is no longer suggested; the new evacuation center is');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select lives_ok($$ select public.set_safe_place_hidden('adm-00000000a1', false) $$,
+  'an admin shows it again');
+select ok(
+  exists (select 1 from public.audit_log where action_type = 'safePlaceRestored' and target_id = 'adm-00000000a1')
+  and (select hidden_at is null from public.safe_place where place_id = 'adm-00000000a1'),
+  'showing it again is in the audit log');
 
 reset role;
 select * from finish();

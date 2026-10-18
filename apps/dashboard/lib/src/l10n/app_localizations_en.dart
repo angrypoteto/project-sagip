@@ -3687,4 +3687,155 @@ class AppLocalizationsEn extends AppLocalizations {
   String hoursAgo(int count) {
     return '$count h ago';
   }
+
+  @override
+  String get navSafePlaces => 'Safe places';
+
+  @override
+  String get safePlacesSubtitle =>
+      'Where residents are pointed in an emergency: a school, hall, or covered court for a flood; open ground away from a fire or a collapse; a hospital for a medical emergency. Places near a confirmed flood or fire are left out. Hide a wrong place, and add MDRRMD\'s evacuation centers. Every change is recorded in the audit log.';
+
+  @override
+  String get kindEvacuationCenter => 'Evacuation center';
+
+  @override
+  String get kindSchool => 'School';
+
+  @override
+  String get kindBarangayHall => 'Barangay or city hall';
+
+  @override
+  String get kindCoveredCourt => 'Covered court or gym';
+
+  @override
+  String get kindBasketballCourt => 'Basketball court';
+
+  @override
+  String get kindOpenSpace => 'Park or plaza';
+
+  @override
+  String get kindHospital => 'Hospital';
+
+  @override
+  String safePlaceUnnamed(String kind, String barangay) {
+    return '$kind, $barangay';
+  }
+
+  @override
+  String get safePlaceAdd => 'Add place';
+
+  @override
+  String get safePlaceEditTitle => 'Edit safe place';
+
+  @override
+  String get safePlaceAddTitle => 'Add a safe place';
+
+  @override
+  String get fieldPlaceName => 'Name';
+
+  @override
+  String get fieldPlaceNameHint =>
+      'For example, Barangay 400 Evacuation Center';
+
+  @override
+  String get fieldPlaceNameError =>
+      'An evacuation center needs a name (up to 120 characters).';
+
+  @override
+  String get fieldPlaceKind => 'Kind';
+
+  @override
+  String get fieldPlacePosition => 'Position';
+
+  @override
+  String get fieldPlacePositionError =>
+      'Two numbers for a place in Manila, like 14.60020, 120.99020';
+
+  @override
+  String get fieldPlaceOfficial => 'Official MDRRMD evacuation center';
+
+  @override
+  String safePlaceSaved(String name) {
+    return '$name saved.';
+  }
+
+  @override
+  String get safePlaceOutside => 'That position is outside Manila.';
+
+  @override
+  String get safePlaceHide => 'Hide';
+
+  @override
+  String get safePlaceShow => 'Show again';
+
+  @override
+  String get safePlaceHiddenSnack =>
+      'Hidden. Residents are no longer pointed there.';
+
+  @override
+  String get safePlaceShownSnack => 'Shown again.';
+
+  @override
+  String get safePlaceHiddenChip => 'Hidden';
+
+  @override
+  String get safePlaceOfficialChip => 'Official';
+
+  @override
+  String get safePlaceFromMap => 'OpenStreetMap';
+
+  @override
+  String get safePlaceAddedHere => 'Added here';
+
+  @override
+  String get colKind => 'Kind';
+
+  @override
+  String get colSource => 'Source';
+
+  @override
+  String get safePlacesSearch => 'Search by name or barangay';
+
+  @override
+  String get safePlacesAllKinds => 'All kinds';
+
+  @override
+  String get safePlacesShowHidden => 'Show hidden places';
+
+  @override
+  String safePlacesCount(int shown, int total) {
+    return '$shown of $total places';
+  }
+
+  @override
+  String safePlacesFirst(int count) {
+    return 'Showing the first $count. Search or pick a kind to narrow the list.';
+  }
+
+  @override
+  String get safePlacesNone => 'No place matches.';
+
+  @override
+  String get safePlacesEmpty =>
+      'No safe places yet. Load them with supabase/data/manila_safe_places.sql, or add one.';
+
+  @override
+  String get layerSafePlaces => 'Safe places';
+
+  @override
+  String get legendSafePlace => 'Safe place';
+
+  @override
+  String get actionSafePlaceSaved => 'Changed a safe place';
+
+  @override
+  String get actionSafePlaceHidden => 'Hid a safe place';
+
+  @override
+  String get actionSafePlaceRestored => 'Showed a safe place again';
+
+  @override
+  String safePlaceWhere(String barangay, String district) {
+    return '$barangay, $district';
+  }
 }

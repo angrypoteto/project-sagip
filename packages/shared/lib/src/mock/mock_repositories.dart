@@ -14,6 +14,7 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/safe_place.dart';
 import '../models/settings.dart';
 import '../repositories/repositories.dart';
 import 'mock_backend.dart';
@@ -486,4 +487,39 @@ class MockConnectionMonitor implements ConnectionMonitor {
 
   @override
   Stream<LinkState> watch() => _backend.watchLink();
+}
+
+class MockSafePlaceRepository implements SafePlaceRepository {
+  const MockSafePlaceRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<SafePlace>> watchPlaces() => _backend.watchSafePlaces();
+
+  @override
+  Future<List<SafePlaceOption>> nearest(
+    GeoPoint from,
+    IncidentType need, {
+    int limit = SafePlaceRules.defaultLimit,
+  }) async => _backend.safePlacesNear(from, need, limit: limit);
+
+  @override
+  Future<String> savePlace({
+    String? id,
+    String? name,
+    required SafePlaceKind kind,
+    required GeoPoint location,
+    required bool official,
+  }) => _backend.saveSafePlace(
+    id: id,
+    name: name,
+    kind: kind,
+    location: location,
+    official: official,
+  );
+
+  @override
+  Future<void> setHidden(String id, bool hidden) =>
+      _backend.setSafePlaceHidden(id, hidden);
 }

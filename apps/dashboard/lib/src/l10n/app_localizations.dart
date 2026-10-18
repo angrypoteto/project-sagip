@@ -6290,6 +6290,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} h ago'**
   String hoursAgo(int count);
+
+  /// No description provided for @navSafePlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe places'**
+  String get navSafePlaces;
+
+  /// No description provided for @safePlacesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where residents are pointed in an emergency: a school, hall, or covered court for a flood; open ground away from a fire or a collapse; a hospital for a medical emergency. Places near a confirmed flood or fire are left out. Hide a wrong place, and add MDRRMD\'s evacuation centers. Every change is recorded in the audit log.'**
+  String get safePlacesSubtitle;
+
+  /// No description provided for @kindEvacuationCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Evacuation center'**
+  String get kindEvacuationCenter;
+
+  /// No description provided for @kindSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get kindSchool;
+
+  /// No description provided for @kindBarangayHall.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay or city hall'**
+  String get kindBarangayHall;
+
+  /// No description provided for @kindCoveredCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Covered court or gym'**
+  String get kindCoveredCourt;
+
+  /// No description provided for @kindBasketballCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Basketball court'**
+  String get kindBasketballCourt;
+
+  /// No description provided for @kindOpenSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Park or plaza'**
+  String get kindOpenSpace;
+
+  /// No description provided for @kindHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital'**
+  String get kindHospital;
+
+  /// No description provided for @safePlaceUnnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind}, {barangay}'**
+  String safePlaceUnnamed(String kind, String barangay);
+
+  /// No description provided for @safePlaceAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add place'**
+  String get safePlaceAdd;
+
+  /// No description provided for @safePlaceEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit safe place'**
+  String get safePlaceEditTitle;
+
+  /// No description provided for @safePlaceAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a safe place'**
+  String get safePlaceAddTitle;
+
+  /// No description provided for @fieldPlaceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get fieldPlaceName;
+
+  /// No description provided for @fieldPlaceNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Barangay 400 Evacuation Center'**
+  String get fieldPlaceNameHint;
+
+  /// No description provided for @fieldPlaceNameError.
+  ///
+  /// In en, this message translates to:
+  /// **'An evacuation center needs a name (up to 120 characters).'**
+  String get fieldPlaceNameError;
+
+  /// No description provided for @fieldPlaceKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind'**
+  String get fieldPlaceKind;
+
+  /// No description provided for @fieldPlacePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get fieldPlacePosition;
+
+  /// No description provided for @fieldPlacePositionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Two numbers for a place in Manila, like 14.60020, 120.99020'**
+  String get fieldPlacePositionError;
+
+  /// No description provided for @fieldPlaceOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official MDRRMD evacuation center'**
+  String get fieldPlaceOfficial;
+
+  /// No description provided for @safePlaceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} saved.'**
+  String safePlaceSaved(String name);
+
+  /// No description provided for @safePlaceOutside.
+  ///
+  /// In en, this message translates to:
+  /// **'That position is outside Manila.'**
+  String get safePlaceOutside;
+
+  /// No description provided for @safePlaceHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get safePlaceHide;
+
+  /// No description provided for @safePlaceShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show again'**
+  String get safePlaceShow;
+
+  /// No description provided for @safePlaceHiddenSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden. Residents are no longer pointed there.'**
+  String get safePlaceHiddenSnack;
+
+  /// No description provided for @safePlaceShownSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown again.'**
+  String get safePlaceShownSnack;
+
+  /// No description provided for @safePlaceHiddenChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get safePlaceHiddenChip;
+
+  /// No description provided for @safePlaceOfficialChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Official'**
+  String get safePlaceOfficialChip;
+
+  /// No description provided for @safePlaceFromMap.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenStreetMap'**
+  String get safePlaceFromMap;
+
+  /// No description provided for @safePlaceAddedHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Added here'**
+  String get safePlaceAddedHere;
+
+  /// No description provided for @colKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind'**
+  String get colKind;
+
+  /// No description provided for @colSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get colSource;
+
+  /// No description provided for @safePlacesSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or barangay'**
+  String get safePlacesSearch;
+
+  /// No description provided for @safePlacesAllKinds.
+  ///
+  /// In en, this message translates to:
+  /// **'All kinds'**
+  String get safePlacesAllKinds;
+
+  /// No description provided for @safePlacesShowHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show hidden places'**
+  String get safePlacesShowHidden;
+
+  /// No description provided for @safePlacesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{shown} of {total} places'**
+  String safePlacesCount(int shown, int total);
+
+  /// No description provided for @safePlacesFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the first {count}. Search or pick a kind to narrow the list.'**
+  String safePlacesFirst(int count);
+
+  /// No description provided for @safePlacesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No place matches.'**
+  String get safePlacesNone;
+
+  /// No description provided for @safePlacesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No safe places yet. Load them with supabase/data/manila_safe_places.sql, or add one.'**
+  String get safePlacesEmpty;
+
+  /// No description provided for @layerSafePlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe places'**
+  String get layerSafePlaces;
+
+  /// No description provided for @legendSafePlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe place'**
+  String get legendSafePlace;
+
+  /// No description provided for @actionSafePlaceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed a safe place'**
+  String get actionSafePlaceSaved;
+
+  /// No description provided for @actionSafePlaceHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hid a safe place'**
+  String get actionSafePlaceHidden;
+
+  /// No description provided for @actionSafePlaceRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Showed a safe place again'**
+  String get actionSafePlaceRestored;
+
+  /// No description provided for @safePlaceWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'{barangay}, {district}'**
+  String safePlaceWhere(String barangay, String district);
 }
 
 class _AppLocalizationsDelegate

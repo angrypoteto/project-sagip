@@ -2039,4 +2039,102 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get retry => 'Subukan muli';
+
+  @override
+  String get safePlacesTitle => 'Mga ligtas na lugar';
+
+  @override
+  String get safePlacesWhat => 'Ano ang nangyayari?';
+
+  @override
+  String get safePlacesPick =>
+      'Pumili ng isa para makita ang mga lugar na angkop dito.';
+
+  @override
+  String get safePlacesFromSos =>
+      'Papunta ang tulong kung nasaan ka. Lumipat lang kung hindi ligtas manatili: susundan ng SOS mo ang phone mo.';
+
+  @override
+  String get safePlacesGoIfSafe =>
+      'Pumunta lang kung ligtas kumilos. Sundin muna ang MDRRMD at ang mga opisyal ng barangay.';
+
+  @override
+  String get safeAdviceFlood =>
+      'Kung tumataas ang tubig, umakyat muna sa mas mataas na palapag. Huwag lumusong sa tubig na lampas tuhod o umaagos.';
+
+  @override
+  String get safeAdviceFire =>
+      'Lumayo sa usok. Mga bukas na lugar ito na hindi bababa sa 300 m mula sa sunog.';
+
+  @override
+  String get safeAdviceStructural =>
+      'Lumayo sa mga pader, poste, at kawad. Mga bukas na lugar ito na malayo sa mga gusali.';
+
+  @override
+  String get safeAdviceMedical =>
+      'Tawagan muna ang MDRRMD. Ito ang mga pinakamalapit na ospital.';
+
+  @override
+  String get safePlacesNoLocation =>
+      'I-on ang GPS para makita ang mga ligtas na lugar na malapit sa iyo.';
+
+  @override
+  String get safePlacesNone =>
+      'Walang nakitang angkop na lugar na malapit sa iyo. Tawagan ang MDRRMD.';
+
+  @override
+  String get safePlacesOffline =>
+      'Offline: mula sa listahang naka-save sa phone mo. Hindi alam ang mga baha at sunog na naiulat mula noon.';
+
+  @override
+  String safePlaceWalk(int minutes, String distance) {
+    return 'Mga $minutes minutong lakad ($distance) sa mga kalye';
+  }
+
+  @override
+  String get safePlaceNoRoute =>
+      'Walang nakitang daan sa kalye. Tuwid na layo ang distansya.';
+
+  @override
+  String get safePlaceOfficial => 'Opisyal na evacuation center';
+
+  @override
+  String safePlaceUnnamed(String kind, String barangay) {
+    return '$kind, $barangay';
+  }
+
+  @override
+  String get kindEvacuationCenter => 'Evacuation center';
+
+  @override
+  String get kindSchool => 'Paaralan';
+
+  @override
+  String get kindBarangayHall => 'Barangay hall';
+
+  @override
+  String get kindCoveredCourt => 'Covered court';
+
+  @override
+  String get kindBasketballCourt => 'Basketball court';
+
+  @override
+  String get kindOpenSpace => 'Parke o plaza';
+
+  @override
+  String get kindHospital => 'Ospital';
+
+  @override
+  String get sosSafePlacesTitle => 'Mga ligtas na lugar na malapit sa iyo';
+
+  @override
+  String sosSafePlacesNearest(String name, String distance) {
+    return 'Pinakamalapit: $name, $distance';
+  }
+
+  @override
+  String get sosSafePlacesButton => 'Tingnan ang mga ligtas na lugar';
+
+  @override
+  String get alertSafePlacesButton => 'Mga ligtas na lugar na malapit sa iyo';
 }

@@ -521,6 +521,64 @@ void main() {
     );
   });
 
+  testWidgets('safe places: an admin finds, hides, and adds one; the board '
+      'shows them as a layer', (tester) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    tester.view.physicalSize = const Size(1440, 2400);
+    container.read(routerProvider).go('/admin/safe-places');
+    await settle(tester);
+    // 763 from the map: the first 100 are drawn.
+    expect(find.textContaining('Showing the first 100'), findsOne);
+    await tester.enterText(
+      find.byKey(const ValueKey('safe-place-search')),
+      'pambarangay ng 738',
+    );
+    await settle(tester);
+    expect(find.text('Bulwagang Pambarangay ng 738'), findsOne);
+    await tester.tap(find.byKey(const ValueKey('hide-osm-w1069543229')));
+    await settle(tester);
+    expect(find.textContaining('no longer pointed there'), findsOne);
+    var places = await tester.runAsync(() => backend.watchSafePlaces().first);
+    expect(places!.firstWhere((p) => p.id == 'osm-w1069543229').hidden, isTrue);
+    // Hidden places drop out of the list until asked for.
+    expect(find.text('Bulwagang Pambarangay ng 738'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('safe-place-show-hidden')));
+    await settle(tester);
+    expect(find.text('Hidden'), findsOne);
+
+    // Add MDRRMD's own evacuation center; it needs a name.
+    await tester.tap(find.byKey(const ValueKey('add-safe-place')));
+    await settle(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('safe-place-position')),
+      '14.60020, 120.99020',
+    );
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+    expect(find.textContaining('needs a name'), findsOne);
+    await tester.enterText(
+      find.byKey(const ValueKey('safe-place-name')),
+      'Barangay 400 Evacuation Center',
+    );
+    await tester.tap(find.text('Save'));
+    await settle(tester);
+    places = await tester.runAsync(() => backend.watchSafePlaces().first);
+    final added = places!.singleWhere((p) => !p.fromMap);
+    expect(added.name, 'Barangay 400 Evacuation Center');
+    expect(added.official, isTrue);
+    expect(added.kind, SafePlaceKind.evacuationCenter);
+
+    // The board's layer is off until ticked.
+    container.read(routerProvider).go(Routes.board);
+    await settle(tester);
+    expect(find.byType(SafePlaceMarker), findsNothing);
+    await tester.tap(find.text('Safe places').first);
+    await settle(tester);
+    expect(find.byType(SafePlaceMarker), findsWidgets);
+    expect(find.text('Safe place'), findsOne);
+  });
+
   testWidgets('an SOS pings on the map until a unit is sent', (tester) async {
     Incident sos({String? unit, IncidentOrigin origin = IncidentOrigin.sos}) =>
         Incident(

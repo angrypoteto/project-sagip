@@ -3535,6 +3535,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get retry;
+
+  /// No description provided for @safePlacesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe places'**
+  String get safePlacesTitle;
+
+  /// No description provided for @safePlacesWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What is happening?'**
+  String get safePlacesWhat;
+
+  /// No description provided for @safePlacesPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one to see the places that suit it.'**
+  String get safePlacesPick;
+
+  /// No description provided for @safePlacesFromSos.
+  ///
+  /// In en, this message translates to:
+  /// **'Help is coming to where you are. Move only if staying is unsafe: your SOS follows your phone.'**
+  String get safePlacesFromSos;
+
+  /// No description provided for @safePlacesGoIfSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Go only if it is safe to move. Follow MDRRMD and barangay officials first.'**
+  String get safePlacesGoIfSafe;
+
+  /// No description provided for @safeAdviceFlood.
+  ///
+  /// In en, this message translates to:
+  /// **'If the water is rising, go to a higher floor first. Do not walk through water above the knee or water that is flowing.'**
+  String get safeAdviceFlood;
+
+  /// No description provided for @safeAdviceFire.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave away from the smoke. These are open places at least 300 m from the fire.'**
+  String get safeAdviceFire;
+
+  /// No description provided for @safeAdviceStructural.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep away from walls, posts, and wires. These are open places away from buildings.'**
+  String get safeAdviceStructural;
+
+  /// No description provided for @safeAdviceMedical.
+  ///
+  /// In en, this message translates to:
+  /// **'Call MDRRMD first. These are the nearest hospitals.'**
+  String get safeAdviceMedical;
+
+  /// No description provided for @safePlacesNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on GPS to find safe places near you.'**
+  String get safePlacesNoLocation;
+
+  /// No description provided for @safePlacesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No suitable place was found near you. Call MDRRMD.'**
+  String get safePlacesNone;
+
+  /// No description provided for @safePlacesOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: from the list saved on your phone. Floods and fires reported since then are not known.'**
+  String get safePlacesOffline;
+
+  /// No description provided for @safePlaceWalk.
+  ///
+  /// In en, this message translates to:
+  /// **'About {minutes} min on foot ({distance}) along the streets'**
+  String safePlaceWalk(int minutes, String distance);
+
+  /// No description provided for @safePlaceNoRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'No street route found. The distance is a straight line.'**
+  String get safePlaceNoRoute;
+
+  /// No description provided for @safePlaceOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official evacuation center'**
+  String get safePlaceOfficial;
+
+  /// No description provided for @safePlaceUnnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind}, {barangay}'**
+  String safePlaceUnnamed(String kind, String barangay);
+
+  /// No description provided for @kindEvacuationCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Evacuation center'**
+  String get kindEvacuationCenter;
+
+  /// No description provided for @kindSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get kindSchool;
+
+  /// No description provided for @kindBarangayHall.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay hall'**
+  String get kindBarangayHall;
+
+  /// No description provided for @kindCoveredCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Covered court'**
+  String get kindCoveredCourt;
+
+  /// No description provided for @kindBasketballCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Basketball court'**
+  String get kindBasketballCourt;
+
+  /// No description provided for @kindOpenSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Park or plaza'**
+  String get kindOpenSpace;
+
+  /// No description provided for @kindHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital'**
+  String get kindHospital;
+
+  /// No description provided for @sosSafePlacesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe places near you'**
+  String get sosSafePlacesTitle;
+
+  /// No description provided for @sosSafePlacesNearest.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest: {name}, {distance}'**
+  String sosSafePlacesNearest(String name, String distance);
+
+  /// No description provided for @sosSafePlacesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'See safe places'**
+  String get sosSafePlacesButton;
+
+  /// No description provided for @alertSafePlacesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe places near you'**
+  String get alertSafePlacesButton;
 }
 
 class _AppLocalizationsDelegate

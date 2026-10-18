@@ -6,21 +6,25 @@ import 'package:flutter/foundation.dart';
 import '../algorithms/alert_thresholds.dart';
 import '../algorithms/analytics.dart';
 import '../algorithms/dbscan.dart';
+import '../algorithms/hazard_penalty.dart';
 import '../algorithms/priority.dart';
 import '../algorithms/report_draft.dart';
 import '../algorithms/setting_checks.dart';
 import '../data/manila_barangays.dart';
+import '../data/manila_safe_places.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
+import '../models/hazard_report.dart';
 import '../models/incident.dart';
 import '../models/ndrrmc.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/safe_place.dart';
 import '../models/settings.dart';
 import '../repositories/repositories.dart';
 import 'live_value.dart';
@@ -1321,6 +1325,127 @@ class MockBackend {
       'staff',
       staffId,
       '${s.displayName}: $from → ${unit?.callSign ?? 'no unit'}',
+    );
+  }
+
+  // ------------------------------------------------------------ safe places
+
+  late final _safePlaces = LiveValue<Map<String, SafePlace>>({
+    for (final p in manilaSafePlaces) p.id: p,
+  });
+  var _nextSafePlace = 1;
+
+  /// Every safe place; hidden ones too (staff).
+  Stream<List<SafePlace>> watchSafePlaces() =>
+      _safePlaces.watch().map((m) => m.values.toList(growable: false));
+
+  /// The nearest places that suit [need], leaving out those near a
+  /// confirmed open flood or fire, like `safe_places_near()`.
+  List<SafePlaceOption> safePlacesNear(
+    GeoPoint from,
+    IncidentType need, {
+    int limit = SafePlaceRules.defaultLimit,
+  }) => nearestSafePlaces(
+    _safePlaces.value.values,
+    from,
+    need,
+    avoid: HazardPenalty.fromIncidents(_incidents.value.values).zones,
+    limit: limit,
+  );
+
+  /// A2, checked like `save_safe_place`.
+  Future<String> saveSafePlace({
+    String? id,
+    String? name,
+    required SafePlaceKind kind,
+    required GeoPoint location,
+    required bool official,
+  }) async {
+    final actor = await _authorizeAdmin();
+    final nm = name?.trim();
+    final cleanName = nm == null || nm.isEmpty ? null : nm;
+    if ((cleanName?.length ?? 0) > 120 ||
+        (kind == SafePlaceKind.evacuationCenter && cleanName == null)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    if (!insideManila(location)) {
+      throw const ReportRejected(ReportRejection.outsideManila);
+    }
+    final brgy = nearestBarangay(location);
+    if (id == null) {
+      final newId =
+          'adm-${(_nextSafePlace++).toRadixString(16).padLeft(10, '0')}';
+      _safePlaces.value = {
+        ..._safePlaces.value,
+        newId: SafePlace(
+          id: newId,
+          name: cleanName,
+          kind: kind,
+          location: location,
+          barangay: brgy?.name,
+          district: brgy?.district,
+          official: official,
+        ),
+      };
+      _log(
+        actor,
+        AuditAction.safePlaceSaved,
+        'safe_place',
+        newId,
+        'added ${cleanName ?? kind.name}, ${kind.name}, ${brgy?.name ?? '?'}'
+            '${official ? ', official evacuation center' : ''}',
+      );
+      return newId;
+    }
+    final old = _safePlaces.value[id];
+    if (old == null) throw const ActionRejected(ActionRejection.notFound);
+    final changes = [
+      if (old.name != cleanName)
+        'name ${old.name ?? '(none)'} → ${cleanName ?? '(none)'}',
+      if (old.kind != kind) 'kind ${old.kind.name} → ${kind.name}',
+      if (old.location != location) 'moved to ${brgy?.name ?? '?'}',
+      if (old.official != official) 'official ${old.official} → $official',
+    ];
+    if (changes.isEmpty) return id;
+    _safePlaces.value = {
+      ..._safePlaces.value,
+      id: SafePlace(
+        id: id,
+        name: cleanName,
+        kind: kind,
+        location: location,
+        barangay: brgy?.name,
+        district: brgy?.district,
+        official: official,
+        hidden: old.hidden,
+      ),
+    };
+    _log(
+      actor,
+      AuditAction.safePlaceSaved,
+      'safe_place',
+      id,
+      changes.join('; '),
+    );
+    return id;
+  }
+
+  /// A2: hides a wrong place or shows it again.
+  Future<void> setSafePlaceHidden(String id, bool hidden) async {
+    final actor = await _authorizeAdmin();
+    final old = _safePlaces.value[id];
+    if (old == null) throw const ActionRejected(ActionRejection.notFound);
+    if (old.hidden == hidden) return;
+    _safePlaces.value = {
+      ..._safePlaces.value,
+      id: old.copyWith(hidden: hidden),
+    };
+    _log(
+      actor,
+      hidden ? AuditAction.safePlaceHidden : AuditAction.safePlaceRestored,
+      'safe_place',
+      id,
+      '${old.name ?? old.kind.name}${old.barangay == null ? '' : ', ${old.barangay}'}',
     );
   }
 

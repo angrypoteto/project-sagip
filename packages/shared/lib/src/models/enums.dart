@@ -133,6 +133,12 @@ enum AuditAction {
 
   /// A crew reported one of its unit's supplies.
   supplyUpdated,
+
+  /// An admin added or changed a safe place, hid one, or showed it again
+  /// (A2).
+  safePlaceSaved,
+  safePlaceHidden,
+  safePlaceRestored,
 }
 
 /// Why a resident asks to cancel their SOS (R2). A dispatcher decides.

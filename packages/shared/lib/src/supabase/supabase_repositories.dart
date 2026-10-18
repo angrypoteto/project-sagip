@@ -25,10 +25,12 @@ import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
+import '../models/safe_place.dart';
 import '../models/settings.dart';
 import '../models/sos.dart';
 import '../offline/mobile_server.dart';
 import '../offline/outbox.dart';
+import '../offline/safe_places.dart';
 import '../offline/streams.dart';
 import '../push/push.dart';
 import '../repositories/repositories.dart';
@@ -65,6 +67,7 @@ class SupabaseBackend {
       simulation = SupabaseSimulationRepository(client),
       analytics = SupabaseAnalyticsRepository(client),
       resources = SupabaseResourceRepository(client),
+      safePlaces = SupabaseSafePlaceRepository(client),
       accounts = SupabaseAccountRepository(client);
 
   final SupabaseAuthRepository auth;
@@ -85,11 +88,107 @@ class SupabaseBackend {
   final SupabaseSimulationRepository simulation;
   final SupabaseAnalyticsRepository analytics;
   final SupabaseResourceRepository resources;
+  final SupabaseSafePlaceRepository safePlaces;
   final SupabaseAccountRepository accounts;
 }
 
 /// A1 through the admin_* functions (admins only). The staff table is not
 /// sent over Realtime, so lists refresh after each change made here.
+/// Safe places on the hosted project (migration `safe_places`).
+class SupabaseSafePlaceRepository implements SafePlaceRepository {
+  SupabaseSafePlaceRepository(
+    this._client, {
+    SafePlaceRepository? offline,
+    this.timeout = const Duration(seconds: 8),
+  }) : _offline = offline ?? BundledSafePlaceRepository();
+
+  final SupabaseClient _client;
+  final SafePlaceRepository _offline;
+
+  /// How long to wait for the server before using the bundled list.
+  final Duration timeout;
+  final _changed = StreamController<Object?>.broadcast();
+
+  @override
+  Stream<List<SafePlace>> watchPlaces() => liveQuery(
+    _client,
+    tables: const ['safe_place'],
+    refreshOn: _changed.stream,
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('safe_place')
+              .select()
+              .order('kind')
+              .order('place_id'))
+        SafePlace.fromJson(r),
+    ],
+  );
+
+  @override
+  Future<List<SafePlaceOption>> nearest(
+    GeoPoint from,
+    IncidentType need, {
+    int limit = SafePlaceRules.defaultLimit,
+  }) async {
+    try {
+      final rows = await _client
+          .rpc<List<dynamic>>(
+            'safe_places_near',
+            params: {
+              'p_latitude': from.lat,
+              'p_longitude': from.lng,
+              'p_need': need.name,
+              'p_limit': limit,
+            },
+          )
+          .timeout(timeout);
+      return [
+        for (final r in rows)
+          SafePlaceOption.fromJson(Map<String, dynamic>.from(r as Map)),
+      ];
+    } catch (_) {
+      // No connection, or the server could not answer: the bundled list.
+      return _offline.nearest(from, need, limit: limit);
+    }
+  }
+
+  Future<T> _change<T>(Future<T> Function() body) async {
+    final result = await _call(body);
+    _changed.add(null);
+    return result;
+  }
+
+  @override
+  Future<String> savePlace({
+    String? id,
+    String? name,
+    required SafePlaceKind kind,
+    required GeoPoint location,
+    required bool official,
+  }) => _change(
+    () => _client.rpc<String>(
+      'save_safe_place',
+      params: {
+        'p_place_id': id,
+        'p_name': name,
+        'p_kind': kind.name,
+        'p_latitude': location.lat,
+        'p_longitude': location.lng,
+        'p_official': official,
+      },
+    ),
+  );
+
+  @override
+  Future<void> setHidden(String id, bool hidden) => _change(
+    () => _client.rpc<void>(
+      'set_safe_place_hidden',
+      params: {'p_place_id': id, 'p_hidden': hidden},
+    ),
+  );
+}
+
 class SupabaseAccountRepository implements AccountRepository {
   SupabaseAccountRepository(this._client);
 

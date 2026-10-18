@@ -35,6 +35,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `functions/send-sms/` | The Send SMS hook for sign-in codes (Semaphore, or kept in `sms_log` without it); `sms.test.ts` runs with `node --test` |
 | `migrations/*_incident_notices.sql` | `incident_notices(incident)` for dispatchers and admins: what the resident was told about their SOS (each rescue confirmation) with its text and push outcome, for the incident drawer (D4) |
 | `migrations/*_barangays_full.sql` | `barangay.psgc_code`, `manila_outline` (the city as one shape), `private.load_barangays(json)`, and the Manila check (FR15) against the outline with 50 m to spare |
+| `migrations/*_safe_places.sql` | Safe places (2026-10-19): `safe_place` (signed-in users read the visible ones; staff also the hidden), `safe_places_near(lat, lng, need, limit)` (the nearest places that suit a flood, fire, structural, or medical emergency, leaving out places near a confirmed open flood or fire, without saying where those are), and for admins `save_safe_place()` and `set_safe_place_hidden()` (audited). The rules: `private.safe_kinds()`, `private.safe_min_meters()` |
 | `data/` | All 897 barangays: `fetch_barangays.py` (downloads PSA's boundaries, checks them against the PSGC, writes the files), `manila_barangays.json` (what the database loads), `manila_barangays.csv` (name, district, code, center, area) |
 | `migrations/*_pagasa_feed.sql` | The PAGASA feed: `feed_status` (dispatchers and admins read it), `record_pagasa_reading()` and `record_feed_status()` (service role only), and a `pg_cron` job that calls `ingest-pagasa` every 10 minutes |
 | `functions/ingest-pagasa/` | Reads PAGASA's public pages (FR5): the NCR Heavy Rainfall Warning and the latest Tropical Cyclone Bulletin (PDF), and records Manila's rainfall level, wind signal, and storm surge. `pagasa.test.ts` runs the parsers on saved pages and bulletins with `node --test` |
@@ -408,6 +409,23 @@ select count(*), count(boundary), count(psgc_code) from public.barangay;   -- 89
 ```
 
 The 10 sample barangays keep their names; their centers move to the real ones. The demo records keep their made-up coordinates, so some lie in a different barangay than their label says (Barangay 412's sample SOS is really in Barangay 460).
+
+## Safe places (migration `safe_places`, applied as `20261018230454`)
+
+The nearest place that suits the emergency (Joshua, 2026-10-19), in place of the "nearest evacuation center" dropped on 2026-10-11. The rules are provisional, for MDRRMD to confirm: a flood points to somewhere high (an evacuation center, a school, a barangay or city hall, a covered court; never open ground); a fire to open ground at least 300 m away (an evacuation center, a basketball or covered court, a park or plaza, a school ground); a collapse to open ground at least 100 m away (an evacuation center, a basketball court, a park or plaza); a medical emergency to a hospital. Any place within 150 m of a confirmed open flood or 300 m of a confirmed open fire is left out. The same rules are in `packages/shared/lib/src/models/safe_place.dart`, which the phone uses offline on its bundled list.
+
+**Where the places come from.** `data/fetch_safe_places.py` reads OpenStreetMap through Overpass (schools, colleges, town halls, sports centres, basketball pitches, parks, squares, assembly points, hospitals), keeps those inside one of the 897 barangays (and not marked private), tags each with its barangay, and keeps a place mapped twice once. On 2026-10-19: 763 places (321 schools, 167 halls, 113 parks and plazas, 88 basketball courts, 35 covered courts, 39 hospitals). It writes `data/manila_safe_places.sql` and the apps' copy `packages/shared/lib/src/data/manila_safe_places_data.dart`. MDRRMD's own evacuation centers are not public: an admin adds them on the dashboard's Safe places page, marked official. No capacity or occupancy is kept: evacuation center management is out of scope.
+
+**Loading it.** The file is too big to paste, so the database fetches it from GitHub once the commit is pushed. In the SQL editor:
+
+```sql
+select net.http_get('https://raw.githubusercontent.com/angrypoteto/project-sagip/main/supabase/data/manila_safe_places.sql');
+-- a few seconds later, with the id the first line returned:
+do $$ begin execute (select content from net._http_response where id = <id> and status_code = 200); end $$;
+select count(*), count(*) filter (where hidden_at is null) from public.safe_place;   -- 763 or more
+```
+
+It can be run again: it refreshes the map's own fields of rows no admin has changed (`updated_by` is empty) and never touches what an admin hid, renamed, or added.
 
 ## Running the RLS test
 

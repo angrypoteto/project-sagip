@@ -23,6 +23,7 @@ import 'features/responder/navigate_page.dart';
 import 'features/responder/offer_watcher.dart';
 import 'features/responder/on_scene_page.dart';
 import 'features/responder/responder_home_page.dart';
+import 'features/safe_places/safe_places_page.dart';
 import 'features/shell/app_shell.dart';
 import 'features/sos/home_page.dart';
 import 'features/sos/sos_status_page.dart';
@@ -58,6 +59,23 @@ abstract final class Routes {
   static String track(String clientId) => '/r/sos/$clientId/track';
   static String alert(String id) => '/r/alert/$id';
   static const pickLocation = '/r/location';
+
+  /// Safe places near the resident (2026-10-19): [need] preselected, [from]
+  /// when GPS has no fix (an SOS's own position), [fromSos] when opened
+  /// from an SOS (help is coming to where they are).
+  static String safePlaces({
+    IncidentType? need,
+    GeoPoint? from,
+    bool fromSos = false,
+  }) => Uri(
+    path: safePlacesPath,
+    queryParameters: {
+      'need': ?need?.name,
+      if (from != null) 'at': '${from.lat},${from.lng}',
+      if (fromSos) 'sos': '1',
+    },
+  ).toString();
+  static const safePlacesPath = '/r/safe-places';
   static const activity = '/r/activity';
   static const vulnerability = '/r/vulnerability';
   static const consent = '/r/vulnerability/consent';
@@ -149,6 +167,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.pickLocation,
         builder: (context, state) =>
             LocationPickerPage(initial: state.extra as GeoPoint?),
+      ),
+      GoRoute(
+        path: Routes.safePlacesPath,
+        builder: (context, state) {
+          final q = state.uri.queryParameters;
+          final at = (q['at'] ?? '').split(',');
+          final lat = at.length == 2 ? double.tryParse(at[0]) : null;
+          final lng = at.length == 2 ? double.tryParse(at[1]) : null;
+          return SafePlacesPage(
+            need: IncidentType.values.asNameMap()[q['need']],
+            from: lat == null || lng == null ? null : GeoPoint(lat, lng),
+            fromSos: q['sos'] == '1',
+          );
+        },
       ),
       GoRoute(
         path: Routes.activity,

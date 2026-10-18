@@ -259,6 +259,10 @@ class _Body extends ConsumerWidget {
         _LocationCard(sos: sos),
         if (!resolved) ...[
           const SizedBox(height: SagipSpace.xl),
+          _SafePlacesCard(sos: sos),
+        ],
+        if (!resolved) ...[
+          const SizedBox(height: SagipSpace.xl),
           Text(l10n.guidanceTitle, style: text.titleMedium),
           const SizedBox(height: SagipSpace.sm),
           Text(l10n.guidanceBody, style: text.bodyMedium),
@@ -404,6 +408,76 @@ class _Timeline extends StatelessWidget {
             last: i == steps.length - 1,
           ),
       ],
+    );
+  }
+}
+
+/// Safe places near the resident (2026-10-19). Help comes to where they
+/// are, so this is for when staying is unsafe; the type they tapped picks
+/// the kind of place.
+class _SafePlacesCard extends ConsumerWidget {
+  const _SafePlacesCard({required this.sos});
+
+  final SosRequest sos;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final type = sos.details.type;
+    final at = sos.location;
+    final nearest = type == null || at == null
+        ? null
+        : ref
+              .watch(safePlacesNearProvider(safePlaceQuery(at, type)))
+              .value
+              ?.firstOrNull;
+    return DecoratedBox(
+      key: const ValueKey('sos-safe-places'),
+      decoration: BoxDecoration(
+        border: Border.all(color: p.hairline),
+        borderRadius: BorderRadius.circular(SagipRadius.card),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(SagipSpace.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Symbols.night_shelter_rounded, color: p.success.text),
+                const SizedBox(width: SagipSpace.md),
+                Expanded(
+                  child: Text(l10n.sosSafePlacesTitle, style: text.titleSmall),
+                ),
+              ],
+            ),
+            const SizedBox(height: SagipSpace.sm),
+            Text(l10n.safePlacesFromSos, style: text.bodyMedium),
+            if (nearest != null) ...[
+              const SizedBox(height: SagipSpace.sm),
+              Text(
+                l10n.sosSafePlacesNearest(
+                  l10n.safePlaceName(nearest.place),
+                  formatDistance(nearest.meters),
+                ),
+                style: text.bodyMedium!.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+            const SizedBox(height: SagipSpace.md),
+            OutlinedButton.icon(
+              onPressed: () => context.push(
+                Routes.safePlaces(need: type, from: at, fromSos: true),
+              ),
+              icon: const Icon(Symbols.directions_walk_rounded),
+              label: Text(l10n.sosSafePlacesButton),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

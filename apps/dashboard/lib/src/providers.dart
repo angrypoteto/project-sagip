@@ -63,6 +63,9 @@ final analyticsRepositoryProvider = Provider<AnalyticsRepository>(
 final resourceRepositoryProvider = Provider<ResourceRepository>(
   (ref) => _missing('ResourceRepository'),
 );
+final safePlaceRepositoryProvider = Provider<SafePlaceRepository>(
+  (ref) => _missing('SafePlaceRepository'),
+);
 final accountRepositoryProvider = Provider<AccountRepository>(
   (ref) => _missing('AccountRepository'),
 );
@@ -121,6 +124,9 @@ List<Override> _mockOverrides(
     MockAnalyticsRepository(backend, runs: runs),
   ),
   resourceRepositoryProvider.overrideWithValue(MockResourceRepository(backend)),
+  safePlaceRepositoryProvider.overrideWithValue(
+    MockSafePlaceRepository(backend),
+  ),
   accountRepositoryProvider.overrideWithValue(MockAccountRepository(backend)),
   alertLogRepositoryProvider.overrideWithValue(MockAlertLogRepository(backend)),
   simulationRepositoryProvider.overrideWithValue(
@@ -148,6 +154,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   settingsRepositoryProvider.overrideWithValue(backend.settings),
   analyticsRepositoryProvider.overrideWithValue(backend.analytics),
   resourceRepositoryProvider.overrideWithValue(backend.resources),
+  safePlaceRepositoryProvider.overrideWithValue(backend.safePlaces),
   accountRepositoryProvider.overrideWithValue(backend.accounts),
   alertLogRepositoryProvider.overrideWithValue(backend.alertLog),
   simulationRepositoryProvider.overrideWithValue(backend.simulation),
@@ -366,6 +373,15 @@ final allUnitsProvider = StreamProvider<List<ResponseUnit>>(
   (ref) => _forAccount(
     ref,
     () => ref.watch(resourceRepositoryProvider).watchUnits(),
+  ),
+);
+
+/// Safe places (2026-10-19): the board's layer and the admin page. Hidden
+/// ones are included (staff); the map leaves them out.
+final safePlacesProvider = StreamProvider<List<SafePlace>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(safePlaceRepositoryProvider).watchPlaces(),
   ),
 );
 

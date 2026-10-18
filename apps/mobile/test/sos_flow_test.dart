@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_mobile/src/app.dart';
+import 'package:sagip_mobile/src/features/safe_places/safe_places_page.dart';
 import 'package:sagip_mobile/src/features/sos/sos_status_page.dart';
 import 'package:sagip_mobile/src/features/sos/track_page.dart';
 import 'package:sagip_mobile/src/providers.dart';
@@ -268,6 +269,11 @@ void main() {
 
     Future<void> ask(String reason) async {
       await tester.scrollUntilVisible(find.text('Cancel SOS'), 200);
+      // A notice at the bottom ("delivered") may cover the last button.
+      tester
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await settle(tester);
       await tester.tap(find.text('Cancel SOS'));
       await settle(tester);
       expect(find.text('Cancel this SOS?'), findsOneWidget);
@@ -385,6 +391,76 @@ void main() {
           .first,
     );
     expect(fire.properties.selected, isTrue);
+    await finish(tester);
+  });
+
+  testWidgets('safe places: the SOS points to open ground away from a fire', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    await holdSos(tester, keepQuestion: true);
+    await tester.tap(find.byKey(const ValueKey('type-fire')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    final see = find.text('See safe places');
+    await tester.scrollUntilVisible(see, 200);
+    await settle(tester);
+    expect(find.textContaining('Nearest: '), findsOneWidget);
+    await tester.tap(see);
+    await settle(tester);
+
+    // Fire is already picked; the advice says help comes to them.
+    expect(find.text('Safe places'), findsOneWidget);
+    expect(
+      find.textContaining('Help is coming to where you are'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('at least 300 m from the fire'), findsOneWidget);
+    final tiles = find.byWidgetPredicate(
+      (w) =>
+          w is InkWell &&
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith('safe-place-'),
+    );
+    await tester.scrollUntilVisible(tiles.last, 200);
+    await settle(tester);
+    expect(tiles, findsNWidgets(3));
+    // Each is open ground, at least 300 m away.
+    final sos = container.read(mySosProvider).value!.first;
+    final near = await container.read(
+      safePlacesNearProvider(safePlaceQuery(sos.location!, IncidentType.fire))
+          .future,
+    );
+    for (final o in near) {
+      expect(
+        SafePlaceRules.kindsFor(IncidentType.fire),
+        contains(o.place.kind),
+      );
+      expect(o.meters, greaterThanOrEqualTo(300));
+    }
+    // Picking another place shows how to get there.
+    await tester.tap(tiles.at(1));
+    await settle(tester);
+    expect(
+      find.textContaining('min on foot').evaluate().length +
+          find.textContaining('No street route').evaluate().length,
+      1,
+    );
+    // Medical: the nearest hospitals instead.
+    await tester.drag(
+      find
+          .descendant(
+            of: find.byType(SafePlacesPage),
+            matching: find.byType(ListView),
+          )
+          .first,
+      const Offset(0, 3000),
+    );
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('type-medical')));
+    await settle(tester);
+    expect(find.textContaining('nearest hospitals'), findsOneWidget);
     await finish(tester);
   });
 

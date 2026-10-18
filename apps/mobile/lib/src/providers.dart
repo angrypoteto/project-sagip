@@ -105,6 +105,12 @@ final vulnerabilityRepositoryProvider = Provider<VulnerabilityRepository>(
   (ref) => _missing('VulnerabilityRepository'),
 );
 
+/// Safe places (Joshua, 2026-10-19). Sample data and tests use the list
+/// bundled in the app; the real app asks the server and falls back to it.
+final safePlaceRepositoryProvider = Provider<SafePlaceRepository>(
+  (ref) => BundledSafePlaceRepository(),
+);
+
 /// Only set when running on sample data: the Me screen shows demo tools
 /// (signal and GPS switches) for it.
 final mockBackendProvider = Provider<MockMobileBackend?>((ref) => null);
@@ -309,6 +315,7 @@ List<Override> liveOverrides({
       CachedAlertRepository(backend.alerts, store, account),
     ),
     vulnerabilityRepositoryProvider.overrideWithValue(backend.vulnerability),
+    safePlaceRepositoryProvider.overrideWithValue(backend.safePlaces),
     routingLogProvider.overrideWithValue(ThrottledRoutingLog(backend.routing)),
     if (pushOpens != null) pushOpensProvider.overrideWith((ref) => pushOpens),
   ];
@@ -479,6 +486,51 @@ final trackRouteProvider = Provider.autoDispose
       final router = ref.watch(roadRouterProvider).value;
       return router?.route(key.from, key.to);
     });
+
+/// What to look up safe places for: a position rounded to about 10 m, so a
+/// GPS fix that wanders a little does not ask the server again.
+typedef SafePlaceQuery = ({double lat, double lng, IncidentType need});
+
+SafePlaceQuery safePlaceQuery(GeoPoint from, IncidentType need) => (
+  lat: (from.lat * 1e4).roundToDouble() / 1e4,
+  lng: (from.lng * 1e4).roundToDouble() / 1e4,
+  need: need,
+);
+
+/// The nearest places that suit the emergency (the server's answer, or the
+/// bundled list offline).
+final safePlacesNearProvider = FutureProvider.autoDispose
+    .family<List<SafePlaceOption>, SafePlaceQuery>(
+      (ref, q) => ref
+          .watch(safePlaceRepositoryProvider)
+          .nearest(GeoPoint(q.lat, q.lng), q.need),
+    );
+
+/// The way on foot to a safe place, over the bundled road graph. On foot a
+/// one-way street goes both ways, so the shorter of the route there and
+/// the route back (reversed) is used. Null until the graph has loaded, or
+/// when either end is off the map.
+final walkRouteProvider = Provider.autoDispose
+    .family<RoadRoute?, ({GeoPoint from, GeoPoint to})>((ref, key) {
+      final router = ref.watch(roadRouterProvider).value;
+      if (router == null) return null;
+      final there = router.route(key.from, key.to);
+      final back = router.route(key.to, key.from);
+      if (back == null || (there != null && there.meters <= back.meters)) {
+        return there;
+      }
+      return RoadRoute(
+        points: back.points.reversed.toList(growable: false),
+        seconds: back.seconds,
+        meters: back.meters,
+        steps: const [],
+        computeTime: back.computeTime,
+        graphBuilt: back.graphBuilt,
+      );
+    });
+
+/// Minutes on foot at an unhurried 4.5 km/h, at least one.
+int walkMinutes(double meters) => (meters / 75).ceil().clamp(1, 999);
 
 /// Distance, ETA, and direction from the unit to a job.
 @immutable
