@@ -36,6 +36,7 @@ import datetime
 import json
 import math
 import os
+import re
 import sys
 import urllib.parse
 import urllib.request
@@ -66,6 +67,29 @@ TODAY = datetime.date.today().isoformat()
 SOURCE = f"OpenStreetMap, {TODAY}"
 
 
+# A "sports centre" on the map is often a business, not a public place:
+# billiard halls, bowling, badminton and fitness gyms, a members' club, a
+# cockpit (2026-10-19: "Manila Center Billiard Hall" came up for a fire).
+PRIVATE_SPORTS = {
+    "billiards", "10pin", "bowling", "badminton", "fitness", "weightlifting",
+    "gymnastics", "table_tennis", "cockfighting", "boxing", "martial_arts",
+    "yoga", "swimming_pool_private",
+}
+PRIVATE_NAME = re.compile(r"billiard|bowling|badminton|fitness|smash|spa|club", re.I)
+
+
+def public_sports_centre(tags: dict) -> bool:
+    # Only the private kinds (a public complex may list table tennis among
+    # many), or a cockpit.
+    sports = {x for x in (tags.get("sport") or "").split(";") if x}
+    return not (
+        (sports and sports <= PRIVATE_SPORTS)
+        or "cockfighting" in sports
+        or "club" in tags
+        or PRIVATE_NAME.search(tags.get("name") or "")
+    )
+
+
 def kind_of(tags: dict) -> str | None:
     """The safe place kind of an OpenStreetMap feature (see SafePlaceKind)."""
     amenity, leisure = tags.get("amenity"), tags.get("leisure")
@@ -76,7 +100,7 @@ def kind_of(tags: dict) -> str | None:
     if amenity == "hospital":
         return "hospital"
     if leisure == "sports_centre":
-        return "coveredCourt"
+        return "coveredCourt" if public_sports_centre(tags) else None
     if leisure == "pitch":
         return "coveredCourt" if tags.get("covered") == "yes" else "basketballCourt"
     if leisure == "park" or tags.get("place") == "square" or tags.get("emergency") == "assembly_point":
@@ -178,7 +202,7 @@ def main() -> None:
         if kind is None:
             skipped += 1
             continue
-        if tags.get("access") in ("private", "no"):
+        if tags.get("access") in ("private", "no", "customers", "members"):
             skipped += 1
             continue
         lat = e.get("lat", e.get("center", {}).get("lat"))
@@ -232,6 +256,7 @@ def sql_text(v: str | None) -> str:
 
 
 def write_sql(places: list[dict]) -> None:
+    ids = ",\n".join(f"     {sql_text(p['id'])}" for p in places)
     rows = ",\n".join(
         f"  ({sql_text(p['id'])}, {sql_text(p['name'])}, '{p['kind']}', {p['lat']}, {p['lng']}, "
         f"{sql_text(p['barangay'])}, {sql_text(p['district'])}, '{SOURCE}')"
@@ -241,20 +266,34 @@ def write_sql(places: list[dict]) -> None:
 -- {len(places)} places in Manila that can serve as a safe place, from
 -- OpenStreetMap (data (c) OpenStreetMap contributors, ODbL), read {TODAY}.
 -- Run in the SQL editor after the migration `safe_places`. Safe to run
--- again: the map's own fields are refreshed, and whatever an admin changed
--- (hidden, renamed, marked official) is kept.
+-- again: rows nobody changed follow this list (and one no longer on it is
+-- hidden); whatever an admin changed (hidden, renamed, official) is kept.
 
 insert into public.safe_place
   (place_id, name, kind, latitude, longitude, barangay, district, source)
 values
 {rows}
 on conflict (place_id) do update
-   set latitude = excluded.latitude,
+   set name = excluded.name,
+       kind = excluded.kind,
+       latitude = excluded.latitude,
        longitude = excluded.longitude,
        barangay = excluded.barangay,
        district = excluded.district,
-       source = excluded.source
+       source = excluded.source,
+       hidden_at = null
  where public.safe_place.updated_by is null;
+
+-- A place from the map that is no longer on this list (closed, or not a
+-- public place) is hidden, unless an admin has changed it.
+update public.safe_place
+   set hidden_at = now()
+ where place_id like 'osm-%'
+   and updated_by is null
+   and hidden_at is null
+   and place_id not in (
+{ids}
+   );
 """
     with open(os.path.join(DATA, "manila_safe_places.sql"), "w", encoding="utf-8", newline="\n") as f:
         f.write(text)

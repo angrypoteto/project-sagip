@@ -11,7 +11,7 @@ import '../../providers.dart';
 import '../common_page.dart';
 
 /// Safe places (admin, Joshua 2026-10-19): the places residents are
-/// pointed to in an emergency. 763 come from OpenStreetMap; an admin hides
+/// pointed to in an emergency. About 750 come from OpenStreetMap; an admin hides
 /// a wrong one and adds MDRRMD's own evacuation centers. No capacity or
 /// occupancy: evacuation center management is out of scope.
 class SafePlacesPage extends ConsumerStatefulWidget {

@@ -528,7 +528,7 @@ void main() {
     tester.view.physicalSize = const Size(1440, 2400);
     container.read(routerProvider).go('/admin/safe-places');
     await settle(tester);
-    // 763 from the map: the first 100 are drawn.
+    // 750 from the map: the first 100 are drawn.
     expect(find.textContaining('Showing the first 100'), findsOne);
     await tester.enterText(
       find.byKey(const ValueKey('safe-place-search')),

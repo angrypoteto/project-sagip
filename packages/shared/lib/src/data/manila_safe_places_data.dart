@@ -3,7 +3,7 @@
 
 part of 'manila_safe_places.dart';
 
-/// 763 places in Manila that can serve as a safe place, bundled so
+/// 750 places in Manila that can serve as a safe place, bundled so
 /// the nearest ones can be found offline. The server's list (with an
 /// admin's changes and MDRRMD's evacuation centers) is used when online.
 const manilaSafePlaces = <SafePlace>[
@@ -2048,52 +2048,12 @@ const manilaSafePlaces = <SafePlace>[
     district: 'Tondo',
   ),
   SafePlace(
-    id: 'osm-w89536440',
-    name: 'Badminton City',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.588794, 120.98297),
-    barangay: 'Barangay 659',
-    district: 'Ermita',
-  ),
-  SafePlace(
-    id: 'osm-w90301330',
-    name: 'Power Play Badminton Center',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.580248, 120.981509),
-    barangay: 'Barangay 670',
-    district: 'Ermita',
-  ),
-  SafePlace(
-    id: 'osm-n1055759062',
-    name: 'Anda Fitness Center',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.592454, 120.976084),
-    barangay: 'Barangay 654',
-    district: 'Intramuros',
-  ),
-  SafePlace(
     id: 'osm-w262549991',
     name: 'MIT Sports Centre',
     kind: SafePlaceKind.coveredCourt,
     location: GeoPoint(14.590337, 120.978026),
     barangay: 'Barangay 658',
     district: 'Intramuros',
-  ),
-  SafePlace(
-    id: 'osm-w145657676',
-    name: 'Smart Shot Badminton & Sports Center',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.576446, 120.990184),
-    barangay: 'Barangay 694',
-    district: 'Malate',
-  ),
-  SafePlace(
-    id: 'osm-w308596457',
-    name: 'AMF Puyat Bowling and Billiards',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.571466, 120.990383),
-    barangay: 'Barangay 703',
-    district: 'Malate',
   ),
   SafePlace(
     id: 'osm-w34751811',
@@ -2120,22 +2080,6 @@ const manilaSafePlaces = <SafePlace>[
     district: 'Malate',
   ),
   SafePlace(
-    id: 'osm-n10603857239',
-    name: 'Billiards',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.564606, 120.994611),
-    barangay: 'Barangay 727',
-    district: 'Malate',
-  ),
-  SafePlace(
-    id: 'osm-w514218721',
-    name: 'Philippine Columbian Association',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.581867, 120.999784),
-    barangay: 'Barangay 824',
-    district: 'Paco',
-  ),
-  SafePlace(
     id: 'osm-w647527804',
     name: null,
     kind: SafePlaceKind.coveredCourt,
@@ -2152,14 +2096,6 @@ const manilaSafePlaces = <SafePlace>[
     district: 'Pandacan',
   ),
   SafePlace(
-    id: 'osm-n7593892000',
-    name: 'Manila Center Billiard Hall',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.600994, 120.981791),
-    barangay: 'Barangay 309',
-    district: 'Quiapo',
-  ),
-  SafePlace(
     id: 'osm-w179239534',
     name: null,
     kind: SafePlaceKind.coveredCourt,
@@ -2172,14 +2108,6 @@ const manilaSafePlaces = <SafePlace>[
     name: 'FEU Gymnasium',
     kind: SafePlaceKind.coveredCourt,
     location: GeoPoint(14.603843, 120.988409),
-    barangay: 'Barangay 396',
-    district: 'Sampaloc',
-  ),
-  SafePlace(
-    id: 'osm-n3602063727',
-    name: 'RJ Gym',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.60517, 120.988967),
     barangay: 'Barangay 396',
     district: 'Sampaloc',
   ),
@@ -2204,14 +2132,6 @@ const manilaSafePlaces = <SafePlace>[
     name: null,
     kind: SafePlaceKind.coveredCourt,
     location: GeoPoint(14.609497, 120.990798),
-    barangay: 'Barangay 470',
-    district: 'Sampaloc',
-  ),
-  SafePlace(
-    id: 'osm-w18585111',
-    name: null,
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.60778, 120.98861),
     barangay: 'Barangay 470',
     district: 'Sampaloc',
   ),
@@ -2248,14 +2168,6 @@ const manilaSafePlaces = <SafePlace>[
     district: 'Sampaloc',
   ),
   SafePlace(
-    id: 'osm-w353775555',
-    name: 'Mazel Gym',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.609851, 120.999845),
-    barangay: 'Barangay 542',
-    district: 'Sampaloc',
-  ),
-  SafePlace(
     id: 'osm-w583440438',
     name: 'PUP Gymnasium',
     kind: SafePlaceKind.coveredCourt,
@@ -2278,22 +2190,6 @@ const manilaSafePlaces = <SafePlace>[
     location: GeoPoint(14.598642, 120.96598),
     barangay: 'Barangay 275',
     district: 'San Nicolas',
-  ),
-  SafePlace(
-    id: 'osm-w303264757',
-    name: 'Manila Arena',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.583762, 121.017218),
-    barangay: 'Barangay 887',
-    district: 'Santa Ana',
-  ),
-  SafePlace(
-    id: 'osm-w183104636',
-    name: 'Citismash',
-    kind: SafePlaceKind.coveredCourt,
-    location: GeoPoint(14.602595, 120.979393),
-    barangay: 'Barangay 301',
-    district: 'Santa Cruz',
   ),
   SafePlace(
     id: 'osm-w813748625',

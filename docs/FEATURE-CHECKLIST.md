@@ -12,7 +12,7 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 | Resident web form on the internet, real database | open `https://sagip.me` (`www.sagip.me` and `report.sagip.me` forward to it; also `https://sagip-report.vercel.app`) | resident: `917 000 4821`, code `123456` |
 | Dashboard, sample data | `apps/dashboard`: `flutter run -d chrome` | the same emails, password `sagip-demo` |
 | Resident web form, sample data | `apps/dashboard`: `flutter run -d chrome -t lib/main_webform.dart` | any number, the demo code shown |
-| Mobile app on your phone, real database | already installed (release build of 2026-10-16); for others, `SAGIP-2026-10-16.apk` on your Desktop | resident: `917 000 4821`, code `123456`; responder: a unit account |
+| Mobile app on your phone, real database | install `SAGIP-2026-10-19.apk` from your Desktop (it has safe places; your phone still has the build of 2026-10-16), or plug the phone in and ask me | resident: `917 000 4821`, code `123456`; responder: a unit account |
 | Mobile app, sample data | `apps/mobile`: `flutter run` (phone plugged in) | "Continue as resident" or "Continue as rescue personnel" |
 
 **The real database today:** no made-up incidents, residents, or forecast. It
@@ -110,7 +110,7 @@ changed between 2026-10-12 and 2026-10-19.
 - [ ] A6 "Rewrite with the language model" (the keys are in place; never tried from the page)
 - [ ] A7 Audit log shows every action above with who did it
 - [ ] **[N]** Incident history (dispatchers and admins): closed incidents by period (today, 7 days, 30 days, chosen dates), filtered by type and how it ended, searched by ID or barangay; a row opens its details (timeline, completion report, Facebook status); Export CSV downloads the filtered list without personal data
-- [ ] **[N]** Safe places (admins, 2026-10-19): the list of 763 places from OpenStreetMap; search by name or barangay, pick a kind, "Show hidden places"; hide a wrong place and show it again; "Add place" for MDRRMD's own evacuation center (needs a name; a place outside Manila is refused; marked Official); each change in the audit log
+- [ ] **[N]** Safe places (admins, 2026-10-19): the list of 750 places from OpenStreetMap; search by name or barangay, pick a kind, "Show hidden places"; hide a wrong place and show it again; "Add place" for MDRRMD's own evacuation center (needs a name; a place outside Manila is refused; marked Official); each change in the audit log
 - [ ] **[N]** Incident panel: a line under the type says where its Facebook post stands, and why it is not posted (for example "not posted until the incident type is confirmed")
 
 ---
@@ -196,7 +196,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ## 6. Built: behind the scenes (nothing to click; I can show you each)
 
-- [ ] Row Level Security on every table; 465 written checks. On the real data on 2026-10-16: 465 of 465, rolled back (the full file from GitHub at `ad8045c`) (the first run gave 426; the 10 were the test expecting a clean demo database, and one leftover permission, now removed)
+- [ ] Row Level Security on every table; 495 written checks. On the real data on 2026-10-19: 495 of 495, rolled back (the full file from GitHub at `92831bc`; 30 new checks for safe places)
 - [ ] Every dispatch action, status change, and verification is written to the audit log
 - [ ] DBSCAN groups crowd reports (50 m, 3 reports, 60 minutes); one report is never auto-confirmed
 - [ ] Dijkstra on the road graph, timed and logged for Chapter 4

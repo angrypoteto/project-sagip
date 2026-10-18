@@ -135,7 +135,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
         _shown(u, frame),
     ];
     final reports = ref.watch(crowdReportsProvider).value ?? const [];
-    // Off by default: 763 places would hide the incidents.
+    // Off by default: 750 places would hide the incidents.
     final safePlaces = _layers.contains(_Layer.safePlaces)
         ? [
             for (final s
