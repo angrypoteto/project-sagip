@@ -25,7 +25,7 @@ closed). Facebook posting of alerts and incidents is switched on (test Page
 Marks: **[S]** can only be seen on sample data for now (the real database has
 nothing to show for it). **[P]** needs a real phone to check properly. **[W]**
 built, but waits on a setting or a decision from you (part 7). **[N]** new or
-changed between 2026-10-12 and 2026-10-16.
+changed between 2026-10-12 and 2026-10-19.
 
 ---
 
@@ -41,6 +41,7 @@ changed between 2026-10-12 and 2026-10-16.
 
 ### Command Board (dispatcher)
 - [ ] D2 Map view: incidents, units, unverified reports, layers, legend, zoom
+- [ ] **[N]** Layers: "Safe places" (off by default) draws them as green rings with an icon (filled for an official evacuation center), and the legend gets a "Safe place" line
 - [ ] **[N]** The map stays in view when there is no incident (no "nothing here" note on it)
 - [ ] **[N]** The map shows streets and their names under the muted colors
 - [ ] **[N]** An SOS with no unit sent yet pings on the map (rings spreading out), and stops when a unit is sent
@@ -109,6 +110,7 @@ changed between 2026-10-12 and 2026-10-16.
 - [ ] A6 "Rewrite with the language model" (the keys are in place; never tried from the page)
 - [ ] A7 Audit log shows every action above with who did it
 - [ ] **[N]** Incident history (dispatchers and admins): closed incidents by period (today, 7 days, 30 days, chosen dates), filtered by type and how it ended, searched by ID or barangay; a row opens its details (timeline, completion report, Facebook status); Export CSV downloads the filtered list without personal data
+- [ ] **[N]** Safe places (admins, 2026-10-19): the list of 763 places from OpenStreetMap; search by name or barangay, pick a kind, "Show hidden places"; hide a wrong place and show it again; "Add place" for MDRRMD's own evacuation center (needs a name; a place outside Manila is refused; marked Official); each change in the audit log
 - [ ] **[N]** Incident panel: a line under the type says where its Facebook post stands, and why it is not posted (for example "not posted until the incident type is confirmed")
 
 ---
@@ -159,6 +161,9 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] S7 Me: details, theme, language (English or Filipino), test notification, privacy notice, request deletion, sign out
 - [ ] Offline banner on every screen (turn on airplane mode)
 - [ ] **[N]** After holding SOS, "What is happening?" comes up once with four big buttons and Skip; one tap sets the type (the SOS is already sent). Add details starts with the same big buttons
+- [ ] **[N]** R2 "Safe places near you": the advice (help is coming to where you are; move only if staying is unsafe), the nearest place once you tapped what is happening, and "See safe places"
+- [ ] **[N]** Safe places screen: tap Flood, Fire, Collapse or damage, or Medical; the advice for it; the three nearest on a map (a fire's are at least 300 m away; a flood's are schools, halls, covered courts; medical gives hospitals); tap one to see the way on foot and the minutes. Works offline (airplane mode) from the list saved in the app
+- [ ] **[N]** R8 Alert detail: "Safe places near you" (a weather alert opens it on Flood)
 - [ ] S6 Offline queue sheet: saved records, Try sending now
 - [ ] An SOS sent offline is delivered when you come back online, with its original time
 - [ ] **[N]** The app no longer flips to offline on one slow answer; it needs two failed checks in a row, and once offline it checks every 5 seconds, so a saved SOS goes within seconds of the connection returning (fixed 2026-10-16)
@@ -271,12 +276,12 @@ public GitHub repo (the letter promises it); only the trained models do.
 | UAT on 2026-11-23 to 27 (3 admins, 16 field personnel, 31 residents) and the ISO/IEC 25010 questionnaire validated by 2026-10-30 | Not started as far as this file knows |
 | Hallway test, the Objective 3 trial (SOS delivery offline), the Objective 4 trial (report time), the Bluetooth relay with three phones, everything marked **[P]** | Not started; needs phones and people |
 | Read the mobile app's Filipino text (privacy notice and consent first) | Not done |
-| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, no evacuation center, incident posts on Facebook, incident history) |
+| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, safe places instead of the nearest evacuation center, incident posts on Facebook, incident history) |
 
 ## 9. Dropped (Joshua, 2026-10-11)
 
-- Nearest evacuation center on R7 (Q38). The thesis still promises it to
-  residents, so the Docs role removes that line from the thesis.
+- ~~Nearest evacuation center on R7 (Q38)~~: back on 2026-10-19 as safe places
+  (parts 1 and 4). The thesis keeps the line, reworded.
 - A separate pin for a household member who lives elsewhere. Household members
   use the resident's home address.
 - A responder declining an assignment: the dispatcher is only offered
