@@ -3697,6 +3697,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Safe places near you'**
   String get alertSafePlacesButton;
+
+  /// No description provided for @updateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update S.A.G.I.P.'**
+  String get updateTitle;
+
+  /// No description provided for @updateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of the app is too old. Download the new one to keep using it. In an emergency, SOS and the MDRRMD hotline still work.'**
+  String get updateBody;
+
+  /// No description provided for @updateDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the update'**
+  String get updateDownload;
+
+  /// No description provided for @updateLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Or open {url} in your browser.'**
+  String updateLink(String url);
+
+  /// No description provided for @updateOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link. Type it in your browser instead.'**
+  String get updateOpenFailed;
+
+  /// No description provided for @updateSosStill.
+  ///
+  /// In en, this message translates to:
+  /// **'In an emergency, hold SOS'**
+  String get updateSosStill;
 }
 
 class _AppLocalizationsDelegate

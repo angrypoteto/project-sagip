@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/barangay_picker.dart';
+import '../../common/map_markers.dart';
 import '../../common/offline_banner.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -198,17 +199,13 @@ class _LocationPickerState extends ConsumerState<LocationPickerPage> {
                 markers: [
                   Marker(
                     point: toLatLng(gps.point),
-                    width: 16,
-                    height: 16,
+                    width: MyLocationMarker.size,
+                    height: MyLocationMarker.size,
                     child: Semantics(
                       container: true,
                       label: l10n.youAreHere,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: p.info.fill,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                        ),
+                      child: MyLocationMarker(
+                        heading: ref.watch(headingProvider).value,
                       ),
                     ),
                   ),

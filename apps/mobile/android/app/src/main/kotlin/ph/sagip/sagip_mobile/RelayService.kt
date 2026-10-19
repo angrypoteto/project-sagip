@@ -37,13 +37,7 @@ class RelayService : Service() {
             Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_IMMUTABLE,
         )
-        val notification = Notification.Builder(this, CHANNEL)
-            .setSmallIcon(R.drawable.ic_stat_sagip)
-            .setContentTitle(getString(R.string.relay_notice_title))
-            .setContentText(getString(R.string.relay_notice_text))
-            .setContentIntent(open)
-            .setOngoing(true)
-            .build()
+        val notification = notice(this, open)
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
@@ -55,13 +49,69 @@ class RelayService : Service() {
             // start from the background): the relay still runs while the app
             // is open.
             stopSelf()
+            return START_NOT_STICKY
         }
+        running = true
         return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        running = false
+        super.onDestroy()
     }
 
     companion object {
         private const val CHANNEL = "sagip_relay"
         private const val ID = 4211
+
+        // What the notice says (2026-10-19): only what is true. It used to
+        // say "listening for SOS nearby" all the time, which read as SOS
+        // coming in when none had.
+        @Volatile private var carrying = 0
+        @Volatile private var sent = 0
+        @Volatile private var running = false
+
+        private fun notice(context: Context, open: PendingIntent): Notification {
+            val res = context.resources
+            val (title, text) = when {
+                carrying > 0 -> Pair(
+                    res.getQuantityString(R.plurals.relay_carrying_title, carrying, carrying),
+                    context.getString(R.string.relay_carrying_text),
+                )
+                sent > 0 -> Pair(
+                    res.getQuantityString(R.plurals.relay_sent_title, sent, sent),
+                    context.getString(R.string.relay_idle_text),
+                )
+                else -> Pair(
+                    context.getString(R.string.relay_idle_title),
+                    context.getString(R.string.relay_idle_text),
+                )
+            }
+            return Notification.Builder(context, CHANNEL)
+                .setSmallIcon(R.drawable.ic_stat_sagip)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(Notification.BigTextStyle().bigText(text))
+                .setContentIntent(open)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .build()
+        }
+
+        /** The relay's counts changed: say so on the notice, if it is up. */
+        fun update(context: Context, carrying: Int, sent: Int) {
+            this.carrying = carrying
+            this.sent = sent
+            if (!running) return
+            val open = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+            context.getSystemService(NotificationManager::class.java)
+                ?.notify(ID, notice(context, open))
+        }
 
         fun start(context: Context) {
             try {

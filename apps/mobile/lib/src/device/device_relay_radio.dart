@@ -60,6 +60,18 @@ class DeviceRelayRadio implements RelayRadio {
   }
 
   @override
+  Future<void> showStatus({required int carrying, required int sent}) async {
+    try {
+      await _methods.invokeMethod<void>('status', {
+        'carrying': carrying,
+        'sent': sent,
+      });
+    } on Object {
+      // No notice to update.
+    }
+  }
+
+  @override
   Stream<Uint8List> heard() => _events
       .receiveBroadcastStream()
       .where((e) => e is Uint8List)

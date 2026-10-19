@@ -31,6 +31,13 @@ class FakeRadio implements RelayRadio {
 
   @override
   Stream<Uint8List> heard() => _heard.stream;
+
+  /// What the background notice said, in order.
+  final statuses = <(int, int)>[];
+
+  @override
+  Future<void> showStatus({required int carrying, required int sent}) async =>
+      statuses.add((carrying, sent));
 }
 
 /// Sends nothing while [reachable] is false.
@@ -277,6 +284,31 @@ void main() {
       expect(uploaded, hasLength(1), reason: 'not sent twice');
     });
 
+    test('the notice says only what is true: none, carrying, sent', () async {
+      await pumpEventQueue();
+      expect(radio.statuses, [(0, 0)], reason: 'nothing heard yet');
+      online.add(false);
+      await pumpEventQueue();
+      radio.hear(SosRelayPacket.of(sos(other)).encode());
+      await pumpEventQueue();
+      expect(radio.statuses.last, (1, 0));
+      online.add(true);
+      await pumpEventQueue();
+      expect(radio.statuses.last, (0, 1));
+    });
+
+    test('something that is not an SOS id is ignored', () async {
+      online.add(false);
+      await pumpEventQueue();
+      // Same service, but not a version 4 UUID: noise or another app.
+      radio.hear(
+        SosRelayPacket.of(sos('3f2a9c1e-7b4d-1e0a-9c2f-1a2b3c4d5e6f')).encode(),
+      );
+      await pumpEventQueue();
+      expect(await node.watch().first, isEmpty);
+      expect(radio.statuses.last, (0, 0));
+    });
+
     test('the phone\'s own SOS heard back is ignored', () async {
       online.add(false);
       await pumpEventQueue();
@@ -334,6 +366,80 @@ void main() {
       online.add(true);
       await pumpEventQueue();
       expect(uploaded.map((p) => p.clientId), [other]);
+    });
+  });
+
+  group('the sender, known only to the server', () {
+    final secret = [for (var i = 1; i <= 32; i++) i];
+
+    test('the same code as the database (migration relay_device_keys)', () {
+      final at = DateTime.utc(2026, 10, 19);
+      expect(
+        relaySosId(secret, at, location: const GeoPoint(14.6, 120.99)),
+        '69f8feeb-181b-4e7e-861b-70b3ebdd9053',
+      );
+      expect(
+        relaySosId(secret, at, mockLocation: true),
+        '26b90c86-a71a-406e-91b0-11ddfc11e4c4',
+      );
+    });
+
+    test('what a relaying phone uploads reproduces it; a change does not', () {
+      final at = DateTime.utc(2026, 10, 19, 6, 41, 7, 512);
+      const here = GeoPoint(14.609173, 120.992514);
+      final id = relaySosId(secret, at, location: here);
+      expect(SosRelayPacket.looksLikeSosId(id), isTrue);
+      final heard = SosRelayPacket.decode(
+        SosRelayPacket(clientId: id, capturedAt: at, location: here).encode(),
+        at.add(const Duration(minutes: 3)),
+      );
+      expect(heard.clientId, id);
+      expect(
+        relaySosId(secret, heard.capturedAt, location: heard.location),
+        id,
+        reason: 'the server, given the packet, makes the same id',
+      );
+      expect(
+        relaySosId(
+          secret,
+          heard.capturedAt.add(const Duration(seconds: 1)),
+          location: heard.location,
+        ),
+        isNot(id),
+      );
+      expect(
+        relaySosId([...secret.reversed], at, location: here),
+        isNot(id),
+        reason: 'another phone cannot make it',
+      );
+      expect(
+        relaySosId(secret, at.add(const Duration(seconds: 5)), location: here),
+        isNot(id),
+        reason: 'each SOS has its own id; nothing to follow',
+      );
+    });
+
+    test('one secret per account, handed to the server once', () async {
+      final store = MemoryLocalStore();
+      final handed = <String>[];
+      var reachable = false;
+      final keyring = RelayKeyring(
+        store: store,
+        register: (hex) async {
+          if (!reachable) throw const ActionRejected(ActionRejection.offline);
+          handed.add(hex);
+        },
+      );
+      final first = await keyring.secretFor('res-1');
+      expect(first, hasLength(32));
+      expect(await keyring.secretFor('res-1'), first);
+      expect(await keyring.secretFor('res-2'), isNot(first));
+      expect(await keyring.ensureRegistered('res-1'), isFalse);
+      reachable = true;
+      expect(await keyring.ensureRegistered('res-1'), isTrue);
+      expect(await keyring.ensureRegistered('res-1'), isTrue);
+      expect(handed, hasLength(1));
+      expect(handed.single, matches(RegExp(r'^[0-9a-f]{64}$')));
     });
   });
 }

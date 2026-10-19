@@ -566,6 +566,12 @@ class SupabaseMobileRemote implements MobileServer {
 
   /// Tier 3: uploads an SOS this phone heard over Bluetooth (`relay_sos`).
   /// The server keeps one incident per SOS, however many phones send it.
+  /// Hands this phone's relay secret (64 hex digits) to the server once
+  /// (migration `relay_device_keys`).
+  Future<void> registerRelayKey(String keyHex) => _call(
+    () => _client.rpc<Object?>('register_relay_key', params: {'p_key': keyHex}),
+  );
+
   Future<void> relaySos(SosRelayPacket packet) => _call(
     () => _client.rpc<Object?>(
       'relay_sos',

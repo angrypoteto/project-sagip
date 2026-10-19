@@ -146,7 +146,7 @@
 
   "channelApp": "App",
   "channelSms": "SMS",
-  "channelBle": "Nearby phones",
+  "channelBle": "Relayed (Bluetooth)",
   "channelWeb": "Web form",
 
   "statusPendingVerification": "Pending verification",
@@ -1282,5 +1282,10 @@
   "actionSafePlaceHidden": "Hid a safe place",
   "actionSafePlaceRestored": "Showed a safe place again",
   "safePlaceWhere": "{barangay}, {district}",
-  "@safePlaceWhere": {"placeholders": {"barangay": {"type": "String"}, "district": {"type": "String"}}}
+  "@safePlaceWhere": {"placeholders": {"barangay": {"type": "String"}, "district": {"type": "String"}}},
+  "configAppTitle": "Mobile app version",
+  "configAppNote": "Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The release of 2026-10-19 is build 2; apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.",
+  "settingAppMinBuild": "Oldest app build allowed",
+  "checkRelayedNamed": "Relayed by nearby phones (Bluetooth). The sender's phone proved itself with its own key",
+  "checkRelayedUnknown": "Relayed by nearby phones (Bluetooth). Sender not known yet: their own copy names them when it arrives"
 }

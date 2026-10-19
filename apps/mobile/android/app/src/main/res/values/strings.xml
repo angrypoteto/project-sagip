@@ -10,6 +10,15 @@
     <string name="channel_assignments_about">A new job for your unit (responders)</string>
     <string name="channel_relay">Passing on SOS</string>
     <string name="channel_relay_about">Shown while the phone passes SOS from nearby phones on over Bluetooth</string>
-    <string name="relay_notice_title">S.A.G.I.P. is listening for SOS nearby</string>
-    <string name="relay_notice_text">An SOS from a phone with no signal is passed on and sent when you are online.</string>
+    <string name="relay_idle_title">Ready to pass on SOS from nearby phones</string>
+    <string name="relay_idle_text">None waiting. If a phone with no signal sends an SOS near you, this phone passes it on to MDRRMD.</string>
+    <string name="relay_carrying_text">It goes to MDRRMD as soon as this phone is online.</string>
+    <plurals name="relay_carrying_title">
+        <item quantity="one">Passing on %d SOS from a nearby phone</item>
+        <item quantity="other">Passing on %d SOS from nearby phones</item>
+    </plurals>
+    <plurals name="relay_sent_title">
+        <item quantity="one">Sent %d SOS from a nearby phone to MDRRMD</item>
+        <item quantity="other">Sent %d SOS from nearby phones to MDRRMD</item>
+    </plurals>
 </resources>

@@ -699,5 +699,12 @@
   "sosSafePlacesNearest": "Nearest: {name}, {distance}",
   "@sosSafePlacesNearest": {"placeholders": {"name": {"type": "String"}, "distance": {"type": "String"}}},
   "sosSafePlacesButton": "See safe places",
-  "alertSafePlacesButton": "Safe places near you"
+  "alertSafePlacesButton": "Safe places near you",
+  "updateTitle": "Update S.A.G.I.P.",
+  "updateBody": "This version of the app is too old. Download the new one to keep using it. In an emergency, SOS and the MDRRMD hotline still work.",
+  "updateDownload": "Download the update",
+  "updateLink": "Or open {url} in your browser.",
+  "@updateLink": {"placeholders": {"url": {"type": "String"}}},
+  "updateOpenFailed": "Could not open the link. Type it in your browser instead.",
+  "updateSosStill": "In an emergency, hold SOS"
 }

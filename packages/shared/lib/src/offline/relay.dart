@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 
 import '../algorithms/sos_relay.dart';
@@ -28,6 +29,12 @@ abstract interface class RelayRadio {
   /// Keeps the relay going with the app in the background (Android: a
   /// foreground service with a notice), or lets it stop with the app.
   Future<void> keepRunning(bool on);
+
+  /// What the background notice says (2026-10-19: it said "listening for
+  /// SOS nearby" all the time, which read as SOS coming in when none had):
+  /// how many SOS from other phones this phone is carrying, and how many it
+  /// has sent on to MDRRMD.
+  Future<void> showStatus({required int carrying, required int sent});
 }
 
 /// Tier 3 for the phone's own SOS: [SyncEngine] advertises it when there
@@ -134,6 +141,8 @@ class RelayNode {
   final _passing = <String>{};
   StreamSubscription<Uint8List>? _heardSub;
   StreamSubscription<bool>? _onlineSub;
+  StreamSubscription<List<HeardSos>>? _statusSub;
+  (int, int)? _shown;
   var _online = false;
   var _uploading = false;
 
@@ -173,6 +182,7 @@ class RelayNode {
     await _heardSub?.cancel();
     _heardSub = _radio.heard().listen(_onHeard, onError: (Object _) {});
     if (await _radio.isSupported()) await _radio.keepRunning(true);
+    _statusSub ??= watch().listen(_showStatus);
     _onlineSub ??= _onlineSource.listen((on) {
       _online = on;
       if (on) {
@@ -190,6 +200,9 @@ class RelayNode {
     } on FormatException {
       return;
     }
+    // Something else on the same Bluetooth service, or noise: an SOS id
+    // is always a version 4 UUID.
+    if (!SosRelayPacket.looksLikeSosId(packet.clientId)) return;
     if (_ownIds().contains(packet.clientId)) return;
     final known = _heard.value[packet.clientId];
     if (known != null && known.packet.hops <= packet.hops) return;
@@ -256,11 +269,26 @@ class RelayNode {
     }
   }
 
+  /// Tells the notice what is true now: SOS still to deliver, and SOS
+  /// delivered (both from the last [keepFor]).
+  void _showStatus(List<HeardSos> heard) {
+    final status = (
+      heard.where((h) => !h.done).length,
+      heard.where((h) => h.uploaded).length,
+    );
+    if (status == _shown) return;
+    _shown = status;
+    unawaited(_radio.showStatus(carrying: status.$1, sent: status.$2));
+  }
+
   /// Stops listening and advertising (signed out). What was heard stays
   /// on the phone for the next account.
   Future<void> stop() async {
     await _heardSub?.cancel();
     _heardSub = null;
+    await _statusSub?.cancel();
+    _statusSub = null;
+    _shown = null;
     await _onlineSub?.cancel();
     _onlineSub = null;
     for (final id in _passing.toList()) {
@@ -271,4 +299,56 @@ class RelayNode {
   }
 
   Future<void> dispose() => stop();
+}
+
+/// Each resident account's relay secret on this phone (2026-10-19): 32
+/// random bytes kept in the phone's encrypted store and handed to the
+/// server once (`register_relay_key`), never shown. The phone's SOS ids are
+/// made from it ([relaySosId]), so a relayed SOS names its sender to the
+/// server only, and cannot be faked by another phone.
+class RelayKeyring {
+  RelayKeyring({required this._store, required this._register, Random? random})
+    : _random = random ?? Random.secure();
+
+  final LocalStore _store;
+
+  /// Sends the secret (64 hex digits) to the server; throws when it could
+  /// not (offline, or refused).
+  final Future<void> Function(String keyHex) _register;
+  final Random _random;
+
+  static String _secretKey(String account) => 'relay:secret:$account';
+  static String _registeredKey(String account) => 'relay:registered:$account';
+  static final _hex = RegExp(r'^[0-9a-f]{64}$');
+
+  /// The account's secret on this phone, made the first time.
+  Future<List<int>> secretFor(String account) async {
+    final saved = _store.read(_secretKey(account));
+    if (saved is String && _hex.hasMatch(saved)) return _bytes(saved);
+    final secret = List<int>.generate(32, (_) => _random.nextInt(256));
+    await _store.write(_secretKey(account), _hexOf(secret));
+    return secret;
+  }
+
+  /// Hands the secret to the server once. False when it could not now
+  /// (try again when online).
+  Future<bool> ensureRegistered(String account) async {
+    if (_store.read(_registeredKey(account)) == true) return true;
+    final secret = await secretFor(account);
+    try {
+      await _register(_hexOf(secret));
+    } catch (_) {
+      return false;
+    }
+    await _store.write(_registeredKey(account), true);
+    return true;
+  }
+
+  static String _hexOf(List<int> bytes) =>
+      [for (final b in bytes) b.toRadixString(16).padLeft(2, '0')].join();
+
+  static List<int> _bytes(String hex) => [
+    for (var i = 0; i < hex.length; i += 2)
+      int.parse(hex.substring(i, i + 2), radix: 16),
+  ];
 }

@@ -646,6 +646,16 @@ class _Verification extends StatelessWidget {
               l10n.checkClusterVerified,
             )
           else ...[
+            // Passed on over Bluetooth (Tier 3): say so, and whether the
+            // sender is known (2026-10-19).
+            if (incident.channel == ReportChannel.bleRelay)
+              _Check(
+                Symbols.bluetooth_searching_rounded,
+                p.info.text,
+                incident.residentId != null && incident.accountVerified
+                    ? l10n.checkRelayedNamed
+                    : l10n.checkRelayedUnknown,
+              ),
             incident.accountVerified
                 ? _Check(
                     Symbols.check_circle_rounded,

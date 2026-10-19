@@ -8,6 +8,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 
 import 'src/app.dart';
+import 'src/device/device_heading.dart';
 import 'src/device/device_location_service.dart';
 import 'src/device/device_permission_service.dart';
 import 'src/device/device_relay_radio.dart';
@@ -104,6 +105,21 @@ Future<List<Override>> _live() async {
           )
         : null,
   );
+  // Each resident account's relay secret on this phone: its SOS ids name
+  // the sender to the server only, so a relayed SOS cannot be faked or
+  // followed (2026-10-19). Handed to the server once, when online.
+  final keyring = RelayKeyring(
+    store: store,
+    register: backend.remote.registerRelayKey,
+  );
+  void registerKey() {
+    final user = backend.accounts.currentUser;
+    if (user?.role == UserRole.resident) {
+      unawaited(keyring.ensureRegistered(user!.id));
+    }
+  }
+
+  online().where((on) => on).listen((_) => registerKey());
   // This phone passes on SOS it hears from others and uploads them.
   final relayNode = RelayNode(
     radio: radio,
@@ -133,6 +149,7 @@ Future<List<Override>> _live() async {
   if (push != null) backend.accounts.beforeSignOut = push.forgetHere;
   backend.accounts.watchUser().listen((user) {
     if (push != null) unawaited(_syncPush(push, backend, store, user));
+    registerKey();
     // Any signed-in phone relays (relay_sos needs an account).
     if (relayHardware && user != null) {
       unawaited(relayNode.start());
@@ -167,6 +184,8 @@ Future<List<Override>> _live() async {
     config: config,
     recheckSignal: signal.checkNow,
     pushOpens: push?.opened,
+    relaySecret: keyring.secretFor,
+    heading: deviceHeading,
   );
 }
 

@@ -599,5 +599,11 @@
   "sosSafePlacesTitle": "Mga ligtas na lugar na malapit sa iyo",
   "sosSafePlacesNearest": "Pinakamalapit: {name}, {distance}",
   "sosSafePlacesButton": "Tingnan ang mga ligtas na lugar",
-  "alertSafePlacesButton": "Mga ligtas na lugar na malapit sa iyo"
+  "alertSafePlacesButton": "Mga ligtas na lugar na malapit sa iyo",
+  "updateTitle": "I-update ang S.A.G.I.P.",
+  "updateBody": "Luma na ang bersyong ito ng app. I-download ang bago para patuloy itong magamit. Sa emergency, gumagana pa rin ang SOS at ang hotline ng MDRRMD.",
+  "updateDownload": "I-download ang update",
+  "updateLink": "O buksan ang {url} sa iyong browser.",
+  "updateOpenFailed": "Hindi mabuksan ang link. I-type na lang ito sa iyong browser.",
+  "updateSosStill": "Sa emergency, pindutin nang matagal ang SOS"
 }

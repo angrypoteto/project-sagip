@@ -127,6 +127,14 @@ class ConfigurationPage extends ConsumerWidget {
             ),
             const SizedBox(height: SagipSpace.xl),
             NumberSettingsCard(
+              id: 'app',
+              title: l10n.configAppTitle,
+              note: l10n.configAppNote,
+              labels: {SettingKeys.appMinBuild: l10n.settingAppMinBuild},
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
+            NumberSettingsCard(
               id: 'retention',
               title: l10n.configRetentionTitle,
               note: l10n.configRetentionNote,

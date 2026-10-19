@@ -1,7 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+
+import 'dart:io';
+
 import 'package:sagip_mobile/src/app.dart';
+import 'package:sagip_mobile/src/app_version.dart';
 import 'package:sagip_mobile/src/features/safe_places/safe_places_page.dart';
 import 'package:sagip_mobile/src/features/sos/sos_status_page.dart';
 import 'package:sagip_mobile/src/features/sos/track_page.dart';
@@ -124,6 +128,53 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 5));
   }
+
+  test('the app knows its own build number (pubspec.yaml)', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    final build = RegExp(
+      r'^version: [0-9.]+\+([0-9]+)',
+      multiLine: true,
+    ).firstMatch(pubspec)!.group(1);
+    expect(appBuild, int.parse(build!));
+  });
+
+  testWidgets('too old an app asks to be updated, but SOS still works', (
+    tester,
+  ) async {
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        ...mockOverrides(backend, demoTools: false),
+        mapTilesEnabledProvider.overrideWithValue(false),
+        welcomeSeenProvider.overrideWith(WelcomeDone.new),
+        clockProvider.overrideWith((ref) => Stream.value(now)),
+        clientConfigRepositoryProvider.overrideWithValue(
+          const StaticClientConfigRepository(
+            ClientConfig(minBuild: appBuild + 1),
+          ),
+        ),
+      ],
+    );
+    await pumpApp(tester);
+    expect(find.text('Update S.A.G.I.P.'), findsOneWidget);
+    // Signed out: only the update and the hotline.
+    expect(find.byType(SosButton), findsNothing);
+    expect(find.text('Call MDRRMD'), findsOneWidget);
+
+    // A signed-in resident keeps SOS on the same screen.
+    await container
+        .read(residentAccountRepositoryProvider)
+        .verifyCode(phone: '917 000 4821', code: MockMobileBackend.demoCode);
+    await settle(tester);
+    expect(find.text('Update S.A.G.I.P.'), findsOneWidget);
+    expect(find.byType(SosButton), findsOneWidget);
+    await holdSos(tester);
+    await settle(tester);
+    // The SOS went, and while it is open nothing is blocked.
+    expect(find.byType(SosStatusPage), findsOneWidget);
+    expect(container.read(updateRequiredProvider), isFalse);
+    await finish(tester);
+  });
 
   testWidgets('the role picks the shell', (tester) async {
     await pumpApp(tester);
@@ -303,6 +354,11 @@ void main() {
     );
     expect(find.text('Cancel SOS'), findsNothing);
 
+    await tester.ensureVisible(find.text('I still need help'));
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .clearSnackBars();
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('I still need help'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
@@ -379,6 +435,11 @@ void main() {
     expect(sos.details.type, IncidentType.fire);
     // Add details opens with the same large buttons, fire chosen.
     await tester.scrollUntilVisible(find.text('Edit details'), 200);
+    await tester.ensureVisible(find.text('Edit details'));
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .clearSnackBars();
+    await settle(tester);
     await tester.tap(find.text('Edit details'));
     await settle(tester);
     expect(find.byKey(const ValueKey('type-flood')), findsOneWidget);

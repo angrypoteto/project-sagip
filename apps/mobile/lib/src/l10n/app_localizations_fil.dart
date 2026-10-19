@@ -2137,4 +2137,26 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get alertSafePlacesButton => 'Mga ligtas na lugar na malapit sa iyo';
+
+  @override
+  String get updateTitle => 'I-update ang S.A.G.I.P.';
+
+  @override
+  String get updateBody =>
+      'Luma na ang bersyong ito ng app. I-download ang bago para patuloy itong magamit. Sa emergency, gumagana pa rin ang SOS at ang hotline ng MDRRMD.';
+
+  @override
+  String get updateDownload => 'I-download ang update';
+
+  @override
+  String updateLink(String url) {
+    return 'O buksan ang $url sa iyong browser.';
+  }
+
+  @override
+  String get updateOpenFailed =>
+      'Hindi mabuksan ang link. I-type na lang ito sa iyong browser.';
+
+  @override
+  String get updateSosStill => 'Sa emergency, pindutin nang matagal ang SOS';
 }

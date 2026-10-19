@@ -137,6 +137,9 @@ abstract final class SettingKeys {
   /// A unit's supply is shown as low at or below this percent of full.
   static const inventoryLowPercent = 'inventory.low_percent';
 
+  /// The oldest mobile app build allowed (2026-10-19).
+  static const appMinBuild = 'app.min_build';
+
   /// Pairs where the first value must stay at or below the second.
   static const pairs = [
     ('priority.high_at', 'priority.critical_at'),
@@ -256,6 +259,15 @@ const defaultOtherSettings = [
         "A unit's supply is shown as low at or below this share of full",
   ),
   AppSetting(
+    key: SettingKeys.appMinBuild,
+    category: 'app',
+    value: 1,
+    min: 1,
+    max: 100000,
+    description:
+        'The oldest mobile app build allowed; older apps must update (SOS still works)',
+  ),
+  AppSetting(
     key: SettingKeys.hotline,
     category: 'contact',
     value: '',
@@ -279,20 +291,30 @@ const defaultOtherSettings = [
 /// hotline and the SMS gateway number, both set on A3. Empty means not set.
 @immutable
 class ClientConfig {
-  const ClientConfig({this.hotline = '', this.smsGateway = ''});
+  const ClientConfig({
+    this.hotline = '',
+    this.smsGateway = '',
+    this.minBuild = 1,
+  });
 
   final String hotline;
 
   /// For example "+639171234567".
   final String smsGateway;
 
+  /// The oldest mobile app build allowed (A3, `app.min_build`); an older
+  /// app asks to be updated and keeps only SOS and the hotline.
+  final int minBuild;
+
   factory ClientConfig.fromJson(Map<String, Object?> json) => ClientConfig(
     hotline: json['hotline'] as String? ?? '',
     smsGateway: json['sms_gateway'] as String? ?? '',
+    minBuild: (json['min_build'] as num?)?.toInt() ?? 1,
   );
 
   Map<String, Object?> toJson() => {
     'hotline': hotline,
     'sms_gateway': smsGateway,
+    'min_build': minBuild,
   };
 }

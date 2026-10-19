@@ -811,7 +811,7 @@ abstract class AppLocalizations {
   /// No description provided for @channelBle.
   ///
   /// In en, this message translates to:
-  /// **'Nearby phones'**
+  /// **'Relayed (Bluetooth)'**
   String get channelBle;
 
   /// No description provided for @channelWeb.
@@ -6572,6 +6572,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{barangay}, {district}'**
   String safePlaceWhere(String barangay, String district);
+
+  /// No description provided for @configAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile app version'**
+  String get configAppTitle;
+
+  /// No description provided for @configAppNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The release of 2026-10-19 is build 2; apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.'**
+  String get configAppNote;
+
+  /// No description provided for @settingAppMinBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest app build allowed'**
+  String get settingAppMinBuild;
+
+  /// No description provided for @checkRelayedNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Relayed by nearby phones (Bluetooth). The sender\'s phone proved itself with its own key'**
+  String get checkRelayedNamed;
+
+  /// No description provided for @checkRelayedUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Relayed by nearby phones (Bluetooth). Sender not known yet: their own copy names them when it arrives'**
+  String get checkRelayedUnknown;
 }
 
 class _AppLocalizationsDelegate

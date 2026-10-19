@@ -28,6 +28,7 @@ import 'features/shell/app_shell.dart';
 import 'features/sos/home_page.dart';
 import 'features/sos/sos_status_page.dart';
 import 'features/sos/track_page.dart';
+import 'features/update/update_page.dart';
 import 'features/vulnerability/consent_page.dart';
 import 'features/vulnerability/member_page.dart';
 import 'features/vulnerability/vulnerability_page.dart';
@@ -59,6 +60,9 @@ abstract final class Routes {
   static String track(String clientId) => '/r/sos/$clientId/track';
   static String alert(String id) => '/r/alert/$id';
   static const pickLocation = '/r/location';
+
+  /// "Update S.A.G.I.P.": this app is older than the server allows.
+  static const update = '/update';
 
   /// Safe places near the resident (2026-10-19): [need] preselected, [from]
   /// when GPS has no fix (an SOS's own position), [fromSos] when opened
@@ -107,6 +111,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   // Re-run redirects whenever the signed-in user changes.
   final authChanged = ValueNotifier<int>(0);
   ref.listen(currentUserProvider, (_, _) => authChanged.value++);
+  ref.listen(updateRequiredProvider, (_, _) => authChanged.value++);
   ref.onDispose(authChanged.dispose);
 
   return GoRouter(
@@ -119,6 +124,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (session.isLoading && !session.hasValue) {
         return path == Routes.splash ? null : Routes.splash;
       }
+      // Too old an app: only the update screen, and an SOS's own screens
+      // (an SOS sent from it, or one already open).
+      if (ref.read(updateRequiredProvider)) {
+        return path == Routes.update || path.startsWith('/r/sos/')
+            ? null
+            : Routes.update;
+      }
+      if (path == Routes.update) return Routes.splash;
       final user = session.value;
       final public = Routes.public.contains(path);
       if (user == null) {
@@ -136,6 +149,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: Routes.update,
+        pageBuilder: (context, state) => _page(const UpdatePage()),
+      ),
       GoRoute(
         path: Routes.splash,
         pageBuilder: (context, state) => _page(const SplashPage()),

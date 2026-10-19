@@ -2109,4 +2109,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertSafePlacesButton => 'Safe places near you';
+
+  @override
+  String get updateTitle => 'Update S.A.G.I.P.';
+
+  @override
+  String get updateBody =>
+      'This version of the app is too old. Download the new one to keep using it. In an emergency, SOS and the MDRRMD hotline still work.';
+
+  @override
+  String get updateDownload => 'Download the update';
+
+  @override
+  String updateLink(String url) {
+    return 'Or open $url in your browser.';
+  }
+
+  @override
+  String get updateOpenFailed =>
+      'Could not open the link. Type it in your browser instead.';
+
+  @override
+  String get updateSosStill => 'In an emergency, hold SOS';
 }

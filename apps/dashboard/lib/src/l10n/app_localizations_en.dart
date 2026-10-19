@@ -439,7 +439,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get channelSms => 'SMS';
 
   @override
-  String get channelBle => 'Nearby phones';
+  String get channelBle => 'Relayed (Bluetooth)';
 
   @override
   String get channelWeb => 'Web form';
@@ -3844,4 +3844,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String safePlaceWhere(String barangay, String district) {
     return '$barangay, $district';
   }
+
+  @override
+  String get configAppTitle => 'Mobile app version';
+
+  @override
+  String get configAppNote =>
+      'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The release of 2026-10-19 is build 2; apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.';
+
+  @override
+  String get settingAppMinBuild => 'Oldest app build allowed';
+
+  @override
+  String get checkRelayedNamed =>
+      'Relayed by nearby phones (Bluetooth). The sender\'s phone proved itself with its own key';
+
+  @override
+  String get checkRelayedUnknown =>
+      'Relayed by nearby phones (Bluetooth). Sender not known yet: their own copy names them when it arrives';
 }

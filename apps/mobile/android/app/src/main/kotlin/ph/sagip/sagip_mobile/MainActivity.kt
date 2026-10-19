@@ -141,6 +141,14 @@ class MainActivity : FlutterActivity() {
                         call.argument<String>("key")?.let(relay::stop)
                         result.success(null)
                     }
+                    "status" -> {
+                        RelayService.update(
+                            applicationContext,
+                            call.argument<Int>("carrying") ?: 0,
+                            call.argument<Int>("sent") ?: 0,
+                        )
+                        result.success(null)
+                    }
                     "keepRunning" -> {
                         if (call.argument<Boolean>("on") == true) {
                             RelayService.start(applicationContext)
@@ -152,6 +160,8 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/heading")
+            .setStreamHandler(Compass(this))
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/relay/heard")
             .setStreamHandler(object : EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink) {

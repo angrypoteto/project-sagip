@@ -427,6 +427,14 @@ select count(*), count(*) filter (where hidden_at is null) from public.safe_plac
 
 It can be run again: it refreshes the map's own fields of rows no admin has changed (`updated_by` is empty) and never touches what an admin hid, renamed, or added.
 
+## Relayed SOS name their sender (migrations `relay_sender`, `relay_device_keys`, 2026-10-19)
+
+Each resident's phone makes a 32-byte secret per account and hands it over once (`register_relay_key`, at most five phones a resident; no app can read `relay_device`). The phone's SOS ids are HMAC-SHA256 codes of the SOS's capture time, place (the Bluetooth packet's offsets), and mock flag, shaped as version 4 UUIDs (`relaySosId` in `packages/shared` sos_relay.dart; `private.relay_code` here). `relay_sos()` finds the phone whose key makes the id (`private.relay_device_for`), attaches that resident with their consented household, and marks the account verified; the SOS stays Pending Verification. Relaying phones see an id that changes every time and names no one; a changed packet arrives from an unknown sender. The first try of the same day, a fixed tag per resident (`relay_tag`, `my_relay_tag()`, `private.relay_sender()`), is no longer used and can be dropped in the SQL editor.
+
+## Forced app update (`app.min_build`, 2026-10-19)
+
+`client_config()` returns `min_build`, set on A3 ("Mobile app version"). An app with an older build shows "Update S.A.G.I.P." with the download link `https://sagip.me/download/sagip.apk` (the resident site serves the APK) and keeps only SOS and the hotline, never while the resident's SOS is open or the responder's unit has a job. Apps before build 2 have no such check.
+
 ## Running the RLS test
 
 With the Supabase CLI and Docker: `supabase start`, then `supabase test db`. The test runs in one transaction that is rolled back, so it is also safe to paste into the hosted SQL editor if it is converted to collect its results (see `docs/PROGRESS.md`, Gotchas).

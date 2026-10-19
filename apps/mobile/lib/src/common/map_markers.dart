@@ -36,6 +36,53 @@ class LatLngTween extends Tween<LatLng> {
   );
 }
 
+/// Where you are (2026-10-19): a blue dot with an arrow that turns to where
+/// the phone faces ([heading], degrees from north; the maps are never
+/// rotated, so north is up). With no compass it is a plain dot.
+class MyLocationMarker extends StatelessWidget {
+  const MyLocationMarker({super.key, this.heading});
+
+  final double? heading;
+
+  static const double size = 44;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = SagipPalette.of(context);
+    return Center(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: p.info.fill.withValues(alpha: 0.18),
+        ),
+        alignment: Alignment.center,
+        child: Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: p.info.fill,
+            border: Border.all(color: Colors.white, width: 3),
+          ),
+          child: heading == null
+              ? null
+              : Transform.rotate(
+                  angle: heading! * math.pi / 180,
+                  child: const Icon(
+                    Symbols.navigation_rounded,
+                    size: 14,
+                    color: Colors.white,
+                    fill: 1,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
+
 /// The person who needs help: a red pin with a soft halo.
 class SosPinMarker extends StatelessWidget {
   const SosPinMarker({super.key});

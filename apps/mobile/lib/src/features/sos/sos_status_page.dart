@@ -244,6 +244,11 @@ class _Body extends ConsumerWidget {
             label: Text(l10n.trackResponder),
           ),
         ],
+        // Right under Track responder, so it is seen (Joshua, 2026-10-19).
+        if (!resolved) ...[
+          const SizedBox(height: SagipSpace.xl),
+          _SafePlacesCard(sos: sos),
+        ],
         const SizedBox(height: SagipSpace.xl),
         _Timeline(sos: sos),
         const SizedBox(height: SagipSpace.xl),
@@ -257,10 +262,6 @@ class _Body extends ConsumerWidget {
           ),
         const SizedBox(height: SagipSpace.xl),
         _LocationCard(sos: sos),
-        if (!resolved) ...[
-          const SizedBox(height: SagipSpace.xl),
-          _SafePlacesCard(sos: sos),
-        ],
         if (!resolved) ...[
           const SizedBox(height: SagipSpace.xl),
           Text(l10n.guidanceTitle, style: text.titleMedium),

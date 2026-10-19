@@ -303,12 +303,14 @@ class _SafeMap extends ConsumerWidget {
                   ),
                 Marker(
                   point: toLatLng(from),
-                  width: 44,
-                  height: 44,
+                  width: MyLocationMarker.size,
+                  height: MyLocationMarker.size,
                   child: Semantics(
                     container: true,
                     label: l10n.youAreHere,
-                    child: const SosPinMarker(),
+                    child: MyLocationMarker(
+                      heading: ref.watch(headingProvider).value,
+                    ),
                   ),
                 ),
               ],

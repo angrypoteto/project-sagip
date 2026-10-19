@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(495);
+select plan(519);
 
 select public.reset_demo_data();
 -- What the checks below assume, whatever the database is set to or holds
@@ -765,7 +765,7 @@ select is(
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 select is(public.client_config(),
-  '{"hotline": "(02) 8527-0000", "sms_gateway": "+639175550199"}'::jsonb,
+  '{"hotline": "(02) 8527-0000", "sms_gateway": "+639175550199", "min_build": 1}'::jsonb,
   'the apps read the hotline and the gateway number');
 
 -- ------------------------------------------------ the alert sender (FR6)
@@ -2409,6 +2409,135 @@ select ok(
   exists (select 1 from public.audit_log where action_type = 'safePlaceRestored' and target_id = 'adm-00000000a1')
   and (select hidden_at is null from public.safe_place where place_id = 'adm-00000000a1'),
   'showing it again is in the audit log');
+
+
+
+-- ------------------------------- a relayed SOS names its sender by its phone's key
+
+reset role;
+-- res-001 was left suspended above; a suspended resident's SOS is never
+-- account-verified, so lift it for these checks.
+update public.manila_resident set suspended_at = null where manila_resident_id = 'res-001';
+select ok(
+  not has_table_privilege('authenticated', 'public.relay_device', 'select')
+  and not has_table_privilege('authenticated', 'public.relay_device', 'insert')
+  and not has_table_privilege('anon', 'public.relay_device', 'select')
+  and not has_function_privilege('anon', 'public.register_relay_key(text)', 'execute')
+  and has_function_privilege('authenticated', 'public.register_relay_key(text)', 'execute')
+  and not has_function_privilege('authenticated', 'private.relay_code(bytea, timestamptz, double precision, double precision, boolean)', 'execute')
+  and not has_function_privilege('authenticated', 'private.relay_device_for(uuid, timestamptz, double precision, double precision, boolean)', 'execute'),
+  'no app reads the phones'' keys; a signed-in phone can only hand its own over');
+-- The same example the app's test checks (packages/shared relay_id_test).
+select is(
+  private.relay_code(decode('0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20', 'hex'),
+                     '2026-10-19T00:00:00Z', 14.6, 120.99, false)::text,
+  '69f8feeb-181b-4e7e-861b-70b3ebdd9053', 'the code matches the app''s (with a place)');
+select is(
+  private.relay_code(decode('0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20', 'hex'),
+                     '2026-10-19T00:00:00Z', null, null, true)::text,
+  '26b90c86-a71a-406e-91b0-11ddfc11e4c4', 'the code matches the app''s (no place, mock)');
+
+create temp table __rk as
+  select k.secret, k.t,
+         private.relay_code(k.secret, k.t, 14.6000, 120.9900, false) as sos1,
+         private.relay_code(k.secret, k.t + interval '10 seconds', null, null, false) as sos2,
+         private.relay_code(k.secret, k.t + interval '20 seconds', 14.6000, 120.9900, false) as sos3,
+         private.relay_code(k.secret, k.t + interval '30 seconds', 14.6000, 120.9900, false) as sos4
+    from (select decode('0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20', 'hex') as secret,
+                 date_trunc('second', now()) - interval '3 minutes' as t) k;
+grant select on __rk to authenticated;
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select throws_ok($$ select public.register_relay_key(repeat('ab', 32)) $$,
+  'P0001', 'not_allowed', 'only a resident''s phone hands over a key');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok($$ select public.register_relay_key('not-a-key') $$,
+  'P0001', 'invalid_value', 'a key that is not 32 bytes in hex is refused');
+create temp table __dev as
+  select public.register_relay_key(encode(secret, 'hex')) as id from __rk;
+select is((select public.register_relay_key(encode(secret, 'hex')) from __rk), (select id from __dev),
+  'handing the same key over again changes nothing');
+
+-- A responder's phone heard res-001's SOS and uploads it.
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is(
+  (select public.relay_sos(sos1, t, 14.6000, 120.9900, false, 1) ->> 'duplicate' from __rk),
+  'false', 'an SOS relayed over Bluetooth is filed');
+select is(
+  (select public.relay_sos(sos2, t + interval '10 seconds', null, null, false, 2) ->> 'duplicate' from __rk),
+  'false', 'one with no position is filed too');
+select is(
+  (select public.relay_sos(sos3, t + interval '21 seconds', 14.6000, 120.9900, false, 1) ->> 'duplicate' from __rk),
+  'false', 'one whose time was changed on the way is filed');
+reset role;
+select ok(
+  (select i.manila_resident_id = 'res-001' and i.channel = 'bleRelay' and i.account_verified
+          and i.status = 'pendingVerification'
+          and i.vulnerable = private.resident_vulnerable(r)
+     from public.incident_report i, public.manila_resident r, __rk k
+    where i.client_uuid = k.sos1 and r.manila_resident_id = 'res-001'),
+  'the phone''s key names the real sender (not the phone that carried it); the SOS stays pending');
+select ok(
+  (select i.manila_resident_id = 'res-001' and i.barangay = r.barangay
+     from public.incident_report i, public.manila_resident r, __rk k
+    where i.client_uuid = k.sos2 and r.manila_resident_id = 'res-001'),
+  'with no position in the packet it is placed in the sender''s home barangay');
+select ok(
+  (select i.manila_resident_id is null and not i.account_verified
+     from public.incident_report i, __rk k where i.client_uuid = k.sos3),
+  'a changed packet no longer matches: it comes from an unknown sender (it cannot be faked)');
+select is(
+  (select relayed_by::text from public.sos_relay_log l, __rk k where l.client_uuid = k.sos1),
+  '00000000-0000-4000-8000-00000000000b', 'the log keeps who carried it');
+select ok(
+  (select last_used_at is not null from public.relay_device d, __dev v where d.device_id = v.id),
+  'the phone''s key was used');
+
+-- The resident's own phone gets online and sends its copy.
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is(
+  (select public.submit_sos(sos1, t, 14.6000, 120.9900, 8) from __rk),
+  (select incident_id from public.incident_report i, __rk k where i.client_uuid = k.sos1),
+  'the resident''s own copy is the same incident');
+
+-- Five newer phones: the oldest key is retired and names no one.
+select lives_ok($$
+  select public.register_relay_key(encode(sha256(convert_to('phone ' || g, 'UTF8')), 'hex')) from generate_series(1, 5) g
+$$, 'a resident registers five more phones');
+reset role;
+select ok(
+  (select revoked_at is not null from public.relay_device d, __dev v where d.device_id = v.id)
+  and (select count(*) = 5 from public.relay_device
+        where manila_resident_id = 'res-001' and revoked_at is null),
+  'a resident keeps five phones; the oldest is retired');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is(
+  (select public.relay_sos(sos4, t + interval '30 seconds', 14.6000, 120.9900, false, 1) ->> 'duplicate' from __rk),
+  'false', 'an SOS from a retired phone is still filed');
+reset role;
+select ok(
+  (select manila_resident_id is null from public.incident_report i, __rk k where i.client_uuid = k.sos4),
+  'but from an unknown sender');
+
+-- ------------------------------------------------ the oldest app allowed
+
+set local role anon;
+select is((public.client_config() ->> 'min_build')::int, 1, 'any app can read the oldest build allowed');
+reset role;
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select throws_ok($$ select public.set_setting('app.min_build', '0'::jsonb) $$,
+  'P0001', 'invalid_value', 'the oldest build allowed is at least 1');
+select lives_ok($$ select public.set_setting('app.min_build', '2'::jsonb) $$,
+  'an admin raises it');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok($$ select public.set_setting('app.min_build', '3'::jsonb) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot');
+reset role;
+select is((public.client_config() ->> 'min_build')::int, 2, 'and the apps see the new value');
 
 reset role;
 select * from finish();

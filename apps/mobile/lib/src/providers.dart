@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:sagip_shared/sagip_shared.dart';
 
+import 'app_version.dart';
 import 'device/device_alert_sound.dart';
 import 'device/device_battery_optimization.dart';
 import 'device/device_sms_sender.dart';
@@ -253,6 +254,8 @@ List<Override> liveOverrides({
   bool relayTier = false,
   Future<void> Function()? recheckSignal,
   Stream<PushOpen>? pushOpens,
+  Future<List<int>> Function(String account)? relaySecret,
+  Stream<double> Function()? heading,
 }) {
   String? account() => backend.accounts.currentUser?.id;
   return [
@@ -267,6 +270,7 @@ List<Override> liveOverrides({
       ),
     ),
     tileProviderProvider.overrideWithValue(tiles),
+    if (heading != null) headingSourceProvider.overrideWith((ref) => heading()),
     authRepositoryProvider.overrideWithValue(backend.accounts),
     residentAccountRepositoryProvider.overrideWithValue(backend.accounts),
     permissionServiceProvider.overrideWithValue(permissions),
@@ -280,6 +284,7 @@ List<Override> liveOverrides({
         server: backend.remote,
         store: store,
         account: account,
+        relaySecret: relaySecret,
       ),
     ),
     hazardReportRepositoryProvider.overrideWithValue(
@@ -404,6 +409,17 @@ final languageProvider = NotifierProvider<LanguageController, String>(
 
 final signalProvider = StreamProvider<SignalState>(
   (ref) => ref.watch(signalMonitorProvider).watch(),
+);
+
+/// Which way the phone is facing (degrees from north), for the "your
+/// location" arrow; listened to only while a map shows it. Nothing on
+/// sample data and in tests unless overridden; the real app reads the
+/// compass (main.dart).
+final headingSourceProvider = Provider<Stream<double>>(
+  (ref) => const Stream.empty(),
+);
+final headingProvider = StreamProvider.autoDispose<double>(
+  (ref) => ref.watch(headingSourceProvider),
 );
 
 final locationProvider = StreamProvider<LocationStatus>(
@@ -649,6 +665,24 @@ final myProfileProvider = StreamProvider<Resident?>((ref) {
 });
 
 /// The SOS that still needs attention, newest first; null if none.
+/// Whether this app is older than the server allows (A3, `app.min_build`)
+/// and must be updated (Joshua, 2026-10-19). Never in the middle of an
+/// emergency: not while the resident's SOS is open, nor while the
+/// responder's unit has a job. The update screen keeps SOS and the hotline.
+final updateRequiredProvider = Provider<bool>((ref) {
+  final min = ref.watch(clientConfigProvider).value?.minBuild ?? 1;
+  if (min <= appBuild) return false;
+  final role = ref.watch(currentUserProvider).value?.role;
+  if (role == UserRole.resident && ref.watch(activeSosProvider) != null) {
+    return false;
+  }
+  if (role == UserRole.responder &&
+      ref.watch(responderProvider).value?.current != null) {
+    return false;
+  }
+  return true;
+});
+
 final activeSosProvider = Provider<SosRequest?>((ref) {
   for (final s in ref.watch(mySosProvider).value ?? const <SosRequest>[]) {
     if (s.isActive) return s;

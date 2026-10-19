@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/geo_point.dart';
@@ -143,6 +146,22 @@ class SosRelayPacket {
 
   static double _round5(double v) => (v * 1e5).roundToDouble() / 1e5;
 
+  /// The packet's place as 0.00001-degree offsets from 14.4 N, 120.9 E, or
+  /// null when it has none (no fix, or one outside the box).
+  static (int, int)? offsets(GeoPoint? location) {
+    if (location == null) return null;
+    final dLat = ((location.lat - _originLat) * 1e5).round();
+    final dLng = ((location.lng - _originLng) * 1e5).round();
+    if (dLat < 0 || dLat > _span || dLng < 0 || dLng > _span) return null;
+    return (dLat, dLng);
+  }
+
+  /// Whether [id] is shaped like the SOS ids the app makes (a version 4
+  /// UUID). Anything else heard on the service is not one of ours.
+  static bool looksLikeSosId(String id) => RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+  ).hasMatch(id);
+
   Map<String, Object?> toJson() => {
     'client_id': clientId,
     'captured_at': capturedAt.toUtc().toIso8601String(),
@@ -177,4 +196,41 @@ class SosRelayPacket {
   @override
   int get hashCode =>
       Object.hash(clientId, capturedAt, location, mockLocation, hops);
+}
+
+/// The id of an SOS from a phone holding [secret] (2026-10-19): a code of
+/// the SOS's capture time, place, and mock flag, so an SOS relayed over
+/// Bluetooth names its sender to the server and to no one else, and cannot
+/// be faked without the phone's secret. The server makes the same code
+/// (`private.relay_code`, migration `relay_device_keys`):
+///
+///     message  sagip-relay-v1|<capture time, Unix seconds>|<dlat>,<dlng>|<mock>
+///              (`-` for the place when the packet carries none)
+///     id       the first 16 bytes of HMAC-SHA256(secret, message), with
+///              the UUID version (4) and variant bits set
+///
+/// The place and time are the packet's ([SosRelayPacket.offsets], whole
+/// seconds), so what the server is given by a relay reproduces it.
+String relaySosId(
+  List<int> secret,
+  DateTime capturedAt, {
+  GeoPoint? location,
+  bool mockLocation = false,
+}) {
+  final seconds = capturedAt.toUtc().millisecondsSinceEpoch ~/ 1000;
+  final place = SosRelayPacket.offsets(location);
+  final message =
+      'sagip-relay-v1|$seconds|'
+      '${place == null ? '-' : '${place.$1},${place.$2}'}|'
+      '${mockLocation ? 1 : 0}';
+  final bytes = Hmac(
+    sha256,
+    secret,
+  ).convert(utf8.encode(message)).bytes.sublist(0, 16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  final hex = [for (final b in bytes) b.toRadixString(16).padLeft(2, '0')]
+      .join();
+  return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
+      '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
 }

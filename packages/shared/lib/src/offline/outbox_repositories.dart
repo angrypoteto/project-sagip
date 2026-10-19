@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../algorithms/hazard_penalty.dart';
+import '../algorithms/sos_relay.dart';
 import '../data/manila_barangays.dart';
 import '../mock/live_value.dart';
 import '../models/assignment.dart';
@@ -39,6 +40,7 @@ class OutboxSosRepository implements SosRepository {
     required this._store,
     required this._account,
     DateTime Function()? clock,
+    this.relaySecret,
   }) : _clock = clock ?? DateTime.now;
 
   final SyncEngine _engine;
@@ -46,6 +48,11 @@ class OutboxSosRepository implements SosRepository {
   final LocalStore _store;
   final String? Function() _account;
   final DateTime Function() _clock;
+
+  /// The account's relay secret on this phone ([RelayKeyring]): an SOS id
+  /// made from it names the sender when the SOS is relayed over Bluetooth.
+  /// Null: random ids (an SOS relayed from this phone has no sender).
+  final Future<List<int>> Function(String account)? relaySecret;
 
   @override
   Stream<List<SosRequest>> watchMine() {
@@ -126,9 +133,23 @@ class OutboxSosRepository implements SosRepository {
   Future<SosRequest> send({LocationFix? fix}) async {
     final me = _account();
     if (me == null) throw const ActionRejected(ActionRejection.notAllowed);
+    final capturedAt = _clock();
+    List<int>? secret;
+    try {
+      secret = await relaySecret?.call(me);
+    } catch (_) {
+      // No secret: the SOS still goes, with a random id.
+    }
     final sos = SosRequest(
-      clientId: newClientId(),
-      capturedAt: _clock(),
+      clientId: secret == null
+          ? newClientId()
+          : relaySosId(
+              secret,
+              capturedAt,
+              location: fix?.point,
+              mockLocation: fix?.mockProvider ?? false,
+            ),
+      capturedAt: capturedAt,
       delivery: DeliveryState.savedOnPhone,
       location: fix?.point,
       accuracyMeters: fix == null || fix.manual ? null : fix.accuracyMeters,
