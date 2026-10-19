@@ -100,6 +100,25 @@ abstract final class SosSms {
       mockLocation: parts[6] == 'M',
     );
   }
+
+  /// The code a gateway reply carries to name the SOS it answers: the
+  /// first 8 hex characters of the SOS id (`sms-intake`, `ackRef`). Only
+  /// the sender's phone and the server know the id, so another number's
+  /// fake reply cannot pass as one.
+  static String ackRef(String clientId) =>
+      clientId.replaceAll('-', '').substring(0, 8).toLowerCase();
+
+  static final _ack = RegExp(
+    r'^S\.A\.G\.I\.P\.: Your SOS was received \((INC-\d+), ref ([0-9a-f]{8})\)',
+  );
+
+  /// The incident and the code in the gateway's reply ("S.A.G.I.P.: Your SOS
+  /// was received (INC-0181, ref 3f2a9c1e). ..."); null for any other text.
+  static ({String incidentId, String ref})? parseAck(String text) {
+    final m = _ack.firstMatch(text.trim());
+    if (m == null) return null;
+    return (incidentId: m.group(1)!, ref: m.group(2)!);
+  }
 }
 
 /// What a Tier 2 message carries.

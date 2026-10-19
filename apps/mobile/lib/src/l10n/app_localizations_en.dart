@@ -264,6 +264,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Waiting for MDRRMD to confirm. Nearby phones are asked by Bluetooth next, and data keeps reconnecting.';
 
   @override
+  String get sosSendReceivedTitle => 'MDRRMD received your SOS by SMS';
+
+  @override
+  String sosSendReceivedText(String incident) {
+    return 'It is on the board as $incident. Nearby phones are no longer asked. Your details and photos go when you\'re back online.';
+  }
+
+  @override
   String get sosSendSmsFailedTitle => 'The SMS could not be sent';
 
   @override
@@ -1230,7 +1238,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeStep3Body =>
-      'With no data, your SOS goes out by SMS. With no signal at all, nearby phones can pass it on.';
+      'With no data, your SOS goes out by SMS, and the app reads MDRRMD\'s reply to know it arrived (no other texts). Nearby phones can pass it on too.';
 
   @override
   String get allow => 'Allow';

@@ -19,6 +19,9 @@
     <!-- Tier 2: an SOS by SMS to the MDRRMD gateway; the APK is installed
          directly, not from Google Play (plan Q29). -->
     <uses-permission android:name="android.permission.SEND_SMS"/>
+    <!-- The gateway's reply to an SOS text ("Your SOS was received"): only
+         texts starting "S.A.G.I.P.:" reach the app (MainActivity.kt). -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <!-- Tier 3 on Android 10 and 11 (scans there also need location). -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>

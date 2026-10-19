@@ -20,6 +20,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+import android.provider.Telephony
 import android.telephony.SmsManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -181,6 +182,8 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/sms/received")
+            .setStreamHandler(SmsReplies(applicationContext))
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/heading")
             .setStreamHandler(Compass(this))
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/relay/heard")
@@ -339,3 +342,57 @@ class MainActivity : FlutterActivity() {
 
 private const val SENDING_CHANNEL = "sagip_sending"
 private const val SENDING_ID = 4212
+
+/**
+ * Texts that come in while the app runs, for the gateway's reply to an SOS
+ * text (2026-10-19). Only texts starting "S.A.G.I.P.:" are passed on; the
+ * app never sees any other message. Needs RECEIVE_SMS; without it Android
+ * delivers nothing and the SOS simply keeps every way of sending.
+ */
+private class SmsReplies(private val context: Context) : EventChannel.StreamHandler {
+    private var receiver: BroadcastReceiver? = null
+
+    override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+        val r = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val parts = try {
+                    Telephony.Sms.Intents.getMessagesFromIntent(intent)
+                } catch (_: Exception) {
+                    null
+                } ?: return
+                val from = parts.firstOrNull()?.originatingAddress ?: return
+                val text = parts.joinToString("") { it.messageBody ?: "" }
+                if (!text.startsWith("S.A.G.I.P.:")) return
+                events.success(mapOf("from" to from, "text" to text))
+            }
+        }
+        val filter = IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)
+        try {
+            // Only the system (BROADCAST_SMS) can send this to the app.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(
+                    r,
+                    filter,
+                    Manifest.permission.BROADCAST_SMS,
+                    null,
+                    Context.RECEIVER_EXPORTED,
+                )
+            } else {
+                context.registerReceiver(r, filter, Manifest.permission.BROADCAST_SMS, null)
+            }
+            receiver = r
+        } catch (_: Exception) {
+            // No texts then; nothing else changes.
+        }
+    }
+
+    override fun onCancel(arguments: Any?) {
+        receiver?.let {
+            try {
+                context.unregisterReceiver(it)
+            } catch (_: Exception) {
+            }
+        }
+        receiver = null
+    }
+}

@@ -90,6 +90,26 @@ void main() {
     expect(notice.shown, isEmpty);
   });
 
+  test('the gateway\'s reply: "received by SMS", and no second notice when '
+      'data delivers the rest', () {
+    notifier.pendingChanged([
+      sos(const SosSendSteps(smsSent: true, bluetooth: true)),
+    ], l10n);
+    notifier.pendingChanged([
+      sos(const SosSendSteps(smsSent: true, smsReceivedAs: 'INC-0181')),
+    ], l10n);
+    notifier.delivered(
+      sos(const SosSendSteps(), delivery: DeliveryState.delivered),
+      l10n,
+      '9:00 AM',
+    );
+    expect(titles(), [
+      'Asking nearby phones to pass on your SOS',
+      'MDRRMD received your SOS by SMS',
+    ]);
+    expect(notice.shown.last, contains('INC-0181'));
+  });
+
   test('a refused SOS says so', () {
     notifier.pendingChanged([sos(const SosSendSteps())], l10n);
     notifier.pendingChanged([

@@ -12,6 +12,10 @@ import '../../l10n/app_localizations.dart';
     title: l10n.sosSendDataTitle,
     text: l10n.sosSendDataText,
   ),
+  SosSendStep.sms when steps.smsReceived => (
+    title: l10n.sosSendReceivedTitle,
+    text: l10n.sosSendReceivedText(steps.smsReceivedAs!),
+  ),
   SosSendStep.sms when steps.smsSent => (
     title: l10n.sosSendSmsTitle,
     text: l10n.sosSendSmsText,
@@ -38,6 +42,10 @@ class SosSendNotifier {
   String? _id;
   String? _shown;
 
+  /// SOS the gateway's reply already said MDRRMD has: the later delivery
+  /// over data is not announced again.
+  final _received = <String>{};
+
   /// The resident's records still on the phone changed.
   void pendingChanged(List<QueuedRecord> pending, AppLocalizations l10n) {
     final sos = [
@@ -51,7 +59,9 @@ class SosSendNotifier {
       if (key == _shown) return;
       _id = open.id;
       _shown = key;
-      _notice.show(title: words.title, text: words.text);
+      final received = open.steps!.smsReceived;
+      if (received) _received.add(open.id);
+      _notice.show(title: words.title, text: words.text, done: received);
       return;
     }
     final refused = sos
@@ -71,6 +81,7 @@ class SosSendNotifier {
   /// The server confirmed a record; [time] is when it was captured.
   void delivered(QueuedRecord record, AppLocalizations l10n, String time) {
     if (record.kind != QueuedKind.sos || !record.waitedOffline) return;
+    if (_received.remove(record.id)) return;
     _id = null;
     _shown = null;
     _notice.show(

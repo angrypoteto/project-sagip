@@ -11,6 +11,7 @@ import {
 } from "../_shared/sos_sms.ts";
 import {
   ackMessage,
+  ackRef,
   authorized,
   checkReplyThanks,
   e164,
@@ -81,9 +82,20 @@ test("both gateway payload shapes are read", () => {
 });
 
 test("replies fit one SMS", () => {
-  assert.ok(ackMessage("INC-0151", true).length <= 160);
-  assert.ok(ackMessage("INC-0151", false).length <= 160);
+  const id = "3f2a9c1e-7b4d-4e0a-9c2f-1a2b3c4d5e6f";
+  assert.ok(ackMessage("INC-0151", true, id).length <= 160);
+  assert.ok(ackMessage("INC-0151", false, id).length <= 160);
   assert.ok(unreadableMessage().length <= 160);
+});
+
+test("the reply names the SOS with a code from its own id", () => {
+  const id = "3F2A9C1E-7b4d-4e0a-9c2f-1a2b3c4d5e6f";
+  assert.equal(ackRef(id), "3f2a9c1e");
+  // The exact words the app reads (packages/shared sos_sms.dart, parseAck).
+  assert.equal(
+    ackMessage("INC-0181", true, id),
+    "S.A.G.I.P.: Your SOS was received (INC-0181, ref 3f2a9c1e). MDRRMD is on it. Stay safe and keep your phone on.",
+  );
 });
 
 test("the gateway must send the shared secret", () => {

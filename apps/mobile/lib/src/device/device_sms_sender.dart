@@ -8,6 +8,19 @@ class DeviceSmsSender implements SmsSender, SmsComposer {
   const DeviceSmsSender();
 
   static const _channel = MethodChannel('ph.sagip/sms');
+  static const _replies = EventChannel('ph.sagip/sms/received');
+
+  /// Texts that come in starting "S.A.G.I.P.:", such as the gateway's
+  /// reply to an SOS text. Android passes on no other message. Never
+  /// logged: they hold the sender's number.
+  static Stream<({String from, String text})> replies() => _replies
+      .receiveBroadcastStream()
+      .handleError((Object _) {})
+      .where((m) => m is Map && m['from'] is String && m['text'] is String)
+      .map((m) {
+        final map = m as Map;
+        return (from: map['from'] as String, text: map['text'] as String);
+      });
 
   /// The phone can text and the permission is granted.
   Future<bool> canSend() async {

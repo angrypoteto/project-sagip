@@ -268,6 +268,14 @@ class AppLocalizationsFil extends AppLocalizations {
       'Hinihintay ang kumpirmasyon ng MDRRMD. Susunod na hihingan ng tulong ang mga kalapit na phone sa Bluetooth, at patuloy na kumokonekta ang data.';
 
   @override
+  String get sosSendReceivedTitle => 'Natanggap ng MDRRMD ang SOS mo sa SMS';
+
+  @override
+  String sosSendReceivedText(String incident) {
+    return 'Nasa board na ito bilang $incident. Hindi na hinihingan ng tulong ang mga kalapit na phone. Ipapadala ang mga detalye at larawan kapag online ka na ulit.';
+  }
+
+  @override
   String get sosSendSmsFailedTitle => 'Hindi naipadala ang SMS';
 
   @override
@@ -1240,7 +1248,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get welcomeStep3Body =>
-      'Kapag walang data, ipinapadala ang SOS mo sa SMS. Kapag wala talagang signal, puwedeng ipasa ito ng mga kalapit na phone.';
+      'Kapag walang data, ipinapadala ang SOS mo sa SMS, at binabasa ng app ang sagot ng MDRRMD para malamang nakarating ito (wala nang ibang text). Puwede rin itong ipasa ng mga kalapit na phone.';
 
   @override
   String get allow => 'Payagan';

@@ -107,6 +107,12 @@ Future<List<Override>> _live() async {
           )
         : null,
   );
+  // The gateway's reply to an SOS text ("Your SOS was received (INC-...,
+  // ref ...)"): that SOS counts as received and nearby phones stop being
+  // asked (2026-10-19).
+  DeviceSmsSender.replies().listen(
+    (m) => unawaited(engine.gatewayReplied(m.from, m.text)),
+  );
   // Each resident account's relay secret on this phone: its SOS ids name
   // the sender to the server only, so a relayed SOS cannot be faked or
   // followed (2026-10-19). Handed to the server once, when online.
@@ -149,7 +155,11 @@ Future<List<Override>> _live() async {
           store: store,
         );
   if (push != null) backend.accounts.beforeSignOut = push.forgetHere;
+  final permissions = DevicePermissionService(store);
   backend.accounts.watchUser().listen((user) {
+    if (user?.role == UserRole.resident) {
+      unawaited(permissions.askForSmsReplyOnce());
+    }
     if (push != null) unawaited(_syncPush(push, backend, store, user));
     registerKey();
     // Any signed-in phone relays (relay_sos needs an account).
@@ -182,7 +192,7 @@ Future<List<Override>> _live() async {
     engine: engine,
     signal: signal,
     location: location,
-    permissions: DevicePermissionService(store),
+    permissions: permissions,
     config: config,
     recheckSignal: signal.checkNow,
     pushOpens: push?.opened,

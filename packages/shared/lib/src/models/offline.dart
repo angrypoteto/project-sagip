@@ -66,6 +66,7 @@ class SosSendSteps {
     this.smsSent = false,
     this.smsFailed = false,
     this.bluetooth = false,
+    this.smsReceivedAs,
   });
 
   /// The phone's SMS service sent it to the gateway.
@@ -78,6 +79,13 @@ class SosSendSteps {
   /// Nearby phones are being asked to pass it on.
   final bool bluetooth;
 
+  /// The gateway texted back that MDRRMD has it, as this incident
+  /// (2026-10-19). Nearby phones are no longer asked; data still sends the
+  /// full record later.
+  final String? smsReceivedAs;
+
+  bool get smsReceived => smsReceivedAs != null;
+
   SosSendStep get current => bluetooth
       ? SosSendStep.bluetooth
       : smsSent || smsFailed
@@ -89,10 +97,11 @@ class SosSendSteps {
       other is SosSendSteps &&
       other.smsSent == smsSent &&
       other.smsFailed == smsFailed &&
-      other.bluetooth == bluetooth;
+      other.bluetooth == bluetooth &&
+      other.smsReceivedAs == smsReceivedAs;
 
   @override
-  int get hashCode => Object.hash(smsSent, smsFailed, bluetooth);
+  int get hashCode => Object.hash(smsSent, smsFailed, bluetooth, smsReceivedAs);
 }
 
 /// One entry in the offline queue (S6).

@@ -65,6 +65,18 @@ class DevicePermissionService implements PermissionService {
     return result;
   }
 
+  /// Build 6 added reading the gateway's reply (RECEIVE_SMS, in Android's
+  /// SMS group). A phone that allowed SMS before was never asked for it:
+  /// it is asked once, after the update, while a resident is signed in.
+  Future<void> askForSmsReplyOnce() async {
+    const key = 'permission-asked:sms-reply';
+    if (_store.read(_askedKey(AppPermission.sms)) != 'yes') return;
+    if (_store.read(key) == 'yes') return;
+    if (await _read(AppPermission.sms) == PermissionState.granted) return;
+    await _store.write(key, 'yes');
+    await request(AppPermission.sms);
+  }
+
   @override
   Future<void> openSettings() async {
     await openAppSettings();

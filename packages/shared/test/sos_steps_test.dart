@@ -288,4 +288,85 @@ void main() {
     expect(sms.sent, isEmpty);
     expect(radio.adverts, isEmpty);
   });
+
+  group("the gateway's reply", () {
+    // The exact words of sms-intake's reply (sms_intake.test.ts).
+    const reply =
+        'S.A.G.I.P.: Your SOS was received (INC-0181, ref 3f2a9c1e). '
+        'MDRRMD is on it. Stay safe and keep your phone on.';
+
+    Future<void> textedAndRelaying() async {
+      await signal(internet: false);
+      await engine.add(entry(start));
+      await at(const Duration(seconds: 20));
+      expect(sms.sent, hasLength(1));
+      expect(radio.adverts, hasLength(1));
+    }
+
+    test('reads the incident and the code, nothing else', () {
+      expect(SosSms.ackRef(id), '3f2a9c1e');
+      final ack = SosSms.parseAck(reply)!;
+      expect(ack.incidentId, 'INC-0181');
+      expect(ack.ref, '3f2a9c1e');
+      expect(SosSms.parseAck('S.A.G.I.P.: We could not read this'), isNull);
+      expect(SosSms.parseAck('Your SOS was received (INC-0181)'), isNull);
+    });
+
+    test('marks the SOS received, stops Bluetooth, and data still sends the '
+        'full record', () async {
+      await textedAndRelaying();
+      expect(await engine.gatewayReplied('+639170000000', reply), isTrue);
+      final e = sosEntry();
+      expect(e.steps!.smsReceived, isTrue);
+      expect(e.steps!.smsReceivedAs, 'INC-0181');
+      expect(e.steps!.bluetooth, isFalse);
+      expect(e.delivery.isPending, isTrue, reason: 'the full record waits');
+      expect(radio.adverts, isEmpty);
+
+      // Not asked again, not texted again.
+      await at(const Duration(minutes: 5));
+      expect(radio.adverts, isEmpty);
+      expect(sms.sent, hasLength(1));
+
+      // The phone shows it as received by MDRRMD.
+      final shown = OutboxSosRepository.mergeSos(
+        null,
+        engine.entries,
+        'res-001',
+      ).single;
+      expect(shown.isDelivered, isTrue);
+      expect(shown.incidentId, 'INC-0181');
+      expect(shown.sentVia, ReportChannel.sms);
+
+      sender.reachable = true;
+      await signal(internet: true);
+      expect(sender.sent, [id]);
+      expect(sosEntry().delivery, DeliveryState.delivered);
+    });
+
+    test('only from the gateway number, with this SOS\'s code', () async {
+      await textedAndRelaying();
+      expect(await engine.gatewayReplied('+639171112222', reply), isFalse);
+      expect(
+        await engine.gatewayReplied(
+          '09170000000',
+          reply.replaceAll('3f2a9c1e', '00000000'),
+        ),
+        isFalse,
+      );
+      expect(await engine.gatewayReplied('09170000000', 'hello'), isFalse);
+      expect(sosEntry().steps!.smsReceived, isFalse);
+      expect(radio.adverts, hasLength(1));
+    });
+
+    test('kept across a restart', () async {
+      await textedAndRelaying();
+      await engine.gatewayReplied('09170000000', reply);
+      await engine.dispose();
+      engine = make();
+      await signal(internet: false);
+      expect(sosEntry().steps!.smsReceivedAs, 'INC-0181');
+      expect(radio.adverts, isEmpty, reason: 'not asked again after a restart');
+    });
+  });
 }

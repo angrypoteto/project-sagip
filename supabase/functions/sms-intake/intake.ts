@@ -35,11 +35,22 @@ export function parseGatewayPayload(body: unknown): InboundSms | null {
   };
 }
 
-/** The reply to the resident (one SMS). */
-export function ackMessage(incidentId: string, known: boolean): string {
+/**
+ * The short code that ties a reply to the SOS it answers: the first 8 hex
+ * characters of the SOS's own id. Only the sender's phone and the server
+ * know that id, so a text faked from another number cannot pass as a
+ * reply (2026-10-19). The app matches it (`SosSms.parseAck`).
+ */
+export function ackRef(clientId: string): string {
+  return clientId.replaceAll("-", "").slice(0, 8).toLowerCase();
+}
+
+/** The reply to the resident (one SMS). The app reads it to stop asking nearby phones. */
+export function ackMessage(incidentId: string, known: boolean, clientId: string): string {
+  const id = `${incidentId}, ref ${ackRef(clientId)}`;
   return known
-    ? `S.A.G.I.P.: Your SOS was received (${incidentId}). MDRRMD is on it. Stay safe and keep your phone on.`
-    : `S.A.G.I.P.: Your SOS was received (${incidentId}). MDRRMD will call this number to confirm. Stay safe.`;
+    ? `S.A.G.I.P.: Your SOS was received (${id}). MDRRMD is on it. Stay safe and keep your phone on.`
+    : `S.A.G.I.P.: Your SOS was received (${id}). MDRRMD will call this number to confirm. Stay safe.`;
 }
 
 /** The reply when a text could not be read. */

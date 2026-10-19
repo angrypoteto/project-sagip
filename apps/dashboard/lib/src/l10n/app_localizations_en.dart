@@ -3850,7 +3850,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get configAppNote =>
-      'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The newest release is build 5 (a waiting SOS tells the resident each step: data, then SMS and Bluetooth at once); apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.';
+      'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The newest release is build 6 (a waiting SOS tells the resident each step, and reads the gateway\'s reply); apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.';
 
   @override
   String get settingAppMinBuild => 'Oldest app build allowed';

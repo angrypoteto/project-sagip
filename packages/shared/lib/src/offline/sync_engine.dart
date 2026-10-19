@@ -355,8 +355,46 @@ class SyncEngine {
       cur = await _sendSms(cur);
     }
     if (_relay == null || !(_relayOk || failing)) return;
-    if (_advertising.contains(cur.id)) return;
+    if (cur.smsConfirmedAt != null || _advertising.contains(cur.id)) return;
     await _sendRelay(cur);
+  }
+
+  /// A text came in from [from]. When it is the gateway's reply to one of
+  /// this phone's waiting SOS ("Your SOS was received (INC-0181, ref
+  /// 3f2a9c1e)"), that SOS counts as received: nearby phones are no longer
+  /// asked, and data still sends the full record later. True when it was.
+  Future<bool> gatewayReplied(String from, String text) async {
+    final gateway = _lastTen(_sms?.gatewayNumber() ?? '');
+    if (gateway.length < 10 || _lastTen(from) != gateway) return false;
+    final ack = SosSms.parseAck(text);
+    if (ack == null) return false;
+    final e = _entries.value
+        .where(
+          (x) =>
+              x.action == OutboxAction.sos &&
+              x.delivery.isPending &&
+              x.smsConfirmedAt == null &&
+              SosSms.ackRef(x.id) == ack.ref,
+        )
+        .firstOrNull;
+    if (e == null) return false;
+    final now = _clock();
+    await _put(
+      e.copyWith(
+        delivery: DeliveryState.sentBySms,
+        smsSentAt: e.smsSentAt ?? now,
+        smsConfirmedAt: now,
+        serverId: ack.incidentId,
+        waited: true,
+      ),
+    );
+    if (_advertising.contains(e.id)) await _stopRelay(e);
+    return true;
+  }
+
+  static String _lastTen(String number) {
+    final digits = number.replaceAll(RegExp(r'\D'), '');
+    return digits.length <= 10 ? digits : digits.substring(digits.length - 10);
   }
 
   /// Wakes the engine when a waiting SOS's data window ends.

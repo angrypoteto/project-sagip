@@ -536,6 +536,18 @@ abstract class AppLocalizations {
   /// **'Waiting for MDRRMD to confirm. Nearby phones are asked by Bluetooth next, and data keeps reconnecting.'**
   String get sosSendSmsText;
 
+  /// No description provided for @sosSendReceivedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD received your SOS by SMS'**
+  String get sosSendReceivedTitle;
+
+  /// No description provided for @sosSendReceivedText.
+  ///
+  /// In en, this message translates to:
+  /// **'It is on the board as {incident}. Nearby phones are no longer asked. Your details and photos go when you\'re back online.'**
+  String sosSendReceivedText(String incident);
+
   /// No description provided for @sosSendSmsFailedTitle.
   ///
   /// In en, this message translates to:
@@ -2147,7 +2159,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeStep3Body.
   ///
   /// In en, this message translates to:
-  /// **'With no data, your SOS goes out by SMS. With no signal at all, nearby phones can pass it on.'**
+  /// **'With no data, your SOS goes out by SMS, and the app reads MDRRMD\'s reply to know it arrived (no other texts). Nearby phones can pass it on too.'**
   String get welcomeStep3Body;
 
   /// No description provided for @allow.

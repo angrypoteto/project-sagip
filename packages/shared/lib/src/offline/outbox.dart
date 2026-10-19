@@ -50,6 +50,7 @@ class OutboxEntry {
     this.smsSentAt,
     this.smsFailedAt,
     this.relayedAt,
+    this.smsConfirmedAt,
   });
 
   /// The record's client id: the SOS, report, or completion report id, or
@@ -93,6 +94,11 @@ class OutboxEntry {
   /// Tier 3: when nearby phones were first asked to pass this SOS on.
   final DateTime? relayedAt;
 
+  /// When the gateway's reply said MDRRMD has this SOS ([serverId] is the
+  /// incident it named). It stays pending so data still sends the full
+  /// record; nearby phones are no longer asked.
+  final DateTime? smsConfirmedAt;
+
   QueuedKind get kind => action.kind;
 
   /// For an SOS, the ways it has been tried (data, SMS, Bluetooth).
@@ -100,7 +106,8 @@ class OutboxEntry {
       ? SosSendSteps(
           smsSent: smsSentAt != null,
           smsFailed: smsSentAt == null && smsFailedAt != null,
-          bluetooth: relayedAt != null,
+          bluetooth: relayedAt != null && smsConfirmedAt == null,
+          smsReceivedAs: smsConfirmedAt != null ? serverId : null,
         )
       : null;
 
@@ -116,6 +123,7 @@ class OutboxEntry {
     DateTime? smsSentAt,
     DateTime? smsFailedAt,
     DateTime? relayedAt,
+    DateTime? smsConfirmedAt,
   }) => OutboxEntry(
     id: id,
     action: action,
@@ -132,6 +140,7 @@ class OutboxEntry {
     smsSentAt: smsSentAt ?? this.smsSentAt,
     smsFailedAt: smsFailedAt ?? this.smsFailedAt,
     relayedAt: relayedAt ?? this.relayedAt,
+    smsConfirmedAt: smsConfirmedAt ?? this.smsConfirmedAt,
   );
 
   QueuedRecord toQueued() => QueuedRecord(
@@ -160,6 +169,7 @@ class OutboxEntry {
     smsSentAt: timeFromJsonOrNull(json['sms_sent_at']),
     smsFailedAt: timeFromJsonOrNull(json['sms_failed_at']),
     relayedAt: timeFromJsonOrNull(json['relayed_at']),
+    smsConfirmedAt: timeFromJsonOrNull(json['sms_confirmed_at']),
   );
 
   Map<String, Object?> toJson() => {
@@ -178,6 +188,7 @@ class OutboxEntry {
     'sms_sent_at': smsSentAt?.toUtc().toIso8601String(),
     'sms_failed_at': smsFailedAt?.toUtc().toIso8601String(),
     'relayed_at': relayedAt?.toUtc().toIso8601String(),
+    'sms_confirmed_at': smsConfirmedAt?.toUtc().toIso8601String(),
   };
 }
 

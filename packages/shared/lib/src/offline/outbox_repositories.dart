@@ -106,6 +106,20 @@ class OutboxSosRepository implements SosRepository {
                   IncidentStatus.pendingVerification,
                   e.deliveredAt ?? e.capturedAt,
                 )
+          // The gateway texted back: MDRRMD has it (2026-10-19).
+          : e.smsConfirmedAt != null
+          ? local
+                .copyWith(
+                  delivery: DeliveryState.delivered,
+                  sentVia: ReportChannel.sms,
+                  sentAt: e.smsSentAt,
+                  deliveredAt: e.smsConfirmedAt,
+                  incidentId: e.serverId,
+                )
+                .withStatus(
+                  IncidentStatus.pendingVerification,
+                  e.smsConfirmedAt!,
+                )
           : e.delivery == DeliveryState.sentBySms
           ? local.copyWith(
               delivery: DeliveryState.sentBySms,

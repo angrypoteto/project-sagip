@@ -189,7 +189,7 @@ Deno.serve(async (req) => {
     `sms-intake: SOS ${result.incident_id} from ${who}${result.duplicate ? " (duplicate)" : ""}`,
   );
 
-  const reply = ackMessage(result.incident_id, result.known);
+  const reply = ackMessage(result.incident_id, result.known, sos.clientId);
   let replySent = false;
   if (!result.duplicate) {
     replySent = await sendAckViaGateway(inbound.from, reply);
