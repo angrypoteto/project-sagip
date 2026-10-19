@@ -34,7 +34,7 @@ Claude is the planner and reviewer; ChatGPT (Codex) is a builder that gets one s
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-19 | f47c816b (Claude) | Paused, nothing claimed. A waiting SOS now goes data → SMS → Bluetooth with a notification at each step (app build 6 at `https://sagip.me/download/sagip.apk`; it also reads the gateway's reply). **Read "Where things stand (2026-10-16)" below first, then `docs/FEATURE-CHECKLIST.md` part 8.** | none | Paused |
+| 2026-10-19 | f47c816b (Claude) | Paused, nothing claimed. A waiting SOS now goes data → SMS → Bluetooth with a notification at each step (app build 7 at `https://sagip.me/download/sagip.apk`; it reads the gateway's reply and shows a banner when a newer build is out). **Read "Where things stand (2026-10-16)" below first, then `docs/FEATURE-CHECKLIST.md` part 8.** | none | Paused |
 
 ---
 
@@ -278,6 +278,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Browser check of D8 (2026-10-02, headless Chrome at 1366 by 768, sample data, dark theme): the list, the map discs and markers, the legend, the hazard switch, and the barangay panel all fit and read well. Found and fixed: "Storm surge" wrapped in the hazard selector (the icons were dropped). Not checked: light theme, Supabase.
 
 ### Tests (last run 2026-10-19)
+- Latest counts (2026-10-19, update banner): `packages/shared` 345, `apps/dashboard` 59, `apps/mobile` 59; analyze clean in all three. No database change.
 - Latest counts (2026-10-19, gateway reply): `packages/shared` 345, `apps/dashboard` 59, `apps/mobile` 57, `sms-intake` 9 (`node --test`); analyze clean in all three. `sms-intake` version 8 deployed.
 - Latest counts (2026-10-19, Bluetooth right after the text): `packages/shared` 341, `apps/dashboard` 59, `apps/mobile` 56; analyze clean in all three.
 - Latest counts (2026-10-19, SOS sending steps): `packages/shared` 340, `apps/dashboard` 59, `apps/mobile` 56; analyze clean in all three. No database change.
@@ -1280,3 +1281,8 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
   - `sms-intake` (version 8, deployed): the reply now carries a code from the SOS id: "S.A.G.I.P.: Your SOS was received (INC-0181, ref 3f2a9c1e). …" (`ackRef`, the first 8 hex characters). Only the sender's phone and the server know the id, so a text faked from another number cannot pass. Still no reply to a duplicate (an SOS the board already had).
   - App: `RECEIVE_SMS`; `MainActivity.kt` passes on only texts starting "S.A.G.I.P.:" (channel `ph.sagip/sms/received`; any other text is never seen); `SyncEngine.gatewayReplied(from, text)` accepts it only from the gateway number (last 10 digits) with a waiting SOS's code. That SOS is marked received (`sms_confirmed_at`, the incident in `server_id`): Bluetooth stops and is not asked again, R2 shows it received with the incident number, the notification says "MDRRMD received your SOS by SMS" (and no second notice when data later sends the full record). It stays in the outbox so details, photos, and the sender's key still go over data. The welcome step's SMS text says the app reads MDRRMD's reply and no other texts. A phone that allowed SMS before is asked once for the new permission after the update (while a resident is signed in; `askForSmsReplyOnce`).
   - Not tried end to end: there is no gateway phone yet and no number on A3 (`contact.sms_gateway` is empty, so the app texts nothing until one is set). App build 6 (`0.3.3+6`).
+- **"A newer S.A.G.I.P. is out" banner** (Joshua, 2026-10-19: "make sure that when my app is not updated it will show to the screen of the app that it is not updated"; approved: a file beside the APK, a banner on every tab).
+  - Each deploy of the resident site writes `download/latest.json` (`{"build": 7}`, from the `+N` in `apps/mobile/pubspec.yaml`) next to `download/sagip.apk`; `web/vercel.json` serves it with `Cache-Control: no-cache`. No database change and nothing to set on A3.
+  - App: `LatestBuildRepository` (shared; `DownloadLatestBuild` over `http` in the app), `latestBuildProvider` asks when the app opens, when the internet comes back, and when the app returns to the front. `UpdateBanner` under the offline banner on every tab: "A newer S.A.G.I.P. is out. Build 8 is ready. You have build 7." with Update (opens the download) and Later (hidden until the app is opened again). Hidden while the resident's SOS is open or the responder's unit has a job (`_inEmergency`, shared with the forced update). A3's "Oldest app build allowed" still forces the update screen.
+  - No 6-hour timer: a periodic timer stayed pending in widget tests that end with the app on screen.
+  - App build 7 (`0.3.4+7`), installed on Joshua's phone; both sites redeployed (APK md5 `d4e75f276d31b4dc97fbbae6752f9f05`). Builds 6 and older have no banner, so the first banner anyone sees is for build 8.

@@ -178,6 +178,65 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('a newer build on the download site shows on every tab, '
+      'but not while the SOS is open', (tester) async {
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        ...mockOverrides(backend, demoTools: false),
+        mapTilesEnabledProvider.overrideWithValue(false),
+        welcomeSeenProvider.overrideWith(WelcomeDone.new),
+        clockProvider.overrideWith((ref) => Stream.value(now)),
+        latestBuildRepositoryProvider.overrideWithValue(
+          const StaticLatestBuildRepository(appBuild + 1),
+        ),
+      ],
+    );
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    final banner = find.byKey(const ValueKey('update-banner'));
+    expect(banner, findsOneWidget);
+    expect(
+      find.text('Build ${appBuild + 1} is ready. You have build $appBuild.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Report'));
+    await settle(tester);
+    expect(banner, findsOneWidget);
+
+    // Later hides it until the app is opened again.
+    await tester.tap(find.byKey(const ValueKey('update-later')));
+    await settle(tester);
+    expect(banner, findsNothing);
+    container.invalidate(updateLaterProvider);
+    await settle(tester);
+    expect(banner, findsOneWidget);
+
+    // Never in the middle of an emergency.
+    await tester.tap(find.text('Home'));
+    await settle(tester);
+    await holdSos(tester);
+    await settle(tester);
+    expect(container.read(newerBuildProvider), isNull);
+    await finish(tester);
+  });
+
+  test('no banner when this build is the newest', () async {
+    final c = ProviderContainer(
+      overrides: [
+        ...mockOverrides(backend, demoTools: false),
+        latestBuildRepositoryProvider.overrideWithValue(
+          const StaticLatestBuildRepository(appBuild),
+        ),
+      ],
+    );
+    addTearDown(c.dispose);
+    c.listen(newerBuildProvider, (_, _) {});
+    await Future<void>.delayed(Duration.zero);
+    expect(c.read(latestBuildProvider), appBuild);
+    expect(c.read(newerBuildProvider), isNull);
+  });
+
   testWidgets('the role picks the shell', (tester) async {
     await pumpApp(tester);
     expect(find.text('Sign in'), findsOneWidget);

@@ -8,6 +8,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import 'app_version.dart';
 import 'device/device_alert_sound.dart';
 import 'device/device_battery_optimization.dart';
+import 'device/download_latest_build.dart';
 import 'device/device_sos_send_notice.dart';
 import 'device/device_sms_sender.dart';
 import 'device/tts_speaker.dart';
@@ -192,6 +193,50 @@ final clientConfigProvider = StreamProvider<ClientConfig>((ref) async* {
   }
 });
 
+/// The newest build on the download site (2026-10-19).
+final latestBuildRepositoryProvider = Provider<LatestBuildRepository>(
+  (ref) => const StaticLatestBuildRepository(),
+);
+
+/// The newest build on the download site; null until known. Asked when
+/// the app opens, when the internet comes back, when the app returns to
+/// the front ([check], from the banner).
+class LatestBuild extends Notifier<int?> {
+  @override
+  int? build() {
+    ref.listen(signalProvider, (prev, next) {
+      if (next.value == SignalState.internet &&
+          prev?.value != SignalState.internet) {
+        check();
+      }
+    });
+    Future.microtask(check);
+    return null;
+  }
+
+  Future<void> check() async {
+    final build = await ref.read(latestBuildRepositoryProvider).fetch();
+    if (build != null && ref.mounted) state = build;
+  }
+}
+
+final latestBuildProvider = NotifierProvider<LatestBuild, int?>(
+  LatestBuild.new,
+);
+
+/// The newer build the person said "Later" to; the banner comes back when
+/// the app is opened again or an even newer build is out.
+class UpdateLater extends Notifier<int?> {
+  @override
+  int? build() => null;
+
+  void later(int build) => state = build;
+}
+
+final updateLaterProvider = NotifierProvider<UpdateLater, int?>(
+  UpdateLater.new,
+);
+
 /// Fixed at build time (`--dart-define`); usually empty, and the values
 /// set on A3 are used instead.
 const _builtHotline = String.fromEnvironment('MDRRMD_HOTLINE');
@@ -268,6 +313,7 @@ List<Override> liveOverrides({
   return [
     localStoreProvider.overrideWithValue(store),
     clientConfigRepositoryProvider.overrideWithValue(config),
+    latestBuildRepositoryProvider.overrideWithValue(DownloadLatestBuild()),
     // Tier 2 is promised only once the gateway number is known.
     capabilitiesProvider.overrideWith(
       (ref) => DeviceCapabilities(
@@ -680,16 +726,27 @@ final myProfileProvider = StreamProvider<Resident?>((ref) {
 final updateRequiredProvider = Provider<bool>((ref) {
   final min = ref.watch(clientConfigProvider).value?.minBuild ?? 1;
   if (min <= appBuild) return false;
-  final role = ref.watch(currentUserProvider).value?.role;
-  if (role == UserRole.resident && ref.watch(activeSosProvider) != null) {
-    return false;
-  }
-  if (role == UserRole.responder &&
-      ref.watch(responderProvider).value?.current != null) {
-    return false;
-  }
-  return true;
+  return !_inEmergency(ref);
 });
+
+/// A newer build is on the download site (2026-10-19): the build number,
+/// for the banner on every tab; null when this one is the newest, after
+/// "Later", or in an emergency (the same rule as [updateRequiredProvider]).
+final newerBuildProvider = Provider<int?>((ref) {
+  final latest = ref.watch(latestBuildProvider);
+  if (latest == null || latest <= appBuild) return null;
+  if (ref.watch(updateLaterProvider) == latest) return null;
+  if (_inEmergency(ref)) return null;
+  return latest;
+});
+
+/// The resident's SOS is open, or the responder's unit has a job.
+bool _inEmergency(Ref ref) =>
+    switch (ref.watch(currentUserProvider).value?.role) {
+      UserRole.resident => ref.watch(activeSosProvider) != null,
+      UserRole.responder => ref.watch(responderProvider).value?.current != null,
+      _ => false,
+    };
 
 /// How many photos this phone added to an SOS (2026-10-19).
 final sosPhotoCountProvider = StreamProvider.autoDispose.family<int, String>(

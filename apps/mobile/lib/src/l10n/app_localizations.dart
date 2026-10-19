@@ -3890,6 +3890,30 @@ abstract class AppLocalizations {
   /// **'In an emergency, hold SOS'**
   String get updateSosStill;
 
+  /// No description provided for @updateNewerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer S.A.G.I.P. is out'**
+  String get updateNewerTitle;
+
+  /// No description provided for @updateNewerText.
+  ///
+  /// In en, this message translates to:
+  /// **'Build {latest} is ready. You have build {current}.'**
+  String updateNewerText(int latest, int current);
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
   /// No description provided for @photoAdd.
   ///
   /// In en, this message translates to:

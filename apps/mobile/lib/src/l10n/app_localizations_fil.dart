@@ -2253,6 +2253,20 @@ class AppLocalizationsFil extends AppLocalizations {
   String get updateSosStill => 'Sa emergency, pindutin nang matagal ang SOS';
 
   @override
+  String get updateNewerTitle => 'May mas bagong S.A.G.I.P.';
+
+  @override
+  String updateNewerText(int latest, int current) {
+    return 'Handa na ang build $latest. Build $current ang nasa iyo.';
+  }
+
+  @override
+  String get updateNow => 'I-update';
+
+  @override
+  String get updateLater => 'Mamaya';
+
+  @override
   String get photoAdd => 'Magdagdag ng larawan';
 
   @override

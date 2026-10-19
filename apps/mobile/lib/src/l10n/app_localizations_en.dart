@@ -2225,6 +2225,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateSosStill => 'In an emergency, hold SOS';
 
   @override
+  String get updateNewerTitle => 'A newer S.A.G.I.P. is out';
+
+  @override
+  String updateNewerText(int latest, int current) {
+    return 'Build $latest is ready. You have build $current.';
+  }
+
+  @override
+  String get updateNow => 'Update';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
   String get photoAdd => 'Add a photo';
 
   @override

@@ -446,6 +446,23 @@ class StaticClientConfigRepository implements ClientConfigRepository {
   Future<ClientConfig> fetch() async => config;
 }
 
+/// The newest mobile app build on the download site (Joshua, 2026-10-19),
+/// so an older app can say a newer one is out.
+abstract interface class LatestBuildRepository {
+  /// Null when it cannot be known (no internet, no file); never throws.
+  Future<int?> fetch();
+}
+
+/// A fixed newest build: sample data, tests, and builds with no server.
+class StaticLatestBuildRepository implements LatestBuildRepository {
+  const StaticLatestBuildRepository([this.build]);
+
+  final int? build;
+
+  @override
+  Future<int?> fetch() async => build;
+}
+
 /// The Dijkstra timing log for Chapter 4 (plan 10.2). Logging never throws
 /// and never delays the caller: a lost timing row must not block dispatch.
 abstract interface class RoutingLogRepository {

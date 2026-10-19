@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/offline_banner.dart';
+import '../../common/update_banner.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 
@@ -12,9 +13,9 @@ import '../../providers.dart';
 /// responders get Home, History, Me (plan 7.3).
 enum ShellDestination { home, report, alerts, me, duty, history }
 
-/// The tab shell: the offline banner on top of every tab, then the page,
-/// then the bottom bar. Android Back on another tab returns to Home first
-/// instead of closing the app.
+/// The tab shell: the offline and update banners on top of every tab, then
+/// the page, then the bottom bar. Android Back on another tab returns to
+/// Home first instead of closing the app.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.shell, required this.destinations});
 
@@ -53,6 +54,7 @@ class AppShell extends ConsumerWidget {
           child: Column(
             children: [
               const OfflineBanner(),
+              const UpdateBanner(),
               Expanded(child: shell),
             ],
           ),

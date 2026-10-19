@@ -736,6 +736,16 @@
   "@updateLink": {"placeholders": {"url": {"type": "String"}}},
   "updateOpenFailed": "Could not open the link. Type it in your browser instead.",
   "updateSosStill": "In an emergency, hold SOS",
+  "updateNewerTitle": "A newer S.A.G.I.P. is out",
+  "updateNewerText": "Build {latest} is ready. You have build {current}.",
+  "@updateNewerText": {
+    "placeholders": {
+      "latest": {"type": "int"},
+      "current": {"type": "int"}
+    }
+  },
+  "updateNow": "Update",
+  "updateLater": "Later",
   "photoAdd": "Add a photo",
   "photoAddOptional": "Add a photo (optional)",
   "photoTake": "Take a photo",

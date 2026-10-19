@@ -180,6 +180,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] **[N]** The relay notice says only what is true: "Ready to pass on SOS from nearby phones. None waiting" until a nearby phone's SOS is heard, then "Passing on 1 SOS…", then "Sent 1 SOS… to MDRRMD" (2026-10-19; the old one said "listening for SOS nearby" all the time)
 - [ ] **[N]** A relayed SOS shows its real sender on the dashboard, with "Relayed by nearby phones (Bluetooth). The sender's phone proved itself with its own key"; the phone that carried it never sees who it is **[P]** (two phones with build 2: one in airplane mode sends, the other online relays)
 - [ ] **[N]** Too old an app: "Update S.A.G.I.P." with "Download the update", SOS (residents) and Call MDRRMD still there; never while your SOS is open. Try it: set A3 "Oldest app build allowed" to 3 and open the app (then set it back to 2)
+- [ ] **[N]** A newer build is out (2026-10-19): a banner on every tab, "A newer S.A.G.I.P. is out" with Update and Later; not while your SOS is open or your unit has a job. It reads `sagip.me/download/latest.json`, which each deploy writes. Shows first when build 8 is published (builds 6 and older have no banner)
 - [ ] **[N]** Your location is a blue dot with an arrow that turns where the phone faces (Track responder, Safe places, the location picker) **[P]**
 - [ ] Push notifications arrive **[P]** (your phone is registered as of 2026-10-13, and the test alert’s push was marked sent; you have not said whether it showed on the phone)
 
@@ -231,7 +232,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | Leftovers of the first relay tag (2026-10-19) | `drop function public.my_relay_tag(); drop function private.relay_sender(uuid); alter table public.manila_resident drop column relay_tag;` in the SQL editor. Nothing uses them; nobody can call them |
-| Make the newest build required | After the team installs build 6 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 6. APKs before build 2 cannot be asked (they have no check) |
+| Make the newest build required | After the team installs build 7 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 7. APKs before build 2 cannot be asked (they have no check) |
 | Removing expired photo files | Retention hides photos from everyone, but the files stay in the bucket until a small cleanup function (Storage API) is written |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 
