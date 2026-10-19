@@ -142,6 +142,7 @@ void main() {
       clock: () => now,
       retryDelay: (_) => const Duration(milliseconds: 10),
       relay: RelayTier(radio: radio, available: relayOk.stream),
+      dataWindow: Duration.zero,
     );
 
     setUp(() {

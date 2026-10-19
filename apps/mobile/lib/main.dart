@@ -83,10 +83,12 @@ Future<List<Override>> _live() async {
     sender: const DeviceSmsSender(),
     gatewayNumber: () =>
         _smsGateway.isNotEmpty ? _smsGateway : config.saved.smsGateway,
-    available: signal.watch().map((s) => s == SignalState.smsOnly).distinct(),
+    // Any time there is no internet: with mobile data off there can still
+    // be cell signal, and the phone's SMS service says whether it went.
+    available: signal.watch().map((s) => s != SignalState.internet).distinct(),
   );
-  // Tier 3: Bluetooth LE between phones, when neither internet nor
-  // cellular works (proof of concept; needs the Nearby devices permission).
+  // Tier 3: Bluetooth LE between phones, after data and SMS (proof of
+  // concept; needs the Nearby devices permission). The engine decides when.
   const radio = DeviceRelayRadio();
   final relayHardware = await DeviceRelayRadio.hasHardware();
   final engine = SyncEngine(
@@ -100,7 +102,7 @@ Future<List<Override>> _live() async {
             radio: radio,
             available: signal
                 .watch()
-                .map((s) => s == SignalState.noSignal)
+                .map((s) => s != SignalState.internet)
                 .distinct(),
           )
         : null,

@@ -253,6 +253,22 @@ class MockAlertSound implements AlertSound {
   Future<void> playAssignment() async => played++;
 }
 
+/// Records the notifications that would be shown, as `title: text`.
+class MockSosSendNotice implements SosSendNotice {
+  final shown = <String>[];
+  var cleared = 0;
+
+  @override
+  Future<void> show({
+    required String title,
+    required String text,
+    bool done = false,
+  }) async => shown.add('$title: $text');
+
+  @override
+  Future<void> clear() async => cleared++;
+}
+
 /// Records what would be said aloud.
 class MockSpeaker implements Speaker {
   final said = <String>[];

@@ -512,6 +512,144 @@ abstract class AppLocalizations {
   /// **'We\'ll keep trying and tell you when it\'s delivered.'**
   String get keepTrying;
 
+  /// No description provided for @sosSendDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. Trying again over data'**
+  String get sosSendDataTitle;
+
+  /// No description provided for @sosSendDataText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SOS is saved on this phone. If data doesn\'t work soon, it goes by SMS, then through nearby phones.'**
+  String get sosSendDataText;
+
+  /// No description provided for @sosSendSmsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS sent by SMS to MDRRMD'**
+  String get sosSendSmsTitle;
+
+  /// No description provided for @sosSendSmsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for MDRRMD to confirm. Data is still being tried. If there\'s no word in 2 minutes, nearby phones are asked by Bluetooth too.'**
+  String get sosSendSmsText;
+
+  /// No description provided for @sosSendSmsFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The SMS could not be sent'**
+  String get sosSendSmsFailedTitle;
+
+  /// No description provided for @sosSendSmsFailedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.'**
+  String get sosSendSmsFailedText;
+
+  /// No description provided for @sosSendBluetoothTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking nearby phones to pass on your SOS'**
+  String get sosSendBluetoothTitle;
+
+  /// No description provided for @sosSendBluetoothText.
+  ///
+  /// In en, this message translates to:
+  /// **'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Keep Bluetooth on.'**
+  String get sosSendBluetoothText;
+
+  /// No description provided for @sosSendBluetoothAfterSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SMS went out, but MDRRMD hasn\'t confirmed it yet, so nearby phones with S.A.G.I.P. are asked too. Keep Bluetooth on.'**
+  String get sosSendBluetoothAfterSms;
+
+  /// No description provided for @sosSendDeliveredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SOS reached MDRRMD'**
+  String get sosSendDeliveredTitle;
+
+  /// No description provided for @sosSendDeliveredText.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent at {time}. Open S.A.G.I.P. to follow it.'**
+  String sosSendDeliveredText(String time);
+
+  /// No description provided for @sosSendRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SOS was not accepted'**
+  String get sosSendRejectedTitle;
+
+  /// No description provided for @sosSendRejectedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Open S.A.G.I.P. to see why, or call MDRRMD.'**
+  String get sosSendRejectedText;
+
+  /// No description provided for @sendStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How your SOS is being sent'**
+  String get sendStepsTitle;
+
+  /// No description provided for @sendStepData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get sendStepData;
+
+  /// No description provided for @sendStepSms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get sendStepSms;
+
+  /// No description provided for @sendStepBluetooth.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby phones (Bluetooth)'**
+  String get sendStepBluetooth;
+
+  /// No description provided for @sendStepTrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Trying'**
+  String get sendStepTrying;
+
+  /// No description provided for @sendStepSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get sendStepSent;
+
+  /// No description provided for @sendStepFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send'**
+  String get sendStepFailed;
+
+  /// No description provided for @sendStepNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get sendStepNext;
+
+  /// No description provided for @sendStepAsking.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking'**
+  String get sendStepAsking;
+
+  /// No description provided for @sendStepLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{step}: {state}'**
+  String sendStepLine(String step, String state);
+
   /// No description provided for @resolvedBody.
   ///
   /// In en, this message translates to:
@@ -967,6 +1105,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No internet. SOS messages go out by SMS; the rest waits for internet.'**
   String get queueNextSms;
+
+  /// No description provided for @queueNextSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. An SOS is tried over data, then by SMS, then through nearby phones. The rest waits for internet.'**
+  String get queueNextSteps;
 
   /// No description provided for @queueNextNone.
   ///

@@ -53,6 +53,48 @@ enum QueuedKind {
   photo,
 }
 
+/// The ways an SOS that could not go out at once is tried, in this order
+/// (Joshua, 2026-10-19): data again, then SMS to the MDRRMD gateway, then
+/// nearby phones over Bluetooth. Data is still tried at every step.
+enum SosSendStep { data, sms, bluetooth }
+
+/// How far an SOS has got through [SosSendStep]s, for the notification and
+/// the steps on R2.
+@immutable
+class SosSendSteps {
+  const SosSendSteps({
+    this.smsSent = false,
+    this.smsFailed = false,
+    this.bluetooth = false,
+  });
+
+  /// The phone's SMS service sent it to the gateway.
+  final bool smsSent;
+
+  /// A text was tried and the phone could not send it (no cell service,
+  /// airplane mode, or no SMS permission).
+  final bool smsFailed;
+
+  /// Nearby phones are being asked to pass it on.
+  final bool bluetooth;
+
+  SosSendStep get current => bluetooth
+      ? SosSendStep.bluetooth
+      : smsSent || smsFailed
+      ? SosSendStep.sms
+      : SosSendStep.data;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SosSendSteps &&
+      other.smsSent == smsSent &&
+      other.smsFailed == smsFailed &&
+      other.bluetooth == bluetooth;
+
+  @override
+  int get hashCode => Object.hash(smsSent, smsFailed, bluetooth);
+}
+
 /// One entry in the offline queue (S6).
 @immutable
 class QueuedRecord {
@@ -63,6 +105,7 @@ class QueuedRecord {
     required this.delivery,
     this.rejectReason,
     this.waitedOffline = false,
+    this.steps,
   });
 
   /// The client id generated on the phone.
@@ -78,6 +121,10 @@ class QueuedRecord {
   /// in the queue. Only these get the "was delivered" notice (NFR1); a
   /// record sent at once already shows its status on screen.
   final bool waitedOffline;
+
+  /// For an SOS: which ways it has been tried so far; null for anything
+  /// else.
+  final SosSendSteps? steps;
 }
 
 /// A GPS reading.

@@ -250,6 +250,86 @@ class AppLocalizationsEn extends AppLocalizations {
       'We\'ll keep trying and tell you when it\'s delivered.';
 
   @override
+  String get sosSendDataTitle => 'No internet. Trying again over data';
+
+  @override
+  String get sosSendDataText =>
+      'Your SOS is saved on this phone. If data doesn\'t work soon, it goes by SMS, then through nearby phones.';
+
+  @override
+  String get sosSendSmsTitle => 'SOS sent by SMS to MDRRMD';
+
+  @override
+  String get sosSendSmsText =>
+      'Waiting for MDRRMD to confirm. Data is still being tried. If there\'s no word in 2 minutes, nearby phones are asked by Bluetooth too.';
+
+  @override
+  String get sosSendSmsFailedTitle => 'The SMS could not be sent';
+
+  @override
+  String get sosSendSmsFailedText =>
+      'Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.';
+
+  @override
+  String get sosSendBluetoothTitle =>
+      'Asking nearby phones to pass on your SOS';
+
+  @override
+  String get sosSendBluetoothText =>
+      'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Keep Bluetooth on.';
+
+  @override
+  String get sosSendBluetoothAfterSms =>
+      'Your SMS went out, but MDRRMD hasn\'t confirmed it yet, so nearby phones with S.A.G.I.P. are asked too. Keep Bluetooth on.';
+
+  @override
+  String get sosSendDeliveredTitle => 'Your SOS reached MDRRMD';
+
+  @override
+  String sosSendDeliveredText(String time) {
+    return 'Sent at $time. Open S.A.G.I.P. to follow it.';
+  }
+
+  @override
+  String get sosSendRejectedTitle => 'Your SOS was not accepted';
+
+  @override
+  String get sosSendRejectedText =>
+      'Open S.A.G.I.P. to see why, or call MDRRMD.';
+
+  @override
+  String get sendStepsTitle => 'How your SOS is being sent';
+
+  @override
+  String get sendStepData => 'Data';
+
+  @override
+  String get sendStepSms => 'SMS';
+
+  @override
+  String get sendStepBluetooth => 'Nearby phones (Bluetooth)';
+
+  @override
+  String get sendStepTrying => 'Trying';
+
+  @override
+  String get sendStepSent => 'Sent';
+
+  @override
+  String get sendStepFailed => 'Couldn\'t send';
+
+  @override
+  String get sendStepNext => 'Next';
+
+  @override
+  String get sendStepAsking => 'Asking';
+
+  @override
+  String sendStepLine(String step, String state) {
+    return '$step: $state';
+  }
+
+  @override
   String get resolvedBody => 'Your SOS is resolved. Stay safe.';
 
   @override
@@ -512,6 +592,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get queueNextSms =>
       'No internet. SOS messages go out by SMS; the rest waits for internet.';
+
+  @override
+  String get queueNextSteps =>
+      'No internet. An SOS is tried over data, then by SMS, then through nearby phones. The rest waits for internet.';
 
   @override
   String get queueNextNone =>

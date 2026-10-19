@@ -678,6 +678,20 @@ abstract interface class AlertSound {
   Future<void> playAssignment();
 }
 
+/// The phone notification that says how a waiting SOS is being sent (data,
+/// then SMS, then Bluetooth; Joshua, 2026-10-19). One notification, changed
+/// in place; the app shows it again only when the step changes.
+abstract interface class SosSendNotice {
+  /// [done] once the SOS is delivered: it can then be swiped away.
+  Future<void> show({
+    required String title,
+    required String text,
+    bool done = false,
+  });
+
+  Future<void> clear();
+}
+
 /// Reads text aloud (the responder's spoken directions on F4).
 abstract interface class Speaker {
   /// Says [text], cutting off anything still being said.

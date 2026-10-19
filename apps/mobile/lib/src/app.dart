@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import 'common/labels.dart';
+import 'features/sos/sos_send_notice.dart';
 import 'features/shell/push_routes.dart';
 import 'l10n/app_localizations.dart';
 import 'providers.dart';
@@ -15,6 +16,15 @@ final rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
 /// How recent a rescue confirmation must be to be announced on screen.
 const rescueNoticeWindow = Duration(minutes: 5);
 
+final _sosSendNotifierProvider = Provider<SosSendNotifier>(
+  (ref) => SosSendNotifier(ref.watch(sosSendNoticeProvider)),
+);
+
+/// The app's words in the chosen language, for notices made outside any
+/// screen.
+AppLocalizations _words(WidgetRef ref) =>
+    lookupAppLocalizations(Locale(ref.read(languageProvider)));
+
 class SagipMobileApp extends ConsumerWidget {
   const SagipMobileApp({super.key});
 
@@ -25,6 +35,15 @@ class SagipMobileApp extends ConsumerWidget {
     // already show their status on screen.
     ref.listen(deliveriesProvider, (_, next) {
       final record = next.value;
+      if (record != null) {
+        ref
+            .read(_sosSendNotifierProvider)
+            .delivered(
+              record,
+              _words(ref),
+              formatTime(record.capturedAt, ref.read(languageProvider)),
+            );
+      }
       final messenger = rootMessengerKey.currentState;
       if (record == null || !record.waitedOffline || messenger == null) {
         return;
@@ -38,6 +57,16 @@ class SagipMobileApp extends ConsumerWidget {
         SnackBar(content: Text(l10n.deliveredNotice(record.kind, time))),
       );
     });
+
+    // How a waiting SOS is being sent, step by step (Joshua, 2026-10-19:
+    // data, then SMS, then Bluetooth), on the phone's notifications, so it
+    // is seen with the screen off too.
+    ref.listen(
+      pendingQueueProvider,
+      (_, next) => ref
+          .read(_sosSendNotifierProvider)
+          .pendingChanged(next.value ?? const [], _words(ref)),
+    );
 
     // A rescue confirmation that just arrived (FR6): said on whatever
     // screen is open. Older ones wait on the Alerts tab.

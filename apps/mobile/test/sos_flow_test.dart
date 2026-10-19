@@ -264,6 +264,11 @@ void main() {
       onStatus("We'll keep trying and tell you when it's delivered."),
       findsOneWidget,
     );
+    // The steps it is tried in: data, SMS, then nearby phones (2026-10-19).
+    expect(find.text('How your SOS is being sent'), findsOneWidget);
+    expect(find.text('Trying'), findsOneWidget, reason: 'data, still');
+    expect(find.text('Sent'), findsOneWidget, reason: 'the SMS');
+    expect(find.text('Next'), findsOneWidget, reason: 'Bluetooth');
     expect(find.text('Offline · 1 waiting to send'), findsOneWidget);
 
     // The banner opens the offline queue (S6).
@@ -279,6 +284,13 @@ void main() {
     await tester.pump();
     expect(find.textContaining('Your SOS from 3:42'), findsOneWidget);
     expect(onStatus('Received by MDRRMD'), findsOneWidget);
+    expect(find.text('How your SOS is being sent'), findsNothing);
+    // The phone notification followed each step.
+    final notice = container.read(sosSendNoticeProvider) as MockSosSendNotice;
+    expect(
+      [for (final s in notice.shown) s.split(': ').first],
+      ['SOS sent by SMS to MDRRMD', 'Your SOS reached MDRRMD'],
+    );
     await finish(tester);
   });
 

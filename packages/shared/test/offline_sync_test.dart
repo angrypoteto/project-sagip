@@ -405,6 +405,7 @@ void main() {
           available: smsAvailable.stream,
           retryAfter: const Duration(milliseconds: 20),
         ),
+        dataWindow: Duration.zero,
       );
     });
 

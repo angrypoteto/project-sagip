@@ -42,13 +42,19 @@ class QueueSheet extends ConsumerWidget {
         children: [
           Text(l10n.queueTitle, style: text.titleLarge),
           const SizedBox(height: SagipSpace.sm),
-          Text(switch (signal) {
-            SignalState.internet => l10n.queueNextInternet,
-            SignalState.smsOnly =>
-              caps.smsTier ? l10n.queueNextSms : l10n.queueNextWait,
-            SignalState.noSignal =>
-              caps.relayTier ? l10n.queueNextNone : l10n.queueNextWait,
-          }, style: text.bodyMedium!.copyWith(color: p.textSecondary)),
+          // Offline, an SOS is tried over data, then by SMS, then through
+          // nearby phones (2026-10-19), whatever the signal looks like.
+          Text(
+            signal == SignalState.internet
+                ? l10n.queueNextInternet
+                : switch ((caps.smsTier, caps.relayTier)) {
+                    (true, true) => l10n.queueNextSteps,
+                    (true, false) => l10n.queueNextSms,
+                    (false, true) => l10n.queueNextNone,
+                    (false, false) => l10n.queueNextWait,
+                  },
+            style: text.bodyMedium!.copyWith(color: p.textSecondary),
+          ),
           const SizedBox(height: SagipSpace.lg),
           if (records.isEmpty)
             Padding(

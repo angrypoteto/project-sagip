@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -50,7 +51,8 @@ class MainActivity : FlutterActivity() {
 
     /**
      * The notification categories push messages name (supabase/functions/
-     * send-alerts/fcm.ts). All three can sound and pop up: each is about an
+     * send-alerts/fcm.ts), and "Sending your SOS" for the app's own notice
+     * of a waiting SOS. All can sound and pop up: each is about an
      * emergency. Creating them again changes nothing the person set.
      */
     private fun assignmentTone(): Uri =
@@ -65,6 +67,7 @@ class MainActivity : FlutterActivity() {
             listOf(
                 channel("sagip_alerts", R.string.channel_alerts, R.string.channel_alerts_about),
                 channel("sagip_rescue", R.string.channel_rescue, R.string.channel_rescue_about),
+                channel(SENDING_CHANNEL, R.string.channel_sending, R.string.channel_sending_about),
                 channel(
                     "sagip_assignments",
                     R.string.channel_assignments,
@@ -103,6 +106,24 @@ class MainActivity : FlutterActivity() {
                         } else {
                             send(number, text) { ok -> result.success(ok) }
                         }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/sos_notice")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "show" -> {
+                        showSending(
+                            call.argument<String>("title") ?: "",
+                            call.argument<String>("text") ?: "",
+                            call.argument<Boolean>("done") == true,
+                        )
+                        result.success(null)
+                    }
+                    "clear" -> {
+                        getSystemService(NotificationManager::class.java)?.cancel(SENDING_ID)
+                        result.success(null)
                     }
                     else -> result.notImplemented()
                 }
@@ -180,6 +201,35 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    /**
+     * The one "Sending your SOS" notification (2026-10-19): which way a
+     * waiting SOS is being tried (data, SMS, Bluetooth), changed in place.
+     * The app posts it again only when the step changes, so each step
+     * sounds once. It stays up until delivered, then can be swiped away.
+     */
+    private fun showSending(title: String, text: String, done: Boolean) {
+        val open = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
+        val notification = Notification.Builder(this, SENDING_CHANNEL)
+            .setSmallIcon(R.drawable.ic_stat_sagip)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setContentIntent(open)
+            .setOngoing(!done)
+            .setAutoCancel(done)
+            .build()
+        try {
+            getSystemService(NotificationManager::class.java)?.notify(SENDING_ID, notification)
+        } catch (_: Exception) {
+            // Notifications refused: the SOS screen shows the same steps.
+        }
     }
 
     /** Whether Android leaves the app running in the background. */
@@ -286,3 +336,6 @@ class MainActivity : FlutterActivity() {
         }
     }
 }
+
+private const val SENDING_CHANNEL = "sagip_sending"
+private const val SENDING_ID = 4212

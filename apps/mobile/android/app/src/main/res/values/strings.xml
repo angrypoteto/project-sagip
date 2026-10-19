@@ -8,6 +8,8 @@
     <string name="channel_rescue_about">When a rescue team is sent, arrives, and closes your SOS</string>
     <string name="channel_assignments">New assignments</string>
     <string name="channel_assignments_about">A new job for your unit (responders)</string>
+    <string name="channel_sending">Sending your SOS</string>
+    <string name="channel_sending_about">How your SOS is being sent when there is no internet: data, then SMS, then nearby phones</string>
     <string name="channel_relay">Passing on SOS</string>
     <string name="channel_relay_about">Shown while the phone passes SOS from nearby phones on over Bluetooth</string>
     <string name="relay_idle_title">Ready to pass on SOS from nearby phones</string>

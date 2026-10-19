@@ -254,6 +254,86 @@ class AppLocalizationsFil extends AppLocalizations {
       'Patuloy naming susubukan at ipapaalam kapag nakarating na.';
 
   @override
+  String get sosSendDataTitle => 'Walang internet. Sinusubukan ulit sa data';
+
+  @override
+  String get sosSendDataText =>
+      'Naka-save ang iyong SOS sa phone na ito. Kung hindi gumana ang data, ipapadala ito sa SMS, saka sa mga kalapit na phone.';
+
+  @override
+  String get sosSendSmsTitle => 'Naipadala sa SMS ang SOS sa MDRRMD';
+
+  @override
+  String get sosSendSmsText =>
+      'Hinihintay ang kumpirmasyon ng MDRRMD. Sinusubukan pa rin ang data. Kung walang balita sa loob ng 2 minuto, hihingan din ng tulong ang mga kalapit na phone sa Bluetooth.';
+
+  @override
+  String get sosSendSmsFailedTitle => 'Hindi naipadala ang SMS';
+
+  @override
+  String get sosSendSmsFailedText =>
+      'I-on ang Bluetooth para maipasa ng mga kalapit na phone ang iyong SOS. Sinusubukan pa rin ang data at SMS.';
+
+  @override
+  String get sosSendBluetoothTitle =>
+      'Hinihiling sa mga kalapit na phone na ipasa ang iyong SOS';
+
+  @override
+  String get sosSendBluetoothText =>
+      'Hindi naipadala ang SMS. Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Panatilihing naka-on ang Bluetooth.';
+
+  @override
+  String get sosSendBluetoothAfterSms =>
+      'Naipadala ang SMS pero hindi pa ito kinukumpirma ng MDRRMD, kaya hinihingan din ng tulong ang mga kalapit na phone na may S.A.G.I.P. Panatilihing naka-on ang Bluetooth.';
+
+  @override
+  String get sosSendDeliveredTitle => 'Nakarating na sa MDRRMD ang iyong SOS';
+
+  @override
+  String sosSendDeliveredText(String time) {
+    return 'Ipinadala nang $time. Buksan ang S.A.G.I.P. para masubaybayan ito.';
+  }
+
+  @override
+  String get sosSendRejectedTitle => 'Hindi tinanggap ang iyong SOS';
+
+  @override
+  String get sosSendRejectedText =>
+      'Buksan ang S.A.G.I.P. para makita kung bakit, o tumawag sa MDRRMD.';
+
+  @override
+  String get sendStepsTitle => 'Paano ipinapadala ang iyong SOS';
+
+  @override
+  String get sendStepData => 'Data';
+
+  @override
+  String get sendStepSms => 'SMS';
+
+  @override
+  String get sendStepBluetooth => 'Mga kalapit na phone (Bluetooth)';
+
+  @override
+  String get sendStepTrying => 'Sinusubukan';
+
+  @override
+  String get sendStepSent => 'Naipadala';
+
+  @override
+  String get sendStepFailed => 'Hindi naipadala';
+
+  @override
+  String get sendStepNext => 'Susunod';
+
+  @override
+  String get sendStepAsking => 'Hinihiling';
+
+  @override
+  String sendStepLine(String step, String state) {
+    return '$step: $state';
+  }
+
+  @override
   String get resolvedBody => 'Natugunan na ang iyong SOS. Mag-ingat po.';
 
   @override
@@ -517,6 +597,10 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get queueNextSms =>
       'Walang internet. Ipinapadala ang mga SOS sa SMS; naghihintay ng internet ang iba.';
+
+  @override
+  String get queueNextSteps =>
+      'Walang internet. Sinusubukan ang SOS sa data, saka sa SMS, saka sa mga kalapit na phone. Ang iba ay maghihintay ng internet.';
 
   @override
   String get queueNextNone =>

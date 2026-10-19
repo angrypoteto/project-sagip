@@ -8,6 +8,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import 'app_version.dart';
 import 'device/device_alert_sound.dart';
 import 'device/device_battery_optimization.dart';
+import 'device/device_sos_send_notice.dart';
 import 'device/device_sms_sender.dart';
 import 'device/tts_speaker.dart';
 
@@ -46,6 +47,12 @@ final batteryExemptProvider = FutureProvider<bool>(
 
 /// F2's assignment tone.
 final alertSoundProvider = Provider<AlertSound>((ref) => MockAlertSound());
+
+/// The phone notification for a waiting SOS: data, then SMS, then
+/// Bluetooth (2026-10-19).
+final sosSendNoticeProvider = Provider<SosSendNotice>(
+  (ref) => MockSosSendNotice(),
+);
 
 /// Says F4's directions aloud.
 final speakerProvider = Provider<Speaker>((ref) => MockSpeaker());
@@ -278,6 +285,7 @@ List<Override> liveOverrides({
     smsComposerProvider.overrideWithValue(const DeviceSmsSender()),
     speakerProvider.overrideWithValue(TtsSpeaker()),
     alertSoundProvider.overrideWithValue(const DeviceAlertSound()),
+    sosSendNoticeProvider.overrideWithValue(const DeviceSosSendNotice()),
     sosRepositoryProvider.overrideWithValue(
       OutboxSosRepository(
         engine: engine,

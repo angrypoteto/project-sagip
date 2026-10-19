@@ -218,6 +218,7 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: SagipSpace.md),
           Text(l10n.keepTrying, style: text.bodyMedium),
         ],
+        if (!sos.isDelivered) _SendSteps(clientId: sos.clientId),
         if (resolved) ...[
           const SizedBox(height: SagipSpace.md),
           Text(
@@ -334,6 +335,121 @@ class _CancelAsked extends StatelessWidget {
             OutlinedButton(
               onPressed: onWithdraw,
               child: Text(l10n.cancelWithdraw),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// How a waiting SOS is being sent (Joshua, 2026-10-19): data, then SMS,
+/// then nearby phones over Bluetooth; the same steps as the phone
+/// notification. Only for an SOS that could not go out at once.
+class _SendSteps extends ConsumerWidget {
+  const _SendSteps({required this.clientId});
+
+  final String clientId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final record = (ref.watch(pendingQueueProvider).value ?? const [])
+        .where(
+          (r) => r.id == clientId && r.waitedOffline && r.delivery.isPending,
+        )
+        .firstOrNull;
+    final steps = record?.steps;
+    if (steps == null) return const SizedBox.shrink();
+    final rows = <(IconData, String, _StepState, String)>[
+      (
+        Symbols.signal_cellular_alt_rounded,
+        l10n.sendStepData,
+        _StepState.active,
+        l10n.sendStepTrying,
+      ),
+      (
+        Symbols.sms_rounded,
+        l10n.sendStepSms,
+        steps.smsSent
+            ? _StepState.done
+            : steps.smsFailed
+            ? _StepState.failed
+            : _StepState.later,
+        steps.smsSent
+            ? l10n.sendStepSent
+            : steps.smsFailed
+            ? l10n.sendStepFailed
+            : l10n.sendStepNext,
+      ),
+      (
+        Symbols.bluetooth_rounded,
+        l10n.sendStepBluetooth,
+        steps.bluetooth ? _StepState.active : _StepState.later,
+        steps.bluetooth ? l10n.sendStepAsking : l10n.sendStepNext,
+      ),
+    ];
+    return Padding(
+      key: const ValueKey('send-steps'),
+      padding: const EdgeInsets.only(top: SagipSpace.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.sendStepsTitle, style: text.titleSmall),
+          const SizedBox(height: SagipSpace.sm),
+          for (final (icon, label, state, word) in rows)
+            _SendStepRow(icon: icon, label: label, state: state, word: word),
+        ],
+      ),
+    );
+  }
+}
+
+enum _StepState { active, done, failed, later }
+
+class _SendStepRow extends StatelessWidget {
+  const _SendStepRow({
+    required this.icon,
+    required this.label,
+    required this.state,
+    required this.word,
+  });
+
+  final IconData icon;
+  final String label;
+  final _StepState state;
+  final String word;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final tone = switch (state) {
+      _StepState.active => p.info.text,
+      _StepState.done => p.success.text,
+      _StepState.failed => p.critical.text,
+      _StepState.later => p.textSecondary,
+    };
+    return Semantics(
+      label: l10n.sendStepLine(label, word),
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: SagipSpace.xs),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: tone),
+            const SizedBox(width: SagipSpace.md),
+            Expanded(child: Text(label, style: text.bodyMedium)),
+            Text(
+              word,
+              style: text.labelLarge!.copyWith(
+                color: tone,
+                fontWeight: state == _StepState.later
+                    ? FontWeight.w400
+                    : FontWeight.w600,
+              ),
             ),
           ],
         ),

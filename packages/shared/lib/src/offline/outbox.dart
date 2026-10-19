@@ -48,6 +48,8 @@ class OutboxEntry {
     this.rejectReason,
     this.sequence = 0,
     this.smsSentAt,
+    this.smsFailedAt,
+    this.relayedAt,
   });
 
   /// The record's client id: the SOS, report, or completion report id, or
@@ -85,7 +87,22 @@ class OutboxEntry {
   /// pending until then.
   final DateTime? smsSentAt;
 
+  /// When a text of this SOS last failed (the phone could not send it).
+  final DateTime? smsFailedAt;
+
+  /// Tier 3: when nearby phones were first asked to pass this SOS on.
+  final DateTime? relayedAt;
+
   QueuedKind get kind => action.kind;
+
+  /// For an SOS, the ways it has been tried (data, SMS, Bluetooth).
+  SosSendSteps? get steps => action == OutboxAction.sos
+      ? SosSendSteps(
+          smsSent: smsSentAt != null,
+          smsFailed: smsSentAt == null && smsFailedAt != null,
+          bluetooth: relayedAt != null,
+        )
+      : null;
 
   OutboxEntry copyWith({
     Map<String, Object?>? payload,
@@ -97,6 +114,8 @@ class OutboxEntry {
     String? rejectReason,
     int? sequence,
     DateTime? smsSentAt,
+    DateTime? smsFailedAt,
+    DateTime? relayedAt,
   }) => OutboxEntry(
     id: id,
     action: action,
@@ -111,6 +130,8 @@ class OutboxEntry {
     rejectReason: rejectReason ?? this.rejectReason,
     sequence: sequence ?? this.sequence,
     smsSentAt: smsSentAt ?? this.smsSentAt,
+    smsFailedAt: smsFailedAt ?? this.smsFailedAt,
+    relayedAt: relayedAt ?? this.relayedAt,
   );
 
   QueuedRecord toQueued() => QueuedRecord(
@@ -120,6 +141,7 @@ class OutboxEntry {
     delivery: delivery,
     rejectReason: rejectReason,
     waitedOffline: waited,
+    steps: steps,
   );
 
   factory OutboxEntry.fromJson(Map<String, Object?> json) => OutboxEntry(
@@ -136,6 +158,8 @@ class OutboxEntry {
     rejectReason: json['reject_reason'] as String?,
     sequence: json['sequence'] as int? ?? 0,
     smsSentAt: timeFromJsonOrNull(json['sms_sent_at']),
+    smsFailedAt: timeFromJsonOrNull(json['sms_failed_at']),
+    relayedAt: timeFromJsonOrNull(json['relayed_at']),
   );
 
   Map<String, Object?> toJson() => {
@@ -152,6 +176,8 @@ class OutboxEntry {
     'reject_reason': rejectReason,
     'sequence': sequence,
     'sms_sent_at': smsSentAt?.toUtc().toIso8601String(),
+    'sms_failed_at': smsFailedAt?.toUtc().toIso8601String(),
+    'relayed_at': relayedAt?.toUtc().toIso8601String(),
   };
 }
 

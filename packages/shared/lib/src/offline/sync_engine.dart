@@ -89,7 +89,8 @@ abstract interface class SmsSender {
 }
 
 /// Tier 2 (plan section 11): an SOS goes to the MDRRMD gateway SIM as an
-/// SMS in the SAGIP1 format while the phone has signal but no data.
+/// SMS in the SAGIP1 format when data has not taken it within
+/// [SyncEngine.dataWindow].
 class SmsTier {
   const SmsTier({
     required this.sender,
@@ -105,7 +106,9 @@ class SmsTier {
   /// nothing is texted then.
   final String Function() gatewayNumber;
 
-  /// True while texting is the way out (signal, no internet).
+  /// True while texting may get the SOS out (no internet). Whether it went
+  /// is what the phone's SMS service says: with mobile data off there can
+  /// still be cell signal, and in airplane mode the text fails at once.
   final Stream<bool> available;
 
   /// A failed text is tried again after this, while texting is possible.
@@ -117,6 +120,13 @@ class SmsTier {
 /// confirms them. A refused record is kept (marked rejected) and the rest
 /// go on; a network failure stops the run so the order holds, and it is
 /// tried again after a pause or as soon as the phone is back online.
+///
+/// An SOS data has not taken within [dataWindow] goes on by SMS; if the
+/// text fails, or [relayAfterSms] after a text that went, nearby phones are
+/// asked to pass it on over Bluetooth (Joshua, 2026-10-19: "first the
+/// trying again the data, then SMS, then last the BLE"). Data is still
+/// tried all along; the server keeps one incident whichever copy arrives
+/// first.
 class SyncEngine {
   SyncEngine({
     required LocalStore store,
@@ -127,6 +137,8 @@ class SyncEngine {
     Duration Function(int attempts)? retryDelay,
     SmsTier? sms,
     RelayTier? relay,
+    this.dataWindow = const Duration(seconds: 20),
+    this.relayAfterSms = const Duration(minutes: 2),
   }) : _store = store,
        _sms = sms,
        _relay = relay,
@@ -165,10 +177,27 @@ class SyncEngine {
   }
 
   /// Where a record goes back to when a send did not finish: still "sent
-  /// by SMS" if the SMS went out.
+  /// by SMS" if the SMS went out, or "relaying" once nearby phones were
+  /// asked.
   static DeliveryState _notSent(OutboxEntry e) => e.smsSentAt != null
       ? DeliveryState.sentBySms
+      : e.relayedAt != null
+      ? DeliveryState.relaying
       : DeliveryState.savedOnPhone;
+
+  /// How long an SOS is tried over data alone before it is also texted
+  /// (20 s: two or three tries; the phone needs about 13 s of failed checks
+  /// to count itself offline anyway).
+  final Duration dataWindow;
+
+  /// How long after a text that went Bluetooth starts too, while the SOS is
+  /// still not delivered: "sent" only means the phone sent the SMS, not
+  /// that the gateway received it.
+  final Duration relayAfterSms;
+
+  /// A Bluetooth advert that could not start (Bluetooth off, no
+  /// permission) is tried again after this.
+  static const relayRetryAfter = Duration(seconds: 30);
 
   /// Delivered records stay this long so screens can show them until the
   /// server's copy catches up.
@@ -194,6 +223,14 @@ class SyncEngine {
   StreamSubscription<bool>? _relaySub;
   var _relayOk = false;
   Timer? _smsRetry;
+  Timer? _relayRetry;
+  Timer? _stepTimer;
+
+  /// SOS whose text just failed; texted again after [SmsTier.retryAfter].
+  final _smsWaiting = <String>{};
+
+  /// SOS this phone is advertising right now (adverts end with the app).
+  final _advertising = <String>{};
   final _deliveries = StreamController<QueuedRecord>.broadcast();
   Timer? _retry;
   var _online = false;
@@ -271,6 +308,14 @@ class SyncEngine {
         _again = false;
         final me = _account();
         if (me == null) return;
+        for (final e in [..._entries.value]) {
+          if (_disposed) return;
+          if (e.accountId == me &&
+              e.action == OutboxAction.sos &&
+              e.delivery.isPending) {
+            await _nextStep(e);
+          }
+        }
         // Photos go last: a slow upload never holds up an SOS or a
         // report, and a photo always follows its own record.
         final mine = [
@@ -286,18 +331,7 @@ class SyncEngine {
         for (final e in pending) {
           if (_disposed) return;
           if (!_online) {
-            if (_smsOk &&
-                _sms!.gatewayNumber().isNotEmpty &&
-                e.action == OutboxAction.sos &&
-                e.delivery == DeliveryState.savedOnPhone) {
-              await _sendSms(e);
-            } else if (_relayOk &&
-                e.action == OutboxAction.sos &&
-                e.delivery == DeliveryState.savedOnPhone) {
-              await _sendRelay(e);
-            } else if (!e.waited) {
-              await _put(e.copyWith(waited: true));
-            }
+            if (!e.waited) await _put(e.copyWith(waited: true));
             continue;
           }
           if (!await _send(e)) break;
@@ -305,7 +339,62 @@ class SyncEngine {
       } while (_again && !_disposed);
     } finally {
       _pumping = false;
+      _scheduleNextStep();
     }
+  }
+
+  /// Texts the SOS, then asks nearby phones, once each is due. Nothing
+  /// within [dataWindow] of its capture.
+  Future<void> _nextStep(OutboxEntry e) async {
+    final now = _clock();
+    if (now.difference(e.capturedAt) < dataWindow) return;
+    // Online, but data has failed for this SOS: try the other ways too.
+    final failing = _online && e.attempts > 0;
+    final sms = _sms;
+    final canText =
+        sms != null && sms.gatewayNumber().isNotEmpty && (_smsOk || failing);
+    var cur = e;
+    if (canText && cur.smsSentAt == null && !_smsWaiting.contains(cur.id)) {
+      cur = await _sendSms(cur);
+    }
+    if (_relay == null || !(_relayOk || failing)) return;
+    if (_advertising.contains(cur.id)) return;
+    final sent = cur.smsSentAt;
+    final due =
+        cur.relayedAt != null ||
+        (sent == null && (!canText || cur.smsFailedAt != null)) ||
+        (sent != null && !now.isBefore(sent.add(relayAfterSms)));
+    if (due) await _sendRelay(cur);
+  }
+
+  /// Wakes the engine when the next step of a waiting SOS is due: the end
+  /// of its data window, or Bluetooth after a text.
+  void _scheduleNextStep() {
+    _stepTimer?.cancel();
+    if (_disposed) return;
+    final me = _account();
+    final now = _clock();
+    DateTime? next;
+    for (final e in _entries.value) {
+      if (e.accountId != me ||
+          e.action != OutboxAction.sos ||
+          !e.delivery.isPending) {
+        continue;
+      }
+      final sent = e.smsSentAt;
+      final at = sent == null && e.smsFailedAt == null && e.relayedAt == null
+          ? e.capturedAt.add(dataWindow)
+          : sent != null && e.relayedAt == null
+          ? sent.add(relayAfterSms)
+          : null;
+      if (at != null &&
+          at.isAfter(now) &&
+          (next == null || at.isBefore(next))) {
+        next = at;
+      }
+    }
+    if (next == null) return;
+    _stepTimer = Timer(next.difference(now), () => unawaited(pump()));
   }
 
   /// Returns false when the network failed (stop, keep the order).
@@ -344,7 +433,7 @@ class SyncEngine {
   /// Tier 2: texts the SOS to the gateway. It stays pending (sent by SMS)
   /// so it still goes over the internet later; a failed text is tried again
   /// after [SmsTier.retryAfter] while texting is possible.
-  Future<void> _sendSms(OutboxEntry e) async {
+  Future<OutboxEntry> _sendSms(OutboxEntry e) async {
     final sms = _sms!;
     var sent = false;
     try {
@@ -355,23 +444,25 @@ class SyncEngine {
     } catch (_) {
       sent = false;
     }
-    if (sent) {
-      await _put(
-        e.copyWith(
-          delivery: DeliveryState.sentBySms,
-          smsSentAt: _clock(),
-          waited: true,
-        ),
-      );
-      return;
+    final next = sent
+        ? e.copyWith(
+            delivery: DeliveryState.sentBySms,
+            smsSentAt: _clock(),
+            waited: true,
+          )
+        : e.copyWith(smsFailedAt: _clock(), waited: true);
+    await _put(next);
+    if (!sent) {
+      _smsWaiting.add(e.id);
+      _smsRetry?.cancel();
+      if (!_disposed) {
+        _smsRetry = Timer(sms.retryAfter, () {
+          _smsWaiting.clear();
+          unawaited(pump());
+        });
+      }
     }
-    if (!e.waited) await _put(e.copyWith(waited: true));
-    _smsRetry?.cancel();
-    if (!_disposed) {
-      _smsRetry = Timer(sms.retryAfter, () {
-        if (_smsOk) unawaited(pump());
-      });
-    }
+    return next;
   }
 
   /// Tier 3: advertises the SOS to nearby phones (Bluetooth LE). It stays
@@ -389,14 +480,29 @@ class SyncEngine {
     } catch (_) {
       started = false;
     }
+    if (!started) {
+      if (!e.waited) await _put(e.copyWith(waited: true));
+      _relayRetry?.cancel();
+      if (!_disposed) {
+        _relayRetry = Timer(relayRetryAfter, () => unawaited(pump()));
+      }
+      return;
+    }
+    _advertising.add(e.id);
     await _put(
-      started
-          ? e.copyWith(delivery: DeliveryState.relaying, waited: true)
-          : e.copyWith(waited: true),
+      e.copyWith(
+        // A text that went is still the more telling badge.
+        delivery: e.smsSentAt != null
+            ? DeliveryState.sentBySms
+            : DeliveryState.relaying,
+        relayedAt: e.relayedAt ?? _clock(),
+        waited: true,
+      ),
     );
   }
 
   Future<void> _stopRelay(OutboxEntry e) async {
+    _advertising.remove(e.id);
     try {
       final id = e.payload['client_id'] as String?;
       if (id != null) await _relay?.radio.stop(RelayTier.ownKey(id));
@@ -426,6 +532,8 @@ class SyncEngine {
     _disposed = true;
     _retry?.cancel();
     _smsRetry?.cancel();
+    _relayRetry?.cancel();
+    _stepTimer?.cancel();
     await _smsSub?.cancel();
     await _relaySub?.cancel();
     await _onlineSub.cancel();

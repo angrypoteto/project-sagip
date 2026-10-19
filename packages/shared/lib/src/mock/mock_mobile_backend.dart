@@ -739,6 +739,11 @@ class MockMobileBackend {
             capturedAt: s.capturedAt,
             delivery: s.delivery,
             rejectReason: s.rejectReason,
+            waitedOffline: _waited.contains(s.clientId),
+            steps: SosSendSteps(
+              smsSent: s.sentVia == ReportChannel.sms,
+              bluetooth: s.delivery == DeliveryState.relaying,
+            ),
           ),
       for (final r in _reports.value)
         if (r.delivery != DeliveryState.delivered)
