@@ -278,6 +278,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Browser check of D8 (2026-10-02, headless Chrome at 1366 by 768, sample data, dark theme): the list, the map discs and markers, the legend, the hazard switch, and the barangay panel all fit and read well. Found and fixed: "Storm surge" wrapped in the hazard selector (the icons were dropped). Not checked: light theme, Supabase.
 
 ### Tests (last run 2026-10-19)
+- Latest counts (2026-10-20, gateway signature): `sms-intake` 10, `send-sms` 6 (`node --test`); `sms-intake` version 9 and `send-sms` version 7 deployed. The Dart packages did not change.
 - Latest counts (2026-10-19, update banner): `packages/shared` 345, `apps/dashboard` 59, `apps/mobile` 59; analyze clean in all three. No database change.
 - Latest counts (2026-10-19, gateway reply): `packages/shared` 345, `apps/dashboard` 59, `apps/mobile` 57, `sms-intake` 9 (`node --test`); analyze clean in all three. `sms-intake` version 8 deployed.
 - Latest counts (2026-10-19, Bluetooth right after the text): `packages/shared` 341, `apps/dashboard` 59, `apps/mobile` 56; analyze clean in all three.
@@ -1287,3 +1288,8 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
   - No 6-hour timer: a periodic timer stayed pending in widget tests that end with the app on screen.
   - Docs: `apps/mobile/README.md` (was the Flutter template) now has the release steps and how phones learn about a build; `apps/dashboard/README.md` has the APK and `latest.json` step for the resident site; `supabase/README.md` notes the banner next to the forced update.
   - App build 7 (`0.3.4+7`), installed on Joshua's phone; both sites redeployed (APK md5 `d4e75f276d31b4dc97fbbae6752f9f05`). Builds 6 and older have no banner, so the first banner anyone sees is for build 8.
+- **The gateway phone's webhook signature, and sign-in codes from the gateway SIM** (Joshua, 2026-10-20: "fix the sms-intake signature now, also i want to make the account sign up real and also the code sender").
+  - SMS Gateway for Android cannot add headers to its webhook, so `sms-intake` refused every text it forwarded (it only took `x-sagip-key` or a Bearer token). It now also takes the app's own signature: `X-Signature` = hex HMAC-SHA256 of the raw body and `X-Timestamp`, keyed with the app's Signing Key (set to `SMS_INTAKE_SECRET`), within 5 minutes (`signedByGateway` in `intake.ts`; the test vector was worked out with Python's `hmac`, as in the app's documentation). Version 9 deployed.
+  - Sign-up was already real end to end (`signInWithOtp` with `shouldCreateUser`, `verifyOTP`, `register_resident`). What was missing is the hook and secrets on the hosted project (Joshua's steps in `supabase/README.md`, "Sign-in codes"). `send-sms` (version 7) now asks the gateway to give up on a code after 5 minutes (`otpSeconds`), so a phone that was offline does not text a dead code later; the README says to set "SMS OTP Expiry" to 300 to match the text.
+  - Checked on the hosted project (read-only): phone sign-in on, sign-ups allowed, the provider still placeholder Twilio (the hook replaces it), `send-sms` never called yet, `sms_log` empty, one resident.
+  - Not done: the terms and privacy notice on S4 is still the draft text (the team and MDRRMD write the final one).

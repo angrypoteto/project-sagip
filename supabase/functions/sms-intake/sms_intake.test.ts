@@ -18,6 +18,7 @@ import {
   gatewayLogin,
   gatewaySendRequest,
   parseGatewayPayload,
+  signedByGateway,
   unreadableMessage,
 } from "./intake.ts";
 
@@ -106,6 +107,24 @@ test("the gateway must send the shared secret", () => {
   assert.equal(authorized(h({}), "s3cret-value"), false);
 });
 
+test("SMS Gateway for Android's signed webhook is accepted, and only that", async () => {
+  const h = (map: Record<string, string>) => ({ get: (n: string) => map[n.toLowerCase()] ?? null });
+  const key = "test-signing-key-0123456789abcdef";
+  const body = '{"event":"sms:received","payload":{"message":"hi","phoneNumber":"+639171234567"}}';
+  // Worked out with Python's hmac, as in the app's documentation.
+  const signature = "0db63ea7bafa07e7904540fb648269c0262230c4d5bd76c6f56c9f70ead1a1a6";
+  const signed = h({ "x-signature": signature, "x-timestamp": "1790000000" });
+  assert.ok(await signedByGateway(signed, body, key, 1790000000));
+  assert.ok(await signedByGateway(h({ "x-signature": signature.toUpperCase(), "x-timestamp": "1790000000" }), body, key, 1790000100));
+  // A changed body, another key, an old or future time, or no signature.
+  assert.equal(await signedByGateway(signed, body.replace("hi", "ho"), key, 1790000000), false);
+  assert.equal(await signedByGateway(signed, body, "another-key-0123456789abcdefghij", 1790000000), false);
+  assert.equal(await signedByGateway(signed, body, key, 1790000000 + 301), false);
+  assert.equal(await signedByGateway(signed, body, key, 1790000000 - 301), false);
+  assert.equal(await signedByGateway(h({ "x-timestamp": "1790000000" }), body, key, 1790000000), false);
+  assert.equal(await signedByGateway(h({ "x-signature": signature, "x-timestamp": "soon" }), body, key, 1790000000), false);
+});
+
 test("the reply goes back through the gateway app, from the SIM", () => {
   assert.equal(e164("0917 123 4567"), "+639171234567");
   assert.equal(e164("639171234567"), "+639171234567");
@@ -125,6 +144,9 @@ test("the reply goes back through the gateway app, from the SIM", () => {
     ttl: 3600,
   });
   assert.equal(gatewaySendRequest(url, "u", "p", "0285270000", "x"), null);
+  // A sign-in code is not sent after it expires.
+  const code = gatewaySendRequest(url, "u", "p", "09171234567", "code", 300)!;
+  assert.equal(JSON.parse(code.init.body as string).ttl, 300);
   // Several at once, landlines and repeats dropped.
   const many = gatewaySendRequest(url, "u", "p", ["09171234567", "0285270000", "639171234567", "09180003310"], "x")!;
   assert.deepEqual(JSON.parse(many.init.body as string).phoneNumbers, ["+639171234567", "+639180003310"]);

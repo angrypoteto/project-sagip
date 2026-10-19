@@ -25,6 +25,7 @@ import {
   hookError,
   maskNumber,
   otpMessage,
+  otpSeconds,
   parsePayload,
   semaphoreNumber,
 } from "./sms.ts";
@@ -62,7 +63,15 @@ Deno.serve(async (req) => {
 
   if (gateway) {
     // From the gateway SIM. The code is in the text, so the log hides it.
-    const request = gatewaySendRequest(gateway.url, gateway.username, gateway.password, number, message)!;
+    // A code that could not go out before it expires is not sent late.
+    const request = gatewaySendRequest(
+      gateway.url,
+      gateway.username,
+      gateway.password,
+      number,
+      message,
+      otpSeconds,
+    )!;
     let ok = false;
     let detail: string | null = null;
     try {

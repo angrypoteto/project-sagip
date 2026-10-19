@@ -16,9 +16,11 @@
 // Either way it is logged in sms_log (kind `ack`).
 //
 // Secrets (Edge Functions > Secrets): SMS_INTAKE_SECRET (shared with the
-// gateway), optional SMS_GATEWAY_SEND_URL, SMS_GATEWAY_USERNAME,
-// SMS_GATEWAY_PASSWORD, SEMAPHORE_API_KEY, SEMAPHORE_SENDER_NAME,
-// SMS_ACK_VIA_SEMAPHORE. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are
+// gateway: SMS Gateway for Android uses it as its webhook Signing Key and
+// signs each request, X-Signature and X-Timestamp; other gateways may send
+// it as x-sagip-key or a Bearer token), optional SMS_GATEWAY_SEND_URL,
+// SMS_GATEWAY_USERNAME, SMS_GATEWAY_PASSWORD, SEMAPHORE_API_KEY,
+// SEMAPHORE_SENDER_NAME, SMS_ACK_VIA_SEMAPHORE. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are
 // provided by the platform.
 //
 // Deploy with JWT checking off (the gateway uses the shared secret):
@@ -33,6 +35,7 @@ import {
   gatewayLogin,
   gatewaySendRequest,
   parseGatewayPayload,
+  signedByGateway,
   unreadableMessage,
 } from "./intake.ts";
 
@@ -114,9 +117,19 @@ async function sendAckViaGateway(to: string, message: string): Promise<boolean> 
 Deno.serve(async (req) => {
   const secret = Deno.env.get("SMS_INTAKE_SECRET");
   if (!secret || !url || !serviceKey) return json(500, { error: "sms-intake is not set up" });
-  if (!authorized(req.headers, secret)) return json(401, { error: "unauthorized" });
+  // The signature covers the raw body, so read it before parsing.
+  const raw = await req.text();
+  if (!authorized(req.headers, secret) && !(await signedByGateway(req.headers, raw, secret))) {
+    return json(401, { error: "unauthorized" });
+  }
 
-  const inbound = parseGatewayPayload(await req.json().catch(() => null));
+  let body: unknown = null;
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    body = null;
+  }
+  const inbound = parseGatewayPayload(body);
   if (!inbound) return json(400, { error: "unrecognised payload" });
   const who = maskNumber(inbound.from);
 

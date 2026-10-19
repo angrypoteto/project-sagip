@@ -1,6 +1,12 @@
 // Message text and number handling for the Send SMS hook. Pure functions,
 // tested with Node (sms.test.ts).
 
+/**
+ * How long a sign-in code is good for. "SMS OTP Expiry" (Authentication >
+ * Sign In / Providers > Phone) must say the same, so the text is true.
+ */
+export const otpSeconds = 300;
+
 /** The sign-in code message (S5). Short, plain, under 160 characters. */
 export function otpMessage(code: string): string {
   return `Your S.A.G.I.P. code is ${code}. It expires in 5 minutes. Do not share it with anyone.`;

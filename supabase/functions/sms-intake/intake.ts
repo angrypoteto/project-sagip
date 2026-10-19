@@ -59,8 +59,9 @@ export function unreadableMessage(): string {
 }
 
 /**
- * The gateway sends the shared secret as `Authorization: Bearer <secret>`
- * or `x-sagip-key: <secret>`. Compared in constant time.
+ * A gateway that can add headers sends the shared secret as
+ * `Authorization: Bearer <secret>` or `x-sagip-key: <secret>`. SMS Gateway
+ * for Android signs instead ([signedByGateway]). Compared in constant time.
  */
 export function authorized(
   headers: { get(name: string): string | null },
@@ -68,12 +69,59 @@ export function authorized(
 ): boolean {
   const bearer = headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? null;
   const given = headers.get("x-sagip-key") ?? bearer;
-  if (!given || given.length !== secret.length) return false;
+  return given !== null && same(given, secret);
+}
+
+/** Constant-time comparison, so a check does not leak the secret. */
+function same(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
   let diff = 0;
-  for (let i = 0; i < secret.length; i++) {
-    diff |= given.charCodeAt(i) ^ secret.charCodeAt(i);
-  }
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;
+}
+
+/** How far the gateway app's `X-Timestamp` may be from now, in seconds. */
+export const signatureToleranceSeconds = 5 * 60;
+
+/**
+ * How SMS Gateway for Android signs each webhook (2026-10-20): the hex
+ * HMAC-SHA256 of the raw body followed by the `X-Timestamp` value, keyed
+ * with the app's Signing Key (Settings > Webhooks > Signing Key). The app
+ * cannot send custom headers, so this is how it proves itself.
+ */
+export async function gatewaySignature(
+  key: string,
+  body: string,
+  timestamp: string,
+): Promise<string> {
+  const k = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(key),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const mac = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(body + timestamp));
+  return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * True when the webhook carries the gateway app's signature made with
+ * [key] (the app's Signing Key, set to the same value as
+ * SMS_INTAKE_SECRET), dated within [signatureToleranceSeconds] of [now] so
+ * a captured request cannot be replayed later.
+ */
+export async function signedByGateway(
+  headers: { get(name: string): string | null },
+  body: string,
+  key: string,
+  now: number = Date.now() / 1000,
+): Promise<boolean> {
+  const signature = headers.get("x-signature")?.trim().toLowerCase();
+  const timestamp = headers.get("x-timestamp")?.trim();
+  if (!signature || !timestamp || !/^\d+$/.test(timestamp)) return false;
+  if (Math.abs(now - Number(timestamp)) > signatureToleranceSeconds) return false;
+  return same(signature, await gatewaySignature(key, body, timestamp));
 }
 
 /** A Philippine mobile number in E.164 ("+639171234567"), or null. */
@@ -110,7 +158,8 @@ export function gatewayLogin(get: (name: string) => string | undefined): Gateway
  * own load or unlimited-text promo pays). High priority, so the app's rate
  * limit never holds back a reply to an SOS. [to] is one number or several;
  * numbers that are not Philippine mobiles are dropped, and null comes back
- * when none is left.
+ * when none is left. [ttlSeconds] is how long the gateway keeps trying
+ * before it gives up (an hour; a sign-in code passes its own expiry).
  */
 export function gatewaySendRequest(
   url: string,
@@ -118,6 +167,7 @@ export function gatewaySendRequest(
   password: string,
   to: string | string[],
   text: string,
+  ttlSeconds = 3600,
 ): { url: string; init: RequestInit } | null {
   const numbers = [
     ...new Set((Array.isArray(to) ? to : [to]).map(e164).filter((n): n is string => n !== null)),
@@ -135,7 +185,7 @@ export function gatewaySendRequest(
         textMessage: { text },
         phoneNumbers: numbers,
         priority: 100,
-        ttl: 3600,
+        ttl: ttlSeconds,
       }),
     },
   };

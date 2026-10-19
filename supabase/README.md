@@ -123,12 +123,13 @@ select public.create_staff_account('name@example.com', 'a-strong-password', 'R. 
 
 The app asks Supabase to text a code; Supabase hands the code to the `send-sms` Edge Function (a "Send SMS hook"), which sends it through Semaphore. Until the Semaphore account exists, the function sends nothing and keeps the message (with the code) in the `sms_log` table for an hour, so the demo still works.
 
-1. **The function:** deployed by Claude on 2026-10-03 (version 1, JWT check off). Until step 4 it answers "The SMS hook is not set up." To redeploy after a change: `supabase functions deploy send-sms --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+1. **The function:** deployed by Claude (JWT check off; version 7 on 2026-10-20, which stops the gateway from sending a code after it expires). Until step 4 it answers "The SMS hook is not set up." To redeploy after a change: `supabase functions deploy send-sms --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
 2. **Turn on phone sign-in:** Authentication > Sign In / Providers > Phone: enable it. The SMS provider fields can stay empty when the hook is used.
 3. **Point the hook at the function:** Authentication > Hooks > Send SMS hook > Add: type HTTPS, URL `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/send-sms`. Click "Generate secret" and copy it (it starts with `v1,whsec_`).
 4. **Give the function its secrets:** Edge Functions > Secrets: `SEND_SMS_HOOK_SECRET` = the secret from step 3. Later, when the account exists: `SEMAPHORE_API_KEY`, and `SEMAPHORE_SENDER_NAME` once Semaphore approves it.
-5. **Try it:** in the app, enter a number and tap Send code. Without Semaphore, read the code in the Table Editor: `sms_log`, newest row. With Semaphore, the phone gets a text.
-6. **For demos without texts at all:** Authentication > Sign In / Providers > Phone > Test phone numbers: for example `639170004821=123456` (Maria's sample number). Test numbers never call the hook.
+5. **Code expiry:** Authentication > Sign In / Providers > Phone > "SMS OTP Expiry": `300` (5 minutes; the text says so, and the gateway gives up on a code it could not send by then, `otpSeconds` in `send-sms/sms.ts`). While there, "Rate limits" caps sign-in texts per hour for the whole project; raise it before a UAT with many residents.
+6. **Try it:** in the app, enter a number and tap Send code. With the gateway secrets set, the gateway phone texts the code (`sms_log`: `provider = 'gateway'`, the code hidden). Without the gateway or Semaphore, read the code in the Table Editor: `sms_log`, newest row.
+7. **For demos without texts at all:** Authentication > Sign In / Providers > Phone > Test phone numbers: for example `639170004821=123456` (Maria's sample number). Test numbers never call the hook.
 
 The function never logs full numbers (only "0917 ••• 4821"), and `sms_log` is not readable from the apps.
 
@@ -147,8 +148,16 @@ With the three secrets below set, every text goes from the gateway SIM: sign-in 
 
 When a phone has signal but no data, the app texts the SOS to the MDRRMD gateway SIM in a short checked format (`SAGIP1 SOS <id> <lat>,<lng> <accuracy> <time> <flags> <crc>`). The gateway forwards each text to `sms-intake`, which files the SOS; the app's later internet copy is recognised by the same id.
 
-1. **Gateway phone:** a spare Android phone with the gateway SIM, running an SMS gateway app that forwards received texts to a webhook (for example SMS Gateway for Android). Set its webhook to `https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake` with the header `x-sagip-key: <secret>`.
-2. **The function:** deployed by Claude on 2026-10-03 (version 1, JWT check off). Until step 3 it answers `sms-intake is not set up` and files nothing. To redeploy after a change: `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
+1. **Gateway phone:** a spare Android phone with the gateway SIM, running SMS Gateway for Android in cloud mode (the free route above). It cannot add headers to a webhook; it signs each one instead (`X-Signature`, an HMAC-SHA256 of the body and `X-Timestamp`, with its **Signing Key**). So:
+   - In the app, Settings > Webhooks > Signing Key: the same value as `SMS_INTAKE_SECRET` (step 3).
+   - Register the webhook from your own terminal (the command holds the app's password, so not in a shared chat or a file in the repo; in Windows PowerShell type `curl.exe`, since `curl` there is another command):
+
+     ```bash
+     curl -X POST -u "<username>:<password>" -H "Content-Type: application/json" -d '{"url": "https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake", "event": "sms:received"}' https://api.sms-gate.app/3rdparty/v1/webhooks
+     ```
+
+   `sms-intake` (version 9, 2026-10-20) accepts that signature, made within 5 minutes, or for other gateways the secret as `x-sagip-key: <secret>` or `Authorization: Bearer <secret>`.
+2. **The function:** deployed by Claude (JWT check off; version 9 on 2026-10-20). Until step 3 it answers `sms-intake is not set up` and files nothing. To redeploy after a change: `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
 3. **Secrets:** `SMS_INTAKE_SECRET` = the same secret (make one with at least 32 random characters, for example from a password manager; it never goes in the repo). **The reply from the gateway SIM** (version 2, deployed 2026-10-03): in SMS Gateway for Android turn on cloud mode, then add `SMS_GATEWAY_SEND_URL` = `https://api.sms-gate.app/3rdparty/v1/messages` and the app's `SMS_GATEWAY_USERNAME` and `SMS_GATEWAY_PASSWORD` (shown in the app). The function then asks the phone to text "Your SOS was received (INC-..., ref xxxxxxxx)" back from the SIM (the ref is the first 8 characters of the SOS id; the app reads this reply to know the text arrived and stops asking nearby phones, 2026-10-19), logged in `sms_log` (`kind = 'ack'`, `provider = 'gateway'`). The app's local mode cannot be used: Supabase cannot reach a phone on your Wi-Fi. Without those secrets, `SMS_ACK_VIA_SEMAPHORE=true` sends the reply through Semaphore; with neither, the response's `reply` is for the gateway to send.
 4. **Phones:** an admin enters the gateway SIM's number on the dashboard's Configuration page ("Numbers shown in the apps"). Phones read it when the app starts and keep the last copy, so it is there with no data. No rebuild is needed; `SMS_GATEWAY_NUMBER` in `apps/mobile/.env` still works and takes priority. Residents allow SMS on the welcome screen.
 5. **Try it:** turn off mobile data on a test phone (keep signal), hold SOS; the board shows it as an SMS SOS within seconds. Unreadable texts are in `sms_log` (`kind = 'inbound'`, `status = 'unreadable'`).
