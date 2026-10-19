@@ -17,6 +17,17 @@ The build runs on your computer, not on Vercel (Vercel's build machines have no 
 
    Each takes about two minutes. The builds hold the Supabase URL and the **publishable** key, which are meant to be public (Row Level Security protects the data). Never put the service-role key in `.env`.
 
+   The resident site also hands out the Android app. The build wipes `build/web-form`, so put the APK and its build number back each time, together (in `apps/dashboard`, after `flutter build apk` in `apps/mobile`):
+
+   ```bash
+   mkdir -p build/web-form/download
+   cp ../mobile/build/app/outputs/flutter-apk/app-release.apk build/web-form/download/sagip.apk
+   b=$(grep -oE '^version: [0-9.]+\+[0-9]+' ../mobile/pubspec.yaml | sed 's/.*+//')
+   printf '{"build": %s}\n' "$b" > build/web-form/download/latest.json
+   ```
+
+   Since build 7 the app reads `latest.json` and shows "A newer S.A.G.I.P. is out" when it names a higher build than the app's own (`web/vercel.json` serves it uncached). A missing file shows nothing; a number with no matching APK sends people to download the old one.
+
 2. **Deploy** (Vercel CLI, `npm i -g vercel`, then `vercel login` once):
 
    ```bash
@@ -28,6 +39,6 @@ The build runs on your computer, not on Vercel (Vercel's build machines have no 
 
 3. **Supabase:** Authentication > URL Configuration: add the two addresses to the Redirect URLs. Sign-in works without it (it uses passwords and codes, not links), but password-reset and email links would point at localhost.
 
-4. **After a change:** build again and deploy again. Nothing else changes.
+4. **After a change:** build again and deploy again. Nothing else changes. For a new app build, raise the `+N` in `apps/mobile/pubspec.yaml` and `appBuild` first (see `apps/mobile/README.md`).
 
 The map tiles still come from OpenStreetMap's public server, which allows light use only. Before the pilot, self-hosted Manila tiles go behind `MAP_TILE_URL` (see `docs/PROGRESS.md`); they can also be put on Vercel or any static host as a folder of `z/x/y.png` files.
