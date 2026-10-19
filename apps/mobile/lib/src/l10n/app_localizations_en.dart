@@ -1427,7 +1427,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyCollectBody =>
-      'Your name, mobile number, and barangay; where you are when you send an SOS or a report, and where your phone moves while that SOS is open; and, only if you agree, household members who may need priority rescue.';
+      'Your name, mobile number, and barangay; where you are when you send an SOS or a report, and where your phone moves while that SOS is open; and, only if you agree, household members who may need priority rescue; and any photo you choose to add to an SOS or a report (sent without the location data your camera stores).';
 
   @override
   String get privacyWhyTitle => 'Why';
@@ -1448,7 +1448,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyKeepBody =>
-      'Your account details, as long as you have an account. One year after an SOS or a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name, your note, and the exact place. The record itself stays for MDRRMD\'s reports.';
+      'Your account details, as long as you have an account. One year after an SOS or a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name, your note, and the exact place. The record itself stays for MDRRMD\'s reports. Photos are hidden from everyone at the same time.';
 
   @override
   String get privacyRightsTitle => 'Your rights';
@@ -2131,4 +2131,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateSosStill => 'In an emergency, hold SOS';
+
+  @override
+  String get photoAdd => 'Add a photo';
+
+  @override
+  String get photoAddOptional => 'Add a photo (optional)';
+
+  @override
+  String get photoTake => 'Take a photo';
+
+  @override
+  String get photoChoose => 'Choose from gallery';
+
+  @override
+  String get photoFailed => 'Could not use that photo. Try another one.';
+
+  @override
+  String get photoSaved => 'Photo added. It is sent after your SOS.';
+
+  @override
+  String get photoSosHint =>
+      'Optional. A photo helps MDRRMD see what is happening. It is sent after your SOS, never before.';
+
+  @override
+  String photoSosCount(int count, int max) {
+    return '$count of $max photos added. They are sent after your SOS, when there is internet.';
+  }
+
+  @override
+  String get photoReportAdded => 'Photo added. It is sent after your report.';
+
+  @override
+  String get photoRemove => 'Remove the photo';
+
+  @override
+  String get photoThumb => 'The photo you added';
+
+  @override
+  String get queueKindPhoto => 'Photo';
+
+  @override
+  String photoDeliveredNotice(String time) {
+    return 'Your photo from $time was delivered.';
+  }
 }

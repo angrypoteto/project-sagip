@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -19,6 +22,27 @@ import 'web_router.dart';
 /// chosen one. The draft is kept in the browser, so a lost connection or a
 /// reload does not lose it. A single report is never an incident on its
 /// own: DBSCAN needs a cluster (FR7).
+/// Chooses a photo in the browser (on a phone, the camera too) and gets it
+/// ready to send ([preparePhoto]); null when cancelled or not usable.
+typedef WebPhotoTaker = Future<Uint8List?> Function();
+
+final webPhotoTakerProvider = Provider<WebPhotoTaker>(
+  (ref) => () async {
+    try {
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        imageQuality: 90,
+      );
+      if (file == null) return null;
+      return preparePhoto(await file.readAsBytes());
+    } catch (_) {
+      return null;
+    }
+  },
+);
+
 class WebReportPage extends ConsumerStatefulWidget {
   const WebReportPage({super.key});
 
@@ -39,6 +63,19 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
   var _lostConnection = false;
   var _failed = false;
   BrowserLocationFailure? _locationFailure;
+
+  /// An optional photo (2026-10-19), sent after the report.
+  Uint8List? _photo;
+  var _photoFailed = false;
+
+  Future<void> _addPhoto() async {
+    final photo = await ref.read(webPhotoTakerProvider)();
+    if (!mounted) return;
+    setState(() {
+      _photo = photo ?? _photo;
+      _photoFailed = photo == null;
+    });
+  }
 
   @override
   void initState() {
@@ -130,6 +167,15 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
             accuracyMeters: draft.accuracyMeters,
             barangay: draft.barangay,
           );
+      final photo = _photo;
+      if (photo != null) {
+        try {
+          await ref.read(webReportsProvider).addPhoto(draft.clientId, photo);
+        } catch (_) {
+          // The report is in; only its photo is not.
+          messenger.showSnackBar(SnackBar(content: Text(l10n.webPhotoNotSent)));
+        }
+      }
       if (!mounted) return;
       _draft.clear();
       context.go(WebRoutes.received(report.serverId ?? report.clientId));
@@ -282,6 +328,13 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
           const SizedBox(height: SagipSpace.md),
           WebMessage(text: l10n.webNeedLocation, tone: p.critical),
         ],
+        const SizedBox(height: SagipSpace.xl),
+        _WebPhotoRow(
+          photo: _photo,
+          failed: _photoFailed,
+          onAdd: _addPhoto,
+          onRemove: () => setState(() => _photo = null),
+        ),
         const SizedBox(height: SagipSpace.xxl),
         _QuotaLine(noneLeft: quota == null ? null : _noneLeft(l10n, quota)),
         if (problem != null) ...[
@@ -320,6 +373,76 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
     return at == null
         ? l10n.webQuotaNoneLater(quota.limit)
         : l10n.webQuotaNone(quota.limit, formatTime(at, l10n.localeName));
+  }
+}
+
+/// The report's optional photo (2026-10-19).
+class _WebPhotoRow extends StatelessWidget {
+  const _WebPhotoRow({
+    required this.photo,
+    required this.failed,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  final Uint8List? photo;
+  final bool failed;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final shot = photo;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (shot == null)
+          OutlinedButton.icon(
+            key: const ValueKey('web-add-photo'),
+            onPressed: onAdd,
+            icon: const Icon(Symbols.add_a_photo_rounded),
+            label: Text(l10n.webPhotoAdd),
+          )
+        else
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(SagipRadius.control),
+                child: Image.memory(
+                  shot,
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.cover,
+                  semanticLabel: l10n.webPhotoThumb,
+                ),
+              ),
+              const SizedBox(width: SagipSpace.md),
+              Expanded(
+                child: Text(
+                  l10n.webPhotoAdded,
+                  style: text.bodyMedium!.copyWith(color: p.textSecondary),
+                ),
+              ),
+              IconButton(
+                key: const ValueKey('web-remove-photo'),
+                tooltip: l10n.webPhotoRemove,
+                onPressed: onRemove,
+                icon: const Icon(Symbols.close_rounded),
+              ),
+            ],
+          ),
+        if (failed) ...[
+          const SizedBox(height: SagipSpace.sm),
+          Text(
+            l10n.webPhotoFailed,
+            style: text.bodySmall!.copyWith(color: p.critical.text),
+          ),
+        ],
+      ],
+    );
   }
 }
 

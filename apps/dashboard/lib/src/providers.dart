@@ -303,6 +303,15 @@ final residentProvider = StreamProvider.family<Resident?, String>(
   ),
 );
 
+/// D4: the photos on an incident (2026-10-19).
+final incidentPhotosProvider = StreamProvider.autoDispose
+    .family<List<IncidentPhoto>, String>(
+      (ref, id) => _forAccount(
+        ref,
+        () => ref.watch(incidentRepositoryProvider).watchPhotos(id),
+      ),
+    );
+
 /// D4: what the resident who sent an SOS was told, and how it went out.
 final incidentNoticesProvider =
     StreamProvider.family<List<ResidentNotice>, String>(

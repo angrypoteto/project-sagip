@@ -7,6 +7,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../../common/hotline.dart';
 import '../../common/labels.dart';
 import '../../common/offline_banner.dart';
+import '../../common/photo_picker.dart';
 import '../../common/timeline.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -260,6 +261,10 @@ class _Body extends ConsumerWidget {
               sos.details.isEmpty ? l10n.addDetails : l10n.editDetails,
             ),
           ),
+        if (!resolved) ...[
+          const SizedBox(height: SagipSpace.md),
+          _PhotoSection(sos: sos),
+        ],
         const SizedBox(height: SagipSpace.xl),
         _LocationCard(sos: sos),
         if (!resolved) ...[
@@ -408,6 +413,54 @@ class _Timeline extends StatelessWidget {
                 : (i == current ? TimelineState.current : TimelineState.later),
             last: i == steps.length - 1,
           ),
+      ],
+    );
+  }
+}
+
+/// An optional photo (2026-10-19): only after the SOS is sent, and sent
+/// after it, so the SOS never waits for a picture.
+class _PhotoSection extends ConsumerWidget {
+  const _PhotoSection({required this.sos});
+
+  final SosRequest sos;
+
+  Future<void> _add(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final photo = await pickPhoto(context, ref);
+    if (photo == null) return;
+    try {
+      await ref.read(sosRepositoryProvider).addPhoto(sos.clientId, photo);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.photoSaved)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.photoFailed)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final count = ref.watch(sosPhotoCountProvider(sos.clientId)).value ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (count < photosPerRecord)
+          OutlinedButton.icon(
+            key: const ValueKey('sos-add-photo'),
+            onPressed: () => _add(context, ref),
+            icon: const Icon(Symbols.add_a_photo_rounded),
+            label: Text(l10n.photoAdd),
+          ),
+        const SizedBox(height: SagipSpace.xs),
+        Text(
+          count == 0
+              ? l10n.photoSosHint
+              : l10n.photoSosCount(count, photosPerRecord),
+          style: text.bodySmall!.copyWith(color: p.textSecondary),
+        ),
       ],
     );
   }

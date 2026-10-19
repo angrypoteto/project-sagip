@@ -1440,7 +1440,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get privacyCollectBody =>
-      'Ang iyong pangalan, mobile number, at barangay; kung nasaan ka kapag nagpapadala ka ng SOS o report, at kung saan gumagalaw ang phone mo habang bukas ang SOS na iyon; at, kung papayag ka lang, ang mga kasama sa bahay na maaaring kailangang unahing sagipin.';
+      'Ang iyong pangalan, mobile number, at barangay; kung nasaan ka kapag nagpapadala ka ng SOS o report, at kung saan gumagalaw ang phone mo habang bukas ang SOS na iyon; at, kung papayag ka lang, ang mga kasama sa bahay na maaaring kailangang unahing sagipin; at anumang larawang pipiliin mong idagdag sa SOS o report (ipinapadala nang walang location data na itinatago ng camera mo).';
 
   @override
   String get privacyWhyTitle => 'Bakit';
@@ -1461,7 +1461,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get privacyKeepBody =>
-      'Ang mga detalye ng account mo, hangga\'t may account ka. Isang taon matapos isara ang SOS o report (maaaring magtakda ang MDRRMD ng ibang panahon), inaalis dito ang makapagtuturo sa iyo: ang pangalan mo, tala mo, at eksaktong lugar. Nananatili ang mismong rekord para sa mga report ng MDRRMD.';
+      'Ang mga detalye ng account mo, hangga\'t may account ka. Isang taon matapos isara ang SOS o report (maaaring magtakda ang MDRRMD ng ibang panahon), inaalis dito ang makapagtuturo sa iyo: ang pangalan mo, tala mo, at eksaktong lugar. Nananatili ang mismong rekord para sa mga report ng MDRRMD. Itinatago rin sa lahat ang mga larawan sa parehong oras.';
 
   @override
   String get privacyRightsTitle => 'Iyong mga karapatan';
@@ -2159,4 +2159,50 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get updateSosStill => 'Sa emergency, pindutin nang matagal ang SOS';
+
+  @override
+  String get photoAdd => 'Magdagdag ng larawan';
+
+  @override
+  String get photoAddOptional => 'Magdagdag ng larawan (opsyonal)';
+
+  @override
+  String get photoTake => 'Kumuha ng larawan';
+
+  @override
+  String get photoChoose => 'Pumili mula sa gallery';
+
+  @override
+  String get photoFailed => 'Hindi magamit ang larawang iyon. Subukan ang iba.';
+
+  @override
+  String get photoSaved =>
+      'Naidagdag ang larawan. Ipapadala ito pagkatapos ng iyong SOS.';
+
+  @override
+  String get photoSosHint =>
+      'Opsyonal. Nakatutulong ang larawan para makita ng MDRRMD ang nangyayari. Ipinapadala ito pagkatapos ng iyong SOS, hindi kailanman bago.';
+
+  @override
+  String photoSosCount(int count, int max) {
+    return '$count sa $max larawan ang naidagdag. Ipapadala ang mga ito pagkatapos ng iyong SOS, kapag may internet.';
+  }
+
+  @override
+  String get photoReportAdded =>
+      'Naidagdag ang larawan. Ipapadala ito pagkatapos ng iyong ulat.';
+
+  @override
+  String get photoRemove => 'Alisin ang larawan';
+
+  @override
+  String get photoThumb => 'Ang larawang idinagdag mo';
+
+  @override
+  String get queueKindPhoto => 'Larawan';
+
+  @override
+  String photoDeliveredNotice(String time) {
+    return 'Naihatid na ang iyong larawan mula $time.';
+  }
 }

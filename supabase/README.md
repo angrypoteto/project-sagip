@@ -435,6 +435,10 @@ Each resident's phone makes a 32-byte secret per account and hands it over once 
 
 `client_config()` returns `min_build`, set on A3 ("Mobile app version"). An app with an older build shows "Update S.A.G.I.P." with the download link `https://sagip.me/download/sagip.apk` (the resident site serves the APK) and keeps only SOS and the hotline, never while the resident's SOS is open or the responder's unit has a job. Apps before build 2 have no such check.
 
+## Photos on an SOS or a report (migration `incident_photos`, 2026-10-19)
+
+Private bucket `incident-photos` (JPEG, at most 2 MB; the apps shrink to 1280 px and drop EXIF). A resident uploads into `<their account id>/<photo id>.jpg` only, then `attach_photo(photo_id, 'sos' | 'report', record client id)` ties it to their own SOS or crowd report (three at most; not on a closed SOS). Read by dispatchers and admins, the uploader, and the unit assigned to the incident; `incident_photos(incident_id)` returns an SOS's photos and those of the reports in its cluster. When retention anonymizes an incident or report, its photos are hidden (`expired_at`); deleting the files needs the Storage API (Supabase blocks deletes on `storage.objects` from SQL), which is still to do.
+
 ## Running the RLS test
 
 With the Supabase CLI and Docker: `supabase start`, then `supabase test db`. The test runs in one transaction that is rolled back, so it is also safe to paste into the hosted SQL editor if it is converted to collect its results (see `docs/PROGRESS.md`, Gotchas).

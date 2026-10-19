@@ -186,6 +186,53 @@ void main() {
     expect(find.text('Barangay 412, Sampaloc'), findsWidgets);
   });
 
+  testWidgets('the incident panel shows the photos residents added', (
+    tester,
+  ) async {
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        ...mockOverrides(backend, demoTools: false),
+        mapTilesEnabledProvider.overrideWithValue(false),
+        sosPingProvider.overrideWithValue(false),
+        unitGlideProvider.overrideWithValue(false),
+        clockProvider.overrideWith((ref) => Stream.value(now)),
+        slowClockProvider.overrideWith((ref) => Stream.value(now)),
+        analyticsNowProvider.overrideWithValue(() => now),
+        historyNowProvider.overrideWithValue(() => now),
+        incidentPhotosProvider.overrideWith(
+          (ref, id) => Stream.value(
+            id == 'INC-0147'
+                ? [
+                    IncidentPhoto(
+                      id: 'p1',
+                      kind: PhotoKind.sos,
+                      url: 'https://example.test/p1.jpg',
+                      uploadedAt: now,
+                    ),
+                    IncidentPhoto(
+                      id: 'p2',
+                      kind: PhotoKind.report,
+                      url: 'https://example.test/p2.jpg',
+                      uploadedAt: now,
+                    ),
+                  ]
+                : const <IncidentPhoto>[],
+          ),
+        ),
+      ],
+    );
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.text('SOS, flood').first);
+    await settle(tester);
+    await revealInDrawer(tester, find.text('Photos (2)'));
+    expect(find.text('Photos (2)'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('photo-p1')));
+    await settle(tester);
+    expect(find.textContaining('From the SOS, added'), findsOneWidget);
+  });
+
   testWidgets('a dispatcher assigns the top suggested unit', (tester) async {
     await pumpApp(tester);
     await signIn(tester, 'dispatcher@sagip.test');

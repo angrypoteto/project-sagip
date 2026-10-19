@@ -51,6 +51,7 @@ extension MobileLabels on AppLocalizations {
     QueuedKind.crowdReport => queueKindReport,
     QueuedKind.statusUpdate => queueKindStatus,
     QueuedKind.completionReport => queueKindCompletion,
+    QueuedKind.photo => queueKindPhoto,
   };
 
   /// "Your SOS from 3:42 PM was delivered." (NFR1 delivery notice).
@@ -60,6 +61,7 @@ extension MobileLabels on AppLocalizations {
     QueuedKind.crowdReport => reportDeliveredNotice(time),
     QueuedKind.statusUpdate => statusDeliveredNotice(time),
     QueuedKind.completionReport => completionDeliveredNotice(time),
+    QueuedKind.photo => photoDeliveredNotice(time),
   };
 
   /// The chip on a rescue confirmation (FR6).

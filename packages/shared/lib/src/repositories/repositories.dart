@@ -15,6 +15,7 @@ import '../models/incident_history.dart';
 import '../models/ndrrmc.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
+import '../models/photo.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
@@ -143,6 +144,10 @@ abstract interface class IncidentRepository {
   /// The incident's post on the MDRRMD Facebook Page, or null when it has
   /// none (yet).
   Stream<IncidentPost?> watchFacebookPost(String incidentId);
+
+  /// The photos on an incident: its SOS's and those of the crowd reports in
+  /// its cluster, oldest first (2026-10-19).
+  Stream<List<IncidentPhoto>> watchPhotos(String incidentId);
 
   /// Incidents closed between [from] and [to], newest first, with what
   /// their units reported (the history page). At most [limit].
@@ -497,6 +502,14 @@ abstract interface class SosRepository {
   /// Tells MDRRMD where the phone is now, while the SOS is open. Best
   /// effort: nothing is queued, and a failure is not an error.
   Future<void> updateLocation(String clientId, LocationFix fix);
+
+  /// Adds a photo to an SOS that was already sent (2026-10-19). Saved on
+  /// the phone and sent after the SOS (after every other record), over the
+  /// internet only. [jpeg] is ready to send ([preparePhoto]).
+  Future<void> addPhoto(String clientId, Uint8List jpeg);
+
+  /// How many photos this phone has added to the SOS (sent or waiting).
+  Stream<int> watchPhotoCount(String clientId);
 }
 
 /// Hazard reports the resident sends (R4). Saved on the phone first and
@@ -513,6 +526,10 @@ abstract interface class HazardReportRepository {
     IncidentType? type,
     LocationFix? fix,
   });
+
+  /// Adds a photo to a report already saved ([submit] first): sent after
+  /// it, over the internet only.
+  Future<void> addPhoto(String clientId, Uint8List jpeg);
 }
 
 /// Hazard reports from the resident web form (W2, W3; FR15). Online only:
@@ -539,6 +556,10 @@ abstract interface class WebReportRepository {
     double? accuracyMeters,
     Barangay? barangay,
   });
+
+  /// Adds a photo to a report the server already has (online only).
+  /// Throws like [submit].
+  Future<void> addPhoto(String clientId, Uint8List jpeg);
 }
 
 /// The responder's unit, assignment, and status (F1 to F6). Status updates

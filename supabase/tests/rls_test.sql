@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(519);
+select plan(540);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2547,6 +2547,125 @@ select throws_ok($$ select public.set_setting('app.min_build', '3'::jsonb) $$,
   'P0001', 'not_allowed', 'a dispatcher cannot');
 reset role;
 select is((public.client_config() ->> 'min_build')::int, 2, 'and the apps see the new value');
+
+
+-- ------------------------------------------- photos on an SOS or a report
+
+reset role;
+update public.manila_resident set suspended_at = null where manila_resident_id = 'res-001';
+select ok(
+  not has_table_privilege('anon', 'public.incident_photo', 'select')
+  and has_table_privilege('authenticated', 'public.incident_photo', 'select')
+  and not has_table_privilege('authenticated', 'public.incident_photo', 'insert')
+  and not has_function_privilege('anon', 'public.attach_photo(uuid, text, uuid)', 'execute')
+  and has_function_privilege('authenticated', 'public.attach_photo(uuid, text, uuid)', 'execute'),
+  'photos: signed-in users only read; a photo is tied to a record through attach_photo');
+-- Another resident's SOS, and one of res-001's crowd reports.
+create temp table __ph as
+  select (select client_uuid from public.incident_report
+           where manila_resident_id is distinct from 'res-001' and client_uuid is not null
+           order by incident_id limit 1) as other_sos;
+grant select on __ph to authenticated;
+insert into public.crowd_report
+select (jsonb_populate_record(null::public.crowd_report,
+         to_jsonb(c) || jsonb_build_object(
+           'report_id', 'rep-PHOTO-1', 'manila_resident_id', 'res-001',
+           'client_uuid', '00000000-0000-4000-8000-0000000009c1', 'anonymized_at', null))).*
+  from (select * from public.crowd_report order by report_id limit 1) c;
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select public.submit_sos('00000000-0000-4000-8000-0000000009b1', now(), 14.6000, 120.9900, 8);
+select lives_ok($$
+  insert into storage.objects (bucket_id, name) values
+    ('incident-photos', '00000000-0000-4000-8000-00000000000c/00000000-0000-4000-8000-0000000009a1.jpg'),
+    ('incident-photos', '00000000-0000-4000-8000-00000000000c/00000000-0000-4000-8000-0000000009a2.jpg'),
+    ('incident-photos', '00000000-0000-4000-8000-00000000000c/00000000-0000-4000-8000-0000000009a3.jpg'),
+    ('incident-photos', '00000000-0000-4000-8000-00000000000c/00000000-0000-4000-8000-0000000009a4.jpg'),
+    ('incident-photos', '00000000-0000-4000-8000-00000000000c/00000000-0000-4000-8000-0000000009a5.jpg')
+$$, 'a resident uploads photos into their own folder');
+select throws_ok($$
+  insert into storage.objects (bucket_id, name)
+  values ('incident-photos', '00000000-0000-4000-8000-00000000000e/00000000-0000-4000-8000-0000000009a9.jpg')
+$$, '42501', null, 'but not into another account''s folder');
+select is(
+  public.attach_photo('00000000-0000-4000-8000-0000000009a1', 'sos', '00000000-0000-4000-8000-0000000009b1'),
+  '00000000-0000-4000-8000-0000000009a1'::uuid, 'a photo is tied to the resident''s own SOS');
+select is(
+  public.attach_photo('00000000-0000-4000-8000-0000000009a1', 'sos', '00000000-0000-4000-8000-0000000009b1'),
+  '00000000-0000-4000-8000-0000000009a1'::uuid, 'sending it again changes nothing');
+select throws_ok(
+  $$ select public.attach_photo('00000000-0000-4000-8000-0000000009a2', 'sos', (select other_sos from __ph)) $$,
+  'P0001', 'not_found', 'not to someone else''s SOS');
+select throws_ok(
+  $$ select public.attach_photo('00000000-0000-4000-8000-0000000009a8', 'sos', '00000000-0000-4000-8000-0000000009b1') $$,
+  'P0001', 'not_found', 'not without the uploaded file');
+select lives_ok($$
+  select public.attach_photo('00000000-0000-4000-8000-0000000009a2', 'sos', '00000000-0000-4000-8000-0000000009b1'),
+         public.attach_photo('00000000-0000-4000-8000-0000000009a3', 'sos', '00000000-0000-4000-8000-0000000009b1')
+$$, 'up to three on one SOS');
+select throws_ok(
+  $$ select public.attach_photo('00000000-0000-4000-8000-0000000009a4', 'sos', '00000000-0000-4000-8000-0000000009b1') $$,
+  'P0001', 'invalid_value', 'a fourth is refused');
+select is(
+  public.attach_photo('00000000-0000-4000-8000-0000000009a5', 'report', '00000000-0000-4000-8000-0000000009c1'),
+  '00000000-0000-4000-8000-0000000009a5'::uuid, 'and one on the resident''s own crowd report');
+select is((select count(*)::int from public.incident_photo), 4, 'the resident sees their own photos');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select throws_ok($$
+  insert into storage.objects (bucket_id, name)
+  values ('incident-photos', '00000000-0000-4000-8000-00000000000b/00000000-0000-4000-8000-0000000009a7.jpg')
+$$, '42501', null, 'a staff account uploads no photos');
+select is((select count(*)::int from public.incident_photo), 0,
+  'a responder whose unit is not on the incident sees none');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000e", "role": "authenticated"}';
+select is((select count(*)::int from public.incident_photo), 0, 'another account sees none');
+select is((select count(*)::int from storage.objects where bucket_id = 'incident-photos'), 0,
+  'nor their files');
+
+reset role;
+create temp table __phi as
+  select incident_id from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000009b1';
+grant select on __phi to authenticated;
+update public.crowd_report set incident_id = (select incident_id from __phi) where report_id = 'rep-PHOTO-1';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.incident_photos((select incident_id from __phi))), 4,
+  'a dispatcher gets the SOS''s photos and those of the reports in its cluster');
+select is(
+  (select count(*)::int from storage.objects
+    where bucket_id = 'incident-photos' and name like '00000000-0000-4000-8000-00000000000c/%'),
+  4, 'and can open their files (not the one never tied to a record)');
+
+reset role;
+update public.incident_report set assigned_unit_id = 'unit-r05', status = 'assigned'
+ where incident_id = (select incident_id from __phi);
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.incident_photos((select incident_id from __phi))), 4,
+  'the responders of the assigned unit see them');
+
+reset role;
+update public.incident_report set status = 'resolved', resolved_at = now()
+ where incident_id = (select incident_id from __phi);
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.attach_photo('00000000-0000-4000-8000-0000000009a4', 'sos', '00000000-0000-4000-8000-0000000009b1') $$,
+  'P0001', 'incident_closed', 'no photo on a closed SOS');
+
+reset role;
+update public.incident_report set anonymized_at = now() where incident_id = (select incident_id from __phi);
+update public.crowd_report set anonymized_at = now() where report_id = 'rep-PHOTO-1';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.incident_photos((select incident_id from __phi))), 0,
+  'retention hides the photos from everyone (RA 10173)');
+select is(
+  (select count(*)::int from storage.objects
+    where bucket_id = 'incident-photos' and name like '00000000-0000-4000-8000-00000000000c/%'),
+  0, 'and their files');
 
 -- The counters as the real records need them (see the top).
 reset role;

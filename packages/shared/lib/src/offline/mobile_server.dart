@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import '../algorithms/hazard_penalty.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
+import '../models/photo.dart';
 import '../models/response_unit.dart';
 import '../models/sos.dart';
 
@@ -32,6 +35,15 @@ abstract interface class MobileServer {
   Stream<List<SosRequest>> watchMySos();
   Future<String> submitReport(HazardReport report);
   Stream<List<HazardReport>> watchMyReports();
+
+  /// Uploads a photo (a prepared JPEG) and ties it to this resident's SOS
+  /// or report [clientId] (2026-10-19). Sending it again changes nothing.
+  Future<void> uploadPhoto({
+    required String photoId,
+    required PhotoKind kind,
+    required String clientId,
+    required Uint8List jpeg,
+  });
 
   // Responder.
   Stream<ResponseUnit?> watchUnit();

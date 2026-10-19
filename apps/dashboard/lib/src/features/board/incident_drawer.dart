@@ -8,6 +8,7 @@ import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import 'board_dialogs.dart';
+import 'incident_photos.dart';
 
 /// D4: everything a dispatcher needs to decide on one incident, in the order
 /// they need it: what and where, is it real, who is affected, why it ranks
@@ -160,6 +161,8 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                         ),
                         const SizedBox(height: SagipSpace.sm),
                         FacebookPostLine(incident: incident),
+                        const SizedBox(height: SagipSpace.lg),
+                        IncidentPhotos(incidentId: incident.id),
                         const SizedBox(height: SagipSpace.xl),
                         _Verification(
                           incident: incident,

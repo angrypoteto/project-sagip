@@ -4,7 +4,9 @@ import 'package:material_ui/material_ui.dart';
 
 import 'dart:io';
 
+import 'package:image/image.dart' as img;
 import 'package:sagip_mobile/src/app.dart';
+import 'package:sagip_mobile/src/common/photo_picker.dart';
 import 'package:sagip_mobile/src/app_version.dart';
 import 'package:sagip_mobile/src/features/safe_places/safe_places_page.dart';
 import 'package:sagip_mobile/src/features/sos/sos_status_page.dart';
@@ -455,6 +457,44 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('a photo is added only after the SOS is sent', (tester) async {
+    final shot = img.encodeJpg(img.Image(width: 40, height: 30));
+    final asked = <PhotoFrom>[];
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        ...mockOverrides(backend, demoTools: false),
+        mapTilesEnabledProvider.overrideWithValue(false),
+        welcomeSeenProvider.overrideWith(WelcomeDone.new),
+        clockProvider.overrideWith((ref) => Stream.value(now)),
+        photoTakerProvider.overrideWithValue((from) async {
+          asked.add(from);
+          return shot;
+        }),
+      ],
+    );
+    await pumpApp(tester);
+    await signInAsResident(tester);
+    // The SOS goes with one hold; nothing about photos comes first.
+    await holdSos(tester);
+    expect(container.read(mySosProvider).value, hasLength(1));
+    await settle(tester);
+    final add = find.byKey(const ValueKey('sos-add-photo'));
+    await tester.scrollUntilVisible(add, 200);
+    await settle(tester);
+    expect(
+      find.textContaining('It is sent after your SOS, never before'),
+      findsOneWidget,
+    );
+    await tester.tap(add);
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('photo-camera')));
+    await settle(tester);
+    expect(asked, [PhotoFrom.camera]);
+    expect(find.textContaining('1 of 3 photos added'), findsOneWidget);
+    await finish(tester);
+  });
+
   testWidgets('safe places: the SOS points to open ground away from a fire', (
     tester,
   ) async {
@@ -598,7 +638,13 @@ void main() {
     );
 
     Future<void> tapSend() async {
-      await tester.ensureVisible(find.text('Send report'));
+      // Mid-screen, clear of the tab bar (the form is taller with the
+      // photo row).
+      await Scrollable.ensureVisible(
+        tester.element(find.text('Send report')),
+        alignment: 0.5,
+      );
+      await tester.pump();
       await tester.tap(find.text('Send report'));
       await tester.pump();
     }

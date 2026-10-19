@@ -44,7 +44,14 @@ enum DeliveryState {
 }
 
 /// The kinds of records the offline queue holds.
-enum QueuedKind { sos, sosDetails, crowdReport, statusUpdate, completionReport }
+enum QueuedKind {
+  sos,
+  sosDetails,
+  crowdReport,
+  statusUpdate,
+  completionReport,
+  photo,
+}
 
 /// One entry in the offline queue (S6).
 @immutable

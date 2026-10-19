@@ -11,6 +11,7 @@ import '../models/incident.dart';
 import '../models/incident_history.dart';
 import '../models/ndrrmc.dart';
 import '../models/people.dart';
+import '../models/photo.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
@@ -104,6 +105,11 @@ class MockIncidentRepository implements IncidentRepository {
       _backend.watchNotices(incidentId);
 
   /// The sample data posts nothing on Facebook.
+  /// Sample data has no photos.
+  @override
+  Stream<List<IncidentPhoto>> watchPhotos(String incidentId) =>
+      Stream.value(const []);
+
   @override
   Stream<IncidentPost?> watchFacebookPost(String incidentId) =>
       Stream.value(null);

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import '../algorithms/hazard_penalty.dart';
 import '../algorithms/sos_relay.dart';
@@ -8,6 +10,7 @@ import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
+import '../models/photo.dart';
 import '../models/response_unit.dart';
 import '../models/sos.dart';
 import '../repositories/repositories.dart';
@@ -184,6 +187,25 @@ class OutboxSosRepository implements SosRepository {
     );
   }
 
+  @override
+  Future<void> addPhoto(String clientId, Uint8List jpeg) =>
+      _queuePhoto(_engine, _account(), _clock(), PhotoKind.sos, clientId, jpeg);
+
+  @override
+  Stream<int> watchPhotoCount(String clientId) => _engine
+      .watch()
+      .map(
+        (all) => all
+            .where(
+              (e) =>
+                  e.action == OutboxAction.photo &&
+                  e.payload['client_id'] == clientId &&
+                  e.delivery != DeliveryState.rejected,
+            )
+            .length,
+      )
+      .distinct();
+
   // Asking to cancel is not queued: a cancel that arrives hours later could
   // close an SOS the resident needs again. Offline, the screen says to call.
   @override
@@ -233,6 +255,16 @@ class OutboxHazardReportRepository implements HazardReportRepository {
   /// Reports allowed per account per hour (FR15, NFR7). Provisional; the
   /// server checks the same limit.
   static const limit = 5;
+
+  @override
+  Future<void> addPhoto(String clientId, Uint8List jpeg) => _queuePhoto(
+    _engine,
+    _account(),
+    _clock(),
+    PhotoKind.report,
+    clientId,
+    jpeg,
+  );
 
   @override
   Stream<List<HazardReport>> watchMine() {
@@ -557,7 +589,8 @@ class OutboxResponderRepository implements ResponderRepository {
           );
         case OutboxAction.sos ||
             OutboxAction.sosDetails ||
-            OutboxAction.crowdReport:
+            OutboxAction.crowdReport ||
+            OutboxAction.photo:
           break;
       }
     }
@@ -911,4 +944,30 @@ class ResponderLocationSharer {
     _fixes = null;
     _onlineSub = null;
   }
+}
+
+/// Saves a photo for [clientId] in the outbox (2026-10-19): it goes after
+/// every other record, over the internet only.
+Future<void> _queuePhoto(
+  SyncEngine engine,
+  String? account,
+  DateTime capturedAt,
+  PhotoKind kind,
+  String clientId,
+  Uint8List jpeg,
+) async {
+  if (account == null) throw const ActionRejected(ActionRejection.notAllowed);
+  await engine.add(
+    OutboxEntry(
+      id: newClientId(),
+      action: OutboxAction.photo,
+      accountId: account,
+      capturedAt: capturedAt,
+      payload: {
+        'kind': kind.name,
+        'client_id': clientId,
+        'jpeg': base64Encode(jpeg),
+      },
+    ),
+  );
 }

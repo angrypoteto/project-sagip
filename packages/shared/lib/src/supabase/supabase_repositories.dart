@@ -22,6 +22,7 @@ import '../models/incident_history.dart';
 import '../models/ndrrmc.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
+import '../models/photo.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
@@ -797,6 +798,45 @@ class SupabaseIncidentRepository implements IncidentRepository {
     },
   );
 
+  /// Links last an hour; the list is fetched again well before that.
+  @override
+  Stream<List<IncidentPhoto>> watchPhotos(String incidentId) => liveQuery(
+    _client,
+    tables: const ['incident_photo'],
+    refreshEvery: const Duration(minutes: 30),
+    fetch: () async {
+      final rows = [
+        for (final r
+            in await _client.rpc<Object?>(
+                  'incident_photos',
+                  params: {'p_incident_id': incidentId},
+                ) as List<Object?>? ??
+                const [])
+          (r! as Map).cast<String, Object?>(),
+      ];
+      if (rows.isEmpty) return const <IncidentPhoto>[];
+      final signed = await _client.storage
+          .from(incidentPhotoBucket)
+          .createSignedUrlsResult([
+            for (final r in rows) r['storage_path']! as String,
+          ], 3600);
+      final urls = {
+        for (final s in signed.whereType<SignedUrlSuccess>())
+          s.path: s.signedUrl,
+      };
+      return [
+        for (final r in rows)
+          if (urls[r['storage_path']] case final url?)
+            IncidentPhoto(
+              id: r['photo_id']! as String,
+              kind: PhotoKind.values.byName(r['kind']! as String),
+              url: url,
+              uploadedAt: DateTime.parse(r['uploaded_at']! as String).toLocal(),
+            ),
+      ];
+    },
+  );
+
   @override
   Stream<IncidentPost?> watchFacebookPost(String incidentId) => liveQuery(
     _client,
@@ -1507,3 +1547,49 @@ Future<T> _call<T>(Future<T> Function() body) async {
     throw const ActionRejected(ActionRejection.offline);
   }
 }
+
+/// The private bucket for photos on an SOS or a report (migration
+/// `incident_photos`).
+const incidentPhotoBucket = 'incident-photos';
+
+/// Uploads a prepared JPEG to the account's own folder and ties it to the
+/// resident's SOS or report [clientId] (2026-10-19). A file already there
+/// from an attempt whose reply was lost is fine; a refusal by the bucket is
+/// final (not retried).
+Future<void> uploadIncidentPhoto(
+  SupabaseClient client, {
+  required String photoId,
+  required PhotoKind kind,
+  required String clientId,
+  required Uint8List jpeg,
+}) => _call(() async {
+  final uid = client.auth.currentUser?.id;
+  if (uid == null) throw const ActionRejected(ActionRejection.notAllowed);
+  try {
+    await client.storage
+        .from(incidentPhotoBucket)
+        .uploadBinary(
+          '$uid/$photoId.jpg',
+          jpeg,
+          fileOptions: const FileOptions(contentType: 'image/jpeg'),
+        );
+  } on StorageException catch (e) {
+    final code = e.statusCode ?? '';
+    final duplicate =
+        code == '409' || e.message.toLowerCase().contains('exists');
+    if (!duplicate) {
+      if (code.startsWith('4') && code != '408' && code != '429') {
+        throw const ActionRejected(ActionRejection.notAllowed);
+      }
+      rethrow;
+    }
+  }
+  await client.rpc<Object?>(
+    'attach_photo',
+    params: {
+      'p_photo_id': photoId,
+      'p_kind': kind.name,
+      'p_client_uuid': clientId,
+    },
+  );
+});

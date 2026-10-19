@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../algorithms/hazard_penalty.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
@@ -62,6 +64,14 @@ class MockSosRepository implements SosRepository {
 
   @override
   Future<void> updateLocation(String clientId, LocationFix fix) async {}
+
+  @override
+  Future<void> addPhoto(String clientId, Uint8List jpeg) =>
+      _backend.addPhoto(clientId);
+
+  @override
+  Stream<int> watchPhotoCount(String clientId) =>
+      _backend.watchPhotoCount(clientId);
 }
 
 class MockHazardReportRepository implements HazardReportRepository {
@@ -78,6 +88,10 @@ class MockHazardReportRepository implements HazardReportRepository {
     IncidentType? type,
     LocationFix? fix,
   }) => _backend.submitReport(description: description, type: type, fix: fix);
+
+  @override
+  Future<void> addPhoto(String clientId, Uint8List jpeg) =>
+      _backend.addPhoto(clientId);
 }
 
 class MockWebReportRepository implements WebReportRepository {
@@ -109,6 +123,10 @@ class MockWebReportRepository implements WebReportRepository {
     accuracyMeters: accuracyMeters,
     barangay: barangay,
   );
+
+  @override
+  Future<void> addPhoto(String clientId, Uint8List jpeg) =>
+      _backend.addPhoto(clientId);
 }
 
 class MockResponderRepository implements ResponderRepository {

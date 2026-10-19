@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -5,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/labels.dart';
+import '../../common/photo_picker.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
@@ -32,6 +35,14 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   /// The report just sent; shows the confirmation instead of the form.
   String? _sentId;
 
+  /// An optional photo (2026-10-19), sent after the report.
+  Uint8List? _photo;
+
+  Future<void> _addPhoto() async {
+    final picked = await pickPhoto(context, ref);
+    if (picked != null && mounted) setState(() => _photo = picked);
+  }
+
   @override
   void dispose() {
     _description.dispose();
@@ -50,6 +61,12 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       final report = await ref
           .read(hazardReportRepositoryProvider)
           .submit(description: _description.text, type: _type, fix: fix);
+      final photo = _photo;
+      if (photo != null) {
+        await ref
+            .read(hazardReportRepositoryProvider)
+            .addPhoto(report.clientId, photo);
+      }
       if (!mounted) return;
       setState(() => _sentId = report.clientId);
     } on ReportRejected catch (e) {
@@ -77,6 +94,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     _picked = null;
     _type = null;
     _error = null;
+    _photo = null;
     _description.clear();
   });
 
@@ -148,6 +166,12 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               ),
           ],
         ),
+        const SizedBox(height: SagipSpace.lg),
+        _PhotoRow(
+          photo: _photo,
+          onAdd: _addPhoto,
+          onRemove: () => setState(() => _photo = null),
+        ),
         const SizedBox(height: SagipSpace.xl),
         _LocationRow(
           status: location,
@@ -182,6 +206,64 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           l10n.reportSosHint,
           textAlign: TextAlign.center,
           style: text.bodySmall!.copyWith(color: p.textSecondary),
+        ),
+      ],
+    );
+  }
+}
+
+/// The report's optional photo: a button, or the photo with a way to
+/// remove it.
+class _PhotoRow extends StatelessWidget {
+  const _PhotoRow({
+    required this.photo,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  final Uint8List? photo;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final shot = photo;
+    if (shot == null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: OutlinedButton.icon(
+          key: const ValueKey('report-add-photo'),
+          onPressed: onAdd,
+          icon: const Icon(Symbols.add_a_photo_rounded),
+          label: Text(l10n.photoAddOptional),
+        ),
+      );
+    }
+    return Row(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(SagipRadius.control),
+          child: Semantics(
+            image: true,
+            label: l10n.photoThumb,
+            child: Image.memory(shot, width: 64, height: 64, fit: BoxFit.cover),
+          ),
+        ),
+        const SizedBox(width: SagipSpace.md),
+        Expanded(
+          child: Text(
+            l10n.photoReportAdded,
+            style: text.bodyMedium!.copyWith(color: p.textSecondary),
+          ),
+        ),
+        IconButton(
+          key: const ValueKey('report-remove-photo'),
+          tooltip: l10n.photoRemove,
+          onPressed: onRemove,
+          icon: const Icon(Symbols.close_rounded),
         ),
       ],
     );

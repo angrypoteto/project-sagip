@@ -6582,7 +6582,7 @@ abstract class AppLocalizations {
   /// No description provided for @configAppNote.
   ///
   /// In en, this message translates to:
-  /// **'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The release of 2026-10-19 is build 2; apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.'**
+  /// **'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The newest release is build 3 (photos on SOS and reports); apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.'**
   String get configAppNote;
 
   /// No description provided for @settingAppMinBuild.
@@ -6602,6 +6602,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Relayed by nearby phones (Bluetooth). Sender not known yet: their own copy names them when it arrives'**
   String get checkRelayedUnknown;
+
+  /// No description provided for @photosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos ({count})'**
+  String photosTitle(int count);
+
+  /// No description provided for @photoFromSos.
+  ///
+  /// In en, this message translates to:
+  /// **'From the SOS'**
+  String get photoFromSos;
+
+  /// No description provided for @photoFromReport.
+  ///
+  /// In en, this message translates to:
+  /// **'From a crowd report'**
+  String get photoFromReport;
+
+  /// No description provided for @photoCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{source}, added {time}'**
+  String photoCaption(String source, String time);
+
+  /// No description provided for @photoOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the photo'**
+  String get photoOpen;
+
+  /// No description provided for @photoMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo not available'**
+  String get photoMissing;
+
+  /// No description provided for @webPhotoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo (optional)'**
+  String get webPhotoAdd;
+
+  /// No description provided for @webPhotoAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added. It is sent after your report.'**
+  String get webPhotoAdded;
+
+  /// No description provided for @webPhotoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the photo'**
+  String get webPhotoRemove;
+
+  /// No description provided for @webPhotoThumb.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo you added'**
+  String get webPhotoThumb;
+
+  /// No description provided for @webPhotoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not use that photo. Try another one.'**
+  String get webPhotoFailed;
+
+  /// No description provided for @webPhotoNotSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report was sent, but its photo was not.'**
+  String get webPhotoNotSent;
 }
 
 class _AppLocalizationsDelegate

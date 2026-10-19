@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import '../algorithms/sos_relay.dart';
@@ -8,6 +9,7 @@ import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
+import '../models/photo.dart';
 import '../models/sos.dart';
 import '../repositories/repositories.dart';
 import 'mobile_server.dart';
@@ -66,6 +68,14 @@ class ServerSender implements OutboxSender {
           CompletionReport.fromJson(
             (p['report']! as Map).cast<String, Object?>(),
           ),
+        );
+        return null;
+      case OutboxAction.photo:
+        await _server.uploadPhoto(
+          photoId: entry.id,
+          kind: PhotoKind.values.byName(p['kind']! as String),
+          clientId: p['client_id']! as String,
+          jpeg: base64Decode(p['jpeg']! as String),
         );
         return null;
     }
@@ -261,9 +271,17 @@ class SyncEngine {
         _again = false;
         final me = _account();
         if (me == null) return;
-        final pending = [
+        // Photos go last: a slow upload never holds up an SOS or a
+        // report, and a photo always follows its own record.
+        final mine = [
           for (final e in _entries.value)
             if (e.accountId == me && e.delivery.isPending) e,
+        ];
+        final pending = [
+          for (final e in mine)
+            if (e.action != OutboxAction.photo) e,
+          for (final e in mine)
+            if (e.action == OutboxAction.photo) e,
         ];
         for (final e in pending) {
           if (_disposed) return;

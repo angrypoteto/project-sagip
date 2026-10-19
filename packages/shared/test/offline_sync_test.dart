@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -34,6 +35,21 @@ class FakeServer implements MobileServer {
   Future<void> addSosDetails(String clientId, SosDetails details) async {
     _net();
     calls.add('details $clientId');
+  }
+
+  /// Bytes of each photo received, by photo id.
+  final photos = <String, int>{};
+
+  @override
+  Future<void> uploadPhoto({
+    required String photoId,
+    required PhotoKind kind,
+    required String clientId,
+    required Uint8List jpeg,
+  }) async {
+    _net();
+    calls.add('photo ${kind.name} $clientId');
+    photos[photoId] = jpeg.length;
   }
 
   @override
@@ -541,6 +557,58 @@ void main() {
   });
 
   group('resident repositories', () {
+    test(
+      'a photo goes after its SOS, never before, and never holds one up',
+      () async {
+        final sosRepo = OutboxSosRepository(
+          engine: engine,
+          server: server,
+          store: store,
+          account: () => account,
+          clock: () => now,
+        );
+        final reports = OutboxHazardReportRepository(
+          engine: engine,
+          server: server,
+          store: store,
+          account: () => account,
+          clock: () => now,
+        );
+        await goOnline(false);
+        final first = await sosRepo.send();
+        final counts = <int>[];
+        final sub = sosRepo.watchPhotoCount(first.clientId).listen(counts.add);
+        await sosRepo.addPhoto(first.clientId, Uint8List.fromList([1, 2, 3]));
+        // A second SOS and a report made after the photo still go first.
+        now = now.add(const Duration(minutes: 1));
+        final second = await sosRepo.send();
+        final r = await reports.submit(
+          description: 'Baha hanggang tuhod',
+          fix: LocationFix(
+            point: const GeoPoint(14.6091, 120.9925),
+            accuracyMeters: 8,
+            at: now,
+          ),
+        );
+        await reports.addPhoto(r.clientId, Uint8List.fromList([4, 5]));
+        await pumpEventQueue();
+        expect(server.calls, isEmpty, reason: 'offline: nothing sent');
+        expect(counts.last, 1);
+
+        await goOnline(true);
+        await pumpEventQueue();
+        expect(server.calls, [
+          'sos ${first.clientId}',
+          'sos ${second.clientId}',
+          'report Baha hanggang tuhod',
+          'photo sos ${first.clientId}',
+          'photo report ${r.clientId}',
+        ]);
+        expect(server.photos.values, [3, 2]);
+        await sub.cancel();
+      },
+    );
+
     test(
       'asking to cancel is never queued; a position is best effort',
       () async {

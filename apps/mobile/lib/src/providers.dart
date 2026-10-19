@@ -683,6 +683,11 @@ final updateRequiredProvider = Provider<bool>((ref) {
   return true;
 });
 
+/// How many photos this phone added to an SOS (2026-10-19).
+final sosPhotoCountProvider = StreamProvider.autoDispose.family<int, String>(
+  (ref, clientId) => ref.watch(sosRepositoryProvider).watchPhotoCount(clientId),
+);
+
 final activeSosProvider = Provider<SosRequest?>((ref) {
   for (final s in ref.watch(mySosProvider).value ?? const <SosRequest>[]) {
     if (s.isActive) return s;

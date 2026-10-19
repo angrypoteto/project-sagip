@@ -264,8 +264,7 @@ const defaultOtherSettings = [
     value: 1,
     min: 1,
     max: 100000,
-    description:
-        'The oldest mobile app build allowed; older apps must update (SOS still works)',
+    description: 'The oldest mobile app build allowed; older apps must update (SOS still works)',
   ),
   AppSetting(
     key: SettingKeys.hotline,

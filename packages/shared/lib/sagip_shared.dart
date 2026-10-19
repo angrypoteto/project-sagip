@@ -43,6 +43,7 @@ export 'src/models/incident_history.dart';
 export 'src/models/ndrrmc.dart';
 export 'src/models/offline.dart';
 export 'src/models/people.dart';
+export 'src/models/photo.dart';
 export 'src/models/records.dart';
 export 'src/models/response_unit.dart';
 export 'src/models/road_route.dart';

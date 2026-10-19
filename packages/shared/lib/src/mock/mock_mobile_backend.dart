@@ -378,6 +378,23 @@ class MockMobileBackend {
     return sos;
   }
 
+  final _photoCounts = LiveValue<Map<String, int>>(const {});
+
+  /// A photo on an SOS or a report (sample data keeps only the count).
+  Future<void> addPhoto(String clientId) async {
+    await _pause();
+    _photoCounts.value = {
+      ..._photoCounts.value,
+      clientId: (_photoCounts.value[clientId] ?? 0) + 1,
+    };
+  }
+
+  Stream<int> watchPhotoCount(String clientId) =>
+      _photoCounts.watch().map((m) => m[clientId] ?? 0).distinct();
+
+  /// For tests: the photos added to [clientId] so far.
+  int photoCountOf(String clientId) => _photoCounts.value[clientId] ?? 0;
+
   Future<void> addDetails(String clientId, SosDetails details) async {
     final sos = _find(clientId);
     if (sos == null) return;
@@ -767,7 +784,8 @@ class MockMobileBackend {
               await _advanceReport(r.id);
             case QueuedKind.statusUpdate ||
                 QueuedKind.completionReport ||
-                QueuedKind.sosDetails:
+                QueuedKind.sosDetails ||
+                QueuedKind.photo:
               await _advanceOutgoing(r.id);
           }
         }

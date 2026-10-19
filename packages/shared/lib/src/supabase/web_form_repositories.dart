@@ -56,6 +56,15 @@ class SupabaseWebReportRepository implements WebReportRepository {
   );
 
   @override
+  Future<void> addPhoto(String clientId, Uint8List jpeg) => uploadIncidentPhoto(
+    _client,
+    photoId: newClientId(),
+    kind: PhotoKind.report,
+    clientId: clientId,
+    jpeg: jpeg,
+  );
+
+  @override
   Future<HazardReport> submit({
     required String clientId,
     required DateTime capturedAt,

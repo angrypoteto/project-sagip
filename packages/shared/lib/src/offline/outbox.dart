@@ -12,7 +12,11 @@ enum OutboxAction {
   arrive,
   confirmOnScene,
   setStatus,
-  completion;
+  completion,
+
+  /// A photo for an SOS or a crowd report (2026-10-19). Always sent after
+  /// every other record, never by SMS or Bluetooth.
+  photo;
 
   /// How the offline queue sheet (S6) groups it.
   QueuedKind get kind => switch (this) {
@@ -20,6 +24,7 @@ enum OutboxAction {
     OutboxAction.sosDetails => QueuedKind.sosDetails,
     OutboxAction.crowdReport => QueuedKind.crowdReport,
     OutboxAction.completion => QueuedKind.completionReport,
+    OutboxAction.photo => QueuedKind.photo,
     _ => QueuedKind.statusUpdate,
   };
 }

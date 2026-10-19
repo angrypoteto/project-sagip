@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_dashboard/src/webform/browser/browser.dart';
 import 'package:sagip_dashboard/src/webform/web_app.dart';
 import 'package:sagip_dashboard/src/webform/web_providers.dart';
+import 'package:sagip_dashboard/src/webform/web_report_page.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 /// pumpAndSettle with a short limit, so an endless animation fails fast.
@@ -64,9 +67,12 @@ void main() {
   ProviderContainer newContainer({
     WebFormConfig config = const WebFormConfig(),
     ClientConfig server = const ClientConfig(),
+    Uint8List? photo,
   }) {
     final c = ProviderContainer(
       overrides: [
+        if (photo != null)
+          webPhotoTakerProvider.overrideWithValue(() async => photo),
         webClientConfigRepositoryProvider.overrideWithValue(
           StaticClientConfigRepository(server),
         ),
@@ -106,11 +112,16 @@ void main() {
     WidgetTester tester, {
     WebFormConfig config = const WebFormConfig(),
     ClientConfig server = const ClientConfig(),
+    Uint8List? photo,
   }) async {
     tester.view.physicalSize = const Size(800, 1700);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final container = newContainer(config: config, server: server);
+    final container = newContainer(
+      config: config,
+      server: server,
+      photo: photo,
+    );
     // Kept alive so tests can read the account's reports on any page.
     container.listen(myWebReportsProvider, (_, _) {});
     await tester.pumpWidget(
@@ -294,6 +305,32 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('W2: an optional photo goes after the report', (tester) async {
+    final shot = Uint8List.fromList(
+      img.encodeJpg(img.Image(width: 40, height: 30)),
+    );
+    final container = await pumpApp(tester, photo: shot);
+    await signIn(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('web-description')),
+      'Smoke from a house on Dapitan St.',
+    );
+    location.point = sampaloc;
+    await tester.tap(find.text('Use my location'));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('web-add-photo')));
+    await settle(tester);
+    expect(
+      find.text('Photo added. It is sent after your report.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Send report'));
+    await settle(tester);
+    expect(find.text('Report received'), findsOneWidget);
+    final sent = container.read(myWebReportsProvider).requireValue.single;
+    expect(backend.photoCountOf(sent.clientId), 1);
   });
 
   testWidgets('W2 and W3: checks, the browser location, send, and the list', (

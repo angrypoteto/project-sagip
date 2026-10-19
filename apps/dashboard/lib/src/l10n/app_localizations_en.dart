@@ -3850,7 +3850,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get configAppNote =>
-      'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The release of 2026-10-19 is build 2; apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.';
+      'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The newest release is build 3 (photos on SOS and reports); apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.';
 
   @override
   String get settingAppMinBuild => 'Oldest app build allowed';
@@ -3862,4 +3862,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get checkRelayedUnknown =>
       'Relayed by nearby phones (Bluetooth). Sender not known yet: their own copy names them when it arrives';
+
+  @override
+  String photosTitle(int count) {
+    return 'Photos ($count)';
+  }
+
+  @override
+  String get photoFromSos => 'From the SOS';
+
+  @override
+  String get photoFromReport => 'From a crowd report';
+
+  @override
+  String photoCaption(String source, String time) {
+    return '$source, added $time';
+  }
+
+  @override
+  String get photoOpen => 'Open the photo';
+
+  @override
+  String get photoMissing => 'Photo not available';
+
+  @override
+  String get webPhotoAdd => 'Add a photo (optional)';
+
+  @override
+  String get webPhotoAdded => 'Photo added. It is sent after your report.';
+
+  @override
+  String get webPhotoRemove => 'Remove the photo';
+
+  @override
+  String get webPhotoThumb => 'The photo you added';
+
+  @override
+  String get webPhotoFailed => 'Could not use that photo. Try another one.';
+
+  @override
+  String get webPhotoNotSent => 'Your report was sent, but its photo was not.';
 }

@@ -2507,7 +2507,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyCollectBody.
   ///
   /// In en, this message translates to:
-  /// **'Your name, mobile number, and barangay; where you are when you send an SOS or a report, and where your phone moves while that SOS is open; and, only if you agree, household members who may need priority rescue.'**
+  /// **'Your name, mobile number, and barangay; where you are when you send an SOS or a report, and where your phone moves while that SOS is open; and, only if you agree, household members who may need priority rescue; and any photo you choose to add to an SOS or a report (sent without the location data your camera stores).'**
   String get privacyCollectBody;
 
   /// No description provided for @privacyWhyTitle.
@@ -2543,7 +2543,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyKeepBody.
   ///
   /// In en, this message translates to:
-  /// **'Your account details, as long as you have an account. One year after an SOS or a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name, your note, and the exact place. The record itself stays for MDRRMD\'s reports.'**
+  /// **'Your account details, as long as you have an account. One year after an SOS or a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name, your note, and the exact place. The record itself stays for MDRRMD\'s reports. Photos are hidden from everyone at the same time.'**
   String get privacyKeepBody;
 
   /// No description provided for @privacyRightsTitle.
@@ -3733,6 +3733,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In an emergency, hold SOS'**
   String get updateSosStill;
+
+  /// No description provided for @photoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get photoAdd;
+
+  /// No description provided for @photoAddOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo (optional)'**
+  String get photoAddOptional;
+
+  /// No description provided for @photoTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get photoTake;
+
+  /// No description provided for @photoChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get photoChoose;
+
+  /// No description provided for @photoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not use that photo. Try another one.'**
+  String get photoFailed;
+
+  /// No description provided for @photoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added. It is sent after your SOS.'**
+  String get photoSaved;
+
+  /// No description provided for @photoSosHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. A photo helps MDRRMD see what is happening. It is sent after your SOS, never before.'**
+  String get photoSosHint;
+
+  /// No description provided for @photoSosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {max} photos added. They are sent after your SOS, when there is internet.'**
+  String photoSosCount(int count, int max);
+
+  /// No description provided for @photoReportAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added. It is sent after your report.'**
+  String get photoReportAdded;
+
+  /// No description provided for @photoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the photo'**
+  String get photoRemove;
+
+  /// No description provided for @photoThumb.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo you added'**
+  String get photoThumb;
+
+  /// No description provided for @queueKindPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get queueKindPhoto;
+
+  /// No description provided for @photoDeliveredNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo from {time} was delivered.'**
+  String photoDeliveredNotice(String time);
 }
 
 class _AppLocalizationsDelegate

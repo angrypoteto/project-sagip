@@ -566,6 +566,20 @@ class SupabaseMobileRemote implements MobileServer {
 
   /// Tier 3: uploads an SOS this phone heard over Bluetooth (`relay_sos`).
   /// The server keeps one incident per SOS, however many phones send it.
+  @override
+  Future<void> uploadPhoto({
+    required String photoId,
+    required PhotoKind kind,
+    required String clientId,
+    required Uint8List jpeg,
+  }) => uploadIncidentPhoto(
+    _client,
+    photoId: photoId,
+    kind: kind,
+    clientId: clientId,
+    jpeg: jpeg,
+  );
+
   /// Hands this phone's relay secret (64 hex digits) to the server once
   /// (migration `relay_device_keys`).
   Future<void> registerRelayKey(String keyHex) => _call(
