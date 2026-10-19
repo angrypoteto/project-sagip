@@ -112,6 +112,7 @@ changed between 2026-10-12 and 2026-10-19.
 - [ ] A7 Audit log shows every action above with who did it
 - [ ] **[N]** Incident history (dispatchers and admins): closed incidents by period (today, 7 days, 30 days, chosen dates), filtered by type and how it ended, searched by ID or barangay; a row opens its details (timeline, completion report, Facebook status); Export CSV downloads the filtered list without personal data
 - [ ] **[N]** Safe places (admins, 2026-10-19): the list of 750 places from OpenStreetMap; search by name or barangay, pick a kind, "Show hidden places"; hide a wrong place and show it again; "Add place" for MDRRMD's own evacuation center (needs a name; a place outside Manila is refused; marked Official); each change in the audit log
+- [ ] **[N]** Incident panel: "Photos (N)" with the photos residents added to the SOS or to the crowd reports in its cluster; a click opens one large
 - [ ] **[N]** Incident panel: a line under the type says where its Facebook post stands, and why it is not posted (for example "not posted until the incident type is confirmed")
 
 ---
@@ -136,6 +137,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] W1 Sign in with number and code; create an account (name, barangay, terms)
 - [ ] W2 Crowd report: description, type, location, the hourly limit explained
 - [ ] W3 Confirmation
+- [ ] **[N]** W2: "Add a photo (optional)" on the web form; it goes after the report
 - [ ] There is no SOS button on the web form (SOS is app only)
 - [ ] **[N]** Both sites open from the internet (the two addresses at the top) and sign-in works there (I checked that they load; sign-in there is yours to check)
 
@@ -165,6 +167,8 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] **[N]** R2 "Safe places near you" (right under Track responder): the advice (help is coming to where you are; move only if staying is unsafe), the nearest place once you tapped what is happening, and "See safe places"
 - [ ] **[N]** Safe places screen: tap Flood, Fire, Collapse or damage, or Medical; the advice for it; the three nearest on a map (a fire's are at least 300 m away; a flood's are schools, halls, covered courts; medical gives hospitals); tap one to see the way on foot and the minutes. Works offline (airplane mode) from the list saved in the app
 - [ ] **[N]** R8 Alert detail: "Safe places near you" (a weather alert opens it on Flood)
+- [ ] **[N]** Photos (2026-10-19): after an SOS is sent, "Add a photo" (Take a photo / Choose from gallery), up to 3; "1 of 3 photos added. They are sent after your SOS". In airplane mode the photo waits and goes after the SOS once online
+- [ ] **[N]** R4 Report a hazard: "Add a photo (optional)", a preview with a remove button; the photo goes after the report
 - [ ] S6 Offline queue sheet: saved records, Try sending now
 - [ ] An SOS sent offline is delivered when you come back online, with its original time
 - [ ] **[N]** The app no longer flips to offline on one slow answer; it needs two failed checks in a row, and once offline it checks every 5 seconds, so a saved SOS goes within seconds of the connection returning (fixed 2026-10-16)
@@ -225,7 +229,8 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | Leftovers of the first relay tag (2026-10-19) | `drop function public.my_relay_tag(); drop function private.relay_sender(uuid); alter table public.manila_resident drop column relay_tag;` in the SQL editor. Nothing uses them; nobody can call them |
-| Make build 2 required | After the team installs build 2 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 2. Older APKs cannot be asked (they have no check) |
+| Make the newest build required | After the team installs build 3 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 3. APKs before build 2 cannot be asked (they have no check) |
+| Removing expired photo files | Retention hides photos from everyone, but the files stay in the bucket until a small cleanup function (Storage API) is written |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 
 ---
