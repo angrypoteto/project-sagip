@@ -162,7 +162,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] S7 Me: details, theme, language (English or Filipino), test notification, privacy notice, request deletion, sign out
 - [ ] Offline banner on every screen (turn on airplane mode)
 - [ ] **[N]** After holding SOS, "What is happening?" comes up once with four big buttons and Skip; one tap sets the type (the SOS is already sent). Add details starts with the same big buttons
-- [ ] **[N]** R2 "Safe places near you": the advice (help is coming to where you are; move only if staying is unsafe), the nearest place once you tapped what is happening, and "See safe places"
+- [ ] **[N]** R2 "Safe places near you" (right under Track responder): the advice (help is coming to where you are; move only if staying is unsafe), the nearest place once you tapped what is happening, and "See safe places"
 - [ ] **[N]** Safe places screen: tap Flood, Fire, Collapse or damage, or Medical; the advice for it; the three nearest on a map (a fire's are at least 300 m away; a flood's are schools, halls, covered courts; medical gives hospitals); tap one to see the way on foot and the minutes. Works offline (airplane mode) from the list saved in the app
 - [ ] **[N]** R8 Alert detail: "Safe places near you" (a weather alert opens it on Flood)
 - [ ] S6 Offline queue sheet: saved records, Try sending now
@@ -171,6 +171,10 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] S6 "Text it myself" opens the messages app with the SOS text ready **[P]**
 - [ ] SOS by SMS when there is signal but no data **[P] [W]**
 - [ ] SOS relayed by a nearby phone over Bluetooth, also in the background **[P]**
+- [ ] **[N]** The relay notice says only what is true: "Ready to pass on SOS from nearby phones. None waiting" until a nearby phone's SOS is heard, then "Passing on 1 SOS…", then "Sent 1 SOS… to MDRRMD" (2026-10-19; the old one said "listening for SOS nearby" all the time)
+- [ ] **[N]** A relayed SOS shows its real sender on the dashboard, with "Relayed by nearby phones (Bluetooth). The sender's phone proved itself with its own key"; the phone that carried it never sees who it is **[P]** (two phones with build 2: one in airplane mode sends, the other online relays)
+- [ ] **[N]** Too old an app: "Update S.A.G.I.P." with "Download the update", SOS (residents) and Call MDRRMD still there; never while your SOS is open. Try it: set A3 "Oldest app build allowed" to 3 and open the app (then set it back to 2)
+- [ ] **[N]** Your location is a blue dot with an arrow that turns where the phone faces (Track responder, Safe places, the location picker) **[P]**
 - [ ] Push notifications arrive **[P]** (your phone is registered as of 2026-10-13, and the test alert’s push was marked sent; you have not said whether it showed on the phone)
 
 ## 5. Built: mobile app, responder
@@ -220,6 +224,8 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The test post "System test: please disregard" on the Facebook Page | The alert itself was ended on 2026-10-16 (no longer in the resident app). Remove its post from the Page if you do not want it there |
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
+| Leftovers of the first relay tag (2026-10-19) | `drop function public.my_relay_tag(); drop function private.relay_sender(uuid); alter table public.manila_resident drop column relay_tag;` in the SQL editor. Nothing uses them; nobody can call them |
+| Make build 2 required | After the team installs build 2 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 2. Older APKs cannot be asked (they have no check) |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 
 ---
