@@ -121,12 +121,13 @@ class SmsTier {
 /// go on; a network failure stops the run so the order holds, and it is
 /// tried again after a pause or as soon as the phone is back online.
 ///
-/// An SOS data has not taken within [dataWindow] goes on by SMS; if the
-/// text fails, or [relayAfterSms] after a text that went, nearby phones are
-/// asked to pass it on over Bluetooth (Joshua, 2026-10-19: "first the
-/// trying again the data, then SMS, then last the BLE"). Data is still
-/// tried all along; the server keeps one incident whichever copy arrives
-/// first.
+/// An SOS data has not taken within [dataWindow] goes on by SMS, and right
+/// after the text (sent or not) nearby phones are asked to pass it on over
+/// Bluetooth (Joshua, 2026-10-19: "first the trying again the data, then
+/// SMS, then last the BLE"; then "2 minutes is long in an emergency, it
+/// should be continuous"). Data keeps reconnecting all the while, and a
+/// failed text is tried again; the server keeps one incident whichever
+/// copy arrives first.
 class SyncEngine {
   SyncEngine({
     required LocalStore store,
@@ -138,7 +139,6 @@ class SyncEngine {
     SmsTier? sms,
     RelayTier? relay,
     this.dataWindow = const Duration(seconds: 20),
-    this.relayAfterSms = const Duration(minutes: 2),
   }) : _store = store,
        _sms = sms,
        _relay = relay,
@@ -189,11 +189,6 @@ class SyncEngine {
   /// (20 s: two or three tries; the phone needs about 13 s of failed checks
   /// to count itself offline anyway).
   final Duration dataWindow;
-
-  /// How long after a text that went Bluetooth starts too, while the SOS is
-  /// still not delivered: "sent" only means the phone sent the SMS, not
-  /// that the gateway received it.
-  final Duration relayAfterSms;
 
   /// A Bluetooth advert that could not start (Bluetooth off, no
   /// permission) is tried again after this.
@@ -343,8 +338,10 @@ class SyncEngine {
     }
   }
 
-  /// Texts the SOS, then asks nearby phones, once each is due. Nothing
-  /// within [dataWindow] of its capture.
+  /// Texts the SOS, then asks nearby phones at once. Nothing within
+  /// [dataWindow] of its capture. Bluetooth starts after a text that went
+  /// too: "sent" only means the phone sent the SMS, not that the gateway
+  /// received it.
   Future<void> _nextStep(OutboxEntry e) async {
     final now = _clock();
     if (now.difference(e.capturedAt) < dataWindow) return;
@@ -359,16 +356,10 @@ class SyncEngine {
     }
     if (_relay == null || !(_relayOk || failing)) return;
     if (_advertising.contains(cur.id)) return;
-    final sent = cur.smsSentAt;
-    final due =
-        cur.relayedAt != null ||
-        (sent == null && (!canText || cur.smsFailedAt != null)) ||
-        (sent != null && !now.isBefore(sent.add(relayAfterSms)));
-    if (due) await _sendRelay(cur);
+    await _sendRelay(cur);
   }
 
-  /// Wakes the engine when the next step of a waiting SOS is due: the end
-  /// of its data window, or Bluetooth after a text.
+  /// Wakes the engine when a waiting SOS's data window ends.
   void _scheduleNextStep() {
     _stepTimer?.cancel();
     if (_disposed) return;
@@ -381,15 +372,10 @@ class SyncEngine {
           !e.delivery.isPending) {
         continue;
       }
-      final sent = e.smsSentAt;
-      final at = sent == null && e.smsFailedAt == null && e.relayedAt == null
-          ? e.capturedAt.add(dataWindow)
-          : sent != null && e.relayedAt == null
-          ? sent.add(relayAfterSms)
-          : null;
-      if (at != null &&
-          at.isAfter(now) &&
-          (next == null || at.isBefore(next))) {
+      final started =
+          e.smsSentAt != null || e.smsFailedAt != null || e.relayedAt != null;
+      final at = e.capturedAt.add(dataWindow);
+      if (!started && at.isAfter(now) && (next == null || at.isBefore(next))) {
         next = at;
       }
     }

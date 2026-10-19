@@ -261,7 +261,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sosSendSmsText =>
-      'Waiting for MDRRMD to confirm. Data is still being tried. If there\'s no word in 2 minutes, nearby phones are asked by Bluetooth too.';
+      'Waiting for MDRRMD to confirm. Nearby phones are asked by Bluetooth next, and data keeps reconnecting.';
 
   @override
   String get sosSendSmsFailedTitle => 'The SMS could not be sent';
@@ -276,11 +276,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sosSendBluetoothText =>
-      'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Keep Bluetooth on.';
+      'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.';
 
   @override
   String get sosSendBluetoothAfterSms =>
-      'Your SMS went out, but MDRRMD hasn\'t confirmed it yet, so nearby phones with S.A.G.I.P. are asked too. Keep Bluetooth on.';
+      'Your SMS went out. Until MDRRMD confirms it, nearby phones with S.A.G.I.P. are asked too, and data keeps reconnecting. Keep Bluetooth on.';
 
   @override
   String get sosSendDeliveredTitle => 'Your SOS reached MDRRMD';

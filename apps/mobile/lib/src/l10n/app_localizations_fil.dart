@@ -265,7 +265,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get sosSendSmsText =>
-      'Hinihintay ang kumpirmasyon ng MDRRMD. Sinusubukan pa rin ang data. Kung walang balita sa loob ng 2 minuto, hihingan din ng tulong ang mga kalapit na phone sa Bluetooth.';
+      'Hinihintay ang kumpirmasyon ng MDRRMD. Susunod na hihingan ng tulong ang mga kalapit na phone sa Bluetooth, at patuloy na kumokonekta ang data.';
 
   @override
   String get sosSendSmsFailedTitle => 'Hindi naipadala ang SMS';
@@ -280,11 +280,11 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get sosSendBluetoothText =>
-      'Hindi naipadala ang SMS. Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Panatilihing naka-on ang Bluetooth.';
+      'Hindi naipadala ang SMS. Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Patuloy na sinusubukan ang data at SMS. Panatilihing naka-on ang Bluetooth.';
 
   @override
   String get sosSendBluetoothAfterSms =>
-      'Naipadala ang SMS pero hindi pa ito kinukumpirma ng MDRRMD, kaya hinihingan din ng tulong ang mga kalapit na phone na may S.A.G.I.P. Panatilihing naka-on ang Bluetooth.';
+      'Naipadala ang SMS. Hangga\'t hindi pa ito kinukumpirma ng MDRRMD, hinihingan din ng tulong ang mga kalapit na phone na may S.A.G.I.P., at patuloy na kumokonekta ang data. Panatilihing naka-on ang Bluetooth.';
 
   @override
   String get sosSendDeliveredTitle => 'Nakarating na sa MDRRMD ang iyong SOS';

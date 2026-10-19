@@ -76,7 +76,6 @@ void main() {
   SyncEngine make({
     DateTime Function()? clock,
     Duration dataWindow = const Duration(seconds: 20),
-    Duration relayAfterSms = const Duration(minutes: 2),
   }) => SyncEngine(
     store: store,
     sender: sender,
@@ -92,7 +91,6 @@ void main() {
     ),
     relay: RelayTier(radio: radio, available: relayOk.stream),
     dataWindow: dataWindow,
-    relayAfterSms: relayAfterSms,
   );
 
   OutboxEntry entry(DateTime at) => OutboxEntry(
@@ -138,8 +136,8 @@ void main() {
 
   tearDown(() => engine.dispose());
 
-  test('no internet: data for 20 s, then SMS, then Bluetooth 2 min after '
-      'the text; delivered later, the advert ends', () async {
+  test('no internet: data for 20 s, then SMS and Bluetooth at once; data '
+      'keeps reconnecting; delivered later, the advert ends', () async {
     await signal(internet: false);
     await engine.add(entry(start));
     await pumpEventQueue();
@@ -152,19 +150,16 @@ void main() {
 
     await at(const Duration(seconds: 20));
     expect(sms.sent, hasLength(1));
-    expect(sosEntry().steps!.current, SosSendStep.sms);
-    expect(sosEntry().steps!.smsSent, isTrue);
-    expect(sosEntry().delivery, DeliveryState.sentBySms);
-    expect(radio.adverts, isEmpty, reason: 'Bluetooth comes last');
-
-    await at(const Duration(minutes: 2, seconds: 19));
-    expect(radio.adverts, isEmpty);
-    await at(const Duration(minutes: 2, seconds: 20));
-    expect(radio.adverts.keys, [RelayTier.ownKey(id)]);
+    expect(radio.adverts.keys, [
+      RelayTier.ownKey(id),
+    ], reason: 'no wait after the text');
     expect(sosEntry().steps!.current, SosSendStep.bluetooth);
     expect(sosEntry().steps!.smsSent, isTrue);
     expect(sosEntry().delivery, DeliveryState.sentBySms);
-    expect(sms.sent, hasLength(1), reason: 'texted once');
+
+    await at(const Duration(minutes: 3));
+    expect(sms.sent, hasLength(1), reason: 'a text that went is not repeated');
+    expect(radio.adverts, hasLength(1));
 
     sender.reachable = true;
     await signal(internet: true);
@@ -202,6 +197,22 @@ void main() {
     expect(radio.adverts.keys, [RelayTier.ownKey(id)]);
   });
 
+  test(
+    'while nearby phones are asked, data comes back and delivers it',
+    () async {
+      sms.works = false;
+      await signal(internet: false);
+      await engine.add(entry(start));
+      await at(const Duration(seconds: 20));
+      expect(sosEntry().steps!.current, SosSendStep.bluetooth);
+      sender.reachable = true;
+      await signal(internet: true);
+      expect(sender.sent, [id]);
+      expect(sosEntry().delivery, DeliveryState.delivered);
+      expect(radio.adverts, isEmpty);
+    },
+  );
+
   test('online, but every send fails: after 20 s it is texted too', () async {
     await signal(internet: true);
     await engine.add(entry(start));
@@ -231,17 +242,15 @@ void main() {
     engine = make(
       clock: DateTime.now,
       dataWindow: const Duration(milliseconds: 40),
-      relayAfterSms: const Duration(milliseconds: 80),
     );
     await signal(internet: false);
     await engine.add(entry(DateTime.now()));
     await pumpEventQueue();
     expect(sms.sent, isEmpty);
+    expect(radio.adverts, isEmpty);
     await Future<void>.delayed(const Duration(milliseconds: 90));
     await pumpEventQueue();
     expect(sms.sent, hasLength(1));
-    await Future<void>.delayed(const Duration(milliseconds: 120));
-    await pumpEventQueue();
     expect(radio.adverts.keys, [RelayTier.ownKey(id)]);
   });
 
