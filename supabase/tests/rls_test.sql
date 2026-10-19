@@ -8,6 +8,15 @@ create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 select plan(519);
 
+-- reset_demo_data() sets the record-number counters back, and a counter is
+-- not undone by the rollback: on the hosted project that made the next real
+-- SOS reuse an incident number (2026-10-19). Remember them here; they are
+-- put back at the end.
+create temp table __counters as
+  select 'public.incident_number_seq'::regclass as seq, last_value from public.incident_number_seq
+  union all select 'public.crowd_report_number_seq'::regclass, last_value from public.crowd_report_number_seq
+  union all select 'public.resident_number_seq'::regclass, last_value from public.resident_number_seq;
+
 select public.reset_demo_data();
 -- What the checks below assume, whatever the database is set to or holds
 -- (the hosted project has no sample classifier, and its switches are
@@ -2538,6 +2547,10 @@ select throws_ok($$ select public.set_setting('app.min_build', '3'::jsonb) $$,
   'P0001', 'not_allowed', 'a dispatcher cannot');
 reset role;
 select is((public.client_config() ->> 'min_build')::int, 2, 'and the apps see the new value');
+
+-- The counters as the real records need them (see the top).
+reset role;
+select setval(seq, last_value) from __counters;
 
 reset role;
 select * from finish();
