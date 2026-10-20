@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(540);
+select plan(541);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -547,6 +547,10 @@ select ok(
           and status = 'pendingVerification' and captured_at = now() - interval '2 minutes'
      from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b1'),
   'it is on the board at once as an SMS SOS with its capture time (FR8)');
+select is(
+  (select barangay from public.incident_report where client_uuid = '00000000-0000-4000-8000-0000000005b1'),
+  (select name from private.barangay_at(14.6090, 120.9920)),
+  'an SMS SOS names the barangay where the text says the phone is, not the home one');
 select is(
   public.intake_sms_sos('09170004821', '00000000-0000-4000-8000-0000000005b1',
     now(), 14.6, 120.99, 12, false) ->> 'duplicate',
