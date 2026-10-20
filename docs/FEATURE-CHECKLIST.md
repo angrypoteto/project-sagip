@@ -234,7 +234,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | Leftovers of the first relay tag (2026-10-19) | `drop function public.my_relay_tag(); drop function private.relay_sender(uuid); alter table public.manila_resident drop column relay_tag;` in the SQL editor. Nothing uses them; nobody can call them |
-| Make the newest build required | After the team installs build 7 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 7. APKs before build 2 cannot be asked (they have no check) |
+| Make the newest build required | After the team installs build 8 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 8. APKs before build 2 cannot be asked (they have no check) |
 | Removing expired photo files | Retention hides photos from everyone, but the files stay in the bucket until a small cleanup function (Storage API) is written |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 

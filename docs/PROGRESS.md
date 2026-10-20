@@ -34,7 +34,7 @@ Claude is the planner and reviewer; ChatGPT (Codex) is a builder that gets one s
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-19 | f47c816b (Claude) | Paused, nothing claimed. A waiting SOS now goes data → SMS → Bluetooth with a notification at each step (app build 7 at `https://sagip.me/download/sagip.apk`; it reads the gateway's reply and shows a banner when a newer build is out). **Read "Where things stand (2026-10-16)" below first, then `docs/FEATURE-CHECKLIST.md` part 8.** | none | Paused |
+| 2026-10-19 | f47c816b (Claude) | Paused, nothing claimed. A waiting SOS now goes data → SMS → Bluetooth with a notification at each step (app build 8 at `https://sagip.me/download/sagip.apk`; sign-in codes now go from the gateway SIM). **Read "Where things stand (2026-10-16)" below first, then `docs/FEATURE-CHECKLIST.md` part 8.** | none | Paused |
 
 ---
 
@@ -278,6 +278,7 @@ Legend: `[x]` done and tested, `[~]` partly done or placeholder, `[ ]` not start
 - Browser check of D8 (2026-10-02, headless Chrome at 1366 by 768, sample data, dark theme): the list, the map discs and markers, the legend, the hazard switch, and the barangay panel all fit and read well. Found and fixed: "Storm surge" wrapped in the hazard selector (the icons were dropped). Not checked: light theme, Supabase.
 
 ### Tests (last run 2026-10-19)
+- Latest counts (2026-10-20, build 8): `packages/shared` 348, `apps/dashboard` 59, `apps/mobile` 59; analyze clean in all three.
 - Latest counts (2026-10-20, gateway signature): `sms-intake` 10, `send-sms` 6 (`node --test`); `sms-intake` version 9 and `send-sms` version 7 deployed. The Dart packages did not change.
 - Latest counts (2026-10-19, update banner): `packages/shared` 345, `apps/dashboard` 59, `apps/mobile` 59; analyze clean in all three. No database change.
 - Latest counts (2026-10-19, gateway reply): `packages/shared` 345, `apps/dashboard` 59, `apps/mobile` 57, `sms-intake` 9 (`node --test`); analyze clean in all three. `sms-intake` version 8 deployed.
@@ -1293,3 +1294,4 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
   - Sign-up was already real end to end (`signInWithOtp` with `shouldCreateUser`, `verifyOTP`, `register_resident`). What was missing is the hook and secrets on the hosted project (Joshua's steps in `supabase/README.md`, "Sign-in codes"). `send-sms` (version 7) now asks the gateway to give up on a code after 5 minutes (`otpSeconds`), so a phone that was offline does not text a dead code later; the README says to set "SMS OTP Expiry" to 300 to match the text.
   - Checked on the hosted project (read-only): phone sign-in on, sign-ups allowed, the provider still placeholder Twilio (the hook replaces it), `send-sms` never called yet, `sms_log` empty, one resident.
   - Not done: the terms and privacy notice on S4 is still the draft text (the team and MDRRMD write the final one).
+- **Real sign-up works, and a failed code no longer says "offline"** (2026-10-20). Joshua set the Send SMS hook and the secrets on the hosted project; the first two tries failed (`sms_log`: gateway `HTTP 401`, the gateway username or password secret mistyped), then codes went out from the gateway SIM and Joshua registered and signed in on his phone. The app had said "You're offline" for the failed code: Supabase reports a server error (the hook's 502) as `AuthRetryableFetchException` with a status code, the same type as no internet. `phoneAuthFailureFor()` (shared) now says offline only when there was no answer at all, otherwise "Couldn't send or check the code right now" (`phone_auth_failure_test.dart`, 3). App build 8 (`0.3.5+8`), installed on the Oppo (CPH2251, the gateway phone); both sites redeployed with `latest.json` = 8 (APK md5 `3f70df85b740513797dc51431230eadf`). SMS Gateway for Android 1.77.3 was installed on the Oppo over USB (Play Protect blocks sideloading apps that ask for SMS permissions in the Philippines; the official GitHub APK, sha256 checked). **Watch:** the same Play Protect rule may block residents from installing `sagip.apk` from the browser; not tried yet.

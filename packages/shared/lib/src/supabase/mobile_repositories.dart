@@ -57,6 +57,23 @@ class SupabaseMobileBackend {
 
 // --------------------------------------------------------------- accounts
 
+/// Why asking for or checking a sign-in code failed. Supabase reports a
+/// server error (for example the SMS hook could not reach the gateway
+/// phone) as the same "retryable" error as no internet, but with its status
+/// code; only a request that never got an answer means offline
+/// (2026-10-20: a failed code said "You're offline").
+PhoneAuthFailure phoneAuthFailureFor(Object error) => switch (error) {
+  supa.AuthRetryableFetchException(statusCode: null) =>
+    PhoneAuthFailure.offline,
+  supa.AuthRetryableFetchException() => PhoneAuthFailure.unavailable,
+  supa.AuthException(statusCode: '429') => PhoneAuthFailure.tooManyAttempts,
+  supa.AuthException(code: 'over_sms_send_rate_limit') =>
+    PhoneAuthFailure.tooManyAttempts,
+  supa.AuthException(code: 'otp_expired') => PhoneAuthFailure.wrongCode,
+  supa.AuthException() => PhoneAuthFailure.unavailable,
+  _ => PhoneAuthFailure.offline,
+};
+
 /// Resident sign-in by mobile number and SMS code (S3 to S5), and
 /// responder sign-in with the staff email and password.
 ///
@@ -206,17 +223,8 @@ class SupabaseMobileAccounts
     return n;
   }
 
-  static PhoneAuthException _phoneFailure(Object error) => PhoneAuthException(
-    switch (error) {
-      supa.AuthRetryableFetchException() => PhoneAuthFailure.offline,
-      supa.AuthException(statusCode: '429') => PhoneAuthFailure.tooManyAttempts,
-      supa.AuthException(code: 'over_sms_send_rate_limit') =>
-        PhoneAuthFailure.tooManyAttempts,
-      supa.AuthException(code: 'otp_expired') => PhoneAuthFailure.wrongCode,
-      supa.AuthException() => PhoneAuthFailure.unavailable,
-      _ => PhoneAuthFailure.offline,
-    },
-  );
+  static PhoneAuthException _phoneFailure(Object error) =>
+      PhoneAuthException(phoneAuthFailureFor(error));
 
   @override
   Future<void> sendCode(String phone) async {
@@ -242,8 +250,8 @@ class SupabaseMobileAccounts
           token: code.trim(),
           type: OtpType.sms,
         );
-      } on supa.AuthRetryableFetchException {
-        throw const PhoneAuthException(PhoneAuthFailure.offline);
+      } on supa.AuthRetryableFetchException catch (e) {
+        throw PhoneAuthException(phoneAuthFailureFor(e));
       } on supa.AuthException catch (e) {
         throw PhoneAuthException(
           e.statusCode == '429'
