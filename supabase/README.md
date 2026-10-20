@@ -150,11 +150,16 @@ When a phone has signal but no data, the app texts the SOS to the MDRRMD gateway
 
 1. **Gateway phone:** a spare Android phone with the gateway SIM, running SMS Gateway for Android in cloud mode (the free route above). It cannot add headers to a webhook; it signs each one instead (`X-Signature`, an HMAC-SHA256 of the body and `X-Timestamp`, with its **Signing Key**). So:
    - In the app, Settings > Webhooks > Signing Key: the same value as `SMS_INTAKE_SECRET` (step 3).
-   - Register the webhook from your own terminal (the command holds the app's password, so not in a shared chat or a file in the repo; in Windows PowerShell type `curl.exe`, since `curl` there is another command):
+   - Register the webhook from your own terminal (it uses the app's password, so not in a shared chat or a file in the repo). Windows PowerShell 5.1 strips the quotes inside a JSON argument to `curl.exe`, so use this there (it asks for the username and password shown on the app's Home screen; done 2026-10-20):
 
-     ```bash
-     curl -X POST -u "<username>:<password>" -H "Content-Type: application/json" -d '{"url": "https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake", "event": "sms:received"}' https://api.sms-gate.app/3rdparty/v1/webhooks
+     ```powershell
+     $u = Read-Host 'Gateway username'
+     $p = Read-Host 'Gateway password'
+     $auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${u}:${p}"))
+     Invoke-RestMethod -Method Post -Uri 'https://api.sms-gate.app/3rdparty/v1/webhooks' -Headers @{ Authorization = "Basic $auth" } -ContentType 'application/json' -Body '{"url":"https://imssgenjfirpohkwxwbv.supabase.co/functions/v1/sms-intake","event":"sms:received"}'
      ```
+
+     It answers with the webhook's `id`. `Invoke-RestMethod -Uri 'https://api.sms-gate.app/3rdparty/v1/webhooks' -Headers @{ Authorization = "Basic $auth" }` lists what is registered. On macOS or Linux the same works with `curl -u "<username>:<password>" -H "Content-Type: application/json" -d '<the JSON above>' https://api.sms-gate.app/3rdparty/v1/webhooks`.
 
    `sms-intake` (version 9, 2026-10-20) accepts that signature, made within 5 minutes, or for other gateways the secret as `x-sagip-key: <secret>` or `Authorization: Bearer <secret>`.
 2. **The function:** deployed by Claude (JWT check off; version 9 on 2026-10-20). Until step 3 it answers `sms-intake is not set up` and files nothing. To redeploy after a change: `supabase functions deploy sms-intake --no-verify-jwt --project-ref imssgenjfirpohkwxwbv`.
