@@ -10,8 +10,11 @@ import {
   semaphoreNumber,
 } from "./sms.ts";
 
-// A made-up secret in Supabase's format (base64 of "sagip-test-secret-0123456789").
-const secret = "v1,whsec_c2FnaXAtdGVzdC1zZWNyZXQtMDEyMzQ1Njc4OQ==";
+// Made-up secrets in Supabase's format ("v1,whsec_" + base64). Built here
+// rather than written out, so secret scanners do not take them for real
+// keys (GitHub read them as Stripe webhook secrets, 2026-10-20).
+const testSecret = (text: string) => ["v1", `whsec_${btoa(text)}`].join(",");
+const secret = testSecret("sagip-test-secret-0123456789");
 
 function headers(map: Record<string, string>) {
   return { get: (name: string) => map[name] ?? null };
@@ -78,7 +81,7 @@ test("a changed body, wrong secret, or old timestamp is refused", async () => {
   );
   assert.equal(
     await verifyWebhook(
-      "v1,whsec_b3RoZXItc2VjcmV0LTAxMjM0NTY3ODk=",
+      testSecret("other-secret-0123456789"),
       body,
       headers(good),
       now,
