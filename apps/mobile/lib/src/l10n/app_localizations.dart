@@ -572,6 +572,48 @@ abstract class AppLocalizations {
   /// **'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.'**
   String get sosSendBluetoothText;
 
+  /// No description provided for @sosSendBluetoothNoSms.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data keeps being tried. Keep Bluetooth on.'**
+  String get sosSendBluetoothNoSms;
+
+  /// No description provided for @sosSendBluetoothOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Bluetooth to reach nearby phones'**
+  String get sosSendBluetoothOffTitle;
+
+  /// No description provided for @sosSendBluetoothOffText.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. Turn on Bluetooth so a phone near you with S.A.G.I.P. can pass your SOS to MDRRMD. Data keeps being tried.'**
+  String get sosSendBluetoothOffText;
+
+  /// No description provided for @sosSendBluetoothOffAfterSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SMS went out. Turn on Bluetooth so nearby phones with S.A.G.I.P. can pass on your SOS too. Data keeps being tried.'**
+  String get sosSendBluetoothOffAfterSms;
+
+  /// No description provided for @sendStepBluetoothOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is off'**
+  String get sendStepBluetoothOff;
+
+  /// No description provided for @turnOnBluetooth.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Bluetooth'**
+  String get turnOnBluetooth;
+
+  /// No description provided for @turnOnBluetoothFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t turn on Bluetooth. Turn it on in the quick settings.'**
+  String get turnOnBluetoothFailed;
+
   /// No description provided for @sosSendBluetoothAfterSms.
   ///
   /// In en, this message translates to:

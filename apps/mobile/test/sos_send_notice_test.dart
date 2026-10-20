@@ -110,6 +110,19 @@ void main() {
     expect(notice.shown.last, contains('INC-0181'));
   });
 
+  test('Bluetooth off says to turn it on, not "trying data"', () {
+    notifier.pendingChanged([
+      sos(const SosSendSteps(bluetoothOff: true)),
+    ], l10n);
+    notifier.pendingChanged([sos(const SosSendSteps(bluetooth: true))], l10n);
+    expect(titles(), [
+      'Turn on Bluetooth to reach nearby phones',
+      'Asking nearby phones to pass on your SOS',
+    ]);
+    // No SMS was tried (no gateway number): it does not say it failed.
+    expect(notice.shown.last, isNot(contains('could not be sent')));
+  });
+
   test('a refused SOS says so', () {
     notifier.pendingChanged([sos(const SosSendSteps())], l10n);
     notifier.pendingChanged([
@@ -126,6 +139,8 @@ void main() {
       SosSendSteps(smsFailed: true),
       SosSendSteps(smsFailed: true, bluetooth: true),
       SosSendSteps(smsSent: true, bluetooth: true),
+      SosSendSteps(bluetoothOff: true),
+      SosSendSteps(bluetooth: true),
     ]) {
       final en = sosSendWords(l10n, steps);
       final tl = sosSendWords(fil, steps);

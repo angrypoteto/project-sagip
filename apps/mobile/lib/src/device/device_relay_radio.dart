@@ -4,6 +4,30 @@ import 'package:sagip_shared/sagip_shared.dart';
 /// Tier 3 over the phone's Bluetooth LE (`BleRelay.kt`, channels
 /// `ph.sagip/relay` and `ph.sagip/relay/heard`). Needs the Nearby devices
 /// permission (S2 step 3); without it nothing is advertised or heard.
+/// The screen kept on over `ph.sagip/screen` (`FLAG_KEEP_SCREEN_ON`).
+class DeviceScreenAwake implements ScreenAwake {
+  const DeviceScreenAwake();
+
+  static const _channel = MethodChannel('ph.sagip/screen');
+
+  @override
+  Future<void> keepOn(bool on) async {
+    try {
+      await _channel.invokeMethod<void>('keepOn', {'on': on});
+    } on Object {
+      // The screen may turn off as usual.
+    }
+  }
+}
+
+/// The Bluetooth switch over the same channel.
+class DeviceBluetoothSwitch implements BluetoothSwitch {
+  const DeviceBluetoothSwitch();
+
+  @override
+  Future<bool> requestOn() => DeviceRelayRadio.requestOn();
+}
+
 class DeviceRelayRadio implements RelayRadio {
   const DeviceRelayRadio();
 
@@ -68,6 +92,15 @@ class DeviceRelayRadio implements RelayRadio {
       });
     } on Object {
       // No notice to update.
+    }
+  }
+
+  /// The phone's "Turn on Bluetooth?" question (`requestEnable`).
+  static Future<bool> requestOn() async {
+    try {
+      return await _methods.invokeMethod<bool>('requestEnable') ?? false;
+    } on Object {
+      return false;
     }
   }
 

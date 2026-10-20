@@ -315,6 +315,9 @@ void main() {
 
     await holdSos(tester);
     expect(onStatus('Saved on your phone'), findsOneWidget);
+    // The screen stays on while the SOS waits on the phone (2026-10-20).
+    final screen = container.read(screenAwakeProvider) as MockScreenAwake;
+    expect(screen.on, isTrue);
 
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
@@ -344,6 +347,7 @@ void main() {
     expect(find.textContaining('Your SOS from 3:42'), findsOneWidget);
     expect(onStatus('Received by MDRRMD'), findsOneWidget);
     expect(find.text('How your SOS is being sent'), findsNothing);
+    expect(screen.on, isFalse, reason: 'delivered: the screen may sleep');
     // The phone notification followed each step.
     final notice = container.read(sosSendNoticeProvider) as MockSosSendNotice;
     expect(

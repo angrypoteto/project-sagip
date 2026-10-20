@@ -24,11 +24,19 @@ import '../../l10n/app_localizations.dart';
     title: l10n.sosSendSmsFailedTitle,
     text: l10n.sosSendSmsFailedText,
   ),
+  SosSendStep.bluetooth when steps.bluetoothOff => (
+    title: l10n.sosSendBluetoothOffTitle,
+    text: steps.smsSent
+        ? l10n.sosSendBluetoothOffAfterSms
+        : l10n.sosSendBluetoothOffText,
+  ),
   SosSendStep.bluetooth => (
     title: l10n.sosSendBluetoothTitle,
     text: steps.smsSent
         ? l10n.sosSendBluetoothAfterSms
-        : l10n.sosSendBluetoothText,
+        : steps.smsFailed
+        ? l10n.sosSendBluetoothText
+        : l10n.sosSendBluetoothNoSms,
   ),
 };
 

@@ -287,6 +287,32 @@ class AppLocalizationsEn extends AppLocalizations {
       'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.';
 
   @override
+  String get sosSendBluetoothNoSms =>
+      'No internet. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data keeps being tried. Keep Bluetooth on.';
+
+  @override
+  String get sosSendBluetoothOffTitle =>
+      'Turn on Bluetooth to reach nearby phones';
+
+  @override
+  String get sosSendBluetoothOffText =>
+      'No internet. Turn on Bluetooth so a phone near you with S.A.G.I.P. can pass your SOS to MDRRMD. Data keeps being tried.';
+
+  @override
+  String get sosSendBluetoothOffAfterSms =>
+      'Your SMS went out. Turn on Bluetooth so nearby phones with S.A.G.I.P. can pass on your SOS too. Data keeps being tried.';
+
+  @override
+  String get sendStepBluetoothOff => 'Bluetooth is off';
+
+  @override
+  String get turnOnBluetooth => 'Turn on Bluetooth';
+
+  @override
+  String get turnOnBluetoothFailed =>
+      'Couldn\'t turn on Bluetooth. Turn it on in the quick settings.';
+
+  @override
   String get sosSendBluetoothAfterSms =>
       'Your SMS went out. Until MDRRMD confirms it, nearby phones with S.A.G.I.P. are asked too, and data keeps reconnecting. Keep Bluetooth on.';
 

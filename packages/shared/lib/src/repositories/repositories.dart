@@ -731,6 +731,23 @@ abstract interface class BatteryOptimization {
   Future<void> requestExemption();
 }
 
+/// Turning Bluetooth on from the app (2026-10-20): airplane mode turns it
+/// off, and an app may not switch it back by itself, but it may show the
+/// phone's own one-tap question.
+abstract interface class BluetoothSwitch {
+  /// Shows the phone's "Turn on Bluetooth?" question (nothing when it is
+  /// already on). False when it could not be shown.
+  Future<bool> requestOn();
+}
+
+/// Keeps the screen on (Joshua, 2026-10-20): while an SOS is still on the
+/// phone, a screen that goes dark can let the phone (Xiaomi's HyperOS, for
+/// one) hold back Bluetooth and the network, so R2 keeps it lit until the
+/// SOS reaches MDRRMD.
+abstract interface class ScreenAwake {
+  Future<void> keepOn(bool on);
+}
+
 /// The phone's permissions (S2, S7).
 abstract interface class PermissionService {
   Stream<Map<AppPermission, PermissionState>> watch();

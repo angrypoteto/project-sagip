@@ -51,6 +51,7 @@ class OutboxEntry {
     this.smsFailedAt,
     this.relayedAt,
     this.smsConfirmedAt,
+    this.relayFailedAt,
   });
 
   /// The record's client id: the SOS, report, or completion report id, or
@@ -94,6 +95,11 @@ class OutboxEntry {
   /// Tier 3: when nearby phones were first asked to pass this SOS on.
   final DateTime? relayedAt;
 
+  /// When asking nearby phones first failed: Bluetooth off, or the Nearby
+  /// devices permission missing (2026-10-20). The steps then say "Turn on
+  /// Bluetooth" until an advert starts.
+  final DateTime? relayFailedAt;
+
   /// When the gateway's reply said MDRRMD has this SOS ([serverId] is the
   /// incident it named). It stays pending so data still sends the full
   /// record; nearby phones are no longer asked.
@@ -107,6 +113,10 @@ class OutboxEntry {
           smsSent: smsSentAt != null,
           smsFailed: smsSentAt == null && smsFailedAt != null,
           bluetooth: relayedAt != null && smsConfirmedAt == null,
+          bluetoothOff:
+              relayedAt == null &&
+              relayFailedAt != null &&
+              smsConfirmedAt == null,
           smsReceivedAs: smsConfirmedAt != null ? serverId : null,
         )
       : null;
@@ -124,6 +134,7 @@ class OutboxEntry {
     DateTime? smsFailedAt,
     DateTime? relayedAt,
     DateTime? smsConfirmedAt,
+    DateTime? relayFailedAt,
   }) => OutboxEntry(
     id: id,
     action: action,
@@ -141,6 +152,7 @@ class OutboxEntry {
     smsFailedAt: smsFailedAt ?? this.smsFailedAt,
     relayedAt: relayedAt ?? this.relayedAt,
     smsConfirmedAt: smsConfirmedAt ?? this.smsConfirmedAt,
+    relayFailedAt: relayFailedAt ?? this.relayFailedAt,
   );
 
   QueuedRecord toQueued() => QueuedRecord(
@@ -170,6 +182,7 @@ class OutboxEntry {
     smsFailedAt: timeFromJsonOrNull(json['sms_failed_at']),
     relayedAt: timeFromJsonOrNull(json['relayed_at']),
     smsConfirmedAt: timeFromJsonOrNull(json['sms_confirmed_at']),
+    relayFailedAt: timeFromJsonOrNull(json['relay_failed_at']),
   );
 
   Map<String, Object?> toJson() => {
@@ -189,6 +202,7 @@ class OutboxEntry {
     'sms_failed_at': smsFailedAt?.toUtc().toIso8601String(),
     'relayed_at': relayedAt?.toUtc().toIso8601String(),
     'sms_confirmed_at': smsConfirmedAt?.toUtc().toIso8601String(),
+    'relay_failed_at': relayFailedAt?.toUtc().toIso8601String(),
   };
 }
 

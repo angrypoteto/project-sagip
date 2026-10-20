@@ -8,6 +8,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import 'app_version.dart';
 import 'device/device_alert_sound.dart';
 import 'device/device_battery_optimization.dart';
+import 'device/device_relay_radio.dart';
 import 'device/download_latest_build.dart';
 import 'device/device_sos_send_notice.dart';
 import 'device/device_sms_sender.dart';
@@ -44,6 +45,14 @@ final batteryOptimizationProvider = Provider<BatteryOptimization>(
 /// app comes back to the front (after the phone's question).
 final batteryExemptProvider = FutureProvider<bool>(
   (ref) => ref.watch(batteryOptimizationProvider).isExempt(),
+);
+
+/// R2 keeps the screen on while its SOS is still on the phone.
+final screenAwakeProvider = Provider<ScreenAwake>((ref) => MockScreenAwake());
+
+/// "Turn on Bluetooth" on R2 when nearby phones cannot be asked.
+final bluetoothSwitchProvider = Provider<BluetoothSwitch>(
+  (ref) => MockBluetoothSwitch(),
 );
 
 /// F2's assignment tone.
@@ -332,6 +341,8 @@ List<Override> liveOverrides({
     speakerProvider.overrideWithValue(TtsSpeaker()),
     alertSoundProvider.overrideWithValue(const DeviceAlertSound()),
     sosSendNoticeProvider.overrideWithValue(const DeviceSosSendNotice()),
+    bluetoothSwitchProvider.overrideWithValue(const DeviceBluetoothSwitch()),
+    screenAwakeProvider.overrideWithValue(const DeviceScreenAwake()),
     sosRepositoryProvider.overrideWithValue(
       OutboxSosRepository(
         engine: engine,

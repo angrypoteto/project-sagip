@@ -282,6 +282,25 @@ class MockSpeaker implements Speaker {
 
 /// The battery setting on sample data: not exempt until asked, so the
 /// responder home shows the prompt in the demo.
+/// Remembers whether the screen is being kept on.
+class MockScreenAwake implements ScreenAwake {
+  var on = false;
+
+  @override
+  Future<void> keepOn(bool on) async => this.on = on;
+}
+
+/// Counts the times the phone was asked to turn Bluetooth on.
+class MockBluetoothSwitch implements BluetoothSwitch {
+  int requests = 0;
+
+  @override
+  Future<bool> requestOn() async {
+    requests++;
+    return true;
+  }
+}
+
 class MockBatteryOptimization implements BatteryOptimization {
   MockBatteryOptimization({this.exempt = false, this.grants = true});
 

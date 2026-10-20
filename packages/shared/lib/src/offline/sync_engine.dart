@@ -191,8 +191,9 @@ class SyncEngine {
   final Duration dataWindow;
 
   /// A Bluetooth advert that could not start (Bluetooth off, no
-  /// permission) is tried again after this.
-  static const relayRetryAfter = Duration(seconds: 30);
+  /// permission) is tried again after this: short, so turning Bluetooth
+  /// on takes effect within seconds.
+  static const relayRetryAfter = Duration(seconds: 10);
 
   /// Delivered records stay this long so screens can show them until the
   /// server's copy catches up.
@@ -505,7 +506,13 @@ class SyncEngine {
       started = false;
     }
     if (!started) {
-      if (!e.waited) await _put(e.copyWith(waited: true));
+      // Bluetooth off or not allowed: the steps say so (2026-10-20: the
+      // phone kept saying "trying data" with Bluetooth off).
+      if (!e.waited || e.relayFailedAt == null) {
+        await _put(
+          e.copyWith(waited: true, relayFailedAt: e.relayFailedAt ?? _clock()),
+        );
+      }
       _relayRetry?.cancel();
       if (!_disposed) {
         _relayRetry = Timer(relayRetryAfter, () => unawaited(pump()));

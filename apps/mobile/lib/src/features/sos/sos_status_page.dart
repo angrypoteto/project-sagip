@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -39,13 +41,33 @@ class SosStatusPage extends ConsumerStatefulWidget {
 
 class _SosStatusPageState extends ConsumerState<SosStatusPage> {
   String get clientId => widget.clientId;
+  late final ScreenAwake _screen;
 
   @override
   void initState() {
     super.initState();
+    // The screen stays on while this SOS is still on the phone, so data,
+    // SMS, and Bluetooth keep being tried (Joshua, 2026-10-20); once
+    // MDRRMD has it, the screen may turn off to save the battery.
+    _screen = ref.read(screenAwakeProvider);
+    ref.listenManual(
+      pendingQueueProvider.select(
+        (q) => (q.value ?? const <QueuedRecord>[]).any(
+          (r) => r.id == clientId && r.delivery.isPending,
+        ),
+      ),
+      (_, waiting) => unawaited(_screen.keepOn(waiting)),
+      fireImmediately: true,
+    );
     if (widget.askType) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _askType());
     }
+  }
+
+  @override
+  void dispose() {
+    unawaited(_screen.keepOn(false));
+    super.dispose();
   }
 
   Future<void> _askType() async {
@@ -351,6 +373,19 @@ class _SendSteps extends ConsumerWidget {
 
   final String clientId;
 
+  Future<void> _turnOnBluetooth(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    if (!await ref.read(bluetoothSwitchProvider).requestOn()) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.turnOnBluetoothFailed)),
+      );
+      return;
+    }
+    // Ask nearby phones as soon as it is on, not at the next retry.
+    await ref.read(offlineQueueProvider).retryNow();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -386,8 +421,16 @@ class _SendSteps extends ConsumerWidget {
       (
         Symbols.bluetooth_rounded,
         l10n.sendStepBluetooth,
-        steps.bluetooth ? _StepState.active : _StepState.later,
-        steps.bluetooth ? l10n.sendStepAsking : l10n.sendStepNext,
+        steps.bluetooth
+            ? _StepState.active
+            : steps.bluetoothOff
+            ? _StepState.failed
+            : _StepState.later,
+        steps.bluetooth
+            ? l10n.sendStepAsking
+            : steps.bluetoothOff
+            ? l10n.sendStepBluetoothOff
+            : l10n.sendStepNext,
       ),
     ];
     return Padding(
@@ -400,6 +443,18 @@ class _SendSteps extends ConsumerWidget {
           const SizedBox(height: SagipSpace.sm),
           for (final (icon, label, state, word) in rows)
             _SendStepRow(icon: icon, label: label, state: state, word: word),
+          // Airplane mode turns Bluetooth off; the phone's own question
+          // turns it back on in one tap (2026-10-20).
+          if (steps.bluetoothOff)
+            Padding(
+              padding: const EdgeInsets.only(top: SagipSpace.sm),
+              child: OutlinedButton.icon(
+                key: const ValueKey('turn-on-bluetooth'),
+                onPressed: () => _turnOnBluetooth(context, ref),
+                icon: const Icon(Symbols.bluetooth_rounded),
+                label: Text(l10n.turnOnBluetooth),
+              ),
+            ),
         ],
       ),
     );

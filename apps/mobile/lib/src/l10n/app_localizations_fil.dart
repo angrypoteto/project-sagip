@@ -291,6 +291,32 @@ class AppLocalizationsFil extends AppLocalizations {
       'Hindi naipadala ang SMS. Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Patuloy na sinusubukan ang data at SMS. Panatilihing naka-on ang Bluetooth.';
 
   @override
+  String get sosSendBluetoothNoSms =>
+      'Walang internet. Ipapasa ng kalapit na phone na may S.A.G.I.P. ang iyong SOS sa MDRRMD kapag online ito. Patuloy na sinusubukan ang data. Panatilihing naka-on ang Bluetooth.';
+
+  @override
+  String get sosSendBluetoothOffTitle =>
+      'I-on ang Bluetooth para maabot ang mga kalapit na phone';
+
+  @override
+  String get sosSendBluetoothOffText =>
+      'Walang internet. I-on ang Bluetooth para maipasa ng kalapit na phone na may S.A.G.I.P. ang iyong SOS sa MDRRMD. Patuloy na sinusubukan ang data.';
+
+  @override
+  String get sosSendBluetoothOffAfterSms =>
+      'Naipadala ang iyong SMS. I-on ang Bluetooth para maipasa rin ng mga kalapit na phone na may S.A.G.I.P. ang iyong SOS. Patuloy na sinusubukan ang data.';
+
+  @override
+  String get sendStepBluetoothOff => 'Naka-off ang Bluetooth';
+
+  @override
+  String get turnOnBluetooth => 'I-on ang Bluetooth';
+
+  @override
+  String get turnOnBluetoothFailed =>
+      'Hindi ma-on ang Bluetooth. I-on ito sa quick settings.';
+
+  @override
   String get sosSendBluetoothAfterSms =>
       'Naipadala ang SMS. Hangga\'t hindi pa ito kinukumpirma ng MDRRMD, hinihingan din ng tulong ang mga kalapit na phone na may S.A.G.I.P., at patuloy na kumokonekta ang data. Panatilihing naka-on ang Bluetooth.';
 

@@ -8,6 +8,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.provider.Telephony
 import android.telephony.SmsManager
+import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -38,11 +40,48 @@ import java.util.concurrent.atomic.AtomicBoolean
 class MainActivity : FlutterActivity() {
     private val relay by lazy { BleRelay(applicationContext) }
 
+    /** Waits for the answer to the phone's "Turn on Bluetooth?" question. */
+    private var bluetoothAnswer: MethodChannel.Result? = null
+
+    override fun onResume() {
+        super.onResume()
+        relay.resumeScan()
+    }
+
     override fun onDestroy() {
-        relay.stopAll()
-        relay.stopScan()
+        relay.close()
         RelayService.stop(applicationContext)
         super.onDestroy()
+    }
+
+    @Deprecated("The Flutter embedding still delivers results here.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_BLUETOOTH) {
+            bluetoothAnswer?.success(resultCode == Activity.RESULT_OK)
+            bluetoothAnswer = null
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    /**
+     * Airplane mode turns Bluetooth off and an app may not turn it back on
+     * by itself; this shows the phone's own one-tap question (2026-10-20).
+     */
+    @Suppress("DEPRECATION")
+    private fun requestBluetooth(result: MethodChannel.Result) {
+        if (relay.isEnabled()) {
+            result.success(true)
+            return
+        }
+        bluetoothAnswer?.success(false)
+        bluetoothAnswer = result
+        try {
+            startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_BLUETOOTH)
+        } catch (_: Exception) {
+            bluetoothAnswer = null
+            result.success(false)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,6 +189,7 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "hasHardware" -> result.success(relay.hasHardware())
                     "isSupported" -> result.success(relay.isSupported())
+                    "requestEnable" -> requestBluetooth(result)
                     "advertise" -> {
                         val key = call.argument<String>("key")
                         val packet = call.argument<ByteArray>("packet")
@@ -189,13 +229,26 @@ class MainActivity : FlutterActivity() {
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/relay/heard")
             .setStreamHandler(object : EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
-                    if (!relay.startScan { packet -> events.success(packet) }) {
-                        events.error("unavailable", "Bluetooth scanning is not possible", null)
-                    }
+                    // With Bluetooth off this starts once it is on again.
+                    relay.startScan { packet -> events.success(packet) }
                 }
 
-                override fun onCancel(arguments: Any?) = relay.stopScan()
+                override fun onCancel(arguments: Any?) = relay.stopListening()
             })
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/screen")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "keepOn") {
+                    // While an SOS waits on the phone (R2).
+                    if (call.argument<Boolean>("on") == true) {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    } else {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    }
+                    result.success(null)
+                } else {
+                    result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/battery")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -396,3 +449,6 @@ private class SmsReplies(private val context: Context) : EventChannel.StreamHand
         receiver = null
     }
 }
+
+/** The answer to the phone's "Turn on Bluetooth?" question comes back with this. */
+private const val REQUEST_BLUETOOTH = 4213

@@ -189,12 +189,18 @@ void main() {
     final steps = sosEntry().steps!;
     expect(steps.smsFailed, isTrue);
     expect(steps.bluetooth, isFalse);
+    // Not "trying data" any more: the step is Bluetooth, and it is off
+    // (2026-10-20).
+    expect(steps.bluetoothOff, isTrue);
+    expect(steps.current, SosSendStep.bluetooth);
     expect(sosEntry().delivery, DeliveryState.savedOnPhone);
 
-    // Bluetooth turned on: the next try advertises it.
+    // Bluetooth turned on: the next try (10 s) advertises it.
     radio.supported = true;
-    await at(const Duration(seconds: 50));
+    await at(const Duration(seconds: 31));
     expect(radio.adverts.keys, [RelayTier.ownKey(id)]);
+    expect(sosEntry().steps!.bluetoothOff, isFalse);
+    expect(sosEntry().steps!.bluetooth, isTrue);
   });
 
   test(
