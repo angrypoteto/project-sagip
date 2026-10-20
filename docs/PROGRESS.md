@@ -34,32 +34,35 @@ Claude is the planner and reviewer; ChatGPT (Codex) is a builder that gets one s
 
 | Started | Session / who | Doing | Files or folders claimed | State |
 |---|---|---|---|---|
-| 2026-10-19 | f47c816b (Claude) | Paused, nothing claimed. A waiting SOS now goes data → SMS → Bluetooth with a notification at each step (app build 10 at `https://sagip.me/download/sagip.apk`; the Bluetooth relay recovers when Bluetooth comes back). **Read "Where things stand (2026-10-16)" below first, then `docs/FEATURE-CHECKLIST.md` part 8.** | none | Paused |
+| 2026-10-20 | f47c816b (Claude) | Paused, nothing claimed. App build 11 at `https://sagip.me/download/sagip.apk`. The SMS gateway (the Oppo) is set up and sends sign-in codes; the Bluetooth relay works between two phones; an SOS by SMS still needs a test from a phone with load. **Read "Where things stand (2026-10-20)" below first, then `docs/FEATURE-CHECKLIST.md` parts 4, 7 and 8.** | none | Paused |
 
 ---
 
-## Where things stand (2026-10-16)
+## Where things stand (2026-10-20)
 
-Read this before the long lists below; `docs/FEATURE-CHECKLIST.md` has the same state as boxes for Joshua to tick. The days 2026-10-13 to 2026-10-16 are in the session log at the end.
+Read this before the long lists below; `docs/FEATURE-CHECKLIST.md` has the same state as boxes for Joshua to tick. The days 2026-10-13 to 2026-10-20 are in the session log at the end.
 
 **Where it runs**
 - Resident web form: `https://sagip.me` (`www.sagip.me` and `report.sagip.me` forward to it). Dashboard for staff: `https://staff.sagip.me`. Vercel team `axiomcodes-projects`, projects `sagip-report` and `sagip-dashboard` (not connected to GitHub on purpose); Claude rebuilds and deploys both after web changes. The domain is Joshua's (Namecheap, GitHub Student Pack, free until October 2027).
-- Mobile app: release build on Joshua's phone; `SAGIP-<date>.apk` on his Desktop for the groupmates.
+- Mobile app: build 11 (`0.3.8+11`) at `https://sagip.me/download/sagip.apk` with `latest.json` beside it (builds 7 and later show "A newer S.A.G.I.P. is out"); `SAGIP-<date>-build<N>.apk` on Joshua's Desktop. Joshua's POCO X7 Pro has build 10, the Oppo CPH2251 (the gateway phone) build 11. Every build after 6 was installed over USB.
 
 **The hosted project (`imssgenjfirpohkwxwbv`)**
 - No made-up records (`clear_demo_data()` ran on 2026-10-12; **do not run it again**: it would remove the real units). `reset_demo_data()` is for the RLS test only.
 - Ten real stations as units, one responder account each, made-up supply levels for the panel's example. Staff `admin@sagip.test` and `dispatcher@sagip.test`: Joshua has set their passwords.
-- Phone sign-in: on, one test number (`639170004821`, code `123456`; Joshua extended its valid-until date on 2026-10-16), shared by everyone until the SMS gateway phone is set up. One resident, Joshua.
+- Phone sign-in: real numbers work since 2026-10-20 (Send SMS hook → `send-sms` version 7 → the gateway SIM). Sign in texts a code only to a number that has an account; only Register creates one. The test number (`639170004821`, code `123456`) still works and never sends a text. Three residents (the test number and Joshua's).
+- SMS gateway (2026-10-20): the Oppo runs SMS Gateway for Android 1.77.3 (cloud mode, installed over USB because Play Protect blocks it from the browser). Secrets set: `SEND_SMS_HOOK_SECRET`, `SMS_GATEWAY_SEND_URL`/`USERNAME`/`PASSWORD`, `SMS_INTAKE_SECRET`; the webhook to `sms-intake` (version 9, checks the app's `X-Signature`) is registered and worked; A3's gateway number is set. Semaphore is not set up and not needed. An SOS by SMS is paid by the resident's SIM (no load, no text; plan Q29) and has not reached the gateway yet.
 - Facebook: alerts and incident posts both switched on, to the test Page "Project SAGIP" (Meta app "SAGIP Alerts", unpublished, so posts are probably seen only by Joshua). Incident posts go up unverified when a unit is sent, and the same post is edited to confirmed, false alarm, withdrawn, or resolved; medical, simulated, and anything but the district are never posted.
 - Relay and app version (2026-10-19): migrations `relay_sender` (`20261019000233`) and `relay_device_keys` (`20261019001525`) applied: a relayed SOS names its sender through the phone's own key, and `app.min_build` (A3) forces old apps to update. Leftovers of the first try to drop by hand: `relay_tag`, `my_relay_tag()`, `private.relay_sender()` (part 7 of the checklist).
 - Safe places (2026-10-19): migration `safe_places` applied (`20261018230454`); 750 places from OpenStreetMap loaded (`supabase/README.md`, "Safe places").
 - Routes go around confirmed floods and fires, on the dashboard and on the responder's phone. Push works on Joshua's phone. Hotline `(02) 8565-4316`.
-- RLS: **495 of 495** on the real data (2026-10-19, from GitHub at `92831bc`, rolled back).
+- RLS: 541 checks written; last full run **540 of 540** (2026-10-19, from GitHub at `4ec501b`, rolled back). The check added for `sms_sos_barangay` (2026-10-20) has not run in the full file; the change itself was checked in a rolled-back run.
+- Bluetooth relay (2026-10-20): works between two phones (INC-0186, INC-0187: about 21 s, sender named and verified). Xiaomi's HyperOS refuses the scan while the phone is locked; the app restarts it whenever it comes to the front.
 
 **Not working or not there**
 - **The forecast page is empty**: no real model (MDRRMD's past incidents are needed; `ml/README.md`). The simulated feed (`20261003130000_forecast_live.sql`) is still not applied: it needs Joshua's explicit yes to rewriting its `update` line, or Joshua pasting it.
 - No classifier until the MDRRMD descriptions arrive: crowd reports get no type. An SOS gets its type from the resident's tap after sending, or from the dispatcher.
-- Real resident numbers and every outgoing SMS wait on the SMS gateway phone (Joshua has one) and the Send SMS hook.
+- An SOS by SMS end to end: needs load on the sending phone. The gateway's reply to it, alerts and rescue texts by SMS, and the SMS check are set up but not tried.
+- Play Protect may block residents from installing `sagip.apk` from the browser (it asks for SMS permissions); not tried yet.
 - Traffic in routes (Google Routes API) waits on Joshua's Google Cloud billing account and `GOOGLE_MAPS_API_KEY`.
 - (Done 2026-10-16: the test alert "System test: please disregard" was ended by Claude through `end_alert` as the admin account, at Joshua's request; audited as alertEnded by E. Navarro. Its Facebook post stays on the Page unless Joshua deletes it.)
 
@@ -1308,3 +1311,4 @@ Joshua decided on 2026-09-30: **functions first, UI polish later**, once the who
   - App build 10 (`0.3.7+10`), installed on Joshua's phone; `sagip.me` serves it (APK md5 `6151d2222414587793bff2975bb2037e`). Not yet tried end to end with two phones.
 - **Relay works with two phones; an SMS SOS names the barangay where it was sent** (2026-10-20). With build 10 on both phones (POCO X7 Pro sending offline, Oppo CPH2251 online), INC-0186 and INC-0187 reached the board as `bleRelay` about 21 s after the SOS. The SMS step was skipped because A3's gateway number (`contact.sms_gateway`) is still empty, so the app has no number to text. Joshua then asked that an SOS arriving by SMS show on the map at the text's location: `intake_sms_sos` already stored the text's coordinates and put it on the board at once, but for a registered sender it named the resident's **home** barangay. Migration `sms_sos_barangay` (applied as `20261020014849`): the barangay comes from the text's location (`private.barangay_at`), the home barangay only when the text has no location. Checked on the hosted project in a rolled-back run (resident away from home, unknown number, no location; the incident counter put back to 187 and nothing left behind). RLS test: one check added (541), not yet run in full.
 - **The SMS fallback needs load on the resident's SIM** (Joshua, 2026-10-20: "the sms is still not working, does my phone need to have a load?", then "what does our paper say?"). Checked: the gateway forwards texts to `sms-intake` (one non-SOS text at 09:01 was accepted with the new signature check), A3's gateway number was saved at 09:52, and no SOS text reached the gateway after that; Joshua's SIM had no load. The thesis says the SOS goes "as a native SMS from the phone's own messaging function" but not that it needs load; plan Q29 had flagged it. Recorded the wording for Chapter 1 (Q29) and two more thesis differences: the gateway is an Android phone, not a GSM modem (Q45), and outbound SMS goes from the gateway SIM, not Semaphore (Q46). The app's "SMS could not be sent" now says the SIM may have no load or signal (build 11, `0.3.8+11`; installed on the Oppo, on `sagip.me`, APK md5 `3dffdd327575c0df697e09779e05475a`).
+- **Checklist and this file brought up to date** (Joshua, 2026-10-20). "Where things stand" is now as of 2026-10-20 (SMS gateway, real sign-in, relay, builds). Checklist: ticked the dashboard photos, photos after an SOS, the relay between two phones, the listening phone recovering, and the relayed sender being named (INC-0186/0187: sender known and verified, checked on the database); part 7's SMS rows marked set up, with three new rows (a free SMS number, Play Protect, the Xiaomi and Oppo battery settings); new boxes for the SMS barangay fix and the no-load message.

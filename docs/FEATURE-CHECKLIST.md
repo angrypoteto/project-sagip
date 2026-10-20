@@ -1,4 +1,4 @@
-# Feature checklist (as of 2026-10-19)
+# Feature checklist (as of 2026-10-20)
 
 For Joshua to check by hand, one line at a time. Tick the box when you have seen
 it work. The details behind each line are in `docs/PROGRESS.md`.
@@ -9,23 +9,31 @@ it work. The details behind each line are in `docs/PROGRESS.md`.
 |---|---|---|
 | Dashboard, real database | `apps/dashboard`: `flutter run -d chrome --release --web-port 5555 --dart-define-from-file=.env` | `admin@sagip.test` or `dispatcher@sagip.test` (your passwords), or a unit account |
 | Dashboard on the internet, real database | open `https://staff.sagip.me` (also `https://sagip-dashboard-three.vercel.app`) | the same accounts |
-| Resident web form on the internet, real database | open `https://sagip.me` (`www.sagip.me` and `report.sagip.me` forward to it; also `https://sagip-report.vercel.app`) | resident: `917 000 4821`, code `123456` |
+| Resident web form on the internet, real database | open `https://sagip.me` (`www.sagip.me` and `report.sagip.me` forward to it; also `https://sagip-report.vercel.app`) | resident: your own number (the code comes by text from the gateway phone), or the test number `917 000 4821`, code `123456` |
 | Dashboard, sample data | `apps/dashboard`: `flutter run -d chrome` | the same emails, password `sagip-demo` |
 | Resident web form, sample data | `apps/dashboard`: `flutter run -d chrome -t lib/main_webform.dart` | any number, the demo code shown |
-| Mobile app on your phone, real database | install `SAGIP-2026-10-19.apk` from your Desktop (it has safe places; your phone still has the build of 2026-10-16), or plug the phone in and ask me | resident: `917 000 4821`, code `123456`; responder: a unit account |
+| Mobile app on your phone, real database | build 11: `SAGIP-2026-10-20-build11.apk` on your Desktop, `https://sagip.me/download/sagip.apk`, or plug the phone in and ask me (your POCO has build 10, the Oppo build 11) | resident: your own number, or the test number `917 000 4821`, code `123456`; responder: a unit account |
 | Mobile app, sample data | `apps/mobile`: `flutter run` (phone plugged in) | "Continue as resident" or "Continue as rescue personnel" |
 
-**The real database today:** no made-up incidents, residents, or forecast. It
-holds 10 real stations as units (each with a responder account and made-up
-supply levels for the demo), 897 barangays, the settings, 17 river stations, one
-resident (the test number), and the incidents you made while testing (12, all
+**The real database today (2026-10-20):** no made-up incidents, residents, or
+forecast. It holds 10 real stations as units (each with a responder account and
+made-up supply levels for the demo), 897 barangays, the settings, 17 river
+stations, 750 safe places, three residents (the test number and the accounts you
+registered with real numbers), and the incidents you made while testing (31, all
 closed). Facebook posting of alerts and incidents is switched on (test Page
 "Project SAGIP"), and the hotline is set to (02) 8565-4316.
+
+**The SMS gateway (2026-10-20):** the Oppo (CPH2251) runs SMS Gateway for Android
+in cloud mode with its SIM. Supabase's Send SMS hook and the five secrets are
+set, the gateway's webhook goes to `sms-intake`, and its number is on A3. It
+sends sign-in codes (working), alerts, rescue texts, and SOS replies, and
+receives SOS texts. A resident's SOS text is paid by the resident's own SIM, so
+it needs load (plan Q29).
 
 Marks: **[S]** can only be seen on sample data for now (the real database has
 nothing to show for it). **[P]** needs a real phone to check properly. **[W]**
 built, but waits on a setting or a decision from you (part 7). **[N]** new or
-changed between 2026-10-12 and 2026-10-19.
+changed between 2026-10-12 and 2026-10-20.
 
 ---
 
@@ -112,7 +120,7 @@ changed between 2026-10-12 and 2026-10-19.
 - [ ] A7 Audit log shows every action above with who did it
 - [ ] **[N]** Incident history (dispatchers and admins): closed incidents by period (today, 7 days, 30 days, chosen dates), filtered by type and how it ended, searched by ID or barangay; a row opens its details (timeline, completion report, Facebook status); Export CSV downloads the filtered list without personal data
 - [ ] **[N]** Safe places (admins, 2026-10-19): the list of 750 places from OpenStreetMap; search by name or barangay, pick a kind, "Show hidden places"; hide a wrong place and show it again; "Add place" for MDRRMD's own evacuation center (needs a name; a place outside Manila is refused; marked Official); each change in the audit log
-- [ ] **[N]** Incident panel: "Photos (N)" with the photos residents added to the SOS or to the crowd reports in its cluster; a click opens one large
+- [x] **[N]** Incident panel: "Photos (N)" with the photos residents added to the SOS or to the crowd reports in its cluster; a click opens one large
 - [ ] **[N]** Incident panel: a line under the type says where its Facebook post stands, and why it is not posted (for example "not posted until the incident type is confirmed")
 
 ---
@@ -167,7 +175,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] **[N]** R2 "Safe places near you" (right under Track responder): the advice (help is coming to where you are; move only if staying is unsafe), the nearest place once you tapped what is happening, and "See safe places"
 - [ ] **[N]** Safe places screen: tap Flood, Fire, Collapse or damage, or Medical; the advice for it; the three nearest on a map (a fire's are at least 300 m away; a flood's are schools, halls, covered courts; medical gives hospitals); tap one to see the way on foot and the minutes. Works offline (airplane mode) from the list saved in the app
 - [ ] **[N]** R8 Alert detail: "Safe places near you" (a weather alert opens it on Flood)
-- [ ] **[N]** Photos (2026-10-19): after an SOS is sent, "Add a photo" (Take a photo / Choose from gallery), up to 3; "1 of 3 photos added. They are sent after your SOS". In airplane mode the photo waits and goes after the SOS once online
+- [x] **[N]** Photos (2026-10-19): after an SOS is sent, "Add a photo" (Take a photo / Choose from gallery), up to 3; "1 of 3 photos added. They are sent after your SOS". In airplane mode the photo waits and goes after the SOS once online
 - [ ] **[N]** R4 Report a hazard: "Add a photo (optional)", a preview with a remove button; the photo goes after the report
 - [ ] S6 Offline queue sheet: saved records, Try sending now
 - [ ] An SOS sent offline is delivered when you come back online, with its original time
@@ -175,17 +183,19 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] S6 "Text it myself" opens the messages app with the SOS text ready **[P]**
 - [ ] SOS by SMS when there is signal but no data **[P] [W]**
 - [ ] **[N]** Sending steps (2026-10-19): with no internet, an SOS is tried over data for 20 seconds, then texted, and right after the text (sent or not) passed to nearby phones by Bluetooth, while data keeps reconnecting (no 2-minute wait since build 5). A "Sending your SOS" notification changes at each step ("No internet. Trying again over data" → "SOS sent by SMS to MDRRMD" or "The SMS could not be sent" → "Asking nearby phones to pass on your SOS" → "Your SOS reached MDRRMD"), and R2 shows "How your SOS is being sent" with Data / SMS / Nearby phones. Try it: mobile data off with the SIM in (it should still text), then airplane mode with Bluetooth on (SMS fails, Bluetooth at once) **[P]**
-- [ ] SOS relayed by a nearby phone over Bluetooth, also in the background **[P]**
+- [x] SOS relayed by a nearby phone over Bluetooth **[P]** (2026-10-20, build 10: your POCO offline sent, the Oppo online relayed; INC-0186 and INC-0187 reached the board about 21 s after the SOS). Not yet seen with the relaying phone's screen off
 - [ ] **[N]** Bluetooth off on the sending phone: R2 says "Bluetooth is off" with Turn on Bluetooth, and the notice says to turn it on (2026-10-20, build 10)
-- [ ] **[N]** A listening phone that had Bluetooth off, or turned it off and on, listens again by itself (2026-10-20, build 10)
+- [x] **[N]** A listening phone that had Bluetooth off, or turned it off and on, listens again by itself (2026-10-20, build 10; checked over USB on both phones: the scan starts when Bluetooth comes on and when the app comes to the front)
 - [ ] **[N]** The SOS screen stays lit while the SOS waits on the phone, and may sleep once MDRRMD has it (2026-10-20, build 10)
 - [ ] **[N]** The gateway's reply (2026-10-19): when the gateway texts back "S.A.G.I.P.: Your SOS was received (INC-…, ref …)", the phone shows "MDRRMD received your SOS by SMS", R2 shows the SOS as received with its incident number, and nearby phones stop being asked; the full record still goes over data later. Only a text from the gateway number with this SOS's code counts. Needs the gateway phone and a number on A3 **[P] [W]**
 - [ ] **[N]** The relay notice says only what is true: "Ready to pass on SOS from nearby phones. None waiting" until a nearby phone's SOS is heard, then "Passing on 1 SOS…", then "Sent 1 SOS… to MDRRMD" (2026-10-19; the old one said "listening for SOS nearby" all the time)
-- [ ] **[N]** A relayed SOS shows its real sender on the dashboard, with "Relayed by nearby phones (Bluetooth). The sender's phone proved itself with its own key"; the phone that carried it never sees who it is **[P]** (two phones with build 2: one in airplane mode sends, the other online relays)
+- [x] **[N]** A relayed SOS shows its real sender on the dashboard, with "Relayed by nearby phones (Bluetooth). The sender's phone proved itself with its own key"; the phone that carried it never sees who it is **[P]** (two phones with build 2: one in airplane mode sends, the other online relays). Seen 2026-10-20: INC-0186 and INC-0187 named your account and marked it verified
 - [ ] **[N]** Too old an app: "Update S.A.G.I.P." with "Download the update", SOS (residents) and Call MDRRMD still there; never while your SOS is open. Try it: set A3 "Oldest app build allowed" to 3 and open the app (then set it back to 2)
 - [ ] **[N]** Sign in with a number that has no account says "no account yet" at once and sends no text (2026-10-20, build 9)
 - [x] **[N]** A real number gets its sign-in code from the gateway SIM (2026-10-20), and registering with it lands on Home (Joshua, 2026-10-20). Needs the Send SMS hook and the gateway secrets (`supabase/README.md`) **[P]**
-- [ ] **[N]** An SOS texted to the gateway reaches the board: SMS Gateway for Android signs the webhook with its Signing Key (= `SMS_INTAKE_SECRET`) **[P]**
+- [ ] **[N]** An SOS texted to the gateway reaches the board: SMS Gateway for Android signs the webhook with its Signing Key (= `SMS_INTAKE_SECRET`) **[P]**. The webhook works (a text forwarded on 2026-10-20 was accepted); an SOS text has not reached it yet because the sending phone had no load
+- [ ] **[N]** An SOS texted from somewhere other than home shows the barangay where it was sent, not the home one (2026-10-20, migration `sms_sos_barangay`; checked on the database, not yet with a real text)
+- [ ] **[N]** A failed SOS text says "Your SIM may have no load or no signal" (2026-10-20, build 11)
 - [ ] **[N]** A newer build is out (2026-10-19): a banner on every tab, "A newer S.A.G.I.P. is out" with Update and Later; not while your SOS is open or your unit has a job. It reads `sagip.me/download/latest.json`, which each deploy writes. Shows first when build 8 is published (builds 6 and older have no banner)
 - [ ] **[N]** Your location is a blue dot with an arrow that turns where the phone faces (Track responder, Safe places, the location picker) **[P]**
 - [ ] Push notifications arrive **[P]** (your phone is registered as of 2026-10-13, and the test alert’s push was marked sent; you have not said whether it showed on the phone)
@@ -231,9 +241,12 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 | Feature | What it waits for |
 |---|---|
-| Residents signing in with any real number | Phone sign-in is on, but only the test number works. Real numbers need the Send SMS hook (`supabase/README.md`, "Turning on resident sign-in by SMS code") |
-| All outgoing SMS (alerts, rescue texts, SMS check, codes) | The spare phone as the gateway and its three secrets, or a Semaphore account |
-| SOS by SMS coming in, and the YES/NO reply to an SMS check | The same gateway phone, plus `SMS_INTAKE_SECRET` and its webhook |
+| ~~Residents signing in with any real number~~ | **Done 2026-10-20**: codes go by text from the gateway phone |
+| ~~All outgoing SMS (alerts, rescue texts, SMS check, codes)~~ | **Set up 2026-10-20** (gateway phone and its secrets); codes seen working, the others not tried yet |
+| ~~SOS by SMS coming in, and the YES/NO reply to an SMS check~~ | **Set up 2026-10-20** (`SMS_INTAKE_SECRET`, the signed webhook, the number on A3); try it with load on the sending phone |
+| A free SMS number for residents with no load | A toll-free short code needs an agreement with Globe and Smart (MDRRMD's); out of scope, a Chapter 5 recommendation (plan Q29) |
+| Play Protect and the APK from the browser | Google blocks installing apps that ask for SMS permissions from a browser in the Philippines (it blocked SMS Gateway for Android). Try downloading `sagip.apk` from `sagip.me` on a phone: if it is blocked, decide how the UAT phones get the app (USB install, Play Store, or turning the protection off on test phones) |
+| Xiaomi and Oppo battery settings for the relay | On each relaying phone: S.A.G.I.P. Autostart on and Battery saver "No restrictions" (Xiaomi), "Allow background activity" (Oppo); HyperOS refused the Bluetooth scan while locked |
 | The test post "System test: please disregard" on the Facebook Page | The alert itself was ended on 2026-10-16 (no longer in the resident app). Remove its post from the Page if you do not want it there |
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
@@ -244,7 +257,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 
 ---
 
-## 8. Not done yet (as of 2026-10-19)
+## 8. Not done yet (as of 2026-10-20)
 
 The data request letter to MDRRMD (TO Director Angeles, THRU Mr. Verano) is
 ready on Joshua's Desktop, `SAGIP-MDRRMD-Data-Request-Letter.docx` (2026-10-19).
@@ -283,7 +296,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 | What | What it waits for |
 |---|---|
 | Traffic in the routes (Google Maps, as the panel was told) | Not built. Your Google Cloud billing account and the key saved as `GOOGLE_MAPS_API_KEY`. Then Google says which stretches are jammed, and our Dijkstra goes around them. Known catches: a card is required, Google's terms may not allow its data with an OpenStreetMap map, and it works only online |
-| Real resident sign-in, all outgoing SMS, SOS by SMS | The spare phone as the SMS gateway, with a SIM (part 7) |
+| ~~Real resident sign-in, all outgoing SMS, SOS by SMS~~ | **Done 2026-10-20** (the Oppo is the gateway). Left: an SOS text from a phone with load |
 | CI on GitHub (analyze, tests, key scan on every push) | **It has never run**: every run is refused before it starts because "your account is locked due to a billing issue" (all 22 recent runs, up to 2026-10-16). Fix it in GitHub's billing settings; the tests pass on this PC |
 | Leaked-password protection, and the project under a team account on a paid plan | Supabase's Pro plan; before a pilot, not needed for the defense |
 | Self-hosted Manila map tiles | Decided: public OpenStreetMap tiles for the defense; self-hosted before a pilot (needs a host) |
@@ -294,7 +307,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 | What | Where it stands |
 |---|---|
 | UAT on 2026-11-23 to 27 (3 admins, 16 field personnel, 31 residents) and the ISO/IEC 25010 questionnaire validated by 2026-10-30 | Not started as far as this file knows |
-| Hallway test, the Objective 3 trial (SOS delivery offline), the Objective 4 trial (report time), the Bluetooth relay with three phones, everything marked **[P]** | Not started; needs phones and people |
+| Hallway test, the Objective 3 trial (SOS delivery offline), the Objective 4 trial (report time), the Bluetooth relay with three phones, everything marked **[P]** | Not started; needs phones and people. The relay works between two phones (2026-10-20) |
 | Read the mobile app's Filipino text (privacy notice and consent first) | Not done |
 | Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations; **the SMS fallback needs load on the resident's SIM**, plan Q29); Chapter 3 (the gateway is an Android phone, plan Q45; outbound SMS from the gateway SIM, not Semaphore, plan Q46; river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, safe places instead of the nearest evacuation center, incident posts on Facebook, incident history) |
 
@@ -310,6 +323,9 @@ public GitHub repo (the letter promises it); only the trained models do.
 ## 10. Never tested on a real phone
 
 Everything marked **[P]** above, plus: the Bluetooth relay between three phones,
-the SMS fallback end to end, and the Objective 3 trial. Seen on your phone on
-2026-10-12: sign-in with the test number, an SOS reaching the Command Board, a
-rescue from assignment to resolved, and the unit's position on the map.
+the SMS fallback end to end (needs load on the sending phone), and the Objective
+3 trial. Seen on your phone on 2026-10-12: sign-in with the test number, an SOS
+reaching the Command Board, a rescue from assignment to resolved, and the unit's
+position on the map. Seen on 2026-10-19 and 2026-10-20: a photo on an SOS shown
+on the dashboard, sign-up and sign-in with a real number (code from the gateway
+phone), and the Bluetooth relay between two phones (INC-0186, INC-0187).
