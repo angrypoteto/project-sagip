@@ -276,7 +276,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sosSendSmsFailedText =>
-      'Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.';
+      'Your SIM may have no load or no signal. Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.';
 
   @override
   String get sosSendBluetoothTitle =>
@@ -284,7 +284,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sosSendBluetoothText =>
-      'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.';
+      'The SMS could not be sent (your SIM may have no load or no signal). A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.';
 
   @override
   String get sosSendBluetoothNoSms =>

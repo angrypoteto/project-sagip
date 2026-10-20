@@ -280,7 +280,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get sosSendSmsFailedText =>
-      'I-on ang Bluetooth para maipasa ng mga kalapit na phone ang iyong SOS. Sinusubukan pa rin ang data at SMS.';
+      'Maaaring walang load o signal ang iyong SIM. I-on ang Bluetooth para maipasa ng mga kalapit na phone ang iyong SOS. Sinusubukan pa rin ang data at SMS.';
 
   @override
   String get sosSendBluetoothTitle =>
@@ -288,7 +288,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get sosSendBluetoothText =>
-      'Hindi naipadala ang SMS. Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Patuloy na sinusubukan ang data at SMS. Panatilihing naka-on ang Bluetooth.';
+      'Hindi naipadala ang SMS (maaaring walang load o signal ang iyong SIM). Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Patuloy na sinusubukan ang data at SMS. Panatilihing naka-on ang Bluetooth.';
 
   @override
   String get sosSendBluetoothNoSms =>

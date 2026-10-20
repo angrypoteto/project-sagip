@@ -73,6 +73,8 @@ void main() {
       'Asking nearby phones to pass on your SOS',
     ]);
     expect(notice.shown.first, contains('Turn on Bluetooth'));
+    // The usual reason (2026-10-20): the resident's SIM has no load.
+    expect(notice.shown.first, contains('no load'));
     expect(notice.shown.last, contains('The SMS could not be sent'));
   });
 

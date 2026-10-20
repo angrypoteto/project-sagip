@@ -557,7 +557,7 @@ abstract class AppLocalizations {
   /// No description provided for @sosSendSmsFailedText.
   ///
   /// In en, this message translates to:
-  /// **'Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.'**
+  /// **'Your SIM may have no load or no signal. Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.'**
   String get sosSendSmsFailedText;
 
   /// No description provided for @sosSendBluetoothTitle.
@@ -569,7 +569,7 @@ abstract class AppLocalizations {
   /// No description provided for @sosSendBluetoothText.
   ///
   /// In en, this message translates to:
-  /// **'The SMS could not be sent. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.'**
+  /// **'The SMS could not be sent (your SIM may have no load or no signal). A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.'**
   String get sosSendBluetoothText;
 
   /// No description provided for @sosSendBluetoothNoSms.

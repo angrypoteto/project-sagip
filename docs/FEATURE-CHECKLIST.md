@@ -238,7 +238,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | Leftovers of the first relay tag (2026-10-19) | `drop function public.my_relay_tag(); drop function private.relay_sender(uuid); alter table public.manila_resident drop column relay_tag;` in the SQL editor. Nothing uses them; nobody can call them |
-| Make the newest build required | After the team installs build 10 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 10. APKs before build 2 cannot be asked (they have no check) |
+| Make the newest build required | After the team installs build 11 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 11. APKs before build 2 cannot be asked (they have no check) |
 | Removing expired photo files | Retention hides photos from everyone, but the files stay in the bucket until a small cleanup function (Storage API) is written |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 
@@ -296,7 +296,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 | UAT on 2026-11-23 to 27 (3 admins, 16 field personnel, 31 residents) and the ISO/IEC 25010 questionnaire validated by 2026-10-30 | Not started as far as this file knows |
 | Hallway test, the Objective 3 trial (SOS delivery offline), the Objective 4 trial (report time), the Bluetooth relay with three phones, everything marked **[P]** | Not started; needs phones and people |
 | Read the mobile app's Filipino text (privacy notice and consent first) | Not done |
-| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations); Chapter 3 (river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, safe places instead of the nearest evacuation center, incident posts on Facebook, incident history) |
+| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations; **the SMS fallback needs load on the resident's SIM**, plan Q29); Chapter 3 (the gateway is an Android phone, plan Q45; outbound SMS from the gateway SIM, not Semaphore, plan Q46; river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, safe places instead of the nearest evacuation center, incident posts on Facebook, incident history) |
 
 ## 9. Dropped (Joshua, 2026-10-11)
 
