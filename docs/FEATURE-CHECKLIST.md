@@ -180,7 +180,8 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] **[N]** The relay notice says only what is true: "Ready to pass on SOS from nearby phones. None waiting" until a nearby phone's SOS is heard, then "Passing on 1 SOS…", then "Sent 1 SOS… to MDRRMD" (2026-10-19; the old one said "listening for SOS nearby" all the time)
 - [ ] **[N]** A relayed SOS shows its real sender on the dashboard, with "Relayed by nearby phones (Bluetooth). The sender's phone proved itself with its own key"; the phone that carried it never sees who it is **[P]** (two phones with build 2: one in airplane mode sends, the other online relays)
 - [ ] **[N]** Too old an app: "Update S.A.G.I.P." with "Download the update", SOS (residents) and Call MDRRMD still there; never while your SOS is open. Try it: set A3 "Oldest app build allowed" to 3 and open the app (then set it back to 2)
-- [ ] **[N]** A real number gets its sign-in code from the gateway SIM (2026-10-20), and registering with it lands on Home. Needs the Send SMS hook and the gateway secrets (`supabase/README.md`) **[P]**
+- [ ] **[N]** Sign in with a number that has no account says "no account yet" at once and sends no text (2026-10-20, build 9)
+- [x] **[N]** A real number gets its sign-in code from the gateway SIM (2026-10-20), and registering with it lands on Home (Joshua, 2026-10-20). Needs the Send SMS hook and the gateway secrets (`supabase/README.md`) **[P]**
 - [ ] **[N]** An SOS texted to the gateway reaches the board: SMS Gateway for Android signs the webhook with its Signing Key (= `SMS_INTAKE_SECRET`) **[P]**
 - [ ] **[N]** A newer build is out (2026-10-19): a banner on every tab, "A newer S.A.G.I.P. is out" with Update and Later; not while your SOS is open or your unit has a job. It reads `sagip.me/download/latest.json`, which each deploy writes. Shows first when build 8 is published (builds 6 and older have no banner)
 - [ ] **[N]** Your location is a blue dot with an arrow that turns where the phone faces (Track responder, Safe places, the location picker) **[P]**
@@ -234,7 +235,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The second hotline number (0932-662-2322) | The setting holds one number, so only the landline shows. Say so if you want the mobile number instead, or both (a small database change) |
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | Leftovers of the first relay tag (2026-10-19) | `drop function public.my_relay_tag(); drop function private.relay_sender(uuid); alter table public.manila_resident drop column relay_tag;` in the SQL editor. Nothing uses them; nobody can call them |
-| Make the newest build required | After the team installs build 8 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 8. APKs before build 2 cannot be asked (they have no check) |
+| Make the newest build required | After the team installs build 9 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 9. APKs before build 2 cannot be asked (they have no check) |
 | Removing expired photo files | Retention hides photos from everyone, but the files stay in the bucket until a small cleanup function (Storage API) is written |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 

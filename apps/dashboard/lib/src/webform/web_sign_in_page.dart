@@ -99,7 +99,15 @@ class _WebSignInPageState extends ConsumerState<WebSignInPage> {
       }
       await ref.read(webAccountsProvider).sendCode(phone);
     });
-    if (!sent || !mounted) return;
+    if (!mounted) return;
+    if (!sent) {
+      // No account for this number, and no text was sent: offer to make one.
+      if (_error == PhoneAuthFailure.notRegistered &&
+          ref.read(webConfigProvider).allowRegistration) {
+        _go(_Step.register, error: PhoneAuthFailure.notRegistered);
+      }
+      return;
+    }
     _sentTo = phone;
     _go(_Step.code);
     _startTimer();

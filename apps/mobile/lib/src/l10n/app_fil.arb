@@ -363,7 +363,7 @@
   "offlineSignIn": "Offline ka. Kailangan ng internet para mag-sign in. Sa emergency, tawagan ang MDRRMD.",
   "demoAccounts": "Mga demo account",
   "phoneInvalid": "Ilagay ang mobile number sa Pilipinas, gaya ng 917 123 4567.",
-  "phoneNotRegistered": "Wala pang account ang numerong ito.",
+  "phoneNotRegistered": "Wala pang account ang numerong ito. I-tap ang Gumawa ng account sa ibaba.",
   "phoneTaken": "May account na ang numerong ito. Mag-sign in.",
   "phoneWrongCode": "Mali o paso na ang code na iyan. Tingnan ito o magpadala ng bago.",
   "phoneTooMany": "Masyadong maraming pagsubok. Subukan muli pagkalipas ng 60 s.",

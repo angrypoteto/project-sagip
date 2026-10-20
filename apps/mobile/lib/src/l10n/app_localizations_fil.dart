@@ -1314,7 +1314,8 @@ class AppLocalizationsFil extends AppLocalizations {
       'Ilagay ang mobile number sa Pilipinas, gaya ng 917 123 4567.';
 
   @override
-  String get phoneNotRegistered => 'Wala pang account ang numerong ito.';
+  String get phoneNotRegistered =>
+      'Wala pang account ang numerong ito. I-tap ang Gumawa ng account sa ibaba.';
 
   @override
   String get phoneTaken => 'May account na ang numerong ito. Mag-sign in.';

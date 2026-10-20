@@ -440,7 +440,7 @@
   "offlineSignIn": "You're offline. Signing in needs internet. In an emergency, call MDRRMD.",
   "demoAccounts": "Demo accounts",
   "phoneInvalid": "Enter a Philippine mobile number, like 917 123 4567.",
-  "phoneNotRegistered": "This number has no account yet.",
+  "phoneNotRegistered": "This number has no account yet. Tap Create an account below.",
   "phoneTaken": "This number already has an account. Sign in instead.",
   "phoneWrongCode": "That code is wrong or has expired. Check it or send a new one.",
   "phoneTooMany": "Too many tries. Try again in 60 s.",

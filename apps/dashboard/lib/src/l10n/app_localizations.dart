@@ -6582,7 +6582,7 @@ abstract class AppLocalizations {
   /// No description provided for @configAppNote.
   ///
   /// In en, this message translates to:
-  /// **'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The newest release is build 7 (it shows a banner when a newer build is out, from sagip.me/download/latest.json, which each deploy writes beside the APK); apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.'**
+  /// **'Phones with an older app than this build are asked to update, and keep only SOS and the hotline until they do (never while their SOS is open or their unit has a job). The newest release is build 9 (sign in texts a code only to numbers that have an account); builds 7 and later show a banner when a newer build is out. Apps before build 2 cannot be asked. The download is at sagip.me/download/sagip.apk.'**
   String get configAppNote;
 
   /// No description provided for @settingAppMinBuild.

@@ -1303,7 +1303,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter a Philippine mobile number, like 917 123 4567.';
 
   @override
-  String get phoneNotRegistered => 'This number has no account yet.';
+  String get phoneNotRegistered =>
+      'This number has no account yet. Tap Create an account below.';
 
   @override
   String get phoneTaken =>

@@ -165,7 +165,10 @@ void main() {
     );
     await tester.enterText(find.byType(TextField), '918 111 2222');
     await tap(tester, 'Send code');
-    expect(find.text('This number has no account yet.'), findsOneWidget);
+    expect(
+      find.text('This number has no account yet. Tap Create an account below.'),
+      findsOneWidget,
+    );
 
     backend.setSignal(SignalState.smsOnly);
     await settle(tester);

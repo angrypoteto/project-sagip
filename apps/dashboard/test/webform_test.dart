@@ -193,10 +193,14 @@ void main() {
     );
     await tester.tap(find.text('Send code'));
     await settle(tester);
+    // No account: no code is sent; the form offers to make one at once.
     expect(
       find.text('This number has no account yet. Create an account first.'),
       findsOneWidget,
     );
+    expect(find.byKey(const ValueKey('web-name')), findsOneWidget);
+    await tester.tap(find.text('Already have an account? Sign in'));
+    await settle(tester);
 
     await tester.enterText(
       find.byKey(const ValueKey('web-phone')),

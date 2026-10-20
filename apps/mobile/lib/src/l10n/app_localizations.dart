@@ -2279,7 +2279,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneNotRegistered.
   ///
   /// In en, this message translates to:
-  /// **'This number has no account yet.'**
+  /// **'This number has no account yet. Tap Create an account below.'**
   String get phoneNotRegistered;
 
   /// No description provided for @phoneTaken.

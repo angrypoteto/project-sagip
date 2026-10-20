@@ -66,6 +66,9 @@ PhoneAuthFailure phoneAuthFailureFor(Object error) => switch (error) {
   supa.AuthRetryableFetchException(statusCode: null) =>
     PhoneAuthFailure.offline,
   supa.AuthRetryableFetchException() => PhoneAuthFailure.unavailable,
+  // Asked for a code without creating an account, for a number that has
+  // none ("Signups not allowed for otp"): nothing was texted.
+  supa.AuthException(code: 'otp_disabled') => PhoneAuthFailure.notRegistered,
   supa.AuthException(statusCode: '429') => PhoneAuthFailure.tooManyAttempts,
   supa.AuthException(code: 'over_sms_send_rate_limit') =>
     PhoneAuthFailure.tooManyAttempts,
@@ -77,10 +80,13 @@ PhoneAuthFailure phoneAuthFailureFor(Object error) => switch (error) {
 /// Resident sign-in by mobile number and SMS code (S3 to S5), and
 /// responder sign-in with the staff email and password.
 ///
-/// The code is sent to any valid number: whether a number has an account
-/// is only known after the code is checked, so the app never reveals which
-/// numbers are registered (RA 10173). The SMS itself goes through
-/// Supabase's Send SMS hook (plan Q37).
+/// Sign in sends a code only to a number that has an account; any other
+/// number is told so at once and gets no text (Joshua, 2026-10-20: each
+/// code costs a text from the gateway SIM, and a code that ends in "no
+/// account yet" confused residents). This does let someone learn whether a
+/// number is registered; Supabase's request limits slow that down. Only
+/// Register creates an account. The SMS itself goes through Supabase's
+/// Send SMS hook (plan Q37).
 class SupabaseMobileAccounts
     implements AuthRepository, ResidentAccountRepository {
   SupabaseMobileAccounts(this._client, {this._store}) {
@@ -227,10 +233,12 @@ class SupabaseMobileAccounts
       PhoneAuthException(phoneAuthFailureFor(error));
 
   @override
-  Future<void> sendCode(String phone) async {
+  Future<void> sendCode(String phone) => _sendCode(phone, create: false);
+
+  Future<void> _sendCode(String phone, {required bool create}) async {
     final n = _normalized(phone);
     try {
-      await _client.auth.signInWithOtp(phone: n, shouldCreateUser: true);
+      await _client.auth.signInWithOtp(phone: n, shouldCreateUser: create);
     } catch (e) {
       throw _phoneFailure(e);
     }
@@ -302,7 +310,7 @@ class SupabaseMobileAccounts
   }) async {
     final n = _normalized(phone);
     _pending = (phone: n, fullName: fullName.trim(), barangay: barangay);
-    await sendCode(n);
+    await _sendCode(n, create: true);
   }
 
   @override

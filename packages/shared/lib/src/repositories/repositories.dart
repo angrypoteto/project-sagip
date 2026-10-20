@@ -627,7 +627,8 @@ abstract interface class ResponderRepository {
 /// Resident sign-in by mobile number and a code sent by SMS (S3 to S5).
 /// Staff use [AuthRepository.signIn] with email and password.
 abstract interface class ResidentAccountRepository {
-  /// Sends a sign-in code to a registered number. Throws
+  /// Sends a sign-in code to a registered number. A number with no account
+  /// gets no text: [PhoneAuthFailure.notRegistered]. Throws
   /// [PhoneAuthException].
   Future<void> sendCode(String phone);
 

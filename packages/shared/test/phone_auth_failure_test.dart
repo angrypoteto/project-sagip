@@ -25,6 +25,19 @@ void main() {
     );
   });
 
+  test('Sign in with a number that has no account: told at once', () {
+    expect(
+      phoneAuthFailureFor(
+        const supa.AuthException(
+          'Signups not allowed for otp',
+          statusCode: '422',
+          code: 'otp_disabled',
+        ),
+      ),
+      PhoneAuthFailure.notRegistered,
+    );
+  });
+
   test('too many requests and an expired code keep their reasons', () {
     expect(
       phoneAuthFailureFor(const supa.AuthException('x', statusCode: '429')),
