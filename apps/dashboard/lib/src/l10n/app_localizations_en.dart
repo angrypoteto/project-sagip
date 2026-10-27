@@ -270,7 +270,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navAnalytics => 'Analytics';
 
   @override
-  String get navReports => 'NDRRMC reports';
+  String get navReports => 'MDRRMD reports';
 
   @override
   String get navAccounts => 'Accounts';
@@ -2709,7 +2709,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reportsTitle => 'NDRRMC reports';
+  String get reportsTitle => 'MDRRMD reports';
 
   @override
   String get reportsSubtitle =>
@@ -2748,7 +2748,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportStatusFinal => 'Final';
 
   @override
-  String get reportNewTitle => 'New NDRRMC report';
+  String get reportNewTitle => 'New MDRRMD report';
 
   @override
   String get reportNewSubtitle =>
@@ -2909,7 +2909,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportRewriteBody =>
-      'Rewrites each section from the figures, following reference passages on how an NDRRMC report is written. Only counts, barangay names, and times are sent: no names, numbers, or addresses. Nothing is saved until you save.';
+      'Rewrites each section from the figures, following reference passages on how these reports are written. Only counts, barangay names, and times are sent: no names, numbers, or addresses. Nothing is saved until you save.';
 
   @override
   String get reportRewrite => 'Rewrite with the language model';
@@ -3049,10 +3049,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get figAlerts => 'Alerts issued';
 
   @override
-  String get actionReportDrafted => 'Drafted an NDRRMC report';
+  String get actionReportDrafted => 'Drafted an MDRRMD report';
 
   @override
-  String get actionReportFinalized => 'Marked an NDRRMC report final';
+  String get actionReportFinalized => 'Marked an MDRRMD report final';
 
   @override
   String get actionSosSimulated => 'Simulated an SOS';
@@ -3081,7 +3081,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get simulateIncidentsNote =>
-      'They appear on the board marked Simulated and can be verified, assigned, and resolved like real ones. They are left out of analytics and NDRRMC reports.';
+      'They appear on the board marked Simulated and can be verified, assigned, and resolved like real ones. They are left out of analytics and MDRRMD reports.';
 
   @override
   String get simulateBarangayLabel => 'Barangay';

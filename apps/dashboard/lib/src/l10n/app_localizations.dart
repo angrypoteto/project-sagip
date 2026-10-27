@@ -529,7 +529,7 @@ abstract class AppLocalizations {
   /// No description provided for @navReports.
   ///
   /// In en, this message translates to:
-  /// **'NDRRMC reports'**
+  /// **'MDRRMD reports'**
   String get navReports;
 
   /// No description provided for @navAccounts.
@@ -4632,7 +4632,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportsTitle.
   ///
   /// In en, this message translates to:
-  /// **'NDRRMC reports'**
+  /// **'MDRRMD reports'**
   String get reportsTitle;
 
   /// No description provided for @reportsSubtitle.
@@ -4704,7 +4704,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportNewTitle.
   ///
   /// In en, this message translates to:
-  /// **'New NDRRMC report'**
+  /// **'New MDRRMD report'**
   String get reportNewTitle;
 
   /// No description provided for @reportNewSubtitle.
@@ -4968,7 +4968,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportRewriteBody.
   ///
   /// In en, this message translates to:
-  /// **'Rewrites each section from the figures, following reference passages on how an NDRRMC report is written. Only counts, barangay names, and times are sent: no names, numbers, or addresses. Nothing is saved until you save.'**
+  /// **'Rewrites each section from the figures, following reference passages on how these reports are written. Only counts, barangay names, and times are sent: no names, numbers, or addresses. Nothing is saved until you save.'**
   String get reportRewriteBody;
 
   /// No description provided for @reportRewrite.
@@ -5196,13 +5196,13 @@ abstract class AppLocalizations {
   /// No description provided for @actionReportDrafted.
   ///
   /// In en, this message translates to:
-  /// **'Drafted an NDRRMC report'**
+  /// **'Drafted an MDRRMD report'**
   String get actionReportDrafted;
 
   /// No description provided for @actionReportFinalized.
   ///
   /// In en, this message translates to:
-  /// **'Marked an NDRRMC report final'**
+  /// **'Marked an MDRRMD report final'**
   String get actionReportFinalized;
 
   /// No description provided for @actionSosSimulated.
@@ -5256,7 +5256,7 @@ abstract class AppLocalizations {
   /// No description provided for @simulateIncidentsNote.
   ///
   /// In en, this message translates to:
-  /// **'They appear on the board marked Simulated and can be verified, assigned, and resolved like real ones. They are left out of analytics and NDRRMC reports.'**
+  /// **'They appear on the board marked Simulated and can be verified, assigned, and resolved like real ones. They are left out of analytics and MDRRMD reports.'**
   String get simulateIncidentsNote;
 
   /// No description provided for @simulateBarangayLabel.

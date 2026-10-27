@@ -1686,7 +1686,7 @@ void main() {
     await pumpApp(tester);
     tester.view.physicalSize = const Size(1440, 2600);
     await signIn(tester, 'admin@sagip.test');
-    await tester.tap(find.byTooltip('NDRRMC reports'));
+    await tester.tap(find.byTooltip('MDRRMD reports'));
     await settle(tester);
     expect(find.text('No reports yet.'), findsOneWidget);
 
@@ -1806,7 +1806,7 @@ void main() {
     await tester.runAsync(() => MockAuthRepository(backend).signOut());
     await settle(tester);
     await signIn(tester, 'dispatcher@sagip.test');
-    expect(find.byTooltip('NDRRMC reports'), findsNothing);
+    expect(find.byTooltip('MDRRMD reports'), findsNothing);
     container.read(routerProvider).go(Routes.report('RPT-0001'));
     await settle(tester);
     expect(find.text('Page not found'), findsOneWidget);
@@ -1818,7 +1818,7 @@ void main() {
     await pumpApp(tester);
     tester.view.physicalSize = const Size(1440, 3200);
     await signIn(tester, 'admin@sagip.test');
-    await tester.tap(find.byTooltip('NDRRMC reports'));
+    await tester.tap(find.byTooltip('MDRRMD reports'));
     await settle(tester);
     await tester.tap(find.byKey(const ValueKey('report-new')));
     await settle(tester);
