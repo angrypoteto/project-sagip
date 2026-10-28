@@ -87,13 +87,95 @@ The flood KDE could not be fitted: only 1 placed flood corner falls in the train
 - **Q48. UP NOAH hazard maps in the heatmap.** The thesis's spatial half is the KDE of past incidents. Storm surge has no incidents and floods have too few placed ones before 2021, so the heatmap has nothing to spread. UP NOAH's zones fill that gap. Using them is a method change: Chapter 3 would say "KDE of past incidents where there are enough; UP NOAH hazard zones otherwise".
 - **Q23 (open).** Which numbers Chapter 4 reports beside accuracy.
 
+## 7. Rerun with more public records (2026-10-28, afternoon)
+
+MDRRMD had still not replied, so Joshua asked for every public source that could stand in (section 1 was the morning's). Three were added:
+
+| Record | Source | What it adds |
+|---|---|---|
+| Fires | **DSWD DROMIC** fire reports (dromic.dswd.gov.ph): every fire in Manila that affected families, 2017 to 2026, with its barangay and date in the report's title (`collect_dromic.py`, `place_fires.py`) | 190 fires; 164 placed at a barangay. About 20 a year, against about 10 a year in the news archive |
+| Fires | **TXTFIRE** fire alerts (txtfire.net, a volunteer fire network in Metro Manila; `collect_txtfire.py`) | 555 confirmed fires in Manila (an alarm raised or the fire put out), 2018 to mid-2022; 219 placed at a barangay or street (streets found on OpenStreetMap and kept only inside their own district) |
+| Floods | **DSWD DROMIC** monsoon and typhoon reports: 203 events searched for the City of Manila | 22 events that affected Manila, 2018 to 2026 (one, 11 Dec 2025, names its 8 barangays) |
+| Typhoon signal | **NOAA IBTrACS** storm tracks, turned into an estimated PAGASA signal for every day (`storm_signal.py`) | 74 days given a signal the news did not report. The estimate matches 19 of the 23 news-reported days on the day itself |
+
+Three versions were run, with the thesis LSTM parameters unchanged (`prepare_real.py --variant`):
+
+- **news**: the morning's run, 2012 to 2026.
+- **dromic**: DROMIC fires; DROMIC events with the news flood records; signals from news and storm tracks; 2018 to 2026.
+- **dromic_txtfire**: as dromic, with TXTFIRE's fires added. Fires use only the months TXTFIRE posted alerts: Apr 2018 to Dec 2019, and Jul 2021 to Jun 2022.
+
+### Step log of the dromic version (new rows; the weather rows are as in section 2)
+
+| Dataset | Step | In | Retained | Corrected | Removed | What happened |
+|---|---|---:|---:|---:|---:|---|
+| Typhoon signals | Estimate from storm tracks | 260 | 97 signal days | 76 | 0 | 74 days added, 2 raised above the news level |
+| Fire (DROMIC) | Read | 190 | 190 | 0 | 0 | |
+| Fire (DROMIC) | Clean | 190 | 186 | 0 | 4 | 1 with no date anywhere, 3 reported twice |
+| Fire (DROMIC) | Geocode | 186 | 186 | 0 | 0 | barangay 164, district 21, city 1; only barangay positions go to the KDE |
+| Fire (DROMIC) | Time-align | 186 | 182 | 0 | 4 | 2017 left out (DROMIC posted only 4 Manila fires that year) |
+| Flood (news) | Time-align | 66 | 53 | 0 | 13 | the news flood days before 2018 left out |
+| Flood (DROMIC events) | Clean | 203 | 22 | 0 | 181 | Manila not in the report (139), or the report would not open (42; the 2016 and 2017 ones were Google Docs that are gone) |
+| Flood (DROMIC events) | Geocode | 22 | 28 | 0 | 0 | 7 barangay records from the one report that names them; 21 city-wide events (LSTM only) |
+| Flood (news + DROMIC) | Merge | 81 | 80 | 1 | 0 | one DROMIC day already in the news records |
+
+In the dromic_txtfire version, TXTFIRE adds:
+- **Clean:** 555 in, 521 kept, 34 removed (the same fire twice).
+- **Time-align:** 505 kept (16 outside the covered months).
+- **Merge:** 20 TXTFIRE fires matched a DROMIC fire and were counted once.
+
+### Results on the test part
+
+| Version | Hazard | Test days | LSTM accuracy | Balanced accuracy | Caught | Never-warn (or always-warn) accuracy | Heatmap accuracy per barangay | Heatmap balanced |
+|---|---|---|---:|---:|---|---:|---:|---:|
+| news | flood | 2024-07 to 2026-10 | 94.2% | 54.8% | 4 of 34 | 95.8% | 97.1% (UP NOAH) | 58.2% |
+| news | fire | 2023-06 to 2025-01 | 62.9% | 45.4% | 13 of 54 | 91.0% | 56.7% (KDE) | 40.9% |
+| dromic | flood | 2025-06 to 2026-10 | 86.6% | 53.9% | 6 of 42 | 91.2% | 93.2% (UP NOAH) | 57.7% |
+| dromic | fire | 2025-06 to 2026-10 | 61.3% | 51.4% | 32 of 90 | 81.2% | **80.4%** (KDE) | 53.4% |
+| dromic_txtfire | fire | 2022-02 to 2022-06 | 59.6% | 44.9% | 81 of 114 | 78.1% (always warn) | 38.6% (KDE) | 52.6% |
+
+(The flood rows of dromic_txtfire equal dromic's: only the fires differ.)
+
+### What the rerun says
+
+1. **More records did not give the models skill.** Every version stays below the forecast that never warns (or, with TXTFIRE's dense fires, the one that always warns). Balanced accuracy stays near 50%, which is a coin toss. The dromic fire heatmap reaches 80.4% per barangay, but "nothing at risk" reaches 99.98% on the same cells, so it does not show the 80% objective is met.
+2. **Floods: the rain is there, the flood records are not.**
+   - Flood days are much wetter than other days (median 23.7 mm against 1.8 mm), and so are the three days before them (12 to 16 mm). So past weather does carry a warning.
+   - But 8% of all days have 20 mm or more, and most of those have no recorded flood. DROMIC lists only events that displaced families, and the MMDA lists only some days.
+   - The model cannot tell a wet day that flooded from one that "did not". The fix is complete flood records (MMDA or MDRRMD).
+3. **Fires: weather barely drives them.**
+   - Fires follow the dry season a little: DROMIC has 76 in January to April against 33 in August to October. But day to day they come from cooking, wiring, and crowding, which no weather input shows. With DROMIC's ~20 a year, a fire is in the next 72 hours on about 1 day in 5; with TXTFIRE's, on 3 days in 4.
+   - Neither can be told from the weather. A city-wide 72-hour fire forecast from weather may not be achievable at all.
+   - The **KDE** half (where fires happen) does fit: on the 86 placed DROMIC fires of the training part its bandwidth comes out at 300 m. Its 30 densest barangays are all in Tondo (22) and Santa Cruz (8), checked on fires up to mid-2024.
+4. **Storm surge** still has no incident in any source.
+
+### To decide (team), added
+
+- **Q49. Typhoon signal estimate.** If PAGASA's signal records do not come, Chapter 3 can describe the feature as "PAGASA's wind signal, estimated from NOAA IBTrACS storm tracks where PAGASA's own record is missing" (`storm_signal.py`; it matches 19 of 23 known days).
+- **Q50. What Objective 2 measures.** On every public record tried, an LSTM on past weather does not beat "never an incident". The thesis can do one of these:
+  - (a) keep the objective and wait for MDRRMD's records;
+  - (b) report the 80% heatmap accuracy honestly next to the never-warn baseline and balanced accuracy (Q23);
+  - (c) for floods, let the last day of the window carry PAGASA's rainfall forecast. The team raised this earlier; the rain analysis above shows it matters.
+
+  Fire forecasting from weather should be described as limited in Chapter 5 whichever is chosen.
+
 ## How to rerun
 
 ```bash
 cd ml/forecast
 ../../.venv/Scripts/python data_prep/fetch_gsmap.py --start 2012-01-01 --end 2026-10-26   # about 750 MB read, an hour; resumes
 ../../.venv/Scripts/python data_prep/noah_barangays.py      # needs UP NOAH's maps in data/noah/ (git-ignored); about 9 minutes
-../../.venv/Scripts/python data_prep/prepare_real.py        # the step log and the windows
+../../.venv/Scripts/python data_prep/prepare_real.py        # the step log and the windows (news version)
 ../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_real.json --build build/real --out lstm/lstm_metrics_real.json
 ../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py
+
+# Section 7 (downloads go to data/downloads/, git-ignored)
+../../.venv/Scripts/python data_prep/collect_dromic.py      # DROMIC fires and weather events; about 160 MB of reports
+../../.venv/Scripts/python data_prep/collect_txtfire.py     # TXTFIRE alerts
+../../.venv/Scripts/python data_prep/place_fires.py         # positions; OpenStreetMap one request a second (about 8 minutes, cached)
+../../.venv/Scripts/python data_prep/storm_signal.py        # needs the IBTrACS file in data/downloads/ibtracs/
+for v in dromic dromic_txtfire; do
+  ../../.venv/Scripts/python data_prep/prepare_real.py --variant $v
+  ../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_$v.json --build build/real/$v --out lstm/lstm_metrics_$v.json
+  ../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py --variant $v
+done
 ```

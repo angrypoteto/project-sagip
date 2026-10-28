@@ -20,9 +20,10 @@ city-wide flood days) cannot be checked per barangay and are left out of
 the truth.
 
 Usage (from ml/forecast, after prepare_real.py and train_lstm.py):
-  ../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py
+  ../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py [--variant dromic|dromic_txtfire]
 
-Writes heatmap_metrics_real.json.
+Writes heatmap_metrics_real.json (heatmap_metrics_<variant>.json for the
+DROMIC variants of prepare_real.py).
 """
 
 import json
@@ -118,7 +119,19 @@ def spatial_scores(hazard, incidents, names, boundaries, train_until):
 
 
 def main():
-    incidents = read_csv(FORECAST / "data" / "prepared" / "manila_incidents_prepared.csv")
+    import argparse
+
+    global BUILD
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--variant", default="news")
+    variant = parser.parse_args().variant
+    prepared = FORECAST / "data" / "prepared"
+    out_name = "heatmap_metrics_real.json"
+    if variant != "news":
+        BUILD = BUILD / variant
+        prepared = prepared / variant
+        out_name = f"heatmap_metrics_{variant}.json"
+    incidents = read_csv(prepared / "manila_incidents_prepared.csv")
     boundaries = load_boundaries(default_boundaries())
     names = list(boundaries)
     result = {
@@ -161,7 +174,8 @@ def main():
             "variants": variants,
         }
         print(hazard, json.dumps({k: (v["accuracy"], v["balanced_accuracy"], v["recall"]) for k, v in variants.items()}))
-    (HERE / "heatmap_metrics_real.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    result["variant"] = variant
+    (HERE / out_name).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

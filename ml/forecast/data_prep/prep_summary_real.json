@@ -1,4 +1,5 @@
 {
+  "variant": "news",
   "data": "PUBLIC RECORDS standing in for PAGASA's and MDRRMD's: GSMaP (JAXA) and ERA5 (Open-Meteo) weather, news reports of signals, fires (Asia Fire News), and floods (MMDA lists in the news). Real, but incomplete; see ml/README.md",
   "window_days": 14,
   "horizon_days": 3,
@@ -191,7 +192,7 @@
       "retained": 0,
       "corrected": 0,
       "removed": 0,
-      "note": "no storm surge incident in Manila was found in the news for these years: the LSTM cannot be trained for it; its map comes from UP NOAH's storm surge zones (noah_barangays.py) instead"
+      "note": "no storm surge incident in Manila was found in the news or in DROMIC for these years: the LSTM cannot be trained for it; its map comes from UP NOAH's storm surge zones (noah_barangays.py) instead"
     }
   ],
   "hazards": {

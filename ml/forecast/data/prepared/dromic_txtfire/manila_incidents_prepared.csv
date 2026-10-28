@@ -1,0 +1,602 @@
+incident_id,date,hazard,latitude,longitude,precision,barangay,use_for_kde,source_url
+TXTFIRE-20180402T1720,2018-04-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-02-2018-052032-pm/
+TXTFIRE-20180406T1032,2018-04-06,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-04-06-2018-103227-am/
+TXTFIRE-20180408T0955,2018-04-08,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-08-2018-095551-am/
+TXTFIRE-20180412T1858,2018-04-12,fire,14.60749,120.99326,street,Barangay 457,yes,https://txtfire.net/fire-alert-04-12-2018-065840-pm/
+TXTFIRE-20180413T2104,2018-04-13,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-13-2018-090444-pm/
+TXTFIRE-20180416T1601,2018-04-16,fire,14.56914,120.98428,street,Barangay 700,yes,https://txtfire.net/fire-alert-04-16-2018-040114-pm/
+TXTFIRE-20180417T1356,2018-04-17,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-04-17-2018-015613-pm/
+TXTFIRE-20180418T2203,2018-04-18,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-18-2018-100326-pm/
+TXTFIRE-20180418T2248,2018-04-18,fire,14.62624,120.97064,street,Barangay 168,yes,https://txtfire.net/fire-alert-04-18-2018-104832-pm/
+TXTFIRE-20180418T1419,2018-04-18,fire,14.57254,121.00335,street,Barangay 805,yes,https://txtfire.net/fire-alert-04-18-2018-021953-pm/
+TXTFIRE-20180421T2215,2018-04-21,fire,14.60068,120.96673,barangay,Barangay 274,yes,https://txtfire.net/fire-alert-04-21-2018-101521-pm/
+TXTFIRE-20180423T0833,2018-04-23,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-04-23-2018-083317-am/
+TXTFIRE-20180424T2136,2018-04-24,fire,14.58627,120.97358,street,Barangay 652,yes,https://txtfire.net/fire-alert-04-24-2018-093629-pm/
+TXTFIRE-20180424T1031,2018-04-24,fire,14.62286,120.97572,barangay,Barangay 218,yes,https://txtfire.net/fire-alert-04-24-2018-103134-am/
+TXTFIRE-20180424T0849,2018-04-24,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-04-24-2018-084911-am/
+TXTFIRE-20180427T1909,2018-04-27,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-04-27-2018-070948-pm/
+TXTFIRE-20180427T0840,2018-04-27,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-27-2018-084018-am/
+TXTFIRE-20180427T1256,2018-04-27,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-04-27-2018-125637-pm/
+TXTFIRE-20180428T0035,2018-04-28,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-04-28-2018-123501-am/
+TXTFIRE-20180428T1440,2018-04-28,fire,14.61204,120.96800,street,Barangay 63,yes,https://txtfire.net/fire-alert-04-28-2018-024014-pm/
+TXTFIRE-20180506T0726,2018-05-06,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-05-06-2018-072611-am/
+TXTFIRE-20180508T1449,2018-05-08,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-05-08-2018-024907-pm/
+TXTFIRE-20180510T1431,2018-05-10,fire,14.60692,120.96393,street,Barangay 33,yes,https://txtfire.net/fire-alert-05-10-2018-023120-pm/
+TXTFIRE-20180513T0146,2018-05-13,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-05-13-2018-014557-am/
+TXTFIRE-20180514T0939,2018-05-14,fire,14.63429,120.98142,street,Barangay 196,yes,https://txtfire.net/fire-alert-05-14-2018-093749-am/
+TXTFIRE-20180518T1206,2018-05-18,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-05-18-2018-120513-pm/
+TXTFIRE-20180519T1804,2018-05-19,fire,14.62992,120.97207,street,Barangay 180,yes,https://txtfire.net/fire-alert-05-19-2018-060309-pm/
+TXTFIRE-20180520T1604,2018-05-20,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-05-20-2018-040326-pm/
+TXTFIRE-20180521T1354,2018-05-21,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-05-21-2018-015249-pm/
+TXTFIRE-20180523T1417,2018-05-23,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-05-23-2018-021516-pm/
+TXTFIRE-20180529T1006,2018-05-29,fire,14.59821,120.98360,street,Barangay 307,yes,https://txtfire.net/fire-alert-05-29-2018-100143-am/
+TXTFIRE-20180530T0342,2018-05-30,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-05-30-2018-033809-am/
+TXTFIRE-20180530T0652,2018-05-30,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-05-30-2018-064810-am/
+TXTFIRE-20180531T0732,2018-05-31,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-05-31-2018-072818-am/
+TXTFIRE-20180531T1426,2018-05-31,fire,14.58016,120.99451,street,Barangay 679,yes,https://txtfire.net/fire-alert-05-31-2018-022220-pm/
+TXTFIRE-20180602T1424,2018-06-02,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-06-02-2018-021938-pm/
+TXTFIRE-20180602T1709,2018-06-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-06-02-2018-050502-pm/
+TXTFIRE-20180605T1830,2018-06-05,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-06-05-2018-063006-pm/
+DROMIC-fire-incident-at-heronimo-st-sampaloc-manila-17-june-2018,2018-06-17,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-at-heronimo-st-sampaloc-manila-17-june-2018/
+TXTFIRE-20180618T0133,2018-06-18,fire,14.60662,120.99780,street,Barangay 432,yes,https://txtfire.net/fire-alert-06-18-2018-013335-am/
+TXTFIRE-20180618T1524,2018-06-18,fire,14.61444,120.97533,street,Barangay 237,yes,https://txtfire.net/fire-alert-06-18-2018-032342-pm/
+TXTFIRE-20180622T0011,2018-06-22,fire,14.59402,120.96576,street,Barangay 649,yes,https://txtfire.net/fire-alert-06-22-2018-121103-am/
+TXTFIRE-20180623T0027,2018-06-23,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-06-23-2018-122713-am/
+TXTFIRE-20180624T0141,2018-06-24,fire,14.60163,120.97598,street,Barangay 296,yes,https://txtfire.net/fire-alert-06-24-2018-014117-am/
+DROMIC-fire-incident-in-brgy-402-sampaloc-manila-01-jul-2018,2018-07-01,fire,14.60233,120.99226,barangay,Barangay 402,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-402-sampaloc-manila-01-jul-2018/
+TXTFIRE-20180702T0048,2018-07-02,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-07-02-2018-124804-am/
+TXTFIRE-20180706T1149,2018-07-06,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-07-06-2018-114938-am/
+TXTFIRE-20180708T1410,2018-07-08,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-07-08-2018-021016-pm/
+TXTFIRE-20180710T1414,2018-07-10,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-07-10-2018-021434-pm/
+TXTFIRE-20180712T0505,2018-07-12,fire,14.60543,121.00060,street,Barangay 437,yes,https://txtfire.net/fire-alert-07-12-2018-050504-am/
+TXTFIRE-20180712T1347,2018-07-12,fire,14.61351,120.99030,street,Barangay 489,yes,https://txtfire.net/fire-alert-07-12-2018-014705-pm/
+TXTFIRE-20180724T0609,2018-07-24,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-07-24-2018-060953-am/
+TXTFIRE-20180727T1639,2018-07-27,fire,14.61866,120.96874,barangay,Barangay 91,yes,https://txtfire.net/fire-alert-07-27-2018-043948-pm/
+TXTFIRE-20180727T2341,2018-07-27,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-07-27-2018-114128-pm/
+TXTFIRE-20180728T1229,2018-07-28,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-07-28-2018-122926-pm/
+TXTFIRE-20180728T1339,2018-07-28,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-07-28-2018-013940-pm/
+TXTFIRE-20180729T0531,2018-07-29,fire,14.59670,120.98302,street,Barangay 306,yes,https://txtfire.net/fire-alert-07-29-2018-053145-am/
+TXTFIRE-20180729T1217,2018-07-29,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-07-29-2018-121736-pm/
+TXTFIRE-20180731T1249,2018-07-31,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-07-31-2018-124909-pm/
+TXTFIRE-20180803T1246,2018-08-03,fire,14.58582,120.97162,street,Barangay 652,yes,https://txtfire.net/fire-alert-08-03-2018-124648-pm/
+TXTFIRE-20180804T1811,2018-08-04,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-08-04-2018-061122-pm/
+TXTFIRE-20180807T1438,2018-08-07,fire,14.60909,121.00893,barangay,Barangay 568,yes,https://txtfire.net/fire-alert-08-07-2018-023845-pm/
+TXTFIRE-20180811T1155,2018-08-11,fire,14.63386,120.97569,barangay,Barangay 184,yes,https://txtfire.net/fire-alert-08-11-2018-115525-am/
+TXTFIRE-20180814T1357,2018-08-14,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-08-14-2018-015708-pm/
+TXTFIRE-20180817T0122,2018-08-17,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-08-17-2018-012203-am/
+TXTFIRE-20180821T1649,2018-08-21,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-08-21-2018-044920-pm/
+TXTFIRE-20180821T1644,2018-08-21,fire,14.61316,120.98934,street,Barangay 470,yes,https://txtfire.net/fire-alert-08-21-2018-044402-pm/
+TXTFIRE-20180822T1443,2018-08-22,fire,14.59871,120.98616,district,,no,https://txtfire.net/fire-alert-08-22-2018-024308-pm/
+TXTFIRE-20180825T1542,2018-08-25,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-08-25-2018-034228-pm/
+TXTFIRE-20180825T1723,2018-08-25,fire,14.61080,120.99853,street,Barangay 521,yes,https://txtfire.net/fire-alert-08-25-2018-052351-pm/
+TXTFIRE-20180825T1928,2018-08-25,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-08-25-2018-072821-pm/
+DROMIC-fire-incident-in-brgy-91-tondo-manila-27-aug-2018,2018-08-27,fire,14.61866,120.96874,barangay,Barangay 91,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-91-tondo-manila-27-aug-2018/
+TXTFIRE-20180830T0412,2018-08-30,fire,14.61840,120.96846,street,Barangay 91,yes,https://txtfire.net/fire-alert-08-30-2018-041221-am/
+TXTFIRE-20180905T2120,2018-09-05,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-09-05-2018-092040-pm/
+TXTFIRE-20180905T2022,2018-09-05,fire,14.59116,120.97963,street,Barangay 658,yes,https://txtfire.net/fire-alert-09-05-2018-082223-pm/
+TXTFIRE-20180906T0435,2018-09-06,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-09-06-2018-043512-am/
+TXTFIRE-20180909T1618,2018-09-09,fire,14.58869,120.97031,street,Barangay 651,yes,https://txtfire.net/fire-alert-09-09-2018-041856-pm/
+TXTFIRE-20180909T0817,2018-09-09,fire,14.62050,120.98903,street,Barangay 497,yes,https://txtfire.net/fire-alert-09-09-2018-081743-am/
+TXTFIRE-20180912T0244,2018-09-12,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-09-12-2018-024359-am/
+TXTFIRE-20180916T0904,2018-09-16,fire,14.60406,120.97464,street,Barangay 292,yes,https://txtfire.net/fire-alert-09-16-2018-090446-am/
+TXTFIRE-20180918T2319,2018-09-18,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-09-18-2018-111859-pm/
+TXTFIRE-20181001T2338,2018-10-01,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-10-01-2018-113821-pm/
+TXTFIRE-20181001T1956,2018-10-01,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-10-01-2018-075606-pm/
+TXTFIRE-20181001T2258,2018-10-01,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-01-2018-105831-pm/
+TXTFIRE-20181002T0009,2018-10-02,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-10-02-2018-120934-am/
+TXTFIRE-20181002T1259,2018-10-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-02-2018-125958-pm/
+TXTFIRE-20181004T1845,2018-10-04,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-04-2018-064554-pm/
+TXTFIRE-20181005T1922,2018-10-05,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-05-2018-072221-pm/
+TXTFIRE-20181006T1503,2018-10-06,fire,14.59402,120.96576,street,Barangay 649,yes,https://txtfire.net/fire-alert-10-06-2018-030402-pm/
+TXTFIRE-20181006T1341,2018-10-06,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-10-06-2018-014108-pm/
+TXTFIRE-20181006T0744,2018-10-06,fire,14.63386,120.97569,barangay,Barangay 184,yes,https://txtfire.net/fire-alert-10-06-2018-074458-am/
+TXTFIRE-20181006T0153,2018-10-06,fire,14.61916,120.97258,street,Barangay 154,yes,https://txtfire.net/fire-alert-10-06-2018-015307-am/
+TXTFIRE-20181007T0504,2018-10-07,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-07-2018-050418-am/
+TXTFIRE-20181010T2132,2018-10-10,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-10-10-2018-093239-pm/
+TXTFIRE-20181015T0627,2018-10-15,fire,14.60950,120.99491,street,Barangay 454,yes,https://txtfire.net/fire-alert-10-15-2018-062736-am/
+DROMIC-fire-incident-in-brgy-105-tondo-manila-19-october-2018,2018-10-19,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-19-october-2018/
+TXTFIRE-20181021T1236,2018-10-21,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-21-2018-123601-pm/
+TXTFIRE-20181022T1632,2018-10-22,fire,14.60733,120.97155,street,Barangay 49,yes,https://txtfire.net/fire-alert-10-22-2018-043244-pm/
+TXTFIRE-20181022T1922,2018-10-22,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-22-2018-072257-pm/
+TXTFIRE-20181022T1425,2018-10-22,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-22-2018-022552-pm/
+TXTFIRE-20181023T1014,2018-10-23,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-23-2018-101500-am/
+TXTFIRE-20181023T1025,2018-10-23,fire,14.59983,120.96882,district,,no,https://txtfire.net/fire-alert-10-23-2018-102536-am/
+TXTFIRE-20181025T0732,2018-10-25,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-25-2018-073222-am/
+TXTFIRE-20181026T1143,2018-10-26,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-10-26-2018-114400-am/
+TXTFIRE-20181028T0935,2018-10-28,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-10-28-2018-093604-am/
+TXTFIRE-20181029T1337,2018-10-29,fire,14.59751,120.98812,street,Barangay 388,yes,https://txtfire.net/fire-alert-10-29-2018-013808-pm/
+TXTFIRE-20181029T0947,2018-10-29,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-29-2018-094800-am/
+TXTFIRE-20181029T1034,2018-10-29,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-29-2018-103448-am/
+TXTFIRE-20181029T1246,2018-10-29,fire,14.59648,120.98317,street,Barangay 306,yes,https://txtfire.net/fire-alert-10-29-2018-124706-pm/
+TXTFIRE-20181030T1959,2018-10-30,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-10-30-2018-075938-pm/
+DROMIC-fire-incident-in-valenzuela-ext-sta-mesa-manila-31-oct-2018,2018-10-31,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-valenzuela-ext-sta-mesa-manila-31-oct-2018/
+TXTFIRE-20181102T2202,2018-11-02,fire,14.58605,121.00168,street,Barangay 842,yes,https://txtfire.net/fire-alert-11-02-2018-100222-pm/
+DROMIC-fire-incident-in-brgy-849-pandacan-manila-03-november-2018,2018-11-03,fire,14.58445,121.00031,barangay,Barangay 849,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-849-pandacan-manila-03-november-2018/
+DROMIC-fire-incident-in-brgy-393-quiapo-manila-04-november-2018,2018-11-04,fire,14.59869,120.98654,barangay,Barangay 393,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-393-quiapo-manila-04-november-2018/
+TXTFIRE-20181104T1658,2018-11-04,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-11-04-2018-045855-pm/
+TXTFIRE-20181105T0947,2018-11-05,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-11-05-2018-094733-am/
+DROMIC-fire-incident-in-brgy-485-maria-clara-st-sampaloc-manila-7-n,2018-11-07,fire,14.61722,120.99120,barangay,Barangay 485,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-485-maria-clara-st-sampaloc-manila-7-nov-2018/
+TXTFIRE-20181108T1752,2018-11-08,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-11-08-2018-055224-pm/
+TXTFIRE-20181109T1912,2018-11-09,fire,14.59871,120.98616,district,,no,https://txtfire.net/fire-alert-11-09-2018-071227-pm/
+TXTFIRE-20181111T1046,2018-11-11,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-11-11-2018-104642-am/
+TXTFIRE-20181111T1516,2018-11-11,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-11-11-2018-031618-pm/
+TXTFIRE-20181112T2026,2018-11-12,fire,14.59818,120.98300,street,Barangay 306,yes,https://txtfire.net/fire-alert-11-12-2018-082637-pm/
+TXTFIRE-20181112T1932,2018-11-12,fire,14.60902,121.00333,street,Barangay 552,yes,https://txtfire.net/fire-alert-11-12-2018-073213-pm/
+TXTFIRE-20181113T0655,2018-11-13,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-11-13-2018-065533-am/
+TXTFIRE-20181122T1405,2018-11-22,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-11-22-2018-020547-pm/
+TXTFIRE-20181126T1810,2018-11-26,fire,14.57823,121.01438,barangay,Barangay 882,yes,https://txtfire.net/fire-alert-11-26-2018-061024-pm/
+TXTFIRE-20181128T0730,2018-11-28,fire,14.60954,120.96972,street,Barangay 56,yes,https://txtfire.net/fire-alert-11-28-2018-073044-am/
+TXTFIRE-20181202T1212,2018-12-02,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-12-02-2018-121216-pm/
+TXTFIRE-20181205T1128,2018-12-05,fire,14.58377,121.01722,street,Barangay 887,yes,https://txtfire.net/fire-alert-12-05-2018-112833-am/
+TXTFIRE-20181207T1745,2018-12-07,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-07-2018-054602-pm/
+TXTFIRE-20181211T0025,2018-12-11,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-11-2018-122513-am/
+TXTFIRE-20181216T1338,2018-12-16,fire,14.59747,120.98322,street,Barangay 306,yes,https://txtfire.net/fire-alert-12-16-2018-013801-pm/
+TXTFIRE-20181217T0733,2018-12-17,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-17-2018-073337-am/
+TXTFIRE-20181222T2255,2018-12-22,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-12-22-2018-105502-pm/
+TXTFIRE-20181222T0041,2018-12-22,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-22-2018-124153-am/
+TXTFIRE-20181222T1028,2018-12-22,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-12-22-2018-102815-am/
+TXTFIRE-20181223T0502,2018-12-23,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-23-2018-050219-am/
+TXTFIRE-20181224T0849,2018-12-24,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-12-24-2018-084951-am/
+TXTFIRE-20181231T2030,2018-12-31,fire,14.61783,120.99076,street,Barangay 483,yes,https://txtfire.net/fire-alert-12-31-2018-083000-pm/
+TXTFIRE-20190103T0615,2019-01-03,fire,14.60055,120.98428,street,Barangay 307,yes,https://txtfire.net/fire-alert-01-03-2019-061531-am/
+TXTFIRE-20190103T1340,2019-01-03,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-01-03-2019-014051-pm/
+TXTFIRE-20190104T1522,2019-01-04,fire,14.58543,121.00091,street,Barangay 850,yes,https://txtfire.net/fire-alert-01-04-2019-032213-pm/
+TXTFIRE-20190104T0221,2019-01-04,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-04-2019-022106-am/
+TXTFIRE-20190107T1206,2019-01-07,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-01-07-2019-120642-pm/
+TXTFIRE-20190109T1535,2019-01-09,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-01-09-2019-033509-pm/
+TXTFIRE-20190109T1018,2019-01-09,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-09-2019-101848-am/
+TXTFIRE-20190110T2105,2019-01-10,fire,14.62771,120.96800,barangay,Barangay 172,yes,https://txtfire.net/fire-alert-01-10-2019-090536-pm/
+TXTFIRE-20190111T1151,2019-01-11,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-01-11-2019-115137-am/
+TXTFIRE-20190111T0233,2019-01-11,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-11-2019-023326-am/
+TXTFIRE-20190111T0744,2019-01-11,fire,14.62004,120.97343,street,Barangay 160,yes,https://txtfire.net/fire-alert-01-11-2019-074425-am/
+TXTFIRE-20190113T1510,2019-01-13,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-01-13-2019-031040-pm/
+TXTFIRE-20190114T1737,2019-01-14,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-01-14-2019-053716-pm/
+TXTFIRE-20190114T1605,2019-01-14,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-14-2019-040549-pm/
+TXTFIRE-20190115T0619,2019-01-15,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-01-15-2019-061855-am/
+TXTFIRE-20190116T0958,2019-01-16,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-16-2019-095839-am/
+TXTFIRE-20190116T1342,2019-01-16,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-01-16-2019-014203-pm/
+TXTFIRE-20190116T2015,2019-01-16,fire,14.61045,121.00679,street,Barangay 559,yes,https://txtfire.net/fire-alert-01-16-2019-081523-pm/
+TXTFIRE-20190117T1024,2019-01-17,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-17-2019-102455-am/
+TXTFIRE-20190117T1753,2019-01-17,fire,14.56978,120.99239,district,,no,https://txtfire.net/fire-alert-01-17-2019-055315-pm/
+TXTFIRE-20190118T1045,2019-01-18,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-01-18-2019-104518-am/
+TXTFIRE-20190122T1627,2019-01-22,fire,14.57106,121.00339,street,Barangay 806,yes,https://txtfire.net/fire-alert-01-22-2019-042728-pm/
+TXTFIRE-20190123T1338,2019-01-23,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-23-2019-013823-pm/
+TXTFIRE-20190124T1514,2019-01-24,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-01-24-2019-031407-pm/
+TXTFIRE-20190125T0920,2019-01-25,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-01-25-2019-092013-am/
+TXTFIRE-20190126T2130,2019-01-26,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-01-26-2019-093021-pm/
+TXTFIRE-20190127T1103,2019-01-27,fire,14.63431,120.97405,street,Barangay 177,yes,https://txtfire.net/fire-alert-01-27-2019-110336-am/
+TXTFIRE-20190128T1813,2019-01-28,fire,14.60294,120.97607,street,Barangay 296,yes,https://txtfire.net/fire-alert-01-28-2019-061343-pm/
+TXTFIRE-20190129T1153,2019-01-29,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-01-29-2019-115330-am/
+TXTFIRE-20190131T2247,2019-01-31,fire,14.59804,120.98139,street,Barangay 306,yes,https://txtfire.net/fire-alert-01-31-2019-104659-pm/
+TXTFIRE-20190201T0522,2019-02-01,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-02-01-2019-052244-am/
+TXTFIRE-20190207T1710,2019-02-07,fire,14.58632,121.00010,street,Barangay 841,yes,https://txtfire.net/fire-alert-02-07-2019-051031-pm/
+TXTFIRE-20190208T0758,2019-02-08,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-02-08-2019-075803-am/
+TXTFIRE-20190208T1228,2019-02-08,fire,14.59871,120.98616,district,,no,https://txtfire.net/fire-alert-02-08-2019-122852-pm/
+TXTFIRE-20190209T1026,2019-02-09,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-02-09-2019-102636-am/
+TXTFIRE-20190209T1757,2019-02-09,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-02-09-2019-055747-pm/
+TXTFIRE-20190210T1342,2019-02-10,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-02-10-2019-014249-pm/
+TXTFIRE-20190212T0810,2019-02-12,fire,14.60866,121.00950,street,Barangay 568,yes,https://txtfire.net/fire-alert-02-12-2019-081052-am/
+DROMIC-fire-incident-in-brgy-211-manila-15-feb-2019,2019-02-13,fire,14.62663,120.98127,barangay,Barangay 211,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-211-manila-15-feb-2019/
+TXTFIRE-20190213T0651,2019-02-13,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-02-13-2019-065141-am/
+TXTFIRE-20190214T1314,2019-02-14,fire,14.58989,120.99819,street,Barangay 831,yes,https://txtfire.net/fire-alert-02-14-2019-011448-pm/
+TXTFIRE-20190215T1644,2019-02-15,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-02-15-2019-044452-pm/
+TXTFIRE-20190216T1457,2019-02-16,fire,14.60166,120.96405,street,Barangay 17,yes,https://txtfire.net/fire-alert-02-16-2019-025737-pm/
+TXTFIRE-20190216T2133,2019-02-16,fire,14.60878,120.96231,street,Barangay 41,yes,https://txtfire.net/fire-alert-02-16-2019-093347-pm/
+TXTFIRE-20190216T1208,2019-02-16,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-02-16-2019-120834-pm/
+TXTFIRE-20190216T2247,2019-02-16,fire,14.58515,121.00999,street,Barangay 905,yes,https://txtfire.net/fire-alert-02-16-2019-104755-pm/
+TXTFIRE-20190218T1803,2019-02-18,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-02-18-2019-060326-pm/
+TXTFIRE-20190220T1431,2019-02-20,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-02-20-2019-023159-pm/
+DROMIC-fire-incident-in-parola-tondo-manila-22-feb-2019,2019-02-22,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-parola-tondo-manila-22-feb-2019/
+TXTFIRE-20190223T0423,2019-02-23,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-02-23-2019-042257-am/
+TXTFIRE-20190224T0724,2019-02-24,fire,14.57910,121.00166,barangay,Barangay 817,yes,https://txtfire.net/fire-alert-02-24-2019-072416-am/
+TXTFIRE-20190225T0705,2019-02-25,fire,14.56637,120.99018,street,Barangay 721,yes,https://txtfire.net/fire-alert-02-25-2019-070531-am/
+TXTFIRE-20190228T1735,2019-02-28,fire,14.58165,120.99164,street,Barangay 672,yes,https://txtfire.net/fire-alert-02-28-2019-053531-pm/
+TXTFIRE-20190228T0311,2019-02-28,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-02-28-2019-031124-am/
+TXTFIRE-20190228T1234,2019-02-28,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-02-28-2019-123443-pm/
+TXTFIRE-20190302T0351,2019-03-02,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-03-02-2019-035142-am/
+TXTFIRE-20190302T0816,2019-03-02,fire,14.59386,121.01083,barangay,Barangay 836,yes,https://txtfire.net/fire-alert-03-02-2019-081614-am/
+TXTFIRE-20190306T0245,2019-03-06,fire,14.60396,120.98468,street,Barangay 310,yes,https://txtfire.net/fire-alert-03-06-2019-024439-am/
+TXTFIRE-20190306T1805,2019-03-06,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-03-06-2019-060533-pm/
+TXTFIRE-20190306T1109,2019-03-06,fire,14.60511,121.00670,street,Barangay 570,yes,https://txtfire.net/fire-alert-03-06-2019-110921-am/
+TXTFIRE-20190308T1336,2019-03-08,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-03-08-2019-013650-pm/
+TXTFIRE-20190312T1415,2019-03-12,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-03-12-2019-021558-pm/
+TXTFIRE-20190313T1217,2019-03-13,fire,14.62602,120.97004,street,Barangay 168,yes,https://txtfire.net/fire-alert-03-13-2019-121801-pm/
+TXTFIRE-20190316T2037,2019-03-16,fire,14.61918,120.97780,street,Barangay 226,yes,https://txtfire.net/fire-alert-03-16-2019-083740-pm/
+TXTFIRE-20190317T1233,2019-03-17,fire,14.62732,120.98356,street,Barangay 382,yes,https://txtfire.net/fire-alert-03-17-2019-123333-pm/
+TXTFIRE-20190319T1832,2019-03-19,fire,14.57819,120.99595,street,Barangay 685,yes,https://txtfire.net/fire-alert-03-19-2019-063258-pm/
+TXTFIRE-20190320T1119,2019-03-20,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-03-20-2019-111938-am/
+TXTFIRE-20190322T1404,2019-03-22,fire,14.58377,121.01722,street,Barangay 887,yes,https://txtfire.net/fire-alert-03-22-2019-020429-pm/
+TXTFIRE-20190323T2056,2019-03-23,fire,14.61765,120.97060,street,Barangay 91,yes,https://txtfire.net/fire-alert-03-23-2019-085625-pm/
+TXTFIRE-20190324T0211,2019-03-24,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-03-24-2019-021111-am/
+TXTFIRE-20190324T1850,2019-03-24,fire,14.58728,120.96769,district,,no,https://txtfire.net/fire-alert-03-24-2019-065019-pm/
+TXTFIRE-20190324T0410,2019-03-24,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-03-24-2019-041051-am/
+TXTFIRE-20190327T0756,2019-03-27,fire,14.57691,120.98155,street,Barangay 668,yes,https://txtfire.net/fire-alert-03-27-2019-075648-am/
+TXTFIRE-20190328T1133,2019-03-28,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-03-28-2019-113305-am/
+TXTFIRE-20190329T1140,2019-03-29,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-03-29-2019-114050-am/
+TXTFIRE-20190401T1820,2019-04-01,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-04-01-2019-062000-pm/
+TXTFIRE-20190402T1324,2019-04-02,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-04-02-2019-012402-pm/
+TXTFIRE-20190402T2301,2019-04-02,fire,14.57263,120.98107,street,Barangay 699,yes,https://txtfire.net/fire-alert-04-02-2019-110139-pm/
+TXTFIRE-20190403T0904,2019-04-03,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-04-03-2019-090437-am/
+TXTFIRE-20190403T0942,2019-04-03,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-04-03-2019-094229-am/
+TXTFIRE-20190405T1030,2019-04-05,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-04-05-2019-103030-am/
+TXTFIRE-20190406T1620,2019-04-06,fire,14.63470,120.97213,barangay,Barangay 177,yes,https://txtfire.net/fire-alert-04-06-2019-042031-pm/
+TXTFIRE-20190406T1106,2019-04-06,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-04-06-2019-110644-am/
+TXTFIRE-20190408T1746,2019-04-08,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-08-2019-054632-pm/
+TXTFIRE-20190409T1949,2019-04-09,fire,14.57512,121.01005,street,Barangay 776,yes,https://txtfire.net/fire-alert-04-09-2019-074931-pm/
+TXTFIRE-20190410T1733,2019-04-10,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-10-2019-053321-pm/
+TXTFIRE-20190411T0940,2019-04-11,fire,14.58082,120.99173,street,Barangay 674,yes,https://txtfire.net/fire-alert-04-11-2019-094022-am/
+TXTFIRE-20190411T0232,2019-04-11,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-04-11-2019-023209-am/
+TXTFIRE-20190411T1801,2019-04-11,fire,14.58463,120.98407,district,,no,https://txtfire.net/fire-alert-04-11-2019-060125-pm/
+TXTFIRE-20190411T2319,2019-04-11,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-11-2019-111923-pm/
+TXTFIRE-20190412T0827,2019-04-12,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-12-2019-082709-am/
+TXTFIRE-20190413T1109,2019-04-13,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-04-13-2019-110902-am/
+TXTFIRE-20190415T1850,2019-04-15,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-04-15-2019-064939-pm/
+TXTFIRE-20190415T1205,2019-04-15,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-04-15-2019-120528-pm/
+TXTFIRE-20190416T1509,2019-04-16,fire,14.61407,120.96637,street,Barangay 74,yes,https://txtfire.net/fire-alert-04-16-2019-030924-pm/
+TXTFIRE-20190417T1203,2019-04-17,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-04-17-2019-120301-pm/
+TXTFIRE-20190419T1755,2019-04-19,fire,14.59935,120.98043,street,Barangay 303,yes,https://txtfire.net/fire-alert-04-19-2019-055501-pm/
+DROMIC-fire-incident-in-leveriza-malate-manila-22-apr-2019,2019-04-22,fire,14.56978,120.99239,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-leveriza-malate-manila-22-apr-2019/
+TXTFIRE-20190423T1624,2019-04-23,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-04-23-2019-042330-pm/
+TXTFIRE-20190424T1408,2019-04-24,fire,14.59075,120.97548,district,,no,https://txtfire.net/fire-alert-04-24-2019-020801-pm/
+TXTFIRE-20190425T0317,2019-04-25,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-04-25-2019-031559-am/
+TXTFIRE-20190425T1409,2019-04-25,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-04-25-2019-020805-pm/
+TXTFIRE-20190429T1909,2019-04-29,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-04-29-2019-070822-pm/
+DROMIC-fire-incident-in-sandico-st-alcaraz-tondo-manila-30-apr-2019,2019-04-30,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-sandico-st-alcaraz-tondo-manila-30-apr-2019/
+TXTFIRE-20190430T0803,2019-04-30,fire,14.57754,121.00117,street,Barangay 813,yes,https://txtfire.net/fire-alert-04-30-2019-080253-am/
+TXTFIRE-20190507T1752,2019-05-07,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-05-07-2019-055153-pm/
+TXTFIRE-20190509T1249,2019-05-09,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-05-09-2019-124823-pm/
+TXTFIRE-20190510T2003,2019-05-10,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://txtfire.net/fire-alert-05-10-2019-080241-pm/
+TXTFIRE-20190510T1346,2019-05-10,fire,14.61307,120.95993,barangay,Barangay 118,yes,https://txtfire.net/fire-alert-05-10-2019-014544-pm/
+TXTFIRE-20190511T1848,2019-05-11,fire,14.58244,120.99195,street,Barangay 672,yes,https://txtfire.net/fire-alert-05-11-2019-064659-pm/
+TXTFIRE-20190511T1934,2019-05-11,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-05-11-2019-073315-pm/
+TXTFIRE-20190512T1554,2019-05-12,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-05-12-2019-035343-pm/
+TXTFIRE-20190513T0830,2019-05-13,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-05-13-2019-082927-am/
+TXTFIRE-20190515T0558,2019-05-15,fire,14.61123,121.00149,street,Barangay 547,yes,https://txtfire.net/fire-alert-05-15-2019-055729-am/
+TXTFIRE-20190516T1546,2019-05-16,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-05-16-2019-034419-pm/
+TXTFIRE-20190516T1854,2019-05-16,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-05-16-2019-065257-pm/
+TXTFIRE-20190520T1802,2019-05-20,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-05-20-2019-060206-pm/
+TXTFIRE-20190522T1737,2019-05-22,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-05-22-2019-053709-pm/
+TXTFIRE-20190524T1059,2019-05-24,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-05-24-2019-105940-am/
+TXTFIRE-20190526T1127,2019-05-26,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-05-26-2019-112737-am/
+DROMIC-fire-incident-in-brgy-229-sta-cruz-manila-city-01-july-2019,2019-05-27,fire,14.61817,120.97725,barangay,Barangay 229,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-229-sta-cruz-manila-city-01-july-2019/
+TXTFIRE-20190527T2018,2019-05-27,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-05-27-2019-081809-pm/
+TXTFIRE-20190527T1905,2019-05-27,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-05-27-2019-070544-pm/
+TXTFIRE-20190527T0359,2019-05-27,fire,14.56159,120.99429,street,Barangay 719,yes,https://txtfire.net/fire-alert-05-27-2019-035951-am/
+TXTFIRE-20190529T0436,2019-05-29,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-05-29-2019-043628-am/
+TXTFIRE-20190529T1729,2019-05-29,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-05-29-2019-052906-pm/
+TXTFIRE-20190601T1434,2019-06-01,fire,14.60986,120.96771,street,Barangay 64,yes,https://txtfire.net/fire-alert-06-01-2019-023409-pm/
+TXTFIRE-20190602T1242,2019-06-02,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-06-02-2019-124209-pm/
+TXTFIRE-20190603T0753,2019-06-03,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-06-03-2019-075330-am/
+TXTFIRE-20190603T2347,2019-06-03,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-06-03-2019-114733-pm/
+TXTFIRE-20190605T0122,2019-06-05,fire,14.57888,120.99637,street,Barangay 681,yes,https://txtfire.net/fire-alert-06-05-2019-012156-am/
+TXTFIRE-20190609T1112,2019-06-09,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-06-09-2019-111258-am/
+TXTFIRE-20190609T1109,2019-06-09,fire,14.61051,120.97382,street,Barangay 241,yes,https://txtfire.net/fire-alert-06-09-2019-110915-am/
+TXTFIRE-20190611T0912,2019-06-11,fire,14.59075,120.97548,district,,no,https://txtfire.net/fire-alert-06-11-2019-091252-am/
+TXTFIRE-20190613T1036,2019-06-13,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-06-13-2019-103643-am/
+TXTFIRE-20190620T0656,2019-06-20,fire,14.60513,120.98681,street,Barangay 464,yes,https://txtfire.net/fire-alert-06-20-2019-065637-am/
+TXTFIRE-20190620T1743,2019-06-20,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-06-20-2019-054341-pm/
+TXTFIRE-20190621T2227,2019-06-21,fire,14.62284,120.96073,barangay,Barangay 100,yes,https://txtfire.net/fire-alert-06-21-2019-102701-pm/
+TXTFIRE-20190623T1248,2019-06-23,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-06-23-2019-124845-pm/
+TXTFIRE-20190629T2347,2019-06-29,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-06-29-2019-114717-pm/
+TXTFIRE-20190630T0932,2019-06-30,fire,14.61995,120.99519,street,Barangay 518,yes,https://txtfire.net/fire-alert-06-30-2019-093259-am/
+TXTFIRE-20190630T0001,2019-06-30,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-06-30-2019-120155-am/
+TXTFIRE-20190703T1803,2019-07-03,fire,14.60401,120.96550,street,Barangay 25,yes,https://txtfire.net/fire-alert-07-03-2019-060404-pm/
+TXTFIRE-20190703T1510,2019-07-03,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-07-03-2019-031101-pm/
+TXTFIRE-20190703T0740,2019-07-03,fire,14.60882,120.96387,barangay,Barangay 46,yes,https://txtfire.net/fire-alert-07-03-2019-074041-am/
+DROMIC-fire-incident-in-brgy-310-sta-cruz-manila-city-07-july-2019,2019-07-07,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-sta-cruz-manila-city-07-july-2019/
+TXTFIRE-20190712T1116,2019-07-12,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-07-12-2019-111613-am/
+DROMIC-fire-incident-in-dona-aurora-brgy-39-tondo-manila-13-july-20,2019-07-13,fire,14.60605,120.96042,barangay,Barangay 39,yes,https://dromic.dswd.gov.ph/fire-incident-in-dona-aurora-brgy-39-tondo-manila-13-july-2019/
+TXTFIRE-20190715T1418,2019-07-15,fire,14.59075,120.97548,district,,no,https://txtfire.net/fire-alert-07-15-2019-021854-pm/
+TXTFIRE-20190715T1311,2019-07-15,fire,14.58175,120.99748,street,Barangay 682,yes,https://txtfire.net/fire-alert-07-15-2019-011128-pm/
+TXTFIRE-20190715T1053,2019-07-15,fire,14.57746,120.99513,street,Barangay 684,yes,https://txtfire.net/fire-alert-07-15-2019-105357-am/
+TXTFIRE-20190719T1753,2019-07-19,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-07-19-2019-055327-pm/
+TXTFIRE-20190721T2259,2019-07-21,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-07-21-2019-105939-pm/
+TXTFIRE-20190726T2046,2019-07-26,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-07-26-2019-084614-pm/
+TXTFIRE-20190729T2015,2019-07-29,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-07-29-2019-081516-pm/
+TXTFIRE-20190803T0034,2019-08-03,fire,14.63311,120.97349,street,Barangay 178,yes,https://txtfire.net/fire-alert-08-03-2019-123358-am/
+TXTFIRE-20190804T0956,2019-08-04,fire,14.62733,120.97282,street,Barangay 174,yes,https://txtfire.net/fire-alert-08-04-2019-095642-am/
+TXTFIRE-20190805T1317,2019-08-05,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-08-05-2019-011714-pm/
+TXTFIRE-20190806T0756,2019-08-06,fire,14.61816,120.97067,street,Barangay 151,yes,https://txtfire.net/fire-alert-08-06-2019-075611-am/
+TXTFIRE-20190808T2136,2019-08-08,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-08-08-2019-093656-pm/
+TXTFIRE-20190825T2331,2019-08-25,fire,14.60616,120.99454,street,Barangay 430,yes,https://txtfire.net/fire-alert-08-25-2019-113120-pm/
+TXTFIRE-20190828T0447,2019-08-28,fire,14.60176,120.96569,barangay,Barangay 11,yes,https://txtfire.net/fire-alert-08-28-2019-044703-am/
+TXTFIRE-20190829T1231,2019-08-29,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-08-29-2019-123113-pm/
+TXTFIRE-20190829T1034,2019-08-29,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-08-29-2019-103353-am/
+TXTFIRE-20190901T1432,2019-09-01,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-09-01-2019-023223-pm/
+TXTFIRE-20190901T1653,2019-09-01,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-09-01-2019-045329-pm/
+TXTFIRE-20190904T1231,2019-09-04,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-09-04-2019-123104-pm/
+DROMIC-fire-incident-in-brgy-662-paco-manila-06-september-2019,2019-09-06,fire,14.58838,120.99293,barangay,Barangay 662,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-662-paco-manila-06-september-2019/
+TXTFIRE-20190910T2102,2019-09-10,fire,14.63159,120.95869,street,Barangay 128,yes,https://txtfire.net/fire-alert-09-10-2019-090241-pm/
+DROMIC-fire-incident-in-gagalangin-tondo-manila-11-september-2019,2019-09-11,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-gagalangin-tondo-manila-11-september-2019/
+TXTFIRE-20190912T1242,2019-09-12,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-09-12-2019-124225-pm/
+DROMIC-fire-incident-at-felix-huertas-rd-cor-san-lazaro-st-sta-cruz,2019-09-14,fire,14.61568,120.98332,district,,no,https://dromic.dswd.gov.ph/fire-incident-at-felix-huertas-rd-cor-san-lazaro-st-sta-cruz-manila-13-august-2019/
+TXTFIRE-20190920T0831,2019-09-20,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-09-20-2019-083138-am/
+TXTFIRE-20190921T1638,2019-09-21,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-09-21-2019-043808-pm/
+TXTFIRE-20190925T1632,2019-09-25,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-09-25-2019-043238-pm/
+TXTFIRE-20190926T1232,2019-09-26,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-09-26-2019-123159-pm/
+TXTFIRE-20190926T1247,2019-09-26,fire,14.58463,120.98407,district,,no,https://txtfire.net/fire-alert-09-26-2019-124749-pm/
+TXTFIRE-20191001T1403,2019-10-01,fire,14.59818,120.98300,street,Barangay 306,yes,https://txtfire.net/fire-alert-10-01-2019-020305-pm/
+TXTFIRE-20191003T2234,2019-10-03,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-10-03-2019-103458-pm/
+TXTFIRE-20191003T2131,2019-10-03,fire,14.59059,120.97608,street,Barangay 655,yes,https://txtfire.net/fire-alert-10-03-2019-093154-pm/
+TXTFIRE-20191004T1844,2019-10-04,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-04-2019-064423-pm/
+TXTFIRE-20191004T1130,2019-10-04,fire,14.57827,120.99778,street,Barangay 685,yes,https://txtfire.net/fire-alert-10-04-2019-113027-am/
+TXTFIRE-20191005T0200,2019-10-05,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-10-05-2019-020049-am/
+TXTFIRE-20191006T0020,2019-10-06,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-06-2019-122102-am/
+DROMIC-fire-incident-in-brgy-779-manila-city-08-october-2019,2019-10-08,fire,14.57458,121.00853,barangay,Barangay 779,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-779-manila-city-08-october-2019/
+TXTFIRE-20191011T2109,2019-10-11,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-10-11-2019-090939-pm/
+TXTFIRE-20191011T2132,2019-10-11,fire,14.60613,121.00600,street,Barangay 572,yes,https://txtfire.net/fire-alert-10-11-2019-093212-pm/
+TXTFIRE-20191013T1915,2019-10-13,fire,14.60758,120.96608,street,Barangay 5,yes,https://txtfire.net/fire-alert-10-13-2019-071505-pm/
+TXTFIRE-20191014T0607,2019-10-14,fire,14.57633,120.99581,street,Barangay 683,yes,https://txtfire.net/fire-alert-10-14-2019-060755-am/
+TXTFIRE-20191014T1352,2019-10-14,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-10-14-2019-015214-pm/
+TXTFIRE-20191014T0830,2019-10-14,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-14-2019-083011-am/
+TXTFIRE-20191015T0027,2019-10-15,fire,14.59558,120.99235,district,,no,https://txtfire.net/fire-alert-10-15-2019-122717-am/
+TXTFIRE-20191021T1520,2019-10-21,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-21-2019-032053-pm/
+DROMIC-fire-incident-in-brgy-334-manila-city-22-oct-2019,2019-10-22,fire,14.61212,120.98194,barangay,Barangay 334,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-334-manila-city-22-oct-2019/
+TXTFIRE-20191022T1600,2019-10-22,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-10-22-2019-040049-pm/
+TXTFIRE-20191022T1149,2019-10-22,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-22-2019-114941-am/
+TXTFIRE-20191025T0011,2019-10-25,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-10-25-2019-121139-am/
+TXTFIRE-20191026T1648,2019-10-26,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-10-26-2019-044852-pm/
+TXTFIRE-20191027T0515,2019-10-27,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-27-2019-051518-am/
+TXTFIRE-20191029T0609,2019-10-29,fire,14.57538,120.98977,street,Barangay 694,yes,https://txtfire.net/fire-alert-10-29-2019-060920-am/
+TXTFIRE-20191030T1212,2019-10-30,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-10-30-2019-121204-pm/
+TXTFIRE-20191101T1306,2019-11-01,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-11-01-2019-010633-pm/
+TXTFIRE-20191102T1738,2019-11-02,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-11-02-2019-053806-pm/
+DROMIC-fire-incident-in-n-zamora-street-tondo-manila-city-17-novemb,2019-11-17,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-n-zamora-street-tondo-manila-city-17-november-2019/
+TXTFIRE-20191128T1335,2019-11-28,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-11-28-2019-013549-pm/
+TXTFIRE-20191202T0913,2019-12-02,fire,14.59765,120.95812,street,Barangay 20,yes,https://txtfire.net/fire-alert-12-02-2019-091311-am/
+TXTFIRE-20191203T0853,2019-12-03,fire,14.60394,120.99127,street,Barangay 401,yes,https://txtfire.net/fire-alert-12-03-2019-085340-am/
+TXTFIRE-20191203T1426,2019-12-03,fire,14.60296,121.01897,street,Barangay 595,yes,https://txtfire.net/fire-alert-12-03-2019-022635-pm/
+TXTFIRE-20191205T0835,2019-12-05,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-12-05-2019-083533-am/
+TXTFIRE-20191207T1447,2019-12-07,fire,14.61891,120.96604,street,Barangay 92,yes,https://txtfire.net/fire-alert-12-07-2019-024722-pm/
+TXTFIRE-20191211T0348,2019-12-11,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-11-2019-034803-am/
+DROMIC-fire-incident-in-brgy-717-and-718-malate-manila-19-dec-2019,2019-12-19,fire,14.56544,120.99173,barangay,Barangay 717,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-717-and-718-malate-manila-19-dec-2019/
+TXTFIRE-20191226T1839,2019-12-26,fire,14.61961,120.97427,street,Barangay 159,yes,https://txtfire.net/fire-alert-12-26-2019-063909-pm/
+DROMIC-fire-incident-in-brgy-833-pandacan-manila-28-dec-2019,2019-12-28,fire,14.59485,121.00391,barangay,Barangay 833,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-833-pandacan-manila-28-dec-2019/
+DROMIC-fire-incident-in-brgy-20-parola-tondo-manila-29-dec-2019,2019-12-29,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-parola-tondo-manila-29-dec-2019/
+TXTFIRE-20210706T0936,2021-07-06,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-7-6-2021-93634-am/
+TXTFIRE-20210706T0410,2021-07-06,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-7-6-2021-41042-am/
+TXTFIRE-20210711T1358,2021-07-11,fire,14.58266,121.00492,barangay,Barangay 870,yes,https://txtfire.net/fire-alert-7-11-2021-15823-pm/
+TXTFIRE-20210712T1958,2021-07-12,fire,14.56276,120.98970,street,Barangay 719,yes,https://txtfire.net/fire-alert-7-12-2021-75819-pm/
+TXTFIRE-20210714T1737,2021-07-14,fire,14.59790,120.95804,street,Barangay 20,yes,https://txtfire.net/fire-alert-7-14-2021-53724-pm/
+DROMIC-fire-incident-in-brgy-767-manila-city15-july-2021,2021-07-15,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-767-manila-city15-july-2021/
+TXTFIRE-20210716T1918,2021-07-16,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-7-16-2021-71829-pm/
+TXTFIRE-20210716T0120,2021-07-16,fire,14.58002,120.97899,street,Barangay 666,yes,https://txtfire.net/fire-alert-7-16-2021-12022-am/
+TXTFIRE-20210717T0040,2021-07-17,fire,14.59694,120.98297,street,Barangay 306,yes,https://txtfire.net/fire-alert-7-17-2021-124036-am/
+TXTFIRE-20210717T0105,2021-07-17,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-7-17-2021-10540-am/
+TXTFIRE-20210724T1019,2021-07-24,fire,14.56978,120.99239,district,,no,https://txtfire.net/fire-alert-7-24-2021-101956-am/
+TXTFIRE-20210725T1615,2021-07-25,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-7-25-2021-41510-pm/
+TXTFIRE-20210725T0420,2021-07-25,fire,14.61217,120.99525,street,Barangay 475,yes,https://txtfire.net/fire-alert-7-25-2021-42041-am/
+TXTFIRE-20210726T2245,2021-07-26,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-7-26-2021-104535-pm/
+TXTFIRE-20210728T1434,2021-07-28,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-7-28-2021-23406-pm/
+TXTFIRE-20210731T1558,2021-07-31,fire,14.60530,120.98213,street,Barangay 312,yes,https://txtfire.net/fire-alert-7-31-2021-35829-pm/
+TXTFIRE-20210807T2235,2021-08-07,fire,14.61730,120.96899,street,Barangay 87,yes,https://txtfire.net/fire-alert-8-7-2021-103505-pm/
+TXTFIRE-20210821T1317,2021-08-21,fire,14.60950,120.99491,street,Barangay 454,yes,https://txtfire.net/fire-alert-8-21-2021-11735-pm/
+TXTFIRE-20210822T1819,2021-08-22,fire,14.59663,120.99617,barangay,Barangay 639,yes,https://txtfire.net/fire-alert-8-22-2021-61941-pm/
+TXTFIRE-20210824T0948,2021-08-24,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-8-24-2021-94824-am/
+TXTFIRE-20210826T1850,2021-08-26,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-8-26-2021-65021-pm/
+TXTFIRE-20210905T0106,2021-09-05,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-9-5-2021-10622-am/
+TXTFIRE-20210909T1750,2021-09-09,fire,14.60237,121.00060,barangay,Barangay 418,yes,https://txtfire.net/fire-alert-9-9-2021-55053-pm/
+TXTFIRE-20210912T1948,2021-09-12,fire,14.58025,121.00507,barangay,Barangay 869,yes,https://txtfire.net/fire-alert-9-12-2021-74826-pm/
+TXTFIRE-20210913T0136,2021-09-13,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-9-13-2021-13602-am/
+TXTFIRE-20210915T1503,2021-09-15,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-9-15-2021-30353-pm/
+TXTFIRE-20210918T1145,2021-09-18,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-9-18-2021-114515-am/
+TXTFIRE-20210926T0156,2021-09-26,fire,14.58162,120.98832,street,Barangay 674,yes,https://txtfire.net/fire-alert-9-26-2021-15618-am/
+TXTFIRE-20211001T1723,2021-10-01,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-10-1-2021-52347-pm/
+TXTFIRE-20211003T1536,2021-10-03,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-3-2021-33700-pm/
+TXTFIRE-20211010T0709,2021-10-10,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-10-2021-70937-am/
+TXTFIRE-20211013T1844,2021-10-13,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-10-13-2021-64415-pm/
+TXTFIRE-20211013T1224,2021-10-13,fire,14.61385,120.96671,street,Barangay 74,yes,https://txtfire.net/fire-alert-10-13-2021-122455-pm/
+DROMIC-fire-incident-in-brgy-649-manila-city-14-oct-2021,2021-10-14,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-14-oct-2021/
+TXTFIRE-20211014T1834,2021-10-14,fire,14.58463,120.98407,district,,no,https://txtfire.net/fire-alert-10-14-2021-63500-pm/
+TXTFIRE-20211015T0902,2021-10-15,fire,14.61162,121.00414,street,Barangay 539,yes,https://txtfire.net/fire-alert-10-15-2021-90159-am/
+TXTFIRE-20211016T1724,2021-10-16,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-16-2021-52409-pm/
+TXTFIRE-20211018T1412,2021-10-18,fire,14.58672,121.00096,barangay,Barangay 842,yes,https://txtfire.net/fire-alert-10-18-2021-21206-pm/
+TXTFIRE-20211019T1228,2021-10-19,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-10-19-2021-122857-pm/
+TXTFIRE-20211023T0937,2021-10-23,fire,14.59945,121.01558,street,Barangay 591,yes,https://txtfire.net/fire-alert-10-23-2021-93738-am/
+TXTFIRE-20211023T2128,2021-10-23,fire,14.57529,121.00704,street,Barangay 774,yes,https://txtfire.net/fire-alert-10-23-2021-92845-pm/
+TXTFIRE-20211031T1733,2021-10-31,fire,14.62943,120.97279,street,Barangay 179,yes,https://txtfire.net/fire-alert-10-31-2021-53356-pm/
+TXTFIRE-20211101T1638,2021-11-01,fire,14.59975,120.96741,barangay,Barangay 272,yes,https://txtfire.net/fire-alert-11-1-2021-43832-pm/
+TXTFIRE-20211102T1407,2021-11-02,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-11-2-2021-20756-pm/
+TXTFIRE-20211103T2341,2021-11-03,fire,14.60076,120.96387,barangay,Barangay 18,yes,https://txtfire.net/fire-alert-11-3-2021-114106-pm/
+TXTFIRE-20211104T0951,2021-11-04,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-11-4-2021-95138-am/
+TXTFIRE-20211112T0429,2021-11-12,fire,14.61307,120.95993,barangay,Barangay 118,yes,https://txtfire.net/fire-alert-11-12-2021-42911-am/
+TXTFIRE-20211116T0740,2021-11-16,fire,14.63293,120.97057,street,Barangay 182,yes,https://txtfire.net/fire-alert-11-16-2021-74018-am/
+TXTFIRE-20211117T1456,2021-11-17,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-11-17-2021-25606-pm/
+TXTFIRE-20211120T1033,2021-11-20,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-11-20-2021-103328-am/
+TXTFIRE-20211129T2216,2021-11-29,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-11-29-2021-101616-pm/
+TXTFIRE-20211130T1212,2021-11-30,fire,14.56978,120.99239,district,,no,https://txtfire.net/fire-alert-11-30-2021-121233-pm/
+TXTFIRE-20211201T1152,2021-12-01,fire,14.60076,120.96387,barangay,Barangay 18,yes,https://txtfire.net/fire-alert-12-1-2021-115203-am/
+TXTFIRE-20211202T1317,2021-12-02,fire,14.61518,120.99858,street,Barangay 517,yes,https://txtfire.net/fire-alert-12-2-2021-11747-pm/
+TXTFIRE-20211202T0029,2021-12-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-2-2021-122948-am/
+TXTFIRE-20211202T1818,2021-12-02,fire,14.60647,120.96807,street,Barangay 7,yes,https://txtfire.net/fire-alert-12-2-2021-61838-pm/
+TXTFIRE-20211203T0138,2021-12-03,fire,14.59681,120.98747,street,Barangay 387,yes,https://txtfire.net/fire-alert-12-3-2021-13812-am/
+TXTFIRE-20211204T1630,2021-12-04,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-12-4-2021-43059-pm/
+DROMIC-fire-incident-in-brgy-775-manila-city-07-dec-2021,2021-12-07,fire,14.57193,121.00672,barangay,Barangay 775,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-775-manila-city-07-dec-2021/
+TXTFIRE-20211208T1844,2021-12-08,fire,14.60309,120.96598,barangay,Barangay 13,yes,https://txtfire.net/fire-alert-12-8-2021-64430-pm/
+TXTFIRE-20211209T0935,2021-12-09,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-9-2021-93554-am/
+TXTFIRE-20211210T0150,2021-12-10,fire,14.58141,120.97646,street,Barangay 666,yes,https://txtfire.net/fire-alert-12-10-2021-15052-am/
+TXTFIRE-20211214T0644,2021-12-14,fire,14.56978,120.99239,district,,no,https://txtfire.net/fire-alert-12-14-2021-64446-am/
+TXTFIRE-20211214T0124,2021-12-14,fire,14.57452,120.99355,street,Barangay 688,yes,https://txtfire.net/fire-alert-12-14-2021-12427-am/
+TXTFIRE-20211215T0738,2021-12-15,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-12-15-2021-73850-am/
+TXTFIRE-20211215T2130,2021-12-15,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-15-2021-93055-pm/
+TXTFIRE-20211216T2042,2021-12-16,fire,14.60076,120.96387,barangay,Barangay 18,yes,https://txtfire.net/fire-alert-12-16-2021-84209-pm/
+TXTFIRE-20211219T1025,2021-12-19,fire,14.57678,121.00982,street,Barangay 780,yes,https://txtfire.net/fire-alert-12-19-2021-102526-am/
+TXTFIRE-20211221T1253,2021-12-21,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-21-2021-125305-pm/
+TXTFIRE-20211230T1039,2021-12-30,fire,14.60559,120.96770,street,Barangay 3,yes,https://txtfire.net/fire-alert-12-30-2021-103948-am/
+TXTFIRE-20211230T2257,2021-12-30,fire,14.60778,121.01235,street,Barangay 584,yes,https://txtfire.net/fire-alert-12-30-2021-105748-pm/
+TXTFIRE-20211231T1707,2021-12-31,fire,14.57315,121.00295,street,Barangay 802,yes,https://txtfire.net/fire-alert-12-31-2021-50733-pm/
+TXTFIRE-20220102T0316,2022-01-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-1-2-2022-31605-am/
+TXTFIRE-20220103T1248,2022-01-03,fire,14.61308,120.96229,barangay,Barangay 120,yes,https://txtfire.net/fire-alert-1-3-2022-124838-pm/
+TXTFIRE-20220103T1021,2022-01-03,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://txtfire.net/fire-alert-1-3-2022-102151-am/
+TXTFIRE-20220103T0256,2022-01-03,fire,14.62733,120.97282,street,Barangay 174,yes,https://txtfire.net/fire-alert-1-3-2022-25609-am/
+TXTFIRE-20220103T1305,2022-01-03,fire,14.57746,120.99513,street,Barangay 684,yes,https://txtfire.net/fire-alert-1-3-2022-10510-pm/
+TXTFIRE-20220104T2021,2022-01-04,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-1-4-2022-82157-pm/
+TXTFIRE-20220106T2029,2022-01-06,fire,14.62117,120.97414,barangay,Barangay 155,yes,https://txtfire.net/fire-alert-1-6-2022-82958-pm/
+TXTFIRE-20220109T0311,2022-01-09,fire,14.60738,120.97389,barangay,Barangay 247,yes,https://txtfire.net/fire-alert-1-9-2022-31153-am/
+TXTFIRE-20220109T0803,2022-01-09,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-1-9-2022-80309-am/
+TXTFIRE-20220111T1436,2022-01-11,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-1-11-2022-23616-pm/
+DROMIC-fire-incident-in-brgy-656-manila-city-12-jan-2022,2022-01-12,fire,14.59404,120.97234,barangay,Barangay 656,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-656-manila-city-12-jan-2022/
+TXTFIRE-20220112T1533,2022-01-12,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-1-12-2022-33348-pm/
+TXTFIRE-20220118T1024,2022-01-18,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-1-18-2022-102440-am/
+TXTFIRE-20220123T1832,2022-01-23,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-1-23-2022-63221-pm/
+TXTFIRE-20220125T0509,2022-01-25,fire,14.56978,120.99239,district,,no,https://txtfire.net/fire-alert-1-25-2022-50941-am/
+TXTFIRE-20220126T1108,2022-01-26,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-1-26-2022-110835-am/
+TXTFIRE-20220127T0214,2022-01-27,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-1-27-2022-21426-am/
+TXTFIRE-20220128T1218,2022-01-28,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-1-28-2022-121813-pm/
+TXTFIRE-20220130T1221,2022-01-30,fire,14.61045,121.00679,street,Barangay 559,yes,https://txtfire.net/fire-alert-1-30-2022-122135-pm/
+TXTFIRE-20220131T1900,2022-01-31,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-1-31-2022-70045-pm/
+TXTFIRE-20220203T2001,2022-02-03,fire,14.63142,120.97133,street,Barangay 182,yes,https://txtfire.net/fire-alert-2-3-2022-80157-pm/
+TXTFIRE-20220204T1949,2022-02-04,fire,14.57626,121.00694,district,,no,https://txtfire.net/fire-alert-2-4-2022-74918-pm/
+TXTFIRE-20220206T0241,2022-02-06,fire,14.61409,120.96272,street,Barangay 119,yes,https://txtfire.net/fire-alert-2-6-2022-24149-am/
+TXTFIRE-20220206T2209,2022-02-06,fire,14.58856,121.00274,street,Barangay 856,yes,https://txtfire.net/fire-alert-2-6-2022-100946-pm/
+TXTFIRE-20220210T1933,2022-02-10,fire,14.61939,120.97342,barangay,Barangay 157,yes,https://txtfire.net/fire-alert-2-10-2022-73335-pm/
+TXTFIRE-20220211T0135,2022-02-11,fire,14.62999,120.96098,street,Barangay 128,yes,https://txtfire.net/fire-alert-2-11-2022-13537-am/
+TXTFIRE-20220213T0821,2022-02-13,fire,14.61250,120.96384,barangay,Barangay 121,yes,https://txtfire.net/fire-alert-2-13-2022-82102-am/
+TXTFIRE-20220213T2223,2022-02-13,fire,14.60440,120.95341,street,Barangay 20,yes,https://txtfire.net/fire-alert-2-13-2022-102333-pm/
+TXTFIRE-20220217T1209,2022-02-17,fire,14.58463,120.98407,district,,no,https://txtfire.net/fire-alert-2-17-2022-120902-pm/
+TXTFIRE-20220218T1938,2022-02-18,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-2-18-2022-73835-pm/
+TXTFIRE-20220220T0946,2022-02-20,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-2-20-2022-94656-am/
+TXTFIRE-20220226T1641,2022-02-26,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-2-26-2022-44103-pm/
+DROMIC-fire-incident-in-baseco-compound-brgy-649-manila-city-04-mar,2022-03-04,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-brgy-649-manila-city-04-mar-2022/
+TXTFIRE-20220304T2124,2022-03-04,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-3-4-2022-92457-pm/
+TXTFIRE-20220305T2110,2022-03-05,fire,14.57512,121.01005,street,Barangay 776,yes,https://txtfire.net/fire-alert-3-5-2022-91045-pm/
+TXTFIRE-20220309T2039,2022-03-09,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-3-9-2022-83949-pm/
+TXTFIRE-20220312T0902,2022-03-12,fire,14.59765,120.95812,street,Barangay 20,yes,https://txtfire.net/fire-alert-3-12-2022-90236-am/
+TXTFIRE-20220312T0316,2022-03-12,fire,14.56978,120.99239,district,,no,https://txtfire.net/fire-alert-3-12-2022-31649-am/
+TXTFIRE-20220316T1231,2022-03-16,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-3-16-2022-123103-pm/
+TXTFIRE-20220319T0430,2022-03-19,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-3-19-2022-43008-am/
+TXTFIRE-20220320T2031,2022-03-20,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-3-20-2022-83149-pm/
+TXTFIRE-20220321T0420,2022-03-21,fire,14.59168,120.97380,street,Barangay 655,yes,https://txtfire.net/fire-alert-3-21-2022-42058-am/
+TXTFIRE-20220323T1514,2022-03-23,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-3-23-2022-31425-pm/
+TXTFIRE-20220330T1358,2022-03-30,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-3-30-2022-15859-pm/
+TXTFIRE-20220331T1324,2022-03-31,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-3-31-2022-12449-pm/
+DROMIC-fire-incident-in-brgy-369-sta-cruz-manila-city-03-apr-2022,2022-04-03,fire,14.62318,120.98708,barangay,Barangay 369,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-369-sta-cruz-manila-city-03-apr-2022/
+TXTFIRE-20220410T2026,2022-04-10,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-4-10-2022-82639-pm/
+TXTFIRE-20220411T0015,2022-04-11,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-4-11-2022-121517-am/
+TXTFIRE-20220412T1540,2022-04-12,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-4-12-2022-34055-pm/
+DROMIC-fire-incident-in-brgy-129-manila-city-19-apr-2022,2022-04-18,fire,14.62996,120.96345,barangay,Barangay 129,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-129-manila-city-19-apr-2022/
+TXTFIRE-20220418T0633,2022-04-18,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-4-18-2022-63358-am/
+TXTFIRE-20220425T1012,2022-04-25,fire,14.61218,120.98072,barangay,Barangay 327,yes,https://txtfire.net/fire-alert-4-25-2022-101245-am/
+TXTFIRE-20220428T1638,2022-04-28,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-4-28-2022-43830-pm/
+TXTFIRE-20220430T2021,2022-04-30,fire,14.56736,120.99701,barangay,Barangay 733,yes,https://txtfire.net/fire-alert-4-30-2022-82126-pm/
+TXTFIRE-20220430T1021,2022-04-30,fire,14.60319,120.99954,street,Barangay 417,yes,https://txtfire.net/fire-alert-4-30-2022-102131-am/
+TXTFIRE-20220502T1837,2022-05-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-5-2-2022-63721-pm/
+TXTFIRE-20220502T1816,2022-05-02,fire,14.61089,120.97067,street,Barangay 56,yes,https://txtfire.net/fire-alert-5-2-2022-61612-pm/
+TXTFIRE-20220504T1054,2022-05-04,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-5-4-2022-105402-am/
+TXTFIRE-20220505T1734,2022-05-05,fire,14.59075,120.97548,district,,no,https://txtfire.net/fire-alert-5-5-2022-53458-pm/
+DROMIC-fire-incident-in-brgy-215-tondo-manila-city-06-may-2022,2022-05-06,fire,14.62637,120.97795,barangay,Barangay 215,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-215-tondo-manila-city-06-may-2022/
+TXTFIRE-20220506T1521,2022-05-06,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-5-6-2022-32101-pm/
+TXTFIRE-20220506T2256,2022-05-06,fire,14.57463,121.00313,street,Barangay 786,yes,https://txtfire.net/fire-alert-5-6-2022-105632-pm/
+TXTFIRE-20220506T0805,2022-05-06,fire,14.58156,121.00916,street,Barangay 880,yes,https://txtfire.net/fire-alert-5-6-2022-80549-am/
+TXTFIRE-20220507T2250,2022-05-07,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-5-7-2022-105045-pm/
+TXTFIRE-20220507T2101,2022-05-07,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-5-7-2022-90109-pm/
+TXTFIRE-20220509T0855,2022-05-09,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-5-9-2022-85514-am/
+DROMIC-fire-incident-in-brgy-310-sta-cruz-manila-city-10-may-2022,2022-05-10,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-sta-cruz-manila-city-10-may-2022/
+TXTFIRE-20220511T1158,2022-05-11,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-5-11-2022-115805-am/
+TXTFIRE-20220512T1933,2022-05-12,fire,14.57746,120.99513,street,Barangay 684,yes,https://txtfire.net/fire-alert-5-12-2022-73315-pm/
+TXTFIRE-20220515T1137,2022-05-15,fire,14.58678,120.99826,barangay,Barangay 828,yes,https://txtfire.net/fire-alert-5-15-2022-113714-am/
+DROMIC-fire-incident-in-brgy-649-manila-city-19-may-2022terminated,2022-05-19,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-19-may-2022terminated/
+TXTFIRE-20220520T0004,2022-05-20,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-5-20-2022-120443-am/
+DROMIC-fire-incident-in-baseco-compound-tondo-manila-city-21-may-20,2022-05-21,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-tondo-manila-city-21-may-2022/
+TXTFIRE-20220521T1723,2022-05-21,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-5-21-2022-52344-pm/
+TXTFIRE-20220521T0712,2022-05-21,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-5-21-2022-71211-am/
+TXTFIRE-20220523T2024,2022-05-23,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-5-23-2022-82401-pm/
+TXTFIRE-20220527T0837,2022-05-27,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-5-27-2022-83714-am/
+TXTFIRE-20220529T1535,2022-05-29,fire,14.59670,120.98302,street,Barangay 306,yes,https://txtfire.net/fire-alert-5-29-2022-33546-pm/
+TXTFIRE-20220601T2147,2022-06-01,fire,14.59713,120.96732,barangay,Barangay 286,yes,https://txtfire.net/fire-alert-6-1-2022-94733-pm/
+TXTFIRE-20220601T0441,2022-06-01,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-6-1-2022-44113-am/
+TXTFIRE-20220602T0149,2022-06-02,fire,14.59455,120.98831,street,Barangay 385,yes,https://txtfire.net/fire-alert-6-2-2022-14927-am/
+TXTFIRE-20220607T1013,2022-06-07,fire,14.57753,120.99827,barangay,Barangay 811,yes,https://txtfire.net/fire-alert-6-7-2022-101331-am/
+DROMIC-fire-incident-in-brgy-20-manila-city-08-jun-2022,2022-06-08,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-manila-city-08-jun-2022/
+TXTFIRE-20220609T1633,2022-06-09,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-6-9-2022-43320-pm/
+TXTFIRE-20220614T1943,2022-06-14,fire,14.63185,120.97096,street,Barangay 182,yes,https://txtfire.net/fire-alert-6-14-2022-74327-pm/
+TXTFIRE-20220615T0659,2022-06-15,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-6-15-2022-65935-am/
+TXTFIRE-20220617T0857,2022-06-17,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-6-17-2022-85744-am/
+TXTFIRE-20220618T1015,2022-06-18,fire,14.59550,121.01462,street,Barangay 621,yes,https://txtfire.net/fire-alert-6-18-2022-101510-am/
+TXTFIRE-20220619T1623,2022-06-19,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-6-19-2022-42325-pm/
+TXTFIRE-20220619T1559,2022-06-19,fire,14.59790,120.95804,street,Barangay 20,yes,https://txtfire.net/fire-alert-6-19-2022-35932-pm/
+TXTFIRE-20220620T2139,2022-06-20,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-6-20-2022-93909-pm/
+TXTFIRE-20220622T1434,2022-06-22,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-6-22-2022-23409-pm/
+TXTFIRE-20220624T0450,2022-06-24,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-6-24-2022-45058-am/
+TXTFIRE-20220625T1408,2022-06-25,fire,14.58166,120.99720,district,,no,https://txtfire.net/fire-alert-6-25-2022-20845-pm/
+TXTFIRE-20220627T1949,2022-06-27,fire,14.59997,120.98811,street,Barangay 391,yes,https://txtfire.net/fire-alert-6-27-2022-74902-pm/
+FDAY-20180621,2018-06-21,flood,,,city,,no,https://newsinfo.inquirer.net/1003027/flood-alert-list-of-flooded-areas-on-june-21-2018
+DROMIC-effects-of-southwest-monsoon-14-july-2018,2018-07-14,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-14-july-2018/
+FDAY-20180811,2018-08-11,flood,,,city,,no,https://newsinfo.inquirer.net/1020076/mmda-monitors-flooded-metro-roads
+DROMIC-southwest-monsoon-12-aug-2018,2018-08-12,flood,,,city,,no,https://dromic.dswd.gov.ph/southwest-monsoon-12-aug-2018/
+DROMIC-typhoon-ompong-12-sep-2018,2018-09-12,flood,,,city,,no,https://dromic.dswd.gov.ph/typhoon-ompong-12-sep-2018/
+FDAY-20190802,2019-08-02,flood,,,city,,no,https://newsinfo.inquirer.net/1149128/look-flooded-areas-in-metro-manila
+FDAY-20190803,2019-08-03,flood,,,city,,no,https://gmanetwork.com/news/topstories/metro/703329/flooded-areas-in-metro-manila-on-saturday-aug-3-2019/story
+DROMIC-typhoon-rolly-29-oct-2020,2020-10-29,flood,,,city,,no,https://dromic.dswd.gov.ph/typhoon-rolly-29-oct-2020/
+DROMIC-typhoon-ulysses-08-nov-2020,2020-11-08,flood,,,city,,no,https://dromic.dswd.gov.ph/typhoon-ulysses-08-nov-2020/
+DROMIC-effects-of-southwest-monsoon-enhanced-by-typhoon-fabian-22-july-2021,2021-07-22,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-enhanced-by-typhoon-fabian-22-july-2021/
+FDAY-20210723,2021-07-23,flood,,,city,,no,https://www.topgear.com.ph/news/motoring-news/taft-flood-july-2021-gallery-a4354-20210723
+FLD-20210725-001,2021-07-25,flood,14.60971,120.98236,street,Barangay 333,yes,https://www.gmanetwork.com/news/topstories/metro/796691/list-flooded-areas-in-metro-manila-on-sunday-july-25-2021/story/
+DROMIC-effects-of-southwest-monsoon-27-jul-2021,2021-07-27,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-27-jul-2021/
+DROMIC-tropical-depression-jolina-06-sep-2021,2021-09-06,flood,,,city,,no,https://dromic.dswd.gov.ph/tropical-depression-jolina-06-sep-2021/
+DROMIC-severe-tropical-storm-maring07-oct-2021,2021-10-07,flood,,,city,,no,https://dromic.dswd.gov.ph/severe-tropical-storm-maring07-oct-2021/
+FLD-20220808-002,2022-08-08,flood,14.58610,120.98258,street,Barangay 666,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-003,2022-08-08,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-004,2022-08-08,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-005,2022-08-08,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-006,2022-08-08,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+DROMIC-super-typhoon-karding-23-sep-2022,2022-09-23,flood,,,city,,no,https://dromic.dswd.gov.ph/super-typhoon-karding-23-sep-2022/
+DROMIC-low-pressure-area-24-oct-2022,2022-10-24,flood,,,city,,no,https://dromic.dswd.gov.ph/low-pressure-area-24-oct-2022/
+FLD-20221029-007,2022-10-29,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://news.abs-cbn.com/news/10/30/22/some-parts-of-metro-manila-experience-flooding-due-to-paeng
+DROMIC-severe-tropical-storm-egay-21-july-2023,2023-07-21,flood,,,city,,no,https://dromic.dswd.gov.ph/severe-tropical-storm-egay-21-july-2023/
+FLD-20230923-008,2023-09-23,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.philstar.com/headlines/2023/09/24/2298617/floods-hit-metro-manila-roads-2-lpas-monitored
+DROMIC-effects-of-southwest-monsoon-enhanced-by-sty-carina-21-jul-2024,2024-07-21,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-enhanced-by-sty-carina-21-jul-2024/
+FLD-20240724-010,2024-07-24,flood,14.60972,120.99282,street,Barangay 479,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-011,2024-07-24,flood,14.61293,120.99634,street,Barangay 503,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-012,2024-07-24,flood,14.57984,120.97733,street,Barangay 666,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240725-013,2024-07-25,flood,14.60375,120.98192,street,Barangay 313,yes,https://www.gmanetwork.com/news/topstories/metro/914660/flooded-areas-metro-manila-july-25-2024/story/
+DROMIC-effects-of-sts-enteng-and-southwest-monsoon-31-aug-2024,2024-08-31,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-sts-enteng-and-southwest-monsoon-31-aug-2024/
+FDAY-20240903,2024-09-03,flood,,,city,,no,https://www.abs-cbn.com/news/2024/9/3/list-flooded-areas-due-to-sept-3-bad-weather-1223
+FLD-20241025-014,2024-10-25,flood,14.60972,120.99282,street,Barangay 479,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+FLD-20241025-016,2024-10-25,flood,14.61175,120.99507,street,Barangay 475,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+DROMIC-effects-of-southwest-monsoon-and-tropical-depression-crising-17-jul-20,2025-07-17,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-and-tropical-depression-crising-17-jul-2025/
+FLD-20250718-017,2025-07-18,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-018,2025-07-18,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-020,2025-07-18,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250721-021,2025-07-21,flood,14.60972,120.99282,street,Barangay 479,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250721-022,2025-07-21,flood,14.61293,120.99634,street,Barangay 503,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250722-023,2025-07-22,flood,14.60035,120.99100,street,Barangay 416,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-024,2025-07-22,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-029,2025-07-22,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-030,2025-07-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-031,2025-07-22,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-032,2025-07-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-033,2025-07-22,flood,14.55959,120.98715,street,Barangay 719,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-034,2025-07-22,flood,14.57873,120.99836,street,Barangay 682,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-035,2025-07-22,flood,14.61675,120.97733,street,Barangay 229,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-036,2025-07-22,flood,14.60608,120.97486,street,Barangay 259,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250822-037,2025-08-22,flood,14.56432,120.98512,street,Barangay 701,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-038,2025-08-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-040,2025-08-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-041,2025-08-22,flood,14.58614,120.98267,street,Barangay 659,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-042,2025-08-22,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+DROMIC-effects-of-southwest-monsoon-and-low-pressure-area-25-aug-2025,2025-08-24,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-and-low-pressure-area-25-aug-2025/
+FLD-20250905-043,2025-09-05,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/958113/list-flooded-roads-in-metro-manila-amid-habagat-rains/story/
+DROMIC-effects-of-tropical-depression-mirasol-16-sep-2025,2025-09-16,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-tropical-depression-mirasol-16-sep-2025/
+DROMIC-effects-of-typhoon-tino-03-nov-2025,2025-11-03,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-typhoon-tino-03-nov-2025/
+DROMIC-effects-of-typhoon-uwan-07-nov-2025,2025-11-08,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-typhoon-uwan-07-nov-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-662,2025-12-11,flood,14.58838,120.99293,barangay,Barangay 662,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-671,2025-12-11,flood,14.58167,120.99311,barangay,Barangay 671,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-672,2025-12-11,flood,14.58331,120.99178,barangay,Barangay 672,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-674,2025-12-11,flood,14.58200,120.98883,barangay,Barangay 674,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-677,2025-12-11,flood,14.58361,120.99398,barangay,Barangay 677,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-734,2025-12-11,flood,14.57615,120.99689,barangay,Barangay 734,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-736,2025-12-11,flood,14.57501,120.99625,barangay,Barangay 736,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+FLD-20260710-044,2026-07-10,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+FLD-20260710-045,2026-07-10,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+DROMIC-effects-of-tropical-cyclone-luis-30-jul-2026,2026-07-30,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-tropical-cyclone-luis-30-jul-2026/
+FLD-20260809-047,2026-08-09,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-048,2026-08-09,flood,14.57731,120.98767,street,Barangay 676,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-049,2026-08-09,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260810-050,2026-08-10,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-051,2026-08-10,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-052,2026-08-10,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260818-053,2026-08-18,flood,14.60811,120.99113,street,Barangay 459,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-054,2026-08-18,flood,14.61101,120.98246,street,Barangay 334,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-055,2026-08-18,flood,14.61961,120.97770,street,Barangay 231,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260819-056,2026-08-19,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/999051/flood-alert-flooded-roads-in-metro-manila-on-wednesday-august-19-2026/story/

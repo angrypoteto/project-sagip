@@ -25,14 +25,31 @@ What each source covers decides each hazard's period (time-aligning):
 fires only where the fire archive has reports (it has none for 2017 and
 2018), floods over the whole weather period.
 
-Usage (from ml/forecast):
-  ../../.venv/Scripts/python data_prep/prepare_real.py
+That is the "news" variant (2026-10-28, first run). Two more use the
+records found later the same day (--variant):
 
-Writes:
-  data/prepared/manila_weather_prepared.csv     the daily features
-  data/prepared/manila_incidents_prepared.csv   the incidents kept, with barangay
-  build/real/windows_<hazard>.npz               the windows (git-ignored)
-  prep_summary_real.json                        the step log, the windows, the baselines
+  dromic          fires: DSWD DROMIC's fire reports (data/manila_fire_dromic_placed.csv,
+                  place_fires.py), 2018-01 to 2026-10; floods: DROMIC's monsoon
+                  and typhoon events that affected Manila
+                  (data/manila_weather_events_dromic.csv) with the flood days and
+                  corners above, 2018-01 to 2026-10; typhoon signal: the news days
+                  plus the estimate from storm tracks (storm_signal.py)
+  dromic_txtfire  the same, with TXTFIRE's confirmed fire alerts added
+                  (data/manila_fire_txtfire_placed.csv), fires only in the months
+                  TXTFIRE posted alerts (TXTFIRE_ACTIVE)
+
+DROMIC posted only 4 Manila fire reports in 2017 and no 2016 to 2017 weather
+reports that still open, so both start in 2018.
+
+Usage (from ml/forecast):
+  ../../.venv/Scripts/python data_prep/prepare_real.py [--variant news|dromic|dromic_txtfire]
+
+Writes (the news variant without the suffix):
+  data/prepared[/<variant>]/manila_weather_prepared.csv     the daily features
+  data/prepared[/<variant>]/manila_incidents_prepared.csv   the incidents kept, with barangay
+  build/real[/<variant>]/windows_<hazard>.npz               the windows (git-ignored)
+  data_prep/prep_summary_<variant>.json                     the step log, the windows, the baselines
+                                                            (prep_summary_real.json for news)
 """
 
 import csv
@@ -81,6 +98,35 @@ COVERAGE = {
 }
 # Two reports of the same hazard on the same day this close are one incident.
 SAME_INCIDENT_M = 300
+# A DROMIC fire and a TXTFIRE alert on the same day this close (or in the same
+# district when one of them has only a district) are one fire.
+SAME_FIRE_ACROSS_SOURCES_M = 1000
+V2_START = date(2018, 1, 1)
+# Months in which TXTFIRE posted at least this many Manila alerts count as
+# covered (its archive has gaps: most of 2020, early 2021, after mid-2022).
+TXTFIRE_ACTIVE_MONTH = 15
+
+VARIANTS = {
+    "news": {"fire": "news", "flood": "news", "track_signals": False},
+    "dromic": {"fire": "dromic", "flood": "dromic", "track_signals": True},
+    "dromic_txtfire": {"fire": "dromic+txtfire", "flood": "dromic", "track_signals": True},
+}
+
+
+def txtfire_active():
+    """Stretches of consecutive months with TXTFIRE_ACTIVE_MONTH or more alerts."""
+    months = Counter(r["date"][:7] for r in read_csv(DATA / "manila_fire_txtfire.csv"))
+    active = sorted(m for m, n in months.items() if n >= TXTFIRE_ACTIVE_MONTH)
+    stretches = []
+    for m in active:
+        y, mo = int(m[:4]), int(m[5:])
+        start = date(y, mo, 1)
+        end = (date(y + mo // 12, mo % 12 + 1, 1)) - timedelta(1)
+        if stretches and (stretches[-1][1] + timedelta(1)) == start:
+            stretches[-1] = (stretches[-1][0], end)
+        else:
+            stretches.append((start, end))
+    return [s for s in stretches if (s[1] - s[0]).days >= 89]
 
 
 def step(dataset, name, records_in, retained, corrected=0, removed=0, note="", **detail):
@@ -105,7 +151,7 @@ def days_between(first, last):
 # --- Weather ----------------------------------------------------------------
 
 
-def prepare_weather(log):
+def prepare_weather(log, track_signals=False):
     first, last = PERIOD
     period = days_between(first, last)
 
@@ -181,6 +227,29 @@ def prepare_weather(log):
         note="days a PAGASA wind signal was up over Metro Manila, from news reports (incomplete); "
         "every other day is written as signal 0; no storm surge height was found for any day",
     ))
+    if track_signals:
+        estimates = read_csv(DATA / "manila_storm_signal.csv")
+        raised = added = 0
+        for r in estimates:
+            d = parse_day(r["date"])
+            level = float(r["signal_estimate"])
+            if d is None or not first <= d <= last or level < 1:
+                continue
+            news_level, surge = signals.get(d, (0.0, 0.0))
+            if level > news_level:
+                if news_level == 0:
+                    added += 1
+                else:
+                    raised += 1
+                signals[d] = (level, surge)
+        log.append(step(
+            "weather: typhoon signals", "estimate from storm tracks", len(estimates), len(signals),
+            corrected=added + raised,
+            note="NOAA IBTrACS tracks give an estimated signal for every day (storm_signal.py; it matches 19 of "
+            "the 23 news days on the day); each day keeps the higher of the news signal and the estimate. "
+            "corrected = days given a signal the news did not report, or a higher one",
+            days_added=added, days_raised=raised,
+        ))
 
     # Merge, filling and checking.
     rows = []
@@ -371,6 +440,135 @@ def _dedupe(records):
     return out, duplicates
 
 
+def _placed_rows(path, name, log, coverage, read_note, keep=lambda r: True, removed_note=""):
+    """Reads a place_fires.py file: clean, geocode, time-align, logged."""
+    rows = read_csv(path)
+    log.append(step(name, "read", len(rows), len(rows), note=read_note))
+    usable, dropped = [], 0
+    for r in rows:
+        d = parse_day(r["date"])
+        if d is None or not keep(r):
+            dropped += 1
+            continue
+        usable.append({**r, "date": d, "lat": float(r["latitude"]), "lng": float(r["longitude"])})
+    deduped, duplicates = _dedupe(usable)
+    log.append(step(
+        name, "clean", len(rows), len(deduped), removed=dropped + duplicates,
+        note=f"removed: no date{removed_note}; the same fire twice (same day, within {SAME_INCIDENT_M} m)",
+        unusable=dropped, duplicates=duplicates,
+    ))
+    by = Counter(r["precision"] for r in deduped)
+    for r in deduped:
+        r["use_for_kde"] = r["precision"] in ("barangay", "street")
+    log.append(step(
+        name, "geocode", len(deduped), len(deduped),
+        note="placed by place_fires.py: a named barangay at its centre; a TXTFIRE street found on "
+        "OpenStreetMap and kept only inside its own district; else the district's centre. Barangay and street "
+        "positions go to the KDE; district and city positions only tell the LSTM a fire happened that day",
+        placed_by=dict(by), placed_by_method=dict(Counter(r["placed_by"] for r in deduped)),
+    ))
+    covered = [r for r in deduped if any(a <= r["date"] <= b for a, b in coverage)]
+    log.append(step(
+        name, "time-align", len(deduped), len(covered), removed=len(deduped) - len(covered),
+        note="kept the days this source covers: " + ", ".join(f"{a} to {b}" for a, b in coverage),
+    ))
+    return covered
+
+
+def prepare_fires_v2(log, with_txtfire):
+    coverage = COVERAGE["fire"]
+    fires = _placed_rows(
+        DATA / "manila_fire_dromic_placed.csv", "incidents: fire (DSWD DROMIC)", log, coverage,
+        "every DROMIC report of a fire in the City of Manila (fires that affected families), 2017 to 2026",
+    )
+    if not with_txtfire:
+        return fires
+    alerts = _placed_rows(
+        DATA / "manila_fire_txtfire_placed.csv", "incidents: fire (TXTFIRE alerts)", log, coverage,
+        "TXTFIRE alerts grouped into fires (collect_txtfire.py) that reached an alarm level or were put out; "
+        "alerts never verified or called false alarms were left out by place_fires.py "
+        "(see manila_fire_txtfire.csv)",
+    )
+    merged, same = list(fires), 0
+    for a in alerts:
+        match = any(
+            f["date"] == a["date"] and (
+                _metres((f["lat"], f["lng"]), (a["lat"], a["lng"])) <= SAME_FIRE_ACROSS_SOURCES_M
+                or ("district" in (f["precision"], a["precision"]) and f.get("district") == a.get("district"))
+            )
+            for f in fires
+        )
+        if match:
+            same += 1
+        else:
+            merged.append(a)
+    log.append(step(
+        "incidents: fire (DROMIC + TXTFIRE)", "merge sources", len(fires) + len(alerts), len(merged),
+        corrected=same,
+        note=f"a TXTFIRE fire on the same day as a DROMIC fire within {SAME_FIRE_ACROSS_SOURCES_M} m (or in the "
+        "same district when one has only a district) is the same fire, counted once (corrected: merged)",
+    ))
+    return sorted(merged, key=lambda r: r["date"])
+
+
+def prepare_floods_v2(log, locator):
+    corners = prepare_floods(log, locator)  # the news corners and flood days, logged as before
+    events = read_csv(DATA / "manila_weather_events_dromic.csv")
+    name = "incidents: flood (DSWD DROMIC weather events)"
+    log.append(step(
+        name, "read", len(events), len(events),
+        note="every DROMIC monsoon, typhoon, low pressure, or flooding event not named after another province "
+        "(collect_dromic.py); the latest report of each was searched for the City of Manila",
+    ))
+    in_manila = [e for e in events if e["manila_in_report"] == "yes" and parse_day(e["start_date"])]
+    log.append(step(
+        name, "clean", len(events), len(in_manila), removed=len(events) - len(in_manila),
+        note="removed: Manila not in the latest report, or the report could not be read (2016 and 2017 "
+        "reports were Google Docs that no longer open)",
+        manila_not_named=sum(1 for e in events if e["manila_in_report"] == "no"),
+        unread=sum(1 for e in events if e["manila_in_report"] == "unread"),
+    ))
+    barangays = {}
+    with (FORECAST.parent.parent / "supabase" / "data" / "manila_barangays.csv").open(encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            barangays[r["name"]] = (float(r["center_latitude"]), float(r["center_longitude"]))
+    records, placed = [], 0
+    for e in in_manila:
+        d = parse_day(e["start_date"])
+        names = [f"Barangay {b}" for b in e["manila_barangays"].split(";") if f"Barangay {b}" in barangays]
+        if names:
+            for n in names:
+                lat, lng = barangays[n]
+                records.append({"incident_id": e["event_id"] + "-" + n.split()[-1], "date": d, "lat": lat,
+                                "lng": lng, "precision": "barangay", "barangay": n, "use_for_kde": True,
+                                "source_url": e["source_url"]})
+                placed += 1
+        else:
+            records.append({"incident_id": e["event_id"], "date": d, "lat": None, "lng": None, "precision": "city",
+                            "barangay": "", "use_for_kde": False, "source_url": e["source_url"]})
+    log.append(step(
+        name, "geocode", len(in_manila), len(records),
+        note="a report that names Manila's affected barangays gives one record per barangay at its centre; "
+        "the others name only how many barangays were affected: one city-wide record (LSTM only)",
+        barangay_records=placed, city_wide_events=sum(1 for r in records if r["precision"] == "city"),
+    ))
+    log.append(step(
+        name, "time-align", len(records), len(records),
+        note="dated by the event's first day as DSWD titled it (the day the monsoon or storm began to affect "
+        "families); later days of a long event are not marked",
+    ))
+    covered = [r for r in records if any(a <= r["date"] <= b for a, b in COVERAGE["flood"])]
+    days_in_news = {r["date"] for r in corners}
+    added = [r for r in covered if r["use_for_kde"] or r["date"] not in days_in_news]
+    log.append(step(
+        "incidents: flood (news + DROMIC)", "merge and time-align", len(corners) + len(records),
+        len(corners) + len(added), corrected=len(covered) - len(added), removed=len(records) - len(covered),
+        note="a DROMIC city-wide day already in the news records counts once (corrected: merged); kept "
+        + ", ".join(f"{a} to {b}" for a, b in COVERAGE["flood"]),
+    ))
+    return sorted(corners + added, key=lambda r: r["date"])
+
+
 # --- Windows ----------------------------------------------------------------
 
 
@@ -445,15 +643,45 @@ def write_csv(path, rows, fields):
         writer.writerows(rows)
 
 
+DATA_NOTES = {
+    "news": "PUBLIC RECORDS standing in for PAGASA's and MDRRMD's: GSMaP (JAXA) and ERA5 (Open-Meteo) "
+    "weather, news reports of signals, fires (Asia Fire News), and floods (MMDA lists in the news). "
+    "Real, but incomplete; see ml/README.md",
+    "dromic": "PUBLIC RECORDS standing in for PAGASA's and MDRRMD's: GSMaP (JAXA) and ERA5 (Open-Meteo) "
+    "weather, signals from news and IBTrACS storm tracks, fires from DSWD DROMIC (fires that affected "
+    "families), floods from DSWD DROMIC events and MMDA lists in the news. Real, but incomplete; see "
+    "docs/OBJECTIVE-2-RESULTS.md",
+    "dromic_txtfire": "As dromic, with TXTFIRE's confirmed fire alerts added and fires limited to the months "
+    "TXTFIRE posted alerts. See docs/OBJECTIVE-2-RESULTS.md",
+}
+
+
 def main():
+    import argparse
+
+    global COVERAGE, BUILD, OUT_DIR
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--variant", choices=list(VARIANTS), default="news")
+    variant = parser.parse_args().variant
+    config = VARIANTS[variant]
+    if variant != "news":
+        BUILD = FORECAST / "build" / "real" / variant
+        OUT_DIR = DATA / "prepared" / variant
+        fire_cover = txtfire_active() if config["fire"] == "dromic+txtfire" else [(V2_START, PERIOD[1])]
+        COVERAGE = {"fire": fire_cover, "flood": [(V2_START, PERIOD[1])]}
+
     log = []
-    weather = prepare_weather(log)
+    weather = prepare_weather(log, track_signals=config["track_signals"])
     locator = Locator()
-    incidents = {"fire": prepare_fires(log, locator), "flood": prepare_floods(log, locator)}
+    if variant == "news":
+        incidents = {"fire": prepare_fires(log, locator), "flood": prepare_floods(log, locator)}
+    else:
+        incidents = {"fire": prepare_fires_v2(log, config["fire"] == "dromic+txtfire"),
+                     "flood": prepare_floods_v2(log, locator)}
     log.append(step(
         "incidents: storm surge", "read", 0, 0,
-        note="no storm surge incident in Manila was found in the news for these years: the LSTM cannot be "
-        "trained for it; its map comes from UP NOAH's storm surge zones (noah_barangays.py) instead",
+        note="no storm surge incident in Manila was found in the news or in DROMIC for these years: the LSTM "
+        "cannot be trained for it; its map comes from UP NOAH's storm surge zones (noah_barangays.py) instead",
     ))
 
     write_csv(OUT_DIR / "manila_weather_prepared.csv", weather,
@@ -474,9 +702,8 @@ def main():
                "use_for_kde", "source_url"])
 
     summary = {
-        "data": "PUBLIC RECORDS standing in for PAGASA's and MDRRMD's: GSMaP (JAXA) and ERA5 (Open-Meteo) "
-        "weather, news reports of signals, fires (Asia Fire News), and floods (MMDA lists in the news). "
-        "Real, but incomplete; see ml/README.md",
+        "variant": variant,
+        "data": DATA_NOTES[variant],
         "window_days": WINDOW,
         "horizon_days": HORIZON,
         "split": list(SPLIT),
@@ -485,7 +712,8 @@ def main():
         "steps": log,
         "hazards": {h: build_hazard(h, weather, rows) for h, rows in incidents.items()},
     }
-    (HERE / "prep_summary_real.json").write_text(json.dumps(summary, indent=2, default=str) + "\n", encoding="utf-8")
+    name = "prep_summary_real.json" if variant == "news" else f"prep_summary_{variant}.json"
+    (HERE / name).write_text(json.dumps(summary, indent=2, default=str) + "\n", encoding="utf-8")
     for s in log:
         print(f"{s['dataset']:<52} {s['step']:<18} in {s['in']:>5}  kept {s['retained']:>5}  "
               f"corrected {s['corrected']:>4}  removed {s['removed']:>4}")

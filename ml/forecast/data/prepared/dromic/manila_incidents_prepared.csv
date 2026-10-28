@@ -1,0 +1,263 @@
+incident_id,date,hazard,latitude,longitude,precision,barangay,use_for_kde,source_url
+DROMIC-fire-incident-in-sampaloc-manila-04-jan-2018,2018-01-04,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-sampaloc-manila-04-jan-2018/
+DROMIC-fire-incident-in-brgy-777-sta-ana-manila-09-march-2018,2018-03-09,fire,14.57626,121.00694,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-brgy-777-sta-ana-manila-09-march-2018/
+DROMIC-fire-incident-at-heronimo-st-sampaloc-manila-17-june-2018,2018-06-17,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-at-heronimo-st-sampaloc-manila-17-june-2018/
+DROMIC-fire-incident-in-brgy-402-sampaloc-manila-01-jul-2018,2018-07-01,fire,14.60233,120.99226,barangay,Barangay 402,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-402-sampaloc-manila-01-jul-2018/
+DROMIC-fire-incident-in-brgy-91-tondo-manila-27-aug-2018,2018-08-27,fire,14.61866,120.96874,barangay,Barangay 91,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-91-tondo-manila-27-aug-2018/
+DROMIC-fire-incident-in-brgy-105-tondo-manila-19-october-2018,2018-10-19,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-19-october-2018/
+DROMIC-fire-incident-in-valenzuela-ext-sta-mesa-manila-31-oct-2018,2018-10-31,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-valenzuela-ext-sta-mesa-manila-31-oct-2018/
+DROMIC-fire-incident-in-brgy-849-pandacan-manila-03-november-2018,2018-11-03,fire,14.58445,121.00031,barangay,Barangay 849,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-849-pandacan-manila-03-november-2018/
+DROMIC-fire-incident-in-brgy-393-quiapo-manila-04-november-2018,2018-11-04,fire,14.59869,120.98654,barangay,Barangay 393,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-393-quiapo-manila-04-november-2018/
+DROMIC-fire-incident-in-brgy-485-maria-clara-st-sampaloc-manila-7-n,2018-11-07,fire,14.61722,120.99120,barangay,Barangay 485,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-485-maria-clara-st-sampaloc-manila-7-nov-2018/
+DROMIC-fire-incident-in-brgy-211-manila-15-feb-2019,2019-02-13,fire,14.62663,120.98127,barangay,Barangay 211,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-211-manila-15-feb-2019/
+DROMIC-fire-incident-in-parola-tondo-manila-22-feb-2019,2019-02-22,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-parola-tondo-manila-22-feb-2019/
+DROMIC-fire-incident-in-leveriza-malate-manila-22-apr-2019,2019-04-22,fire,14.56978,120.99239,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-leveriza-malate-manila-22-apr-2019/
+DROMIC-fire-incident-in-sandico-st-alcaraz-tondo-manila-30-apr-2019,2019-04-30,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-sandico-st-alcaraz-tondo-manila-30-apr-2019/
+DROMIC-fire-incident-in-brgy-229-sta-cruz-manila-city-01-july-2019,2019-05-27,fire,14.61817,120.97725,barangay,Barangay 229,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-229-sta-cruz-manila-city-01-july-2019/
+DROMIC-fire-incident-in-brgy-310-sta-cruz-manila-city-07-july-2019,2019-07-07,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-sta-cruz-manila-city-07-july-2019/
+DROMIC-fire-incident-in-dona-aurora-brgy-39-tondo-manila-13-july-20,2019-07-13,fire,14.60605,120.96042,barangay,Barangay 39,yes,https://dromic.dswd.gov.ph/fire-incident-in-dona-aurora-brgy-39-tondo-manila-13-july-2019/
+DROMIC-fire-incident-in-brgy-662-paco-manila-06-september-2019,2019-09-06,fire,14.58838,120.99293,barangay,Barangay 662,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-662-paco-manila-06-september-2019/
+DROMIC-fire-incident-in-gagalangin-tondo-manila-11-september-2019,2019-09-11,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-gagalangin-tondo-manila-11-september-2019/
+DROMIC-fire-incident-at-felix-huertas-rd-cor-san-lazaro-st-sta-cruz,2019-09-14,fire,14.61568,120.98332,district,,no,https://dromic.dswd.gov.ph/fire-incident-at-felix-huertas-rd-cor-san-lazaro-st-sta-cruz-manila-13-august-2019/
+DROMIC-fire-incident-in-brgy-779-manila-city-08-october-2019,2019-10-08,fire,14.57458,121.00853,barangay,Barangay 779,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-779-manila-city-08-october-2019/
+DROMIC-fire-incident-in-brgy-334-manila-city-22-oct-2019,2019-10-22,fire,14.61212,120.98194,barangay,Barangay 334,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-334-manila-city-22-oct-2019/
+DROMIC-fire-incident-in-n-zamora-street-tondo-manila-city-17-novemb,2019-11-17,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-n-zamora-street-tondo-manila-city-17-november-2019/
+DROMIC-fire-incident-in-brgy-717-and-718-malate-manila-19-dec-2019,2019-12-19,fire,14.56544,120.99173,barangay,Barangay 717,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-717-and-718-malate-manila-19-dec-2019/
+DROMIC-fire-incident-in-brgy-833-pandacan-manila-28-dec-2019,2019-12-28,fire,14.59485,121.00391,barangay,Barangay 833,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-833-pandacan-manila-28-dec-2019/
+DROMIC-fire-incident-in-brgy-20-parola-tondo-manila-29-dec-2019,2019-12-29,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-parola-tondo-manila-29-dec-2019/
+DROMIC-fire-incident-in-brgy-776-sta-ana-manila-01-jan-2020,2020-01-01,fire,14.57512,121.00936,barangay,Barangay 776,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-776-sta-ana-manila-01-jan-2020/
+DROMIC-fire-incident-in-brgys-222-and-230-manila-city-16-jan-2020,2020-01-16,fire,14.61862,120.97654,barangay,Barangay 222,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-222-and-230-manila-city-16-jan-2020/
+DROMIC-fire-incident-in-brgy-210-tondo-manila-21-jan-2020,2020-01-21,fire,14.62668,120.98250,barangay,Barangay 210,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-210-tondo-manila-21-jan-2020/
+DROMIC-fire-incident-in-brgy-649-manila-city-04-feb-2020,2020-02-05,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-04-feb-2020/
+DROMIC-fire-incident-in-brgy-286-delpan-manila-15-apr-2020,2020-04-15,fire,14.59713,120.96732,barangay,Barangay 286,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-286-delpan-manila-15-apr-2020/
+DROMIC-fire-incident-in-brgy-105-tondo-manila-18-apr-2020,2020-04-18,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-18-apr-2020/
+DROMIC-fire-incident-in-brgy-60-tondo-manila-26-apr-2020,2020-04-26,fire,14.61354,120.97053,barangay,Barangay 60,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-60-tondo-manila-26-apr-2020/
+DROMIC-fire-incident-in-brgy-91-tondo-manila-city-30-april-2020,2020-04-30,fire,14.61866,120.96874,barangay,Barangay 91,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-91-tondo-manila-city-30-april-2020/
+DROMIC-fire-incident-in-brgy-649-tondo-manila-city-16-jul-2020,2020-07-16,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-tondo-manila-city-16-jul-2020/
+DROMIC-fire-incident-in-brgy-401-sampaloc-manila-city-30-september-,2020-09-30,fire,14.60399,120.99213,barangay,Barangay 401,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-401-sampaloc-manila-city-30-september-2020/
+DROMIC-fire-incident-in-brgy-628-sta-mesa-manila-02-nov-2020,2020-11-02,fire,14.59868,121.00639,barangay,Barangay 628,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-628-sta-mesa-manila-02-nov-2020/
+DROMIC-fire-incident-in-brgys-823-and-824-paco-manila-city-16-dec-2,2020-12-16,fire,14.58264,120.99968,barangay,Barangay 823,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-823-and-824-paco-manila-city-16-dec-2020/
+DROMIC-fire-incident-in-parola-tondo-manila-city-20-february-2021,2021-02-20,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-parola-tondo-manila-city-20-february-2021/
+DROMIC-fire-incident-in-brgy-719-vito-cruz-st-malate-manila-city-09,2021-03-09,fire,14.56189,120.99062,barangay,Barangay 719,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-719-vito-cruz-st-malate-manila-city-09-mar-2021/
+DROMIC-fire-incident-in-brgys-574-and-576-manila-city-13-march-2021,2021-03-13,fire,14.60581,121.00440,barangay,Barangay 574,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-574-and-576-manila-city-13-march-2021/
+DROMIC-fire-incident-in-brgy-17-manila-city-23-apr-2021terminated,2021-04-23,fire,14.60161,120.96379,barangay,Barangay 17,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-17-manila-city-23-apr-2021terminated/
+DROMIC-fire-incident-in-brgy-51-manila-city-30-apr-2021,2021-04-27,fire,14.61109,120.97195,barangay,Barangay 51,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-51-manila-city-30-apr-2021/
+DROMIC-fire-incident-in-brgy-48-manila-city-30-apr-2021,2021-04-28,fire,14.60840,120.97138,barangay,Barangay 48,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-48-manila-city-30-apr-2021/
+DROMIC-fire-incident-in-brgys-25-and-26-tondo-manila-10-may-2021,2021-05-10,fire,14.60468,120.96529,barangay,Barangay 25,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-25-and-26-tondo-manila-10-may-2021/
+DROMIC-fire-incident-in-brgy-650-zone-68-manila-city-26-may-2021,2021-05-26,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-650-zone-68-manila-city-26-may-2021/
+DROMIC-fire-incident-in-brgys-275-and-286-manila-city-12-june-2021,2021-06-12,fire,14.59742,120.96502,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-275-and-286-manila-city-12-june-2021/
+DROMIC-fire-incident-in-brgy-767-manila-city15-july-2021,2021-07-15,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-767-manila-city15-july-2021/
+DROMIC-fire-incident-in-brgy-649-manila-city-14-oct-2021,2021-10-14,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-14-oct-2021/
+DROMIC-fire-incident-in-brgy-775-manila-city-07-dec-2021,2021-12-07,fire,14.57193,121.00672,barangay,Barangay 775,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-775-manila-city-07-dec-2021/
+DROMIC-fire-incident-in-brgy-656-manila-city-12-jan-2022,2022-01-12,fire,14.59404,120.97234,barangay,Barangay 656,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-656-manila-city-12-jan-2022/
+DROMIC-fire-incident-in-baseco-compound-brgy-649-manila-city-04-mar,2022-03-04,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-brgy-649-manila-city-04-mar-2022/
+DROMIC-fire-incident-in-brgy-369-sta-cruz-manila-city-03-apr-2022,2022-04-03,fire,14.62318,120.98708,barangay,Barangay 369,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-369-sta-cruz-manila-city-03-apr-2022/
+DROMIC-fire-incident-in-brgy-129-manila-city-19-apr-2022,2022-04-18,fire,14.62996,120.96345,barangay,Barangay 129,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-129-manila-city-19-apr-2022/
+DROMIC-fire-incident-in-brgy-215-tondo-manila-city-06-may-2022,2022-05-06,fire,14.62637,120.97795,barangay,Barangay 215,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-215-tondo-manila-city-06-may-2022/
+DROMIC-fire-incident-in-brgy-310-sta-cruz-manila-city-10-may-2022,2022-05-10,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-sta-cruz-manila-city-10-may-2022/
+DROMIC-fire-incident-in-brgy-649-manila-city-19-may-2022terminated,2022-05-19,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-19-may-2022terminated/
+DROMIC-fire-incident-in-baseco-compound-tondo-manila-city-21-may-20,2022-05-21,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-tondo-manila-city-21-may-2022/
+DROMIC-fire-incident-in-brgy-20-manila-city-08-jun-2022,2022-06-08,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-manila-city-08-jun-2022/
+DROMIC-fire-incident-in-brgy-148-zone-13-tondo-manila-city-05-july-,2022-07-05,fire,14.62417,120.96968,barangay,Barangay 148,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-148-zone-13-tondo-manila-city-05-july-2022/
+DROMIC-fire-incident-in-brgy-311-sta-cruz-manila-02-august-2022,2022-08-02,fire,14.60669,120.98465,barangay,Barangay 311,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-311-sta-cruz-manila-02-august-2022/
+DROMIC-fire-incident-in-brgy-636-zone-64-sta-mesa-manila-city-21-au,2022-08-21,fire,14.59709,121.00141,barangay,Barangay 636,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-636-zone-64-sta-mesa-manila-city-21-aug-2022/
+DROMIC-fire-incident-in-brgy-633-manila-city-30-aug-2022,2022-08-30,fire,14.59990,121.00249,barangay,Barangay 633,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-633-manila-city-30-aug-2022/
+DROMIC-fire-incident-in-brgy-147-manila-city-07-sep-2022,2022-09-07,fire,14.62322,120.96848,barangay,Barangay 147,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-147-manila-city-07-sep-2022/
+DROMIC-fire-incident-in-brgy-773-manila-city-07-sep-2022,2022-09-07,fire,14.57442,121.00669,barangay,Barangay 773,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-773-manila-city-07-sep-2022/
+DROMIC-fire-incident-in-brgy-13-manila-city-08-sep-2022,2022-09-08,fire,14.60309,120.96598,barangay,Barangay 13,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-13-manila-city-08-sep-2022/
+DROMIC-fire-incident-in-brgy-439-sampaloc-manila-city-11-sep-2022,2022-09-11,fire,14.60599,120.99884,barangay,Barangay 439,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-439-sampaloc-manila-city-11-sep-2022/
+DROMIC-fire-incident-in-brgy-662-zone-71-paco-manila-city-14-sep-20,2022-09-14,fire,14.58838,120.99293,barangay,Barangay 662,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-662-zone-71-paco-manila-city-14-sep-2022/
+DROMIC-fire-incident-in-brgy-128-manila-city-13-nov-2022,2022-11-12,fire,14.63204,120.95273,barangay,Barangay 128,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-128-manila-city-13-nov-2022/
+DROMIC-fire-incident-in-brgy-450-zone-45-manila-city-30-nov-2022,2022-11-30,fire,14.61129,120.99710,barangay,Barangay 450,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-450-zone-45-manila-city-30-nov-2022/
+DROMIC-fire-incident-in-brgy-387-manila-city-29-dec-2022,2022-12-29,fire,14.59714,120.98769,barangay,Barangay 387,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-387-manila-city-29-dec-2022/
+DROMIC-fire-incident-in-brgy-254-tondo-manila-city-31-dec-2022,2022-12-31,fire,14.61188,120.97706,barangay,Barangay 254,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-254-tondo-manila-city-31-dec-2022/
+DROMIC-fire-incident-in-brgy-35-manila-city-21-jan-2023,2023-01-21,fire,14.60636,120.96473,barangay,Barangay 35,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-35-manila-city-21-jan-2023/
+DROMIC-fire-incident-in-brgy-739-manila-city-24-jan-2023,2023-01-24,fire,14.57162,120.99794,barangay,Barangay 739,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-739-manila-city-24-jan-2023/
+DROMIC-fire-incident-in-brgy-209-manila-city-30-jan-2023,2023-01-30,fire,14.62475,120.98165,barangay,Barangay 209,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-209-manila-city-30-jan-2023/
+DROMIC-fire-incident-in-brgy-316-sta-cruz-manila-10-feb-2023,2023-02-10,fire,14.60866,120.98271,barangay,Barangay 316,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-316-sta-cruz-manila-10-feb-2023/
+DROMIC-fire-incident-in-brgy-sta-cruz-manila-city-15-feb-2023,2023-02-15,fire,14.61568,120.98332,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-brgy-sta-cruz-manila-city-15-feb-2023/
+DROMIC-fire-incident-in-brgy-649-manila-city-17-feb-2023,2023-02-17,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-17-feb-2023/
+DROMIC-fire-incident-in-brgy-108-manila-city-08-march-2023,2023-03-08,fire,14.61904,120.96257,barangay,Barangay 108,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-108-manila-city-08-march-2023/
+DROMIC-fire-incident-in-brgy-275-manila-city-13-mar-2023,2023-03-13,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-manila-city-13-mar-2023/
+DROMIC-fire-incident-in-brgy-767-san-andres-manila-city-19-march-20,2023-03-19,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-767-san-andres-manila-city-19-march-2023/
+DROMIC-fire-incident-in-brgy-317-manila-city-21-mar-2023,2023-03-21,fire,14.61131,120.98529,barangay,Barangay 317,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-317-manila-city-21-mar-2023/
+DROMIC-fire-incident-in-brgy-730-malate-manila-city-28-mar-2023,2023-03-28,fire,14.56256,120.99755,barangay,Barangay 730,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-730-malate-manila-city-28-mar-2023/
+DROMIC-fire-incident-in-brgy-387-quiapo-manila-city-30-mar-2023,2023-03-30,fire,14.59714,120.98769,barangay,Barangay 387,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-387-quiapo-manila-city-30-mar-2023/
+DROMIC-fire-incident-in-brgy-783-sta-ana-manila-city-05-may-2023,2023-05-05,fire,14.57514,121.01124,barangay,Barangay 783,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-783-sta-ana-manila-city-05-may-2023/
+DROMIC-fire-incident-in-brgy-310-sta-cruz-manila-city-14-may-2023,2023-05-14,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-sta-cruz-manila-city-14-may-2023/
+DROMIC-fire-incident-in-brgy-418-sampaloc-manila-city-06-july-2023,2023-07-06,fire,14.60237,121.00060,barangay,Barangay 418,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-418-sampaloc-manila-city-06-july-2023/
+DROMIC-fire-incident-in-brgy-650-port-area-manila-city-05-aug-2023,2023-08-05,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-650-port-area-manila-city-05-aug-2023/
+DROMIC-fire-incident-in-brgy-384-quiapo-manila-city-06-sept-2023,2023-09-06,fire,14.59583,120.98412,barangay,Barangay 384,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-384-quiapo-manila-city-06-sept-2023/
+DROMIC-fire-incident-in-brgy-120-manila-city-09-oct-2023,2023-10-09,fire,14.61308,120.96229,barangay,Barangay 120,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-120-manila-city-09-oct-2023/
+DROMIC-fire-incident-in-brgy-846-manila-city-19-nov-2023,2023-11-19,fire,14.58922,121.00223,barangay,Barangay 846,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-846-manila-city-19-nov-2023/
+DROMIC-fire-incident-in-brgy-123-tondo-manila-city-03-dec-2023,2023-12-03,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-manila-city-03-dec-2023/
+DROMIC-fire-incident-in-brgy-105-happyland-tondo-manila-city-12-dec,2023-12-12,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-happyland-tondo-manila-city-12-dec-2023/
+DROMIC-fire-incident-in-tondo-manila-city-19-dec-2023,2023-12-19,fire,14.61963,120.96493,barangay,Barangay 95,yes,https://dromic.dswd.gov.ph/fire-incident-in-tondo-manila-city-19-dec-2023/
+DROMIC-fire-incident-in-brgy-262-tondo-manila-11-jan-2024,2024-01-11,fire,14.60898,120.97839,barangay,Barangay 262,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-262-tondo-manila-11-jan-2024/
+DROMIC-fire-incident-in-pandacan-manila-city-11-jan-2024,2024-01-11,fire,14.58780,121.00466,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-pandacan-manila-city-11-jan-2024/
+DROMIC-fire-incident-in-brgy-101-tondo-manila-city-28-jan-2024,2024-01-28,fire,14.62746,120.96070,barangay,Barangay 101,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-101-tondo-manila-city-28-jan-2024/
+DROMIC-fire-incident-in-brgy-310-manila-city-31-jan-2024,2024-01-31,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-manila-city-31-jan-2024/
+DROMIC-fire-incident-in-brgy-330-sta-cruz-manila-city-15-feb-2024,2024-02-15,fire,14.60759,120.97994,barangay,Barangay 330,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-330-sta-cruz-manila-city-15-feb-2024/
+DROMIC-fire-incident-in-brgy-52-tondo-manila-city-21-feb-2024,2024-02-21,fire,14.61433,120.97142,barangay,Barangay 52,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-52-tondo-manila-city-21-feb-2024/
+DROMIC-fire-incident-in-brgy-598-manila-city-21-feb-2024,2024-02-21,fire,14.60006,121.02041,barangay,Barangay 598,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-598-manila-city-21-feb-2024/
+DROMIC-fire-incident-in-brgy-256-tondo-manila-city-26-feb-2024,2024-02-26,fire,14.61566,120.97862,barangay,Barangay 256,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-256-tondo-manila-city-26-feb-2024/
+DROMIC-fire-incident-in-brgy-97-tondo-manila-city-march-10-2024,2024-03-10,fire,14.62149,120.96442,barangay,Barangay 97,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-97-tondo-manila-city-march-10-2024/
+DROMIC-fire-incident-in-brgy-87-tondo-manila-city-march-13-2024,2024-03-13,fire,14.61727,120.96829,barangay,Barangay 87,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-87-tondo-manila-city-march-13-2024/
+DROMIC-fire-incident-in-brgy-112-tondo-manila-city-15-march-2024,2024-03-15,fire,14.61734,120.96238,barangay,Barangay 112,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-112-tondo-manila-city-15-march-2024/
+DROMIC-fire-incident-in-brgy-105-tondo-manila-city-21-mar-2024,2024-03-21,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-city-21-mar-2024/
+DROMIC-fire-incident-in-brgy-107-manila-city-24-march-2024,2024-03-24,fire,14.61879,120.95919,barangay,Barangay 107,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-107-manila-city-24-march-2024/
+DROMIC-fire-incident-in-brgy-335-manila-city-05-apr-2024,2024-04-05,fire,14.60764,120.98168,barangay,Barangay 335,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-335-manila-city-05-apr-2024/
+DROMIC-fire-incident-in-brgy-753-san-andres-manila-city-05-apr-2024,2024-04-05,fire,14.56930,120.99847,barangay,Barangay 753,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-753-san-andres-manila-city-05-apr-2024/
+DROMIC-fire-incident-in-brgy-20-manila-city-10-apr-2024,2024-04-10,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-manila-city-10-apr-2024/
+DROMIC-fire-incident-in-brgy-275-san-nicolas-manila-city-12-apr-202,2024-04-12,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-san-nicolas-manila-city-12-apr-2024/
+DROMIC-fire-incident-in-brgy-275-san-nicolas-manila-city-23-apr-202,2024-04-23,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-san-nicolas-manila-city-23-apr-2024/
+DROMIC-fire-incident-in-brgy-125-tondo-manila-city-01-june-2024,2024-06-01,fire,14.63460,120.96683,barangay,Barangay 125,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-125-tondo-manila-city-01-june-2024/
+DROMIC-fire-incident-in-brgy-351-sta-cruz-manila-city-09-jun-2024,2024-06-09,fire,14.61990,120.98820,barangay,Barangay 351,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-351-sta-cruz-manila-city-09-jun-2024/
+DROMIC-fire-incident-in-brgy-108-tondo-manila-city-13-jun-2024termi,2024-06-13,fire,14.61904,120.96257,barangay,Barangay 108,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-108-tondo-manila-city-13-jun-2024terminated/
+DROMIC-fire-incident-in-brgy-58-tondo-manila-16-jun-2024,2024-06-16,fire,14.61225,120.97043,barangay,Barangay 58,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-58-tondo-manila-16-jun-2024/
+DROMIC-fire-incident-in-brgy-79-tondo-manila-city-16-jun-2024,2024-06-16,fire,14.61592,120.96532,barangay,Barangay 79,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-79-tondo-manila-city-16-jun-2024/
+DROMIC-fire-incident-in-brgy-234-tondo-manila-city-24-jun-2024,2024-06-24,fire,14.61641,120.97519,barangay,Barangay 234,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-234-tondo-manila-city-24-jun-2024/
+DROMIC-fire-incident-in-brgy-527-sampaloc-manila-city-05-aug-2024,2024-08-05,fire,14.61403,121.00246,barangay,Barangay 527,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-527-sampaloc-manila-city-05-aug-2024/
+DROMIC-fire-incident-in-brgy-417-sampaloc-manila-city-07-aug-2024,2024-08-07,fire,14.60412,120.99994,barangay,Barangay 417,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-417-sampaloc-manila-city-07-aug-2024/
+DROMIC-fire-incident-in-brgy-105-tondo-manila-city-14-sep-2024,2024-09-14,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-city-14-sep-2024/
+DROMIC-fire-incident-in-brgy-775-sta-ana-manila-city-15-oct-2024,2024-10-15,fire,14.57193,121.00672,barangay,Barangay 775,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-775-sta-ana-manila-city-15-oct-2024/
+DROMIC-fire-incident-in-brgy-275-san-nicolas-manila-city-28-oct-202,2024-10-28,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-san-nicolas-manila-city-28-oct-2024/
+DROMIC-fire-incident-in-brgy-128-zone-10-balut-tondo-manila-city-08,2024-11-08,fire,14.63204,120.95273,barangay,Barangay 128,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-128-zone-10-balut-tondo-manila-city-08-nov-2024/
+DROMIC-fire-incident-in-brgy-20-tondo-manila-city-24-nov-2024,2024-11-24,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-tondo-manila-city-24-nov-2024/
+DROMIC-fire-incident-in-sampaloc-manila-city-24-nov-2024,2024-11-24,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-sampaloc-manila-city-24-nov-2024/
+DROMIC-fire-incident-in-tondo-manila-city-25-nov-2024,2024-11-25,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-manila-city-25-nov-2024/
+DROMIC-fire-incident-in-brgy-310-santa-cruz-manila-city-27-nov-2024,2024-11-27,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-santa-cruz-manila-city-27-nov-2024/
+DROMIC-fire-incident-in-brgy-774-san-andres-bukid-manila-city-04-de,2024-12-04,fire,14.57553,121.00664,barangay,Barangay 774,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-774-san-andres-bukid-manila-city-04-dec-2024/
+DROMIC-fire-incident-in-brgy-218-tondo-manila-city-12-dec-2024,2024-12-12,fire,14.62286,120.97572,barangay,Barangay 218,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-218-tondo-manila-city-12-dec-2024/
+DROMIC-fire-incident-in-brgy-123-tondo-manila-city-06-jan-2025,2025-01-06,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-manila-city-06-jan-2025/
+DROMIC-fire-incident-in-brgy-458-sampaloc-manila-city-16-jan-2025,2025-01-16,fire,14.60596,120.99266,barangay,Barangay 458,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-458-sampaloc-manila-city-16-jan-2025/
+DROMIC-fire-incident-in-brgy-459-sampaloc-manila-city-18-jan-2025,2025-01-18,fire,14.60743,120.99151,barangay,Barangay 459,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-459-sampaloc-manila-city-18-jan-2025/
+DROMIC-fire-incident-in-brgy-20-tondo-manila-city-23-jan-2025,2025-01-23,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-tondo-manila-city-23-jan-2025/
+DROMIC-fire-incident-in-brgy-91-tondo-manila-city-28-jan-2025,2025-01-28,fire,14.61866,120.96874,barangay,Barangay 91,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-91-tondo-manila-city-28-jan-2025/
+DROMIC-fire-incident-in-brgy-353-santa-cruz-manila-city-14-feb-2025,2025-02-14,fire,14.61736,120.98134,barangay,Barangay 353,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-353-santa-cruz-manila-city-14-feb-2025/
+DROMIC-fire-incident-in-brgy-317-sta-cruz-manila-city-08-mar-2025,2025-03-08,fire,14.61131,120.98529,barangay,Barangay 317,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-317-sta-cruz-manila-city-08-mar-2025/
+DROMIC-fire-incident-in-brgy-602-sta-mesa-manila-city-12-mar-2025,2025-03-12,fire,14.59613,121.02376,barangay,Barangay 602,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-602-sta-mesa-manila-city-12-mar-2025/
+DROMIC-fire-incident-in-baseco-compound-port-area-tondo-manila-city,2025-03-14,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-port-area-tondo-manila-city-14-mar-2025/
+DROMIC-fire-incident-in-brgy-118-tondo-manila-city-23-apr-2025,2025-04-23,fire,14.61307,120.95993,barangay,Barangay 118,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-118-tondo-manila-city-23-apr-2025/
+DROMIC-fire-incident-in-brgy-123-tondo-manila-city-23-apr-2025,2025-04-23,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-manila-city-23-apr-2025/
+DROMIC-fire-incident-in-brgy-650-tondo-manila-city-23-apr-2025,2025-04-23,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-650-tondo-manila-city-23-apr-2025/
+DROMIC-fire-incident-in-brgy-767-san-andres-bukid-manila-city-28-ap,2025-04-28,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-767-san-andres-bukid-manila-city-28-apr-2025/
+DROMIC-fire-incident-in-brgy-595-and-596-sta-mesa-manila-city-02-ma,2025-05-02,fire,14.60196,121.01780,barangay,Barangay 595,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-595-and-596-sta-mesa-manila-city-02-may-2025/
+DROMIC-fire-incident-in-brgy-106-tondo-manila-city-18-may-2025,2025-05-18,fire,14.62474,120.96160,barangay,Barangay 106,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-106-tondo-manila-city-18-may-2025/
+DROMIC-fire-incident-in-brgy-628-sta-mesa-manila-city-19-may-2025,2025-05-19,fire,14.59868,121.00639,barangay,Barangay 628,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-628-sta-mesa-manila-city-19-may-2025/
+DROMIC-fire-incident-in-brgy-384-quiapo-manila-city-04-jun-2025,2025-06-04,fire,14.59583,120.98412,barangay,Barangay 384,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-384-quiapo-manila-city-04-jun-2025/
+DROMIC-fire-incident-in-brgy-773-san-andres-bukid-manila-city-26-ju,2025-06-26,fire,14.57442,121.00669,barangay,Barangay 773,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-773-san-andres-bukid-manila-city-26-jun-2025/
+DROMIC-fire-incident-in-brgy-439-sampaloc-manila-city-01-jul-2025,2025-07-01,fire,14.60599,120.99884,barangay,Barangay 439,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-439-sampaloc-manila-city-01-jul-2025/
+DROMIC-fire-incident-in-sampaloc-manila-city-02-jul-2025,2025-07-02,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-sampaloc-manila-city-02-jul-2025/
+DROMIC-fire-incident-in-brgy-420-sampaloc-manila-city-03-jul-2025,2025-07-03,fire,14.60163,120.99922,barangay,Barangay 420,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-420-sampaloc-manila-city-03-jul-2025/
+DROMIC-fire-incident-in-brgy-375-sta-cruz-manila-city-04-jul-2025,2025-07-04,fire,14.62931,120.98361,barangay,Barangay 375,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-375-sta-cruz-manila-city-04-jul-2025/
+DROMIC-fire-incident-in-brgy-129-tondo-city-of-manila-05-jul-2025,2025-07-05,fire,14.62996,120.96345,barangay,Barangay 129,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-129-tondo-city-of-manila-05-jul-2025/
+DROMIC-fire-incident-in-brgy-93-tondo-manila-city-29-jul-2025,2025-07-29,fire,14.62041,120.96662,barangay,Barangay 93,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-93-tondo-manila-city-29-jul-2025/
+DROMIC-fire-incident-in-brgy-306-quiapo-manila-city-02-aug-2025,2025-08-02,fire,14.59744,120.98212,barangay,Barangay 306,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-306-quiapo-manila-city-02-aug-2025/
+DROMIC-fire-incident-in-brgy-105-tondo-manila-city-06-aug-2025,2025-08-06,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-city-06-aug-2025/
+DROMIC-fire-incident-in-brgy-105-tondo-city-of-manila-13-sep-2025,2025-09-13,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-city-of-manila-13-sep-2025/
+DROMIC-fire-incident-in-tondo-city-of-manila-29-sep-2025,2025-09-29,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-29-sep-2025/
+DROMIC-fire-incident-in-brgy-705-malate-city-of-manila-03-oct-2025,2025-10-03,fire,14.56847,120.98875,barangay,Barangay 705,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-705-malate-city-of-manila-03-oct-2025/
+DROMIC-fire-incident-in-tondo-city-of-manila-17-nov-2025,2025-11-17,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-17-nov-2025/
+DROMIC-fire-incident-in-brgy-123-tondo-city-of-manila-16-dec-2025,2025-12-16,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-city-of-manila-16-dec-2025/
+DROMIC-fire-incident-in-brgy-102-tondo-city-of-manila-04-jan-2026,2026-01-04,fire,14.62299,120.96226,barangay,Barangay 102,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-102-tondo-city-of-manila-04-jan-2026/
+DROMIC-fire-incident-in-brgy-607-city-of-manila-20-jan-2026,2026-01-20,fire,14.59358,121.02478,barangay,Barangay 607,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-607-city-of-manila-20-jan-2026/
+DROMIC-fire-incident-in-brgy-402-sampaloc-city-of-manila-06-feb-202,2026-02-06,fire,14.60233,120.99226,barangay,Barangay 402,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-402-sampaloc-city-of-manila-06-feb-2026/
+DROMIC-fire-incident-in-brgy-61-tondo-city-of-manila-06-feb-2026,2026-02-06,fire,14.61539,120.97039,barangay,Barangay 61,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-61-tondo-city-of-manila-06-feb-2026/
+DROMIC-fire-incident-in-brgy-580-sampaloc-city-of-manila-11-feb-202,2026-02-11,fire,14.60408,121.00736,barangay,Barangay 580,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-580-sampaloc-city-of-manila-11-feb-2026/
+DROMIC-fire-incident-in-brgy-655-city-of-manila-25-feb-2026,2026-02-25,fire,14.59075,120.97367,barangay,Barangay 655,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-655-city-of-manila-25-feb-2026/
+DROMIC-fire-incident-in-brgy-20-tondo-city-of-manila-06-mar-2026,2026-03-06,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-tondo-city-of-manila-06-mar-2026/
+DROMIC-fire-incident-in-brgy-121-tondo-city-of-manila-15-apr-2026,2026-04-15,fire,14.61250,120.96384,barangay,Barangay 121,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-121-tondo-city-of-manila-15-apr-2026/
+DROMIC-fire-incident-in-brgy-262-sta-cruz-city-of-manila-30-apr-202,2026-04-30,fire,14.60898,120.97839,barangay,Barangay 262,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-262-sta-cruz-city-of-manila-30-apr-2026/
+DROMIC-fire-incident-in-brgy-275-binondo-city-of-manila-23-may-2026,2026-05-23,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-binondo-city-of-manila-23-may-2026/
+DROMIC-fire-incident-in-brgy-649-city-of-manila-14-may-2026,2026-05-30,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-city-of-manila-14-may-2026/
+DROMIC-fire-incident-in-brgy-121-tondo-city-of-manila-11-jun-2026,2026-06-11,fire,14.61250,120.96384,barangay,Barangay 121,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-121-tondo-city-of-manila-11-jun-2026/
+DROMIC-fire-incident-in-brgy-50-tondo-city-of-manila-04-jul-2026,2026-07-04,fire,14.61345,120.97234,barangay,Barangay 50,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-50-tondo-city-of-manila-04-jul-2026/
+DROMIC-fire-incident-inbrgy-158-tondo-city-of-manila-06-jul-2026,2026-07-06,fire,14.62086,120.97251,barangay,Barangay 158,yes,https://dromic.dswd.gov.ph/fire-incident-inbrgy-158-tondo-city-of-manila-06-jul-2026/
+DROMIC-fire-incident-in-tondo-city-of-manila-09-jul-2026,2026-07-09,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-09-jul-2026/
+DROMIC-fire-incident-in-brgy-745-city-of-manila-14-jul-2026,2026-07-14,fire,14.56773,120.99842,barangay,Barangay 745,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-745-city-of-manila-14-jul-2026/
+DROMIC-fire-incident-in-tondo-city-of-manila-14-jul-2026,2026-07-14,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-14-jul-2026/
+DROMIC-fire-incident-in-brgy-11-tondo-city-of-manila-19-jul-2026,2026-07-19,fire,14.60176,120.96569,barangay,Barangay 11,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-11-tondo-city-of-manila-19-jul-2026/
+DROMIC-fire-incident-in-brgy-830-city-of-manila-29-jul-2026,2026-07-29,fire,14.59371,120.99837,barangay,Barangay 830,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-830-city-of-manila-29-jul-2026/
+DROMIC-fire-incident-in-brgy-739-malate-city-of-manila-12-aug-2026,2026-08-12,fire,14.57162,120.99794,barangay,Barangay 739,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-739-malate-city-of-manila-12-aug-2026/
+DROMIC-fire-incident-in-brgy-23-city-of-manila-21-sep-2026,2026-09-21,fire,14.59950,120.98420,city,,no,https://dromic.dswd.gov.ph/fire-incident-in-brgy-23-city-of-manila-21-sep-2026/
+FDAY-20180621,2018-06-21,flood,,,city,,no,https://newsinfo.inquirer.net/1003027/flood-alert-list-of-flooded-areas-on-june-21-2018
+DROMIC-effects-of-southwest-monsoon-14-july-2018,2018-07-14,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-14-july-2018/
+FDAY-20180811,2018-08-11,flood,,,city,,no,https://newsinfo.inquirer.net/1020076/mmda-monitors-flooded-metro-roads
+DROMIC-southwest-monsoon-12-aug-2018,2018-08-12,flood,,,city,,no,https://dromic.dswd.gov.ph/southwest-monsoon-12-aug-2018/
+DROMIC-typhoon-ompong-12-sep-2018,2018-09-12,flood,,,city,,no,https://dromic.dswd.gov.ph/typhoon-ompong-12-sep-2018/
+FDAY-20190802,2019-08-02,flood,,,city,,no,https://newsinfo.inquirer.net/1149128/look-flooded-areas-in-metro-manila
+FDAY-20190803,2019-08-03,flood,,,city,,no,https://gmanetwork.com/news/topstories/metro/703329/flooded-areas-in-metro-manila-on-saturday-aug-3-2019/story
+DROMIC-typhoon-rolly-29-oct-2020,2020-10-29,flood,,,city,,no,https://dromic.dswd.gov.ph/typhoon-rolly-29-oct-2020/
+DROMIC-typhoon-ulysses-08-nov-2020,2020-11-08,flood,,,city,,no,https://dromic.dswd.gov.ph/typhoon-ulysses-08-nov-2020/
+DROMIC-effects-of-southwest-monsoon-enhanced-by-typhoon-fabian-22-july-2021,2021-07-22,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-enhanced-by-typhoon-fabian-22-july-2021/
+FDAY-20210723,2021-07-23,flood,,,city,,no,https://www.topgear.com.ph/news/motoring-news/taft-flood-july-2021-gallery-a4354-20210723
+FLD-20210725-001,2021-07-25,flood,14.60971,120.98236,street,Barangay 333,yes,https://www.gmanetwork.com/news/topstories/metro/796691/list-flooded-areas-in-metro-manila-on-sunday-july-25-2021/story/
+DROMIC-effects-of-southwest-monsoon-27-jul-2021,2021-07-27,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-27-jul-2021/
+DROMIC-tropical-depression-jolina-06-sep-2021,2021-09-06,flood,,,city,,no,https://dromic.dswd.gov.ph/tropical-depression-jolina-06-sep-2021/
+DROMIC-severe-tropical-storm-maring07-oct-2021,2021-10-07,flood,,,city,,no,https://dromic.dswd.gov.ph/severe-tropical-storm-maring07-oct-2021/
+FLD-20220808-002,2022-08-08,flood,14.58610,120.98258,street,Barangay 666,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-003,2022-08-08,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-004,2022-08-08,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-005,2022-08-08,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-006,2022-08-08,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+DROMIC-super-typhoon-karding-23-sep-2022,2022-09-23,flood,,,city,,no,https://dromic.dswd.gov.ph/super-typhoon-karding-23-sep-2022/
+DROMIC-low-pressure-area-24-oct-2022,2022-10-24,flood,,,city,,no,https://dromic.dswd.gov.ph/low-pressure-area-24-oct-2022/
+FLD-20221029-007,2022-10-29,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://news.abs-cbn.com/news/10/30/22/some-parts-of-metro-manila-experience-flooding-due-to-paeng
+DROMIC-severe-tropical-storm-egay-21-july-2023,2023-07-21,flood,,,city,,no,https://dromic.dswd.gov.ph/severe-tropical-storm-egay-21-july-2023/
+FLD-20230923-008,2023-09-23,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.philstar.com/headlines/2023/09/24/2298617/floods-hit-metro-manila-roads-2-lpas-monitored
+DROMIC-effects-of-southwest-monsoon-enhanced-by-sty-carina-21-jul-2024,2024-07-21,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-enhanced-by-sty-carina-21-jul-2024/
+FLD-20240724-010,2024-07-24,flood,14.60972,120.99282,street,Barangay 479,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-011,2024-07-24,flood,14.61293,120.99634,street,Barangay 503,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-012,2024-07-24,flood,14.57984,120.97733,street,Barangay 666,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240725-013,2024-07-25,flood,14.60375,120.98192,street,Barangay 313,yes,https://www.gmanetwork.com/news/topstories/metro/914660/flooded-areas-metro-manila-july-25-2024/story/
+DROMIC-effects-of-sts-enteng-and-southwest-monsoon-31-aug-2024,2024-08-31,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-sts-enteng-and-southwest-monsoon-31-aug-2024/
+FDAY-20240903,2024-09-03,flood,,,city,,no,https://www.abs-cbn.com/news/2024/9/3/list-flooded-areas-due-to-sept-3-bad-weather-1223
+FLD-20241025-014,2024-10-25,flood,14.60972,120.99282,street,Barangay 479,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+FLD-20241025-016,2024-10-25,flood,14.61175,120.99507,street,Barangay 475,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+DROMIC-effects-of-southwest-monsoon-and-tropical-depression-crising-17-jul-20,2025-07-17,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-and-tropical-depression-crising-17-jul-2025/
+FLD-20250718-017,2025-07-18,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-018,2025-07-18,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-020,2025-07-18,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250721-021,2025-07-21,flood,14.60972,120.99282,street,Barangay 479,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250721-022,2025-07-21,flood,14.61293,120.99634,street,Barangay 503,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250722-023,2025-07-22,flood,14.60035,120.99100,street,Barangay 416,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-024,2025-07-22,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-029,2025-07-22,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-030,2025-07-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-031,2025-07-22,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-032,2025-07-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-033,2025-07-22,flood,14.55959,120.98715,street,Barangay 719,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-034,2025-07-22,flood,14.57873,120.99836,street,Barangay 682,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-035,2025-07-22,flood,14.61675,120.97733,street,Barangay 229,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-036,2025-07-22,flood,14.60608,120.97486,street,Barangay 259,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250822-037,2025-08-22,flood,14.56432,120.98512,street,Barangay 701,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-038,2025-08-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-040,2025-08-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-041,2025-08-22,flood,14.58614,120.98267,street,Barangay 659,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-042,2025-08-22,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+DROMIC-effects-of-southwest-monsoon-and-low-pressure-area-25-aug-2025,2025-08-24,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-and-low-pressure-area-25-aug-2025/
+FLD-20250905-043,2025-09-05,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/958113/list-flooded-roads-in-metro-manila-amid-habagat-rains/story/
+DROMIC-effects-of-tropical-depression-mirasol-16-sep-2025,2025-09-16,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-tropical-depression-mirasol-16-sep-2025/
+DROMIC-effects-of-typhoon-tino-03-nov-2025,2025-11-03,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-typhoon-tino-03-nov-2025/
+DROMIC-effects-of-typhoon-uwan-07-nov-2025,2025-11-08,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-typhoon-uwan-07-nov-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-662,2025-12-11,flood,14.58838,120.99293,barangay,Barangay 662,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-671,2025-12-11,flood,14.58167,120.99311,barangay,Barangay 671,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-672,2025-12-11,flood,14.58331,120.99178,barangay,Barangay 672,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-674,2025-12-11,flood,14.58200,120.98883,barangay,Barangay 674,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-677,2025-12-11,flood,14.58361,120.99398,barangay,Barangay 677,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-734,2025-12-11,flood,14.57615,120.99689,barangay,Barangay 734,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-736,2025-12-11,flood,14.57501,120.99625,barangay,Barangay 736,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+FLD-20260710-044,2026-07-10,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+FLD-20260710-045,2026-07-10,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+DROMIC-effects-of-tropical-cyclone-luis-30-jul-2026,2026-07-30,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-tropical-cyclone-luis-30-jul-2026/
+FLD-20260809-047,2026-08-09,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-048,2026-08-09,flood,14.57731,120.98767,street,Barangay 676,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-049,2026-08-09,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260810-050,2026-08-10,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-051,2026-08-10,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-052,2026-08-10,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260818-053,2026-08-18,flood,14.60811,120.99113,street,Barangay 459,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-054,2026-08-18,flood,14.61101,120.98246,street,Barangay 334,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-055,2026-08-18,flood,14.61961,120.97770,street,Barangay 231,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260819-056,2026-08-19,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/999051/flood-alert-flooded-roads-in-metro-manila-on-wednesday-august-19-2026/story/
