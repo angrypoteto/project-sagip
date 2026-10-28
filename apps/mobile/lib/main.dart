@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_map/flutter_map.dart' show NetworkTileProvider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:http/http.dart' as http;
+import 'package:http/retry.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
@@ -181,11 +183,17 @@ Future<List<Override>> _live() async {
     }
   });
   // The map tiles: one cache on the phone for every map, which also keeps
-  // the tiles saved for a responder's job (FR13).
+  // the tiles saved for a responder's job (FR13). The HTTP client is made
+  // here, not by the provider: flutter_map closes a provider's own client
+  // when a map page closes, and every map after that could then show only
+  // saved tiles.
   final tileCache = phoneTileCache();
   return liveOverrides(
     maps: TileMapSaver(cache: tileCache),
-    tiles: NetworkTileProvider(cachingProvider: tileCache),
+    tiles: NetworkTileProvider(
+      cachingProvider: tileCache,
+      httpClient: RetryClient(http.Client()),
+    ),
     relayTier: relayHardware,
     backend: backend,
     store: store,

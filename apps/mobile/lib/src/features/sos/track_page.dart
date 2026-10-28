@@ -1,5 +1,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -81,10 +82,16 @@ class _TrackBody extends ConsumerWidget {
         ? null
         : ref.watch(
             trackRouteProvider((
-              from: sos.responderLocation!,
+              from: routeFrom(sos.responderLocation!),
               to: sos.location!,
             )),
           );
+    // The streets after the first corner, made once per update: only the
+    // short piece from the gliding marker to them moves with it.
+    final rest = road == null
+        ? const <LatLng>[]
+        : [for (final p in road.points.skip(1)) toLatLng(p)];
+    final line = SagipPalette.of(context).info.fill;
     final fitBoth = you != null && unit != null && you != unit;
 
     return Stack(
@@ -110,25 +117,28 @@ class _TrackBody extends ConsumerWidget {
               enabled: tiles,
               tileProvider: ref.watch(tileProviderProvider),
             ),
+            if (you != null && unit != null && rest.isNotEmpty)
+              PolylineLayer(
+                polylines: [
+                  Polyline(points: rest, strokeWidth: 5, color: line),
+                ],
+              ),
             if (you != null && unit != null)
               GlidingLayer(
                 target: unit,
                 builder: (at) => PolylineLayer(
                   polylines: [
-                    if (road != null)
+                    if (rest.isNotEmpty)
                       Polyline(
-                        points: [
-                          at,
-                          for (final p in road.points.skip(1)) toLatLng(p),
-                        ],
+                        points: [at, rest.first],
                         strokeWidth: 5,
-                        color: SagipPalette.of(context).info.fill,
+                        color: line,
                       )
                     else
                       Polyline(
                         points: [at, you],
                         strokeWidth: 4,
-                        color: SagipPalette.of(context).info.fill,
+                        color: line,
                         pattern: StrokePattern.dashed(segments: const [10, 8]),
                       ),
                   ],
@@ -144,8 +154,12 @@ class _TrackBody extends ConsumerWidget {
                     child: Semantics(
                       container: true,
                       label: l10n.youAreHere,
-                      child: MyLocationMarker(
-                        heading: ref.watch(headingProvider).value,
+                      // Only the arrow follows the compass, which changes
+                      // many times a second; the map stays put.
+                      child: Consumer(
+                        builder: (context, ref, _) => MyLocationMarker(
+                          heading: ref.watch(headingProvider).value,
+                        ),
                       ),
                     ),
                   ),

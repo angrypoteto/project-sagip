@@ -18,7 +18,13 @@ LatLng toLatLng(GeoPoint p) => LatLng(p.lat, p.lng);
 /// muted filter; the plan (Q1, risk 8) replaces these with self-hosted
 /// Manila tiles before the pilot, because OSM's servers forbid heavy and
 /// offline use.
-class SagipTiles extends StatelessWidget {
+///
+/// Only what is on screen is loaded (Joshua, 2026-10-28: phones lagged
+/// while tracking): no extra ring of tiles around the screen, tiles more
+/// than one ring off screen are dropped (and their downloads cancelled),
+/// and while panning tiles are loaded and dropped at most every
+/// [_tileUpdates].
+class SagipTiles extends StatefulWidget {
   const SagipTiles({
     super.key,
     required this.userAgentPackageName,
@@ -41,19 +47,43 @@ class SagipTiles extends StatelessWidget {
   final bool enabled;
 
   @override
+  State<SagipTiles> createState() => _SagipTilesState();
+}
+
+/// How often panning may load or drop tiles.
+const _tileUpdates = Duration(milliseconds: 120);
+
+class _SagipTilesState extends State<SagipTiles> {
+  // One of each per map, made once: building them again on every rebuild
+  // (a moving marker, the compass) left a new HTTP client behind each time.
+  NetworkTileProvider? _ownProvider;
+  final _updates = TileUpdateTransformers.throttle(_tileUpdates);
+
+  @override
   Widget build(BuildContext context) {
-    if (!enabled) return const SizedBox.shrink();
+    if (!widget.enabled) return const SizedBox.shrink();
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return TileLayer(
-      urlTemplate: urlTemplate,
-      userAgentPackageName: userAgentPackageName,
-      tileProvider: tileProvider,
-      maxNativeZoom: 19,
-      // Two passes: the first sorts each pixel into "road", "ink", and
-      // "warm or cool"; the second paints those in the palette.
-      tileBuilder: (context, tile, image) => ColorFiltered(
+    // The muted filter goes over the whole layer once, not over each tile:
+    // two filter passes per frame instead of two per tile. The repaint
+    // boundary keeps a moving marker from repainting the tiles under it.
+    // Two passes: the first sorts each pixel into "road", "ink", and "warm
+    // or cool"; the second paints those in the palette.
+    return RepaintBoundary(
+      child: ColorFiltered(
         colorFilter: dark ? _paintDark : _paintLight,
-        child: ColorFiltered(colorFilter: _sort, child: tile),
+        child: ColorFiltered(
+          colorFilter: _sort,
+          child: TileLayer(
+            urlTemplate: widget.urlTemplate,
+            userAgentPackageName: widget.userAgentPackageName,
+            tileProvider:
+                widget.tileProvider ?? (_ownProvider ??= NetworkTileProvider()),
+            maxNativeZoom: 19,
+            panBuffer: 0,
+            keepBuffer: 1,
+            tileUpdateTransformer: _updates,
+          ),
+        ),
       ),
     );
   }

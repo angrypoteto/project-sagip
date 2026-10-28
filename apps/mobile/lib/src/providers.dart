@@ -562,6 +562,16 @@ final navigationRouteProvider = Provider.autoDispose
 /// it is where the unit is likely to drive, not the unit's own route, and it
 /// knows no floods or fires (a resident is not told where those are). Null
 /// until the graph has loaded, or when either end is off the map.
+/// Where a moving unit's route is worked out from: its position rounded to
+/// about 20 m, so a GPS fix that wanders a little does not run Dijkstra
+/// again (on the team's phones a run takes 9 ms, sometimes over 50 ms, and
+/// ran on every fix; Joshua, 2026-10-28: the maps lagged). The line on the
+/// map still starts at the real position.
+GeoPoint routeFrom(GeoPoint p) => GeoPoint(
+  (p.lat * 5e3).roundToDouble() / 5e3,
+  (p.lng * 5e3).roundToDouble() / 5e3,
+);
+
 final trackRouteProvider = Provider.autoDispose
     .family<RoadRoute?, ({GeoPoint from, GeoPoint to})>((ref, key) {
       final router = ref.watch(roadRouterProvider).value;
@@ -646,7 +656,7 @@ RouteEstimate? routeEstimate(WidgetRef ref, ResponderState? s, Assignment? a) {
   final straight = from.distanceTo(a.destination);
   final road = ref.watch(
     navigationRouteProvider((
-      from: from,
+      from: routeFrom(from),
       to: a.destination,
       incidentId: a.incidentId,
     )),

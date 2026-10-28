@@ -112,6 +112,14 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
     final voiceOn = ref.watch(voiceGuidanceProvider);
     final heading = estimate?.bearing;
     final tiles = ref.watch(mapTilesEnabledProvider);
+    // The streets after the first corner, made once per GPS fix: only the
+    // short piece from the gliding marker to them moves with it, not the
+    // whole route 60 times a second.
+    final rest = [
+      for (final q in estimate?.road?.points.skip(1) ?? const <GeoPoint>[])
+        toLatLng(q),
+    ];
+    final line = p.info.fill;
 
     return Scaffold(
       appBar: AppBar(
@@ -180,26 +188,28 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                           ),
                       ],
                     ),
+                    if (unit != null && rest.isNotEmpty)
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(points: rest, strokeWidth: 6, color: line),
+                        ],
+                      ),
                     if (unit != null)
                       GlidingLayer(
                         target: toLatLng(unit),
                         builder: (at) => PolylineLayer(
                           polylines: [
-                            if (estimate?.road case final road?)
+                            if (rest.isNotEmpty)
                               Polyline(
-                                points: [
-                                  at,
-                                  for (final p in road.points.skip(1))
-                                    toLatLng(p),
-                                ],
+                                points: [at, rest.first],
                                 strokeWidth: 6,
-                                color: SagipPalette.of(context).info.fill,
+                                color: line,
                               )
                             else
                               Polyline(
                                 points: [at, toLatLng(a.destination)],
                                 strokeWidth: 5,
-                                color: SagipPalette.of(context).info.fill,
+                                color: line,
                                 pattern: StrokePattern.dashed(
                                   segments: const [12, 8],
                                 ),
