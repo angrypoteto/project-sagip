@@ -36,3 +36,5 @@ ml/forecast/data/noah/
 
 # Supabase CLI scratch files
 supabase/.temp/
+# Raw downloads (DROMIC reports, NOAA, IBTrACS, HDX); only derived tables are kept
+ml/forecast/data/downloads/

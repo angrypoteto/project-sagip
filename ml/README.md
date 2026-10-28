@@ -108,6 +108,15 @@ Joshua asked on 2026-10-28 for the forecast to be trained on data from the sites
 | `forecast/lstm/train_lstm.py --prep data_prep/prep_summary_real.json --build build/real --out lstm/lstm_metrics_real.json` | The same LSTM on those windows |
 | `forecast/heatmap/evaluate_heatmap.py` | The 72-hour heatmap per barangay on the test part (LSTM probability with the KDE, or UP NOAH for floods, through the Q22 rule). Writes `heatmap/heatmap_metrics_real.json` |
 
+**More incident sources (2026-10-28, while MDRRMD has not replied):**
+
+| Script | Source | What it gives |
+|---|---|---|
+| `forecast/data_prep/collect_dromic.py` | DSWD DROMIC situation reports (dromic.dswd.gov.ph) | `data/manila_fire_dromic.csv`: 190 fires in Manila that affected families, 2017 to 2026 (167 name the barangay; the date and place come from each report's title). `data/manila_weather_events_dromic.csv`: 203 monsoon, typhoon, and flood events, the latest report of each searched for the City of Manila; Manila is in 22 (2018 to 2026), with its counts of barangays, families, and persons. Barangay names appear only in Manila-only reports. Reports for 2016 and 2017 were Google Docs that no longer open |
+| `forecast/data_prep/collect_txtfire.py` | TXTFIRE Philippines' public fire alerts (txtfire.net) | `data/manila_fire_txtfire.csv`: alerts placed in Manila grouped into 1,343 fires, 2018 to 2022 (none in most of 2020, none after mid-2022): 174 with an alarm level, 381 put out without one, 721 never verified, 67 false alarms. Mostly a street and district, few barangays |
+
+Also downloaded (git-ignored, in `data/downloads/`): NOAA GHCN-Daily rainfall for PAGASA's NAIA and Science Garden stations (2012 to 2025, about half the days have a reading), NOAA IBTrACS typhoon tracks near the Philippines since 2011 (public domain), and HDX's Philippines typhoon impact data 2014 to 2020 (CC BY).
+
 `data/manila_flood_days.csv` adds 19 flood days from 2012 to 2024 that name City of Manila streets; they come from search summaries (`read_from`) and are **unchecked** (`checked` is `no`). The Data role should open each link and correct the row.
 
 ## Forecast: data preparation and KDE (plan 10.5)
