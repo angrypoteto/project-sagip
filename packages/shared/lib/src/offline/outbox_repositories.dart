@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../algorithms/hazard_penalty.dart';
+import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../algorithms/sos_relay.dart';
 import '../data/manila_barangays.dart';
 import '../mock/live_value.dart';

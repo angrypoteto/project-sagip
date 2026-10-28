@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../algorithms/alert_thresholds.dart';
 import '../algorithms/analytics.dart';
 import '../algorithms/dbscan.dart';
-import '../algorithms/hazard_penalty.dart';
+import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../algorithms/priority.dart';
 import '../algorithms/report_draft.dart';
 import '../algorithms/setting_checks.dart';

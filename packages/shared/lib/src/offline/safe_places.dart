@@ -1,4 +1,4 @@
-import '../algorithms/hazard_penalty.dart';
+import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../data/manila_safe_places.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';

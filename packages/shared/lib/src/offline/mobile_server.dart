@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../algorithms/hazard_penalty.dart';
+import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';

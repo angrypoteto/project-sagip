@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../algorithms/routing_log.dart';
+import '../algorithms/dijkstra/routing_log.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';

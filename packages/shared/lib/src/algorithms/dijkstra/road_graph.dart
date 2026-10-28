@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import '../models/geo_point.dart';
+import '../../models/geo_point.dart';
 
 /// The directed Manila road graph (plan 10.2): intersections as nodes, road
 /// segments as edges, one edge per allowed direction, weighted by estimated

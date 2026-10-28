@@ -1,5 +1,5 @@
-import '../models/road_route.dart';
-import '../repositories/repositories.dart';
+import '../../models/road_route.dart';
+import '../../repositories/repositories.dart';
 
 /// Keeps timed runs in memory (mock data and tests).
 class MemoryRoutingLog implements RoutingLogRepository {

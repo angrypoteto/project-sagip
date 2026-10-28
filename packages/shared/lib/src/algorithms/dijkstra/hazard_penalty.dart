@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import '../models/enums.dart';
-import '../models/geo_point.dart';
-import '../models/incident.dart';
+import '../../models/enums.dart';
+import '../../models/geo_point.dart';
+import '../../models/incident.dart';
 import 'road_graph.dart';
 
 /// A confirmed flood or fire that roads are slower around.

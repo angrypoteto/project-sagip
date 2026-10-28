@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../algorithms/hazard_penalty.dart';
+import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';

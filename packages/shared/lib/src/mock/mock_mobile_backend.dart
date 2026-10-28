@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../algorithms/hazard_penalty.dart';
+import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../algorithms/incident_classifier.dart';
 import '../algorithms/sos_sms.dart';
 import '../data/manila_barangays.dart';
