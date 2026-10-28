@@ -1098,6 +1098,7 @@ class MockBackend {
         clearUnit: role != UserRole.responder,
       ),
     };
+    if (role != UserRole.responder) _clearLeads(id);
     _log(actor, AuditAction.accountUpdated, 'staff', id, changes.join('; '));
   }
 
@@ -1145,6 +1146,7 @@ class MockBackend {
           ? s.copyWith(clearDeactivated: true)
           : s.copyWith(deactivatedAt: _clock()),
     };
+    if (!active) _clearLeads(id);
     _log(
       actor,
       active ? AuditAction.accountReactivated : AuditAction.accountDeactivated,
@@ -1366,19 +1368,306 @@ class MockBackend {
       }
     }
     if (s.unitId == unitId) return;
+    _moveResponder(actor, s, unitId);
+  }
+
+  /// Puts [s] on [unitId] (null: off any), audited as `set_responder_unit`
+  /// does; a head or assistant who leaves their unit stops being its lead.
+  void _moveResponder(AppUser actor, StaffAccount s, String? unitId) {
     final from = _units.value[s.unitId]?.callSign ?? 'no unit';
     _accounts.value = {
       ..._accounts.value,
-      staffId: unitId == null
+      s.id: unitId == null
           ? s.copyWith(clearUnit: true)
           : s.copyWith(unitId: unitId),
     };
+    _clearLeads(s.id, keepUnit: unitId);
     _log(
       actor,
       AuditAction.rosterChanged,
       'staff',
-      staffId,
-      '${s.displayName}: $from → ${unit?.callSign ?? 'no unit'}',
+      s.id,
+      '${s.displayName}: $from → ${_units.value[unitId]?.callSign ?? 'no unit'}',
+    );
+  }
+
+  /// The `staff_clear_unit_leads` trigger: [staffId] stops leading any unit
+  /// other than [keepUnit].
+  void _clearLeads(String staffId, {String? keepUnit}) {
+    var changed = false;
+    final next = {
+      for (final u in _units.value.values)
+        u.id: u.id == keepUnit
+            ? u
+            : () {
+                if (u.crewHeadId != staffId && u.assistantHeadId != staffId) {
+                  return u;
+                }
+                changed = true;
+                return u.copyWith(
+                  clearCrewHead: u.crewHeadId == staffId,
+                  clearAssistantHead: u.assistantHeadId == staffId,
+                );
+              }(),
+    };
+    if (changed) _units.value = next;
+  }
+
+  // ---------------------------------------------------------- crew heads
+
+  final _crewRequests = LiveValue<List<CrewRequest>>(const []);
+  var _crewRequestNumber = 0;
+
+  /// The unit the signed-in responder leads (`current_lead_unit()`).
+  String? get _leadUnit {
+    final me = _me;
+    if (me == null || me.role != UserRole.responder || !me.active) return null;
+    final unit = _units.value[me.unitId];
+    return unit != null && !unit.retired && unit.isLead(me.id) ? unit.id : null;
+  }
+
+  Stream<List<CrewRequest>> watchCrewRequests() => _crewRequests.watch().map((
+    all,
+  ) {
+    final user = _user.value;
+    final lead = _leadUnit;
+    return [
+      for (final r in all.reversed)
+        if ((user?.isAdmin ?? false) || (lead != null && r.unitId == lead)) r,
+    ];
+  });
+
+  Stream<List<CrewCandidate>> watchCrewCandidates() =>
+      _accounts.watch().map((m) {
+        final admin = _user.value?.isAdmin ?? false;
+        final lead = _leadUnit;
+        if (!admin && lead == null) return const <CrewCandidate>[];
+        return [
+          for (final s in m.values)
+            if (s.role == UserRole.responder &&
+                s.active &&
+                (admin || s.unitId != lead))
+              CrewCandidate(
+                staffId: s.id,
+                displayName: s.displayName,
+                personnelId: s.personnelId,
+                unitId: s.unitId,
+                callSign: _units.value[s.unitId]?.callSign,
+              ),
+        ]..sort((a, b) => a.displayName.compareTo(b.displayName));
+      });
+
+  /// `request_crew_change`, with the same checks.
+  Future<String> requestCrewChange(
+    CrewRequestKind kind, {
+    String? staffId,
+    String? name,
+    String? email,
+    String? personnelId,
+    String? note,
+  }) async {
+    await _pause();
+    if (_link.value == LinkState.offline) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+    final lead = _leadUnit;
+    final me = _me;
+    if (lead == null || me == null) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final why = (note ?? '').trim();
+    if (why.length > 300) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final pending = _crewRequests.value.where((r) => r.pending);
+    late final CrewRequest request;
+    final id = 'crq-${++_crewRequestNumber}';
+    if (kind == CrewRequestKind.newMember) {
+      final n = (name ?? '').trim();
+      final mail = (email ?? '').trim().toLowerCase();
+      final pid = normalizePersonnelId(personnelId);
+      if (n.isEmpty ||
+          n.length > 80 ||
+          !_emailPattern.hasMatch(mail) ||
+          (pid != null && !isValidPersonnelId(pid))) {
+        throw const ActionRejected(ActionRejection.invalidValue);
+      }
+      if (_accounts.value.values.any((s) => s.email.toLowerCase() == mail) ||
+          (pid != null &&
+              _accounts.value.values.any((s) => s.personnelId == pid)) ||
+          pending.any((r) => r.newEmail == mail)) {
+        throw const ActionRejected(ActionRejection.alreadyExists);
+      }
+      request = CrewRequest(
+        id: id,
+        unitId: lead,
+        kind: kind,
+        subjectName: n,
+        newEmail: mail,
+        newPersonnelId: pid,
+        note: why.isEmpty ? null : why,
+        status: CrewRequestStatus.pending,
+        requestedByName: me.displayName,
+        requestedAt: _clock(),
+      );
+    } else {
+      final s = _accounts.value[staffId];
+      if (s == null || s.role != UserRole.responder || !s.active) {
+        throw const ActionRejected(ActionRejection.invalidValue);
+      }
+      if (kind == CrewRequestKind.remove && s.id == me.id) {
+        throw const ActionRejected(ActionRejection.ownAccount);
+      }
+      if ((kind == CrewRequestKind.add && s.unitId == lead) ||
+          (kind == CrewRequestKind.remove && s.unitId != lead)) {
+        throw const ActionRejected(ActionRejection.invalidValue);
+      }
+      if (pending.any((r) => r.unitId == lead && r.staffId == s.id)) {
+        throw const ActionRejected(ActionRejection.alreadyExists);
+      }
+      request = CrewRequest(
+        id: id,
+        unitId: lead,
+        kind: kind,
+        staffId: s.id,
+        subjectName: s.displayName,
+        note: why.isEmpty ? null : why,
+        status: CrewRequestStatus.pending,
+        requestedByName: me.displayName,
+        requestedAt: _clock(),
+      );
+    }
+    _crewRequests.value = [..._crewRequests.value, request];
+    _log(
+      me.asUser,
+      AuditAction.crewRequested,
+      'crew_request',
+      id,
+      '${_units.value[lead]!.callSign}: '
+          '${kind == CrewRequestKind.newMember ? 'new member' : kind.name} ${request.subjectName}',
+    );
+    return id;
+  }
+
+  /// `decide_crew_request`, with the same checks.
+  Future<void> decideCrewRequest(
+    String requestId, {
+    required bool approve,
+    String? note,
+    String? createdStaffId,
+  }) async {
+    final actor = await _authorizeAdmin();
+    final r = _crewRequests.value.where((x) => x.id == requestId).firstOrNull;
+    if (r == null) throw const ActionRejected(ActionRejection.notFound);
+    final why = (note ?? '').trim();
+    if (!r.pending || why.length > 300 || (!approve && why.isEmpty)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final unit = _units.value[r.unitId]!;
+    final verb = r.kind == CrewRequestKind.newMember ? 'new' : r.kind.name;
+    if (!approve) {
+      _replaceRequest(
+        r.decided(
+          approve: false,
+          byName: actor.displayName,
+          at: _clock(),
+          note: why,
+        ),
+      );
+      _log(
+        actor,
+        AuditAction.crewRequestDecided,
+        'crew_request',
+        r.id,
+        'declined: ${unit.callSign} $verb ${r.subjectName}',
+      );
+      return;
+    }
+    if (unit.retired) throw const ActionRejected(ActionRejection.invalidValue);
+    final s =
+        _accounts.value[r.kind == CrewRequestKind.newMember
+            ? createdStaffId
+            : r.staffId];
+    if (s == null || s.role != UserRole.responder || !s.active) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    var target = r.kind == CrewRequestKind.remove ? null : r.unitId;
+    if (r.kind == CrewRequestKind.remove && s.unitId != r.unitId) {
+      target = s.unitId;
+    }
+    if (s.unitId != target) _moveResponder(actor, s, target);
+    final pid = r.newPersonnelId;
+    if (r.kind == CrewRequestKind.newMember &&
+        pid != null &&
+        s.personnelId == null &&
+        !_accounts.value.values.any((o) => o.personnelId == pid)) {
+      _accounts.value = {
+        ..._accounts.value,
+        s.id: _accounts.value[s.id]!.copyWith(personnelId: pid),
+      };
+    }
+    _replaceRequest(
+      r.decided(
+        approve: true,
+        byName: actor.displayName,
+        at: _clock(),
+        note: why.isEmpty ? null : why,
+        staffId: s.id,
+      ),
+    );
+    _log(
+      actor,
+      AuditAction.crewRequestDecided,
+      'crew_request',
+      r.id,
+      'approved: ${unit.callSign} $verb ${r.subjectName}',
+    );
+  }
+
+  void _replaceRequest(CrewRequest r) => _crewRequests.value = [
+    for (final x in _crewRequests.value) x.id == r.id ? r : x,
+  ];
+
+  /// `admin_set_unit_leads`, with the same checks.
+  Future<void> setUnitLeads(
+    String unitId, {
+    String? headId,
+    String? assistantId,
+  }) async {
+    final actor = await _authorizeAdmin();
+    final u = _units.value[unitId];
+    if (u == null) throw const ActionRejected(ActionRejection.notFound);
+    if (u.retired || (headId != null && headId == assistantId)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    for (final id in [headId, assistantId]) {
+      if (id == null) continue;
+      final s = _accounts.value[id];
+      if (s == null ||
+          s.role != UserRole.responder ||
+          !s.active ||
+          s.unitId != unitId) {
+        throw const ActionRejected(ActionRejection.invalidValue);
+      }
+    }
+    if (u.crewHeadId == headId && u.assistantHeadId == assistantId) return;
+    String name(String? id) => _accounts.value[id]?.displayName ?? 'none';
+    _units.value = {
+      ..._units.value,
+      unitId: u.copyWith(
+        crewHeadId: headId,
+        clearCrewHead: headId == null,
+        assistantHeadId: assistantId,
+        clearAssistantHead: assistantId == null,
+      ),
+    };
+    _log(
+      actor,
+      AuditAction.crewLeadsChanged,
+      'response_unit',
+      unitId,
+      '${u.callSign}: head ${name(u.crewHeadId)} → ${name(headId)}; '
+          'assistant ${name(u.assistantHeadId)} → ${name(assistantId)}',
     );
   }
 

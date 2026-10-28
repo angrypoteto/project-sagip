@@ -27,6 +27,9 @@ final unitInventoryRepositoryProvider = Provider<UnitInventoryRepository>(
 final unitRepositoryProvider = Provider<UnitRepository>(
   (ref) => _missing('UnitRepository'),
 );
+final crewRepositoryProvider = Provider<CrewRepository>(
+  (ref) => _missing('CrewRepository'),
+);
 final crowdReportRepositoryProvider = Provider<CrowdReportRepository>(
   (ref) => _missing('CrowdReportRepository'),
 );
@@ -103,6 +106,7 @@ List<Override> _mockOverrides(
   staffSessionProvider.overrideWithValue(MockAuthRepository(backend)),
   incidentRepositoryProvider.overrideWithValue(MockIncidentRepository(backend)),
   unitRepositoryProvider.overrideWithValue(MockUnitRepository(backend)),
+  crewRepositoryProvider.overrideWithValue(MockCrewRepository(backend)),
   unitInventoryRepositoryProvider.overrideWithValue(
     MockUnitInventoryRepository(backend),
   ),
@@ -141,6 +145,7 @@ List<Override> supabaseOverrides(SupabaseBackend backend) => [
   staffSessionProvider.overrideWithValue(backend.auth),
   incidentRepositoryProvider.overrideWithValue(backend.incidents),
   unitRepositoryProvider.overrideWithValue(backend.units),
+  crewRepositoryProvider.overrideWithValue(backend.crew),
   unitInventoryRepositoryProvider.overrideWithValue(backend.inventory),
   crowdReportRepositoryProvider.overrideWithValue(backend.crowdReports),
   residentRepositoryProvider.overrideWithValue(backend.residents),
@@ -213,6 +218,21 @@ final unitSuppliesProvider = StreamProvider<List<UnitSupply>>(
 final crewProvider = StreamProvider<List<CrewMember>>(
   (ref) =>
       _forAccount(ref, () => ref.watch(unitRepositoryProvider).watchCrew()),
+);
+
+/// Crew requests: every one for admins, their unit's for a crew head or
+/// assistant head, none for anyone else (2026-10-29).
+final crewRequestsProvider = StreamProvider<List<CrewRequest>>(
+  (ref) =>
+      _forAccount(ref, () => ref.watch(crewRepositoryProvider).watchRequests()),
+);
+
+/// Whom a crew head can ask to add: active responders not on their unit.
+final crewCandidatesProvider = StreamProvider<List<CrewCandidate>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(crewRepositoryProvider).watchCandidates(),
+  ),
 );
 
 /// The responder's own unit and its supplies (the "My unit" page).

@@ -211,6 +211,9 @@ class MockSeed {
       4,
       14.6045,
       121.0010,
+      // J. Reyes heads the crew; R. Mendoza is the assistant head.
+      head: 'usr-resp-01',
+      assistant: 'usr-resp-05',
     ),
     _unit(
       'unit-r07',
@@ -328,6 +331,8 @@ class MockSeed {
     double lng, {
     UnitStatus status = UnitStatus.available,
     String? incident,
+    String? head,
+    String? assistant,
   }) => ResponseUnit(
     id: id,
     callSign: callSign,
@@ -340,6 +345,8 @@ class MockSeed {
     location: GeoPoint(lat, lng),
     lastLocationAt: ago(0, 20),
     currentIncidentId: incident,
+    crewHeadId: head,
+    assistantHeadId: assistant,
   );
 
   List<CrowdReport> get crowdReports => [

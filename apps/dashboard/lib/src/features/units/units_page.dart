@@ -9,6 +9,7 @@ import '../../common/async_body.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../admin/accounts_page.dart' show createRequestedAccount;
 import '../../router.dart';
 import '../common_page.dart';
 import 'supply_widgets.dart';
@@ -61,6 +62,7 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
     // Changing a crew is for admins (`set_responder_unit`); dispatchers see
     // the crew only.
     final admin = ref.watch(currentUserProvider).value?.isAdmin ?? false;
+    // Before the table so the requests panel can name each unit.
 
     int count(bool Function(ResponseUnit) test) => units.where(test).length;
 
@@ -101,173 +103,214 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
             ),
         ],
       ),
-      child: AsyncBody(
-        value: unitsAsync,
-        isEmpty: (list) => list.isEmpty,
-        empty: EmptyState(
-          icon: Symbols.ambulance_rounded,
-          title: l10n.unitsEmpty,
-          message: l10n.unitsEmptyMessage,
-        ),
-        builder: (_) => TableCard(
-          table: DataTable(
-            showCheckboxColumn: false,
-            columns: [
-              DataColumn(label: Text(l10n.colCallSign)),
-              DataColumn(label: Text(l10n.colUnitType)),
-              DataColumn(label: Text(l10n.colAgency)),
-              DataColumn(label: Text(l10n.colStation)),
-              DataColumn(label: Text(l10n.colCrew), numeric: true),
-              DataColumn(label: Text(l10n.colStatus)),
-              DataColumn(label: Text(l10n.colSupplies)),
-              DataColumn(label: Text(l10n.colIncident)),
-              DataColumn(label: Text(l10n.colLastGps)),
-            ],
-            rows: [
-              for (final u in units) ...[
-                DataRow(
-                  key: ValueKey('unit-row-${u.id}'),
-                  selected: _open.contains(u.id),
-                  onSelectChanged: (_) => _toggle(u.id),
-                  cells: [
-                    DataCell(
-                      Semantics(
-                        button: true,
-                        expanded: _open.contains(u.id),
-                        label: _open.contains(u.id)
-                            ? l10n.crewHide(u.callSign)
-                            : l10n.crewShow(u.callSign),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _open.contains(u.id)
-                                  ? Symbols.expand_more_rounded
-                                  : Symbols.chevron_right_rounded,
-                              size: 18,
-                              color: p.textSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Crew heads' requests wait here for an admin (2026-10-29).
+          if (admin) _CrewRequestsPanel(units: units),
+          AsyncBody(
+            value: unitsAsync,
+            isEmpty: (list) => list.isEmpty,
+            empty: EmptyState(
+              icon: Symbols.ambulance_rounded,
+              title: l10n.unitsEmpty,
+              message: l10n.unitsEmptyMessage,
+            ),
+            builder: (_) => TableCard(
+              table: DataTable(
+                showCheckboxColumn: false,
+                columns: [
+                  DataColumn(label: Text(l10n.colCallSign)),
+                  DataColumn(label: Text(l10n.colUnitType)),
+                  DataColumn(label: Text(l10n.colAgency)),
+                  DataColumn(label: Text(l10n.colStation)),
+                  DataColumn(label: Text(l10n.colCrew), numeric: true),
+                  DataColumn(label: Text(l10n.colStatus)),
+                  DataColumn(label: Text(l10n.colSupplies)),
+                  DataColumn(label: Text(l10n.colIncident)),
+                  DataColumn(label: Text(l10n.colLastGps)),
+                ],
+                rows: [
+                  for (final u in units) ...[
+                    DataRow(
+                      key: ValueKey('unit-row-${u.id}'),
+                      selected: _open.contains(u.id),
+                      onSelectChanged: (_) => _toggle(u.id),
+                      cells: [
+                        DataCell(
+                          Semantics(
+                            button: true,
+                            expanded: _open.contains(u.id),
+                            label: _open.contains(u.id)
+                                ? l10n.crewHide(u.callSign)
+                                : l10n.crewShow(u.callSign),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _open.contains(u.id)
+                                      ? Symbols.expand_more_rounded
+                                      : Symbols.chevron_right_rounded,
+                                  size: 18,
+                                  color: p.textSecondary,
+                                ),
+                                const SizedBox(width: SagipSpace.xs),
+                                Icon(unitTypeIcon(u.type), size: 18),
+                                const SizedBox(width: SagipSpace.sm),
+                                Text(u.callSign, style: text.titleSmall),
+                              ],
                             ),
-                            const SizedBox(width: SagipSpace.xs),
-                            Icon(unitTypeIcon(u.type), size: 18),
-                            const SizedBox(width: SagipSpace.sm),
-                            Text(u.callSign, style: text.titleSmall),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                    DataCell(Text(l10n.unitType(u.type))),
-                    DataCell(Text(l10n.unitAgency(u.agency))),
-                    DataCell(
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 280),
-                        child: Text(u.station, overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                    DataCell(Text('${u.crewSize ?? '–'}')),
-                    DataCell(
-                      u.status == UnitStatus.available && !u.isDispatchable
-                          ? SagipChip.status(
-                              label: l10n.assignedNotStarted,
-                              visual: incidentStatusVisual(
-                                IncidentStatus.assigned,
-                                p,
-                              ),
-                            )
-                          : SagipChip.status(
-                              label: l10n.unitStatus(u.status),
-                              visual: unitStatusVisual(u.status, p),
+                        DataCell(Text(l10n.unitType(u.type))),
+                        DataCell(Text(l10n.unitAgency(u.agency))),
+                        DataCell(
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 280),
+                            child: Text(
+                              u.station,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                          ),
+                        ),
+                        DataCell(Text('${u.crewSize ?? '–'}')),
+                        DataCell(
+                          u.status == UnitStatus.available && !u.isDispatchable
+                              ? SagipChip.status(
+                                  label: l10n.assignedNotStarted,
+                                  visual: incidentStatusVisual(
+                                    IncidentStatus.assigned,
+                                    p,
+                                  ),
+                                )
+                              : SagipChip.status(
+                                  label: l10n.unitStatus(u.status),
+                                  visual: unitStatusVisual(u.status, p),
+                                ),
+                        ),
+                        DataCell(
+                          _SuppliesCell(
+                            key: ValueKey('supplies-${u.id}'),
+                            supplies: supplies[u.id]!,
+                            lowPercent: lowPercent,
+                          ),
+                          onTap: () => showDialog<void>(
+                            context: context,
+                            builder: (context) => _SuppliesDialog(unitId: u.id),
+                          ),
+                        ),
+                        DataCell(
+                          u.currentIncidentId == null
+                              ? const Text('')
+                              : TextButton(
+                                  key: ValueKey('unit-incident-${u.id}'),
+                                  onPressed: () => context.go(
+                                    Routes.incident(u.currentIncidentId!),
+                                  ),
+                                  child: Text(
+                                    u.currentIncidentId!,
+                                    semanticsLabel: l10n.openIncident(
+                                      u.currentIncidentId!,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                        DataCell(
+                          u.lastLocationAt == null
+                              ? const Text('')
+                              : Row(
+                                  children: [
+                                    Text(l10n.ago(u.lastLocationAt!, now)),
+                                    if (now.difference(u.lastLocationAt!) >
+                                        UnitsPage.staleAfter) ...[
+                                      const SizedBox(width: SagipSpace.sm),
+                                      SagipChip(
+                                        label: l10n.staleGps,
+                                        tone: p.warning,
+                                        icon: Symbols.gps_off_rounded,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                        ),
+                      ],
                     ),
-                    DataCell(
-                      _SuppliesCell(
-                        key: ValueKey('supplies-${u.id}'),
-                        supplies: supplies[u.id]!,
-                        lowPercent: lowPercent,
-                      ),
-                      onTap: () => showDialog<void>(
-                        context: context,
-                        builder: (context) => _SuppliesDialog(unitId: u.id),
-                      ),
-                    ),
-                    DataCell(
-                      u.currentIncidentId == null
-                          ? const Text('')
-                          : TextButton(
-                              key: ValueKey('unit-incident-${u.id}'),
-                              onPressed: () => context.go(
-                                Routes.incident(u.currentIncidentId!),
-                              ),
-                              child: Text(
-                                u.currentIncidentId!,
-                                semanticsLabel: l10n.openIncident(
-                                  u.currentIncidentId!,
+                    if (_open.contains(u.id))
+                      if (crew[u.id] case final members?
+                          when members.isNotEmpty)
+                        for (final m in members)
+                          _crewRow(m, u, branch, p, l10n, admin: admin)
+                      else
+                        DataRow(
+                          key: ValueKey('crew-none-${u.id}'),
+                          color: branch,
+                          cells: [
+                            DataCell(
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: SagipSpace.x3,
+                                ),
+                                child: Text(
+                                  l10n.crewNone,
+                                  style: TextStyle(color: p.textSecondary),
                                 ),
                               ),
                             ),
-                    ),
-                    DataCell(
-                      u.lastLocationAt == null
-                          ? const Text('')
-                          : Row(
-                              children: [
-                                Text(l10n.ago(u.lastLocationAt!, now)),
-                                if (now.difference(u.lastLocationAt!) >
-                                    UnitsPage.staleAfter) ...[
-                                  const SizedBox(width: SagipSpace.sm),
-                                  SagipChip(
-                                    label: l10n.staleGps,
-                                    tone: p.warning,
-                                    icon: Symbols.gps_off_rounded,
-                                  ),
-                                ],
-                              ],
-                            ),
-                    ),
-                  ],
-                ),
-                if (_open.contains(u.id))
-                  if (crew[u.id] case final members? when members.isNotEmpty)
-                    for (final m in members)
-                      _crewRow(m, u, branch, p, l10n, admin: admin)
-                  else
-                    DataRow(
-                      key: ValueKey('crew-none-${u.id}'),
-                      color: branch,
-                      cells: [
-                        DataCell(
-                          Padding(
-                            padding: const EdgeInsets.only(left: SagipSpace.x3),
-                            child: Text(
-                              l10n.crewNone,
-                              style: TextStyle(color: p.textSecondary),
+                            for (var i = 1; i < 9; i++)
+                              const DataCell(Text('')),
+                          ],
+                        ),
+                    if (admin && _open.contains(u.id))
+                      DataRow(
+                        color: branch,
+                        cells: [
+                          DataCell(
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: SagipSpace.x3,
+                              ),
+                              child: TextButton.icon(
+                                key: ValueKey('crew-add-${u.id}'),
+                                onPressed: () => _addCrew(u, units),
+                                icon: const Icon(Symbols.person_add_rounded),
+                                label: Text(l10n.crewAdd),
+                              ),
                             ),
                           ),
-                        ),
-                        for (var i = 1; i < 9; i++) const DataCell(Text('')),
-                      ],
-                    ),
-                if (admin && _open.contains(u.id))
-                  DataRow(
-                    color: branch,
-                    cells: [
-                      DataCell(
-                        Padding(
-                          padding: const EdgeInsets.only(left: SagipSpace.x3),
-                          child: TextButton.icon(
-                            key: ValueKey('crew-add-${u.id}'),
-                            onPressed: () => _addCrew(u, units),
-                            icon: const Icon(Symbols.person_add_rounded),
-                            label: Text(l10n.crewAdd),
-                          ),
-                        ),
+                          for (var i = 1; i < 9; i++) const DataCell(Text('')),
+                        ],
                       ),
-                      for (var i = 1; i < 9; i++) const DataCell(Text('')),
-                    ],
-                  ),
-              ],
-            ],
+                  ],
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  /// Admins name [m] the unit's head or assistant head, or take the role
+  /// away (`admin_set_unit_leads`).
+  Future<void> _setRole(CrewMember m, ResponseUnit unit, _Role role) async {
+    final l10n = AppLocalizations.of(context);
+    var head = unit.crewHeadId;
+    var assistant = unit.assistantHeadId;
+    if (head == m.staffId) head = null;
+    if (assistant == m.staffId) assistant = null;
+    switch (role) {
+      case _Role.head:
+        head = m.staffId;
+      case _Role.assistant:
+        assistant = m.staffId;
+      case _Role.none:
+        break;
+    }
+    await runAction(
+      context,
+      () => ref
+          .read(crewRepositoryProvider)
+          .setLeads(unit.id, headId: head, assistantId: assistant),
+      success: l10n.crewLeadsSaved(unit.callSign),
     );
   }
 
@@ -369,9 +412,40 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
               Icon(Symbols.person_rounded, size: 18, color: p.textSecondary),
               const SizedBox(width: SagipSpace.sm),
               Text(m.displayName),
-              // Next to the name, so it is reached without scrolling the
+              if (m.staffId == unit.crewHeadId) ...[
+                const SizedBox(width: SagipSpace.sm),
+                SagipChip(label: l10n.crewHead, tone: p.info),
+              ] else if (m.staffId == unit.assistantHeadId) ...[
+                const SizedBox(width: SagipSpace.sm),
+                SagipChip(label: l10n.crewAssistant, tone: p.neutral),
+              ],
+              // Next to the name, so they are reached without scrolling the
               // table sideways.
               if (admin) ...[
+                const SizedBox(width: SagipSpace.xs),
+                PopupMenuButton<_Role>(
+                  key: ValueKey('crew-role-${m.staffId}'),
+                  tooltip: l10n.crewRoleMenu(m.displayName),
+                  icon: const Icon(Symbols.badge_rounded, size: 18),
+                  onSelected: (role) => _setRole(m, unit, role),
+                  itemBuilder: (context) => [
+                    if (m.staffId != unit.crewHeadId)
+                      PopupMenuItem(
+                        value: _Role.head,
+                        child: Text(l10n.crewMakeHead),
+                      ),
+                    if (m.staffId != unit.assistantHeadId)
+                      PopupMenuItem(
+                        value: _Role.assistant,
+                        child: Text(l10n.crewMakeAssistant),
+                      ),
+                    if (unit.isLead(m.staffId))
+                      PopupMenuItem(
+                        value: _Role.none,
+                        child: Text(l10n.crewClearRole),
+                      ),
+                  ],
+                ),
                 const SizedBox(width: SagipSpace.xs),
                 IconButton(
                   key: ValueKey('crew-remove-${m.staffId}'),
@@ -589,6 +663,243 @@ class _SuppliesDialog extends ConsumerWidget {
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(l10n.close),
+        ),
+      ],
+    );
+  }
+}
+
+enum _Role { head, assistant, none }
+
+/// The crew heads' requests waiting for an admin, at the top of Units
+/// (2026-10-29): approve (a new member's account is made first, with what
+/// the head gave filled in) or decline with a reason the head sees.
+class _CrewRequestsPanel extends ConsumerWidget {
+  const _CrewRequestsPanel({required this.units});
+
+  final List<ResponseUnit> units;
+
+  Future<void> _approve(
+    BuildContext context,
+    WidgetRef ref,
+    CrewRequest r,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    String? created;
+    if (r.kind == CrewRequestKind.newMember) {
+      created = await createRequestedAccount(
+        context,
+        ref,
+        name: r.subjectName,
+        email: r.newEmail!,
+        unitId: r.unitId,
+        personnelId: r.newPersonnelId,
+      );
+      if (created == null || !context.mounted) return;
+    }
+    await runAction(
+      context,
+      () => ref
+          .read(crewRepositoryProvider)
+          .decide(r.id, approve: true, createdStaffId: created),
+      success: l10n.crewApprovedSnack,
+    );
+    ref.invalidate(crewProvider);
+  }
+
+  Future<void> _decline(
+    BuildContext context,
+    WidgetRef ref,
+    CrewRequest r,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (context) => const _DeclineDialog(),
+    );
+    if (reason == null || !context.mounted) return;
+    await runAction(
+      context,
+      () => ref
+          .read(crewRepositoryProvider)
+          .decide(r.id, approve: false, note: reason),
+      success: l10n.crewDeclinedSnack,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final now = ref.watch(slowClockProvider).value ?? DateTime.now();
+    final online = ref.watch(isOnlineProvider);
+    // The account form a new member's approval opens lists every unit
+    // from here; it must be loaded before that form opens.
+    ref.watch(allUnitsProvider);
+    final waiting = [
+      for (final r
+          in ref.watch(crewRequestsProvider).value ?? const <CrewRequest>[])
+        if (r.pending) r,
+    ];
+    if (waiting.isEmpty) return const SizedBox.shrink();
+    final callSigns = {for (final u in units) u.id: u.callSign};
+    return Padding(
+      padding: const EdgeInsets.only(bottom: SagipSpace.lg),
+      child: Card(
+        key: const ValueKey('crew-requests'),
+        child: Padding(
+          padding: const EdgeInsets.all(SagipSpace.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Symbols.how_to_reg_rounded, color: p.textSecondary),
+                  const SizedBox(width: SagipSpace.sm),
+                  Text(l10n.crewRequestsTitle, style: text.titleMedium),
+                  const SizedBox(width: SagipSpace.sm),
+                  SagipChip(
+                    label: l10n.crewRequestsWaiting(waiting.length),
+                    tone: p.warning,
+                  ),
+                ],
+              ),
+              for (final r in waiting) ...[
+                const Divider(height: SagipSpace.xl),
+                Row(
+                  key: ValueKey('crew-request-${r.id}'),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(switch (r.kind) {
+                      CrewRequestKind.add => Symbols.person_add_rounded,
+                      CrewRequestKind.remove => Symbols.person_remove_rounded,
+                      CrewRequestKind.newMember => Symbols.badge_rounded,
+                    }, color: p.textSecondary),
+                    const SizedBox(width: SagipSpace.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _line(l10n, r, callSigns[r.unitId] ?? r.unitId),
+                            style: text.titleSmall,
+                          ),
+                          if (r.kind == CrewRequestKind.newMember)
+                            Text(
+                              [
+                                r.newEmail!,
+                                r.newPersonnelId ?? l10n.personnelIdMissing,
+                              ].join(' · '),
+                              style: text.bodyMedium,
+                            ),
+                          Text(
+                            l10n.crewRequestBy(
+                              r.requestedByName,
+                              l10n.ago(r.requestedAt, now),
+                            ),
+                            style: text.bodySmall!.copyWith(
+                              color: p.textSecondary,
+                            ),
+                          ),
+                          if (r.note != null)
+                            Text(
+                              l10n.crewRequestNote(r.note!),
+                              style: text.bodySmall,
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: SagipSpace.md),
+                    TextButton(
+                      key: ValueKey('crew-decline-${r.id}'),
+                      onPressed: online
+                          ? () => _decline(context, ref, r)
+                          : null,
+                      child: Text(l10n.crewDecline),
+                    ),
+                    const SizedBox(width: SagipSpace.sm),
+                    FilledButton.tonal(
+                      key: ValueKey('crew-approve-${r.id}'),
+                      onPressed: online
+                          ? () => _approve(context, ref, r)
+                          : null,
+                      child: Text(l10n.crewApprove),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// What a request asks for, in one line.
+String _line(
+  AppLocalizations l10n,
+  CrewRequest r,
+  String callSign,
+) => switch (r.kind) {
+  CrewRequestKind.add => l10n.crewRequestAddLine(r.subjectName, callSign),
+  CrewRequestKind.remove => l10n.crewRequestRemoveLine(r.subjectName, callSign),
+  CrewRequestKind.newMember => l10n.crewRequestNewLine(r.subjectName, callSign),
+};
+
+/// Asks for the reason a request is declined; pops with it.
+class _DeclineDialog extends StatefulWidget {
+  const _DeclineDialog();
+
+  @override
+  State<_DeclineDialog> createState() => _DeclineDialogState();
+}
+
+class _DeclineDialogState extends State<_DeclineDialog> {
+  final _reason = TextEditingController();
+  var _tried = false;
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final empty = _reason.text.trim().isEmpty;
+    return AlertDialog(
+      title: Text(l10n.crewDeclineTitle),
+      content: SizedBox(
+        width: 420,
+        child: TextField(
+          key: const ValueKey('crew-decline-reason'),
+          controller: _reason,
+          maxLength: 300,
+          maxLines: 3,
+          minLines: 1,
+          decoration: InputDecoration(
+            labelText: l10n.crewDeclineReason,
+            errorText: _tried && empty ? l10n.crewDeclineReasonError : null,
+          ),
+          // The error goes as soon as a reason is typed.
+          onChanged: (_) => setState(() {}),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            setState(() => _tried = true);
+            final reason = _reason.text.trim();
+            if (reason.isNotEmpty) Navigator.pop(context, reason);
+          },
+          child: Text(l10n.crewDecline),
         ),
       ],
     );

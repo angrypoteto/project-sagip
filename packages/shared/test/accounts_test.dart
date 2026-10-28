@@ -77,6 +77,119 @@ void main() {
     expect(mine, hasLength(3));
   });
 
+  test('crew heads ask, admins decide: the database rules', () async {
+    final crew = MockCrewRepository(backend);
+    final resources = MockResourceRepository(backend);
+    Future<CrewRequest> latest() async =>
+        (await crew.watchRequests().first).first;
+
+    // A member who is not a head cannot ask.
+    await signInAs('l.cruz@sagip.test', MockSeed.demoPassword);
+    await expectLater(
+      crew.requestAdd('usr-resp-04'),
+      rejected(ActionRejection.notAllowed),
+    );
+    expect(await crew.watchRequests().first, isEmpty);
+
+    // The head (J. Reyes) asks to add C. Garcia, once.
+    await signInAs('j.reyes@sagip.test', MockSeed.demoPassword);
+    expect(
+      (await crew.watchCandidates().first).map((c) => c.displayName),
+      isNot(contains('R. Mendoza')),
+    );
+    await crew.requestAdd('usr-resp-04', note: 'Trained boat crew');
+    await expectLater(
+      crew.requestAdd('usr-resp-04'),
+      rejected(ActionRejection.alreadyExists),
+    );
+    await expectLater(
+      crew.requestRemove('usr-resp-01'),
+      rejected(ActionRejection.ownAccount),
+    );
+
+    // The assistant head (R. Mendoza) asks too: off with J. Reyes, and a
+    // new person with no account.
+    await signInAs('r.mendoza@sagip.test', MockSeed.demoPassword);
+    await crew.requestRemove('usr-resp-01', note: 'Replaced as head');
+    await crew.requestNew(
+      name: 'Ana Ramos',
+      email: 'Ana.Ramos@Sagip.test',
+      personnelId: 'mdrrmd-0104',
+    );
+    await expectLater(
+      crew.requestNew(name: 'Again', email: 'j.reyes@sagip.test'),
+      rejected(ActionRejection.alreadyExists),
+    );
+    expect(await crew.watchRequests().first, hasLength(3));
+
+    // The admin decides.
+    await signInAs('admin@sagip.test', MockSeed.demoPassword);
+    final all = await crew.watchRequests().first;
+    final add = all.firstWhere((r) => r.kind == CrewRequestKind.add);
+    final remove = all.firstWhere((r) => r.kind == CrewRequestKind.remove);
+    final fresh = all.firstWhere((r) => r.kind == CrewRequestKind.newMember);
+    expect(fresh.newEmail, 'ana.ramos@sagip.test');
+    await crew.decide(add.id, approve: true);
+    expect(
+      (await resources.watchResponders().first)
+          .firstWhere((s) => s.id == 'usr-resp-04')
+          .unitId,
+      'unit-r03',
+    );
+    await expectLater(
+      crew.decide(remove.id, approve: false),
+      rejected(ActionRejection.invalidValue),
+    );
+    await crew.decide(remove.id, approve: false, note: 'Keep him this week');
+    final made = await accounts.createStaff(
+      email: 'ana.ramos@sagip.test',
+      displayName: 'Ana Ramos',
+      role: UserRole.responder,
+      unitId: 'unit-r03',
+    );
+    await crew.decide(fresh.id, approve: true, createdStaffId: made.id);
+    expect(
+      (await accounts.watchStaff().first)
+          .firstWhere((s) => s.id == made.id)
+          .personnelId,
+      'MDRRMD-0104',
+    );
+    expect((await latest()).status, isNot(CrewRequestStatus.pending));
+    expect(
+      (await crew.watchRequests().first)
+          .firstWhere((r) => r.id == remove.id)
+          .decisionNote,
+      'Keep him this week',
+    );
+
+    // A head moved off the unit is no longer its head.
+    await resources.setResponderUnit('usr-resp-01', null);
+    final r03 = (await backend.watchUnits().first).firstWhere(
+      (u) => u.id == 'unit-r03',
+    );
+    expect(r03.crewHeadId, isNull);
+    expect(r03.assistantHeadId, 'usr-resp-05');
+    // Leads must be on the unit.
+    await expectLater(
+      crew.setLeads('unit-r03', headId: 'usr-resp-02'),
+      rejected(ActionRejection.invalidValue),
+    );
+    await crew.setLeads(
+      'unit-r03',
+      headId: 'usr-resp-05',
+      assistantId: 'usr-resp-06',
+    );
+    final audit = await backend.watchAudit(30).first;
+    expect(
+      audit.map((e) => e.action),
+      containsAll([
+        AuditAction.crewRequested,
+        AuditAction.crewRequestDecided,
+        AuditAction.crewLeadsChanged,
+      ]),
+    );
+  });
+
   test('A1 follows the same rules as the database', () async {
     final made = await accounts.createStaff(
       email: ' New.Dispatcher@Test.local ',

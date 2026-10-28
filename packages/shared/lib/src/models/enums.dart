@@ -101,6 +101,15 @@ enum AuditAction {
   unitRetired,
   unitRestored,
   rosterChanged,
+
+  /// An admin named a unit's crew head or assistant head (2026-10-29).
+  crewLeadsChanged,
+
+  /// A crew head or assistant asked to add or remove a crew member.
+  crewRequested,
+
+  /// An admin approved or declined that.
+  crewRequestDecided,
   accountCreated,
   accountUpdated,
   accountDeactivated,

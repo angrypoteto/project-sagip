@@ -84,6 +84,8 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] D6 Crowd reports: confirmed clusters with a 50 m ring and a count; single reports stay unverified
 - [ ] D6 Barangay boundaries layer
 - [ ] D7 Units table: status counts, stale-GPS flag; a unit opens like a tree to show its crew (name and personnel ID, 2026-10-28); admins add crew members and take them off there (2026-10-29)
+- [ ] **[N]** D7 crew heads (2026-10-29): an admin names a unit's crew head and assistant head from the badge menu beside a name; "Head" and "Assistant head" show on Units and My unit
+- [ ] **[N]** D7 crew requests: the requests a head sent wait at the top of Units; Approve moves the person (a new person: Create account opens filled in first); Decline needs a reason
 - [ ] **[N]** D7 "Whose" column (MDRRMD, BFP, EMS) and fire trucks as a unit type
 - [ ] **[N]** D7 Supplies column: "Low: ...", "Out: ...", "All enough", or "Not reported"; a "N low on supplies" count at the top (the demo levels make it 4)
 - [ ] **[N]** D7 Click a unit's supplies: every level with a bar, who reported it and when; nothing can be changed here
@@ -135,6 +137,8 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] Stocks (drinking water, medical kits, life vests, rescue gear): on board and a full load; wrong numbers are explained
 - [ ] After a report, the dispatcher's Units page shows the new level without a refresh
 - [ ] The panel's example: BFP-PANDACAN shows "Low: Tank water" (20%); report 90% and it clears
+- [ ] **[N]** Signed in as a unit's crew head or assistant head: "Request to add a member" (has an account, or a new person) and "Request removal" beside each member but yourself; the Requests card shows Waiting, then Approved or Declined with the reason
+- [ ] **[N]** Any other crew member sees who the head is, but no request buttons
 - [ ] Any other address sends a responder back to "My unit"; My account still opens
 - [ ] Each report is in the audit log (sign in as admin, A7)
 

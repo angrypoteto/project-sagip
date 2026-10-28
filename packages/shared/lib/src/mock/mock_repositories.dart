@@ -358,6 +358,58 @@ class MockClientConfigRepository implements ClientConfigRepository {
   Future<ClientConfig> fetch() async => _backend.clientConfig;
 }
 
+class MockCrewRepository implements CrewRepository {
+  const MockCrewRepository(this._backend);
+
+  final MockBackend _backend;
+
+  @override
+  Stream<List<CrewRequest>> watchRequests() => _backend.watchCrewRequests();
+
+  @override
+  Stream<List<CrewCandidate>> watchCandidates() =>
+      _backend.watchCrewCandidates();
+
+  @override
+  Future<String> requestAdd(String staffId, {String? note}) => _backend
+      .requestCrewChange(CrewRequestKind.add, staffId: staffId, note: note);
+
+  @override
+  Future<String> requestRemove(String staffId, {String? note}) => _backend
+      .requestCrewChange(CrewRequestKind.remove, staffId: staffId, note: note);
+
+  @override
+  Future<String> requestNew({
+    required String name,
+    required String email,
+    String? personnelId,
+    String? note,
+  }) => _backend.requestCrewChange(
+    CrewRequestKind.newMember,
+    name: name,
+    email: email,
+    personnelId: personnelId,
+    note: note,
+  );
+
+  @override
+  Future<void> decide(
+    String requestId, {
+    required bool approve,
+    String? note,
+    String? createdStaffId,
+  }) => _backend.decideCrewRequest(
+    requestId,
+    approve: approve,
+    note: note,
+    createdStaffId: createdStaffId,
+  );
+
+  @override
+  Future<void> setLeads(String unitId, {String? headId, String? assistantId}) =>
+      _backend.setUnitLeads(unitId, headId: headId, assistantId: assistantId);
+}
+
 class MockUnitRepository implements UnitRepository {
   const MockUnitRepository(this._backend);
 

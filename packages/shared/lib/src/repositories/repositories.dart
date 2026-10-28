@@ -292,6 +292,42 @@ abstract interface class ResourceRepository {
   Future<void> setResponderUnit(String staffId, String? unitId);
 }
 
+/// Crew heads and crew requests (2026-10-29). Admins name each unit's crew
+/// head and assistant head; those two ask to add or remove crew; admins
+/// approve or decline. Every step is audited. Throws [ActionRejected]:
+/// `notAllowed`, `invalidValue`, `alreadyExists`, `ownAccount` (asking to
+/// remove oneself), `notFound`.
+abstract interface class CrewRepository {
+  /// Admins: every request. A head or assistant: their unit's. Others: none.
+  /// Newest first.
+  Stream<List<CrewRequest>> watchRequests();
+
+  /// For a head or assistant: the active responders not on their unit.
+  Stream<List<CrewCandidate>> watchCandidates();
+
+  Future<String> requestAdd(String staffId, {String? note});
+  Future<String> requestRemove(String staffId, {String? note});
+  Future<String> requestNew({
+    required String name,
+    required String email,
+    String? personnelId,
+    String? note,
+  });
+
+  /// Admins. Declining needs [note]. Approving a new member needs
+  /// [createdStaffId], the responder account the admin just made.
+  Future<void> decide(
+    String requestId, {
+    required bool approve,
+    String? note,
+    String? createdStaffId,
+  });
+
+  /// Admins: the unit's head and assistant head (null: none), each a
+  /// responder on the unit.
+  Future<void> setLeads(String unitId, {String? headId, String? assistantId});
+}
+
 /// Safe places (Joshua, 2026-10-19): the nearest place that suits the
 /// emergency, for residents; the list on the dashboard's map and A2, where
 /// admins hide wrong places and add MDRRMD's evacuation centers (audited).

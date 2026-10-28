@@ -4013,4 +4013,197 @@ class AppLocalizationsEn extends AppLocalizations {
   String crewRemoved(String name, String callSign) {
     return '$name taken off $callSign';
   }
+
+  @override
+  String get actionCrewLeadsChanged => 'Named a crew head';
+
+  @override
+  String get actionCrewRequested => 'Asked for a crew change';
+
+  @override
+  String get actionCrewRequestDecided => 'Decided a crew request';
+
+  @override
+  String get crewHead => 'Head';
+
+  @override
+  String get crewAssistant => 'Assistant head';
+
+  @override
+  String crewRoleMenu(String name) {
+    return 'Crew role for $name';
+  }
+
+  @override
+  String get crewMakeHead => 'Make crew head';
+
+  @override
+  String get crewMakeAssistant => 'Make assistant head';
+
+  @override
+  String get crewClearRole => 'No crew role';
+
+  @override
+  String crewLeadsSaved(String callSign) {
+    return '$callSign: crew head and assistant head saved';
+  }
+
+  @override
+  String get crewRequestsTitle => 'Crew requests';
+
+  @override
+  String crewRequestsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count waiting',
+      one: '1 waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String crewRequestAddLine(String name, String callSign) {
+    return 'Add $name to $callSign';
+  }
+
+  @override
+  String crewRequestRemoveLine(String name, String callSign) {
+    return 'Take $name off $callSign';
+  }
+
+  @override
+  String crewRequestNewLine(String name, String callSign) {
+    return 'New member for $callSign: $name';
+  }
+
+  @override
+  String crewRequestBy(String name, String ago) {
+    return 'Asked by $name, $ago';
+  }
+
+  @override
+  String crewRequestNote(String note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String get crewApprove => 'Approve';
+
+  @override
+  String get crewDecline => 'Decline';
+
+  @override
+  String get crewDeclineTitle => 'Decline this request?';
+
+  @override
+  String get crewDeclineReason => 'Reason (the crew head sees it)';
+
+  @override
+  String get crewDeclineReasonError => 'Give a reason.';
+
+  @override
+  String get crewApprovedSnack => 'Request approved';
+
+  @override
+  String get crewDeclinedSnack => 'Request declined';
+
+  @override
+  String get crewStatusPending => 'Waiting';
+
+  @override
+  String get crewStatusApproved => 'Approved';
+
+  @override
+  String get crewStatusDeclined => 'Declined';
+
+  @override
+  String crewDecisionNote(String note) {
+    return 'Reason: $note';
+  }
+
+  @override
+  String crewDecidedBy(String status, String name) {
+    return '$status by $name';
+  }
+
+  @override
+  String get crewAskAdd => 'Request to add a member';
+
+  @override
+  String crewAskRemove(String name) {
+    return 'Request to take $name off';
+  }
+
+  @override
+  String crewAskRemoveTitle(String name, String callSign) {
+    return 'Ask to take $name off $callSign?';
+  }
+
+  @override
+  String get crewAskBody => 'An administrator approves or declines it.';
+
+  @override
+  String get crewAskNote => 'Note for the administrator (optional)';
+
+  @override
+  String get crewAskSend => 'Send request';
+
+  @override
+  String get crewAskSent => 'Request sent to the administrators';
+
+  @override
+  String crewAskAddTitle(String callSign) {
+    return 'Request a new crew member for $callSign';
+  }
+
+  @override
+  String get crewHasAccount => 'Has an account';
+
+  @override
+  String get crewNewPerson => 'New person';
+
+  @override
+  String get crewNoCandidates =>
+      'Every responder is already on your unit. For someone new, choose New person.';
+
+  @override
+  String get crewNewPersonHint =>
+      'An administrator creates their account when approving.';
+
+  @override
+  String get myUnitRequestsTitle => 'Requests';
+
+  @override
+  String myUnitLeadNote(String role) {
+    String _temp0 = intl.Intl.selectLogic(role, {
+      'head': 'You are this unit\'s crew head',
+      'other': 'You are this unit\'s assistant head',
+    });
+    return '$_temp0: you can ask an administrator to add or remove crew members.';
+  }
+
+  @override
+  String get crewAskWho => 'Responder';
+
+  @override
+  String get crewAskWhoError => 'Choose a responder.';
+
+  @override
+  String get crewNoUnit => 'No unit';
+
+  @override
+  String crewMyAddLine(String name) {
+    return 'Add $name';
+  }
+
+  @override
+  String crewMyRemoveLine(String name) {
+    return 'Take $name off';
+  }
+
+  @override
+  String crewMyNewLine(String name) {
+    return 'New member: $name';
+  }
 }

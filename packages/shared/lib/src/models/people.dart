@@ -168,6 +168,145 @@ class CrewMember {
   );
 }
 
+/// What a crew head or assistant head asks for (`crew_request.kind`).
+enum CrewRequestKind {
+  /// An existing responder account onto the unit.
+  add,
+
+  /// A member off the unit (never the one asking).
+  remove,
+
+  /// A person with no account yet: the admin creates it on approving.
+  newMember,
+}
+
+enum CrewRequestStatus { pending, approved, declined }
+
+/// A request to change a unit's crew, and the admin's answer (2026-10-29).
+/// Seen by admins and by that unit's head and assistant head.
+@immutable
+class CrewRequest {
+  const CrewRequest({
+    required this.id,
+    required this.unitId,
+    required this.kind,
+    this.staffId,
+    required this.subjectName,
+    this.newEmail,
+    this.newPersonnelId,
+    this.note,
+    required this.status,
+    required this.requestedByName,
+    required this.requestedAt,
+    this.decidedByName,
+    this.decidedAt,
+    this.decisionNote,
+  });
+
+  final String id;
+  final String unitId;
+  final CrewRequestKind kind;
+
+  /// The responder ([CrewRequestKind.add], [CrewRequestKind.remove]), or
+  /// the account made when a new member was approved.
+  final String? staffId;
+
+  /// Their name when the request was made.
+  final String subjectName;
+
+  /// [CrewRequestKind.newMember] only.
+  final String? newEmail;
+  final String? newPersonnelId;
+
+  /// Why, from the one asking (optional).
+  final String? note;
+  final CrewRequestStatus status;
+  final String requestedByName;
+  final DateTime requestedAt;
+  final String? decidedByName;
+  final DateTime? decidedAt;
+
+  /// The admin's reason (always given when declining).
+  final String? decisionNote;
+
+  bool get pending => status == CrewRequestStatus.pending;
+
+  static CrewRequestKind _kind(Object? v) => switch (v) {
+    'add' => CrewRequestKind.add,
+    'remove' => CrewRequestKind.remove,
+    _ => CrewRequestKind.newMember,
+  };
+
+  factory CrewRequest.fromJson(Map<String, Object?> json) => CrewRequest(
+    id: '${json['request_id']}',
+    unitId: json['unit_id']! as String,
+    kind: _kind(json['kind']),
+    staffId: json['staff_id'] as String?,
+    subjectName: json['subject_name']! as String,
+    newEmail: json['new_email'] as String?,
+    newPersonnelId: json['new_personnel_id'] as String?,
+    note: json['note'] as String?,
+    status: enumFromJson(CrewRequestStatus.values, json['status']),
+    requestedByName: json['requested_by_name']! as String,
+    requestedAt: timeFromJson(json['requested_at']),
+    decidedByName: json['decided_by_name'] as String?,
+    decidedAt: timeFromJsonOrNull(json['decided_at']),
+    decisionNote: json['decision_note'] as String?,
+  );
+
+  CrewRequest decided({
+    required bool approve,
+    required String byName,
+    required DateTime at,
+    String? note,
+    String? staffId,
+  }) => CrewRequest(
+    id: id,
+    unitId: unitId,
+    kind: kind,
+    staffId: staffId ?? this.staffId,
+    subjectName: subjectName,
+    newEmail: newEmail,
+    newPersonnelId: newPersonnelId,
+    note: this.note,
+    status: approve ? CrewRequestStatus.approved : CrewRequestStatus.declined,
+    requestedByName: requestedByName,
+    requestedAt: requestedAt,
+    decidedByName: byName,
+    decidedAt: at,
+    decisionNote: note,
+  );
+}
+
+/// Someone a crew head can ask to add: an active responder not on their
+/// unit (`crew_candidates()`): name, personnel ID, and unit only.
+@immutable
+class CrewCandidate {
+  const CrewCandidate({
+    required this.staffId,
+    required this.displayName,
+    this.personnelId,
+    this.unitId,
+    this.callSign,
+  });
+
+  final String staffId;
+  final String displayName;
+  final String? personnelId;
+  final String? unitId;
+
+  /// Their unit's call sign; null when on none.
+  final String? callSign;
+
+  factory CrewCandidate.fromJson(Map<String, Object?> json) => CrewCandidate(
+    staffId: '${json['staff_id']}',
+    displayName: json['display_name']! as String,
+    personnelId: json['personnel_id'] as String?,
+    unitId: json['unit_id'] as String?,
+    callSign: json['call_sign'] as String?,
+  );
+}
+
 /// [raw] as a personnel ID is stored: trimmed and in capitals; null when
 /// blank. [isValidPersonnelId] checks the result (as the database does).
 String? normalizePersonnelId(String? raw) {

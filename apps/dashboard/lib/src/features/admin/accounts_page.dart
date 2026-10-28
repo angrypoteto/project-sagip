@@ -401,13 +401,44 @@ Future<void> _showTemporaryPassword(
 );
 
 Future<void> _createAccount(BuildContext context, WidgetRef ref) async {
-  final made = await showDialog<({String name, String password})>(
+  final made = await showDialog<_Made>(
     context: context,
     builder: (context) => _AccountDialog(ref: ref),
   );
   if (made != null && context.mounted) {
     await _showTemporaryPassword(context, made.name, made.password);
   }
+}
+
+typedef _Made = ({String id, String name, String password});
+
+/// Creates the responder account a crew head asked for (a new member,
+/// 2026-10-29): the Create account form filled in with what they gave,
+/// then the temporary password as usual. Returns the new account's id, or
+/// null when the admin closes the form.
+Future<String?> createRequestedAccount(
+  BuildContext context,
+  WidgetRef ref, {
+  required String name,
+  required String email,
+  required String unitId,
+  String? personnelId,
+}) async {
+  final made = await showDialog<_Made>(
+    context: context,
+    builder: (context) => _AccountDialog(
+      ref: ref,
+      prefill: (
+        name: name,
+        email: email,
+        unitId: unitId,
+        personnelId: personnelId,
+      ),
+    ),
+  );
+  if (made == null || !context.mounted) return null;
+  await _showTemporaryPassword(context, made.name, made.password);
+  return made.id;
 }
 
 Future<void> _editAccount(
@@ -422,23 +453,33 @@ Future<void> _editAccount(
 /// Create ([account] null) or edit an account. Pops with the name and the
 /// temporary password after creating.
 class _AccountDialog extends StatefulWidget {
-  const _AccountDialog({required this.ref, this.account});
+  const _AccountDialog({required this.ref, this.account, this.prefill});
 
   final WidgetRef ref;
   final StaffAccount? account;
+
+  /// A new responder as a crew head asked for them.
+  final ({String name, String email, String unitId, String? personnelId})?
+  prefill;
 
   @override
   State<_AccountDialog> createState() => _AccountDialogState();
 }
 
 class _AccountDialogState extends State<_AccountDialog> {
-  late final _email = TextEditingController(text: widget.account?.email);
-  late final _name = TextEditingController(text: widget.account?.displayName);
-  late final _personnelId = TextEditingController(
-    text: widget.account?.personnelId,
+  late final _email = TextEditingController(
+    text: widget.account?.email ?? widget.prefill?.email,
   );
-  late UserRole _role = widget.account?.role ?? UserRole.dispatcher;
-  String? _unitId;
+  late final _name = TextEditingController(
+    text: widget.account?.displayName ?? widget.prefill?.name,
+  );
+  late final _personnelId = TextEditingController(
+    text: widget.account?.personnelId ?? widget.prefill?.personnelId,
+  );
+  late UserRole _role =
+      widget.account?.role ??
+      (widget.prefill == null ? UserRole.dispatcher : UserRole.responder);
+  late String? _unitId = widget.prefill?.unitId;
   var _tried = false;
   var _busy = false;
 
@@ -510,7 +551,11 @@ class _AccountDialogState extends State<_AccountDialog> {
       context,
       made == null
           ? null
-          : (name: _name.text.trim(), password: made!.temporaryPassword),
+          : (
+              id: made!.id,
+              name: _name.text.trim(),
+              password: made!.temporaryPassword,
+            ),
     );
   }
 

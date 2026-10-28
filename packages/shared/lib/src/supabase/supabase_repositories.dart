@@ -69,6 +69,7 @@ class SupabaseBackend {
       analytics = SupabaseAnalyticsRepository(client),
       resources = SupabaseResourceRepository(client),
       safePlaces = SupabaseSafePlaceRepository(client),
+      crew = SupabaseCrewRepository(client),
       accounts = SupabaseAccountRepository(client);
 
   final SupabaseAuthRepository auth;
@@ -90,6 +91,7 @@ class SupabaseBackend {
   final SupabaseAnalyticsRepository analytics;
   final SupabaseResourceRepository resources;
   final SupabaseSafePlaceRepository safePlaces;
+  final SupabaseCrewRepository crew;
   final SupabaseAccountRepository accounts;
 }
 
@@ -338,7 +340,7 @@ class SupabaseResourceRepository implements ResourceRepository {
       for (final r
           in await _client
               .from('staff')
-              .select('id, display_name, email, role, unit_id')
+              .select('id, display_name, email, role, unit_id, personnel_id')
               .eq('role', 'responder')
               .order('display_name'))
         StaffAccount.fromJson(r),
@@ -400,6 +402,100 @@ class SupabaseResourceRepository implements ResourceRepository {
       params: {'p_staff_id': staffId, 'p_unit_id': unitId},
     ),
   );
+}
+
+/// Crew heads and requests (`crew_request`, `request_crew_change`,
+/// `decide_crew_request`, `crew_candidates`, `admin_set_unit_leads`).
+class SupabaseCrewRepository implements CrewRepository {
+  const SupabaseCrewRepository(this._client);
+
+  final SupabaseClient _client;
+
+  /// Row Level Security shows admins every request and a head or assistant
+  /// their own unit's.
+  @override
+  Stream<List<CrewRequest>> watchRequests() => liveQuery(
+    _client,
+    tables: const ['crew_request'],
+    fetch: () async => [
+      for (final r
+          in await _client
+              .from('crew_request')
+              .select()
+              .order('requested_at', ascending: false)
+              .limit(200))
+        CrewRequest.fromJson(r),
+    ],
+  );
+
+  /// Staff changes happen in a table only admins may watch: fetched again
+  /// every minute and when units change.
+  @override
+  Stream<List<CrewCandidate>> watchCandidates() => liveQuery(
+    _client,
+    tables: const ['response_unit'],
+    refreshEvery: const Duration(minutes: 1),
+    fetch: () async => [
+      for (final r in await _client.rpc<List<dynamic>>('crew_candidates'))
+        CrewCandidate.fromJson(r as _Row),
+    ],
+  );
+
+  Future<String> _ask(Map<String, Object?> params) =>
+      _call(() => _client.rpc<String>('request_crew_change', params: params));
+
+  @override
+  Future<String> requestAdd(String staffId, {String? note}) =>
+      _ask({'p_kind': 'add', 'p_staff_id': staffId, 'p_note': note});
+
+  @override
+  Future<String> requestRemove(String staffId, {String? note}) =>
+      _ask({'p_kind': 'remove', 'p_staff_id': staffId, 'p_note': note});
+
+  @override
+  Future<String> requestNew({
+    required String name,
+    required String email,
+    String? personnelId,
+    String? note,
+  }) => _ask({
+    'p_kind': 'new',
+    'p_name': name,
+    'p_email': email,
+    'p_personnel_id': personnelId,
+    'p_note': note,
+  });
+
+  @override
+  Future<void> decide(
+    String requestId, {
+    required bool approve,
+    String? note,
+    String? createdStaffId,
+  }) => _call(
+    () => _client.rpc<void>(
+      'decide_crew_request',
+      params: {
+        'p_request_id': requestId,
+        'p_approve': approve,
+        'p_note': note,
+        'p_staff_id': createdStaffId,
+      },
+    ),
+  );
+
+  @override
+  Future<void> setLeads(String unitId, {String? headId, String? assistantId}) =>
+      _call(
+        () => _client.rpc<void>(
+          'admin_set_unit_leads',
+          params: {
+            'p_unit_id': unitId,
+            'p_head': headId,
+            'p_assistant': assistantId,
+          },
+        ),
+      );
 }
 
 /// A4 through `analytics_report` (admins only).

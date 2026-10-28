@@ -6836,6 +6836,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} taken off {callSign}'**
   String crewRemoved(String name, String callSign);
+
+  /// No description provided for @actionCrewLeadsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Named a crew head'**
+  String get actionCrewLeadsChanged;
+
+  /// No description provided for @actionCrewRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked for a crew change'**
+  String get actionCrewRequested;
+
+  /// No description provided for @actionCrewRequestDecided.
+  ///
+  /// In en, this message translates to:
+  /// **'Decided a crew request'**
+  String get actionCrewRequestDecided;
+
+  /// No description provided for @crewHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Head'**
+  String get crewHead;
+
+  /// No description provided for @crewAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant head'**
+  String get crewAssistant;
+
+  /// No description provided for @crewRoleMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew role for {name}'**
+  String crewRoleMenu(String name);
+
+  /// No description provided for @crewMakeHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Make crew head'**
+  String get crewMakeHead;
+
+  /// No description provided for @crewMakeAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Make assistant head'**
+  String get crewMakeAssistant;
+
+  /// No description provided for @crewClearRole.
+  ///
+  /// In en, this message translates to:
+  /// **'No crew role'**
+  String get crewClearRole;
+
+  /// No description provided for @crewLeadsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{callSign}: crew head and assistant head saved'**
+  String crewLeadsSaved(String callSign);
+
+  /// No description provided for @crewRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew requests'**
+  String get crewRequestsTitle;
+
+  /// No description provided for @crewRequestsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 waiting} other{{count} waiting}}'**
+  String crewRequestsWaiting(int count);
+
+  /// No description provided for @crewRequestAddLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {name} to {callSign}'**
+  String crewRequestAddLine(String name, String callSign);
+
+  /// No description provided for @crewRequestRemoveLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {name} off {callSign}'**
+  String crewRequestRemoveLine(String name, String callSign);
+
+  /// No description provided for @crewRequestNewLine.
+  ///
+  /// In en, this message translates to:
+  /// **'New member for {callSign}: {name}'**
+  String crewRequestNewLine(String name, String callSign);
+
+  /// No description provided for @crewRequestBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked by {name}, {ago}'**
+  String crewRequestBy(String name, String ago);
+
+  /// No description provided for @crewRequestNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: {note}'**
+  String crewRequestNote(String note);
+
+  /// No description provided for @crewApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get crewApprove;
+
+  /// No description provided for @crewDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get crewDecline;
+
+  /// No description provided for @crewDeclineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline this request?'**
+  String get crewDeclineTitle;
+
+  /// No description provided for @crewDeclineReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (the crew head sees it)'**
+  String get crewDeclineReason;
+
+  /// No description provided for @crewDeclineReasonError.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a reason.'**
+  String get crewDeclineReasonError;
+
+  /// No description provided for @crewApprovedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Request approved'**
+  String get crewApprovedSnack;
+
+  /// No description provided for @crewDeclinedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Request declined'**
+  String get crewDeclinedSnack;
+
+  /// No description provided for @crewStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get crewStatusPending;
+
+  /// No description provided for @crewStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get crewStatusApproved;
+
+  /// No description provided for @crewStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get crewStatusDeclined;
+
+  /// No description provided for @crewDecisionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {note}'**
+  String crewDecisionNote(String note);
+
+  /// No description provided for @crewDecidedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{status} by {name}'**
+  String crewDecidedBy(String status, String name);
+
+  /// No description provided for @crewAskAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to add a member'**
+  String get crewAskAdd;
+
+  /// No description provided for @crewAskRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to take {name} off'**
+  String crewAskRemove(String name);
+
+  /// No description provided for @crewAskRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask to take {name} off {callSign}?'**
+  String crewAskRemoveTitle(String name, String callSign);
+
+  /// No description provided for @crewAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator approves or declines it.'**
+  String get crewAskBody;
+
+  /// No description provided for @crewAskNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the administrator (optional)'**
+  String get crewAskNote;
+
+  /// No description provided for @crewAskSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get crewAskSend;
+
+  /// No description provided for @crewAskSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to the administrators'**
+  String get crewAskSent;
+
+  /// No description provided for @crewAskAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a new crew member for {callSign}'**
+  String crewAskAddTitle(String callSign);
+
+  /// No description provided for @crewHasAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Has an account'**
+  String get crewHasAccount;
+
+  /// No description provided for @crewNewPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'New person'**
+  String get crewNewPerson;
+
+  /// No description provided for @crewNoCandidates.
+  ///
+  /// In en, this message translates to:
+  /// **'Every responder is already on your unit. For someone new, choose New person.'**
+  String get crewNoCandidates;
+
+  /// No description provided for @crewNewPersonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator creates their account when approving.'**
+  String get crewNewPersonHint;
+
+  /// No description provided for @myUnitRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get myUnitRequestsTitle;
+
+  /// No description provided for @myUnitLeadNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{role, select, head{You are this unit\'s crew head} other{You are this unit\'s assistant head}}: you can ask an administrator to add or remove crew members.'**
+  String myUnitLeadNote(String role);
+
+  /// No description provided for @crewAskWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Responder'**
+  String get crewAskWho;
+
+  /// No description provided for @crewAskWhoError.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a responder.'**
+  String get crewAskWhoError;
+
+  /// No description provided for @crewNoUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'No unit'**
+  String get crewNoUnit;
+
+  /// No description provided for @crewMyAddLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {name}'**
+  String crewMyAddLine(String name);
+
+  /// No description provided for @crewMyRemoveLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {name} off'**
+  String crewMyRemoveLine(String name);
+
+  /// No description provided for @crewMyNewLine.
+  ///
+  /// In en, this message translates to:
+  /// **'New member: {name}'**
+  String crewMyNewLine(String name);
 }
 
 class _AppLocalizationsDelegate

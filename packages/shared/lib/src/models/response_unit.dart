@@ -22,6 +22,8 @@ class ResponseUnit {
     this.lastLocationAt,
     this.currentIncidentId,
     this.retiredAt,
+    this.crewHeadId,
+    this.assistantHeadId,
   });
 
   final String id;
@@ -102,6 +104,15 @@ class ResponseUnit {
 
   bool get retired => retiredAt != null;
 
+  /// The crew head and the assistant head (staff ids): they ask admins to
+  /// add or remove crew (2026-10-29). Null when none is named.
+  final String? crewHeadId;
+  final String? assistantHeadId;
+
+  /// Whether [staffId] may ask for crew changes on this unit.
+  bool isLead(String? staffId) =>
+      staffId != null && (staffId == crewHeadId || staffId == assistantHeadId);
+
   /// Can take a new assignment: in service, marked Available, and not
   /// already assigned.
   bool get isDispatchable =>
@@ -121,6 +132,10 @@ class ResponseUnit {
     int? crewSize,
     DateTime? retiredAt,
     bool clearRetired = false,
+    String? crewHeadId,
+    bool clearCrewHead = false,
+    String? assistantHeadId,
+    bool clearAssistantHead = false,
   }) => ResponseUnit(
     id: id,
     callSign: callSign ?? this.callSign,
@@ -137,6 +152,10 @@ class ResponseUnit {
         ? null
         : (currentIncidentId ?? this.currentIncidentId),
     retiredAt: clearRetired ? null : (retiredAt ?? this.retiredAt),
+    crewHeadId: clearCrewHead ? null : (crewHeadId ?? this.crewHeadId),
+    assistantHeadId: clearAssistantHead
+        ? null
+        : (assistantHeadId ?? this.assistantHeadId),
   );
 
   factory ResponseUnit.fromJson(Map<String, Object?> json) => ResponseUnit(
@@ -163,6 +182,8 @@ class ResponseUnit {
     lastLocationAt: timeFromJsonOrNull(json['last_location_at']),
     currentIncidentId: json['current_incident_id'] as String?,
     retiredAt: timeFromJsonOrNull(json['retired_at']),
+    crewHeadId: json['crew_head_id'] as String?,
+    assistantHeadId: json['assistant_head_id'] as String?,
   );
 
   Map<String, Object?> toJson() => {
@@ -181,6 +202,8 @@ class ResponseUnit {
     'last_location_at': lastLocationAt?.toIso8601String(),
     'current_incident_id': currentIncidentId,
     'retired_at': retiredAt?.toUtc().toIso8601String(),
+    'crew_head_id': crewHeadId,
+    'assistant_head_id': assistantHeadId,
   };
 }
 
