@@ -1,0 +1,91 @@
+{
+  "data": "public records standing in for PAGASA's and MDRRMD's (prepare_real.py)",
+  "rule": "at risk = moderate or high by run_forecast.py's provisional rule (plan Q22)",
+  "truth": "a placed incident of the hazard in the barangay on days t+1 to t+3",
+  "hazards": {
+    "flood": {
+      "test_days": [
+        "2024-07-18",
+        "2026-10-02"
+      ],
+      "test_windows": 807,
+      "barangay_days_with_a_placed_incident": 114,
+      "spatial": {
+        "kde_points": 1,
+        "kde": "too few placed incidents in the training part to fit a KDE (5-fold CV needs 10)"
+      },
+      "variants": {
+        "noah": {
+          "cells": 723879,
+          "accuracy": 0.9707,
+          "balanced_accuracy": 0.5819,
+          "precision": 0.001,
+          "recall": 0.193,
+          "f1": 0.0021,
+          "confusion": {
+            "tp": 22,
+            "fp": 21115,
+            "fn": 92,
+            "tn": 702650
+          }
+        },
+        "nothing_at_risk": {
+          "cells": 723879,
+          "accuracy": 0.9998,
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 114,
+            "tn": 723765
+          }
+        }
+      }
+    },
+    "fire": {
+      "test_days": [
+        "2023-06-11",
+        "2025-01-28"
+      ],
+      "test_windows": 598,
+      "barangay_days_with_a_placed_incident": 36,
+      "spatial": {
+        "kde_points": 43,
+        "kde_bandwidth_m": 500
+      },
+      "variants": {
+        "kde": {
+          "cells": 536406,
+          "accuracy": 0.567,
+          "balanced_accuracy": 0.4085,
+          "precision": 0.0,
+          "recall": 0.25,
+          "f1": 0.0001,
+          "confusion": {
+            "tp": 9,
+            "fp": 232251,
+            "fn": 27,
+            "tn": 304119
+          }
+        },
+        "nothing_at_risk": {
+          "cells": 536406,
+          "accuracy": 0.9999,
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 36,
+            "tn": 536370
+          }
+        }
+      }
+    }
+  }
+}

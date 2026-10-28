@@ -17,11 +17,14 @@ Needs TensorFlow, which needs Python 3.12 (see ml/README.md):
   .venv-tf/Scripts/python ml/forecast/train_lstm.py
 
 Writes ml/forecast/lstm_metrics.json, and build/lstm_<hazard>.keras and
-build/lstm_<hazard>.tflite (git-ignored).
+build/lstm_<hazard>.tflite (git-ignored). For the public records
+(prepare_real.py):
+  .venv-tf/Scripts/python ml/forecast/train_lstm.py --prep prep_summary_real.json --build build/real --out lstm_metrics_real.json
 
 On the sample data nothing here is a result: the data is made up.
 """
 
+import argparse
 import json
 import os
 import time
@@ -36,7 +39,6 @@ import tensorflow as tf  # noqa: E402
 from prepare_windows import HAZARDS, scores  # noqa: E402
 
 HERE = Path(__file__).parent
-BUILD = HERE / "build"
 SEED = 20261002
 
 UNITS = (64, 32)
@@ -136,7 +138,13 @@ def export_tflite(model, x_check, path):
 
 
 def main():
-    prep = json.loads((HERE / "prep_summary.json").read_text(encoding="utf-8"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--prep", default="prep_summary.json")
+    parser.add_argument("--build", default="build")
+    parser.add_argument("--out", default="lstm_metrics.json")
+    args = parser.parse_args()
+    build = HERE / args.build
+    prep = json.loads((HERE / args.prep).read_text(encoding="utf-8"))
     out = {
         "data": prep.get("data", "as given"),
         "tensorflow": tf.__version__,
@@ -153,8 +161,8 @@ def main():
         "threshold": 0.5,
         "hazards": {},
     }
-    for hazard in HAZARDS:
-        path = BUILD / f"windows_{hazard}.npz"
+    for hazard in (h for h in HAZARDS if h in prep["hazards"]):
+        path = build / f"windows_{hazard}.npz"
         if not path.exists():
             raise SystemExit(f"{path} is missing: run prepare_windows.py first")
         data = dict(np.load(path))
@@ -183,15 +191,15 @@ def main():
             default=0.0,
         )
         result["test_f1_vs_best_baseline"] = [test["lstm"]["f1"], best_baseline]
-        model.save(BUILD / f"lstm_{hazard}.keras")
-        result["tflite"] = export_tflite(model, data["x_test"], BUILD / f"lstm_{hazard}.tflite")
+        model.save(build / f"lstm_{hazard}.keras")
+        result["tflite"] = export_tflite(model, data["x_test"], build / f"lstm_{hazard}.tflite")
         out["hazards"][hazard] = result
         print(
             f"  {hazard}: {result['epochs_run']} epochs (best {result['best_epoch']}), "
             f"test accuracy {test['lstm']['accuracy']}, F1 {test['lstm']['f1']} "
             f"(best baseline F1 {best_baseline}), {result['train_seconds']} s"
         )
-    (HERE / "lstm_metrics.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+    (HERE / args.out).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

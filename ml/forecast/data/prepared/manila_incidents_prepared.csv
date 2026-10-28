@@ -1,0 +1,198 @@
+incident_id,date,hazard,latitude,longitude,precision,barangay,use_for_kde,source_url
+AFN-6219,2012-02-01,fire,14.59871,120.98616,district,Barangay 393,no,http://www.philstar.com/Article.aspx
+AFN-2001,2012-02-02,fire,14.59871,120.98616,district,Barangay 393,no,http://www.philstar.com/nation/article.aspx
+AFN-6223,2012-02-10,fire,14.61568,120.98332,district,Barangay 336,no,http://www.philstar.com/Article.aspx
+AFN-1978,2012-02-11,fire,14.61568,120.98332,district,Barangay 336,no,http://www.philstar.com/nation/article.aspx
+AFN-6225,2012-02-18,fire,14.57279,121.00411,district,Barangay 804,no,http://www.philstar.com/Article.aspx
+AFN-1969,2012-02-19,fire,14.57279,121.00411,district,Barangay 804,no,http://www.philstar.com/nation/article.aspx
+AFN-6362,2012-04-14,fire,14.57626,121.00694,district,Barangay 777,no,http://www.philstar.com/nation/article.aspx
+AFN-1781,2012-04-15,fire,14.57626,121.00694,district,Barangay 777,no,http://www.philstar.com/nation/article.aspx
+AFN-1733,2012-05-05,fire,14.61568,120.98332,district,Barangay 336,no,http://www.gmanetwork.com/news/story/257202/news/metromanila/one-killed-in-manila-s-sta-cruz-district-fire
+AFN-6381,2012-05-24,fire,14.58864,121.00543,street,Barangay 862,yes,http://www.gmanetwork.com/news/story/259357/news/metromanila/fire-hits-pandacan-residential-area-2nd-in-manila-in-last-24-hours
+AFN-728,2012-05-25,fire,14.58864,121.00543,street,Barangay 862,yes,http://www.gmanetwork.com/news/story/259357/news/metromanila/fire-hits-pandacan-residential-area-2nd-in-manila-in-last-24-hours
+AFN-593,2013-01-30,fire,14.60455,120.98530,street,Barangay 310,yes,
+AFN-610,2013-02-08,fire,14.62006,120.99313,street,Barangay 498,yes,
+AFN-390,2013-04-12,fire,14.60528,120.97675,street,Barangay 294,yes,
+AFN-468,2013-04-29,fire,14.57203,120.99305,street,Barangay 723,yes,
+AFN-6434,2013-05-02,fire,14.60724,121.00166,district,Barangay 544,no,http://www.philstar.com/metro/2013/05/03/937682/2-kids-perish-manila-fire
+AFN-815,2013-07-09,fire,14.61251,120.99101,street,Barangay 481,yes,
+AFN-976,2013-09-13,fire,14.62333,120.98655,street,Barangay 364,yes,
+AFN-1123,2013-10-27,fire,14.59883,121.01713,district,Barangay 589,no,http://www.gmanetwork.com/news/story/332790/news/metromanila/fire-hits-manila-school-serving-as-barangay-poll-center
+AFN-1145,2013-11-09,fire,14.59883,121.01713,district,Barangay 589,no,http://www.gmanetwork.com/news/story/334685/news/metromanila/3-killed-in-predawn-manila-fire-report
+AFN-1393,2014-01-15,fire,14.57363,121.00214,street,Barangay 802,yes,http://www.gmanetwork.com/news/story/343863/news/metromanila/predawn-fire-hits-3-story-building-in-manila
+AFN-6442,2014-02-10,fire,14.62006,120.99313,street,Barangay 498,yes,http://www.philstar.com/nation/2014/02/10/1288739/1-hurt-manila-fire
+AFN-6448,2014-02-18,fire,14.58245,121.01670,street,Barangay 886,yes,http://www.gmanetwork.com/news/story/348896/news/metromanila/p3m-in-property-destroyed-by-predawn-fire-in-manila
+AFN-6460,2014-03-04,fire,14.60724,121.00166,district,Barangay 544,no,http://www.philstar.com/nation/2014/03/04/1297006/fire-hits-ust-hospital-manila-report
+AFN-1620,2014-04-29,fire,14.57255,120.98559,street,Barangay 698,yes,http://www.gmanetwork.com/news/story/358865/news/metromanila/3-dead-as-fire-hits-malate-area-in-manila
+AFN-1946,2014-06-07,fire,14.61878,120.97050,district,Barangay 151,no,http://www.philstar.com/metro/2014/06/08/1332279/manila-fire-leaves-10-families-homeless
+AFN-2282,2014-08-03,fire,14.58463,120.98407,district,Barangay 660-A,no,http://www.gmanetwork.com/news/story/373202/news/metromanila/fire-hits-manila-commercial-building 
+AFN-2495,2014-09-30,fire,14.57626,121.00694,district,Barangay 777,no,"http://www.philstar.com/headlines/2014/09/30/1374867/fire-razes-3-oil-tanker-trucks-manila-report
+"
+AFN-2500,2014-10-03,fire,14.63009,120.98311,street,Barangay 373,yes,http://www.philstar.com/nation/2014/10/03/1376050/3-hurt-manila-fire
+AFN-2688,2014-12-11,fire,14.61257,120.98342,street,Barangay 325,yes,http://www.gmanetwork.com/news/story/392067/news/metromanila/fire-hits-residences-in-sta-cruz-manila-500-families-face-homeless-christmas
+AFN-3007,2015-03-02,fire,14.61830,120.97092,street,Barangay 156,yes,http://www.gmanetwork.com/news/story/445365/news/metromanila/evening-fires-hit-manila-qc-on-second-day-of-fire-prevention-month
+AFN-3008,2015-03-03,fire,14.61878,120.97050,district,Barangay 151,no,http://www.philstar.com/headlines/2015/03/03/1429699/update-10000-families-homeless-12-hour-fire-hit-manila
+AFN-3009,2015-03-04,fire,14.60964,120.96916,street,Barangay 56,yes,http://www.gmanetwork.com/news/story/446833/news/metromanila/one-hurt-in-tondo-fire
+AFN-3274,2015-05-13,fire,14.59795,121.02163,barangay,Barangay 601,yes,http://www.gmanetwork.com/news/story/486438/news/metromanila/1-dead-3-hurt-in-sta-mesa-fire
+AFN-3754,2015-11-10,fire,14.61878,120.97050,district,Barangay 151,no,http://www.gmanetwork.com/news/story/543899/news/metro/tuesday-night-fire-in-tondo-manila-affects-30-families
+AFN-3810,2015-11-24,fire,14.56978,120.99239,district,Barangay 725,no,http://www.philstar.com/metro/2015/11/24/1525272/2-fires-break-out-quezon-city
+AFN-3888,2015-12-09,fire,14.57919,121.00845,street,Barangay 877,yes,http://www.gmanetwork.com/news/story/547401/news/metro/woman-killed-in-manila-fire
+AFN-3900,2015-12-13,fire,14.61058,121.00888,street,Barangay 555,yes,http://www.gmanetwork.com/news/story/547738/news/metro/manila-apartment-building-fire-affects-20-families
+AFN-3921,2015-12-17,fire,14.61904,120.96257,barangay,Barangay 108,yes,http://www.philstar.com/metro/2015/12/18/1533828/tondo-fire-leaves-100-families-homeless
+AFN-3926,2015-12-20,fire,14.60134,120.97567,district,Barangay 296,no,http://www.philstar.com/nation/2015/12/20/1534691/divisoria-fire-reaches-5th-alarm
+AFN-3942,2015-12-22,fire,14.56978,120.99239,district,Barangay 725,no,http://www.philstar.com/metro/2015/11/26/1526006/fire-hits-manila-zoo
+AFN-3941,2015-12-26,fire,14.61407,120.96637,street,Barangay 74,yes,http://www.gmanetwork.com/news/story/549124/news/metro/christmas-day-fire-razes-10-tondo-homes
+AFN-3965,2016-01-01,fire,14.62117,120.97414,barangay,Barangay 155,yes,http://www.gmanetwork.com/news/story/549694/news/metro/1-killed-thousands-homeless-in-new-year-fire-in-tondo
+AFN-4167,2016-02-09,fire,14.60724,121.00166,district,Barangay 544,no,http://www.philstar.com/metro/2016/02/09/1551115/fire-destroys-funeral-parlor-3-hearses
+AFN-4232,2016-02-17,fire,14.60724,121.00166,district,Barangay 544,no,
+AFN-4234,2016-02-18,fire,14.61568,120.98332,district,Barangay 336,no,http://www.philstar.com/metro/2016/02/18/1554163/40-families-lose-homes-manila-fire
+AFN-4318,2016-02-29,fire,14.62996,120.96345,barangay,Barangay 129,yes,http://www.philstar.com/nation/2016/02/25/1556411/fire-hits-lumad-evacuation-camp-5-hurt
+AFN-4335,2016-03-03,fire,14.59871,120.98616,district,Barangay 393,no,http://www.philstar.com/metro/2016/03/03/1558942/fire-hits-quiapo-60-families-homeless
+AFN-4366,2016-03-09,fire,14.60295,120.96405,street,Barangay 32,yes,http://www.gmanetwork.com/news/story/558343/news/metro/100-families-lose-homes-in-tondo-fire
+AFN-4392,2016-03-13,fire,14.57279,121.00411,district,Barangay 804,no,http://www.philstar.com/metro/2016/03/13/1562397/1-dead-6-hurt-manila-fire
+AFN-4464,2016-03-21,fire,14.61878,120.97050,district,Barangay 151,no,http://www.gmanetwork.com/news/story/559868/news/metro/mother-3-children-die-in-divisoria-fire
+AFN-4594,2016-04-10,fire,14.61043,120.98134,street,Barangay 326,yes,http://www.philstar.com/metro/2016/04/10/1571298/8-hurt-sta.-cruz-fire
+AFN-4617,2016-04-11,fire,14.59871,120.98616,district,Barangay 393,no,http://www.philstar.com/metro/2016/04/11/1571668/quiapo-fire-leaves-200-families-homeless
+AFN-4628,2016-04-13,fire,14.58593,120.99975,barangay,Barangay 841,yes,http://www.gmanetwork.com/news/story/562498/news/metro/parked-passenger-jeep-catches-fire
+AFN-4668,2016-04-18,fire,14.62520,120.98741,street,Barangay 376,yes,http://www.philstar.com/metro/2016/04/18/1573952/alleged-drug-addict-causes-fire-manila
+AFN-4756,2016-04-26,fire,14.58666,121.00972,barangay,Barangay 903,yes,http://www.philstar.com/metro/2016/04/26/1576713/15-families-homeless-manila-fire
+AFN-4915,2016-05-18,fire,14.59883,121.01713,district,Barangay 589,no,http://www.philstar.com/metro/2014/05/18/1324351/arson-eyed-sta.-mesa-fire
+AFN-4953,2016-05-28,fire,14.60909,120.97711,street,Barangay 250,yes,http://www.philstar.com/metro/2016/05/28/1587673/woman-76-dies-tondo-fire
+AFN-5165,2016-07-18,fire,14.61878,120.97050,district,Barangay 151,no,http://www.philstar.com/metro/2016/07/18/1603929/fire-hits-tondo-church
+AFN-5282,2016-08-21,fire,14.60341,120.99883,barangay,Barangay 419,yes,http://www.gmanetwork.com/news/story/578400/news/metro/40-families-lose-homes-to-fire-in-manila
+AFN-6931,2019-04-30,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/692922/two-minor-siblings-killed-in-tondo-fire/story/
+AFN-6982,2019-05-21,fire,14.61568,120.98332,district,Barangay 336,no,https://www.gmanetwork.com/news/news/metro/695334/lrt1-coach-catches-fire-at-blumentritt-station/story/
+AFN-7009,2019-05-24,fire,14.61568,120.98332,district,Barangay 336,no,https://www.gmanetwork.com/news/news/metro/695801/2-dead-as-fire-hits-boarding-house-in-manila/story/
+AFN-7045,2019-06-29,fire,14.61544,121.00172,street,Barangay 531,yes,https://www.gmanetwork.com/news/news/metro/699362/fire-breaks-out-in-sampaloc-manila/story/
+AFN-7079,2019-07-21,fire,14.61568,120.98332,district,Barangay 336,no,https://www.gmanetwork.com/news/news/metro/701844/fire-hits-sta-cruz-manila-residential-area-2-injured/story/
+AFN-7155,2019-09-26,fire,14.58206,120.98758,street,Barangay 674,yes,https://www.gmanetwork.com/news/news/metro/709434/fire-behind-adamson-university-reaches-5th-alarm/story/
+AFN-7183,2019-10-22,fire,14.61294,120.98539,street,Barangay 340,yes,https://www.gmanetwork.com/news/news/metro/712566/2-hurt-as-fire-breaks-out-in-sta-cruz-manila/story/
+AFN-7185,2019-10-24,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/712811/siblings-die-in-tondo-fire/story/
+AFN-7194,2019-10-29,fire,14.56978,120.99239,district,Barangay 725,no,https://www.gmanetwork.com/news/news/metro/713344/1-dead-in-malate-fire/story/
+AFN-7294,2019-12-14,fire,14.60528,120.97675,street,Barangay 294,yes,https://www.gmanetwork.com/news/news/metro/719125/fire-breaks-out-in-commercial-establishment-on-recto-ave-in-manila/story/
+AFN-7308,2019-12-25,fire,14.56700,121.00019,street,Barangay 746,yes,https://www.gmanetwork.com/news/news/nation/720141/fire-breaks-out-in-manila-on-xmas-day-as-typhoon-pummels-central-phl/story/
+AFN-7309,2019-12-29,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/720492/fire-hits-residential-area-in-parola-tondo/story/
+AFN-7317,2020-01-01,fire,14.57626,121.00694,district,Barangay 777,no,https://www.gmanetwork.com/news/news/metro/720689/bfp-says-firecrackers-possible-cause-of-fire-in-sta-ana-manila/story/
+AFN-7329,2020-01-09,fire,14.57664,120.99258,street,Barangay 687,yes,https://www.gmanetwork.com/news/news/metro/721634/fire-hits-residential-area-in-malate-manila/story/
+AFN-8084,2020-01-16,fire,14.61818,120.97683,barangay,Barangay 230,yes,
+AFN-7376,2020-02-01,fire,14.59558,120.99235,district,Barangay 642,no,
+AFN-7378,2020-02-04,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/724827/fire-hits-baseco-compound-in-tondo-manila/story/
+AFN-7379,2020-02-14,fire,14.58672,121.00096,barangay,Barangay 842,yes,https://www.gmanetwork.com/news/news/metro/725962/balloon-vendor-in-manila-suffers-burns-due-to-a-bad-prank/story/
+AFN-7436,2020-04-30,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/736213/5-killed-4-hurt-in-tondo-fire/story/
+AFN-7539,2020-07-10,fire,14.58780,121.00466,district,Barangay 864,no,
+AFN-7745,2020-11-24,fire,14.57427,121.00149,street,Barangay 797,yes,
+AFN-8206,2020-12-16,fire,14.58166,120.99720,district,Barangay 680,no,https://www.gmanetwork.com/news/news/metro/768172/fire-breaks-out-in-paco-manila/story/
+AFN-8208,2020-12-19,fire,14.58166,120.99720,district,Barangay 680,no,https://www.straitstimes.com/singapore/firefighters-rescue-6-people-trapped-by-fire-in-punggol
+AFN-8216,2020-12-24,fire,14.60919,120.96536,barangay,Barangay 47,yes,https://www.gmanetwork.com/news/news/metro/769223/2-dead-6-families-lost-homes-in-tondo-fire-bfp/story/
+AFN-12017,2021-01-24,fire,14.60413,120.99544,barangay,Barangay 408,yes,https://www.gmanetwork.com/news/news/metro/772984/fire-hits-residential-area-in-sampaloc-manila/story/
+AFN-8286,2021-02-20,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/776832/residents-express-frustration-with-firemen-at-parola-compound-fire/story/
+AFN-12101,2021-02-21,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/776832/residents-express-frustration-with-firemen-at-parola-compound-fire/story/
+AFN-12156,2021-03-11,fire,14.62117,120.97414,barangay,Barangay 155,yes,https://www.gmanetwork.com/news/news/metro/779214/tondo-fire-leaves-40-families-homeless/story/
+AFN-12543,2021-05-27,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/789081/man-killed-in-baseco-fire/story/
+AFN-12588,2021-06-12,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/791250/fire-hits-cargo-vessel-residential-area-in-tondo-manila/story/
+AFN-13090,2021-10-14,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/news/metro/806890/man-killed-his-child-injured-in-tondo-fire/story/
+AFN-13126,2021-10-20,fire,14.58374,120.98853,street,Barangay 664,yes,https://www.gmanetwork.com/news/news/metro/807707/fire-hits-commercial-building-in-manila/story/
+AFN-13482,2022-01-02,fire,14.60591,120.97684,street,Barangay 266,yes,https://www.gmanetwork.com/news/topstories/metro/816685/fire-breaks-out-in-tondo-before-dawn/story/
+AFN-13711,2022-02-20,fire,14.60866,120.98271,barangay,Barangay 316,yes,https://www.gmanetwork.com/news/topstories/metro/822470/four-dead-5-hurt-in-fire-that-hit-residential-area-in-sta-cruz-manila/story/
+AFN-13945,2022-04-03,fire,14.62281,120.98008,street,Barangay 359,yes,https://www.gmanetwork.com/news/topstories/metro/827204/mother-2-children-die-in-taguig-fire/story/
+AFN-13984,2022-04-08,fire,14.61568,120.98332,district,Barangay 336,no,https://www.gmanetwork.com/news/topstories/metro/827919/fire-kills-69-year-old-trapped-in-manila-home/story/
+AFN-14205,2022-05-09,fire,14.56978,120.99239,district,Barangay 725,no,https://www.gmanetwork.com/news/topstories/metro/831052/fire-disrupts-voting-in-malate-manila/story/
+AFN-14252,2022-05-19,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/topstories/metro/832276/fire-breaks-out-in-baseco-compound-residential-area/story/
+AFN-14318,2022-05-29,fire,14.59835,120.98143,street,Barangay 306,yes,https://www.gmanetwork.com/news/topstories/metro/833226/fire-hits-commercial-area-in-quiapo-manila/story/
+AFN-14365,2022-06-01,fire,14.60271,121.01601,street,Barangay 594,yes,https://www.gmanetwork.com/news/topstories/metro/833518/one-dead-in-fire-in-sta-mesa-manila/story/
+AFN-14768,2022-07-26,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/topstories/metro/839409/fire-hits-residential-area-in-baseco-compound-in-manila/story/
+AFN-14770,2022-07-31,fire,14.59075,120.97548,district,Barangay 655,no,https://www.comelec.gov.ph
+AFN-14841,2022-08-02,fire,14.61568,120.98332,district,Barangay 336,no,https://www.gmanetwork.com/news/topstories/metro/840195/huge-fire-breaks-out-in-residential-area-in-sta-cruz-manila/story/
+AFN-15055,2022-09-07,fire,14.57442,121.00669,barangay,Barangay 773,yes,https://www.facebook.com/sagipmanila/posts/pfbid02rfkgiME1RC4ph21iLh3VDhNcqSZRDLP2oDeN6dQCxeB9tXGN2tk2Z4XjwBUczrhml
+AFN-15604,2022-12-29,fire,14.59718,120.98512,street,Barangay 383,yes,https://www.gmanetwork.com/news/topstories/metro/855767/at-least-2-confirmed-dead-from-quiapo-fire/story/
+AFN-15731,2023-01-21,fire,14.60636,120.96473,barangay,Barangay 35,yes,https://www.gmanetwork.com/news/topstories/metro/858160/fire-hits-tondo-residential-area/story/
+AFN-16084,2023-03-13,fire,14.60134,120.97567,district,Barangay 296,no,https://www.gmanetwork.com/news/topstories/metro/863642/fires-hit-plastics-factory-in-qc-residential-area-in-binondo-manila/story/
+AFN-16113,2023-03-20,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://www.gmanetwork.com/news/topstories/metro/864416/fire-hits-residential-area-in-san-andres-bukid-manila-3-hurt/story/
+AFN-16445,2023-05-14,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://www.gmanetwork.com/news/topstories/metro/869985/fire-hits-residential-area-in-sta-cruz-manila/story/
+AFN-16560,2023-05-28,fire,14.57691,120.98155,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/871371/fire-hits-commercial-area-in-ermita-manila/story/
+AFN-17940,2023-09-06,fire,14.59642,120.98380,street,Barangay 384,yes,https://www.gmanetwork.com/news/topstories/metro/881236/fire-hits-residential-and-commercial-building-in-quiapo/story/
+AFN-18456,2023-09-12,fire,14.62117,120.97414,barangay,Barangay 155,yes,https://www.gmanetwork.com/news/topstories/metro/881963/2-minors-killed-in-tondo-fire/story/
+AFN-18688,2024-04-06,fire,14.61568,120.98332,district,Barangay 336,no,https://www.gmanetwork.com/news/topstories/metro/902823/manila-fire-in-residential-area-cost-p3-7-m-damage/story
+AFN-18775,2024-04-21,fire,14.57817,120.99318,street,Barangay 673,yes,https://www.gmanetwork.com/news/topstories/metro/900375/fire-hits-pgh-ward/story/
+AFN-18779,2024-04-21,fire,14.58463,120.98407,district,Barangay 660-A,no,https://www.gmanetwork.com/news/topstories/metro/904265/fires-hit-parts-of-pgh-commercial-area-in-paco-manila/story/
+AFN-18817,2024-04-23,fire,14.60012,120.96197,street,Barangay 20,yes,https://www.gmanetwork.com/news/topstories/metro/904479/fire-hits-parola-compound-in-manila/story
+AFN-18867,2024-05-05,fire,14.57857,120.97938,street,Barangay 667,yes,https://www.gmanetwork.com/news/topstories/metro/905752/fire-hits-building-in-ermita-manila/story
+AFN-18911,2024-05-08,fire,14.56978,120.99239,district,Barangay 725,no,https://www.gmanetwork.com/news/topstories/metro/906058/fire-volunteer-s-home-one-of-40-razed-in-manila-blaze/story
+AFN-18935,2024-05-16,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/topstories/metro/906924/5-year-old-twins-die-in-tondo-fire/story
+AFN-18965,2024-05-24,fire,14.59975,121.00292,barangay,Barangay 632,yes,
+AFN-18979,2024-05-29,fire,14.59075,120.97548,district,Barangay 655,no,https://www.gmanetwork.com/news/topstories/metro/908360/fire-hits-letran-library-classes-temporarily-halted/story
+AFN-19149,2024-08-02,fire,14.59892,120.97563,barangay,Barangay 289,yes,https://www.gmanetwork.com/news/topstories/metro/915648/11-reported-dead-in-binondo-fire/story
+AFN-19161,2024-08-08,fire,14.62950,120.97504,barangay,Barangay 185,yes,https://www.gmanetwork.com/regionaltv/news/103319/p9m-dawn-fire-struck-market-in-san-rafael-iloilo/story/
+AFN-19163,2024-08-09,fire,14.62876,120.96592,street,Barangay 134,yes,https://www.gmanetwork.com/news/topstories/metro/916449/fire-hits-warehouse-in-balut-tondo/story/
+AFN-19184,2024-08-17,fire,14.61568,120.98332,district,Barangay 336,no,https://www.gmanetwork.com/news/topstories/metro/917371/fire-hits-portion-of-metropolitan-medical-center-in-manila/story
+AFN-19210,2024-08-26,fire,14.61878,120.97050,district,Barangay 151,no,https://www.gmanetwork.com/news/topstories/metro/918289/1-crew-dead-2-others-hurt-in-cargo-ship-fire-in-manila/story
+AFN-19240,2024-09-16,fire,14.58463,120.98407,district,Barangay 660-A,no,https://www.gmanetwork.com/news/topstories/metro/920564/fire-hits-philippine-general-hospital-in-manila/story
+AFN-19244,2024-09-24,fire,14.60687,121.00301,street,Barangay 551,yes,https://www.gmanetwork.com/news/topstories/metro/921431/female-employee-of-an-eatery-dies-in-manila-fire/story
+AFN-19255,2024-09-29,fire,14.60406,120.96547,barangay,Barangay 25,yes,https://www.youtube.com/watch
+AFN-19399,2025-01-16,fire,14.60596,120.99266,barangay,Barangay 458,yes,https://www.gmanetwork.com/news/topstories/metro/933044/sampaloc-fire-affects-500-families/story
+FLD-20210725-001,2021-07-25,flood,14.60971,120.98236,street,Barangay 333,yes,https://www.gmanetwork.com/news/topstories/metro/796691/list-flooded-areas-in-metro-manila-on-sunday-july-25-2021/story/
+FLD-20220808-002,2022-08-08,flood,14.58610,120.98258,street,Barangay 666,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-003,2022-08-08,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-004,2022-08-08,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-005,2022-08-08,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-006,2022-08-08,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20221029-007,2022-10-29,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://news.abs-cbn.com/news/10/30/22/some-parts-of-metro-manila-experience-flooding-due-to-paeng
+FLD-20230923-008,2023-09-23,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.philstar.com/headlines/2023/09/24/2298617/floods-hit-metro-manila-roads-2-lpas-monitored
+FLD-20240724-010,2024-07-24,flood,14.60972,120.99282,street,Barangay 479,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-011,2024-07-24,flood,14.61293,120.99634,street,Barangay 503,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-012,2024-07-24,flood,14.57984,120.97733,street,Barangay 666,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240725-013,2024-07-25,flood,14.60375,120.98192,street,Barangay 313,yes,https://www.gmanetwork.com/news/topstories/metro/914660/flooded-areas-metro-manila-july-25-2024/story/
+FLD-20241025-014,2024-10-25,flood,14.60972,120.99282,street,Barangay 479,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+FLD-20241025-016,2024-10-25,flood,14.61175,120.99507,street,Barangay 475,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+FLD-20250718-017,2025-07-18,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-018,2025-07-18,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-020,2025-07-18,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250721-021,2025-07-21,flood,14.60972,120.99282,street,Barangay 479,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250721-022,2025-07-21,flood,14.61293,120.99634,street,Barangay 503,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250722-023,2025-07-22,flood,14.60035,120.99100,street,Barangay 416,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-024,2025-07-22,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-029,2025-07-22,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-030,2025-07-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-031,2025-07-22,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-032,2025-07-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-033,2025-07-22,flood,14.55959,120.98715,street,Barangay 719,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-034,2025-07-22,flood,14.57873,120.99836,street,Barangay 682,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-035,2025-07-22,flood,14.61675,120.97733,street,Barangay 229,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-036,2025-07-22,flood,14.60608,120.97486,street,Barangay 259,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250822-037,2025-08-22,flood,14.56432,120.98512,street,Barangay 701,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-038,2025-08-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-040,2025-08-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-041,2025-08-22,flood,14.58614,120.98267,street,Barangay 659,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-042,2025-08-22,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250905-043,2025-09-05,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/958113/list-flooded-roads-in-metro-manila-amid-habagat-rains/story/
+FLD-20260710-044,2026-07-10,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+FLD-20260710-045,2026-07-10,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+FLD-20260809-047,2026-08-09,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-048,2026-08-09,flood,14.57731,120.98767,street,Barangay 676,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-049,2026-08-09,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260810-050,2026-08-10,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-051,2026-08-10,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-052,2026-08-10,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260818-053,2026-08-18,flood,14.60811,120.99113,street,Barangay 459,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-054,2026-08-18,flood,14.61101,120.98246,street,Barangay 334,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-055,2026-08-18,flood,14.61961,120.97770,street,Barangay 231,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260819-056,2026-08-19,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/999051/flood-alert-flooded-roads-in-metro-manila-on-wednesday-august-19-2026/story/
+FDAY-20120806,2012-08-06,flood,,,city,,no,https://newsinfo.inquirer.net/243935/floods-slowed-traffic-on-some-metro-manila-roads
+FDAY-20120807,2012-08-07,flood,,,city,,no,https://en.wikipedia.org/wiki/2012_Luzon_southwest_monsoon_floods
+FDAY-20120808,2012-08-08,flood,,,city,,no,https://en.wikipedia.org/wiki/2012_Luzon_southwest_monsoon_floods
+FDAY-20120917,2012-09-17,flood,,,city,,no,https://newsinfo.inquirer.net/272474/floods-hit-parts-of-metro-manila
+FDAY-20130728,2013-07-28,flood,,,city,,no,https://newsinfo.inquirer.net/454209/some-parts-of-metro-manila-flooded-due-to-afternoon-downpour
+FDAY-20130803,2013-08-03,flood,,,city,,no,https://philstar.com/metro/2013/08/04/1048001/floods-hit-qc-manila
+FDAY-20130818,2013-08-18,flood,,,city,,no,https://newsinfo.inquirer.net/468395/floods-hit-parts-of-metro-manila-2
+FDAY-20130819,2013-08-19,flood,,,city,,no,https://newsinfo.inquirer.net/469593/most-of-metro-manila-remain-flooded-due-to-heavy-rains-mmda
+FDAY-20130820,2013-08-20,flood,,,city,,no,https://newsinfo.inquirer.net/469593/most-of-metro-manila-remain-flooded-due-to-heavy-rains-mmda
+FDAY-20130821,2013-08-21,flood,,,city,,no,https://newsinfo.inquirer.net/471067/several-areas-in-manila-still-flooded-mmda
+FDAY-20140919,2014-09-19,flood,,,city,,no,https://newsinfo.inquirer.net/639146/flooded-areas-in-metro-manila-mmda
+FDAY-20160814,2016-08-14,flood,,,city,,no,https://pagasa.dost.gov.ph/index.php/learnings/publication
+FDAY-20170530,2017-05-30,flood,,,city,,no,https://www.gmanetwork.com/news/news/metro/612690/parts-of-metro-manila-flooded-after-heavy-rain/story/
+FDAY-20180621,2018-06-21,flood,,,city,,no,https://newsinfo.inquirer.net/1003027/flood-alert-list-of-flooded-areas-on-june-21-2018
+FDAY-20180811,2018-08-11,flood,,,city,,no,https://newsinfo.inquirer.net/1020076/mmda-monitors-flooded-metro-roads
+FDAY-20190802,2019-08-02,flood,,,city,,no,https://newsinfo.inquirer.net/1149128/look-flooded-areas-in-metro-manila
+FDAY-20190803,2019-08-03,flood,,,city,,no,https://gmanetwork.com/news/topstories/metro/703329/flooded-areas-in-metro-manila-on-saturday-aug-3-2019/story
+FDAY-20210723,2021-07-23,flood,,,city,,no,https://www.topgear.com.ph/news/motoring-news/taft-flood-july-2021-gallery-a4354-20210723
+FDAY-20240903,2024-09-03,flood,,,city,,no,https://www.abs-cbn.com/news/2024/9/3/list-flooded-areas-due-to-sept-3-bad-weather-1223

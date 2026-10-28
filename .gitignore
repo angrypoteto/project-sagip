@@ -31,6 +31,8 @@ __pycache__/
 *.pyc
 /cache/
 ml/**/cache/
+# UP NOAH hazard maps as downloaded (about 107 MB; ml/forecast/README)
+ml/forecast/data/noah/
 
 # Supabase CLI scratch files
 supabase/.temp/

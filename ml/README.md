@@ -96,6 +96,20 @@ What this is not: a record of incidents. BFP counted 212 structural fires in Man
 
 Neither is usable. The flood model finds 2 of the 11 flood windows and does not beat the simple baseline; its high accuracy only reflects that most days have no flood. The fire model is right about one alarm in five, and on the validation part it found none of 12. This is what so few reports can give; it is not a result about Manila. The models are in `build/news_models/` (git-ignored) and are not loaded anywhere. The commands: `fetch_weather.py --start ... --end ... --signals data/manila_signals.csv --out data/manila_weather_<hazard>.csv`, `prepare_windows.py --weather ... --incidents data/manila_<fire|flood>_news.csv` once per hazard (keeping each hazard's `build/windows_<hazard>.npz`), then `train_lstm.py`.
 
+## Objective 2 on public records (from 2026-10-28)
+
+Joshua asked on 2026-10-28 for the forecast to be trained on data from the sites he had shared (UP NOAH, PAGASA, JAXA GSMaP) and to answer Objective 2, without loading anything into the system yet. Results, the step log, and how to read them: **`docs/OBJECTIVE-2-RESULTS.md`**.
+
+| Script | What it does |
+|---|---|
+| `forecast/fetch_gsmap.py` | Daily GSMaP Gauge v6 rainfall (JAXA Earth API, open, no sign-up) for the four 0.1° cells over Manila, 2012 on, weighted by the city's area in each. Reads only the block holding Manila (about 125 KB a day). Writes `data/manila_gsmap_daily.csv` |
+| `forecast/noah_barangays.py` | The share of each of the 897 barangays in UP NOAH's flood (5, 25, 100-year rain) and storm surge (SSA 1 to 4) zones. Writes `data/noah_barangay_hazard.csv` (ODbL, credit UP NOAH). The maps themselves go in `data/noah/` (git-ignored, about 107 MB; from the Google Drive folder linked on noah.up.edu.ph) |
+| `forecast/prepare_real.py` | Cleaning, geocoding, and time-aligning of the weather and the incidents, logging records in, retained, corrected, and removed at each step (`prep_summary_real.json`); writes `data/prepared/` and the windows in `build/real/`. Fires use only the stretches the archive covers (none for 2017 and 2018) |
+| `forecast/train_lstm.py --prep prep_summary_real.json --build build/real --out lstm_metrics_real.json` | The same LSTM on those windows |
+| `forecast/evaluate_heatmap.py` | The 72-hour heatmap per barangay on the test part (LSTM probability with the KDE, or UP NOAH for floods, through the Q22 rule). Writes `heatmap_metrics_real.json` |
+
+`data/manila_flood_days.csv` adds 19 flood days from 2012 to 2024 that name City of Manila streets; they come from search summaries (`read_from`) and are **unchecked** (`checked` is `no`). The Data role should open each link and correct the row.
+
 ## Forecast: data preparation and KDE (plan 10.5)
 
 ```bash
