@@ -21,19 +21,23 @@ void main() {
   late MockMobileBackend backend;
   late ProviderContainer container;
 
-  ProviderContainer make({bool welcomeDone = true, ClientConfig? config}) =>
-      ProviderContainer(
-        overrides: [
-          ...mockOverrides(backend),
-          mapTilesEnabledProvider.overrideWithValue(false),
-          clockProvider.overrideWith((ref) => Stream.value(now)),
-          if (welcomeDone) welcomeSeenProvider.overrideWith(WelcomeDone.new),
-          if (config != null)
-            clientConfigRepositoryProvider.overrideWithValue(
-              StaticClientConfigRepository(config),
-            ),
-        ],
-      );
+  ProviderContainer make({
+    bool welcomeDone = true,
+    ClientConfig? config,
+    PhoneCaller? caller,
+  }) => ProviderContainer(
+    overrides: [
+      ...mockOverrides(backend),
+      mapTilesEnabledProvider.overrideWithValue(false),
+      clockProvider.overrideWith((ref) => Stream.value(now)),
+      if (welcomeDone) welcomeSeenProvider.overrideWith(WelcomeDone.new),
+      if (config != null)
+        clientConfigRepositoryProvider.overrideWithValue(
+          StaticClientConfigRepository(config),
+        ),
+      if (caller != null) phoneCallerProvider.overrideWithValue(caller),
+    ],
+  );
 
   setUp(() {
     backend = MockMobileBackend(
@@ -54,8 +58,9 @@ void main() {
     WidgetTester tester, {
     bool welcomeDone = true,
     ClientConfig? config,
+    PhoneCaller? caller,
   }) async {
-    container = make(welcomeDone: welcomeDone, config: config);
+    container = make(welcomeDone: welcomeDone, config: config, caller: caller);
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -146,11 +151,27 @@ void main() {
       tester,
       config: const ClientConfig(hotline: '(02) 8527-0000'),
     );
+    // With a number set, the button calls it (Joshua, 2026-10-28), no dialog.
+    await tester.tap(find.byTooltip('Call MDRRMD'));
+    await settle(tester);
+    expect((container.read(phoneCallerProvider) as MockPhoneCaller).called, [
+      '0285270000',
+    ]);
+    expect(find.text('Call (02) 8527-0000 from any phone.'), findsNothing);
+    // Tier 2 is promised only once a gateway number is known.
+    expect(container.read(smsGatewayProvider), isEmpty);
+
+    // A device that cannot call shows the number instead.
+    container.dispose();
+    await tester.pumpWidget(const SizedBox());
+    await pumpApp(
+      tester,
+      config: const ClientConfig(hotline: '(02) 8527-0000'),
+      caller: MockPhoneCaller(outcome: CallOutcome.unavailable),
+    );
     await tester.tap(find.byTooltip('Call MDRRMD'));
     await settle(tester);
     expect(find.text('Call (02) 8527-0000 from any phone.'), findsOneWidget);
-    // Tier 2 is promised only once a gateway number is known.
-    expect(container.read(smsGatewayProvider), isEmpty);
   });
 
   testWidgets('sign-in explains a bad number and an unknown number', (

@@ -22,6 +22,9 @@
     <!-- The gateway's reply to an SOS text ("Your SOS was received"): only
          texts starting "S.A.G.I.P.:" reach the app (MainActivity.kt). -->
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <!-- "Call MDRRMD" starts the call at once (2026-10-28); without this
+         permission the dialer opens with the number typed instead. -->
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
     <!-- Tier 3 on Android 10 and 11 (scans there also need location). -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>

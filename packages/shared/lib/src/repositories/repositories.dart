@@ -785,3 +785,30 @@ abstract interface class SmsComposer {
   /// False when no messages app could be opened.
   Future<bool> compose(String number, String text);
 }
+
+/// How a "Call MDRRMD" tap went.
+enum CallOutcome {
+  /// The call started.
+  calling,
+
+  /// The phone-call permission was refused: the phone's dialer opened with
+  /// the number typed, one tap from calling.
+  dialerOpened,
+
+  /// This device cannot call (no phone app); show the number instead.
+  unavailable,
+}
+
+/// Calls a number from the "Call MDRRMD" buttons (Joshua, 2026-10-28: the
+/// button should call, not only show the number). With the phone-call
+/// permission the call starts at once; the first tap asks for it.
+abstract interface class PhoneCaller {
+  Future<CallOutcome> call(String number);
+}
+
+/// [number] as a phone dials it: digits and a leading +, nothing else
+/// ("(02) 8527-0000" becomes "0285270000").
+String dialable(String number) {
+  final digits = number.replaceAll(RegExp(r'[^0-9]'), '');
+  return number.trimLeft().startsWith('+') ? '+$digits' : digits;
+}

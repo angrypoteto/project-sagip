@@ -372,6 +372,21 @@ class MockSmsComposer implements SmsComposer {
   }
 }
 
+/// Records the numbers that would be called.
+class MockPhoneCaller implements PhoneCaller {
+  MockPhoneCaller({this.outcome = CallOutcome.calling});
+
+  /// What every call returns.
+  final CallOutcome outcome;
+  final called = <String>[];
+
+  @override
+  Future<CallOutcome> call(String number) async {
+    called.add(number);
+    return outcome;
+  }
+}
+
 class MockSignalMonitor implements SignalMonitor {
   const MockSignalMonitor(this._backend);
 

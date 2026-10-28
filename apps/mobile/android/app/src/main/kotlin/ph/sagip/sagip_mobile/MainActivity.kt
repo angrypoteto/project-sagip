@@ -150,6 +150,16 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/call")
+            .setMethodCallHandler { call, result ->
+                val number = call.argument<String>("number")
+                when {
+                    number.isNullOrEmpty() -> result.success("unavailable")
+                    call.method == "call" -> result.success(callNumber(number, now = true))
+                    call.method == "dial" -> result.success(callNumber(number, now = false))
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/sos_notice")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -332,6 +342,30 @@ class MainActivity : FlutterActivity() {
         } catch (_: Exception) {
             false
         }
+
+    /**
+     * "Call MDRRMD" (2026-10-28): with the phone-call permission the call
+     * starts at once ("calling"); without it, or if that fails, the dialer
+     * opens with the number typed ("dialer"); "unavailable" when the
+     * device has no phone app.
+     */
+    private fun callNumber(number: String, now: Boolean): String {
+        val tel = Uri.parse("tel:${Uri.encode(number)}")
+        if (now && checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                startActivity(Intent(Intent.ACTION_CALL, tel))
+                return "calling"
+            } catch (_: Exception) {
+                // Falls through to the dialer.
+            }
+        }
+        return try {
+            startActivity(Intent(Intent.ACTION_DIAL, tel))
+            "dialer"
+        } catch (_: Exception) {
+            "unavailable"
+        }
+    }
 
     private fun canSend(): Boolean =
         packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_MESSAGING) &&

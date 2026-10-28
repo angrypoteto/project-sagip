@@ -377,7 +377,7 @@ class _Actions extends ConsumerWidget {
               secondary,
             ],
             TextButton.icon(
-              onPressed: () => showHotlineDialog(context),
+              onPressed: () => callMdrrmd(context),
               icon: const Icon(Symbols.call_rounded),
               label: Text(l10n.callDispatcher),
             ),

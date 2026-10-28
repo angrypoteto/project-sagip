@@ -6,6 +6,23 @@ import 'package:sagip_shared/sagip_shared.dart';
 import '../l10n/app_localizations.dart';
 import '../providers.dart';
 
+/// What every "Call MDRRMD" button does (Joshua, 2026-10-28: call, not only
+/// show the number): calls the hotline at once (the first tap asks for the
+/// phone-call permission; refused, the dialer opens with the number typed).
+/// With no hotline set yet, or on a device that cannot call, it shows
+/// [showHotlineDialog] instead.
+Future<void> callMdrrmd(BuildContext context) async {
+  final container = ProviderScope.containerOf(context, listen: false);
+  final number = container.read(hotlineProvider);
+  if (number.isEmpty) return showHotlineDialog(context);
+  final outcome = await container
+      .read(phoneCallerProvider)
+      .call(dialable(number));
+  if (outcome == CallOutcome.unavailable && context.mounted) {
+    await showHotlineDialog(context);
+  }
+}
+
 /// The MDRRMD hotline: the number an administrator set on A3 (or one fixed
 /// at build time with `--dart-define=MDRRMD_HOTLINE=...`). Until MDRRMD's
 /// number is set the dialog says so instead of showing a made-up number.
@@ -64,7 +81,7 @@ class HotlineCard extends StatelessWidget {
                 backgroundColor: SagipColors.tideStrong,
                 foregroundColor: SagipColors.porcelain,
               ),
-              onPressed: () => showHotlineDialog(context),
+              onPressed: () => callMdrrmd(context),
               icon: const Icon(Symbols.call_rounded),
             ),
           ],

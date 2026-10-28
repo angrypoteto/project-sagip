@@ -8,6 +8,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import 'app_version.dart';
 import 'device/device_alert_sound.dart';
 import 'device/device_battery_optimization.dart';
+import 'device/device_phone_caller.dart';
 import 'device/device_relay_radio.dart';
 import 'device/download_latest_build.dart';
 import 'device/device_sos_send_notice.dart';
@@ -88,6 +89,9 @@ final voiceGuidanceProvider = NotifierProvider<VoiceGuidanceController, bool>(
 /// Opens the messages app with an SOS ready (S6, when the app may not
 /// text by itself).
 final smsComposerProvider = Provider<SmsComposer>((ref) => MockSmsComposer());
+
+/// "Call MDRRMD": calls the hotline (the dialer when calls are not allowed).
+final phoneCallerProvider = Provider<PhoneCaller>((ref) => MockPhoneCaller());
 
 final permissionServiceProvider = Provider<PermissionService>(
   (ref) => _missing('PermissionService'),
@@ -338,6 +342,7 @@ List<Override> liveOverrides({
     permissionServiceProvider.overrideWithValue(permissions),
     batteryOptimizationProvider.overrideWithValue(battery),
     smsComposerProvider.overrideWithValue(const DeviceSmsSender()),
+    phoneCallerProvider.overrideWithValue(const DevicePhoneCaller()),
     speakerProvider.overrideWithValue(TtsSpeaker()),
     alertSoundProvider.overrideWithValue(const DeviceAlertSound()),
     sosSendNoticeProvider.overrideWithValue(const DeviceSosSendNotice()),

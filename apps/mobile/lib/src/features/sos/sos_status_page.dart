@@ -127,7 +127,7 @@ class _SosStatusPageState extends ConsumerState<SosStatusPage> {
             SagipSpace.lg,
           ),
           child: FilledButton.icon(
-            onPressed: () => showHotlineDialog(context),
+            onPressed: () => callMdrrmd(context),
             icon: const Icon(Symbols.call_rounded),
             label: Text(l10n.callMdrrmd),
           ),
