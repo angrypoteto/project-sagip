@@ -158,6 +158,24 @@ In the dromic_txtfire version, TXTFIRE adds:
 
   Fire forecasting from weather should be described as limited in Chapter 5 whichever is chosen.
 
+## 8. Experiment: would PAGASA's rainfall forecast help? (Q50 c)
+
+Not the thesis feature set; run only to inform the team. PAGASA's past forecasts are not available. Instead, the rain that actually fell next was given to the LSTM as a seventh feature, as if the forecast had been perfect (`prepare_real.py --variant dromic --forecast-rain-days 1|3`). Same parameters, same test part (Jun 2025 to Oct 2026). A real forecast is worse than this, so these numbers are the most a forecast could add.
+
+| Rain forecast in the window | Flood accuracy | Flood balanced accuracy | Floods caught | Flood F1 | Fire balanced accuracy |
+|---|---:|---:|---|---:|---:|
+| none (dromic, section 7) | 86.6% | 53.9% | 6 of 42 | 0.16 | 51.4% |
+| next 24 hours, perfect | 85.6% | 57.7% | 10 of 42 | 0.22 | 49.9% |
+| next 72 hours, perfect | 85.2% | 61.7% | 14 of 42 | 0.28 | 52.2% |
+
+"Never a flood" scores 91.2% on the same windows.
+
+**Reading:**
+- A forecast does help floods, as expected: with the next 72 hours' rain known, the model catches a third of the flood windows instead of a seventh.
+- Even a perfect forecast does not lift accuracy above never warning. The flood records are still too incomplete: many wet days have no recorded flood, so warnings on them count as false.
+- It does nothing for fires, as expected.
+- Of the three Q50 options, (c) is worth adopting for floods only together with better flood records. On its own it does not meet the 80% objective in a meaningful way.
+
 ## How to rerun
 
 ```bash

@@ -572,6 +572,13 @@ def prepare_floods_v2(log, locator):
 # --- Windows ----------------------------------------------------------------
 
 
+FORECAST_RAIN_DAYS = 0
+
+
+def feature_names():
+    return list(FEATURES) + ([f"rain_next_{FORECAST_RAIN_DAYS}d_mm (experiment)"] if FORECAST_RAIN_DAYS else [])
+
+
 def segment_windows(weather_rows, incidents, segments):
     """Windows built inside each covered stretch (a window never spans a
     stretch with no reports), in time order."""
@@ -583,6 +590,13 @@ def segment_windows(weather_rows, incidents, segments):
         weather = np.array([[float(by_day[d][c]) for c in WEATHER_COLUMNS] for d in days])
         count = np.array([counts.get(d, 0) for d in days], dtype=float)
         features = daily_features(weather, count)
+        if FORECAST_RAIN_DAYS:
+            # EXPERIMENT (plan Q50 c), not the thesis feature set: a 7th feature, the rain of the next
+            # FORECAST_RAIN_DAYS days as a perfect forecast would give it (an upper bound on what
+            # PAGASA's rainfall forecast could add).
+            rain = weather[:, 0]
+            ahead = np.array([rain[i + 1 : i + 1 + FORECAST_RAIN_DAYS].sum() for i in range(len(rain))])
+            features = np.column_stack([features, ahead])
         label = labels(count)
         for t in range(WINDOW, len(days)):
             if label[t] >= 0:
@@ -613,7 +627,7 @@ def build_hazard(hazard, weather_rows, incidents):
         ends=np.array(ends),
         ranges=np.array([ranges[k] for k in ("train", "validation", "test")]),
     )
-    index = {name: i for i, name in enumerate(FEATURES)}
+    index = {name: i for i, name in enumerate(feature_names())}
     return {
         "periods": [[a.isoformat(), b.isoformat()] for a, b in COVERAGE[hazard]],
         "incident_records": len(incidents),
@@ -662,10 +676,15 @@ def main():
     global COVERAGE, BUILD, OUT_DIR
     parser = argparse.ArgumentParser()
     parser.add_argument("--variant", choices=list(VARIANTS), default="news")
-    variant = parser.parse_args().variant
+    parser.add_argument("--forecast-rain-days", type=int, default=0,
+                        help="EXPERIMENT (plan Q50 c): add the next N days' actual rain as a 7th feature")
+    args = parser.parse_args()
+    variant = args.variant
+    global FORECAST_RAIN_DAYS
+    FORECAST_RAIN_DAYS = args.forecast_rain_days
     config = VARIANTS[variant]
     if variant != "news":
-        BUILD = FORECAST / "build" / "real" / variant
+        BUILD = FORECAST / "build" / "real" / (variant + (f"_fc{FORECAST_RAIN_DAYS}d" if FORECAST_RAIN_DAYS else ""))
         OUT_DIR = DATA / "prepared" / variant
         fire_cover = txtfire_active() if config["fire"] == "dromic+txtfire" else [(V2_START, PERIOD[1])]
         COVERAGE = {"fire": fire_cover, "flood": [(V2_START, PERIOD[1])]}
@@ -707,12 +726,16 @@ def main():
         "window_days": WINDOW,
         "horizon_days": HORIZON,
         "split": list(SPLIT),
-        "features": list(FEATURES),
+        "features": feature_names(),
         "period": [PERIOD[0].isoformat(), PERIOD[1].isoformat()],
         "steps": log,
         "hazards": {h: build_hazard(h, weather, rows) for h, rows in incidents.items()},
     }
     name = "prep_summary_real.json" if variant == "news" else f"prep_summary_{variant}.json"
+    if FORECAST_RAIN_DAYS:
+        name = f"prep_summary_{variant}_fc{FORECAST_RAIN_DAYS}d.json"
+        summary["experiment"] = (f"plan Q50 (c): a 7th feature, the actual rain of the next {FORECAST_RAIN_DAYS} "
+                                 "day(s) as a perfect forecast; an upper bound, not the thesis feature set")
     (HERE / name).write_text(json.dumps(summary, indent=2, default=str) + "\n", encoding="utf-8")
     for s in log:
         print(f"{s['dataset']:<52} {s['step']:<18} in {s['in']:>5}  kept {s['retained']:>5}  "
