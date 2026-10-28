@@ -44,6 +44,22 @@ class MockSeed {
       email: 'j.reyes@sagip.test',
       role: UserRole.responder,
       unitId: 'unit-r03',
+      personnelId: 'MDRRMD-0101',
+    ),
+    StaffAccount(
+      id: 'usr-resp-05',
+      displayName: 'R. Mendoza',
+      email: 'r.mendoza@sagip.test',
+      role: UserRole.responder,
+      unitId: 'unit-r03',
+      personnelId: 'MDRRMD-0102',
+    ),
+    StaffAccount(
+      id: 'usr-resp-06',
+      displayName: 'L. Cruz',
+      email: 'l.cruz@sagip.test',
+      role: UserRole.responder,
+      unitId: 'unit-r03',
     ),
     StaffAccount(
       id: 'usr-resp-02',
@@ -51,6 +67,7 @@ class MockSeed {
       email: 'm.lim@sagip.test',
       role: UserRole.responder,
       unitId: 'unit-r05',
+      personnelId: 'MDRRMD-0204',
     ),
     StaffAccount(
       id: 'usr-resp-03',
@@ -58,6 +75,7 @@ class MockSeed {
       email: 'a.bautista@sagip.test',
       role: UserRole.responder,
       unitId: 'unit-r07',
+      personnelId: 'MDRRMD-0311',
     ),
     StaffAccount(
       id: 'usr-resp-04',

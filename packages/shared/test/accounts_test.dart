@@ -29,6 +29,54 @@ void main() {
     await auth.signIn(email: email, password: password);
   }
 
+  test('personnel IDs and crew lists follow the database rules', () async {
+    final units = MockUnitRepository(backend);
+    // An admin sets one: trimmed, in capitals, audited.
+    await accounts.setPersonnelId('usr-resp-06', ' mdrrmd-0103 ');
+    expect(
+      (await accounts.watchStaff().first)
+          .firstWhere((s) => s.id == 'usr-resp-06')
+          .personnelId,
+      'MDRRMD-0103',
+    );
+    await expectLater(
+      accounts.setPersonnelId('usr-resp-04', 'MDRRMD-0103'),
+      rejected(ActionRejection.alreadyExists),
+    );
+    await expectLater(
+      accounts.setPersonnelId('usr-resp-04', 'ID 42!'),
+      rejected(ActionRejection.invalidValue),
+    );
+    expect(
+      (await backend.watchAudit(10).first).first.detail,
+      'personnel ID none → MDRRMD-0103',
+    );
+
+    // Dispatchers see every unit's crew; C. Garcia is on no unit.
+    await signInAs('dispatcher@sagip.test', MockSeed.demoPassword);
+    final all = await units.watchCrew().first;
+    expect(
+      {for (final c in all) c.unitId},
+      {'unit-r03', 'unit-r05', 'unit-r07'},
+    );
+    expect(all.where((c) => c.unitId == 'unit-r03').map((c) => c.displayName), [
+      'J. Reyes',
+      'L. Cruz',
+      'R. Mendoza',
+    ]);
+    expect(all.any((c) => c.staffId == 'usr-resp-04'), isFalse);
+    await expectLater(
+      accounts.setPersonnelId('usr-resp-04', 'X-1'),
+      rejected(ActionRejection.notAllowed),
+    );
+
+    // A responder sees only their own unit's crew.
+    await signInAs('j.reyes@sagip.test', MockSeed.demoPassword);
+    final mine = await units.watchCrew().first;
+    expect(mine.map((c) => c.unitId).toSet(), {'unit-r03'});
+    expect(mine, hasLength(3));
+  });
+
   test('A1 follows the same rules as the database', () async {
     final made = await accounts.createStaff(
       email: ' New.Dispatcher@Test.local ',

@@ -6674,6 +6674,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your report was sent, but its photo was not.'**
   String get webPhotoNotSent;
+
+  /// No description provided for @colPersonnelId.
+  ///
+  /// In en, this message translates to:
+  /// **'Personnel ID'**
+  String get colPersonnelId;
+
+  /// No description provided for @fieldPersonnelId.
+  ///
+  /// In en, this message translates to:
+  /// **'Personnel ID (optional)'**
+  String get fieldPersonnelId;
+
+  /// No description provided for @fieldPersonnelIdHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD employee or badge number. Shown in crew lists.'**
+  String get fieldPersonnelIdHelp;
+
+  /// No description provided for @fieldPersonnelIdError.
+  ///
+  /// In en, this message translates to:
+  /// **'Use letters, digits, and dashes, up to 20.'**
+  String get fieldPersonnelIdError;
+
+  /// No description provided for @fieldPersonnelIdTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Another account already has this personnel ID.'**
+  String get fieldPersonnelIdTaken;
+
+  /// No description provided for @personnelIdMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No ID yet'**
+  String get personnelIdMissing;
+
+  /// No description provided for @crewShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show {callSign}\'s crew'**
+  String crewShow(String callSign);
+
+  /// No description provided for @crewHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide {callSign}\'s crew'**
+  String crewHide(String callSign);
+
+  /// No description provided for @crewNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No crew assigned'**
+  String get crewNone;
+
+  /// No description provided for @openIncident.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {incidentId}'**
+  String openIncident(String incidentId);
+
+  /// No description provided for @myUnitCrewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew'**
+  String get myUnitCrewTitle;
+
+  /// No description provided for @myUnitCrewYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get myUnitCrewYou;
+
+  /// No description provided for @myUnitCrewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one else is on this unit yet. An administrator adds crew on Resources.'**
+  String get myUnitCrewEmpty;
 }
 
 class _AppLocalizationsDelegate

@@ -110,6 +110,7 @@ class _StaffTable extends ConsumerWidget {
             columnSpacing: SagipSpace.xl,
             columns: [
               DataColumn(label: Text(l10n.colName)),
+              DataColumn(label: Text(l10n.colPersonnelId)),
               DataColumn(label: Text(l10n.accountEmail)),
               DataColumn(label: Text(responders ? l10n.colUnit : l10n.colRole)),
               DataColumn(label: Text(l10n.colStatus)),
@@ -120,6 +121,15 @@ class _StaffTable extends ConsumerWidget {
                 DataRow(
                   cells: [
                     DataCell(Text(s.displayName)),
+                    DataCell(
+                      Text(
+                        s.personnelId ?? l10n.personnelIdMissing,
+                        style: TextStyle(
+                          color: s.personnelId == null ? p.textSecondary : null,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
                     DataCell(Text(s.email)),
                     DataCell(
                       Text(responders ? unitName(s.unitId) : l10n.role(s.role)),
@@ -424,6 +434,9 @@ class _AccountDialog extends StatefulWidget {
 class _AccountDialogState extends State<_AccountDialog> {
   late final _email = TextEditingController(text: widget.account?.email);
   late final _name = TextEditingController(text: widget.account?.displayName);
+  late final _personnelId = TextEditingController(
+    text: widget.account?.personnelId,
+  );
   late UserRole _role = widget.account?.role ?? UserRole.dispatcher;
   String? _unitId;
   var _tried = false;
@@ -433,10 +446,25 @@ class _AccountDialogState extends State<_AccountDialog> {
 
   bool get _creating => widget.account == null;
 
+  /// Checked here too, so a taken or malformed ID says so on the field
+  /// (the database checks again).
+  String? _personnelIdError(AppLocalizations l10n) {
+    final v = normalizePersonnelId(_personnelId.text);
+    if (v == null) return null;
+    if (!isValidPersonnelId(v)) return l10n.fieldPersonnelIdError;
+    final others =
+        widget.ref.read(staffAccountsProvider).value ?? const <StaffAccount>[];
+    final taken = others.any(
+      (s) => s.personnelId == v && s.id != widget.account?.id,
+    );
+    return taken ? l10n.fieldPersonnelIdTaken : null;
+  }
+
   @override
   void dispose() {
     _email.dispose();
     _name.dispose();
+    _personnelId.dispose();
     super.dispose();
   }
 
@@ -444,9 +472,14 @@ class _AccountDialogState extends State<_AccountDialog> {
     final l10n = AppLocalizations.of(context);
     setState(() => _tried = true);
     final emailOk = !_creating || _emailPattern.hasMatch(_email.text.trim());
-    if (!emailOk || _name.text.trim().isEmpty) return;
+    if (!emailOk ||
+        _name.text.trim().isEmpty ||
+        _personnelIdError(l10n) != null) {
+      return;
+    }
     setState(() => _busy = true);
     final repo = widget.ref.read(accountRepositoryProvider);
+    final personnelId = normalizePersonnelId(_personnelId.text);
     ({String id, String temporaryPassword})? made;
     final ok = await runAction(context, () async {
       if (_creating) {
@@ -456,12 +489,18 @@ class _AccountDialogState extends State<_AccountDialog> {
           role: _role,
           unitId: _role == UserRole.responder ? _unitId : null,
         );
+        if (personnelId != null) {
+          await repo.setPersonnelId(made!.id, personnelId);
+        }
       } else {
         await repo.updateStaff(
           widget.account!.id,
           displayName: _name.text.trim(),
           role: _role,
         );
+        if (personnelId != widget.account!.personnelId) {
+          await repo.setPersonnelId(widget.account!.id, personnelId);
+        }
       }
     }, success: _creating ? null : l10n.accountSaved(_name.text.trim()));
     if (!mounted) return;
@@ -515,6 +554,17 @@ class _AccountDialogState extends State<_AccountDialog> {
                 errorText: _tried && _name.text.trim().isEmpty
                     ? l10n.fieldNameError
                     : null,
+              ),
+            ),
+            const SizedBox(height: SagipSpace.md),
+            TextField(
+              key: const ValueKey('account-personnel-id'),
+              controller: _personnelId,
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                labelText: l10n.fieldPersonnelId,
+                helperText: l10n.fieldPersonnelIdHelp,
+                errorText: _tried ? _personnelIdError(l10n) : null,
               ),
             ),
             const SizedBox(height: SagipSpace.md),

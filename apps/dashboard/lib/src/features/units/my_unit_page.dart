@@ -99,6 +99,8 @@ class _Body extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: SagipSpace.md),
+        _CrewCard(unitId: unit.id),
+        const SizedBox(height: SagipSpace.lg),
         Text(
           l10n.suppliesLowRule(lowPercent.round()),
           style: text.bodySmall!.copyWith(color: p.textSecondary),
@@ -131,6 +133,91 @@ class _Body extends ConsumerWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+/// Who is on this unit (Joshua, 2026-10-28): each member's full name and
+/// MDRRMD personnel ID, the signed-in responder marked "You".
+class _CrewCard extends ConsumerWidget {
+  const _CrewCard({required this.unitId});
+
+  final String unitId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final me = ref.watch(currentUserProvider).value?.id;
+    final crew = [
+      for (final c in ref.watch(crewProvider).value ?? const <CrewMember>[])
+        if (c.unitId == unitId) c,
+    ];
+    return Card(
+      key: const ValueKey('my-unit-crew'),
+      child: Padding(
+        padding: const EdgeInsets.all(SagipSpace.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Symbols.groups_rounded, color: p.textSecondary),
+                const SizedBox(width: SagipSpace.sm),
+                Text(l10n.myUnitCrewTitle, style: text.titleMedium),
+                const SizedBox(width: SagipSpace.sm),
+                Text(
+                  '${crew.length}',
+                  style: text.titleMedium!.copyWith(
+                    color: p.textSecondary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: SagipSpace.sm),
+            for (final c in crew)
+              Padding(
+                key: ValueKey('my-crew-${c.staffId}'),
+                padding: const EdgeInsets.symmetric(vertical: SagipSpace.sm),
+                child: Row(
+                  children: [
+                    Icon(
+                      Symbols.person_rounded,
+                      size: 20,
+                      color: p.textSecondary,
+                    ),
+                    const SizedBox(width: SagipSpace.md),
+                    Expanded(
+                      child: Wrap(
+                        spacing: SagipSpace.sm,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(c.displayName, style: text.bodyLarge),
+                          if (c.staffId == me)
+                            SagipChip(label: l10n.myUnitCrewYou, tone: p.info),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      c.personnelId ?? l10n.personnelIdMissing,
+                      style: text.bodyMedium!.copyWith(
+                        color: c.personnelId == null ? p.textSecondary : null,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (crew.length <= 1)
+              Text(
+                l10n.myUnitCrewEmpty,
+                style: text.bodySmall!.copyWith(color: p.textSecondary),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

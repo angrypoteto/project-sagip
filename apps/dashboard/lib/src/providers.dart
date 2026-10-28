@@ -208,6 +208,13 @@ final unitSuppliesProvider = StreamProvider<List<UnitSupply>>(
       _forAccount(ref, () => ref.watch(unitRepositoryProvider).watchSupplies()),
 );
 
+/// The crews (`unit_crew()`): every unit's for dispatchers and admins (D7
+/// Units), only their own unit's for a responder (My unit).
+final crewProvider = StreamProvider<List<CrewMember>>(
+  (ref) =>
+      _forAccount(ref, () => ref.watch(unitRepositoryProvider).watchCrew()),
+);
+
 /// The responder's own unit and its supplies (the "My unit" page).
 final myUnitProvider = StreamProvider<ResponseUnit?>(
   (ref) => _forAccount(

@@ -86,6 +86,7 @@ class StaffAccount {
     required this.role,
     this.unitId,
     this.deactivatedAt,
+    this.personnelId,
   });
 
   final String id;
@@ -95,6 +96,10 @@ class StaffAccount {
 
   /// Responders only: the unit they crew.
   final String? unitId;
+
+  /// MDRRMD's own personnel number (employee or badge), set by an admin on
+  /// A1; shown in crew lists. Null until set.
+  final String? personnelId;
 
   /// Set by an admin (A1): cannot sign in or act.
   final DateTime? deactivatedAt;
@@ -111,6 +116,8 @@ class StaffAccount {
     UserRole? role,
     DateTime? deactivatedAt,
     bool clearDeactivated = false,
+    String? personnelId,
+    bool clearPersonnelId = false,
   }) => StaffAccount(
     id: id,
     displayName: displayName ?? this.displayName,
@@ -120,6 +127,7 @@ class StaffAccount {
     deactivatedAt: clearDeactivated
         ? null
         : (deactivatedAt ?? this.deactivatedAt),
+    personnelId: clearPersonnelId ? null : (personnelId ?? this.personnelId),
   );
 
   factory StaffAccount.fromJson(Map<String, Object?> json) => StaffAccount(
@@ -129,8 +137,47 @@ class StaffAccount {
     role: enumFromJson(UserRole.values, json['role']),
     unitId: json['unit_id'] as String?,
     deactivatedAt: timeFromJsonOrNull(json['deactivated_at']),
+    personnelId: json['personnel_id'] as String?,
   );
 }
+
+/// One member of a unit's crew, as dispatchers (D7 Units) and the unit's
+/// own responders (My unit) see them: name and personnel ID only, never an
+/// email (`unit_crew()`).
+@immutable
+class CrewMember {
+  const CrewMember({
+    required this.unitId,
+    required this.staffId,
+    required this.displayName,
+    this.personnelId,
+  });
+
+  final String unitId;
+  final String staffId;
+  final String displayName;
+
+  /// Null until an admin sets it on A1.
+  final String? personnelId;
+
+  factory CrewMember.fromJson(Map<String, Object?> json) => CrewMember(
+    unitId: json['unit_id']! as String,
+    staffId: '${json['staff_id']}',
+    displayName: json['display_name']! as String,
+    personnelId: json['personnel_id'] as String?,
+  );
+}
+
+/// [raw] as a personnel ID is stored: trimmed and in capitals; null when
+/// blank. [isValidPersonnelId] checks the result (as the database does).
+String? normalizePersonnelId(String? raw) {
+  final v = (raw ?? '').trim().toUpperCase();
+  return v.isEmpty ? null : v;
+}
+
+/// Letters, digits, and dashes, up to 20, starting with a letter or digit.
+bool isValidPersonnelId(String v) =>
+    RegExp(r'^[A-Z0-9][A-Z0-9-]{0,19}$').hasMatch(v);
 
 /// A registered Manila resident (MANILA_RESIDENT with VULNERABLE_PROFILE).
 @immutable

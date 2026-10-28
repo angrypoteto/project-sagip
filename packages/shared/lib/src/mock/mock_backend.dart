@@ -966,6 +966,33 @@ class MockBackend {
     (m) => [...m.values]..sort((a, b) => a.callSign.compareTo(b.callSign)),
   );
 
+  /// `unit_crew()`: every unit's active responders for dispatchers and
+  /// admins, only their own unit's for a responder, none for anyone else.
+  Stream<List<CrewMember>> watchCrew() => _accounts.watch().map((m) {
+    final user = _user.value;
+    final mine = _me?.unitId;
+    final staff =
+        user != null &&
+        (user.role == UserRole.dispatcher || user.role == UserRole.admin);
+    return [
+      for (final s in m.values)
+        if (s.role == UserRole.responder &&
+            s.active &&
+            s.unitId != null &&
+            (staff || (user?.role == UserRole.responder && s.unitId == mine)))
+          CrewMember(
+            unitId: s.unitId!,
+            staffId: s.id,
+            displayName: s.displayName,
+            personnelId: s.personnelId,
+          ),
+    ]..sort(
+      (x, y) => x.unitId == y.unitId
+          ? x.displayName.compareTo(y.displayName)
+          : x.unitId.compareTo(y.unitId),
+    );
+  });
+
   Stream<List<StaffAccount>> watchResponders() => _accounts.watch().map(
     (m) => [
       for (final s in m.values)
@@ -1072,6 +1099,33 @@ class MockBackend {
       ),
     };
     _log(actor, AuditAction.accountUpdated, 'staff', id, changes.join('; '));
+  }
+
+  /// A1, checked like `admin_set_personnel_id`.
+  Future<void> setPersonnelId(String id, String? personnelId) async {
+    final actor = await _authorizeAdmin();
+    final v = normalizePersonnelId(personnelId);
+    if (v != null && !isValidPersonnelId(v)) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final s = _accounts.value[id];
+    if (s == null) throw const ActionRejected(ActionRejection.notFound);
+    if (s.personnelId == v) return;
+    if (v != null &&
+        _accounts.value.values.any((o) => o.personnelId == v && o.id != id)) {
+      throw const ActionRejected(ActionRejection.alreadyExists);
+    }
+    _accounts.value = {
+      ..._accounts.value,
+      id: s.copyWith(personnelId: v, clearPersonnelId: v == null),
+    };
+    _log(
+      actor,
+      AuditAction.accountUpdated,
+      'staff',
+      id,
+      'personnel ID ${s.personnelId ?? 'none'} → ${v ?? 'none'}',
+    );
   }
 
   Future<void> setStaffActive(String id, {required bool active}) async {

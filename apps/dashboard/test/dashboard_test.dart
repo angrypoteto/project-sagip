@@ -725,6 +725,90 @@ void main() {
     expect(find.byType(Slider), findsNothing);
   });
 
+  testWidgets('D7: a unit opens like a tree to show its crew', (tester) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1920, 1400);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Units'));
+    await settle(tester);
+
+    // Closed until clicked.
+    expect(find.text('R. Mendoza'), findsNothing);
+    await tester.tap(find.text('R-03'));
+    await settle(tester);
+    expect(find.text('J. Reyes'), findsOneWidget);
+    expect(find.text('MDRRMD-0101'), findsOneWidget);
+    expect(find.text('R. Mendoza'), findsOneWidget);
+    expect(find.text('MDRRMD-0102'), findsOneWidget);
+    // L. Cruz has no personnel ID yet.
+    expect(find.text('L. Cruz'), findsOneWidget);
+    expect(find.text('No ID yet'), findsOneWidget);
+    // Another unit's crew stays closed.
+    expect(find.text('M. Lim'), findsNothing);
+
+    // A unit nobody is on says so.
+    await tester.tap(find.text('R-02'));
+    await settle(tester);
+    expect(find.text('No crew assigned'), findsOneWidget);
+
+    // Clicked again, it closes.
+    await tester.tap(find.text('R-03'));
+    await settle(tester);
+    expect(find.text('R. Mendoza'), findsNothing);
+  });
+
+  testWidgets('My unit: the responder sees their crew, marked You', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1280, 3000);
+    await signIn(tester, 'j.reyes@sagip.test');
+    final card = find.byKey(const ValueKey('my-unit-crew'));
+    expect(card, findsOneWidget);
+    Finder inCard(String text) =>
+        find.descendant(of: card, matching: find.text(text));
+    expect(inCard('J. Reyes'), findsOneWidget);
+    expect(inCard('You'), findsOneWidget);
+    expect(inCard('MDRRMD-0101'), findsOneWidget);
+    expect(inCard('R. Mendoza'), findsOneWidget);
+    expect(inCard('L. Cruz'), findsOneWidget);
+    // Only their own unit.
+    expect(inCard('M. Lim'), findsNothing);
+  });
+
+  testWidgets('A1: an admin sets a personnel ID, checked before saving', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'admin@sagip.test');
+    tester.view.physicalSize = const Size(1440, 2000);
+    await tester.tap(find.byTooltip('Accounts'));
+    await settle(tester);
+    await tester.tap(find.text('Responders'));
+    await settle(tester);
+    expect(find.text('MDRRMD-0101'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('edit-usr-resp-06')));
+    await settle(tester);
+    final field = find.byKey(const ValueKey('account-personnel-id'));
+    // Taken by J. Reyes: said on the field, nothing saved.
+    await tester.enterText(field, 'mdrrmd-0101');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await settle(tester);
+    expect(
+      find.text('Another account already has this personnel ID.'),
+      findsOneWidget,
+    );
+    await tester.enterText(field, 'mdrrmd-0103');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await settle(tester);
+    expect(find.text('MDRRMD-0103'), findsOneWidget);
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(audit!.first.detail, 'personnel ID none → MDRRMD-0103');
+  });
+
   testWidgets('a responder reports their own unit\'s supplies on the web', (
     tester,
   ) async {
@@ -1991,6 +2075,8 @@ void main() {
       find.byKey(const ValueKey('retire-unit-r05')),
     );
     expect(busy.onPressed, isNull);
+    await tester.ensureVisible(find.byKey(const ValueKey('retire-unit-r20')));
+    await settle(tester);
     await tester.tap(find.byKey(const ValueKey('retire-unit-r20')));
     await settle(tester);
     expect(find.text('Retire R-20?'), findsOneWidget);

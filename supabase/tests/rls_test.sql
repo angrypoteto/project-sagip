@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(541);
+select plan(556);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2670,6 +2670,76 @@ select is(
   (select count(*)::int from storage.objects
     where bucket_id = 'incident-photos' and name like '00000000-0000-4000-8000-00000000000c/%'),
   0, 'and their files');
+
+-- ---------------------------------------------- crew and personnel IDs
+-- Crew lists (2026-10-28): names and MDRRMD personnel IDs per unit.
+
+reset role;
+select ok(not has_function_privilege('anon', 'public.unit_crew()', 'execute'),
+  'anon cannot read crew lists');
+select ok(not has_function_privilege('anon', 'public.admin_set_personnel_id(uuid, text)', 'execute'),
+  'anon cannot set personnel IDs');
+update public.staff set unit_id = 'unit-r05', deactivated_at = null
+ where id = '00000000-0000-4000-8000-00000000000b';
+update public.staff set unit_id = null, deactivated_at = null
+ where id = '00000000-0000-4000-8000-000000000011';
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select lives_ok(
+  $$ select public.admin_set_personnel_id('00000000-0000-4000-8000-00000000000b', ' mdrrmd-0142 ') $$,
+  'an admin sets a personnel ID');
+select is(
+  (select personnel_id from public.staff where id = '00000000-0000-4000-8000-00000000000b'),
+  'MDRRMD-0142', 'stored trimmed and in capitals');
+select throws_ok(
+  $$ select public.admin_set_personnel_id('00000000-0000-4000-8000-000000000011', 'MDRRMD-0142') $$,
+  'P0001', 'already_exists', 'no two accounts share a personnel ID');
+select throws_ok(
+  $$ select public.admin_set_personnel_id('00000000-0000-4000-8000-000000000011', 'ID 42!') $$,
+  'P0001', 'invalid_value', 'a personnel ID is letters, digits, and dashes');
+select ok(
+  exists (select 1 from public.audit_log
+    where account_name = 'Test Admin' and action_type = 'accountUpdated'
+      and target_id = '00000000-0000-4000-8000-00000000000b' and detail like 'personnel ID none → MDRRMD-0142%'),
+  'setting a personnel ID is audited');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok(
+  $$ select public.admin_set_personnel_id('00000000-0000-4000-8000-00000000000b', 'X-1') $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot set personnel IDs (admins only)');
+select ok(
+  exists (select 1 from public.unit_crew()
+    where unit_id = 'unit-r05' and display_name = 'Test Responder' and personnel_id = 'MDRRMD-0142'),
+  'a dispatcher sees a unit''s crew with their personnel IDs');
+select is(
+  (select count(*)::int from public.unit_crew() where staff_id = '00000000-0000-4000-8000-000000000011'),
+  0, 'a responder on no unit is in no crew list');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select ok(
+  exists (select 1 from public.unit_crew() where staff_id = '00000000-0000-4000-8000-00000000000b'),
+  'a responder sees their own unit''s crew, themself included');
+select is(
+  (select count(*)::int from public.unit_crew() where unit_id <> 'unit-r05'),
+  0, 'and no other unit''s crew');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.unit_crew()), 0, 'a resident sees no crew');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000011", "role": "authenticated"}';
+select is((select count(*)::int from public.unit_crew()), 0,
+  'a responder on no unit sees no crew');
+
+reset role;
+update public.staff set deactivated_at = now() where id = '00000000-0000-4000-8000-00000000000b';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is(
+  (select count(*)::int from public.unit_crew() where staff_id = '00000000-0000-4000-8000-00000000000b'),
+  0, 'a deactivated responder leaves the crew list');
+reset role;
+update public.staff set deactivated_at = null where id = '00000000-0000-4000-8000-00000000000b';
 
 -- The counters as the real records need them (see the top).
 reset role;

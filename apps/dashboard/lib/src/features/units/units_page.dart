@@ -14,15 +14,29 @@ import 'supply_widgets.dart';
 
 /// D7: real-time status of every unit (FR9), with what each carries as its
 /// crew last reported it: a unit that is low on something says so here,
-/// before a dispatcher sends it.
-class UnitsPage extends ConsumerWidget {
+/// before a dispatcher sends it. Clicking a unit opens its crew beneath it,
+/// like a tree: each member's name and MDRRMD personnel ID (Joshua,
+/// 2026-10-28).
+class UnitsPage extends ConsumerStatefulWidget {
   const UnitsPage({super.key});
 
   /// GPS older than this is flagged as stale.
   static const staleAfter = Duration(minutes: 3);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UnitsPage> createState() => _UnitsPageState();
+}
+
+class _UnitsPageState extends ConsumerState<UnitsPage> {
+  /// The units whose crew is showing.
+  final _open = <String>{};
+
+  void _toggle(String unitId) => setState(
+    () => _open.contains(unitId) ? _open.remove(unitId) : _open.add(unitId),
+  );
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
@@ -38,6 +52,11 @@ class UnitsPage extends ConsumerWidget {
     final lowUnits = units
         .where((u) => shortSupplies(supplies[u.id]!, lowPercent).isNotEmpty)
         .length;
+    final crew = <String, List<CrewMember>>{};
+    for (final c in ref.watch(crewProvider).value ?? const <CrewMember>[]) {
+      crew.putIfAbsent(c.unitId, () => []).add(c);
+    }
+    final branch = WidgetStatePropertyAll<Color?>(p.panelRaised);
 
     int count(bool Function(ResponseUnit) test) => units.where(test).length;
 
@@ -101,20 +120,34 @@ class UnitsPage extends ConsumerWidget {
               DataColumn(label: Text(l10n.colLastGps)),
             ],
             rows: [
-              for (final u in units)
+              for (final u in units) ...[
                 DataRow(
-                  onSelectChanged: u.currentIncidentId == null
-                      ? null
-                      : (_) =>
-                            context.go(Routes.incident(u.currentIncidentId!)),
+                  key: ValueKey('unit-row-${u.id}'),
+                  selected: _open.contains(u.id),
+                  onSelectChanged: (_) => _toggle(u.id),
                   cells: [
                     DataCell(
-                      Row(
-                        children: [
-                          Icon(unitTypeIcon(u.type), size: 18),
-                          const SizedBox(width: SagipSpace.sm),
-                          Text(u.callSign, style: text.titleSmall),
-                        ],
+                      Semantics(
+                        button: true,
+                        expanded: _open.contains(u.id),
+                        label: _open.contains(u.id)
+                            ? l10n.crewHide(u.callSign)
+                            : l10n.crewShow(u.callSign),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _open.contains(u.id)
+                                  ? Symbols.expand_more_rounded
+                                  : Symbols.chevron_right_rounded,
+                              size: 18,
+                              color: p.textSecondary,
+                            ),
+                            const SizedBox(width: SagipSpace.xs),
+                            Icon(unitTypeIcon(u.type), size: 18),
+                            const SizedBox(width: SagipSpace.sm),
+                            Text(u.callSign, style: text.titleSmall),
+                          ],
+                        ),
                       ),
                     ),
                     DataCell(Text(l10n.unitType(u.type))),
@@ -151,7 +184,22 @@ class UnitsPage extends ConsumerWidget {
                         builder: (context) => _SuppliesDialog(unitId: u.id),
                       ),
                     ),
-                    DataCell(Text(u.currentIncidentId ?? '')),
+                    DataCell(
+                      u.currentIncidentId == null
+                          ? const Text('')
+                          : TextButton(
+                              key: ValueKey('unit-incident-${u.id}'),
+                              onPressed: () => context.go(
+                                Routes.incident(u.currentIncidentId!),
+                              ),
+                              child: Text(
+                                u.currentIncidentId!,
+                                semanticsLabel: l10n.openIncident(
+                                  u.currentIncidentId!,
+                                ),
+                              ),
+                            ),
+                    ),
                     DataCell(
                       u.lastLocationAt == null
                           ? const Text('')
@@ -159,7 +207,7 @@ class UnitsPage extends ConsumerWidget {
                               children: [
                                 Text(l10n.ago(u.lastLocationAt!, now)),
                                 if (now.difference(u.lastLocationAt!) >
-                                    staleAfter) ...[
+                                    UnitsPage.staleAfter) ...[
                                   const SizedBox(width: SagipSpace.sm),
                                   SagipChip(
                                     label: l10n.staleGps,
@@ -172,12 +220,75 @@ class UnitsPage extends ConsumerWidget {
                     ),
                   ],
                 ),
+                if (_open.contains(u.id))
+                  if (crew[u.id] case final members? when members.isNotEmpty)
+                    for (final m in members) _crewRow(m, branch, p, l10n)
+                  else
+                    DataRow(
+                      key: ValueKey('crew-none-${u.id}'),
+                      color: branch,
+                      cells: [
+                        DataCell(
+                          Padding(
+                            padding: const EdgeInsets.only(left: SagipSpace.x3),
+                            child: Text(
+                              l10n.crewNone,
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                          ),
+                        ),
+                        for (var i = 1; i < 9; i++) const DataCell(Text('')),
+                      ],
+                    ),
+              ],
             ],
           ),
         ),
       ),
     );
   }
+
+  /// One crew member under their unit: name (indented, like a branch of a
+  /// tree) and personnel ID.
+  DataRow _crewRow(
+    CrewMember m,
+    WidgetStateProperty<Color?> color,
+    SagipPalette p,
+    AppLocalizations l10n,
+  ) => DataRow(
+    key: ValueKey('crew-${m.staffId}'),
+    color: color,
+    cells: [
+      DataCell(
+        Padding(
+          padding: const EdgeInsets.only(left: SagipSpace.x3),
+          child: Row(
+            children: [
+              Icon(
+                Symbols.subdirectory_arrow_right_rounded,
+                size: 16,
+                color: p.textSecondary,
+              ),
+              const SizedBox(width: SagipSpace.xs),
+              Icon(Symbols.person_rounded, size: 18, color: p.textSecondary),
+              const SizedBox(width: SagipSpace.sm),
+              Text(m.displayName),
+            ],
+          ),
+        ),
+      ),
+      DataCell(
+        Text(
+          m.personnelId ?? l10n.personnelIdMissing,
+          style: TextStyle(
+            color: m.personnelId == null ? p.textSecondary : null,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ),
+      for (var i = 2; i < 9; i++) const DataCell(Text('')),
+    ],
+  );
 }
 
 /// The Units table's summary of what a unit carries: what is short, or

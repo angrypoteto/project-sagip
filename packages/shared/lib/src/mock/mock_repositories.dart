@@ -188,6 +188,10 @@ class MockAccountRepository implements AccountRepository {
       _backend.setStaffActive(id, active: active);
 
   @override
+  Future<void> setPersonnelId(String id, String? personnelId) =>
+      _backend.setPersonnelId(id, personnelId);
+
+  @override
   Future<String> resetPassword(String id) => _backend.resetPassword(id);
 
   @override
@@ -364,6 +368,9 @@ class MockUnitRepository implements UnitRepository {
 
   @override
   Stream<List<UnitSupply>> watchSupplies() => _backend.watchSupplies();
+
+  @override
+  Stream<List<CrewMember>> watchCrew() => _backend.watchCrew();
 }
 
 class MockUnitInventoryRepository implements UnitInventoryRepository {

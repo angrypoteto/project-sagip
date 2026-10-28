@@ -1301,5 +1301,21 @@
   "webPhotoRemove": "Remove the photo",
   "webPhotoThumb": "The photo you added",
   "webPhotoFailed": "Could not use that photo. Try another one.",
-  "webPhotoNotSent": "Your report was sent, but its photo was not."
+  "webPhotoNotSent": "Your report was sent, but its photo was not.",
+  "colPersonnelId": "Personnel ID",
+  "fieldPersonnelId": "Personnel ID (optional)",
+  "fieldPersonnelIdHelp": "MDRRMD employee or badge number. Shown in crew lists.",
+  "fieldPersonnelIdError": "Use letters, digits, and dashes, up to 20.",
+  "fieldPersonnelIdTaken": "Another account already has this personnel ID.",
+  "personnelIdMissing": "No ID yet",
+  "crewShow": "Show {callSign}'s crew",
+  "@crewShow": {"placeholders": {"callSign": {"type": "String"}}},
+  "crewHide": "Hide {callSign}'s crew",
+  "@crewHide": {"placeholders": {"callSign": {"type": "String"}}},
+  "crewNone": "No crew assigned",
+  "openIncident": "Open {incidentId}",
+  "@openIncident": {"placeholders": {"incidentId": {"type": "String"}}},
+  "myUnitCrewTitle": "Crew",
+  "myUnitCrewYou": "You",
+  "myUnitCrewEmpty": "No one else is on this unit yet. An administrator adds crew on Resources."
 }

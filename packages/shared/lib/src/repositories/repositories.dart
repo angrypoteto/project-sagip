@@ -163,6 +163,10 @@ abstract interface class UnitRepository {
 
   /// Every unit's supplies as their crews last reported them (D7).
   Stream<List<UnitSupply>> watchSupplies();
+
+  /// The crews: every unit's for dispatchers and admins (D7), only their
+  /// own unit's for a responder (My unit), none for anyone else.
+  Stream<List<CrewMember>> watchCrew();
 }
 
 /// A responder's own unit on the web: what it carries, reported by its
@@ -246,6 +250,11 @@ abstract interface class AccountRepository {
   });
 
   Future<void> setStaffActive(String id, {required bool active});
+
+  /// Sets or clears ([personnelId] null or blank) MDRRMD's personnel ID.
+  /// Throws [ActionRejected]: `invalidValue`, `alreadyExists` (another
+  /// account has it), `notFound`.
+  Future<void> setPersonnelId(String id, String? personnelId);
 
   /// Returns the new temporary password.
   Future<String> resetPassword(String id);

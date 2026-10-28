@@ -278,6 +278,14 @@ class SupabaseAccountRepository implements AccountRepository {
   );
 
   @override
+  Future<void> setPersonnelId(String id, String? personnelId) => _change(
+    () => _client.rpc<void>(
+      'admin_set_personnel_id',
+      params: {'p_staff_id': id, 'p_personnel_id': personnelId},
+    ),
+  );
+
+  @override
   Future<String> resetPassword(String id) async {
     final json = await _change(
       () => _client.rpc<Map<String, dynamic>>(
@@ -1001,6 +1009,19 @@ class SupabaseUnitRepository implements UnitRepository {
     fetch: () async => [
       for (final r in await _client.from('unit_supply').select())
         UnitSupply.fromJson(r),
+    ],
+  );
+
+  /// `unit_crew()` decides who sees which crew. Staff changes happen in a
+  /// table only admins may watch, so the list is also fetched every minute.
+  @override
+  Stream<List<CrewMember>> watchCrew() => liveQuery(
+    _client,
+    tables: const ['response_unit'],
+    refreshEvery: const Duration(minutes: 1),
+    fetch: () async => [
+      for (final r in await _client.rpc<List<dynamic>>('unit_crew'))
+        CrewMember.fromJson(r as _Row),
     ],
   );
 }

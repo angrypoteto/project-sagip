@@ -3902,4 +3902,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webPhotoNotSent => 'Your report was sent, but its photo was not.';
+
+  @override
+  String get colPersonnelId => 'Personnel ID';
+
+  @override
+  String get fieldPersonnelId => 'Personnel ID (optional)';
+
+  @override
+  String get fieldPersonnelIdHelp =>
+      'MDRRMD employee or badge number. Shown in crew lists.';
+
+  @override
+  String get fieldPersonnelIdError =>
+      'Use letters, digits, and dashes, up to 20.';
+
+  @override
+  String get fieldPersonnelIdTaken =>
+      'Another account already has this personnel ID.';
+
+  @override
+  String get personnelIdMissing => 'No ID yet';
+
+  @override
+  String crewShow(String callSign) {
+    return 'Show $callSign\'s crew';
+  }
+
+  @override
+  String crewHide(String callSign) {
+    return 'Hide $callSign\'s crew';
+  }
+
+  @override
+  String get crewNone => 'No crew assigned';
+
+  @override
+  String openIncident(String incidentId) {
+    return 'Open $incidentId';
+  }
+
+  @override
+  String get myUnitCrewTitle => 'Crew';
+
+  @override
+  String get myUnitCrewYou => 'You';
+
+  @override
+  String get myUnitCrewEmpty =>
+      'No one else is on this unit yet. An administrator adds crew on Resources.';
 }
