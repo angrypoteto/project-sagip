@@ -161,6 +161,8 @@ class _LocationPickerState extends ConsumerState<LocationPickerPage> {
           mapController: _map,
           options: MapOptions(
             backgroundColor: mapBackground(context),
+            minZoom: mapMinZoom,
+            cameraConstraint: mapCameraConstraint,
             initialCenter: toLatLng(_center),
             initialZoom: 17,
             onMapReady: () => _ready = true,

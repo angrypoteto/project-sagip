@@ -248,9 +248,10 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
           mapController: _controller,
           options: MapOptions(
             backgroundColor: mapBackground(context),
+            minZoom: mapMinZoom,
+            cameraConstraint: mapCameraConstraint,
             initialCenter: manilaCenter,
             initialZoom: 13.6,
-            minZoom: 11,
             maxZoom: 18,
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,

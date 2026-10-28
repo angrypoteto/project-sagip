@@ -92,6 +92,8 @@ class _Body extends ConsumerWidget {
             child: FlutterMap(
               options: MapOptions(
                 backgroundColor: mapBackground(context),
+                minZoom: mapMinZoom,
+                cameraConstraint: mapCameraConstraint,
                 initialCenter: points.first,
                 initialZoom: 15,
                 initialCameraFit: points.length == 2 && points[0] != points[1]

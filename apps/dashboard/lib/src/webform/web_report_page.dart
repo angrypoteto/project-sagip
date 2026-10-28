@@ -579,9 +579,10 @@ class _PinMap extends ConsumerWidget {
                 mapController: controller,
                 options: MapOptions(
                   backgroundColor: mapBackground(context),
+                  minZoom: mapMinZoom,
+                  cameraConstraint: mapCameraConstraint,
                   initialCenter: start == null ? manilaCenter : toLatLng(start),
                   initialZoom: start == null ? 13 : 16,
-                  minZoom: 11,
                   maxZoom: 19,
                   onMapReady: onReady,
                   // Moves by code set the location themselves.

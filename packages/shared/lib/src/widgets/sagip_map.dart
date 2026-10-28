@@ -14,6 +14,20 @@ const manilaCenter = LatLng(14.5995, 120.9842);
 
 LatLng toLatLng(GeoPoint p) => LatLng(p.lat, p.lng);
 
+/// The farthest out any map zooms: all of Metro Manila still fits on a
+/// phone (Joshua, 2026-10-28: a map could be zoomed out to the whole
+/// world, with no streets left to see).
+const mapMinZoom = 11.0;
+
+/// How far any map can be dragged: its centre stays over Metro Manila and
+/// a margin around it, so it never slides off to the sea or the world.
+final mapCameraConstraint = CameraConstraint.containCenter(
+  bounds: LatLngBounds(
+    const LatLng(14.30, 120.80),
+    const LatLng(14.90, 121.25),
+  ),
+);
+
 /// Base map tiles. Development uses the public OpenStreetMap tiles with a
 /// muted filter; the plan (Q1, risk 8) replaces these with self-hosted
 /// Manila tiles before the pilot, because OSM's servers forbid heavy and

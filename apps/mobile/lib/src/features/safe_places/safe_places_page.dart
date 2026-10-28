@@ -250,6 +250,8 @@ class _SafeMap extends ConsumerWidget {
           key: ValueKey(options.map((o) => o.place.id).join()),
           options: MapOptions(
             backgroundColor: mapBackground(context),
+            minZoom: mapMinZoom,
+            cameraConstraint: mapCameraConstraint,
             initialCenter: points.first,
             initialZoom: 16,
             initialCameraFit: CameraFit.coordinates(

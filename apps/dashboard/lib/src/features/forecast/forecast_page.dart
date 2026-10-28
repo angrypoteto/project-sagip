@@ -88,9 +88,10 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 mapController: _map,
                 options: MapOptions(
                   backgroundColor: mapBackground(context),
+                  minZoom: mapMinZoom,
+                  cameraConstraint: mapCameraConstraint,
                   initialCenter: manilaCenter,
                   initialZoom: 13.2,
-                  minZoom: 11,
                   maxZoom: 18,
                   interactionOptions: const InteractionOptions(
                     flags: InteractiveFlag.all & ~InteractiveFlag.rotate,

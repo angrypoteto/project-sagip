@@ -99,6 +99,8 @@ class _TrackBody extends ConsumerWidget {
         FlutterMap(
           options: MapOptions(
             backgroundColor: mapBackground(context),
+            minZoom: mapMinZoom,
+            cameraConstraint: mapCameraConstraint,
             initialCenter: points.isEmpty ? manilaCenter : points.first,
             initialZoom: 16,
             initialCameraFit: fitBoth

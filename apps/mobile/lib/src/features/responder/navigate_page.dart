@@ -148,6 +148,8 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                   mapController: _map,
                   options: MapOptions(
                     backgroundColor: mapBackground(context),
+                    minZoom: mapMinZoom,
+                    cameraConstraint: mapCameraConstraint,
                     initialCenter: toLatLng(unit ?? a.destination),
                     initialZoom: 17,
                     onMapReady: () => _ready = true,
