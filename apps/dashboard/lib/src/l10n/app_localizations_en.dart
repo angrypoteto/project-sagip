@@ -3950,5 +3950,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myUnitCrewEmpty =>
-      'No one else is on this unit yet. An administrator adds crew on Resources.';
+      'No one else is on this unit yet. An administrator adds crew on Units.';
+
+  @override
+  String get crewAdd => 'Add crew member';
+
+  @override
+  String crewAddTitle(String callSign) {
+    return 'Add crew to $callSign';
+  }
+
+  @override
+  String crewOnUnit(String callSign) {
+    return 'On $callSign';
+  }
+
+  @override
+  String crewAllHere(String callSign) {
+    return 'Every responder is already on $callSign.';
+  }
+
+  @override
+  String get crewNewHint =>
+      'Someone new? Create their responder account on Accounts first.';
+
+  @override
+  String crewMoveTitle(String name, String callSign) {
+    return 'Move $name to $callSign?';
+  }
+
+  @override
+  String crewMoveBody(String name, String from) {
+    return '$name is on $from now and will leave it.';
+  }
+
+  @override
+  String get crewMove => 'Move';
+
+  @override
+  String crewAdded(String name, String callSign) {
+    return '$name added to $callSign';
+  }
+
+  @override
+  String crewRemove(String name, String callSign) {
+    return 'Take $name off $callSign';
+  }
+
+  @override
+  String crewRemoveTitle(String name, String callSign) {
+    return 'Take $name off $callSign?';
+  }
+
+  @override
+  String get crewRemoveBody =>
+      'They stay a responder and can be added to a unit again.';
+
+  @override
+  String get crewRemoveConfirm => 'Take off unit';
+
+  @override
+  String crewRemoved(String name, String callSign) {
+    return '$name taken off $callSign';
+  }
 }

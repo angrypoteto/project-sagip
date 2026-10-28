@@ -83,7 +83,7 @@ changed between 2026-10-12 and 2026-10-20.
 ### Other dispatcher pages
 - [ ] D6 Crowd reports: confirmed clusters with a 50 m ring and a count; single reports stay unverified
 - [ ] D6 Barangay boundaries layer
-- [ ] D7 Units table: status counts, stale-GPS flag; a unit opens like a tree to show its crew (name and personnel ID, 2026-10-28)
+- [ ] D7 Units table: status counts, stale-GPS flag; a unit opens like a tree to show its crew (name and personnel ID, 2026-10-28); admins add crew members and take them off there (2026-10-29)
 - [ ] **[N]** D7 "Whose" column (MDRRMD, BFP, EMS) and fire trucks as a unit type
 - [ ] **[N]** D7 Supplies column: "Low: ...", "Out: ...", "All enough", or "Not reported"; a "N low on supplies" count at the top (the demo levels make it 4)
 - [ ] **[N]** D7 Click a unit's supplies: every level with a bar, who reported it and when; nothing can be changed here

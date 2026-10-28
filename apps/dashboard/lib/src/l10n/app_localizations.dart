@@ -6750,8 +6750,92 @@ abstract class AppLocalizations {
   /// No description provided for @myUnitCrewEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No one else is on this unit yet. An administrator adds crew on Resources.'**
+  /// **'No one else is on this unit yet. An administrator adds crew on Units.'**
   String get myUnitCrewEmpty;
+
+  /// No description provided for @crewAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add crew member'**
+  String get crewAdd;
+
+  /// No description provided for @crewAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add crew to {callSign}'**
+  String crewAddTitle(String callSign);
+
+  /// No description provided for @crewOnUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'On {callSign}'**
+  String crewOnUnit(String callSign);
+
+  /// No description provided for @crewAllHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Every responder is already on {callSign}.'**
+  String crewAllHere(String callSign);
+
+  /// No description provided for @crewNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone new? Create their responder account on Accounts first.'**
+  String get crewNewHint;
+
+  /// No description provided for @crewMoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {name} to {callSign}?'**
+  String crewMoveTitle(String name, String callSign);
+
+  /// No description provided for @crewMoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on {from} now and will leave it.'**
+  String crewMoveBody(String name, String from);
+
+  /// No description provided for @crewMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get crewMove;
+
+  /// No description provided for @crewAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added to {callSign}'**
+  String crewAdded(String name, String callSign);
+
+  /// No description provided for @crewRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {name} off {callSign}'**
+  String crewRemove(String name, String callSign);
+
+  /// No description provided for @crewRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {name} off {callSign}?'**
+  String crewRemoveTitle(String name, String callSign);
+
+  /// No description provided for @crewRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They stay a responder and can be added to a unit again.'**
+  String get crewRemoveBody;
+
+  /// No description provided for @crewRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Take off unit'**
+  String get crewRemoveConfirm;
+
+  /// No description provided for @crewRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} taken off {callSign}'**
+  String crewRemoved(String name, String callSign);
 }
 
 class _AppLocalizationsDelegate

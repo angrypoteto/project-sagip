@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/actions.dart';
 import '../../common/async_body.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
@@ -57,6 +58,9 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
       crew.putIfAbsent(c.unitId, () => []).add(c);
     }
     final branch = WidgetStatePropertyAll<Color?>(p.panelRaised);
+    // Changing a crew is for admins (`set_responder_unit`); dispatchers see
+    // the crew only.
+    final admin = ref.watch(currentUserProvider).value?.isAdmin ?? false;
 
     int count(bool Function(ResponseUnit) test) => units.where(test).length;
 
@@ -222,7 +226,8 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
                 ),
                 if (_open.contains(u.id))
                   if (crew[u.id] case final members? when members.isNotEmpty)
-                    for (final m in members) _crewRow(m, branch, p, l10n)
+                    for (final m in members)
+                      _crewRow(m, u, branch, p, l10n, admin: admin)
                   else
                     DataRow(
                       key: ValueKey('crew-none-${u.id}'),
@@ -240,6 +245,24 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
                         for (var i = 1; i < 9; i++) const DataCell(Text('')),
                       ],
                     ),
+                if (admin && _open.contains(u.id))
+                  DataRow(
+                    color: branch,
+                    cells: [
+                      DataCell(
+                        Padding(
+                          padding: const EdgeInsets.only(left: SagipSpace.x3),
+                          child: TextButton.icon(
+                            key: ValueKey('crew-add-${u.id}'),
+                            onPressed: () => _addCrew(u, units),
+                            icon: const Icon(Symbols.person_add_rounded),
+                            label: Text(l10n.crewAdd),
+                          ),
+                        ),
+                      ),
+                      for (var i = 1; i < 9; i++) const DataCell(Text('')),
+                    ],
+                  ),
               ],
             ],
           ),
@@ -248,14 +271,87 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
     );
   }
 
+  /// Admins pick a responder account to put on [unit]; one already on
+  /// another unit is moved, after asking.
+  Future<void> _addCrew(ResponseUnit unit, List<ResponseUnit> units) async {
+    final picked = await showDialog<StaffAccount>(
+      context: context,
+      builder: (context) => _AddCrewDialog(unit: unit, units: units),
+    );
+    if (picked == null || !mounted) return;
+    final l10n = AppLocalizations.of(context);
+    final from = units.where((u) => u.id == picked.unitId).firstOrNull;
+    if (from != null) {
+      final move = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.crewMoveTitle(picked.displayName, unit.callSign)),
+          content: Text(l10n.crewMoveBody(picked.displayName, from.callSign)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.crewMove),
+            ),
+          ],
+        ),
+      );
+      if (move != true || !mounted) return;
+    }
+    await runAction(
+      context,
+      () => ref
+          .read(resourceRepositoryProvider)
+          .setResponderUnit(picked.id, unit.id),
+      success: l10n.crewAdded(picked.displayName, unit.callSign),
+    );
+    // The crew list is otherwise fetched again within a minute.
+    ref.invalidate(crewProvider);
+  }
+
+  Future<void> _removeCrew(CrewMember m, ResponseUnit unit) async {
+    final l10n = AppLocalizations.of(context);
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.crewRemoveTitle(m.displayName, unit.callSign)),
+        content: Text(l10n.crewRemoveBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.crewRemoveConfirm),
+          ),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    await runAction(
+      context,
+      () => ref
+          .read(resourceRepositoryProvider)
+          .setResponderUnit(m.staffId, null),
+      success: l10n.crewRemoved(m.displayName, unit.callSign),
+    );
+    ref.invalidate(crewProvider);
+  }
+
   /// One crew member under their unit: name (indented, like a branch of a
-  /// tree) and personnel ID.
+  /// tree) and personnel ID; for admins, a button to take them off it.
   DataRow _crewRow(
     CrewMember m,
+    ResponseUnit unit,
     WidgetStateProperty<Color?> color,
     SagipPalette p,
-    AppLocalizations l10n,
-  ) => DataRow(
+    AppLocalizations l10n, {
+    required bool admin,
+  }) => DataRow(
     key: ValueKey('crew-${m.staffId}'),
     color: color,
     cells: [
@@ -273,6 +369,19 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
               Icon(Symbols.person_rounded, size: 18, color: p.textSecondary),
               const SizedBox(width: SagipSpace.sm),
               Text(m.displayName),
+              // Next to the name, so it is reached without scrolling the
+              // table sideways.
+              if (admin) ...[
+                const SizedBox(width: SagipSpace.xs),
+                IconButton(
+                  key: ValueKey('crew-remove-${m.staffId}'),
+                  tooltip: l10n.crewRemove(m.displayName, unit.callSign),
+                  visualDensity: VisualDensity.compact,
+                  iconSize: 18,
+                  onPressed: () => _removeCrew(m, unit),
+                  icon: const Icon(Symbols.person_remove_rounded),
+                ),
+              ],
             ],
           ),
         ),
@@ -289,6 +398,81 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
       for (var i = 2; i < 9; i++) const DataCell(Text('')),
     ],
   );
+}
+
+/// The responder accounts that are not on [unit]: name, personnel ID, and
+/// the unit they are on now. Pops with the one picked.
+class _AddCrewDialog extends ConsumerWidget {
+  const _AddCrewDialog({required this.unit, required this.units});
+
+  final ResponseUnit unit;
+  final List<ResponseUnit> units;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final callSigns = {for (final u in units) u.id: u.callSign};
+    final others = [
+      for (final s
+          in ref.watch(respondersProvider).value ?? const <StaffAccount>[])
+        if (s.active && s.unitId != unit.id) s,
+    ];
+    return AlertDialog(
+      title: Text(l10n.crewAddTitle(unit.callSign)),
+      content: SizedBox(
+        width: 440,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (others.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: SagipSpace.md),
+                child: Text(l10n.crewAllHere(unit.callSign)),
+              )
+            else
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final s in others)
+                      ListTile(
+                        key: ValueKey('crew-pick-${s.id}'),
+                        leading: const Icon(Symbols.person_rounded),
+                        title: Text(s.displayName),
+                        subtitle: Text(
+                          [
+                            s.personnelId ?? l10n.personnelIdMissing,
+                            s.unitId == null
+                                ? l10n.noUnit
+                                : l10n.crewOnUnit(
+                                    callSigns[s.unitId] ?? s.unitId!,
+                                  ),
+                          ].join(' · '),
+                        ),
+                        onTap: () => Navigator.pop(context, s),
+                      ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: SagipSpace.md),
+            Text(
+              l10n.crewNewHint,
+              style: text.bodySmall!.copyWith(color: p.textSecondary),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+      ],
+    );
+  }
 }
 
 /// The Units table's summary of what a unit carries: what is short, or

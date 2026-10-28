@@ -751,10 +751,83 @@ void main() {
     await settle(tester);
     expect(find.text('No crew assigned'), findsOneWidget);
 
+    // Changing a crew is for admins.
+    expect(find.text('Add crew member'), findsNothing);
+    expect(find.byKey(const ValueKey('crew-remove-usr-resp-01')), findsNothing);
+
     // Clicked again, it closes.
     await tester.tap(find.text('R-03'));
     await settle(tester);
     expect(find.text('R. Mendoza'), findsNothing);
+  });
+
+  testWidgets('D7: an admin adds, moves, and takes off crew members', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1920, 1400);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Units'));
+    await settle(tester);
+    await tester.tap(find.text('R-05'));
+    await settle(tester);
+    expect(find.text('M. Lim'), findsOneWidget);
+
+    // C. Garcia is on no unit: added at once.
+    await tester.tap(find.byKey(const ValueKey('crew-add-unit-r05')));
+    await settle(tester);
+    expect(find.text('Add crew to R-05'), findsOneWidget);
+    // Those already on R-05 are not offered.
+    expect(find.byKey(const ValueKey('crew-pick-usr-resp-02')), findsNothing);
+    expect(find.text('No ID yet · No unit'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('crew-pick-usr-resp-04')));
+    await settle(tester);
+    expect(find.text('C. Garcia added to R-05'), findsOneWidget);
+    expect(find.text('C. Garcia'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+
+    // R. Mendoza is on R-03: moved after asking.
+    await tester.tap(find.byKey(const ValueKey('crew-add-unit-r05')));
+    await settle(tester);
+    expect(find.text('MDRRMD-0102 · On R-03'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('crew-pick-usr-resp-05')));
+    await settle(tester);
+    expect(find.text('Move R. Mendoza to R-05?'), findsOneWidget);
+    expect(find.text('R. Mendoza is on R-03 now and will leave it.'), findsOne);
+    await tester.tap(find.widgetWithText(FilledButton, 'Move'));
+    await settle(tester);
+    expect(find.text('R. Mendoza added to R-05'), findsOneWidget);
+    expect(find.text('R. Mendoza'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+
+    // M. Lim is taken off, after asking.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('crew-remove-usr-resp-02')),
+    );
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('crew-remove-usr-resp-02')));
+    await settle(tester);
+    expect(find.text('Take M. Lim off R-05?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Take off unit'));
+    await settle(tester);
+    expect(find.text('M. Lim taken off R-05'), findsOneWidget);
+    expect(find.text('M. Lim'), findsNothing);
+
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(
+      audit!
+          .where((e) => e.action == AuditAction.rosterChanged)
+          .map((e) => e.detail),
+      containsAll([
+        'C. Garcia: no unit → R-05',
+        'R. Mendoza: R-03 → R-05',
+        'M. Lim: R-05 → no unit',
+      ]),
+    );
   });
 
   testWidgets('My unit: the responder sees their crew, marked You', (
