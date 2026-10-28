@@ -2308,32 +2308,4 @@ class AppLocalizationsEn extends AppLocalizations {
   String photoDeliveredNotice(String time) {
     return 'Your photo from $time was delivered.';
   }
-
-  @override
-  String get contactName => 'Project S.A.G.I.P.';
-
-  @override
-  String get contactCompany => 'Manila MDRRMD';
-
-  @override
-  String get contactCardTitle => 'Know it\'s us';
-
-  @override
-  String get contactCardBody =>
-      'Save Project S.A.G.I.P. to your contacts so our texts show our name, not a number.';
-
-  @override
-  String get contactSave => 'Save to contacts';
-
-  @override
-  String get contactNotNow => 'Not now';
-
-  @override
-  String get contactMeTitle => 'Save S.A.G.I.P. to contacts';
-
-  @override
-  String get contactMeSubtitle => 'Our texts and sign-in codes show our name';
-
-  @override
-  String get contactOpenFailed => 'Your contacts app could not be opened.';
 }

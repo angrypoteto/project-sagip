@@ -387,28 +387,6 @@ class MockPhoneCaller implements PhoneCaller {
   }
 }
 
-/// Records the contacts that would be saved.
-class MockContactSaver implements ContactSaver {
-  MockContactSaver({this.opens = true});
-
-  /// Whether a contacts app "opens".
-  final bool opens;
-  final saved = <({String name, String mobile, String? otherNumber})>[];
-
-  @override
-  Future<bool> save({
-    required String name,
-    required String company,
-    required String mobile,
-    String? otherNumber,
-  }) async {
-    if (opens) {
-      saved.add((name: name, mobile: mobile, otherNumber: otherNumber));
-    }
-    return opens;
-  }
-}
-
 class MockSignalMonitor implements SignalMonitor {
   const MockSignalMonitor(this._backend);
 

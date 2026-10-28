@@ -2338,33 +2338,4 @@ class AppLocalizationsFil extends AppLocalizations {
   String photoDeliveredNotice(String time) {
     return 'Naihatid na ang iyong larawan mula $time.';
   }
-
-  @override
-  String get contactName => 'Project S.A.G.I.P.';
-
-  @override
-  String get contactCompany => 'Manila MDRRMD';
-
-  @override
-  String get contactCardTitle => 'Para makilala mo kami';
-
-  @override
-  String get contactCardBody =>
-      'I-save ang Project S.A.G.I.P. sa iyong contacts para pangalan namin ang lumabas sa aming mga text, hindi numero.';
-
-  @override
-  String get contactSave => 'I-save sa contacts';
-
-  @override
-  String get contactNotNow => 'Mamaya na';
-
-  @override
-  String get contactMeTitle => 'I-save ang S.A.G.I.P. sa contacts';
-
-  @override
-  String get contactMeSubtitle =>
-      'Pangalan namin ang lalabas sa aming mga text at code';
-
-  @override
-  String get contactOpenFailed => 'Hindi mabuksan ang iyong contacts app.';
 }

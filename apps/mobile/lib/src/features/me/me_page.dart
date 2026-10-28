@@ -6,7 +6,6 @@ import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/labels.dart';
 import '../../common/privacy_notice.dart';
-import '../../common/save_contact.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
@@ -189,14 +188,6 @@ class MePage extends ConsumerWidget {
           ),
           onTap: () => _chooseLanguage(context, ref),
         ),
-        if (ref.watch(smsGatewayProvider).isNotEmpty)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Symbols.contact_phone_rounded),
-            title: Text(l10n.contactMeTitle),
-            subtitle: Text(l10n.contactMeSubtitle),
-            onTap: () => saveSagipContact(context, ref),
-          ),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Symbols.notifications_active_rounded),

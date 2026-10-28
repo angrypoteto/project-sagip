@@ -806,21 +806,6 @@ abstract interface class PhoneCaller {
   Future<CallOutcome> call(String number);
 }
 
-/// Saves MDRRMD's numbers to the phone's contacts (Joshua, 2026-10-28):
-/// texts from the gateway SIM then show "Project S.A.G.I.P." instead of a
-/// number, since a SIM cannot send under a name. Opens the phone's own
-/// contacts app with everything filled in; the person taps Save there, so
-/// no contacts permission is needed and the app never reads contacts.
-abstract interface class ContactSaver {
-  /// False when no contacts app could be opened.
-  Future<bool> save({
-    required String name,
-    required String company,
-    required String mobile,
-    String? otherNumber,
-  });
-}
-
 /// [number] as a phone dials it: digits and a leading +, nothing else
 /// ("(02) 8527-0000" becomes "0285270000").
 String dialable(String number) {

@@ -767,14 +767,5 @@
   "photoThumb": "The photo you added",
   "queueKindPhoto": "Photo",
   "photoDeliveredNotice": "Your photo from {time} was delivered.",
-  "@photoDeliveredNotice": {"placeholders": {"time": {"type": "String"}}},
-  "contactName": "Project S.A.G.I.P.",
-  "contactCompany": "Manila MDRRMD",
-  "contactCardTitle": "Know it's us",
-  "contactCardBody": "Save Project S.A.G.I.P. to your contacts so our texts show our name, not a number.",
-  "contactSave": "Save to contacts",
-  "contactNotNow": "Not now",
-  "contactMeTitle": "Save S.A.G.I.P. to contacts",
-  "contactMeSubtitle": "Our texts and sign-in codes show our name",
-  "contactOpenFailed": "Your contacts app could not be opened."
+  "@photoDeliveredNotice": {"placeholders": {"time": {"type": "String"}}}
 }
