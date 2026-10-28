@@ -141,11 +141,11 @@ class _CrowdReportsPageState extends ConsumerState<CrowdReportsPage> {
               FlutterMap(
                 mapController: _map,
                 options: MapOptions(
+                  backgroundColor: mapBackground(context),
                   initialCenter: manilaCenter,
                   initialZoom: 13.6,
                   minZoom: 11,
                   maxZoom: 18,
-                  backgroundColor: p.canvas,
                   interactionOptions: const InteractionOptions(
                     flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                   ),

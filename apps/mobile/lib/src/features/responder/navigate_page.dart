@@ -147,6 +147,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                 FlutterMap(
                   mapController: _map,
                   options: MapOptions(
+                    backgroundColor: mapBackground(context),
                     initialCenter: toLatLng(unit ?? a.destination),
                     initialZoom: 17,
                     onMapReady: () => _ready = true,

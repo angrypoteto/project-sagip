@@ -249,6 +249,7 @@ class _SafeMap extends ConsumerWidget {
           // A new set of places frames the map again.
           key: ValueKey(options.map((o) => o.place.id).join()),
           options: MapOptions(
+            backgroundColor: mapBackground(context),
             initialCenter: points.first,
             initialZoom: 16,
             initialCameraFit: CameraFit.coordinates(

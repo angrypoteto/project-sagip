@@ -160,6 +160,7 @@ class _LocationPickerState extends ConsumerState<LocationPickerPage> {
         FlutterMap(
           mapController: _map,
           options: MapOptions(
+            backgroundColor: mapBackground(context),
             initialCenter: toLatLng(_center),
             initialZoom: 17,
             onMapReady: () => _ready = true,

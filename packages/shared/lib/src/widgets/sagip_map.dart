@@ -170,6 +170,15 @@ final _paintLight = _paint(
   warm: const [0.10, -0.06, -0.50],
 );
 
+/// The map's background: the land color of the muted tiles, so a tile
+/// still loading looks like empty land instead of a white square (Joshua,
+/// 2026-10-28: only the screen's tiles are loaded now, so panning shows
+/// them arriving). Pass it as `MapOptions.backgroundColor`.
+Color mapBackground(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+    ? const Color.fromARGB(255, 13, 25, 38)
+    : const Color.fromARGB(255, 232, 235, 239);
+
 /// The required OpenStreetMap credit, kept small and quiet. [label] comes
 /// from the app's l10n file ("OpenStreetMap contributors").
 class MapCredit extends StatelessWidget {

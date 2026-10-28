@@ -578,6 +578,7 @@ class _PinMap extends ConsumerWidget {
                 key: const ValueKey('web-map'),
                 mapController: controller,
                 options: MapOptions(
+                  backgroundColor: mapBackground(context),
                   initialCenter: start == null ? manilaCenter : toLatLng(start),
                   initialZoom: start == null ? 13 : 16,
                   minZoom: 11,
