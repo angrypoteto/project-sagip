@@ -655,5 +655,14 @@
   "photoRemove": "Alisin ang larawan",
   "photoThumb": "Ang larawang idinagdag mo",
   "queueKindPhoto": "Larawan",
-  "photoDeliveredNotice": "Naihatid na ang iyong larawan mula {time}."
+  "photoDeliveredNotice": "Naihatid na ang iyong larawan mula {time}.",
+  "contactName": "Project S.A.G.I.P.",
+  "contactCompany": "Manila MDRRMD",
+  "contactCardTitle": "Para makilala mo kami",
+  "contactCardBody": "I-save ang Project S.A.G.I.P. sa iyong contacts para pangalan namin ang lumabas sa aming mga text, hindi numero.",
+  "contactSave": "I-save sa contacts",
+  "contactNotNow": "Mamaya na",
+  "contactMeTitle": "I-save ang S.A.G.I.P. sa contacts",
+  "contactMeSubtitle": "Pangalan namin ang lalabas sa aming mga text at code",
+  "contactOpenFailed": "Hindi mabuksan ang iyong contacts app."
 }

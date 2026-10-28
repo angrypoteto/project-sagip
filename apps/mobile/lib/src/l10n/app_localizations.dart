@@ -4033,6 +4033,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your photo from {time} was delivered.'**
   String photoDeliveredNotice(String time);
+
+  /// No description provided for @contactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Project S.A.G.I.P.'**
+  String get contactName;
+
+  /// No description provided for @contactCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Manila MDRRMD'**
+  String get contactCompany;
+
+  /// No description provided for @contactCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Know it\'s us'**
+  String get contactCardTitle;
+
+  /// No description provided for @contactCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Project S.A.G.I.P. to your contacts so our texts show our name, not a number.'**
+  String get contactCardBody;
+
+  /// No description provided for @contactSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to contacts'**
+  String get contactSave;
+
+  /// No description provided for @contactNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get contactNotNow;
+
+  /// No description provided for @contactMeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save S.A.G.I.P. to contacts'**
+  String get contactMeTitle;
+
+  /// No description provided for @contactMeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Our texts and sign-in codes show our name'**
+  String get contactMeSubtitle;
+
+  /// No description provided for @contactOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your contacts app could not be opened.'**
+  String get contactOpenFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -8,6 +8,7 @@ import 'package:sagip_shared/sagip_shared.dart';
 import 'app_version.dart';
 import 'device/device_alert_sound.dart';
 import 'device/device_battery_optimization.dart';
+import 'device/device_contact_saver.dart';
 import 'device/device_phone_caller.dart';
 import 'device/device_relay_radio.dart';
 import 'device/download_latest_build.dart';
@@ -92,6 +93,33 @@ final smsComposerProvider = Provider<SmsComposer>((ref) => MockSmsComposer());
 
 /// "Call MDRRMD": calls the hotline (the dialer when calls are not allowed).
 final phoneCallerProvider = Provider<PhoneCaller>((ref) => MockPhoneCaller());
+
+/// "Save to contacts": MDRRMD's numbers into the phone's contacts app.
+final contactSaverProvider = Provider<ContactSaver>(
+  (ref) => MockContactSaver(),
+);
+
+/// The gateway number the person last saved to contacts, or said "Not now"
+/// to (empty: neither). Home offers to save again when A3's gateway number
+/// is a different one.
+class ContactOffered extends Notifier<String> {
+  static const _key = 'settings:contact-offered-for';
+
+  @override
+  String build() {
+    final saved = ref.read(localStoreProvider).read(_key);
+    return saved is String ? saved : '';
+  }
+
+  void done(String gateway) {
+    state = gateway;
+    ref.read(localStoreProvider).write(_key, gateway);
+  }
+}
+
+final contactOfferedProvider = NotifierProvider<ContactOffered, String>(
+  ContactOffered.new,
+);
 
 final permissionServiceProvider = Provider<PermissionService>(
   (ref) => _missing('PermissionService'),
@@ -343,6 +371,7 @@ List<Override> liveOverrides({
     batteryOptimizationProvider.overrideWithValue(battery),
     smsComposerProvider.overrideWithValue(const DeviceSmsSender()),
     phoneCallerProvider.overrideWithValue(const DevicePhoneCaller()),
+    contactSaverProvider.overrideWithValue(const DeviceContactSaver()),
     speakerProvider.overrideWithValue(TtsSpeaker()),
     alertSoundProvider.overrideWithValue(const DeviceAlertSound()),
     sosSendNoticeProvider.overrideWithValue(const DeviceSosSendNotice()),

@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.provider.ContactsContract
 import android.provider.Settings
 import android.provider.Telephony
 import android.telephony.SmsManager
@@ -158,6 +159,21 @@ class MainActivity : FlutterActivity() {
                     call.method == "call" -> result.success(callNumber(number, now = true))
                     call.method == "dial" -> result.success(callNumber(number, now = false))
                     else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/contacts")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "save") {
+                    result.success(
+                        saveContact(
+                            call.argument<String>("name") ?: "",
+                            call.argument<String>("company") ?: "",
+                            call.argument<String>("mobile") ?: "",
+                            call.argument<String>("other"),
+                        ),
+                    )
+                } else {
+                    result.notImplemented()
                 }
             }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ph.sagip/sos_notice")
@@ -364,6 +380,38 @@ class MainActivity : FlutterActivity() {
             "dialer"
         } catch (_: Exception) {
             "unavailable"
+        }
+    }
+
+    /**
+     * Opens the phone's contacts app with MDRRMD's numbers filled in
+     * (2026-10-28): texts from the gateway SIM then show the name. The
+     * person taps Save there, so no contacts permission is needed.
+     */
+    private fun saveContact(name: String, company: String, mobile: String, other: String?): Boolean {
+        if (mobile.isEmpty()) return false
+        val intent = Intent(ContactsContract.Intents.Insert.ACTION)
+            .setType(ContactsContract.RawContacts.CONTENT_TYPE)
+            .putExtra(ContactsContract.Intents.Insert.NAME, name)
+            .putExtra(ContactsContract.Intents.Insert.COMPANY, company)
+            .putExtra(ContactsContract.Intents.Insert.PHONE, mobile)
+            .putExtra(
+                ContactsContract.Intents.Insert.PHONE_TYPE,
+                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
+            )
+            .putExtra("finishActivityOnSaveCompleted", true)
+        if (!other.isNullOrEmpty()) {
+            intent.putExtra(ContactsContract.Intents.Insert.SECONDARY_PHONE, other)
+                .putExtra(
+                    ContactsContract.Intents.Insert.SECONDARY_PHONE_TYPE,
+                    ContactsContract.CommonDataKinds.Phone.TYPE_WORK,
+                )
+        }
+        return try {
+            startActivity(intent)
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 

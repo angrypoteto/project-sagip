@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/labels.dart';
+import '../../common/save_contact.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
@@ -90,6 +91,12 @@ class _AlertsPageState extends ConsumerState<AlertsPage> {
               style: text.bodySmall!.copyWith(color: p.warning.text),
             ),
           ),
+        // Alerts and rescue updates come by text too: offered once here,
+        // not on Home, so nothing crowds the SOS button.
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: SagipSpace.xl),
+          child: SaveContactCard(),
+        ),
         const SizedBox(height: SagipSpace.sm),
         Expanded(
           child: RefreshIndicator(

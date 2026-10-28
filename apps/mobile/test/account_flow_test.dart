@@ -229,6 +229,45 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('Save to contacts: texts from the gateway then show our name', (
+    tester,
+  ) async {
+    // No gateway number yet: nothing to save, so nothing is offered.
+    await pumpApp(tester);
+    await tap(tester, 'Continue as resident');
+    await tap(tester, 'Alerts');
+    expect(find.text("Know it's us"), findsNothing);
+    container.dispose();
+    await tester.pumpWidget(const SizedBox());
+
+    await pumpApp(
+      tester,
+      config: const ClientConfig(
+        hotline: '(02) 8527-0000',
+        smsGateway: '+63 917 123 4567',
+      ),
+    );
+    // Still signed in from the first part. Home stays clear for SOS.
+    expect(find.text('Continue as resident'), findsNothing);
+    expect(find.text("Know it's us"), findsNothing);
+    await tap(tester, 'Alerts');
+    expect(find.text("Know it's us"), findsOneWidget);
+    await tap(tester, 'Save to contacts');
+    final saver = container.read(contactSaverProvider) as MockContactSaver;
+    expect(saver.saved.single.name, 'Project S.A.G.I.P.');
+    expect(saver.saved.single.mobile, '+639171234567');
+    expect(saver.saved.single.otherNumber, '0285270000');
+    // Offered once: gone after saving, and kept for the gateway it was for.
+    expect(find.text("Know it's us"), findsNothing);
+    expect(container.read(contactOfferedProvider), '+63 917 123 4567');
+
+    // Me keeps the row for later (a new phone, a deleted contact).
+    await tap(tester, 'Me');
+    await tap(tester, 'Save S.A.G.I.P. to contacts');
+    expect(saver.saved, hasLength(2));
+    await finish(tester);
+  });
+
   testWidgets('Me: the app can be read in Filipino, and back', (tester) async {
     await pumpApp(tester);
     await tap(tester, 'Continue as resident');
