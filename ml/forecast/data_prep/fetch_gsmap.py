@@ -21,7 +21,7 @@ Units: the file holds the day's mean rate in mm/h; this writes mm per day
 (times 24).
 
 Usage:
-  python ml/forecast/fetch_gsmap.py --start 2012-01-01 --end 2026-10-24
+  python ml/forecast/data_prep/fetch_gsmap.py --start 2012-01-01 --end 2026-10-24
   (resumes: days already in the output are skipped)
 
 Writes ml/forecast/data/manila_gsmap_daily.csv:
@@ -31,6 +31,7 @@ Writes ml/forecast/data/manila_gsmap_daily.csv:
 import argparse
 import csv
 import struct
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -39,8 +40,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 from pathlib import Path
 
-HERE = Path(__file__).parent
-OUT = HERE / "data" / "manila_gsmap_daily.csv"
+FORECAST = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(FORECAST))  # the data_prep, lstm, kde, and heatmap folders import as packages
+OUT = FORECAST / "data" / "manila_gsmap_daily.csv"
 BASE = (
     "https://s3.ap-northeast-1.wasabisys.com/je-pds/cog/v1/"
     "JAXA.EORC_GSMaP_standard.Gauge.00Z-23Z.v6_daily"
@@ -146,7 +148,7 @@ def cell_weights():
     from shapely.geometry import box, shape
     from shapely.ops import unary_union
 
-    from kde import default_boundaries, load_boundaries
+    from kde.kde import default_boundaries, load_boundaries
 
     city = unary_union([shape(g).buffer(0) for g in load_boundaries(default_boundaries()).values()])
     shares = {}

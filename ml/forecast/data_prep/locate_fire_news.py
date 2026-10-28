@@ -17,7 +17,7 @@ and counted. The date is the report's date, which is the day of the fire
 or the day after.
 
 Usage:
-  python ml/forecast/locate_fire_news.py
+  python ml/forecast/data_prep/locate_fire_news.py
 
 Reads ml/forecast/build/fire_news/, writes
 ml/forecast/data/manila_fire_news.csv and prints the counts.
@@ -32,11 +32,11 @@ import urllib.request
 from collections import Counter
 from pathlib import Path
 
-HERE = Path(__file__).parent
-ROOT = HERE.parent.parent
-NEWS = HERE / "build" / "fire_news"
+FORECAST = Path(__file__).resolve().parents[1]
+ROOT = FORECAST.parent.parent
+NEWS = FORECAST / "build" / "fire_news"
 CACHE = NEWS / "geocode.json"
-OUT = HERE / "data" / "manila_fire_news.csv"
+OUT = FORECAST / "data" / "manila_fire_news.csv"
 AGENT = "project-sagip capstone research (student project; one request a second)"
 
 # How reports name the districts, and the district name in the barangay file.

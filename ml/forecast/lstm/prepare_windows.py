@@ -23,11 +23,11 @@ The LSTM itself is not trained here (TensorFlow is not installed on this
 machine). This script writes the arrays it will train on.
 
 Usage:
-  python ml/forecast/prepare_windows.py
-  python ml/forecast/prepare_windows.py --weather path.csv --incidents path.csv
+  python ml/forecast/lstm/prepare_windows.py
+  python ml/forecast/lstm/prepare_windows.py --weather path.csv --incidents path.csv
 
 Writes ml/forecast/build/windows_<hazard>.npz (git-ignored) and
-ml/forecast/prep_summary.json.
+ml/forecast/lstm/prep_summary.json.
 """
 
 import argparse
@@ -39,6 +39,7 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).parent
+FORECAST = HERE.parent
 WINDOW = 14
 HORIZON = 3  # days: "the next 72 hours"
 SPLIT = (0.70, 0.15, 0.15)
@@ -370,11 +371,11 @@ def prepare(weather_rows, incident_rows, out_dir=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--weather", default=HERE / "data" / "sample_weather_daily.csv")
-    parser.add_argument("--incidents", default=HERE / "data" / "sample_incidents.csv")
+    parser.add_argument("--weather", default=FORECAST / "data" / "sample_weather_daily.csv")
+    parser.add_argument("--incidents", default=FORECAST / "data" / "sample_incidents.csv")
     args = parser.parse_args()
     sample = "sample_" in Path(args.weather).name or "sample_" in Path(args.incidents).name
-    summary = prepare(read_csv(args.weather), read_csv(args.incidents), out_dir=HERE / "build")
+    summary = prepare(read_csv(args.weather), read_csv(args.incidents), out_dir=FORECAST / "build")
     summary = {
         "data": "SAMPLE (made up by make_sample_data.py); nothing here is a result" if sample else "as given",
         **summary,

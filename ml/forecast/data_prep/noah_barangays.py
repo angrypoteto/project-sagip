@@ -17,7 +17,7 @@ The maps themselves (about 107 MB) stay in ml/forecast/data/noah/, which
 git ignores. Re-download them from the folder above to rerun this.
 
 Usage:
-  .venv/Scripts/python ml/forecast/noah_barangays.py
+  .venv/Scripts/python ml/forecast/data_prep/noah_barangays.py
 
 Writes ml/forecast/data/noah_barangay_hazard.csv: one row per barangay,
 the share (0 to 1) of its area in each zone of each map.
@@ -25,17 +25,20 @@ the share (0 to 1) of its area in each zone of each map.
 
 import csv
 import struct
+import sys
 from pathlib import Path
 
 from shapely import STRtree, make_valid
 from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
 
-from kde import default_boundaries, load_boundaries
+FORECAST = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(FORECAST))  # the data_prep, lstm, kde, and heatmap folders import as packages
 
-HERE = Path(__file__).parent
-NOAH = HERE / "data" / "noah"
-OUT = HERE / "data" / "noah_barangay_hazard.csv"
+from kde.kde import default_boundaries, load_boundaries  # noqa: E402
+
+NOAH = FORECAST / "data" / "noah"
+OUT = FORECAST / "data" / "noah_barangay_hazard.csv"
 MAPS = {
     "flood_5yr": "flood_5yr/MetroManila_Flood_5year.shp",
     "flood_25yr": "flood_25yr/MetroManila_Flood_25year.shp",

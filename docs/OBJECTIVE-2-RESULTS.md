@@ -10,17 +10,17 @@ Nothing here is loaded into the database or shown in the apps (Joshua, 2026-10-2
 
 | Thesis input | Stand-in used | Where |
 |---|---|---|
-| PAGASA daily rainfall | **GSMaP Gauge v6** (JAXA): satellite rainfall corrected with rain gauges, 0.1° cells, the four cells over Manila weighted by the city's area in each. Open data, credit "GSMaP (JAXA)" | `ml/forecast/fetch_gsmap.py` → `data/manila_gsmap_daily.csv` |
-| PAGASA wettest hour, wind | ERA5 reanalysis through Open-Meteo (CC BY 4.0); GSMaP's hourly series starts only in 2025 | `fetch_weather.py` → `data/manila_weather_daily.csv` |
+| PAGASA daily rainfall | **GSMaP Gauge v6** (JAXA): satellite rainfall corrected with rain gauges, 0.1° cells, the four cells over Manila weighted by the city's area in each. Open data, credit "GSMaP (JAXA)" | `ml/forecast/data_prep/fetch_gsmap.py` → `data/manila_gsmap_daily.csv` |
+| PAGASA wettest hour, wind | ERA5 reanalysis through Open-Meteo (CC BY 4.0); GSMaP's hourly series starts only in 2025 | `data_prep/fetch_weather.py` → `data/manila_weather_daily.csv` |
 | PAGASA typhoon signals | 23 days a signal was up over Metro Manila, from news reports (incomplete) | `data/manila_signals.csv` |
 | PAGASA storm surge | none found for any day | (0 on every day) |
 | MDRRMD fire incidents | 131 fire reports, Asia Fire News archive (Tokyo University of Science) | `data/manila_fire_news.csv` |
 | MDRRMD flood incidents | 56 flooded corners from MMDA lists reprinted in the news (2021 to 2026), plus 19 flood days found on 2026-10-28 that name City of Manila streets (2012 to 2024; from search summaries, **not yet checked**) | `data/manila_flood_news.csv`, `data/manila_flood_days.csv` |
-| Barangay hazard (for the heatmap) | UP NOAH flood (5, 25, 100-year rain) and storm surge (SSA 1 to 4) maps for Metro Manila, ODbL, credit "UP NOAH" | `noah_barangays.py` → `data/noah_barangay_hazard.csv` |
+| Barangay hazard (for the heatmap) | UP NOAH flood (5, 25, 100-year rain) and storm surge (SSA 1 to 4) maps for Metro Manila, ODbL, credit "UP NOAH" | `data_prep/noah_barangays.py` → `data/noah_barangay_hazard.csv` |
 
 ## 2. Records retained, corrected, and removed at each step
 
-From `ml/forecast/prep_summary_real.json` (`prepare_real.py`). Weather period: 2012-01-01 to 2026-10-05 (5,392 days).
+From `ml/forecast/data_prep/prep_summary_real.json` (`data_prep/prepare_real.py`). Weather period: 2012-01-01 to 2026-10-05 (5,392 days).
 
 | Dataset | Step | In | Retained | Corrected | Removed | What happened |
 |---|---|---:|---:|---:|---:|---|
@@ -50,7 +50,7 @@ What the LSTM trains on (14-day windows, label = at least one incident in the ne
 
 ## 3. The LSTM (thesis architecture and parameters, unchanged)
 
-From `ml/forecast/lstm_metrics_real.json` (`train_lstm.py`). Test part, threshold 0.5:
+From `ml/forecast/lstm/lstm_metrics_real.json` (`lstm/train_lstm.py`). Test part, threshold 0.5:
 
 | Hazard | Accuracy | Balanced accuracy | Precision | Recall | F1 | RMSE | "Never an incident" accuracy | Best baseline F1 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -59,7 +59,7 @@ From `ml/forecast/lstm_metrics_real.json` (`train_lstm.py`). Test part, threshol
 
 ## 4. The 72-hour heatmap, per barangay
 
-From `ml/forecast/heatmap_metrics_real.json` (`evaluate_heatmap.py`). Every test day × 897 barangays. "At risk" = moderate or high by the rule of plan Q22. Truth = a placed incident in that barangay in the next 72 hours.
+From `ml/forecast/heatmap/heatmap_metrics_real.json` (`heatmap/evaluate_heatmap.py`). Every test day × 897 barangays. "At risk" = moderate or high by the rule of plan Q22. Truth = a placed incident in that barangay in the next 72 hours.
 
 | Hazard | Spatial layer | Accuracy | Balanced accuracy | Recall | Precision | "Nothing at risk" accuracy |
 |---|---|---:|---:|---:|---:|---:|
@@ -91,9 +91,9 @@ The flood KDE could not be fitted: only 1 placed flood corner falls in the train
 
 ```bash
 cd ml/forecast
-../../.venv/Scripts/python fetch_gsmap.py --start 2012-01-01 --end 2026-10-26   # about 750 MB read, an hour; resumes
-../../.venv/Scripts/python noah_barangays.py      # needs UP NOAH's maps in data/noah/ (git-ignored); about 9 minutes
-../../.venv/Scripts/python prepare_real.py        # the step log and the windows
-../../.venv-tf/Scripts/python train_lstm.py --prep prep_summary_real.json --build build/real --out lstm_metrics_real.json
-../../.venv-tf/Scripts/python evaluate_heatmap.py
+../../.venv/Scripts/python data_prep/fetch_gsmap.py --start 2012-01-01 --end 2026-10-26   # about 750 MB read, an hour; resumes
+../../.venv/Scripts/python data_prep/noah_barangays.py      # needs UP NOAH's maps in data/noah/ (git-ignored); about 9 minutes
+../../.venv/Scripts/python data_prep/prepare_real.py        # the step log and the windows
+../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_real.json --build build/real --out lstm/lstm_metrics_real.json
+../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py
 ```

@@ -17,7 +17,7 @@ Incidents fall around a handful of made-up hotspots. A few bad rows are
 added on purpose (duplicates, a point outside Manila, an unknown hazard, a
 date outside the period) so the cleaning step has something to remove.
 
-Usage: python ml/forecast/make_sample_data.py
+Usage: python ml/forecast/data_prep/make_sample_data.py
 """
 
 import csv
@@ -30,7 +30,7 @@ import numpy as np
 SEED = 20261002
 START = date(2023, 1, 1)
 END = date(2025, 12, 31)
-DATA = Path(__file__).parent / "data"
+DATA = Path(__file__).resolve().parents[1] / "data"
 EARTH_RADIUS_M = 6_371_008.8
 
 # (latitude, longitude, spread in metres, share of that hazard's incidents)

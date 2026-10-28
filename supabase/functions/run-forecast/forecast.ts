@@ -5,7 +5,7 @@
 // output for the same windows.
 //
 // The model file is supabase/data/forecast_live_v1.json, written by
-// ml/forecast/export_live.py and kept in the `forecast_model` table.
+// ml/forecast/heatmap/export_live.py and kept in the `forecast_model` table.
 
 export const hazards = ["flood", "fire", "storm_surge"] as const;
 export type Hazard = typeof hazards[number];

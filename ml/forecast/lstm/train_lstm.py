@@ -13,13 +13,13 @@ The thesis parameters (CLAUDE.md, "Algorithm parameters"):
     weights are kept)
 
 Needs TensorFlow, which needs Python 3.12 (see ml/README.md):
-  .venv-tf/Scripts/python ml/forecast/prepare_windows.py
-  .venv-tf/Scripts/python ml/forecast/train_lstm.py
+  .venv-tf/Scripts/python ml/forecast/lstm/prepare_windows.py
+  .venv-tf/Scripts/python ml/forecast/lstm/train_lstm.py
 
-Writes ml/forecast/lstm_metrics.json, and build/lstm_<hazard>.keras and
+Writes ml/forecast/lstm/lstm_metrics.json, and build/lstm_<hazard>.keras and
 build/lstm_<hazard>.tflite (git-ignored). For the public records
 (prepare_real.py):
-  .venv-tf/Scripts/python ml/forecast/train_lstm.py --prep prep_summary_real.json --build build/real --out lstm_metrics_real.json
+  .venv-tf/Scripts/python ml/forecast/lstm/train_lstm.py --prep data_prep/prep_summary_real.json --build build/real --out lstm/lstm_metrics_real.json
 
 On the sample data nothing here is a result: the data is made up.
 """
@@ -27,6 +27,7 @@ On the sample data nothing here is a result: the data is made up.
 import argparse
 import json
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -36,9 +37,12 @@ os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 import tensorflow as tf  # noqa: E402
 
-from prepare_windows import HAZARDS, scores  # noqa: E402
-
 HERE = Path(__file__).parent
+FORECAST = HERE.parent
+sys.path.insert(0, str(FORECAST))
+
+from lstm.prepare_windows import HAZARDS, scores  # noqa: E402
+
 SEED = 20261002
 
 UNITS = (64, 32)
@@ -139,12 +143,13 @@ def export_tflite(model, x_check, path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prep", default="prep_summary.json")
+    # Paths are relative to ml/forecast.
+    parser.add_argument("--prep", default="lstm/prep_summary.json")
     parser.add_argument("--build", default="build")
-    parser.add_argument("--out", default="lstm_metrics.json")
+    parser.add_argument("--out", default="lstm/lstm_metrics.json")
     args = parser.parse_args()
-    build = HERE / args.build
-    prep = json.loads((HERE / args.prep).read_text(encoding="utf-8"))
+    build = FORECAST / args.build
+    prep = json.loads((FORECAST / args.prep).read_text(encoding="utf-8"))
     out = {
         "data": prep.get("data", "as given"),
         "tensorflow": tf.__version__,
@@ -199,7 +204,7 @@ def main():
             f"test accuracy {test['lstm']['accuracy']}, F1 {test['lstm']['f1']} "
             f"(best baseline F1 {best_baseline}), {result['train_seconds']} s"
         )
-    (HERE / args.out).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+    (FORECAST / args.out).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

@@ -20,15 +20,19 @@ model, nothing secret):
     Edge Function's tests must match.
 
 Usage (TensorFlow is in .venv-tf), after train_lstm.py and kde.py:
-  ../../.venv-tf/Scripts/python export_live.py
+  ../../.venv-tf/Scripts/python heatmap/export_live.py
 """
 
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 
-from prepare_windows import (
+FORECAST = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(FORECAST))
+
+from lstm.prepare_windows import (  # noqa: E402
     FEATURES,
     HAZARDS,
     WINDOW,
@@ -38,11 +42,10 @@ from prepare_windows import (
     load_weather,
     read_csv,
 )
-from run_forecast import RULE
+from heatmap.run_forecast import RULE  # noqa: E402
 
-HERE = Path(__file__).parent
-BUILD = HERE / "build"
-OUT = HERE.parent.parent / "supabase" / "data" / "forecast_live_v1.json"
+BUILD = FORECAST / "build"
+OUT = FORECAST.parent.parent / "supabase" / "data" / "forecast_live_v1.json"
 VERSION = "lstm-kde-v1"
 
 
@@ -79,11 +82,11 @@ def export_model(model):
 def main():
     import tensorflow as tf
 
-    days, weather = load_weather(read_csv(HERE / "data" / "sample_weather_daily.csv"))
+    days, weather = load_weather(read_csv(FORECAST / "data" / "sample_weather_daily.csv"))
     incidents, _ = clean_incidents(
-        read_csv(HERE / "data" / "sample_incidents.csv"), days[0], days[-1]
+        read_csv(FORECAST / "data" / "sample_incidents.csv"), days[0], days[-1]
     )
-    kde = json.loads((HERE / "kde_summary.json").read_text(encoding="utf-8"))
+    kde = json.loads((FORECAST / "kde" / "kde_summary.json").read_text(encoding="utf-8"))
     floor = min(
         [RULE["high"]["density"]] + [m["density"] for m in RULE["moderate"]]
     )

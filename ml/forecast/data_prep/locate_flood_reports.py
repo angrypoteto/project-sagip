@@ -13,7 +13,7 @@ Overpass API finds the points the two roads share; their middle is
 used). A corner that cannot be found is left out and printed.
 
 Usage:
-  python ml/forecast/locate_flood_reports.py
+  python ml/forecast/data_prep/locate_flood_reports.py
 
 Writes ml/forecast/data/manila_flood_news.csv.
 """
@@ -26,10 +26,10 @@ import urllib.request
 from collections import Counter
 from pathlib import Path
 
-HERE = Path(__file__).parent
-SOURCE = HERE / "data" / "manila_flood_reports.csv"
-OUT = HERE / "data" / "manila_flood_news.csv"
-CACHE = HERE / "build" / "flood_corners.json"
+FORECAST = Path(__file__).resolve().parents[1]
+SOURCE = FORECAST / "data" / "manila_flood_reports.csv"
+OUT = FORECAST / "data" / "manila_flood_news.csv"
+CACHE = FORECAST / "build" / "flood_corners.json"
 OVERPASS = "https://overpass-api.de/api/interpreter"
 AGENT = "project-sagip capstone research (student project)"
 # The City of Manila with a small margin: south, west, north, east.

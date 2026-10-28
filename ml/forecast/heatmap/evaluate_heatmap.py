@@ -20,13 +20,14 @@ city-wide flood days) cannot be checked per barangay and are left out of
 the truth.
 
 Usage (from ml/forecast, after prepare_real.py and train_lstm.py):
-  ../../.venv-tf/Scripts/python evaluate_heatmap.py
+  ../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py
 
 Writes heatmap_metrics_real.json.
 """
 
 import json
 import os
+import sys
 from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
@@ -37,7 +38,11 @@ os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 import tensorflow as tf  # noqa: E402
 
-from kde import (  # noqa: E402
+HERE = Path(__file__).parent
+FORECAST = HERE.parent
+sys.path.insert(0, str(FORECAST))
+
+from kde.kde import (  # noqa: E402
     average_per_barangay,
     bounding_box,
     default_boundaries,
@@ -46,10 +51,9 @@ from kde import (  # noqa: E402
     make_grid,
     select_bandwidth,
 )
-from prepare_windows import HORIZON, read_csv  # noqa: E402
+from lstm.prepare_windows import HORIZON, read_csv  # noqa: E402
 
-HERE = Path(__file__).parent
-BUILD = HERE / "build" / "real"
+BUILD = FORECAST / "build" / "real"
 NOAH_MAP = "flood_25yr"
 
 
@@ -104,7 +108,7 @@ def spatial_scores(hazard, incidents, names, boundaries, train_until):
     else:
         note["kde"] = "too few placed incidents in the training part to fit a KDE (5-fold CV needs 10)"
     if hazard == "flood":
-        rows = {r["barangay"]: r for r in read_csv(HERE / "data" / "noah_barangay_hazard.csv")}
+        rows = {r["barangay"]: r for r in read_csv(FORECAST / "data" / "noah_barangay_hazard.csv")}
         raw = {n: float(rows[n][f"{NOAH_MAP}_medium"]) + float(rows[n][f"{NOAH_MAP}_high"]) for n in names}
         top = max(raw.values()) or 1.0
         out["noah"] = {n: v / top for n, v in raw.items()}
@@ -114,7 +118,7 @@ def spatial_scores(hazard, incidents, names, boundaries, train_until):
 
 
 def main():
-    incidents = read_csv(HERE / "data" / "prepared" / "manila_incidents_prepared.csv")
+    incidents = read_csv(FORECAST / "data" / "prepared" / "manila_incidents_prepared.csv")
     boundaries = load_boundaries(default_boundaries())
     names = list(boundaries)
     result = {

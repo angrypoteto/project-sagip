@@ -26,7 +26,7 @@ fires only where the fire archive has reports (it has none for 2017 and
 2018), floods over the whole weather period.
 
 Usage (from ml/forecast):
-  ../../.venv/Scripts/python prepare_real.py
+  ../../.venv/Scripts/python data_prep/prepare_real.py
 
 Writes:
   data/prepared/manila_weather_prepared.csv     the daily features
@@ -37,6 +37,7 @@ Writes:
 
 import csv
 import json
+import sys
 from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
@@ -45,8 +46,11 @@ import numpy as np
 from shapely import STRtree
 from shapely.geometry import Point, shape
 
-from kde import default_boundaries, load_boundaries
-from prepare_windows import (
+FORECAST = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(FORECAST))  # the data_prep, lstm, kde, and heatmap folders import as packages
+
+from kde.kde import default_boundaries, load_boundaries  # noqa: E402
+from lstm.prepare_windows import (  # noqa: E402
     FEATURES,
     HORIZON,
     SPLIT,
@@ -64,9 +68,9 @@ from prepare_windows import (
 )
 
 HERE = Path(__file__).parent
-DATA = HERE / "data"
+DATA = FORECAST / "data"
 OUT_DIR = DATA / "prepared"
-BUILD = HERE / "build" / "real"
+BUILD = FORECAST / "build" / "real"
 
 PERIOD = (date(2012, 1, 1), date(2026, 10, 5))
 # Where each hazard's incident source has reports. The fire archive has
@@ -233,7 +237,7 @@ class Locator:
 
 
 def _metres(a, b):
-    from kde import haversine_m
+    from kde.kde import haversine_m
 
     return float(haversine_m(a[0], a[1], b[0], b[1]))
 

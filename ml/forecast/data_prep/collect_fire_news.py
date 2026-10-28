@@ -14,7 +14,7 @@ Two steps, both kept on disk so nothing is asked for twice:
   2. each entry's own page, for the text of the report.
 
 Usage:
-  python ml/forecast/collect_fire_news.py --since 2021-01-01
+  python ml/forecast/data_prep/collect_fire_news.py --since 2021-01-01
 
 Writes ml/forecast/build/fire_news/ (git-ignored): list.json and one
 text file per entry. locate_fire_news.py turns them into incidents.
@@ -30,8 +30,8 @@ import urllib.request
 from datetime import date
 from pathlib import Path
 
-HERE = Path(__file__).parent
-OUT = HERE / "build" / "fire_news"
+FORECAST = Path(__file__).resolve().parents[1]
+OUT = FORECAST / "build" / "fire_news"
 BASE = "https://gcoe.tus-fire.com/asia_news/"
 AGENT = "project-sagip capstone research (student project; one request a second)"
 

@@ -22,8 +22,8 @@ short, local downpours. If PAGASA's own daily records for Port Area or
 Science Garden are obtained, use those instead (same columns).
 
 Usage:
-  python ml/forecast/fetch_weather.py --start 2021-01-01 --end 2026-10-10
-  python ml/forecast/fetch_weather.py --start ... --end ... --signals ml/forecast/data/manila_signals.csv
+  python ml/forecast/data_prep/fetch_weather.py --start 2021-01-01 --end 2026-10-10
+  python ml/forecast/data_prep/fetch_weather.py --start ... --end ... --signals ml/forecast/data/manila_signals.csv
 
 Writes ml/forecast/data/manila_weather_daily.csv.
 """
@@ -37,7 +37,7 @@ import urllib.request
 from datetime import date
 from pathlib import Path
 
-HERE = Path(__file__).parent
+FORECAST = Path(__file__).resolve().parents[1]
 ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
 # Manila City Hall, about the middle of the city.
 LATITUDE, LONGITUDE = 14.5995, 120.9842
@@ -104,7 +104,7 @@ def main():
     parser.add_argument("--start", required=True, type=date.fromisoformat)
     parser.add_argument("--end", required=True, type=date.fromisoformat)
     parser.add_argument("--signals", help="CSV: date,typhoon_signal,storm_surge_m")
-    parser.add_argument("--out", default=HERE / "data" / "manila_weather_daily.csv")
+    parser.add_argument("--out", default=FORECAST / "data" / "manila_weather_daily.csv")
     args = parser.parse_args()
     if args.end < args.start:
         raise SystemExit("--end is before --start")

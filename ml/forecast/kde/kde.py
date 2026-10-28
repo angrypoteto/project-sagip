@@ -24,10 +24,10 @@ probability become a risk level is not decided (plan Q22); run_forecast.py
 applies a provisional rule.
 
 Usage:
-  python ml/forecast/kde.py
-  python ml/forecast/kde.py --incidents path.csv --weather path.csv
+  python ml/forecast/kde/kde.py
+  python ml/forecast/kde/kde.py --incidents path.csv --weather path.csv
 
-Writes ml/forecast/kde_summary.json and
+Writes ml/forecast/kde/kde_summary.json and
 ml/forecast/build/kde_grid_<hazard>.csv (git-ignored).
 """
 
@@ -35,21 +35,24 @@ import argparse
 import csv
 import json
 import math
+import sys
 from pathlib import Path
 
 import numpy as np
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KernelDensity
 
-from prepare_windows import HAZARDS, MANILA_BOX, clean_incidents, load_weather, read_csv
-
 HERE = Path(__file__).parent
-ROOT = HERE.parent.parent
+FORECAST = HERE.parent
+ROOT = FORECAST.parent.parent
+sys.path.insert(0, str(FORECAST))
+
+from lstm.prepare_windows import HAZARDS, MANILA_BOX, clean_incidents, load_weather, read_csv  # noqa: E402
 
 
 def default_boundaries():
     """The GeoJSON file if someone put one there, else the 897 barangays."""
-    geojson = HERE / "data" / "barangay_boundaries.geojson"
+    geojson = FORECAST / "data" / "barangay_boundaries.geojson"
     return geojson if geojson.exists() else ROOT / "supabase" / "data" / "manila_barangays.json"
 EARTH_RADIUS_M = 6_371_008.8
 BANDWIDTHS_M = (100, 200, 300, 400, 500)
@@ -290,8 +293,8 @@ def run(incidents, barangays, boundaries=None, out_dir=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--incidents", default=HERE / "data" / "sample_incidents.csv")
-    parser.add_argument("--weather", default=HERE / "data" / "sample_weather_daily.csv")
+    parser.add_argument("--incidents", default=FORECAST / "data" / "sample_incidents.csv")
+    parser.add_argument("--weather", default=FORECAST / "data" / "sample_weather_daily.csv")
     parser.add_argument("--barangays", default=ROOT / "supabase" / "data" / "manila_barangays.csv")
     parser.add_argument("--boundaries", default=None)
     args = parser.parse_args()
@@ -300,7 +303,7 @@ def main():
     days, _ = load_weather(read_csv(args.weather))
     incidents, log = clean_incidents(read_csv(args.incidents), days[0], days[-1])
     boundaries = load_boundaries(args.boundaries or default_boundaries())
-    hazards = run(incidents, load_barangays(args.barangays), boundaries, out_dir=HERE / "build")
+    hazards = run(incidents, load_barangays(args.barangays), boundaries, out_dir=FORECAST / "build")
 
     sample = "sample_" in Path(args.incidents).name
     provisional = ["risk levels: how the density and the LSTM probability combine is not decided (plan Q22); run_forecast.py uses a provisional rule"]

@@ -25,18 +25,22 @@ that adds the run for every barangay in the database (barangays not named
 are low). Run it in the Supabase SQL editor.
 
 Usage (TensorFlow is in .venv-tf):
-  ../../.venv-tf/Scripts/python run_forecast.py
-  ../../.venv-tf/Scripts/python run_forecast.py --as-of 2025-08-21
+  ../../.venv-tf/Scripts/python heatmap/run_forecast.py
+  ../../.venv-tf/Scripts/python heatmap/run_forecast.py --as-of 2025-08-21
 """
 
 import argparse
 import datetime as dt
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 
-from prepare_windows import (
+FORECAST = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(FORECAST))
+
+from lstm.prepare_windows import (  # noqa: E402
     FEATURES,
     HAZARDS,
     WINDOW,
@@ -48,7 +52,7 @@ from prepare_windows import (
 )
 
 HERE = Path(__file__).parent
-BUILD = HERE / "build"
+BUILD = FORECAST / "build"
 MODEL_VERSION = "lstm-kde-v1 (sample data, provisional levels)"
 DB_HAZARD = {"flood": "flood_risk", "fire": "fire_risk", "storm_surge": "surge_risk"}
 
@@ -125,7 +129,7 @@ def insert_sql(levels, issued_at):
     ]
     values = ",\n  ".join(f"('{name}', '{code}')" for name, code in named) or "(null, null)"
     word = "case substr(coalesce(v.code, 'lll'), {i}, 1) when 'h' then 'high' when 'm' then 'moderate' else 'low' end"
-    return f"""-- Forecast run made by ml/forecast/run_forecast.py ({MODEL_VERSION}).
+    return f"""-- Forecast run made by ml/forecast/heatmap/run_forecast.py ({MODEL_VERSION}).
 insert into public.barangay_forecast
   (barangay, district, issued_at, valid_until, flood_risk, fire_risk, surge_risk, model_version, is_simulated)
 select b.name, b.district, timestamptz '{issued_at}', timestamptz '{issued_at}' + interval '72 hours',
@@ -142,8 +146,8 @@ select b.name, b.district, timestamptz '{issued_at}', timestamptz '{issued_at}' 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--weather", default=HERE / "data" / "sample_weather_daily.csv")
-    parser.add_argument("--incidents", default=HERE / "data" / "sample_incidents.csv")
+    parser.add_argument("--weather", default=FORECAST / "data" / "sample_weather_daily.csv")
+    parser.add_argument("--incidents", default=FORECAST / "data" / "sample_incidents.csv")
     parser.add_argument("--as-of", default=None, help="the window's last day, YYYY-MM-DD")
     parser.add_argument("--issued-at", default=None, help="ISO time for the run (default: now)")
     args = parser.parse_args()
@@ -151,7 +155,7 @@ def main():
     days, _ = load_weather(read_csv(args.weather))
     as_of = dt.date.fromisoformat(args.as_of) if args.as_of else days[-1]
     probs = probabilities(as_of, args.weather, args.incidents)
-    kde_summary = json.loads((HERE / "kde_summary.json").read_text(encoding="utf-8"))
+    kde_summary = json.loads((FORECAST / "kde" / "kde_summary.json").read_text(encoding="utf-8"))
     levels = run(probs, kde_summary)
     issued_at = args.issued_at or dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
 

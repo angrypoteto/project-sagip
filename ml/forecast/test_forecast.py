@@ -10,9 +10,9 @@ from datetime import date, timedelta
 
 import numpy as np
 
-import kde
-import prepare_windows as prep
-import run_forecast
+from heatmap import run_forecast
+from kde import kde
+from lstm import prepare_windows as prep
 
 
 def weather_rows(days, rain=None):
@@ -338,7 +338,7 @@ class Lstm(unittest.TestCase):
     def test_the_architecture_follows_the_thesis(self):
         import tensorflow as tf
 
-        import train_lstm
+        from lstm import train_lstm
 
         model = train_lstm.build_model(14, 6)
         kinds = [type(layer).__name__ for layer in model.layers]
@@ -359,7 +359,7 @@ class Lstm(unittest.TestCase):
     def test_the_phone_copy_gives_the_same_answers(self):
         import tensorflow as tf
 
-        import train_lstm
+        from lstm import train_lstm
 
         tf.keras.utils.set_random_seed(1)
         model = train_lstm.build_model(14, 6)
