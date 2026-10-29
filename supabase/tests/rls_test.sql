@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(586);
+select plan(594);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2838,6 +2838,38 @@ select throws_ok($$ select public.request_crew_change('add', '00000000-0000-4000
   'P0001', 'not_allowed', 'nor can ask for crew changes');
 reset role;
 update public.staff set unit_id = 'unit-r05' where id = '00000000-0000-4000-8000-00000000000b';
+
+-- ------------------------------------------------------------ hotspots
+-- The KDE's density per barangay (2026-10-29): dispatchers and admins read
+-- it on the Heatmap page; no client writes it.
+
+reset role;
+insert into public.hazard_density (barangay, district, hazard, relative, model_version) values
+  ('Barangay 412', 'Sampaloc', 'flood', 1, 'sample'),
+  ('Barangay 105', 'Tondo', 'fire', 0.5, 'sample')
+  on conflict (barangay, hazard) do nothing;
+select throws_ok($$ insert into public.hazard_density (barangay, district, hazard, relative, model_version)
+    values ('Barangay 1', 'Tondo', 'flood', 1.5, 'sample') $$,
+  '23514', null, 'a density above 1 is refused');
+select throws_ok($$ insert into public.hazard_density (barangay, district, hazard, relative, model_version)
+    values ('Barangay 1', 'Tondo', 'storm_surge', 0.5, 'sample') $$,
+  '23514', null, 'only the app''s hazard names are stored');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select ok((select count(*) from public.hazard_density) >= 2, 'a dispatcher reads the hotspots');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
+select ok((select count(*) from public.hazard_density) >= 2, 'so does an admin');
+select throws_ok($$ insert into public.hazard_density (barangay, district, hazard, relative, model_version)
+    values ('Barangay 2', 'Tondo', 'flood', 0.5, 'sample') $$,
+  '42501', null, 'no client writes them, not even an admin');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.hazard_density), 0, 'a resident reads none');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.hazard_density), 0, 'nor does a responder');
+reset role;
+set local role anon;
+select throws_ok($$ select count(*) from public.hazard_density $$, '42501', null, 'anon cannot read them');
 
 -- The counters as the real records need them (see the top).
 reset role;

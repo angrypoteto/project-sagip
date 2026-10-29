@@ -316,6 +316,14 @@ final forecastProvider = StreamProvider<ForecastRun?>(
   ),
 );
 
+/// The KDE's density per barangay and hazard: the Heatmap page's Hotspots.
+final densityProvider = StreamProvider<List<HazardDensity>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(forecastRepositoryProvider).watchDensity(),
+  ),
+);
+
 final vulnerableResidentsProvider = StreamProvider<List<Resident>>(
   (ref) => _forAccount(
     ref,

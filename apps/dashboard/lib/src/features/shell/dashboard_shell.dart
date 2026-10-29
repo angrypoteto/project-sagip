@@ -97,7 +97,7 @@ final _mainItems = [
   ),
   _NavItem(Routes.history, Symbols.event_note_rounded, (l) => l.navHistory),
   _NavItem(Routes.units, Symbols.ambulance_rounded, (l) => l.navUnits),
-  _NavItem(Routes.forecast, Symbols.radar_rounded, (l) => l.navForecast),
+  _NavItem(Routes.forecast, Symbols.radar_rounded, (l) => l.navHeatmap),
   _NavItem(
     Routes.vulnerable,
     Symbols.accessible_rounded,

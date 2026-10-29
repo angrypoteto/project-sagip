@@ -149,3 +149,26 @@ List<List<GeoPoint>> barangayOutline(String name) {
 List<List<GeoPoint>> get manilaOtherOutlines => [
   for (final s in _otherShapes) ...s.rings,
 ];
+
+/// The radius of a circle with the barangay's area, in meters: how far a
+/// heat-map glow centred on it should reach. Null for an unknown name.
+double? barangayRadiusMeters(String name) {
+  final rings = barangayOutline(name);
+  if (rings.isEmpty) return null;
+  var area = 0.0;
+  for (final ring in rings) {
+    if (ring.length < 3) continue;
+    // Flat projection around the ring's first point; fine for a barangay.
+    final o = ring.first;
+    final kx = 111320 * math.cos(o.lat * math.pi / 180);
+    const ky = 110574.0;
+    var twice = 0.0;
+    for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      final ax = (ring[j].lng - o.lng) * kx, ay = (ring[j].lat - o.lat) * ky;
+      final bx = (ring[i].lng - o.lng) * kx, by = (ring[i].lat - o.lat) * ky;
+      twice += ax * by - bx * ay;
+    }
+    area += twice.abs() / 2;
+  }
+  return math.sqrt(area / math.pi);
+}

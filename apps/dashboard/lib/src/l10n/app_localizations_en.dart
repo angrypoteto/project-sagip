@@ -258,7 +258,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navUnits => 'Units';
 
   @override
-  String get navForecast => 'Forecast';
+  String get navHeatmap => 'Heatmap';
 
   @override
   String get navVulnerable => 'Vulnerable residents';
@@ -4206,4 +4206,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String crewMyNewLine(String name) {
     return 'New member: $name';
   }
+
+  @override
+  String get heatViewForecast => '72-hour forecast';
+
+  @override
+  String get heatViewHotspots => 'Hotspots';
+
+  @override
+  String get hotspotsTitle => 'Hotspots';
+
+  @override
+  String get hotspotsSample => 'Sample data';
+
+  @override
+  String get hotspotsIntro =>
+      'Where past incidents were densest in the incident records. This is history, not a forecast: for the next 72 hours, open 72-hour forecast.';
+
+  @override
+  String get hotspotsSampleNote =>
+      'Sample values. The density is not computed from MDRRMD\'s records yet.';
+
+  @override
+  String hotspotsComputed(String when) {
+    return 'Computed $when';
+  }
+
+  @override
+  String hotspotsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count barangays with past incidents',
+      one: '1 barangay with past incidents',
+      zero: 'No barangay with past incidents',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hotspotsEmpty => 'No hotspots yet.';
+
+  @override
+  String get hotspotsEmptyHint =>
+      'They appear once the density of past incidents is computed.';
+
+  @override
+  String hotspotsPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String hotspotsDensityLabel(String name, int percent) {
+    return '$name: $percent% of the densest barangay';
+  }
+
+  @override
+  String hotspotsLegend(String hazard) {
+    return '$hazard: where past incidents were densest';
+  }
+
+  @override
+  String get hotspotsFewer => 'Fewer';
+
+  @override
+  String get hotspotsMore => 'More';
+
+  @override
+  String get hotspotsLegendNote =>
+      'Density of past incidents (KDE), averaged per barangay. Not a forecast.';
 }

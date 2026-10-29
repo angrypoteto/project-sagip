@@ -221,6 +221,10 @@ abstract interface class FeedStatusRepository {
 abstract interface class ForecastRepository {
   /// The latest run of the model, or null when none has been generated.
   Stream<ForecastRun?> watchLatest();
+
+  /// The KDE's density per barangay and hazard (hotspots of past
+  /// incidents). Dispatchers and admins; empty before the first fit.
+  Stream<List<HazardDensity>> watchDensity();
 }
 
 abstract interface class AuditRepository {

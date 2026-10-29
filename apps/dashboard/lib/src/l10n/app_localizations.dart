@@ -502,11 +502,11 @@ abstract class AppLocalizations {
   /// **'Units'**
   String get navUnits;
 
-  /// No description provided for @navForecast.
+  /// No description provided for @navHeatmap.
   ///
   /// In en, this message translates to:
-  /// **'Forecast'**
-  String get navForecast;
+  /// **'Heatmap'**
+  String get navHeatmap;
 
   /// No description provided for @navVulnerable.
   ///
@@ -7130,6 +7130,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New member: {name}'**
   String crewMyNewLine(String name);
+
+  /// No description provided for @heatViewForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'72-hour forecast'**
+  String get heatViewForecast;
+
+  /// No description provided for @heatViewHotspots.
+  ///
+  /// In en, this message translates to:
+  /// **'Hotspots'**
+  String get heatViewHotspots;
+
+  /// No description provided for @hotspotsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hotspots'**
+  String get hotspotsTitle;
+
+  /// No description provided for @hotspotsSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample data'**
+  String get hotspotsSample;
+
+  /// No description provided for @hotspotsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Where past incidents were densest in the incident records. This is history, not a forecast: for the next 72 hours, open 72-hour forecast.'**
+  String get hotspotsIntro;
+
+  /// No description provided for @hotspotsSampleNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample values. The density is not computed from MDRRMD\'s records yet.'**
+  String get hotspotsSampleNote;
+
+  /// No description provided for @hotspotsComputed.
+  ///
+  /// In en, this message translates to:
+  /// **'Computed {when}'**
+  String hotspotsComputed(String when);
+
+  /// No description provided for @hotspotsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No barangay with past incidents} =1{1 barangay with past incidents} other{{count} barangays with past incidents}}'**
+  String hotspotsCount(int count);
+
+  /// No description provided for @hotspotsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No hotspots yet.'**
+  String get hotspotsEmpty;
+
+  /// No description provided for @hotspotsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They appear once the density of past incidents is computed.'**
+  String get hotspotsEmptyHint;
+
+  /// No description provided for @hotspotsPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String hotspotsPercent(int percent);
+
+  /// No description provided for @hotspotsDensityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {percent}% of the densest barangay'**
+  String hotspotsDensityLabel(String name, int percent);
+
+  /// No description provided for @hotspotsLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'{hazard}: where past incidents were densest'**
+  String hotspotsLegend(String hazard);
+
+  /// No description provided for @hotspotsFewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer'**
+  String get hotspotsFewer;
+
+  /// No description provided for @hotspotsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get hotspotsMore;
+
+  /// No description provided for @hotspotsLegendNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Density of past incidents (KDE), averaged per barangay. Not a forecast.'**
+  String get hotspotsLegendNote;
 }
 
 class _AppLocalizationsDelegate

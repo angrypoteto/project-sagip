@@ -90,7 +90,8 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] **[N]** D7 Supplies column: "Low: ...", "Out: ...", "All enough", or "Not reported"; a "N low on supplies" count at the top (the demo levels make it 4)
 - [ ] **[N]** D7 Click a unit's supplies: every level with a bar, who reported it and when; nothing can be changed here
 - [ ] D8 72-hour forecast: ranked list, barangay panel **[S]**
-- [ ] **[N]** D8 The map is color-coded by barangay (a real heat map); click a barangay to open its panel **[S]**
+- [ ] **[N]** D8 The menu item is "Heatmap" (2026-10-29); the page opens on "72-hour forecast", where the map is color-coded by barangay; click a barangay to open its panel **[S]**
+- [ ] **[N]** D8 "Hotspots" (2026-10-29): a heat map of where past incidents were densest (the KDE), per hazard, with the barangays ranked by density and a "Sample data" chip; it says it is history, not a forecast, and has no barangay panel **[S]**
 - [ ] D9 Vulnerable Resident Priority List; numbers masked; revealing one is written to the audit log
 - [ ] D10 Weather readings marked Warning or Critical against the thresholds
 - [ ] D10 "Alerts sent" list with each channel's result

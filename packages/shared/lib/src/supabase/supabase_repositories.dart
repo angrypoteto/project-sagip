@@ -1362,6 +1362,16 @@ class SupabaseForecastRepository implements ForecastRepository {
       ]);
     },
   );
+
+  @override
+  Stream<List<HazardDensity>> watchDensity() => liveQuery(
+    _client,
+    tables: const ['hazard_density'],
+    fetch: () async => [
+      for (final r in await _client.from('hazard_density').select())
+        HazardDensity.fromRow(r),
+    ],
+  );
 }
 
 // ---------------------------------------------------------------- reports

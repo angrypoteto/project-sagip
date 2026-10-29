@@ -332,6 +332,45 @@ class BarangayForecast {
   };
 }
 
+/// Where incidents of one hazard have been densest (2026-10-29): the KDE's
+/// mean density over a barangay's 100 m grid cells, relative to the
+/// densest barangay's (1). A hotspot of past incidents, not a forecast;
+/// the dashboard's Heatmap page shows it apart from the 72-hour forecast.
+@immutable
+class HazardDensity {
+  const HazardDensity({
+    required this.barangay,
+    required this.district,
+    required this.hazard,
+    required this.relative,
+    required this.modelVersion,
+    required this.computedAt,
+  });
+
+  final String barangay;
+  final String district;
+  final ForecastHazard hazard;
+
+  /// 0 to 1.
+  final double relative;
+
+  /// [ForecastRun.sampleModel] while the KDE runs on made-up records.
+  final String modelVersion;
+  final DateTime computedAt;
+
+  bool get isSample => modelVersion == ForecastRun.sampleModel;
+
+  /// A row of the `hazard_density` table.
+  factory HazardDensity.fromRow(Map<String, Object?> row) => HazardDensity(
+    barangay: row['barangay']! as String,
+    district: row['district']! as String,
+    hazard: enumFromJson(ForecastHazard.values, row['hazard']),
+    relative: (row['relative']! as num).toDouble(),
+    modelVersion: row['model_version']! as String,
+    computedAt: timeFromJson(row['computed_at']),
+  );
+}
+
 /// One run of the forecast model: the forecasts issued together, one per
 /// barangay (D8, FR4). The model runs once a day.
 @immutable

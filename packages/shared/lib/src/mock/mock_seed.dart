@@ -871,6 +871,47 @@ class MockSeed {
       c.incidentId: c,
   };
 
+  /// Sample hotspots (the KDE's relative density): made up, clustered so
+  /// the heat map shows a few hot areas per hazard.
+  List<HazardDensity> get densities {
+    final at = DateTime(t0.year, t0.month, t0.day, 5);
+    HazardDensity d(
+      ForecastHazard hazard,
+      String barangay,
+      String district,
+      double relative,
+    ) => HazardDensity(
+      barangay: barangay,
+      district: district,
+      hazard: hazard,
+      relative: relative,
+      modelVersion: ForecastRun.sampleModel,
+      computedAt: at,
+    );
+
+    const flood = ForecastHazard.flood, fire = ForecastHazard.fire;
+    const surge = ForecastHazard.stormSurge;
+    return [
+      d(flood, 'Barangay 412', 'Sampaloc', 1),
+      d(flood, 'Barangay 490', 'Sampaloc', 0.86),
+      d(flood, 'Barangay 456', 'Sampaloc', 0.74),
+      d(flood, 'Barangay 460', 'Sampaloc', 0.62),
+      d(flood, 'Barangay 560', 'Sampaloc', 0.4),
+      d(flood, 'Barangay 105', 'Tondo', 0.55),
+      d(flood, 'Barangay 128', 'Tondo', 0.3),
+      d(flood, 'Barangay 700', 'Malate', 0.18),
+      d(fire, 'Barangay 105', 'Tondo', 1),
+      d(fire, 'Barangay 111', 'Tondo', 0.9),
+      d(fire, 'Barangay 85', 'Tondo', 0.7),
+      d(fire, 'Barangay 287', 'Binondo', 0.48),
+      d(fire, 'Barangay 128', 'Tondo', 0.35),
+      d(surge, 'Barangay 649', 'Port Area', 1),
+      d(surge, 'Barangay 668', 'Ermita', 0.8),
+      d(surge, 'Barangay 699', 'Malate', 0.52),
+      d(surge, 'Barangay 700', 'Malate', 0.3),
+    ];
+  }
+
   /// Sample 72-hour forecasts, as in the demo data: made-up values that
   /// stand in for the LSTM + KDE model (plan 10.5), issued at 6 AM (the
   /// daily run). Barangay 306 and Barangay 461 have none, to show the empty

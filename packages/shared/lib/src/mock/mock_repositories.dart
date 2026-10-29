@@ -533,6 +533,9 @@ class MockForecastRepository implements ForecastRepository {
 
   @override
   Stream<ForecastRun?> watchLatest() => _backend.watchForecast();
+
+  @override
+  Stream<List<HazardDensity>> watchDensity() => _backend.watchDensity();
 }
 
 class MockAuditRepository implements AuditRepository {

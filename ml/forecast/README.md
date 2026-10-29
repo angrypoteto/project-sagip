@@ -5,7 +5,7 @@ Two machine learning models make the forecast. Each has its own folder:
 | Folder | Model | What it answers |
 |---|---|---|
 | `lstm/` | **LSTM** (Long Short-Term Memory neural network) | **When:** the chance of at least one flood, fire, or storm surge incident in the City of Manila in the next 72 hours, from the last 14 days of weather and incidents |
-| `kde/` | **KDE** (Kernel Density Estimation) | **Where:** how incidents of each hazard spread over the 897 barangays, from where past incidents happened |
+| `kde/` | **KDE** (Kernel Density Estimation) | **Where:** how incidents of each hazard spread over the 897 barangays, from where past incidents happened. `kde/export_density.py` writes the SQL that loads this density into `hazard_density`, which the dashboard's Heatmap page shows as "Hotspots" (2026-10-29) |
 | `heatmap/` | LSTM + KDE together | The **heatmap**: each barangay's risk level (low, moderate, high) for the next 72 hours, and how accurate that is |
 | `data_prep/` | (no model) | Getting and preparing the records both models learn from: cleaning, geocoding, and time-aligning, with the number of records retained, corrected, and removed at each step |
 
