@@ -456,8 +456,8 @@ BoxDecoration floatingCard(SagipPalette p) => BoxDecoration(
   color: p.panel,
   borderRadius: BorderRadius.circular(SagipRadius.card),
   border: Border.all(color: p.hairline),
-  boxShadow: const [
-    BoxShadow(color: Color(0x33000000), blurRadius: 24, offset: Offset(0, 8)),
+  boxShadow: [
+    BoxShadow(color: p.shadowSoft, blurRadius: 24, offset: const Offset(0, 8)),
   ],
 );
 

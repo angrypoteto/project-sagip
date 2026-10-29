@@ -637,9 +637,7 @@ class _PinMap extends ConsumerWidget {
                     color: p.panel,
                     borderRadius: BorderRadius.circular(SagipRadius.card),
                     border: Border.all(color: p.hairline),
-                    boxShadow: const [
-                      BoxShadow(color: Color(0x1F000000), blurRadius: 24),
-                    ],
+                    boxShadow: [BoxShadow(color: p.shadowSoft, blurRadius: 24)],
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

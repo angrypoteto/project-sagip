@@ -37,6 +37,8 @@ class SagipPalette extends ThemeExtension<SagipPalette> {
     required this.textSecondary,
     required this.hairline,
     required this.hairlineStrong,
+    required this.shadow,
+    required this.shadowSoft,
     required this.critical,
     required this.warning,
     required this.success,
@@ -62,6 +64,14 @@ class SagipPalette extends ThemeExtension<SagipPalette> {
 
   /// Borders of controls such as outlined buttons and inputs.
   final Color hairlineStrong;
+
+  /// Shadow of a panel that slides over the page: the incident drawer, the
+  /// open side menu, the new-SOS pop-up. Strong on navy, light on mist
+  /// (design skill: 8-12% on light; 30% black there looked muddy).
+  final Color shadow;
+
+  /// Shadow of a small control floating over the map.
+  final Color shadowSoft;
 
   /// SOS, confirmed incidents, critical severity.
   final SagipTone critical;
@@ -92,6 +102,8 @@ class SagipPalette extends ThemeExtension<SagipPalette> {
     textSecondary: SagipColors.slate,
     hairline: Color(0x140F1C2A),
     hairlineStrong: Color(0x290F1C2A),
+    shadow: Color(0x1F0F1C2A),
+    shadowSoft: Color(0x170F1C2A),
     critical: SagipTone(
       fill: SagipColors.signal,
       text: SagipColors.signalStrong,
@@ -132,6 +144,8 @@ class SagipPalette extends ThemeExtension<SagipPalette> {
     textSecondary: SagipColors.haze,
     hairline: Color(0x14FFFFFF),
     hairlineStrong: Color(0x29FFFFFF),
+    shadow: Color(0x4D000000),
+    shadowSoft: Color(0x33000000),
     critical: SagipTone(
       fill: SagipColors.signal,
       text: SagipColors.signalLight,
@@ -173,6 +187,8 @@ class SagipPalette extends ThemeExtension<SagipPalette> {
     Color? textSecondary,
     Color? hairline,
     Color? hairlineStrong,
+    Color? shadow,
+    Color? shadowSoft,
     SagipTone? critical,
     SagipTone? warning,
     SagipTone? success,
@@ -188,6 +204,8 @@ class SagipPalette extends ThemeExtension<SagipPalette> {
       textSecondary: textSecondary ?? this.textSecondary,
       hairline: hairline ?? this.hairline,
       hairlineStrong: hairlineStrong ?? this.hairlineStrong,
+      shadow: shadow ?? this.shadow,
+      shadowSoft: shadowSoft ?? this.shadowSoft,
       critical: critical ?? this.critical,
       warning: warning ?? this.warning,
       success: success ?? this.success,
@@ -208,6 +226,8 @@ class SagipPalette extends ThemeExtension<SagipPalette> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       hairline: Color.lerp(hairline, other.hairline, t)!,
       hairlineStrong: Color.lerp(hairlineStrong, other.hairlineStrong, t)!,
+      shadow: Color.lerp(shadow, other.shadow, t)!,
+      shadowSoft: Color.lerp(shadowSoft, other.shadowSoft, t)!,
       critical: SagipTone.lerp(critical, other.critical, t),
       warning: SagipTone.lerp(warning, other.warning, t),
       success: SagipTone.lerp(success, other.success, t),

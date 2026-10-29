@@ -192,10 +192,10 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
                 border: Border(right: BorderSide(color: p.hairline)),
                 boxShadow: [
                   if (open)
-                    const BoxShadow(
-                      color: Color(0x4D000000),
+                    BoxShadow(
+                      color: p.shadow,
                       blurRadius: 24,
-                      offset: Offset(8, 0),
+                      offset: const Offset(8, 0),
                     ),
                 ],
               ),

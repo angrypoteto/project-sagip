@@ -110,118 +110,125 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
     final incident = ref.watch(incidentByIdProvider(widget.incidentId));
     final canAct = ref.watch(isOnlineProvider) && !_busy;
 
-    return Material(
-      color: p.panel,
-      elevation: 0,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(left: BorderSide(color: p.hairline)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x4D000000),
-              blurRadius: 40,
-              offset: Offset(-16, 0),
-            ),
-          ],
-        ),
-        child: incident == null
-            ? _Closed(onClose: widget.onClose)
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _TopRow(incident: incident, onClose: widget.onClose),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.fromLTRB(
-                        SagipSpace.xxl,
-                        0,
-                        SagipSpace.xxl,
-                        SagipSpace.xxl,
-                      ),
-                      children: [
-                        _Summary(incident: incident),
-                        if (incident.cancelRequested) ...[
+    // The shadow sits behind the panel: drawn inside it, it greyed the
+    // whole drawer in the light theme.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: p.shadow,
+            blurRadius: 40,
+            offset: const Offset(-16, 0),
+          ),
+        ],
+      ),
+      child: Material(
+        color: p.panel,
+        elevation: 0,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: p.hairline)),
+          ),
+          child: incident == null
+              ? _Closed(onClose: widget.onClose)
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _TopRow(incident: incident, onClose: widget.onClose),
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.fromLTRB(
+                          SagipSpace.xxl,
+                          0,
+                          SagipSpace.xxl,
+                          SagipSpace.xxl,
+                        ),
+                        children: [
+                          _Summary(incident: incident),
+                          if (incident.cancelRequested) ...[
+                            const SizedBox(height: SagipSpace.lg),
+                            _CancelRequest(
+                              incident: incident,
+                              enabled: canAct,
+                              onClose: () => _closeCancelled(incident),
+                            ),
+                          ],
+                          const SizedBox(height: SagipSpace.xl),
+                          _TypeRow(
+                            incident: incident,
+                            choice: _typeChoice ?? incident.type,
+                            enabled: canAct,
+                            onChanged: (t) => setState(() => _typeChoice = t),
+                            onConfirm: (t) => _run(
+                              () => _repo.confirmType(incident.id, t),
+                              l10n.typeConfirmedSnack(l10n.incidentType(t)),
+                            ),
+                          ),
+                          const SizedBox(height: SagipSpace.sm),
+                          FacebookPostLine(incident: incident),
                           const SizedBox(height: SagipSpace.lg),
-                          _CancelRequest(
+                          IncidentPhotos(incidentId: incident.id),
+                          const SizedBox(height: SagipSpace.xl),
+                          _Verification(
                             incident: incident,
                             enabled: canAct,
-                            onClose: () => _closeCancelled(incident),
-                          ),
-                        ],
-                        const SizedBox(height: SagipSpace.xl),
-                        _TypeRow(
-                          incident: incident,
-                          choice: _typeChoice ?? incident.type,
-                          enabled: canAct,
-                          onChanged: (t) => setState(() => _typeChoice = t),
-                          onConfirm: (t) => _run(
-                            () => _repo.confirmType(incident.id, t),
-                            l10n.typeConfirmedSnack(l10n.incidentType(t)),
-                          ),
-                        ),
-                        const SizedBox(height: SagipSpace.sm),
-                        FacebookPostLine(incident: incident),
-                        const SizedBox(height: SagipSpace.lg),
-                        IncidentPhotos(incidentId: incident.id),
-                        const SizedBox(height: SagipSpace.xl),
-                        _Verification(
-                          incident: incident,
-                          enabled: canAct,
-                          onVerify: () => _run(
-                            () => _repo.verify(
-                              incident.id,
-                              VerificationMethod.callback,
+                            onVerify: () => _run(
+                              () => _repo.verify(
+                                incident.id,
+                                VerificationMethod.callback,
+                              ),
+                              l10n.verifiedSnack,
                             ),
-                            l10n.verifiedSnack,
+                            onSmsCheck: () => _run(
+                              () => _repo.sendSmsCheck(incident.id),
+                              l10n.smsCheckSentSnack,
+                            ),
+                            onFalse: () => _markFalse(incident),
                           ),
-                          onSmsCheck: () => _run(
-                            () => _repo.sendSmsCheck(incident.id),
-                            l10n.smsCheckSentSnack,
+                          if (incident.residentId != null) ...[
+                            const SizedBox(height: SagipSpace.xl),
+                            _ResidentSection(incident: incident),
+                          ],
+                          if (incident.origin ==
+                              IncidentOrigin.crowdCluster) ...[
+                            const SizedBox(height: SagipSpace.xl),
+                            _ClusterReports(incident: incident),
+                          ],
+                          const SizedBox(height: SagipSpace.xl),
+                          _PrioritySection(incident: incident),
+                          const SizedBox(height: SagipSpace.xl),
+                          _UnitsSection(
+                            incident: incident,
+                            chosen: _chosen,
+                            enabled: canAct,
+                            onChoose: (s) => setState(() => _chosen = s),
+                            onChooseAnother: () => _chooseAnother(incident),
                           ),
-                          onFalse: () => _markFalse(incident),
-                        ),
-                        if (incident.residentId != null) ...[
+                          if (incident.origin == IncidentOrigin.sos &&
+                              incident.residentId != null) ...[
+                            const SizedBox(height: SagipSpace.xl),
+                            ResidentNoticesSection(incident: incident),
+                          ],
                           const SizedBox(height: SagipSpace.xl),
-                          _ResidentSection(incident: incident),
+                          IncidentTimeline(incident: incident),
                         ],
-                        if (incident.origin == IncidentOrigin.crowdCluster) ...[
-                          const SizedBox(height: SagipSpace.xl),
-                          _ClusterReports(incident: incident),
-                        ],
-                        const SizedBox(height: SagipSpace.xl),
-                        _PrioritySection(incident: incident),
-                        const SizedBox(height: SagipSpace.xl),
-                        _UnitsSection(
-                          incident: incident,
-                          chosen: _chosen,
-                          enabled: canAct,
-                          onChoose: (s) => setState(() => _chosen = s),
-                          onChooseAnother: () => _chooseAnother(incident),
-                        ),
-                        if (incident.origin == IncidentOrigin.sos &&
-                            incident.residentId != null) ...[
-                          const SizedBox(height: SagipSpace.xl),
-                          ResidentNoticesSection(incident: incident),
-                        ],
-                        const SizedBox(height: SagipSpace.xl),
-                        IncidentTimeline(incident: incident),
-                      ],
+                      ),
                     ),
-                  ),
-                  _Footer(
-                    incident: incident,
-                    chosen: _chosen,
-                    enabled: canAct,
-                    busy: _busy,
-                    onAssign: (ranked, chosen) =>
-                        _assign(incident, ranked, chosen),
-                    onResolve: () => _run(
-                      () => _repo.resolve(incident.id),
-                      l10n.resolvedSnack,
+                    _Footer(
+                      incident: incident,
+                      chosen: _chosen,
+                      enabled: canAct,
+                      busy: _busy,
+                      onAssign: (ranked, chosen) =>
+                          _assign(incident, ranked, chosen),
+                      onResolve: () => _run(
+                        () => _repo.resolve(incident.id),
+                        l10n.resolvedSnack,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+        ),
       ),
     );
   }

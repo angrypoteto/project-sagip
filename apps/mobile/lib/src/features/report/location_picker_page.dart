@@ -392,19 +392,22 @@ class _SearchBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
-    return Material(
-      color: p.panel,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
+    // The shadow sits behind the card: drawn inside it, it greyed the card
+    // in the light theme.
+    return DecoratedBox(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(SagipRadius.card),
-        side: BorderSide(color: p.hairline),
+        boxShadow: [BoxShadow(color: p.shadowSoft, blurRadius: 24)],
       ),
-      shadowColor: Colors.transparent,
-      clipBehavior: Clip.antiAlias,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 24)],
+      child: Material(
+        color: p.panel,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SagipRadius.card),
+          side: BorderSide(color: p.hairline),
         ),
+        shadowColor: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -460,7 +463,7 @@ class _FloatingButton extends StatelessWidget {
         color: p.panel,
         shape: BoxShape.circle,
         border: Border.all(color: p.hairline),
-        boxShadow: const [BoxShadow(color: Color(0x1F000000), blurRadius: 24)],
+        boxShadow: [BoxShadow(color: p.shadowSoft, blurRadius: 24)],
       ),
       child: SizedBox(
         width: 56,

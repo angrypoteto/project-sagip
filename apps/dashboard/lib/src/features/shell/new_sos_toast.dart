@@ -89,11 +89,11 @@ class _NewSosToastState extends ConsumerState<NewSosToast> {
                   color: p.panel,
                   borderRadius: BorderRadius.circular(SagipRadius.card),
                   border: Border.all(color: p.hairline),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Color(0x40000000),
+                      color: p.shadow,
                       blurRadius: 32,
-                      offset: Offset(0, 12),
+                      offset: const Offset(0, 12),
                     ),
                   ],
                 ),
