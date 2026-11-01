@@ -18,12 +18,12 @@ import 'features/auth/sign_in_page.dart';
 import 'features/history/history_page.dart';
 import 'features/board/board_page.dart';
 import 'features/board/wall_map_page.dart';
+import 'features/units/my_inventory_page.dart';
 import 'features/units/my_unit_page.dart';
 import 'features/crowd_reports/crowd_reports_page.dart';
 import 'features/forecast/forecast_page.dart';
 import 'features/shell/dashboard_shell.dart';
 import 'features/shell/not_found_page.dart';
-import 'features/units/inventory_page.dart';
 import 'features/units/units_page.dart';
 import 'features/vulnerable/vulnerable_page.dart';
 import 'features/weather/weather_page.dart';
@@ -42,12 +42,12 @@ abstract final class Routes {
   /// A responder's own unit and its supplies: the one page responders
   /// have on the web.
   static const myUnit = '/my-unit';
+
+  /// What a responder's unit carries, reported by its crew (2026-11-01).
+  static const myInventory = '/my-inventory';
   static const crowdReports = '/crowd-reports';
   static const history = '/history';
   static const units = '/units';
-
-  /// What each unit carries (2026-11-01: apart from Units).
-  static const inventory = '/inventory';
   static const forecast = '/forecast';
   static const vulnerable = '/vulnerable';
   static const weather = '/weather';
@@ -152,12 +152,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Responders have their unit and what it carries, and their own
       // account; nothing else.
       if (user.role == UserRole.responder) {
-        return path == Routes.myUnit || path == Routes.account
+        return path == Routes.myUnit ||
+                path == Routes.myInventory ||
+                path == Routes.account
             ? null
             : Routes.myUnit;
       }
       if (!user.canDispatch) return atSignIn ? null : Routes.signIn;
-      if (path == Routes.myUnit) return Routes.board;
+      if (path == Routes.myUnit || path == Routes.myInventory) {
+        return Routes.board;
+      }
       if (atSignIn) {
         final from = state.uri.queryParameters['from'];
         return (from != null && from.startsWith('/')) ? from : Routes.board;
@@ -206,6 +210,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => _page(const MyUnitPage()),
           ),
           GoRoute(
+            path: Routes.myInventory,
+            pageBuilder: (context, state) => _page(const MyInventoryPage()),
+          ),
+          GoRoute(
             path: Routes.account,
             pageBuilder: (context, state) => _page(const AccountPage()),
           ),
@@ -220,10 +228,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.units,
             pageBuilder: (context, state) => _page(const UnitsPage()),
-          ),
-          GoRoute(
-            path: Routes.inventory,
-            pageBuilder: (context, state) => _page(const InventoryPage()),
           ),
           GoRoute(
             path: Routes.forecast,

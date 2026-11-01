@@ -32,11 +32,11 @@ String? pageName(String path, AppLocalizations l10n) {
   if (at(Routes.board)) return l10n.navCommandBoard;
   if (at(Routes.wall)) return l10n.pageWallMap;
   if (at(Routes.myUnit)) return l10n.myUnitTitle;
+  if (at(Routes.myInventory)) return l10n.navInventory;
   if (at(Routes.account)) return l10n.myAccount;
   if (at(Routes.crowdReports)) return l10n.navCrowdReports;
   if (at(Routes.history)) return l10n.navHistory;
   if (at(Routes.units)) return l10n.navUnits;
-  if (at(Routes.inventory)) return l10n.navInventory;
   if (at(Routes.forecast)) return l10n.navHeatmap;
   if (at(Routes.vulnerable)) return l10n.navVulnerable;
   if (at(Routes.weather)) return l10n.navWeather;

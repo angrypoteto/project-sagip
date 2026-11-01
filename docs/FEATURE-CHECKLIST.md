@@ -85,7 +85,6 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] D6 Barangay boundaries layer
 - [ ] D7 Units table: status counts, stale-GPS flag; a unit opens like a tree to show its crew (name and personnel ID, 2026-10-28); admins see the crew but do not add or take off members there: that is the crew head's, by request (2026-11-01)
 - [ ] **[N]** D7 crew heads (2026-10-29): an admin names a unit's crew head and assistant head from the badge menu beside a name; "Head" and "Assistant head" show on Units and My unit
-- [ ] **[N]** Inventory (2026-11-01, its own menu item, apart from Units): one row per unit, one column per supply (amount; a Low or Out chip when short; a dash when not reported), the last report and who sent it, "N low on supplies" in the header; selecting a unit opens its full report. Units no longer has a Supplies column
 - [ ] **[N]** D7 crew duty (2026-11-01): each unit shows "2 of 3 on duty" or "No crew on duty"; an open unit's crew shows On duty (since when), Off duty, or Not reporting (on duty but no position from the phone for 15 minutes, an A3 setting), and when each phone last reported
 - [ ] **[N]** D2 A unit with crew accounts but nobody on duty is not in "Suggested units"; "Choose another unit" still lists it, marked "No crew on duty"
 - [ ] **[N]** D7 crew requests: the requests a head sent wait at the top of Units; Approve moves the person (a new person: Create account opens filled in first); Decline needs a reason
@@ -143,6 +142,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] The panel's example: BFP-PANDACAN shows "Low: Tank water" (20%); report 90% and it clears
 - [ ] **[N]** Signed in as a unit's crew head or assistant head: "Request a new member" (someone with no account yet; never a responder of another unit, 2026-11-01) and "Request removal" beside each member but yourself; the Requests card shows Waiting, then Approved or Declined with the reason
 - [ ] **[N]** Any other crew member sees who the head is, but no request buttons
+- [ ] **[N]** A responder's menu has "My unit" (unit, crew, duty, requests) and "Inventory" (reporting supplies), apart since 2026-11-01
 - [ ] Any other address sends a responder back to "My unit"; My account still opens
 - [ ] Each report is in the audit log (sign in as admin, A7)
 

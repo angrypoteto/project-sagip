@@ -1024,6 +1024,12 @@ abstract class AppLocalizations {
   /// **'{have} of {full}'**
   String supplyCount(int have, int full);
 
+  /// No description provided for @colSupplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplies'**
+  String get colSupplies;
+
   /// No description provided for @colAgency.
   ///
   /// In en, this message translates to:
@@ -1035,6 +1041,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not reported'**
   String get suppliesNotReported;
+
+  /// No description provided for @suppliesAllGood.
+  ///
+  /// In en, this message translates to:
+  /// **'All enough'**
+  String get suppliesAllGood;
+
+  /// No description provided for @suppliesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{state}: {items}'**
+  String suppliesShort(String state, String items);
 
   /// No description provided for @countLowSupplies.
   ///
@@ -1099,7 +1117,7 @@ abstract class AppLocalizations {
   /// No description provided for @myUnitIntro.
   ///
   /// In en, this message translates to:
-  /// **'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.'**
+  /// **'Your unit, its crew, and who is on duty. What it carries is reported on Inventory.'**
   String get myUnitIntro;
 
   /// No description provided for @myUnitPercentLabel.
@@ -6732,7 +6750,7 @@ abstract class AppLocalizations {
   /// No description provided for @myUnitCrewEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No one else is on this unit yet. An administrator adds crew on Units.'**
+  /// **'No one else is on this unit yet.'**
   String get myUnitCrewEmpty;
 
   /// No description provided for @actionCrewLeadsChanged.
@@ -7209,23 +7227,11 @@ abstract class AppLocalizations {
   /// **'Inventory'**
   String get navInventory;
 
-  /// No description provided for @inventoryTitle.
+  /// No description provided for @myInventoryIntro.
   ///
   /// In en, this message translates to:
-  /// **'Inventory'**
-  String get inventoryTitle;
-
-  /// No description provided for @inventoryIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'What each unit carries, as its crew last reported it. Only a unit\'s own crew changes these. Select a unit for its full report.'**
-  String get inventoryIntro;
-
-  /// No description provided for @colLastReport.
-  ///
-  /// In en, this message translates to:
-  /// **'Last report'**
-  String get colLastReport;
+  /// **'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.'**
+  String get myInventoryIntro;
 }
 
 class _AppLocalizationsDelegate

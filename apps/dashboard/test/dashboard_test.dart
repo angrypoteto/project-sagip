@@ -681,56 +681,47 @@ void main() {
     expect(painted(), findsNothing);
   });
 
-  testWidgets('Inventory: what each unit carries, apart from Units', (
-    tester,
-  ) async {
+  testWidgets('D7: what each unit carries, and which are low', (tester) async {
     await pumpApp(tester);
     tester.view.physicalSize = const Size(1920, 1400);
     await signIn(tester, 'dispatcher@sagip.test');
-    // Units no longer shows supplies (2026-11-01).
     await tester.tap(find.byTooltip('Units'));
     await settle(tester);
-    expect(find.text('Supplies'), findsNothing);
-    expect(find.text('2 low on supplies'), findsNothing);
 
-    await tester.tap(find.byTooltip('Inventory'));
-    await settle(tester);
     // Two sample units are short of something.
     expect(find.text('2 low on supplies'), findsOneWidget);
-    Finder cell(String unit, String item) =>
-        find.byKey(ValueKey('inventory-$unit-$item'));
+    final r03 = find.byKey(const ValueKey('supplies-unit-r03'));
     expect(
       find.descendant(
-        of: cell('unit-r03', 'fuel'),
-        matching: find.text('Low · 25%'),
+        of: r03,
+        matching: find.text('Low: Fuel, Drinking water'),
       ),
       findsOneWidget,
     );
     expect(
       find.descendant(
-        of: cell('unit-r03', 'drinkingWater'),
-        matching: find.text('Low · 6 of 24'),
+        of: find.byKey(const ValueKey('supplies-unit-a05')),
+        matching: find.text('Out: Medical kits'),
       ),
       findsOneWidget,
     );
     expect(
       find.descendant(
-        of: cell('unit-a05', 'medicalKits'),
-        matching: find.textContaining('Out · '),
+        of: find.byKey(const ValueKey('supplies-unit-r02')),
+        matching: find.text('All enough'),
       ),
       findsOneWidget,
     );
-    // Not reported: a dash.
-    expect(
-      find.descendant(of: cell('unit-a01', 'fuel'), matching: find.text('–')),
-      findsOneWidget,
-    );
+    expect(find.text('Not reported'), findsWidgets);
 
     // The details: each supply with its level; nothing to edit here.
-    await tester.tap(find.text('R-03'));
+    await tester.tap(r03);
     await settle(tester);
     expect(find.text('R-03: what it carries'), findsOneWidget);
-    expect(find.text('10 of 12'), findsWidgets);
+    expect(find.text('25%'), findsOneWidget);
+    expect(find.text('6 of 24'), findsOneWidget);
+    expect(find.text('10 of 12'), findsOneWidget);
+    expect(find.textContaining('Low means at or below 30% of full'), findsOne);
     expect(find.byType(TextField), findsNothing);
     expect(find.byType(Slider), findsNothing);
   });
@@ -1174,6 +1165,7 @@ void main() {
     expect(find.byKey(const ValueKey('nav-menu')), findsOneWidget);
     expect(find.byType(TopBar), findsOneWidget);
     expect(find.byTooltip('My unit'), findsOneWidget);
+    expect(find.byTooltip('Inventory'), findsOneWidget);
     expect(find.byTooltip('Command Board'), findsNothing);
     expect(find.byTooltip('Units'), findsNothing);
     expect(find.byTooltip('Accounts'), findsNothing);
@@ -1181,6 +1173,10 @@ void main() {
     await settle(tester);
     expect(find.text('My unit'), findsOneWidget);
     expect(find.byType(QueuePanel), findsNothing);
+    // What the unit carries is on its own page (2026-11-01).
+    expect(find.byKey(const ValueKey('supply-fuel')), findsNothing);
+    await tester.tap(find.byTooltip('Inventory'));
+    await settle(tester);
 
     // Fuel was 25%: low. Reported again at 90%.
     final fuel = find.byKey(const ValueKey('supply-fuel'));
@@ -1249,6 +1245,9 @@ void main() {
     await settle(tester);
     expect(find.byType(QueuePanel), findsOneWidget);
     expect(find.text('My unit'), findsNothing);
+    container.read(routerProvider).go('/my-inventory');
+    await settle(tester);
+    expect(find.byType(QueuePanel), findsOneWidget);
   });
 
   testWidgets('admin pages are hidden from dispatchers', (tester) async {

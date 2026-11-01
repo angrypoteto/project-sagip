@@ -551,10 +551,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get colSupplies => 'Supplies';
+
+  @override
   String get colAgency => 'Whose';
 
   @override
   String get suppliesNotReported => 'Not reported';
+
+  @override
+  String get suppliesAllGood => 'All enough';
+
+  @override
+  String suppliesShort(String state, String items) {
+    return '$state: $items';
+  }
 
   @override
   String countLowSupplies(int count) {
@@ -600,7 +611,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myUnitIntro =>
-      'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.';
+      'Your unit, its crew, and who is on duty. What it carries is reported on Inventory.';
 
   @override
   String myUnitPercentLabel(String item, int percent) {
@@ -3938,8 +3949,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myUnitCrewYou => 'You';
 
   @override
-  String get myUnitCrewEmpty =>
-      'No one else is on this unit yet. An administrator adds crew on Units.';
+  String get myUnitCrewEmpty => 'No one else is on this unit yet.';
 
   @override
   String get actionCrewLeadsChanged => 'Named a crew head';
@@ -4268,12 +4278,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navInventory => 'Inventory';
 
   @override
-  String get inventoryTitle => 'Inventory';
-
-  @override
-  String get inventoryIntro =>
-      'What each unit carries, as its crew last reported it. Only a unit\'s own crew changes these. Select a unit for its full report.';
-
-  @override
-  String get colLastReport => 'Last report';
+  String get myInventoryIntro =>
+      'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.';
 }
