@@ -15,35 +15,35 @@ const _minReachMeters = 600.0;
 
 /// A heat map over the map (design skill: "smooth gradient from
 /// transparent → ember → signal over the muted basemap"): one soft glow per
-/// barangay, centred on it and reaching a little past its edge, stronger
-/// and redder the denser it is. Neighbouring glows blend into hot areas.
-/// The map does not rotate on the Heatmap page, so this paints in screen
-/// space.
+/// barangay in [weights] (0 to 1), centred on it and reaching a little past
+/// its edge, stronger and redder the higher its weight. Neighbouring glows
+/// blend into hot areas. The map does not rotate on the Heatmap page, so
+/// this paints in screen space.
 class HeatLayer extends StatelessWidget {
-  const HeatLayer({super.key, required this.densities});
+  const HeatLayer({super.key, required this.weights});
 
-  final List<HazardDensity> densities;
+  final Map<String, double> weights;
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
     final p = SagipPalette.of(context);
     final spots = <_Spot>[];
-    for (final d in densities) {
-      if (d.relative < _quietBelow) continue;
-      final b = barangayNamed(d.barangay);
+    for (final MapEntry(key: name, value: weight) in weights.entries) {
+      if (weight < _quietBelow) continue;
+      final b = barangayNamed(name);
       final center = b?.center;
       if (center == null) continue;
       final reach = math.max(
         _minReachMeters,
-        (barangayRadiusMeters(d.barangay) ?? 0) * 1.6,
+        (barangayRadiusMeters(name) ?? 0) * 1.6,
       );
       final at = camera.latLngToScreenOffset(LatLng(center.lat, center.lng));
       // A point [reach] meters north, for the glow's radius in pixels.
       final edge = camera.latLngToScreenOffset(
         LatLng(center.lat + reach / 110574, center.lng),
       );
-      spots.add(_Spot(at, (at - edge).distance, d.relative));
+      spots.add(_Spot(at, (at - edge).distance, weight));
     }
     // Weakest first, so the hottest cores end on top.
     spots.sort((a, b) => a.relative.compareTo(b.relative));
@@ -66,7 +66,7 @@ Color heatColor(double relative, Color warm, Color hot) =>
     Color.lerp(warm, hot, relative.clamp(0, 1).toDouble())!;
 
 /// How opaque the middle of a glow is at [relative] density.
-double heatAlpha(double relative) => 0.2 + 0.45 * relative.clamp(0, 1);
+double heatAlpha(double relative) => 0.35 + 0.3 * relative.clamp(0, 1);
 
 class _Spot {
   const _Spot(this.at, this.radius, this.relative);

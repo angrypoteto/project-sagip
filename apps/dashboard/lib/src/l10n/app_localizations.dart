@@ -4500,7 +4500,7 @@ abstract class AppLocalizations {
   /// No description provided for @forecastLegendNote.
   ///
   /// In en, this message translates to:
-  /// **'Each barangay is colored by its risk. Click one for its details. Unpainted: no forecast. Boundaries: PSA, indicative.'**
+  /// **'Amber glow: moderate risk. Red: high. Low is not painted. Click a barangay to see why. Boundaries: PSA, indicative.'**
   String get forecastLegendNote;
 
   /// No description provided for @forecastRisks.
@@ -7011,102 +7011,6 @@ abstract class AppLocalizations {
   /// **'New member: {name}'**
   String crewMyNewLine(String name);
 
-  /// No description provided for @heatViewForecast.
-  ///
-  /// In en, this message translates to:
-  /// **'72-hour forecast'**
-  String get heatViewForecast;
-
-  /// No description provided for @heatViewHotspots.
-  ///
-  /// In en, this message translates to:
-  /// **'Hotspots'**
-  String get heatViewHotspots;
-
-  /// No description provided for @hotspotsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Hotspots'**
-  String get hotspotsTitle;
-
-  /// No description provided for @hotspotsSample.
-  ///
-  /// In en, this message translates to:
-  /// **'Sample data'**
-  String get hotspotsSample;
-
-  /// No description provided for @hotspotsIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'Where past incidents were densest in the incident records. This is history, not a forecast: for the next 72 hours, open 72-hour forecast.'**
-  String get hotspotsIntro;
-
-  /// No description provided for @hotspotsSampleNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Sample values. The density is not computed from MDRRMD\'s records yet.'**
-  String get hotspotsSampleNote;
-
-  /// No description provided for @hotspotsComputed.
-  ///
-  /// In en, this message translates to:
-  /// **'Computed {when}'**
-  String hotspotsComputed(String when);
-
-  /// No description provided for @hotspotsCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =0{No barangay with past incidents} =1{1 barangay with past incidents} other{{count} barangays with past incidents}}'**
-  String hotspotsCount(int count);
-
-  /// No description provided for @hotspotsEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No hotspots yet.'**
-  String get hotspotsEmpty;
-
-  /// No description provided for @hotspotsEmptyHint.
-  ///
-  /// In en, this message translates to:
-  /// **'They appear once the density of past incidents is computed.'**
-  String get hotspotsEmptyHint;
-
-  /// No description provided for @hotspotsPercent.
-  ///
-  /// In en, this message translates to:
-  /// **'{percent}%'**
-  String hotspotsPercent(int percent);
-
-  /// No description provided for @hotspotsDensityLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'{name}: {percent}% of the densest barangay'**
-  String hotspotsDensityLabel(String name, int percent);
-
-  /// No description provided for @hotspotsLegend.
-  ///
-  /// In en, this message translates to:
-  /// **'{hazard}: where past incidents were densest'**
-  String hotspotsLegend(String hazard);
-
-  /// No description provided for @hotspotsFewer.
-  ///
-  /// In en, this message translates to:
-  /// **'Fewer'**
-  String get hotspotsFewer;
-
-  /// No description provided for @hotspotsMore.
-  ///
-  /// In en, this message translates to:
-  /// **'More'**
-  String get hotspotsMore;
-
-  /// No description provided for @hotspotsLegendNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Density of past incidents (KDE), averaged per barangay. Not a forecast.'**
-  String get hotspotsLegendNote;
-
   /// No description provided for @actionDutyStarted.
   ///
   /// In en, this message translates to:
@@ -7232,6 +7136,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.'**
   String get myInventoryIntro;
+
+  /// No description provided for @forecastWhyChance.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% chance in Manila in the next 72 hours'**
+  String forecastWhyChance(String percent);
+
+  /// No description provided for @forecastWhyDensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Past incidents here: {percent}% of the busiest barangay'**
+  String forecastWhyDensity(String percent);
+
+  /// No description provided for @forecastWhyNoPast.
+  ///
+  /// In en, this message translates to:
+  /// **'No past incidents here in the records'**
+  String get forecastWhyNoPast;
+
+  /// No description provided for @forecastReasonHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High: the chance is {chance}% or more and past incidents here are {density}% or more of the busiest barangay.'**
+  String forecastReasonHigh(String chance, String density);
+
+  /// No description provided for @forecastReasonModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate: the chance is {chance}% or more and past incidents here are {density}% or more of the busiest barangay.'**
+  String forecastReasonModerate(String chance, String density);
+
+  /// No description provided for @forecastReasonLowChance.
+  ///
+  /// In en, this message translates to:
+  /// **'Low: the chance is under {chance}%.'**
+  String forecastReasonLowChance(String chance);
+
+  /// No description provided for @forecastReasonLowPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Low: too few past incidents here for this chance.'**
+  String get forecastReasonLowPast;
+
+  /// No description provided for @forecastWhyModel.
+  ///
+  /// In en, this message translates to:
+  /// **'The chance comes from the LSTM (the last 14 days of weather and incidents); past incidents from the KDE (where incidents of each hazard were densest). The rule is provisional.'**
+  String get forecastWhyModel;
+
+  /// No description provided for @forecastWhyUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'This forecast did not record the chance behind its levels.'**
+  String get forecastWhyUnknown;
+
+  /// No description provided for @forecastHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded here, last 12 months'**
+  String get forecastHistoryTitle;
+
+  /// No description provided for @forecastHistoryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No incidents recorded here in the last 12 months.'**
+  String get forecastHistoryNone;
+
+  /// No description provided for @forecastHistoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{type}: {count, plural, =1{1 incident} other{{count} incidents}}, last on {date}'**
+  String forecastHistoryLine(String type, int count, String date);
 }
 
 class _AppLocalizationsDelegate

@@ -519,6 +519,20 @@ final historyProvider = StreamProvider.autoDispose<List<ClosedIncident>>((ref) {
   );
 });
 
+/// Closed incidents of the last 12 months, whatever period History shows:
+/// the forecast panel's record of each barangay (2026-11-02).
+final yearHistoryProvider = StreamProvider.autoDispose<List<ClosedIncident>>((
+  ref,
+) {
+  final now = ref.watch(historyNowProvider)();
+  return _forAccount(
+    ref,
+    () => ref
+        .watch(incidentRepositoryProvider)
+        .watchHistory(from: now.subtract(const Duration(days: 365)), to: now),
+  );
+});
+
 /// The time A4 counts back from (tests fix it).
 final analyticsNowProvider = Provider<DateTime Function()>(
   (ref) => DateTime.now,

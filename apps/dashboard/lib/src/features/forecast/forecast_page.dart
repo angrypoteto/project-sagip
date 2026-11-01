@@ -19,13 +19,12 @@ final _centers = {
     if (b.center != null) b.name: b.center!,
 };
 
-/// D8, the Heatmap page (Joshua, 2026-10-29): two views kept apart so one
-/// is never read as the other. "72-hour forecast" (it opens on this): the
-/// risk per barangay (FR4), one hazard at a time on the map and in the
-/// ranked list; a barangay's panel shows all three, the registered
-/// vulnerable residents there, and what the forecast is based on.
-/// "Hotspots": a heat map of where past incidents were densest (the KDE).
-enum _View { forecast, hotspots }
+/// D8, the Heatmap page: the 72-hour risk per barangay (FR4), one hazard
+/// at a time, painted as a heat map (2026-11-02: moderate and high glow,
+/// low is not painted) and ranked in the list. A barangay's panel shows
+/// all three hazards and why each has its level (the chance, the past
+/// incidents there, and the rule), what was recorded there in the last 12
+/// months, the registered vulnerable residents, and the weather now.
 
 class ForecastPage extends ConsumerStatefulWidget {
   const ForecastPage({super.key});
@@ -36,7 +35,6 @@ class ForecastPage extends ConsumerStatefulWidget {
 
 class _ForecastPageState extends ConsumerState<ForecastPage> {
   final _map = MapController();
-  var _view = _View.forecast;
   var _hazard = ForecastHazard.flood;
   String? _selected;
 
@@ -59,12 +57,6 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
     final runAsync = ref.watch(forecastProvider);
     final run = runAsync.value;
     final selected = _selected;
-    final hotspots = _view == _View.hotspots;
-    final densityAsync = ref.watch(densityProvider);
-    final densities = [
-      for (final d in densityAsync.value ?? const <HazardDensity>[])
-        if (d.hazard == _hazard) d,
-    ];
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,76 +67,22 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
             color: p.panel,
             border: Border(right: BorderSide(color: p.hairline)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  SagipSpace.lg,
-                  SagipSpace.lg,
-                  SagipSpace.lg,
-                  0,
-                ),
-                child: SegmentedButton<_View>(
-                  key: const ValueKey('heat-view'),
-                  segments: [
-                    ButtonSegment(
-                      value: _View.forecast,
-                      label: Text(l10n.heatViewForecast),
-                      icon: const Icon(Symbols.radar_rounded),
-                    ),
-                    ButtonSegment(
-                      value: _View.hotspots,
-                      label: Text(l10n.heatViewHotspots),
-                      icon: const Icon(Symbols.local_fire_department_rounded),
-                    ),
-                  ],
-                  selected: {_view},
-                  showSelectedIcon: false,
-                  onSelectionChanged: (s) => setState(() {
-                    _view = s.first;
-                    _selected = null;
-                  }),
-                ),
-              ),
-              Expanded(
-                child: hotspots
-                    ? AsyncBody(
-                        value: densityAsync,
-                        isEmpty: (rows) => rows.isEmpty,
-                        empty: EmptyState(
-                          icon: Symbols.local_fire_department_rounded,
-                          title: l10n.hotspotsEmpty,
-                          message: l10n.hotspotsEmptyHint,
-                        ),
-                        onRetry: () => ref.invalidate(densityProvider),
-                        builder: (rows) => _HotspotList(
-                          all: rows,
-                          hazard: _hazard,
-                          selected: selected,
-                          onHazard: (h) => setState(() => _hazard = h),
-                          onSelect: _select,
-                        ),
-                      )
-                    : AsyncBody(
-                        value: runAsync,
-                        isEmpty: (run) => run == null,
-                        empty: EmptyState(
-                          icon: Symbols.radar_rounded,
-                          title: l10n.forecastEmpty,
-                          message: l10n.forecastEmptyHint,
-                        ),
-                        onRetry: () => ref.invalidate(forecastProvider),
-                        builder: (run) => _RankedList(
-                          run: run!,
-                          hazard: _hazard,
-                          selected: selected,
-                          onHazard: (h) => setState(() => _hazard = h),
-                          onSelect: _select,
-                        ),
-                      ),
-              ),
-            ],
+          child: AsyncBody(
+            value: runAsync,
+            isEmpty: (run) => run == null,
+            empty: EmptyState(
+              icon: Symbols.radar_rounded,
+              title: l10n.forecastEmpty,
+              message: l10n.forecastEmptyHint,
+            ),
+            onRetry: () => ref.invalidate(forecastProvider),
+            builder: (run) => _RankedList(
+              run: run!,
+              hazard: _hazard,
+              selected: selected,
+              onHazard: (h) => setState(() => _hazard = h),
+              onSelect: _select,
+            ),
           ),
         ),
         Expanded(
@@ -165,38 +103,29 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 ),
                 children: [
                   const SagipBaseMap(),
-                  if (hotspots) ...[
-                    // Glows over the map; the barangay lines stay on top,
-                    // faint, for finding and clicking one.
-                    HeatLayer(densities: densities),
-                    BarangayBoundaries(highlight: selected, onTap: _select),
-                  ] else ...[
-                    // Every barangay of the run in its risk's color;
-                    // clicking one opens its panel.
-                    BarangayBoundaries(
-                      fills: run == null
-                          ? const {}
-                          : riskFills(run, _hazard, p),
-                      highlight: selected,
-                      onTap: run == null ? null : _select,
+                  // The heat map: a glow per barangay at moderate or high
+                  // risk; the barangay lines stay on top, faint, for
+                  // finding and clicking one.
+                  if (run != null)
+                    HeatLayer(weights: riskWeights(run, _hazard)),
+                  BarangayBoundaries(
+                    highlight: selected,
+                    onTap: run == null ? null : _select,
+                  ),
+                  if (run != null && selected != null)
+                    _SelectedMarker(
+                      run: run,
+                      hazard: _hazard,
+                      barangay: selected,
                     ),
-                    if (run != null && selected != null)
-                      _SelectedMarker(
-                        run: run,
-                        hazard: _hazard,
-                        barangay: selected,
-                      ),
-                  ],
                   const MapAttribution(),
                 ],
               ),
-              if (hotspots ? densities.isNotEmpty : run != null)
+              if (run != null)
                 Positioned(
                   left: SagipSpace.lg,
                   bottom: SagipSpace.x3,
-                  child: hotspots
-                      ? _HeatLegend(hazard: _hazard)
-                      : _Legend(hazard: _hazard),
+                  child: _Legend(hazard: _hazard),
                 ),
               Positioned(
                 right: SagipSpace.lg,
@@ -206,7 +135,7 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
             ],
           ),
         ),
-        if (!hotspots && run != null && selected != null)
+        if (run != null && selected != null)
           Container(
             width: 340,
             decoration: BoxDecoration(
@@ -224,29 +153,21 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
   }
 }
 
-/// How strongly each level is painted over the map: low stays quiet, high
-/// is the strongest, so the levels differ in weight as well as in hue.
-const riskFillAlpha = {
-  RiskLevel.low: 0.22,
-  RiskLevel.moderate: 0.50,
-  RiskLevel.high: 0.62,
+/// How strongly each level glows on the heat map (2026-11-02): low is not
+/// painted, moderate glows amber, high red.
+const riskHeat = {
+  RiskLevel.low: 0.0,
+  // At the amber end, so moderate never reads as high.
+  RiskLevel.moderate: 0.1,
+  RiskLevel.high: 1.0,
 };
 
-/// The fill of a barangay at [risk]: verdant for low, ember for moderate,
-/// signal for high.
-Color riskFill(RiskLevel risk, SagipPalette p) => switch (risk) {
-  RiskLevel.low => p.success.fill,
-  RiskLevel.moderate => p.warning.fill,
-  RiskLevel.high => p.critical.fill,
-}.withValues(alpha: riskFillAlpha[risk]);
-
-/// Every barangay of [run] in the color of its risk for [hazard]. A
-/// barangay the run has nothing for is left unpainted.
-Map<String, Color> riskFills(
-  ForecastRun run,
-  ForecastHazard hazard,
-  SagipPalette p,
-) => {for (final f in run.forecasts) f.barangay: riskFill(f.riskOf(hazard), p)};
+/// Every barangay of [run] above low for [hazard], with its glow.
+Map<String, double> riskWeights(ForecastRun run, ForecastHazard hazard) => {
+  for (final f in run.forecasts)
+    if (f.riskOf(hazard) != RiskLevel.low)
+      f.barangay: riskHeat[f.riskOf(hazard)]!,
+};
 
 class _RankedList extends ConsumerWidget {
   const _RankedList({
@@ -588,7 +509,10 @@ class _Legend extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
+    final warm = p.warning.fill, hot = p.critical.fill;
     return Container(
+      key: const ValueKey('forecast-legend'),
+      width: 340,
       padding: const EdgeInsets.all(SagipSpace.md),
       decoration: floatingCard(p),
       child: Column(
@@ -600,24 +524,34 @@ class _Legend extends StatelessWidget {
             style: text.labelMedium,
           ),
           const SizedBox(height: SagipSpace.sm),
+          Container(
+            height: 10,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: p.hairline),
+              gradient: LinearGradient(
+                colors: [
+                  for (final r in [0.0, riskHeat[RiskLevel.moderate]!, 1.0])
+                    Color.alphaBlend(
+                      heatColor(
+                        r,
+                        warm,
+                        hot,
+                      ).withValues(alpha: r == 0 ? 0 : heatAlpha(r)),
+                      p.canvas,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: SagipSpace.xs),
           Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              for (final r in RiskLevel.values.reversed) ...[
-                // The color as it looks on the map, then its name.
-                Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: Color.alphaBlend(riskFill(r, p), p.canvas),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: p.hairlineStrong),
-                  ),
-                ),
-                const SizedBox(width: SagipSpace.xs),
-                Text(l10n.risk(r), style: text.labelMedium),
-                const SizedBox(width: SagipSpace.md),
-              ],
+              Text(l10n.risk(RiskLevel.low), style: text.bodySmall),
+              const Spacer(),
+              Text(l10n.risk(RiskLevel.moderate), style: text.bodySmall),
+              const Spacer(),
+              Text(l10n.risk(RiskLevel.high), style: text.bodySmall),
             ],
           ),
           const SizedBox(height: SagipSpace.sm),
@@ -654,6 +588,53 @@ class _BarangayPanel extends ConsumerWidget {
         .length;
     final weather = ref.watch(weatherProvider).value;
     final thresholds = ref.watch(alertThresholdsProvider);
+    final locale = Localizations.localeOf(context).toString();
+    // How dense each hazard's past incidents are here (the KDE), relative
+    // to the busiest barangay.
+    final density = {
+      for (final d
+          in ref.watch(densityProvider).value ?? const <HazardDensity>[])
+        if (d.barangay == barangay) d.hazard: d.relative,
+    };
+    // What the system recorded here (resolved incidents, last 12 months).
+    final recorded = [
+      for (final c
+          in ref.watch(yearHistoryProvider).value ?? const <ClosedIncident>[])
+        if (c.incident.barangay == barangay &&
+            c.ending == IncidentEnding.resolved &&
+            c.incident.type != null)
+          c.incident,
+    ];
+    final byType = <IncidentType, List<Incident>>{};
+    for (final i in recorded) {
+      byType.putIfAbsent(i.type!, () => []).add(i);
+    }
+    String percent(double v) => '${(v * 100).round()}';
+    String reason(
+      ForecastHazard h,
+      ForecastRule rule,
+      double chance,
+      double d,
+    ) {
+      final level = forecast.riskOf(h);
+      final c = rule.matched(chance, d);
+      return switch (level) {
+        RiskLevel.high when c != null => l10n.forecastReasonHigh(
+          percent(c.chance),
+          percent(c.density),
+        ),
+        RiskLevel.moderate when c != null => l10n.forecastReasonModerate(
+          percent(c.chance),
+          percent(c.density),
+        ),
+        RiskLevel.low when chance < rule.lowestChance =>
+          l10n.forecastReasonLowChance(percent(rule.lowestChance)),
+        RiskLevel.low => l10n.forecastReasonLowPast,
+        // The run's level and the recorded numbers disagree (a density
+        // fitted again since the run): show the numbers only.
+        _ => '',
+      };
+    }
 
     Widget section(String title) => Padding(
       padding: const EdgeInsets.only(top: SagipSpace.xl, bottom: SagipSpace.sm),
@@ -690,7 +671,7 @@ class _BarangayPanel extends ConsumerWidget {
           ],
         ),
         section(l10n.forecastRisks),
-        for (final h in ForecastHazard.values)
+        for (final h in ForecastHazard.values) ...[
           ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 40),
             child: Row(
@@ -705,6 +686,77 @@ class _BarangayPanel extends ConsumerWidget {
               ],
             ),
           ),
+          // Why (2026-11-02): the chance, the past incidents here, and
+          // which part of the rule gave the level.
+          if (run.chances?[h] case final chance? when run.rule != null)
+            Padding(
+              key: ValueKey('forecast-why-${h.name}'),
+              padding: const EdgeInsets.only(
+                left: 20 + SagipSpace.md,
+                bottom: SagipSpace.sm,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.forecastWhyChance(percent(chance)),
+                    style: text.bodySmall!.copyWith(color: p.textSecondary),
+                  ),
+                  Text(
+                    (density[h] ?? 0) > 0
+                        ? l10n.forecastWhyDensity(percent(density[h]!))
+                        : l10n.forecastWhyNoPast,
+                    style: text.bodySmall!.copyWith(color: p.textSecondary),
+                  ),
+                  if (reason(h, run.rule!, chance, density[h] ?? 0) case final r
+                      when r.isNotEmpty)
+                    Text(r, style: text.bodySmall),
+                ],
+              ),
+            ),
+        ],
+        Text(
+          run.chances == null ? l10n.forecastWhyUnknown : l10n.forecastWhyModel,
+          style: text.bodySmall!.copyWith(color: p.textSecondary),
+        ),
+        section(l10n.forecastHistoryTitle),
+        if (byType.isEmpty)
+          Text(
+            l10n.forecastHistoryNone,
+            key: const ValueKey('forecast-history-none'),
+            style: text.bodyMedium,
+          )
+        else
+          for (final MapEntry(key: type, value: list) in byType.entries)
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 32),
+              child: Row(
+                key: ValueKey('forecast-history-${type.name}'),
+                children: [
+                  Icon(
+                    incidentTypeIcon(type),
+                    size: 20,
+                    color: p.textSecondary,
+                  ),
+                  const SizedBox(width: SagipSpace.md),
+                  Expanded(
+                    child: Text(
+                      l10n.forecastHistoryLine(
+                        l10n.incidentType(type),
+                        list.length,
+                        formatDate(
+                          list
+                              .map((i) => i.receivedAt)
+                              .reduce((a, b) => a.isAfter(b) ? a : b),
+                          locale,
+                        ),
+                      ),
+                      style: text.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
         section(l10n.forecastVulnerable),
         Row(
           children: [
@@ -802,260 +854,6 @@ class _Reading extends StatelessWidget {
                   ? Symbols.warning_rounded
                   : Symbols.error_rounded,
             ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The Hotspots list: the barangays where past incidents of the hazard
-/// were densest, densest first, each with its share of the densest.
-class _HotspotList extends ConsumerWidget {
-  const _HotspotList({
-    required this.all,
-    required this.hazard,
-    required this.selected,
-    required this.onHazard,
-    required this.onSelect,
-  });
-
-  final List<HazardDensity> all;
-  final ForecastHazard hazard;
-  final String? selected;
-  final ValueChanged<ForecastHazard> onHazard;
-  final ValueChanged<String> onSelect;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final p = SagipPalette.of(context);
-    final text = Theme.of(context).textTheme;
-    final locale = Localizations.localeOf(context).toString();
-    final rows = [
-      for (final d in all)
-        if (d.hazard == hazard && d.relative > 0) d,
-    ]..sort((a, b) => b.relative.compareTo(a.relative));
-    final sample = all.any((d) => d.isSample);
-    final computed = all
-        .map((d) => d.computedAt)
-        .reduce((a, b) => a.isAfter(b) ? a : b);
-
-    final header = Padding(
-      padding: const EdgeInsets.all(SagipSpace.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(l10n.hotspotsTitle, style: text.titleMedium),
-              ),
-              if (sample)
-                SagipChip(
-                  label: l10n.hotspotsSample,
-                  tone: p.neutral,
-                  icon: Symbols.science_rounded,
-                ),
-            ],
-          ),
-          const SizedBox(height: SagipSpace.sm),
-          Text(l10n.hotspotsIntro, style: text.bodySmall),
-          const SizedBox(height: SagipSpace.xs),
-          Text(
-            l10n.hotspotsComputed(formatDateTime(computed, locale)),
-            style: text.bodySmall,
-          ),
-          if (sample) ...[
-            const SizedBox(height: SagipSpace.xs),
-            Text(l10n.hotspotsSampleNote, style: text.bodySmall),
-          ],
-          const SizedBox(height: SagipSpace.lg),
-          SegmentedButton<ForecastHazard>(
-            segments: [
-              for (final h in ForecastHazard.values)
-                ButtonSegment(value: h, label: Text(l10n.hazard(h))),
-            ],
-            selected: {hazard},
-            showSelectedIcon: false,
-            onSelectionChanged: (s) => onHazard(s.first),
-          ),
-          const SizedBox(height: SagipSpace.md),
-          Text(l10n.hotspotsCount(rows.length), style: text.bodySmall),
-        ],
-      ),
-    );
-
-    return ListView.builder(
-      key: const ValueKey('hotspot-list'),
-      padding: const EdgeInsets.only(bottom: SagipSpace.xxl),
-      itemCount: rows.length + 1,
-      itemBuilder: (context, i) {
-        if (i == 0) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              header,
-              Divider(height: 1, color: p.hairline),
-            ],
-          );
-        }
-        final d = rows[i - 1];
-        return _HotspotRow(
-          key: ValueKey('hotspot-row-${d.barangay}'),
-          density: d,
-          selected: d.barangay == selected,
-          onTap: () => onSelect(d.barangay),
-        );
-      },
-    );
-  }
-}
-
-class _HotspotRow extends StatelessWidget {
-  const _HotspotRow({
-    super.key,
-    required this.density,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final HazardDensity density;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final p = SagipPalette.of(context);
-    final text = Theme.of(context).textTheme;
-    final percent = (density.relative * 100).round();
-    final color = heatColor(density.relative, p.warning.fill, p.critical.fill);
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: l10n.hotspotsDensityLabel(density.barangay, percent),
-      excludeSemantics: true,
-      child: Material(
-        color: selected ? p.panelRaised : Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 56),
-            padding: const EdgeInsets.symmetric(
-              horizontal: SagipSpace.lg,
-              vertical: SagipSpace.sm,
-            ),
-            decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(
-                  width: 3,
-                  color: selected ? p.info.fill : Colors.transparent,
-                ),
-                bottom: BorderSide(color: p.hairline),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(density.barangay, style: text.titleSmall),
-                      Text(density.district, style: text.bodySmall),
-                    ],
-                  ),
-                ),
-                // A thin bar: the share of the densest barangay.
-                SizedBox(
-                  width: 72,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(2),
-                    child: LinearProgressIndicator(
-                      value: density.relative,
-                      minHeight: 4,
-                      color: color,
-                      backgroundColor: p.hairline,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: SagipSpace.sm),
-                SizedBox(
-                  width: 40,
-                  child: Text(
-                    l10n.hotspotsPercent(percent),
-                    textAlign: TextAlign.end,
-                    style: text.labelMedium!.copyWith(
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The Hotspots legend: one bar from clear through ember to signal, as the
-/// glows are painted.
-class _HeatLegend extends StatelessWidget {
-  const _HeatLegend({required this.hazard});
-
-  final ForecastHazard hazard;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final p = SagipPalette.of(context);
-    final text = Theme.of(context).textTheme;
-    final warm = p.warning.fill, hot = p.critical.fill;
-    return Container(
-      key: const ValueKey('heat-legend'),
-      width: 320,
-      padding: const EdgeInsets.all(SagipSpace.md),
-      decoration: floatingCard(p),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            l10n.hotspotsLegend(l10n.hazard(hazard)),
-            style: text.labelMedium,
-          ),
-          const SizedBox(height: SagipSpace.sm),
-          Container(
-            height: 10,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: p.hairline),
-              gradient: LinearGradient(
-                colors: [
-                  for (final r in const [0.0, 0.25, 0.5, 0.75, 1.0])
-                    Color.alphaBlend(
-                      heatColor(
-                        r,
-                        warm,
-                        hot,
-                      ).withValues(alpha: heatAlpha(r) * r.clamp(0.15, 1)),
-                      p.canvas,
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: SagipSpace.xs),
-          Row(
-            children: [
-              Text(l10n.hotspotsFewer, style: text.bodySmall),
-              const Spacer(),
-              Text(l10n.hotspotsMore, style: text.bodySmall),
-            ],
-          ),
-          const SizedBox(height: SagipSpace.sm),
-          Text(l10n.hotspotsLegendNote, style: text.bodySmall),
         ],
       ),
     );

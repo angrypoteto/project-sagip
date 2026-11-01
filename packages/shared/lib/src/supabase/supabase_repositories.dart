@@ -1348,9 +1348,21 @@ class SupabaseForecastRepository implements ForecastRepository {
           .from('barangay_forecast')
           .select()
           .eq('issued_at', newest['issued_at']! as String);
-      return ForecastRun.latest([
+      final run = ForecastRun.latest([
         for (final r in rows) BarangayForecast.fromRow(r),
       ]);
+      // The run's chances and rule (dispatchers and admins; others read
+      // none and see the levels only).
+      try {
+        final detail = await _client
+            .from('forecast_run_detail')
+            .select()
+            .eq('issued_at', newest['issued_at']! as String)
+            .maybeSingle();
+        return detail == null ? run : run?.withDetail(detail);
+      } catch (_) {
+        return run;
+      }
     },
   );
 

@@ -381,6 +381,8 @@ class ForecastRun {
     required this.forecasts,
     this.isSimulated = false,
     this.modelVersion,
+    this.chances,
+    this.rule,
   });
 
   /// The `model_version` of made-up values (the demo data).
@@ -421,6 +423,36 @@ class ForecastRun {
   final bool isSimulated;
   final String? modelVersion;
 
+  /// The LSTM's chance (0 to 1) of at least one incident of each hazard in
+  /// Manila in the next 72 hours (`forecast_run_detail`, 2026-11-02). Null
+  /// when the run did not record it (sample runs, older runs).
+  final Map<ForecastHazard, double>? chances;
+
+  /// The rule that turned the chance and each barangay's density into its
+  /// level. Null with [chances].
+  final ForecastRule? rule;
+
+  /// This run with its chances and rule (a `forecast_run_detail` row).
+  ForecastRun withDetail(Map<String, Object?> row) => ForecastRun(
+    issuedAt: issuedAt,
+    validUntil: validUntil,
+    forecasts: forecasts,
+    isSimulated: isSimulated,
+    modelVersion: modelVersion,
+    chances: {
+      for (final e in (row['probabilities']! as Map).entries)
+        ?_hazardKey(e.key as String): (e.value as num).toDouble(),
+    },
+    rule: ForecastRule.fromJson((row['rule']! as Map).cast<String, Object?>()),
+  );
+
+  static ForecastHazard? _hazardKey(String key) => switch (key) {
+    'flood' => ForecastHazard.flood,
+    'fire' => ForecastHazard.fire,
+    'storm_surge' || 'stormSurge' => ForecastHazard.stormSurge,
+    _ => null,
+  };
+
   /// Made-up values, not model output.
   bool get isSample => modelVersion == sampleModel;
 
@@ -443,6 +475,60 @@ class ForecastRun {
   /// How many barangays sit at [level] for [hazard].
   int count(ForecastHazard hazard, RiskLevel level) =>
       forecasts.where((f) => f.riskOf(hazard) == level).length;
+}
+
+/// One condition of the rule: the chance at least [chance] and the
+/// barangay's relative density at least [density] (both 0 to 1).
+typedef RiskCondition = ({double chance, double density});
+
+/// How the 72-hour chance (LSTM) and a barangay's density of past
+/// incidents (KDE) give its level (plan Q22, provisional): high when [high]
+/// holds, moderate when any of [moderate] holds, otherwise low.
+@immutable
+class ForecastRule {
+  const ForecastRule({required this.high, required this.moderate});
+
+  final RiskCondition high;
+  final List<RiskCondition> moderate;
+
+  static RiskCondition _condition(Object? json) {
+    final m = (json! as Map).cast<String, Object?>();
+    return (
+      chance: (m['probability']! as num).toDouble(),
+      density: (m['density']! as num).toDouble(),
+    );
+  }
+
+  factory ForecastRule.fromJson(Map<String, Object?> json) => ForecastRule(
+    high: _condition(json['high']),
+    moderate: [for (final c in json['moderate']! as List) _condition(c)],
+  );
+
+  static bool _holds(RiskCondition c, double chance, double density) =>
+      chance >= c.chance && density >= c.density;
+
+  RiskLevel levelOf(double chance, double density) =>
+      _holds(high, chance, density)
+      ? RiskLevel.high
+      : moderate.any((c) => _holds(c, chance, density))
+      ? RiskLevel.moderate
+      : RiskLevel.low;
+
+  /// The condition that gave [chance] and [density] their level: [high],
+  /// the first moderate one that holds, or null for low.
+  RiskCondition? matched(double chance, double density) {
+    if (_holds(high, chance, density)) return high;
+    for (final c in moderate) {
+      if (_holds(c, chance, density)) return c;
+    }
+    return null;
+  }
+
+  /// The smallest chance any moderate or high condition needs.
+  double get lowestChance => [
+    high.chance,
+    for (final c in moderate) c.chance,
+  ].reduce((a, b) => a < b ? a : b);
 }
 
 /// What a resident is told about their own SOS as the rescue moves on

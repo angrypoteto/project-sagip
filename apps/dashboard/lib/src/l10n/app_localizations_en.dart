@@ -2624,7 +2624,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forecastLegendNote =>
-      'Each barangay is colored by its risk. Click one for its details. Unpainted: no forecast. Boundaries: PSA, indicative.';
+      'Amber glow: moderate risk. Red: high. Low is not painted. Click a barangay to see why. Boundaries: PSA, indicative.';
 
   @override
   String get forecastRisks => 'Risk by hazard';
@@ -4126,75 +4126,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get heatViewForecast => '72-hour forecast';
-
-  @override
-  String get heatViewHotspots => 'Hotspots';
-
-  @override
-  String get hotspotsTitle => 'Hotspots';
-
-  @override
-  String get hotspotsSample => 'Sample data';
-
-  @override
-  String get hotspotsIntro =>
-      'Where past incidents were densest in the incident records. This is history, not a forecast: for the next 72 hours, open 72-hour forecast.';
-
-  @override
-  String get hotspotsSampleNote =>
-      'Sample values. The density is not computed from MDRRMD\'s records yet.';
-
-  @override
-  String hotspotsComputed(String when) {
-    return 'Computed $when';
-  }
-
-  @override
-  String hotspotsCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count barangays with past incidents',
-      one: '1 barangay with past incidents',
-      zero: 'No barangay with past incidents',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get hotspotsEmpty => 'No hotspots yet.';
-
-  @override
-  String get hotspotsEmptyHint =>
-      'They appear once the density of past incidents is computed.';
-
-  @override
-  String hotspotsPercent(int percent) {
-    return '$percent%';
-  }
-
-  @override
-  String hotspotsDensityLabel(String name, int percent) {
-    return '$name: $percent% of the densest barangay';
-  }
-
-  @override
-  String hotspotsLegend(String hazard) {
-    return '$hazard: where past incidents were densest';
-  }
-
-  @override
-  String get hotspotsFewer => 'Fewer';
-
-  @override
-  String get hotspotsMore => 'More';
-
-  @override
-  String get hotspotsLegendNote =>
-      'Density of past incidents (KDE), averaged per barangay. Not a forecast.';
-
-  @override
   String get actionDutyStarted => 'Started a crew member\'s duty';
 
   @override
@@ -4280,4 +4211,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get myInventoryIntro =>
       'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.';
+
+  @override
+  String forecastWhyChance(String percent) {
+    return '$percent% chance in Manila in the next 72 hours';
+  }
+
+  @override
+  String forecastWhyDensity(String percent) {
+    return 'Past incidents here: $percent% of the busiest barangay';
+  }
+
+  @override
+  String get forecastWhyNoPast => 'No past incidents here in the records';
+
+  @override
+  String forecastReasonHigh(String chance, String density) {
+    return 'High: the chance is $chance% or more and past incidents here are $density% or more of the busiest barangay.';
+  }
+
+  @override
+  String forecastReasonModerate(String chance, String density) {
+    return 'Moderate: the chance is $chance% or more and past incidents here are $density% or more of the busiest barangay.';
+  }
+
+  @override
+  String forecastReasonLowChance(String chance) {
+    return 'Low: the chance is under $chance%.';
+  }
+
+  @override
+  String get forecastReasonLowPast =>
+      'Low: too few past incidents here for this chance.';
+
+  @override
+  String get forecastWhyModel =>
+      'The chance comes from the LSTM (the last 14 days of weather and incidents); past incidents from the KDE (where incidents of each hazard were densest). The rule is provisional.';
+
+  @override
+  String get forecastWhyUnknown =>
+      'This forecast did not record the chance behind its levels.';
+
+  @override
+  String get forecastHistoryTitle => 'Recorded here, last 12 months';
+
+  @override
+  String get forecastHistoryNone =>
+      'No incidents recorded here in the last 12 months.';
+
+  @override
+  String forecastHistoryLine(String type, int count, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count incidents',
+      one: '1 incident',
+    );
+    return '$type: $_temp0, last on $date';
+  }
 }

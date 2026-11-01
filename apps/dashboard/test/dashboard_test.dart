@@ -13,6 +13,7 @@ import 'package:sagip_dashboard/src/features/board/incident_map.dart';
 import 'package:sagip_dashboard/src/features/board/incident_drawer.dart';
 import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
+import 'package:sagip_dashboard/src/features/forecast/forecast_page.dart';
 import 'package:sagip_dashboard/src/features/forecast/heat_layer.dart';
 import 'package:sagip_dashboard/src/features/shell/top_bar.dart';
 import 'package:sagip_dashboard/src/l10n/app_localizations.dart';
@@ -1917,10 +1918,10 @@ void main() {
     await tester.tap(find.byTooltip('Heatmap'));
     await settle(tester);
 
-    // It opens on the forecast: the view switch and the list's title.
-    expect(find.text('72-hour forecast'), findsNWidgets(2));
+    // One view: the forecast (Hotspots removed 2026-11-02).
+    expect(find.text('72-hour forecast'), findsOneWidget);
     expect(find.byKey(const ValueKey('forecast-list')), findsOneWidget);
-    expect(find.byKey(const ValueKey('hotspot-list')), findsNothing);
+    expect(find.text('Hotspots'), findsNothing);
     expect(find.text('Sample forecast'), findsOneWidget);
     expect(find.textContaining('Sample values, not model output'), findsOne);
     expect(find.byKey(const ValueKey('forecast-stale')), findsNothing);
@@ -1938,16 +1939,17 @@ void main() {
     expect(find.text('2 high, 1 moderate, 5 low'), findsOneWidget);
     expect(top('Barangay 649'), lessThan(top('Barangay 105')));
     expect(top('Barangay 105'), lessThan(top('Barangay 412')));
-    // The heat map: every barangay of the run is painted in its risk's
-    // color (low faintly, high strongest); all 897 outlines are drawn.
+    // The heat map (2026-11-02): a glow per barangay at moderate or high,
+    // stronger at high; low is not painted. The outlines carry no colour
+    // and take the clicks.
+    final heat = tester.widget<HeatLayer>(find.byType(HeatLayer));
+    expect(heat.weights['Barangay 649'], 1.0);
+    expect(heat.weights['Barangay 105'], riskHeat[RiskLevel.moderate]);
+    expect(heat.weights.containsKey('Barangay 412'), isFalse);
     final shading = tester.widget<BarangayBoundaries>(
       find.byType(BarangayBoundaries),
     );
-    expect(shading.fills.keys, hasLength(8));
-    final high = shading.fills['Barangay 649']!;
-    final low = shading.fills['Barangay 412']!;
-    expect(high, isNot(low));
-    expect(high.a, greaterThan(low.a));
+    expect(shading.fills, isEmpty);
     expect(shading.onTap, isNotNull, reason: 'a barangay can be clicked');
     // No markers until one is chosen.
     expect(find.byType(MarkerLayer), findsNothing);
@@ -2084,58 +2086,102 @@ void main() {
     expect(find.text('No forecast generated yet.'), findsOneWidget);
   });
 
-  testWidgets('D8 Hotspots: past incidents as a heat map, apart from the '
-      'forecast', (tester) async {
+  testWidgets('D8: the barangay panel says why each level, and what '
+      'was recorded there', (tester) async {
     await pumpApp(tester);
     await signIn(tester, 'dispatcher@sagip.test');
+    // A run that recorded its chances and rule, as the live feed does.
+    final issued = now.subtract(const Duration(hours: 2));
+    BarangayForecast f(String name, String district, RiskLevel flood) =>
+        BarangayForecast(
+          barangay: name,
+          district: district,
+          issuedAt: issued,
+          validUntil: issued.add(const Duration(hours: 72)),
+          risks: {
+            ForecastHazard.flood: flood,
+            ForecastHazard.fire: RiskLevel.low,
+            ForecastHazard.stormSurge: RiskLevel.low,
+          },
+          isSimulated: true,
+          modelVersion: 'lstm-kde-v1 live',
+        );
+    backend.setForecast(
+      ForecastRun.latest([
+        f('Barangay 412', 'Sampaloc', RiskLevel.high),
+        f('Barangay 105', 'Tondo', RiskLevel.moderate),
+      ])!.withDetail({
+        'probabilities': {'flood': 0.6, 'fire': 0.3, 'storm_surge': 0.01},
+        'rule': {
+          'high': {'probability': 0.5, 'density': 0.5},
+          'moderate': [
+            {'probability': 0.5, 'density': 0.2},
+            {'probability': 0.25, 'density': 0.5},
+          ],
+        },
+      }),
+    );
     await tester.tap(find.byTooltip('Heatmap'));
     await settle(tester);
-    await tester.tap(find.text('Hotspots').first);
+    await tester.tap(find.byKey(const ValueKey('forecast-row-Barangay 412')));
     await settle(tester);
-
-    final list = find.byKey(const ValueKey('hotspot-list'));
-    expect(list, findsOneWidget);
-    expect(find.byKey(const ValueKey('forecast-list')), findsNothing);
-    expect(find.text('Sample data'), findsOneWidget);
-    expect(find.textContaining('This is history, not a forecast'), findsOne);
-    expect(find.text('8 barangays with past incidents'), findsOneWidget);
-    // Densest first, with its share of the densest.
-    double top(String b) =>
-        tester.getTopLeft(find.byKey(ValueKey('hotspot-row-$b'))).dy;
-    expect(top('Barangay 412'), lessThan(top('Barangay 490')));
+    final panel = find.byKey(const ValueKey('forecast-panel'));
+    Finder why(String hazard, String text) => find.descendant(
+      of: find.byKey(ValueKey('forecast-why-$hazard')),
+      matching: find.text(text),
+    );
+    // Flood: a 60% chance, and the busiest barangay for past floods.
+    expect(why('flood', '60% chance in Manila in the next 72 hours'), findsOne);
+    expect(
+      why('flood', 'Past incidents here: 100% of the busiest barangay'),
+      findsOne,
+    );
+    expect(
+      why(
+        'flood',
+        'High: the chance is 50% or more and past incidents here are 50% or '
+            'more of the busiest barangay.',
+      ),
+      findsOne,
+    );
+    // Fire: chance enough for moderate, but no past fires here.
+    expect(why('fire', 'No past incidents here in the records'), findsOne);
+    expect(
+      why('fire', 'Low: too few past incidents here for this chance.'),
+      findsOne,
+    );
+    // Storm surge: the chance alone keeps it low.
+    expect(why('stormSurge', 'Low: the chance is under 25%.'), findsOne);
+    // What the system recorded here in the last 12 months.
+    final panelList = find.descendant(
+      of: panel,
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      find.text('Recorded here, last 12 months'),
+      200,
+      scrollable: panelList.first,
+    );
+    await settle(tester);
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('hotspot-row-Barangay 490')),
-        matching: find.text('86%'),
+        of: panel,
+        matching: find.text('Flood: 2 incidents, last on Sep 28, 2026'),
       ),
       findsOneWidget,
     );
-    expect(find.byType(HeatLayer), findsOneWidget);
-    expect(find.byKey(const ValueKey('heat-legend')), findsOneWidget);
-    // The forecast's barangay panel is not part of this view.
-    await tester.tap(find.byKey(const ValueKey('hotspot-row-Barangay 412')));
-    await settle(tester);
-    expect(find.byKey(const ValueKey('forecast-panel')), findsNothing);
 
-    // Another hazard.
-    await tester.tap(find.text('Storm surge'));
+    // A barangay with nothing recorded says so.
+    await tester.tap(find.byKey(const ValueKey('forecast-row-Barangay 105')));
     await settle(tester);
-    expect(find.text('4 barangays with past incidents'), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('hotspot-row-Barangay 649')),
-      findsOneWidget,
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('forecast-history-none')),
+      200,
+      scrollable: find
+          .descendant(of: panel, matching: find.byType(Scrollable))
+          .first,
     );
-
-    // None computed yet: said plainly, and no legend.
-    backend.setDensity(const []);
-    await settle(tester);
-    expect(find.text('No hotspots yet.'), findsOneWidget);
-    expect(find.byKey(const ValueKey('heat-legend')), findsNothing);
-
-    // Back to the forecast.
-    await tester.tap(find.text('72-hour forecast'));
-    await settle(tester);
-    expect(find.byKey(const ValueKey('forecast-list')), findsOneWidget);
+    expect(find.byKey(const ValueKey('forecast-history-none')), findsOneWidget);
   });
 
   testWidgets('admins see analytics for a period and export them', (

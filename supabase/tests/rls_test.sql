@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(611);
+select plan(617);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2942,6 +2942,29 @@ update public.staff set unit_id = 'unit-r03' where id = '00000000-0000-4000-8000
 select ok((select not on_duty and duty_since is null from public.staff where id = '00000000-0000-4000-8000-00000000000b'),
   'moving to another unit ends duty');
 update public.staff set unit_id = 'unit-r05' where id = '00000000-0000-4000-8000-00000000000b';
+
+-- ------------------------------------------------------- forecast detail
+-- Each run keeps its chances and rule, for D8's "why" (2026-11-02).
+
+reset role;
+insert into public.forecast_model (version, model, is_active)
+  values ('rls-test', '{"rule": {"high": {"probability": 0.5, "density": 0.5}, "moderate": []}}', true)
+  on conflict (version) do update set is_active = true;
+select is(
+  public.record_forecast_run('test-v', '2023-01-20', '{"flood": 0.6, "fire": 0.3, "storm_surge": 0.0}',
+                             '{"Barangay 412": "hll"}', 20), 897, 'a run writes every barangay');
+select is((select (probabilities ->> 'flood')::numeric from public.forecast_run_detail where model_version = 'test-v'),
+  0.6, 'and keeps the run''s chances');
+select ok((select rule ? 'high' and rule ? 'moderate' from public.forecast_run_detail where model_version = 'test-v'),
+  'and the rule in force');
+select ok(not has_table_privilege('anon', 'public.forecast_run_detail', 'select'), 'anon cannot read it');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.forecast_run_detail where model_version = 'test-v'), 1,
+  'a dispatcher reads it');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.forecast_run_detail), 0, 'a responder does not');
+reset role;
 
 -- The counters as the real records need them (see the top).
 reset role;
