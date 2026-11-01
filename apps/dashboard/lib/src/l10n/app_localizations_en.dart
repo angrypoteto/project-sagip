@@ -4096,7 +4096,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get crewNewPersonHint =>
-      'Only someone new: an administrator creates their account when approving it. Moving someone from another unit is for administrators.';
+      'Only someone new: an administrator creates their account when approving it.';
 
   @override
   String get myUnitRequestsTitle => 'Requests';

@@ -1331,7 +1331,7 @@
   "crewAskSent": "Request sent to the administrators",
   "crewAskAddTitle": "Request a new crew member for {callSign}",
   "@crewAskAddTitle": {"placeholders": {"callSign": {"type": "String"}}},
-  "crewNewPersonHint": "Only someone new: an administrator creates their account when approving it. Moving someone from another unit is for administrators.",
+  "crewNewPersonHint": "Only someone new: an administrator creates their account when approving it.",
   "myUnitRequestsTitle": "Requests",
   "myUnitLeadNote": "{role, select, head{You are this unit's crew head} other{You are this unit's assistant head}}: you can ask an administrator to add or remove crew members.",
   "@myUnitLeadNote": {"placeholders": {"role": {"type": "String"}}},

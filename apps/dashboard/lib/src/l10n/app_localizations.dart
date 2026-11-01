@@ -6978,7 +6978,7 @@ abstract class AppLocalizations {
   /// No description provided for @crewNewPersonHint.
   ///
   /// In en, this message translates to:
-  /// **'Only someone new: an administrator creates their account when approving it. Moving someone from another unit is for administrators.'**
+  /// **'Only someone new: an administrator creates their account when approving it.'**
   String get crewNewPersonHint;
 
   /// No description provided for @myUnitRequestsTitle.
