@@ -178,12 +178,8 @@
   "@supplyPercent": {"placeholders": {"percent": {"type": "int"}}},
   "supplyCount": "{have} of {full}",
   "@supplyCount": {"placeholders": {"have": {"type": "int"}, "full": {"type": "int"}}},
-  "colSupplies": "Supplies",
   "colAgency": "Whose",
   "suppliesNotReported": "Not reported",
-  "suppliesAllGood": "All enough",
-  "suppliesShort": "{state}: {items}",
-  "@suppliesShort": {"placeholders": {"state": {"type": "String"}, "items": {"type": "String"}}},
   "countLowSupplies": "{count} low on supplies",
   "@countLowSupplies": {"placeholders": {"count": {"type": "int"}}},
   "suppliesOf": "{unit}: what it carries",
@@ -1386,5 +1382,9 @@
   "myUnitDutyWait": "The crew head is on duty and starts and ends duty.",
   "configDutyTitle": "Crew duty",
   "configDutyNote": "Crew heads start and end duty on the phone app or on My unit. A unit with nobody on duty is not suggested for dispatch.",
-  "settingDutyQuiet": "Not reporting after (minutes without a position from the phone)"
+  "settingDutyQuiet": "Not reporting after (minutes without a position from the phone)",
+  "navInventory": "Inventory",
+  "inventoryTitle": "Inventory",
+  "inventoryIntro": "What each unit carries, as its crew last reported it. Only a unit's own crew changes these. Select a unit for its full report.",
+  "colLastReport": "Last report"
 }

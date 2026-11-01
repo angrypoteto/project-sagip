@@ -23,6 +23,7 @@ import 'features/crowd_reports/crowd_reports_page.dart';
 import 'features/forecast/forecast_page.dart';
 import 'features/shell/dashboard_shell.dart';
 import 'features/shell/not_found_page.dart';
+import 'features/units/inventory_page.dart';
 import 'features/units/units_page.dart';
 import 'features/vulnerable/vulnerable_page.dart';
 import 'features/weather/weather_page.dart';
@@ -44,6 +45,9 @@ abstract final class Routes {
   static const crowdReports = '/crowd-reports';
   static const history = '/history';
   static const units = '/units';
+
+  /// What each unit carries (2026-11-01: apart from Units).
+  static const inventory = '/inventory';
   static const forecast = '/forecast';
   static const vulnerable = '/vulnerable';
   static const weather = '/weather';
@@ -216,6 +220,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.units,
             pageBuilder: (context, state) => _page(const UnitsPage()),
+          ),
+          GoRoute(
+            path: Routes.inventory,
+            pageBuilder: (context, state) => _page(const InventoryPage()),
           ),
           GoRoute(
             path: Routes.forecast,

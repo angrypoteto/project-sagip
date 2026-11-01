@@ -1024,12 +1024,6 @@ abstract class AppLocalizations {
   /// **'{have} of {full}'**
   String supplyCount(int have, int full);
 
-  /// No description provided for @colSupplies.
-  ///
-  /// In en, this message translates to:
-  /// **'Supplies'**
-  String get colSupplies;
-
   /// No description provided for @colAgency.
   ///
   /// In en, this message translates to:
@@ -1041,18 +1035,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not reported'**
   String get suppliesNotReported;
-
-  /// No description provided for @suppliesAllGood.
-  ///
-  /// In en, this message translates to:
-  /// **'All enough'**
-  String get suppliesAllGood;
-
-  /// No description provided for @suppliesShort.
-  ///
-  /// In en, this message translates to:
-  /// **'{state}: {items}'**
-  String suppliesShort(String state, String items);
 
   /// No description provided for @countLowSupplies.
   ///
@@ -7220,6 +7202,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not reporting after (minutes without a position from the phone)'**
   String get settingDutyQuiet;
+
+  /// No description provided for @navInventory.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory'**
+  String get navInventory;
+
+  /// No description provided for @inventoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory'**
+  String get inventoryTitle;
+
+  /// No description provided for @inventoryIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'What each unit carries, as its crew last reported it. Only a unit\'s own crew changes these. Select a unit for its full report.'**
+  String get inventoryIntro;
+
+  /// No description provided for @colLastReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Last report'**
+  String get colLastReport;
 }
 
 class _AppLocalizationsDelegate

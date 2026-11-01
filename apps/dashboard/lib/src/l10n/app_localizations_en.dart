@@ -551,21 +551,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get colSupplies => 'Supplies';
-
-  @override
   String get colAgency => 'Whose';
 
   @override
   String get suppliesNotReported => 'Not reported';
-
-  @override
-  String get suppliesAllGood => 'All enough';
-
-  @override
-  String suppliesShort(String state, String items) {
-    return '$state: $items';
-  }
 
   @override
   String countLowSupplies(int count) {
@@ -4274,4 +4263,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingDutyQuiet =>
       'Not reporting after (minutes without a position from the phone)';
+
+  @override
+  String get navInventory => 'Inventory';
+
+  @override
+  String get inventoryTitle => 'Inventory';
+
+  @override
+  String get inventoryIntro =>
+      'What each unit carries, as its crew last reported it. Only a unit\'s own crew changes these. Select a unit for its full report.';
+
+  @override
+  String get colLastReport => 'Last report';
 }

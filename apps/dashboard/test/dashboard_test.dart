@@ -681,47 +681,56 @@ void main() {
     expect(painted(), findsNothing);
   });
 
-  testWidgets('D7: what each unit carries, and which are low', (tester) async {
+  testWidgets('Inventory: what each unit carries, apart from Units', (
+    tester,
+  ) async {
     await pumpApp(tester);
     tester.view.physicalSize = const Size(1920, 1400);
     await signIn(tester, 'dispatcher@sagip.test');
+    // Units no longer shows supplies (2026-11-01).
     await tester.tap(find.byTooltip('Units'));
     await settle(tester);
+    expect(find.text('Supplies'), findsNothing);
+    expect(find.text('2 low on supplies'), findsNothing);
 
+    await tester.tap(find.byTooltip('Inventory'));
+    await settle(tester);
     // Two sample units are short of something.
     expect(find.text('2 low on supplies'), findsOneWidget);
-    final r03 = find.byKey(const ValueKey('supplies-unit-r03'));
+    Finder cell(String unit, String item) =>
+        find.byKey(ValueKey('inventory-$unit-$item'));
     expect(
       find.descendant(
-        of: r03,
-        matching: find.text('Low: Fuel, Drinking water'),
+        of: cell('unit-r03', 'fuel'),
+        matching: find.text('Low · 25%'),
       ),
       findsOneWidget,
     );
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('supplies-unit-a05')),
-        matching: find.text('Out: Medical kits'),
+        of: cell('unit-r03', 'drinkingWater'),
+        matching: find.text('Low · 6 of 24'),
       ),
       findsOneWidget,
     );
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('supplies-unit-r02')),
-        matching: find.text('All enough'),
+        of: cell('unit-a05', 'medicalKits'),
+        matching: find.textContaining('Out · '),
       ),
       findsOneWidget,
     );
-    expect(find.text('Not reported'), findsWidgets);
+    // Not reported: a dash.
+    expect(
+      find.descendant(of: cell('unit-a01', 'fuel'), matching: find.text('–')),
+      findsOneWidget,
+    );
 
     // The details: each supply with its level; nothing to edit here.
-    await tester.tap(r03);
+    await tester.tap(find.text('R-03'));
     await settle(tester);
     expect(find.text('R-03: what it carries'), findsOneWidget);
-    expect(find.text('25%'), findsOneWidget);
-    expect(find.text('6 of 24'), findsOneWidget);
-    expect(find.text('10 of 12'), findsOneWidget);
-    expect(find.textContaining('Low means at or below 30% of full'), findsOne);
+    expect(find.text('10 of 12'), findsWidgets);
     expect(find.byType(TextField), findsNothing);
     expect(find.byType(Slider), findsNothing);
   });
