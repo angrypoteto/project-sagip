@@ -871,6 +871,25 @@ class MockSeed {
       c.incidentId: c,
   };
 
+  /// Who is on duty in the sample (2026-11-01): R-03's head and assistant
+  /// and the other crews; L. Cruz is off duty.
+  Map<String, DateTime> get dutySince => {
+    'usr-resp-01': t0.subtract(const Duration(hours: 8, minutes: 40)),
+    'usr-resp-05': t0.subtract(const Duration(hours: 8, minutes: 40)),
+    'usr-resp-02': t0.subtract(const Duration(hours: 5)),
+    'usr-resp-03': t0.subtract(const Duration(hours: 3)),
+  };
+
+  /// When each phone last reported. R. Mendoza's has been quiet for 25
+  /// minutes, so the Units page shows them as not reporting.
+  Map<String, DateTime> get lastSeen => {
+    'usr-resp-01': t0.subtract(const Duration(minutes: 1)),
+    'usr-resp-05': t0.subtract(const Duration(minutes: 25)),
+    'usr-resp-06': t0.subtract(const Duration(days: 1)),
+    'usr-resp-02': t0.subtract(const Duration(seconds: 20)),
+    'usr-resp-03': t0.subtract(const Duration(minutes: 2)),
+  };
+
   /// Sample hotspots (the KDE's relative density): made up, clustered so
   /// the heat map shows a few hot areas per hazard.
   List<HazardDensity> get densities {

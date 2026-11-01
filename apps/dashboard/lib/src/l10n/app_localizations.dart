@@ -7226,6 +7226,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Density of past incidents (KDE), averaged per barangay. Not a forecast.'**
   String get hotspotsLegendNote;
+
+  /// No description provided for @actionDutyStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Started a crew member\'s duty'**
+  String get actionDutyStarted;
+
+  /// No description provided for @actionDutyEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended a crew member\'s duty'**
+  String get actionDutyEnded;
+
+  /// No description provided for @dutyOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On duty'**
+  String get dutyOn;
+
+  /// No description provided for @dutyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off duty'**
+  String get dutyOff;
+
+  /// No description provided for @dutyQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reporting'**
+  String get dutyQuiet;
+
+  /// No description provided for @dutySince.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {time}'**
+  String dutySince(String time);
+
+  /// No description provided for @dutySeen.
+  ///
+  /// In en, this message translates to:
+  /// **'seen {ago}'**
+  String dutySeen(String ago);
+
+  /// No description provided for @dutyNeverSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'no position from the phone yet'**
+  String get dutyNeverSeen;
+
+  /// No description provided for @dutyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{on} of {total} on duty'**
+  String dutyCount(int on, int total);
+
+  /// No description provided for @noCrewOnDuty.
+  ///
+  /// In en, this message translates to:
+  /// **'No crew on duty'**
+  String get noCrewOnDuty;
+
+  /// No description provided for @countNoCrewOnDuty.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unit with no crew on duty} other{{count} units with no crew on duty}}'**
+  String countNoCrewOnDuty(int count);
+
+  /// No description provided for @dutySwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'On duty: {name}'**
+  String dutySwitch(String name);
+
+  /// No description provided for @dutyStartedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on duty'**
+  String dutyStartedSnack(String name);
+
+  /// No description provided for @dutyEndedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is off duty'**
+  String dutyEndedSnack(String name);
+
+  /// No description provided for @myUnitDutyHead.
+  ///
+  /// In en, this message translates to:
+  /// **'You start and end your crew\'s duty. Dispatch suggests only units with someone on duty.'**
+  String get myUnitDutyHead;
+
+  /// No description provided for @myUnitDutyActing.
+  ///
+  /// In en, this message translates to:
+  /// **'The crew head is off duty, so you start and end duty for now.'**
+  String get myUnitDutyActing;
+
+  /// No description provided for @myUnitDutyWait.
+  ///
+  /// In en, this message translates to:
+  /// **'The crew head is on duty and starts and ends duty.'**
+  String get myUnitDutyWait;
+
+  /// No description provided for @configDutyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew duty'**
+  String get configDutyTitle;
+
+  /// No description provided for @configDutyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew heads start and end duty on the phone app or on My unit. A unit with nobody on duty is not suggested for dispatch.'**
+  String get configDutyNote;
+
+  /// No description provided for @settingDutyQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reporting after (minutes without a position from the phone)'**
+  String get settingDutyQuiet;
 }
 
 class _AppLocalizationsDelegate

@@ -2338,4 +2338,56 @@ class AppLocalizationsFil extends AppLocalizations {
   String photoDeliveredNotice(String time) {
     return 'Naihatid na ang iyong larawan mula $time.';
   }
+
+  @override
+  String get dutyCardTitle => 'Mga naka-duty';
+
+  @override
+  String get dutyOn => 'Naka-duty';
+
+  @override
+  String get dutyOff => 'Wala sa duty';
+
+  @override
+  String get dutyYou => 'Ikaw';
+
+  @override
+  String dutySinceLine(String time) {
+    return 'Naka-duty mula $time';
+  }
+
+  @override
+  String get dutyOffLine =>
+      'Wala sa duty. Ang crew head ang magsisimula ng duty mo.';
+
+  @override
+  String get dutyHeadNote =>
+      'I-on kung sino ang nagtatrabaho ngayon. Sa mga unit lang na may naka-duty nagpapadala ng trabaho ang dispatch.';
+
+  @override
+  String get dutyActingNote =>
+      'Wala sa duty ang crew head, kaya ikaw muna ang magpapalit ng duty.';
+
+  @override
+  String dutySwitchLabel(String name) {
+    return 'Naka-duty: $name';
+  }
+
+  @override
+  String dutyStartedSnack(String name) {
+    return 'Naka-duty na si $name';
+  }
+
+  @override
+  String dutyEndedSnack(String name) {
+    return 'Wala na sa duty si $name';
+  }
+
+  @override
+  String get dutyOffline =>
+      'Kailangan ng internet para magpalit ng duty. Subukan ulit kapag online ka na.';
+
+  @override
+  String get notSharingOffDuty =>
+      'Hindi ibinabahagi ang lokasyon habang wala ka sa duty';
 }

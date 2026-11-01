@@ -161,6 +161,8 @@ extension DomainLabels on AppLocalizations {
     AuditAction.crewLeadsChanged => actionCrewLeadsChanged,
     AuditAction.crewRequested => actionCrewRequested,
     AuditAction.crewRequestDecided => actionCrewRequestDecided,
+    AuditAction.dutyStarted => actionDutyStarted,
+    AuditAction.dutyEnded => actionDutyEnded,
     AuditAction.accountCreated => actionAccountCreated,
     AuditAction.accountUpdated => actionAccountUpdated,
     AuditAction.accountDeactivated => actionAccountDeactivated,

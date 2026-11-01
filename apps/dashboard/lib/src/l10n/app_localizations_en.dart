@@ -4275,4 +4275,89 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hotspotsLegendNote =>
       'Density of past incidents (KDE), averaged per barangay. Not a forecast.';
+
+  @override
+  String get actionDutyStarted => 'Started a crew member\'s duty';
+
+  @override
+  String get actionDutyEnded => 'Ended a crew member\'s duty';
+
+  @override
+  String get dutyOn => 'On duty';
+
+  @override
+  String get dutyOff => 'Off duty';
+
+  @override
+  String get dutyQuiet => 'Not reporting';
+
+  @override
+  String dutySince(String time) {
+    return 'Since $time';
+  }
+
+  @override
+  String dutySeen(String ago) {
+    return 'seen $ago';
+  }
+
+  @override
+  String get dutyNeverSeen => 'no position from the phone yet';
+
+  @override
+  String dutyCount(int on, int total) {
+    return '$on of $total on duty';
+  }
+
+  @override
+  String get noCrewOnDuty => 'No crew on duty';
+
+  @override
+  String countNoCrewOnDuty(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count units with no crew on duty',
+      one: '1 unit with no crew on duty',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dutySwitch(String name) {
+    return 'On duty: $name';
+  }
+
+  @override
+  String dutyStartedSnack(String name) {
+    return '$name is on duty';
+  }
+
+  @override
+  String dutyEndedSnack(String name) {
+    return '$name is off duty';
+  }
+
+  @override
+  String get myUnitDutyHead =>
+      'You start and end your crew\'s duty. Dispatch suggests only units with someone on duty.';
+
+  @override
+  String get myUnitDutyActing =>
+      'The crew head is off duty, so you start and end duty for now.';
+
+  @override
+  String get myUnitDutyWait =>
+      'The crew head is on duty and starts and ends duty.';
+
+  @override
+  String get configDutyTitle => 'Crew duty';
+
+  @override
+  String get configDutyNote =>
+      'Crew heads start and end duty on the phone app or on My unit. A unit with nobody on duty is not suggested for dispatch.';
+
+  @override
+  String get settingDutyQuiet =>
+      'Not reporting after (minutes without a position from the phone)';
 }

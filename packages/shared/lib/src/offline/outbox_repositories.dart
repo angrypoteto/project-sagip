@@ -10,6 +10,7 @@ import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
+import '../models/people.dart';
 import '../models/photo.dart';
 import '../models/response_unit.dart';
 import '../models/sos.dart';
@@ -789,6 +790,15 @@ class OutboxResponderRepository implements ResponderRepository {
       ),
     ).map((zones) => zones ?? const []);
   }
+
+  /// Online only: who is on duty changes on the server.
+  @override
+  Stream<List<CrewMember>> watchCrew() =>
+      _server.watchCrew().handleError((Object _) {});
+
+  @override
+  Future<void> setDuty(String staffId, {required bool onDuty}) =>
+      _server.setDuty(staffId, onDuty: onDuty);
 
   @override
   Stream<List<CompletedAssignment>> watchHistory() {

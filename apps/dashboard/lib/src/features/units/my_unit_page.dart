@@ -10,6 +10,7 @@ import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../common_page.dart';
+import 'duty_widgets.dart';
 import 'supply_widgets.dart';
 
 /// A responder's own unit on the web: what it carries, reported by its
@@ -173,6 +174,22 @@ class _CrewCard extends ConsumerWidget {
     );
   }
 
+  Future<void> _setDuty(
+    BuildContext context,
+    WidgetRef ref,
+    CrewMember m,
+    bool on,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    await runAction(
+      context,
+      () => ref.read(crewRepositoryProvider).setDuty(m.staffId, onDuty: on),
+      success: on
+          ? l10n.dutyStartedSnack(m.displayName)
+          : l10n.dutyEndedSnack(m.displayName),
+    );
+  }
+
   Future<void> _askRemove(
     BuildContext context,
     WidgetRef ref,
@@ -207,6 +224,17 @@ class _CrewCard extends ConsumerWidget {
       for (final c in ref.watch(crewProvider).value ?? const <CrewMember>[])
         if (c.unitId == unit.id) c,
     ];
+    final now = ref.watch(slowClockProvider).value ?? DateTime.now();
+    final quiet = ref.watch(dutyQuietProvider);
+    final locale = Localizations.localeOf(context).toString();
+    // Duty (2026-11-01): the head switches it; the assistant head while
+    // the head is off duty.
+    final headOnDuty = crew.any(
+      (c) => c.staffId == unit.crewHeadId && c.onDuty,
+    );
+    final switcher =
+        me != null &&
+        (me == unit.crewHeadId || (me == unit.assistantHeadId && !headOnDuty));
     // One waiting removal per member is enough.
     final asked = {
       if (lead)
@@ -252,6 +280,15 @@ class _CrewCard extends ConsumerWidget {
                 ),
                 style: text.bodySmall!.copyWith(color: p.textSecondary),
               ),
+              Text(
+                me == unit.crewHeadId
+                    ? l10n.myUnitDutyHead
+                    : switcher
+                    ? l10n.myUnitDutyActing
+                    : l10n.myUnitDutyWait,
+                key: const ValueKey('my-unit-duty-note'),
+                style: text.bodySmall!.copyWith(color: p.textSecondary),
+              ),
             ],
             const SizedBox(height: SagipSpace.sm),
             for (final c in crew)
@@ -267,19 +304,42 @@ class _CrewCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: SagipSpace.md),
                     Expanded(
-                      child: Wrap(
-                        spacing: SagipSpace.sm,
-                        crossAxisAlignment: WrapCrossAlignment.center,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(c.displayName, style: text.bodyLarge),
-                          if (c.staffId == me)
-                            SagipChip(label: l10n.myUnitCrewYou, tone: p.info),
-                          if (c.staffId == unit.crewHeadId)
-                            SagipChip(label: l10n.crewHead, tone: p.info)
-                          else if (c.staffId == unit.assistantHeadId)
-                            SagipChip(
-                              label: l10n.crewAssistant,
-                              tone: p.neutral,
+                          Wrap(
+                            spacing: SagipSpace.sm,
+                            runSpacing: SagipSpace.xs,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(c.displayName, style: text.bodyLarge),
+                              if (c.staffId == me)
+                                SagipChip(
+                                  label: l10n.myUnitCrewYou,
+                                  tone: p.info,
+                                ),
+                              if (c.staffId == unit.crewHeadId)
+                                SagipChip(label: l10n.crewHead, tone: p.info)
+                              else if (c.staffId == unit.assistantHeadId)
+                                SagipChip(
+                                  label: l10n.crewAssistant,
+                                  tone: p.neutral,
+                                ),
+                              DutyChip(
+                                key: ValueKey('my-duty-${c.staffId}'),
+                                member: c,
+                                now: now,
+                                quiet: quiet,
+                              ),
+                            ],
+                          ),
+                          if (dutyDetail(l10n, c, now, locale) case final detail
+                              when detail.isNotEmpty)
+                            Text(
+                              detail,
+                              style: text.bodySmall!.copyWith(
+                                color: p.textSecondary,
+                              ),
                             ),
                         ],
                       ),
@@ -291,12 +351,23 @@ class _CrewCard extends ConsumerWidget {
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
+                    if (switcher) ...[
+                      const SizedBox(width: SagipSpace.sm),
+                      Switch(
+                        key: ValueKey('duty-switch-${c.staffId}'),
+                        value: c.onDuty,
+                        onChanged: online
+                            ? (on) => _setDuty(context, ref, c, on)
+                            : null,
+                      ),
+                    ],
                     // Never on one's own row: a lead cannot ask to take
                     // themself off.
                     if (lead) ...[
                       const SizedBox(width: SagipSpace.sm),
                       if (c.staffId == me)
-                        const SizedBox(width: 40)
+                        // As wide as the button on the other rows.
+                        const SizedBox(width: 48)
                       else
                         IconButton(
                           key: ValueKey('crew-ask-remove-${c.staffId}'),

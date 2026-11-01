@@ -85,6 +85,8 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] D6 Barangay boundaries layer
 - [ ] D7 Units table: status counts, stale-GPS flag; a unit opens like a tree to show its crew (name and personnel ID, 2026-10-28); admins add crew members and take them off there (2026-10-29)
 - [ ] **[N]** D7 crew heads (2026-10-29): an admin names a unit's crew head and assistant head from the badge menu beside a name; "Head" and "Assistant head" show on Units and My unit
+- [ ] **[N]** D7 crew duty (2026-11-01): each unit shows "2 of 3 on duty" or "No crew on duty"; an open unit's crew shows On duty (since when), Off duty, or Not reporting (on duty but no position from the phone for 15 minutes, an A3 setting), and when each phone last reported
+- [ ] **[N]** D2 A unit with crew accounts but nobody on duty is not in "Suggested units"; "Choose another unit" still lists it, marked "No crew on duty"
 - [ ] **[N]** D7 crew requests: the requests a head sent wait at the top of Units; Approve moves the person (a new person: Create account opens filled in first); Decline needs a reason
 - [ ] **[N]** D7 "Whose" column (MDRRMD, BFP, EMS) and fire trucks as a unit type
 - [ ] **[N]** D7 Supplies column: "Low: ...", "Out: ...", "All enough", or "Not reported"; a "N low on supplies" count at the top (the demo levels make it 4)
@@ -212,6 +214,8 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] **[N]** S3 Sign in: the logo and heading are centred and the MDRRMD hotline card sits at the bottom of the screen (sign out to see it)
 - [ ] F1 Home: unit, status control, location sharing line, weather strip
 - [ ] F1 "Keep S.A.G.I.P. running" battery prompt
+- [ ] **[N]** F1 Crew duty (2026-11-01): the crew head sees "Crew on duty" with a switch per member (themself included); the assistant head gets the switches only while the head is off duty; others see "On duty since …" or "Off duty. Your crew head starts your duty."
+- [ ] **[N]** F1 Off duty: "Location not shared while you are off duty", the unit's position is not sent, and a new job does not open the full-screen alert
 - [ ] F2 Incoming assignment: full screen, the app's own tone, vibration, Accept **[P]** for the sound
 - [ ] F3 Assignment detail: map, where to go, what was reported, vulnerable types
 - [ ] F3 shows "The resident asked to cancel" and goes to the resident's newest position
@@ -314,7 +318,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 | UAT on 2026-11-23 to 27 (3 admins, 16 field personnel, 31 residents) and the ISO/IEC 25010 questionnaire validated by 2026-10-30 | Not started as far as this file knows |
 | Hallway test, the Objective 3 trial (SOS delivery offline), the Objective 4 trial (report time), the Bluetooth relay with three phones, everything marked **[P]** | Not started; needs phones and people. The relay works between two phones (2026-10-20) |
 | Read the mobile app's Filipino text (privacy notice and consent first) | Not done |
-| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations; **the SMS fallback needs load on the resident's SIM**, plan Q29); Chapter 3 (the gateway is an Android phone, plan Q45; outbound SMS from the gateway SIM, not Semaphore, plan Q46; river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, safe places instead of the nearest evacuation center, incident posts on Facebook, incident history) |
+| Thesis updates | Chapter 1 scope (unit supplies, other agencies' stations; **the SMS fallback needs load on the resident's SIM**, plan Q29); Chapter 3 (the gateway is an Android phone, plan Q45; outbound SMS from the gateway SIM, not Semaphore, plan Q46; river levels from PAGASA, Gemini, Cancel SOS, live location, Open-Meteo weather if the forecast uses it, safe places instead of the nearest evacuation center, incident posts on Facebook, incident history, crew duty switched by the crew head, plan Q51) |
 
 ## 9. Dropped (Joshua, 2026-10-11)
 

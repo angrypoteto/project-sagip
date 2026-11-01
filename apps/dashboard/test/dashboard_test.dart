@@ -1083,6 +1083,110 @@ void main() {
     expect(find.byKey(const ValueKey('crew-role-usr-resp-02')), findsNothing);
   });
 
+  testWidgets('Duty: dispatchers see who is on duty and who is not '
+      'reporting', (tester) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1920, 1400);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Units'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('duty-count-unit-r03')), findsOneWidget);
+    expect(find.text('2 of 3 on duty'), findsOneWidget);
+    expect(find.byKey(const ValueKey('units-no-crew')), findsNothing);
+    await tester.tap(find.text('R-03'));
+    await settle(tester);
+    Finder chip(String id, String label) => find.descendant(
+      of: find.byKey(ValueKey('duty-$id')),
+      matching: find.text(label),
+    );
+    expect(chip('usr-resp-01', 'On duty'), findsOneWidget);
+    // On duty, but the phone has been quiet for 25 minutes (over 15).
+    expect(chip('usr-resp-05', 'Not reporting'), findsOneWidget);
+    expect(chip('usr-resp-06', 'Off duty'), findsOneWidget);
+    expect(find.text('25 min ago'), findsOneWidget);
+    // Switching duty is for the crew head, not dispatch.
+    expect(find.byType(Switch), findsNothing);
+  });
+
+  testWidgets('Duty: the crew head switches it; a unit with nobody on duty '
+      'is not suggested', (tester) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 3000);
+    await signIn(tester, 'j.reyes@sagip.test');
+    expect(
+      find.text(
+        "You start and end your crew's duty. Dispatch suggests only units "
+        'with someone on duty.',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('duty-switch-usr-resp-06')));
+    await settle(tester);
+    expect(find.text('L. Cruz is on duty'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+    // Everyone off, the head last.
+    for (final id in ['usr-resp-06', 'usr-resp-05', 'usr-resp-01']) {
+      await tester.tap(find.byKey(ValueKey('duty-switch-$id')));
+      await settle(tester);
+      await tester.pump(const Duration(seconds: 5));
+      await settle(tester);
+    }
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(audit!.where((e) => e.action == AuditAction.dutyEnded).length, 3);
+    expect(audit.where((e) => e.action == AuditAction.dutyStarted).length, 1);
+
+    // The assistant head may switch now that the head is off duty...
+    await tester.runAsync(() => MockAuthRepository(backend).signOut());
+    await settle(tester);
+    await signIn(tester, 'r.mendoza@sagip.test');
+    expect(
+      find.text(
+        'The crew head is off duty, so you start and end duty for now.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('duty-switch-usr-resp-06')),
+      findsOneWidget,
+    );
+    // ...and a member never does.
+    await tester.runAsync(() => MockAuthRepository(backend).signOut());
+    await settle(tester);
+    await signIn(tester, 'l.cruz@sagip.test');
+    expect(find.byType(Switch), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('my-duty-usr-resp-06')),
+        matching: find.text('Off duty'),
+      ),
+      findsOneWidget,
+    );
+
+    // R-03 had the top suggestion for INC-0147; with nobody on duty it is
+    // not suggested, but "Choose another unit" still lists it.
+    await tester.runAsync(() => MockAuthRepository(backend).signOut());
+    await settle(tester);
+    tester.view.physicalSize = const Size(1440, 900);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Units'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('no-crew-unit-r03')), findsOneWidget);
+    expect(find.text('1 unit with no crew on duty'), findsOneWidget);
+    await tester.tap(find.byTooltip('Command Board'));
+    await settle(tester);
+    await tester.tap(find.text('SOS, flood').first);
+    await settle(tester);
+    await revealInDrawer(tester, find.text('Suggested units'));
+    expect(find.text('Assign R-03'), findsNothing);
+    await revealInDrawer(tester, find.text('Choose another unit'));
+    await tester.tap(find.text('Choose another unit'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('no-crew-unit-r03')), findsOneWidget);
+  });
+
   testWidgets('A1: an admin sets a personnel ID, checked before saving', (
     tester,
   ) async {

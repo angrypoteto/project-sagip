@@ -127,6 +127,14 @@ class ConfigurationPage extends ConsumerWidget {
             ),
             const SizedBox(height: SagipSpace.xl),
             NumberSettingsCard(
+              id: 'duty',
+              title: l10n.configDutyTitle,
+              note: l10n.configDutyNote,
+              labels: {SettingKeys.dutyQuietMinutes: l10n.settingDutyQuiet},
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
+            NumberSettingsCard(
               id: 'app',
               title: l10n.configAppTitle,
               note: l10n.configAppNote,

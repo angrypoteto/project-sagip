@@ -496,6 +496,14 @@ class SupabaseCrewRepository implements CrewRepository {
           },
         ),
       );
+
+  @override
+  Future<void> setDuty(String staffId, {required bool onDuty}) => _call(
+    () => _client.rpc<void>(
+      'set_crew_duty',
+      params: {'p_staff_id': staffId, 'p_on': onDuty},
+    ),
+  );
 }
 
 /// A4 through `analytics_report` (admins only).

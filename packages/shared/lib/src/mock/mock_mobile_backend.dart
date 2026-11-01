@@ -282,6 +282,78 @@ class MockMobileBackend {
 
   Stream<List<CompletedAssignment>> watchHistory() => _responder.watchHistory();
 
+  /// R-03's crew (2026-11-01): J. Reyes, this phone's account, is the crew
+  /// head and R. Mendoza the assistant head; L. Cruz is off duty.
+  late final _crew = LiveValue<List<CrewMember>>([
+    CrewMember(
+      unitId: 'unit-r03',
+      staffId: responder.id,
+      displayName: responder.displayName,
+      personnelId: 'MDRRMD-0101',
+      onDuty: true,
+      dutySince: _t0.subtract(const Duration(hours: 8, minutes: 40)),
+      lastSeenAt: _t0,
+    ),
+    CrewMember(
+      unitId: 'unit-r03',
+      staffId: assistantId,
+      displayName: 'R. Mendoza',
+      personnelId: 'MDRRMD-0102',
+      onDuty: true,
+      dutySince: _t0.subtract(const Duration(hours: 8, minutes: 40)),
+      lastSeenAt: _t0.subtract(const Duration(minutes: 2)),
+    ),
+    CrewMember(
+      unitId: 'unit-r03',
+      staffId: 'rsp-r03-cruz',
+      displayName: 'L. Cruz',
+      lastSeenAt: _t0.subtract(const Duration(days: 1)),
+    ),
+  ]);
+
+  /// R. Mendoza, R-03's assistant head.
+  static const assistantId = 'rsp-r03-mendoza';
+
+  Stream<List<CrewMember>> watchCrew() => _user.watch().asyncExpand(
+    (user) => user?.role == UserRole.responder
+        ? _crew.watch()
+        : Stream.value(const <CrewMember>[]),
+  );
+
+  /// `set_crew_duty`, with the same checks.
+  Future<void> setCrewDuty(String staffId, {required bool onDuty}) async {
+    if (_signal.value != SignalState.internet) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+    final me = _user.value;
+    final unit = _responder.value.unit;
+    final crew = _crew.value;
+    final headOn = crew.any((c) => c.staffId == unit.crewHeadId && c.onDuty);
+    if (me == null ||
+        !(me.id == unit.crewHeadId ||
+            (me.id == unit.assistantHeadId && !headOn))) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final i = crew.indexWhere((c) => c.staffId == staffId);
+    if (i < 0) throw const ActionRejected(ActionRejection.invalidValue);
+    final c = crew[i];
+    if (c.onDuty == onDuty) return;
+    _crew.value = [
+      for (final x in crew)
+        x.staffId == staffId
+            ? CrewMember(
+                unitId: x.unitId,
+                staffId: x.staffId,
+                displayName: x.displayName,
+                personnelId: x.personnelId,
+                onDuty: onDuty,
+                dutySince: onDuty ? _clock() : null,
+                lastSeenAt: x.lastSeenAt,
+              )
+            : x,
+    ];
+  }
+
   final _roadHazards = LiveValue<List<HazardZone>>(const []);
 
   /// The floods and fires the responder's route goes around. The sample

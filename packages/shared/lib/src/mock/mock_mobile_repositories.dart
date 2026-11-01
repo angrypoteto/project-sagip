@@ -182,6 +182,13 @@ class MockResponderRepository implements ResponderRepository {
 
   @override
   Stream<List<HazardZone>> watchRoadHazards() => _backend.watchRoadHazards();
+
+  @override
+  Stream<List<CrewMember>> watchCrew() => _backend.watchCrew();
+
+  @override
+  Future<void> setDuty(String staffId, {required bool onDuty}) =>
+      _backend.setCrewDuty(staffId, onDuty: onDuty);
 }
 
 class MockVulnerabilityRepository implements VulnerabilityRepository {

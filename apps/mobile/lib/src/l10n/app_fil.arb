@@ -655,5 +655,18 @@
   "photoRemove": "Alisin ang larawan",
   "photoThumb": "Ang larawang idinagdag mo",
   "queueKindPhoto": "Larawan",
-  "photoDeliveredNotice": "Naihatid na ang iyong larawan mula {time}."
+  "photoDeliveredNotice": "Naihatid na ang iyong larawan mula {time}.",
+  "dutyCardTitle": "Mga naka-duty",
+  "dutyOn": "Naka-duty",
+  "dutyOff": "Wala sa duty",
+  "dutyYou": "Ikaw",
+  "dutySinceLine": "Naka-duty mula {time}",
+  "dutyOffLine": "Wala sa duty. Ang crew head ang magsisimula ng duty mo.",
+  "dutyHeadNote": "I-on kung sino ang nagtatrabaho ngayon. Sa mga unit lang na may naka-duty nagpapadala ng trabaho ang dispatch.",
+  "dutyActingNote": "Wala sa duty ang crew head, kaya ikaw muna ang magpapalit ng duty.",
+  "dutySwitchLabel": "Naka-duty: {name}",
+  "dutyStartedSnack": "Naka-duty na si {name}",
+  "dutyEndedSnack": "Wala na sa duty si {name}",
+  "dutyOffline": "Kailangan ng internet para magpalit ng duty. Subukan ulit kapag online ka na.",
+  "notSharingOffDuty": "Hindi ibinabahagi ang lokasyon habang wala ka sa duty"
 }

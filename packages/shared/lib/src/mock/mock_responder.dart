@@ -42,6 +42,8 @@ class _ResponderSim {
             status: UnitStatus.available,
             location: MockMobileBackend.stationR03,
             lastLocationAt: _b._clock(),
+            crewHeadId: MockMobileBackend.responder.id,
+            assistantHeadId: MockMobileBackend.assistantId,
           ),
         ),
       );

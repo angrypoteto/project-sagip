@@ -406,6 +406,10 @@ class MockCrewRepository implements CrewRepository {
   );
 
   @override
+  Future<void> setDuty(String staffId, {required bool onDuty}) =>
+      _backend.setCrewDuty(staffId, onDuty: onDuty);
+
+  @override
   Future<void> setLeads(String unitId, {String? headId, String? assistantId}) =>
       _backend.setUnitLeads(unitId, headId: headId, assistantId: assistantId);
 }

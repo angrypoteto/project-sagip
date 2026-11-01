@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(594);
+select plan(611);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2870,6 +2870,77 @@ select is((select count(*)::int from public.hazard_density), 0, 'nor does a resp
 reset role;
 set local role anon;
 select throws_ok($$ select count(*) from public.hazard_density $$, '42501', null, 'anon cannot read them');
+
+-- ------------------------------------------------------------ crew duty
+-- Who is on duty (2026-11-01): the crew head switches it; the assistant
+-- head only while the head is off duty. Positions from someone off duty do
+-- not move the unit.
+
+reset role;
+update public.staff set unit_id = 'unit-r05', deactivated_at = null, on_duty = false, duty_since = null
+ where id in ('00000000-0000-4000-8000-00000000000b', '00000000-0000-4000-8000-000000000012',
+              '00000000-0000-4000-8000-000000000013');
+update public.staff set unit_id = 'unit-r03', deactivated_at = null
+ where id = '00000000-0000-4000-8000-000000000011';
+update public.response_unit set crew_head_id = '00000000-0000-4000-8000-00000000000b',
+  assistant_head_id = '00000000-0000-4000-8000-000000000012' where unit_id = 'unit-r05';
+update public.response_unit set last_latitude = 14.6, last_longitude = 120.98,
+  last_location_at = now() - interval '1 hour' where unit_id = 'unit-r05';
+select ok(not has_function_privilege('anon', 'public.set_crew_duty(uuid, boolean)', 'execute'),
+  'anon cannot switch duty');
+select ok(exists (select 1 from public.app_setting where key = 'duty.quiet_minutes' and value = '15'::jsonb),
+  'the not-reporting time is a setting, 15 minutes');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000013", "role": "authenticated"}';
+select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', true) $$,
+  'P0001', 'not_allowed', 'a crew member cannot switch duty, not even their own');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000012", "role": "authenticated"}';
+select lives_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', true) $$,
+  'the assistant head can while the head is off duty');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select lives_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-00000000000b', true) $$,
+  'the head starts their own duty');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000012", "role": "authenticated"}';
+select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', false) $$,
+  'P0001', 'not_allowed', 'but not once the head is on duty');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000011', true) $$,
+  'P0001', 'invalid_value', 'the head switches only their own unit''s crew');
+select ok((select on_duty and duty_since is not null from public.unit_crew()
+            where staff_id = '00000000-0000-4000-8000-000000000013'),
+  'the crew list shows who is on duty and since when');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000013", "role": "authenticated"}';
+select lives_ok($$ select public.update_unit_location(14.61, 120.99, now()) $$, 'a crew member on duty sends a position');
+select ok((select last_latitude = 14.61 from public.response_unit where unit_id = 'unit-r05'),
+  'it moves the unit');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select lives_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', false) $$,
+  'the head ends a member''s duty');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000013", "role": "authenticated"}';
+select lives_ok($$ select public.update_unit_location(14.70, 121.05, now() + interval '1 second') $$,
+  'the phone of someone off duty may still send');
+select ok((select last_latitude = 14.61 from public.response_unit where unit_id = 'unit-r05'),
+  'but it no longer moves the unit');
+
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select ok((select on_duty from public.unit_crew() where staff_id = '00000000-0000-4000-8000-00000000000b')
+          and (select not on_duty and last_seen_at is not null from public.unit_crew()
+                where staff_id = '00000000-0000-4000-8000-000000000013'),
+  'a dispatcher sees each member''s duty and when their phone last reported');
+select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', true) $$,
+  'P0001', 'not_allowed', 'a dispatcher cannot switch duty');
+
+reset role;
+select is((select count(*)::int from public.audit_log
+            where action_type in ('dutyStarted', 'dutyEnded')
+              and target_id in ('00000000-0000-4000-8000-00000000000b', '00000000-0000-4000-8000-000000000013')), 3,
+  'every switch is audited');
+update public.staff set unit_id = 'unit-r03' where id = '00000000-0000-4000-8000-00000000000b';
+select ok((select not on_duty and duty_since is null from public.staff where id = '00000000-0000-4000-8000-00000000000b'),
+  'moving to another unit ends duty');
+update public.staff set unit_id = 'unit-r05' where id = '00000000-0000-4000-8000-00000000000b';
 
 -- The counters as the real records need them (see the top).
 reset role;

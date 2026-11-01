@@ -518,6 +518,26 @@ final responderProvider = StreamProvider<ResponderState>(
       _forAccount(ref, () => ref.watch(responderRepositoryProvider).watch()),
 );
 
+/// This unit's crew and who is on duty (2026-11-01).
+final crewProvider = StreamProvider<List<CrewMember>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(responderRepositoryProvider).watchCrew(),
+  ),
+);
+
+/// Whether the signed-in responder is on duty; null until the crew list
+/// has arrived (then they are treated as on duty, so nothing is missed).
+final myDutyProvider = Provider<bool?>((ref) {
+  final me = ref.watch(currentUserProvider).value?.id;
+  final crew = ref.watch(crewProvider).value;
+  if (me == null || crew == null) return null;
+  for (final c in crew) {
+    if (c.staffId == me) return c.onDuty;
+  }
+  return null;
+});
+
 /// The bundled Manila road graph (plan 10.2), loaded once on first use. The
 /// phone routes on its own, so navigation works offline (FR13).
 final roadRouterProvider = FutureProvider<RoadRouter>(

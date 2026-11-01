@@ -140,6 +140,10 @@ abstract final class SettingKeys {
   /// The oldest mobile app build allowed (2026-10-19).
   static const appMinBuild = 'app.min_build';
 
+  /// A crew member on duty whose phone has not reported for this many
+  /// minutes is shown as not reporting (2026-11-01).
+  static const dutyQuietMinutes = 'duty.quiet_minutes';
+
   /// Pairs where the first value must stay at or below the second.
   static const pairs = [
     ('priority.high_at', 'priority.critical_at'),
@@ -257,6 +261,14 @@ const defaultOtherSettings = [
     max: 90,
     description:
         "A unit's supply is shown as low at or below this share of full",
+  ),
+  AppSetting(
+    key: SettingKeys.dutyQuietMinutes,
+    category: 'duty',
+    value: 15,
+    min: 5,
+    max: 120,
+    description: 'A crew member on duty whose phone has not reported for this many minutes is shown as not reporting',
   ),
   AppSetting(
     key: SettingKeys.appMinBuild,

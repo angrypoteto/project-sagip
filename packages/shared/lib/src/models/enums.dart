@@ -110,6 +110,10 @@ enum AuditAction {
 
   /// An admin approved or declined that.
   crewRequestDecided,
+
+  /// A crew head started or ended a crew member's duty (2026-11-01).
+  dutyStarted,
+  dutyEnded,
   accountCreated,
   accountUpdated,
   accountDeactivated,

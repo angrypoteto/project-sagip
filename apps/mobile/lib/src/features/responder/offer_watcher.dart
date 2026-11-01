@@ -28,6 +28,8 @@ class _OfferWatcherState extends ConsumerState<OfferWatcher> {
         return;
       }
       if (offer.incidentId == _shown) return;
+      // Off duty: the job is the crew on duty's; no full-screen alert.
+      if (ref.read(myDutyProvider) == false) return;
       _shown = offer.incidentId;
       context.push(Routes.incoming);
     });

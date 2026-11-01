@@ -330,6 +330,10 @@ abstract interface class CrewRepository {
   /// Admins: the unit's head and assistant head (null: none), each a
   /// responder on the unit.
   Future<void> setLeads(String unitId, {String? headId, String? assistantId});
+
+  /// The crew head starts or ends a member's duty, their own included; the
+  /// assistant head may while the head is off duty (2026-11-01). Audited.
+  Future<void> setDuty(String staffId, {required bool onDuty});
 }
 
 /// Safe places (Joshua, 2026-10-19): the nearest place that suits the
@@ -671,6 +675,13 @@ abstract interface class ResponderRepository {
   /// where and which, nothing about who reported them. Never the unit's own
   /// incident. Offline it is the last list the phone was given.
   Stream<List<HazardZone>> watchRoadHazards();
+
+  /// This unit's crew and who is on duty (2026-11-01).
+  Stream<List<CrewMember>> watchCrew();
+
+  /// The crew head starts or ends a member's duty (the assistant head
+  /// while the head is off duty). Needs internet; throws [ActionRejected].
+  Future<void> setDuty(String staffId, {required bool onDuty});
 }
 
 /// Resident sign-in by mobile number and a code sent by SMS (S3 to S5).

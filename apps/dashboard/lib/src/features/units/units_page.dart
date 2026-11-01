@@ -10,6 +10,7 @@ import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../admin/accounts_page.dart' show createRequestedAccount;
+import 'duty_widgets.dart';
 import '../../router.dart';
 import '../common_page.dart';
 import 'supply_widgets.dart';
@@ -58,6 +59,9 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
     for (final c in ref.watch(crewProvider).value ?? const <CrewMember>[]) {
       crew.putIfAbsent(c.unitId, () => []).add(c);
     }
+    final idle = ref.watch(unitsWithNobodyOnDutyProvider);
+    final quiet = ref.watch(dutyQuietProvider);
+    final locale = Localizations.localeOf(context).toString();
     final branch = WidgetStatePropertyAll<Color?>(p.panelRaised);
     // Changing a crew is for admins (`set_responder_unit`); dispatchers see
     // the crew only.
@@ -93,6 +97,14 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
             icon: Symbols.location_on_rounded,
             dense: false,
           ),
+          if (idle.isNotEmpty)
+            SagipChip(
+              key: const ValueKey('units-no-crew'),
+              label: l10n.countNoCrewOnDuty(idle.length),
+              tone: p.warning,
+              icon: Symbols.person_off_rounded,
+              dense: false,
+            ),
           if (lowUnits > 0)
             SagipChip(
               key: const ValueKey('units-low-supplies'),
@@ -174,18 +186,46 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
                         ),
                         DataCell(Text('${u.crewSize ?? '–'}')),
                         DataCell(
-                          u.status == UnitStatus.available && !u.isDispatchable
-                              ? SagipChip.status(
-                                  label: l10n.assignedNotStarted,
-                                  visual: incidentStatusVisual(
-                                    IncidentStatus.assigned,
-                                    p,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              u.status == UnitStatus.available &&
+                                      !u.isDispatchable
+                                  ? SagipChip.status(
+                                      label: l10n.assignedNotStarted,
+                                      visual: incidentStatusVisual(
+                                        IncidentStatus.assigned,
+                                        p,
+                                      ),
+                                    )
+                                  : SagipChip.status(
+                                      label: l10n.unitStatus(u.status),
+                                      visual: unitStatusVisual(u.status, p),
+                                    ),
+                              // Who is on duty (2026-11-01); a unit with
+                              // no crew accounts is not tracked.
+                              if (crew[u.id] case final members?
+                                  when members.isNotEmpty) ...[
+                                const SizedBox(width: SagipSpace.sm),
+                                if (idle.contains(u.id))
+                                  SagipChip(
+                                    key: ValueKey('no-crew-${u.id}'),
+                                    label: l10n.noCrewOnDuty,
+                                    tone: p.warning,
+                                    icon: Symbols.person_off_rounded,
+                                  )
+                                else
+                                  Text(
+                                    l10n.dutyCount(
+                                      members.where((m) => m.onDuty).length,
+                                      members.length,
+                                    ),
+                                    key: ValueKey('duty-count-${u.id}'),
+                                    style: TextStyle(color: p.textSecondary),
                                   ),
-                                )
-                              : SagipChip.status(
-                                  label: l10n.unitStatus(u.status),
-                                  visual: unitStatusVisual(u.status, p),
-                                ),
+                              ],
+                            ],
+                          ),
                         ),
                         DataCell(
                           _SuppliesCell(
@@ -238,7 +278,17 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
                       if (crew[u.id] case final members?
                           when members.isNotEmpty)
                         for (final m in members)
-                          _crewRow(m, u, branch, p, l10n, admin: admin)
+                          _crewRow(
+                            m,
+                            u,
+                            branch,
+                            p,
+                            l10n,
+                            admin: admin,
+                            now: now,
+                            quiet: quiet,
+                            locale: locale,
+                          )
                       else
                         DataRow(
                           key: ValueKey('crew-none-${u.id}'),
@@ -394,6 +444,9 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
     SagipPalette p,
     AppLocalizations l10n, {
     required bool admin,
+    required DateTime now,
+    required Duration quiet,
+    required String locale,
   }) => DataRow(
     key: ValueKey('crew-${m.staffId}'),
     color: color,
@@ -469,7 +522,36 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
           ),
         ),
       ),
-      for (var i = 2; i < 9; i++) const DataCell(Text('')),
+      const DataCell(Text('')),
+      // Under the unit's station, status, and last GPS: since when, on or
+      // off duty, and when the phone last reported (2026-11-01).
+      DataCell(
+        Text(
+          m.onDuty && m.dutySince != null
+              ? l10n.dutySince(formatTime(m.dutySince!, locale))
+              : '',
+          style: TextStyle(color: p.textSecondary),
+        ),
+      ),
+      const DataCell(Text('')),
+      DataCell(
+        DutyChip(
+          key: ValueKey('duty-${m.staffId}'),
+          member: m,
+          now: now,
+          quiet: quiet,
+        ),
+      ),
+      const DataCell(Text('')),
+      const DataCell(Text('')),
+      DataCell(
+        Text(
+          m.lastSeenAt == null
+              ? (m.onDuty ? l10n.dutyNeverSeen : '')
+              : l10n.ago(m.lastSeenAt!, now),
+          style: TextStyle(color: p.textSecondary),
+        ),
+      ),
     ],
   );
 }

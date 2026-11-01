@@ -833,6 +833,28 @@ class SupabaseMobileRemote implements MobileServer {
     ),
   );
 
+  /// This unit's crew and who is on duty (`unit_crew()`). A crew head's
+  /// switch happens in a table the phone cannot watch, so the list is also
+  /// asked for every half minute.
+  @override
+  Stream<List<CrewMember>> watchCrew() => liveQuery(
+    _client,
+    tables: const ['response_unit'],
+    refreshEvery: const Duration(seconds: 30),
+    fetch: () async => [
+      for (final r in _rows(await _client.rpc<Object?>('unit_crew')))
+        CrewMember.fromJson(r),
+    ],
+  );
+
+  @override
+  Future<void> setDuty(String staffId, {required bool onDuty}) => _call(
+    () => _client.rpc<void>(
+      'set_crew_duty',
+      params: {'p_staff_id': staffId, 'p_on': onDuty},
+    ),
+  );
+
   /// Finished jobs for this unit, newest first (F7).
   @override
   Stream<List<CompletedAssignment>> watchHistory() => liveQuery(

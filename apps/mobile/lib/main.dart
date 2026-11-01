@@ -158,6 +158,22 @@ Future<List<Override>> _live() async {
         );
   if (push != null) backend.accounts.beforeSignOut = push.forgetHere;
   final permissions = DevicePermissionService(store);
+  StreamSubscription<List<CrewMember>>? dutySub;
+  bool? sharing;
+  void setSharing(bool on) {
+    if (sharing == on) return;
+    sharing = on;
+    if (on) {
+      sharer.start();
+      // Keep sharing with the screen off or another app open (FR9); the
+      // notification stays up for as long as it does.
+      unawaited(location.setBackground(_dutyNotice()));
+    } else {
+      unawaited(sharer.stop());
+      unawaited(location.setBackground(null));
+    }
+  }
+
   backend.accounts.watchUser().listen((user) {
     if (user?.role == UserRole.resident) {
       unawaited(permissions.askForSmsReplyOnce());
@@ -172,14 +188,18 @@ Future<List<Override>> _live() async {
     }
     // Records made by this account can go now; another account's wait.
     engine.accountChanged();
+    unawaited(dutySub?.cancel());
+    dutySub = null;
     if (user?.role == UserRole.responder) {
-      sharer.start();
-      // Keep sharing with the screen off or another app open (FR9); the
-      // notification stays up for as long as it does.
-      unawaited(location.setBackground(_dutyNotice()));
+      setSharing(true);
+      // Only while on duty (2026-11-01). Until the crew list arrives it
+      // shares, so a slow start never leaves a crew on duty untracked.
+      dutySub = backend.remote.watchCrew().listen((crew) {
+        final mine = crew.where((c) => c.staffId == user!.id).firstOrNull;
+        setSharing(mine?.onDuty ?? true);
+      }, onError: (Object _) {});
     } else {
-      unawaited(sharer.stop());
-      unawaited(location.setBackground(null));
+      setSharing(false);
     }
   });
   // The map tiles: one cache on the phone for every map, which also keeps

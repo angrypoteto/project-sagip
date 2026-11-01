@@ -79,7 +79,11 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
         .read(unitSuggesterProvider)
         .suggest(incident, units, limit: 100);
     if (!mounted) return;
-    final pick = await showChooseUnitDialog(context, all);
+    final pick = await showChooseUnitDialog(
+      context,
+      all,
+      noCrew: ref.read(unitsWithNobodyOnDutyProvider),
+    );
     if (pick != null && mounted) setState(() => _chosen = pick);
   }
 

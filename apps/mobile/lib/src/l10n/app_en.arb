@@ -767,5 +767,22 @@
   "photoThumb": "The photo you added",
   "queueKindPhoto": "Photo",
   "photoDeliveredNotice": "Your photo from {time} was delivered.",
-  "@photoDeliveredNotice": {"placeholders": {"time": {"type": "String"}}}
+  "@photoDeliveredNotice": {"placeholders": {"time": {"type": "String"}}},
+  "dutyCardTitle": "Crew on duty",
+  "dutyOn": "On duty",
+  "dutyOff": "Off duty",
+  "dutyYou": "You",
+  "dutySinceLine": "On duty since {time}",
+  "@dutySinceLine": {"placeholders": {"time": {"type": "String"}}},
+  "dutyOffLine": "Off duty. Your crew head starts your duty.",
+  "dutyHeadNote": "Switch on who is working now. Dispatch sends jobs only to units with someone on duty.",
+  "dutyActingNote": "The crew head is off duty, so you switch duty for now.",
+  "dutySwitchLabel": "On duty: {name}",
+  "@dutySwitchLabel": {"placeholders": {"name": {"type": "String"}}},
+  "dutyStartedSnack": "{name} is on duty",
+  "@dutyStartedSnack": {"placeholders": {"name": {"type": "String"}}},
+  "dutyEndedSnack": "{name} is off duty",
+  "@dutyEndedSnack": {"placeholders": {"name": {"type": "String"}}},
+  "dutyOffline": "Switching duty needs internet. Try again when you are online.",
+  "notSharingOffDuty": "Location not shared while you are off duty"
 }

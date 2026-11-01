@@ -2308,4 +2308,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String photoDeliveredNotice(String time) {
     return 'Your photo from $time was delivered.';
   }
+
+  @override
+  String get dutyCardTitle => 'Crew on duty';
+
+  @override
+  String get dutyOn => 'On duty';
+
+  @override
+  String get dutyOff => 'Off duty';
+
+  @override
+  String get dutyYou => 'You';
+
+  @override
+  String dutySinceLine(String time) {
+    return 'On duty since $time';
+  }
+
+  @override
+  String get dutyOffLine => 'Off duty. Your crew head starts your duty.';
+
+  @override
+  String get dutyHeadNote =>
+      'Switch on who is working now. Dispatch sends jobs only to units with someone on duty.';
+
+  @override
+  String get dutyActingNote =>
+      'The crew head is off duty, so you switch duty for now.';
+
+  @override
+  String dutySwitchLabel(String name) {
+    return 'On duty: $name';
+  }
+
+  @override
+  String dutyStartedSnack(String name) {
+    return '$name is on duty';
+  }
+
+  @override
+  String dutyEndedSnack(String name) {
+    return '$name is off duty';
+  }
+
+  @override
+  String get dutyOffline =>
+      'Switching duty needs internet. Try again when you are online.';
+
+  @override
+  String get notSharingOffDuty => 'Location not shared while you are off duty';
 }

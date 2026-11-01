@@ -8,6 +8,7 @@ import 'package:image/image.dart' as img;
 import 'package:sagip_mobile/src/app.dart';
 import 'package:sagip_mobile/src/common/photo_picker.dart';
 import 'package:sagip_mobile/src/app_version.dart';
+import 'package:sagip_mobile/src/features/responder/incoming_page.dart';
 import 'package:sagip_mobile/src/features/safe_places/safe_places_page.dart';
 import 'package:sagip_mobile/src/features/sos/sos_status_page.dart';
 import 'package:sagip_mobile/src/features/sos/track_page.dart';
@@ -805,6 +806,44 @@ void main() {
     await signInAsResponder(tester);
     expect(find.text('No assignment. Stay available.'), findsOneWidget);
     expect(find.text('Keep S.A.G.I.P. running'), findsNothing);
+    await finish(tester);
+  });
+
+  testWidgets('responder: the crew head switches who is on duty', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    // Tall enough that the card sits above the bottom navigation bar.
+    tester.view.physicalSize = const Size(390, 1400);
+    await signInAsResponder(tester);
+    final card = find.byKey(const ValueKey('duty-card'));
+    await tester.scrollUntilVisible(card, 200);
+    expect(find.text('Crew on duty'), findsOneWidget);
+    expect(find.text('J. Reyes (You)'), findsOneWidget);
+    SwitchListTile tile(String id) =>
+        tester.widget<SwitchListTile>(find.byKey(ValueKey('duty-switch-$id')));
+    expect(tile('rsp-r03-cruz').value, isFalse);
+
+    // The head ends their own duty: the phone stops sharing the unit's
+    // location, and the job offered next does not take over the screen.
+    await tester.tap(find.byKey(const ValueKey('duty-switch-rsp-r03')));
+    await settle(tester);
+    expect(find.text('J. Reyes is off duty'), findsOneWidget);
+    expect(
+      find.text('Location not shared while you are off duty'),
+      findsOneWidget,
+    );
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+    // The offer shows on Home, but no full-screen alert opens.
+    expect(find.byType(IncomingPage), findsNothing);
+    expect(card, findsOneWidget);
+
+    // The head still switches the crew while off duty.
+    await tester.tap(find.byKey(const ValueKey('duty-switch-rsp-r03-cruz')));
+    await settle(tester);
+    expect(find.text('L. Cruz is on duty'), findsOneWidget);
+    expect(tile('rsp-r03-cruz').value, isTrue);
     await finish(tester);
   });
 

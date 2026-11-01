@@ -249,6 +249,18 @@ final mySuppliesProvider = StreamProvider<List<UnitSupply>>(
   ),
 );
 
+/// How long a phone on duty may stay quiet before its owner is shown as
+/// not reporting (A3, 2026-11-01).
+final dutyQuietProvider = Provider<Duration>((ref) {
+  final settings = ref.watch(settingsProvider).value ?? const <AppSetting>[];
+  for (final s in settings) {
+    if (s.key == SettingKeys.dutyQuietMinutes) {
+      return Duration(minutes: s.number.toInt());
+    }
+  }
+  return const Duration(minutes: 15);
+});
+
 /// A supply is shown as low at or below this percent of full (A3).
 final inventoryLowPercentProvider = Provider<double>((ref) {
   final settings = ref.watch(settingsProvider).value ?? const <AppSetting>[];
@@ -660,10 +672,23 @@ final unitsByIdProvider = Provider<Map<String, ResponseUnit>>((ref) {
 final suggestionsProvider = FutureProvider.family<List<UnitSuggestion>, String>(
   (ref, incidentId) {
     final incident = ref.watch(incidentByIdProvider(incidentId));
-    final units = ref.watch(unitsProvider).value ?? const <ResponseUnit>[];
+    // A unit with nobody on duty is not suggested (2026-11-01); "Choose
+    // another unit" still lists it.
+    final idle = ref.watch(unitsWithNobodyOnDutyProvider);
+    final units = [
+      for (final u in ref.watch(unitsProvider).value ?? const <ResponseUnit>[])
+        if (!idle.contains(u.id)) u,
+    ];
     if (incident == null) return Future.value(const []);
     return ref.watch(unitSuggesterProvider).suggest(incident, units);
   },
+);
+
+/// The units with crew accounts but nobody on duty (2026-11-01).
+final unitsWithNobodyOnDutyProvider = Provider<Set<String>>(
+  (ref) => unitsWithNobodyOnDuty(
+    ref.watch(crewProvider).value ?? const <CrewMember>[],
+  ),
 );
 
 // ---------------------------------------------------------------------------

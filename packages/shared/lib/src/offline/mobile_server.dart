@@ -5,6 +5,7 @@ import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
+import '../models/people.dart';
 import '../models/photo.dart';
 import '../models/response_unit.dart';
 import '../models/sos.dart';
@@ -62,4 +63,6 @@ abstract interface class MobileServer {
   Future<void> submitCompletion(CompletionReport report);
   Future<void> updateLocation(GeoPoint point, DateTime capturedAt);
   Stream<List<CompletedAssignment>> watchHistory();
+  Stream<List<CrewMember>> watchCrew();
+  Future<void> setDuty(String staffId, {required bool onDuty});
 }

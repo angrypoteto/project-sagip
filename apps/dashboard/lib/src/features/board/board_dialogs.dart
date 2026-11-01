@@ -116,15 +116,18 @@ class _OverrideDialogState extends State<_OverrideDialog> {
 }
 
 /// "Choose another unit": every unit that can take the job, nearest first.
+/// A unit in [noCrew] has nobody on duty: listed, and said so.
 Future<UnitSuggestion?> showChooseUnitDialog(
   BuildContext context,
-  List<UnitSuggestion> ranked,
-) {
+  List<UnitSuggestion> ranked, {
+  Set<String> noCrew = const {},
+}) {
   return showDialog<UnitSuggestion>(
     context: context,
     builder: (context) {
       final l10n = AppLocalizations.of(context);
       final text = Theme.of(context).textTheme;
+      final p = SagipPalette.of(context);
       return AlertDialog(
         title: Text(l10n.chooseUnitTitle),
         content: SizedBox(
@@ -145,8 +148,19 @@ Future<UnitSuggestion?> showChooseUnitDialog(
                             ListTile(
                               leading: Icon(unitTypeIcon(s.unit.type)),
                               title: Text(s.unit.callSign),
-                              subtitle: Text(
-                                '${l10n.unitType(s.unit.type)}, ${s.unit.station}',
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${l10n.unitType(s.unit.type)}, ${s.unit.station}',
+                                  ),
+                                  if (noCrew.contains(s.unit.id))
+                                    Text(
+                                      l10n.noCrewOnDuty,
+                                      key: ValueKey('no-crew-${s.unit.id}'),
+                                      style: TextStyle(color: p.warning.text),
+                                    ),
+                                ],
                               ),
                               trailing: Text(
                                 l10n.etaMinutes(s.etaMinutes.round()),

@@ -84,6 +84,8 @@ class ResponderHomePage extends ConsumerWidget {
               message: l10n.noAssignmentBody,
             ),
           ),
+        // Below the job: the job comes first (2026-11-01).
+        _DutyCard(unit: unit),
         const SizedBox(height: SagipSpace.lg),
         const AlertStrip(),
       ],
@@ -106,7 +108,14 @@ class _SharingLine extends ConsumerWidget {
     final signal = ref.watch(signalProvider).value ?? SignalState.internet;
     final sent = state.locationSentAt ?? state.unit.lastLocationAt;
     final ago = sent == null ? '–' : l10n.ago(sent, now);
-    final (String line, IconData icon, Color color) = !state.gpsOn
+    final offDuty = ref.watch(myDutyProvider) == false;
+    final (String line, IconData icon, Color color) = offDuty
+        ? (
+            l10n.notSharingOffDuty,
+            Symbols.location_off_rounded,
+            p.textSecondary,
+          )
+        : !state.gpsOn
         ? (
             l10n.waitingForGps,
             Symbols.location_disabled_rounded,
@@ -131,6 +140,163 @@ class _SharingLine extends ConsumerWidget {
           child: Text(line, style: text.bodySmall!.copyWith(color: color)),
         ),
       ],
+    );
+  }
+}
+
+/// Who is on duty (2026-11-01). The crew head, or the assistant head while
+/// the head is off duty, switches each member on or off; everyone else
+/// sees their own duty.
+class _DutyCard extends ConsumerWidget {
+  const _DutyCard({required this.unit});
+
+  final ResponseUnit unit;
+
+  Future<void> _set(
+    BuildContext context,
+    WidgetRef ref,
+    CrewMember m,
+    bool on,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref
+          .read(responderRepositoryProvider)
+          .setDuty(m.staffId, onDuty: on);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            on
+                ? l10n.dutyStartedSnack(m.displayName)
+                : l10n.dutyEndedSnack(m.displayName),
+          ),
+        ),
+      );
+    } on ActionRejected catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            e.reason == ActionRejection.offline
+                ? l10n.dutyOffline
+                : l10n.errorGeneric,
+          ),
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final crew = ref.watch(crewProvider).value ?? const <CrewMember>[];
+    final me = ref.watch(currentUserProvider).value?.id;
+    final mine = crew.where((c) => c.staffId == me).firstOrNull;
+    if (mine == null) return const SizedBox.shrink();
+    final headOn = crew.any((c) => c.staffId == unit.crewHeadId && c.onDuty);
+    final switcher =
+        me == unit.crewHeadId || (me == unit.assistantHeadId && !headOn);
+    final online =
+        (ref.watch(signalProvider).value ?? SignalState.internet) ==
+        SignalState.internet;
+
+    if (!switcher) {
+      return Padding(
+        padding: const EdgeInsets.only(top: SagipSpace.lg),
+        child: Row(
+          key: const ValueKey('my-duty'),
+          children: [
+            Icon(
+              mine.onDuty
+                  ? Symbols.how_to_reg_rounded
+                  : Symbols.bedtime_rounded,
+              size: 20,
+              color: mine.onDuty ? p.success.text : p.textSecondary,
+            ),
+            const SizedBox(width: SagipSpace.sm),
+            Expanded(
+              child: Text(
+                mine.onDuty
+                    ? l10n.dutySinceLine(
+                        mine.dutySince == null
+                            ? '–'
+                            : formatTime(mine.dutySince!, locale),
+                      )
+                    : l10n.dutyOffLine,
+                style: text.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: SagipSpace.lg),
+      // A Material surface, so each switch row's ripple shows on it.
+      child: Material(
+        key: const ValueKey('duty-card'),
+        color: p.panelRaised,
+        borderRadius: BorderRadius.circular(SagipRadius.card),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: SagipSpace.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: SagipSpace.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.dutyCardTitle, style: text.titleSmall),
+                    const SizedBox(height: SagipSpace.xs),
+                    Text(
+                      me == unit.crewHeadId
+                          ? l10n.dutyHeadNote
+                          : l10n.dutyActingNote,
+                      style: text.bodySmall!.copyWith(color: p.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              for (final c in crew)
+                Semantics(
+                  label: l10n.dutySwitchLabel(c.displayName),
+                  child: SwitchListTile(
+                    key: ValueKey('duty-switch-${c.staffId}'),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: SagipSpace.lg,
+                    ),
+                    title: Text(
+                      c.staffId == me
+                          ? '${c.displayName} (${l10n.dutyYou})'
+                          : c.displayName,
+                    ),
+                    subtitle: Text(
+                      c.onDuty
+                          ? l10n.dutySinceLine(
+                              c.dutySince == null
+                                  ? '–'
+                                  : formatTime(c.dutySince!, locale),
+                            )
+                          : l10n.dutyOff,
+                    ),
+                    value: c.onDuty,
+                    onChanged: online
+                        ? (on) => _set(context, ref, c, on)
+                        : null,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

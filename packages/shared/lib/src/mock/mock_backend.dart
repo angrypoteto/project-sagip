@@ -987,6 +987,9 @@ class MockBackend {
             staffId: s.id,
             displayName: s.displayName,
             personnelId: s.personnelId,
+            onDuty: _dutySince.containsKey(s.id),
+            dutySince: _dutySince[s.id],
+            lastSeenAt: _lastSeen[s.id],
           ),
     ]..sort(
       (x, y) => x.unitId == y.unitId
@@ -1100,7 +1103,10 @@ class MockBackend {
         clearUnit: role != UserRole.responder,
       ),
     };
-    if (role != UserRole.responder) _clearLeads(id);
+    if (role != UserRole.responder) {
+      _clearLeads(id);
+      _endDuty(id);
+    }
     _log(actor, AuditAction.accountUpdated, 'staff', id, changes.join('; '));
   }
 
@@ -1148,7 +1154,10 @@ class MockBackend {
           ? s.copyWith(clearDeactivated: true)
           : s.copyWith(deactivatedAt: _clock()),
     };
-    if (!active) _clearLeads(id);
+    if (!active) {
+      _clearLeads(id);
+      _endDuty(id);
+    }
     _log(
       actor,
       active ? AuditAction.accountReactivated : AuditAction.accountDeactivated,
@@ -1384,6 +1393,7 @@ class MockBackend {
           : s.copyWith(unitId: unitId),
     };
     _clearLeads(s.id, keepUnit: unitId);
+    if (unitId != s.unitId) _endDuty(s.id);
     _log(
       actor,
       AuditAction.rosterChanged,
@@ -1413,6 +1423,62 @@ class MockBackend {
               }(),
     };
     if (changed) _units.value = next;
+  }
+
+  // ------------------------------------------------------------ crew duty
+
+  /// Who is on duty and since when (`staff.on_duty`, `duty_since`), and
+  /// when each phone last reported (`last_seen_at`).
+  late final Map<String, DateTime> _dutySince = {..._seed.dutySince};
+  late final Map<String, DateTime> _lastSeen = {..._seed.lastSeen};
+
+  /// The `staff_end_duty_on_leave` trigger. The crew list is sent again.
+  void _endDuty(String staffId) {
+    if (_dutySince.remove(staffId) != null) {
+      _accounts.value = {..._accounts.value};
+    }
+  }
+
+  /// `set_crew_duty`, with the same checks: the head, or the assistant
+  /// head while the head is off duty (or none is named).
+  Future<void> setCrewDuty(String staffId, {required bool onDuty}) async {
+    await _pause();
+    if (_link.value == LinkState.offline) {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+    final me = _me;
+    final unit = _units.value[me?.unitId];
+    if (me == null ||
+        me.role != UserRole.responder ||
+        !me.active ||
+        unit == null ||
+        unit.retired ||
+        !(unit.crewHeadId == me.id ||
+            (unit.assistantHeadId == me.id &&
+                !_dutySince.containsKey(unit.crewHeadId)))) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    final s = _accounts.value[staffId];
+    if (s == null ||
+        s.role != UserRole.responder ||
+        !s.active ||
+        s.unitId != unit.id) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    if (_dutySince.containsKey(staffId) == onDuty) return;
+    if (onDuty) {
+      _dutySince[staffId] = _clock();
+    } else {
+      _dutySince.remove(staffId);
+    }
+    _accounts.value = {..._accounts.value};
+    _log(
+      me.asUser,
+      onDuty ? AuditAction.dutyStarted : AuditAction.dutyEnded,
+      'staff',
+      staffId,
+      '${unit.callSign}: ${s.displayName}',
+    );
   }
 
   // ---------------------------------------------------------- crew heads

@@ -141,6 +141,13 @@ class FakeServer implements MobileServer {
   Stream<List<Assignment>> watchAssignments() => jobs.stream;
   @override
   Stream<List<CompletedAssignment>> watchHistory() => history.stream;
+
+  @override
+  Stream<List<CrewMember>> watchCrew() => const Stream.empty();
+
+  @override
+  Future<void> setDuty(String staffId, {required bool onDuty}) async =>
+      calls.add('setDuty');
   final hazards = StreamController<List<HazardZone>>.broadcast();
   @override
   Stream<List<HazardZone>> watchRoadHazards() => hazards.stream;

@@ -151,6 +151,9 @@ class CrewMember {
     required this.staffId,
     required this.displayName,
     this.personnelId,
+    this.onDuty = false,
+    this.dutySince,
+    this.lastSeenAt,
   });
 
   final String unitId;
@@ -160,12 +163,41 @@ class CrewMember {
   /// Null until an admin sets it on A1.
   final String? personnelId;
 
+  /// On duty now (2026-11-01): switched by the unit's crew head, or by the
+  /// assistant head while the head is off duty.
+  final bool onDuty;
+  final DateTime? dutySince;
+
+  /// When their phone last sent the unit's position.
+  final DateTime? lastSeenAt;
+
+  /// On duty, but their phone has not reported for [quiet]: it may be off,
+  /// out of signal, or left behind.
+  bool isQuiet(DateTime now, Duration quiet) =>
+      onDuty && (lastSeenAt == null || now.difference(lastSeenAt!) > quiet);
+
   factory CrewMember.fromJson(Map<String, Object?> json) => CrewMember(
     unitId: json['unit_id']! as String,
     staffId: '${json['staff_id']}',
     displayName: json['display_name']! as String,
     personnelId: json['personnel_id'] as String?,
+    onDuty: json['on_duty'] as bool? ?? false,
+    dutySince: timeFromJsonOrNull(json['duty_since']),
+    lastSeenAt: timeFromJsonOrNull(json['last_seen_at']),
   );
+}
+
+/// The units that have crew accounts but nobody on duty (2026-11-01): not
+/// suggested for dispatch. A unit with no crew accounts is not tracked and
+/// is left as it was.
+Set<String> unitsWithNobodyOnDuty(Iterable<CrewMember> crew) {
+  final tracked = <String>{};
+  final staffed = <String>{};
+  for (final c in crew) {
+    tracked.add(c.unitId);
+    if (c.onDuty) staffed.add(c.unitId);
+  }
+  return tracked.difference(staffed);
 }
 
 /// What a crew head or assistant head asks for (`crew_request.kind`).

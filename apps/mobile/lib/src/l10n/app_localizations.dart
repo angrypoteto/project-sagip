@@ -4033,6 +4033,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your photo from {time} was delivered.'**
   String photoDeliveredNotice(String time);
+
+  /// No description provided for @dutyCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew on duty'**
+  String get dutyCardTitle;
+
+  /// No description provided for @dutyOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On duty'**
+  String get dutyOn;
+
+  /// No description provided for @dutyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off duty'**
+  String get dutyOff;
+
+  /// No description provided for @dutyYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get dutyYou;
+
+  /// No description provided for @dutySinceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'On duty since {time}'**
+  String dutySinceLine(String time);
+
+  /// No description provided for @dutyOffLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Off duty. Your crew head starts your duty.'**
+  String get dutyOffLine;
+
+  /// No description provided for @dutyHeadNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch on who is working now. Dispatch sends jobs only to units with someone on duty.'**
+  String get dutyHeadNote;
+
+  /// No description provided for @dutyActingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The crew head is off duty, so you switch duty for now.'**
+  String get dutyActingNote;
+
+  /// No description provided for @dutySwitchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On duty: {name}'**
+  String dutySwitchLabel(String name);
+
+  /// No description provided for @dutyStartedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on duty'**
+  String dutyStartedSnack(String name);
+
+  /// No description provided for @dutyEndedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is off duty'**
+  String dutyEndedSnack(String name);
+
+  /// No description provided for @dutyOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching duty needs internet. Try again when you are online.'**
+  String get dutyOffline;
+
+  /// No description provided for @notSharingOffDuty.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not shared while you are off duty'**
+  String get notSharingOffDuty;
 }
 
 class _AppLocalizationsDelegate
