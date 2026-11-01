@@ -1505,26 +1505,6 @@ class MockBackend {
     ];
   });
 
-  Stream<List<CrewCandidate>> watchCrewCandidates() =>
-      _accounts.watch().map((m) {
-        final admin = _user.value?.isAdmin ?? false;
-        final lead = _leadUnit;
-        if (!admin && lead == null) return const <CrewCandidate>[];
-        return [
-          for (final s in m.values)
-            if (s.role == UserRole.responder &&
-                s.active &&
-                (admin || s.unitId != lead))
-              CrewCandidate(
-                staffId: s.id,
-                displayName: s.displayName,
-                personnelId: s.personnelId,
-                unitId: s.unitId,
-                callSign: _units.value[s.unitId]?.callSign,
-              ),
-        ]..sort((a, b) => a.displayName.compareTo(b.displayName));
-      });
-
   /// `request_crew_change`, with the same checks.
   Future<String> requestCrewChange(
     CrewRequestKind kind, {
@@ -1540,7 +1520,8 @@ class MockBackend {
     }
     final lead = _leadUnit;
     final me = _me;
-    if (lead == null || me == null) {
+    // Never someone from another unit (2026-11-01).
+    if (lead == null || me == null || kind == CrewRequestKind.add) {
       throw const ActionRejected(ActionRejection.notAllowed);
     }
     final why = (note ?? '').trim();

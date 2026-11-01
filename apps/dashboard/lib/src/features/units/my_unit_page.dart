@@ -162,14 +162,12 @@ class _CrewCard extends ConsumerWidget {
     final repo = ref.read(crewRepositoryProvider);
     await runAction(
       context,
-      () => ask.who != null
-          ? repo.requestAdd(ask.who!.staffId, note: ask.note)
-          : repo.requestNew(
-              name: ask.name!,
-              email: ask.email!,
-              personnelId: ask.personnelId,
-              note: ask.note,
-            ),
+      () => repo.requestNew(
+        name: ask.name,
+        email: ask.email,
+        personnelId: ask.personnelId,
+        note: ask.note,
+      ),
       success: l10n.crewAskSent,
     );
   }
@@ -496,30 +494,27 @@ String _status(AppLocalizations l10n, CrewRequestStatus s) => switch (s) {
   CrewRequestStatus.declined => l10n.crewStatusDeclined,
 };
 
-/// What [_AskAddDialog] pops: someone with an account ([who]), or a new
-/// person's [name], [email] and [personnelId].
+/// What [_AskAddDialog] pops: the new person's details.
 typedef _AddAsk = ({
-  CrewCandidate? who,
-  String? name,
-  String? email,
+  String name,
+  String email,
   String? personnelId,
   String? note,
 });
 
-/// Asks to add a member: a responder who has an account (on another unit
-/// or none), or a new person whose account the admin makes on approving.
-class _AskAddDialog extends ConsumerStatefulWidget {
+/// Asks for a new member of this unit (2026-11-01: only someone with no
+/// account yet; the admin makes their account when approving). Moving a
+/// responder from another unit is never a crew head's to ask for.
+class _AskAddDialog extends StatefulWidget {
   const _AskAddDialog({required this.callSign});
 
   final String callSign;
 
   @override
-  ConsumerState<_AskAddDialog> createState() => _AskAddDialogState();
+  State<_AskAddDialog> createState() => _AskAddDialogState();
 }
 
-class _AskAddDialogState extends ConsumerState<_AskAddDialog> {
-  var _newPerson = false;
-  CrewCandidate? _who;
+class _AskAddDialogState extends State<_AskAddDialog> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _personnelId = TextEditingController();
@@ -549,25 +544,13 @@ class _AskAddDialogState extends ConsumerState<_AskAddDialog> {
   void _send() {
     final l10n = AppLocalizations.of(context);
     setState(() => _tried = true);
-    final note = _note.text.trim().isEmpty ? null : _note.text.trim();
-    if (!_newPerson) {
-      if (_who == null) return;
-      Navigator.pop<_AddAsk>(context, (
-        who: _who,
-        name: null,
-        email: null,
-        personnelId: null,
-        note: note,
-      ));
-      return;
-    }
     if (!_nameOk || !_emailOk || _personnelIdError(l10n) != null) return;
+    final note = _note.text.trim();
     Navigator.pop<_AddAsk>(context, (
-      who: null,
       name: _name.text.trim(),
       email: _email.text.trim(),
       personnelId: normalizePersonnelId(_personnelId.text),
-      note: note,
+      note: note.isEmpty ? null : note,
     ));
   }
 
@@ -576,7 +559,6 @@ class _AskAddDialogState extends ConsumerState<_AskAddDialog> {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
-    final candidates = ref.watch(crewCandidatesProvider).value ?? const [];
     return AlertDialog(
       title: Text(l10n.crewAskAddTitle(widget.callSign)),
       content: SizedBox(
@@ -586,93 +568,35 @@ class _AskAddDialogState extends ConsumerState<_AskAddDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SegmentedButton<bool>(
-                key: const ValueKey('crew-ask-kind'),
-                segments: [
-                  ButtonSegment(value: false, label: Text(l10n.crewHasAccount)),
-                  ButtonSegment(value: true, label: Text(l10n.crewNewPerson)),
-                ],
-                selected: {_newPerson},
-                onSelectionChanged: (v) => setState(() {
-                  _newPerson = v.first;
-                  _tried = false;
-                }),
+              TextField(
+                key: const ValueKey('crew-ask-name'),
+                controller: _name,
+                decoration: InputDecoration(
+                  labelText: l10n.fieldName,
+                  errorText: _tried && !_nameOk ? l10n.fieldNameError : null,
+                ),
               ),
-              const SizedBox(height: SagipSpace.lg),
-              if (!_newPerson) ...[
-                if (candidates.isEmpty)
-                  Text(
-                    l10n.crewNoCandidates,
-                    style: text.bodyMedium!.copyWith(color: p.textSecondary),
-                  )
-                else
-                  DropdownButtonFormField<String>(
-                    key: const ValueKey('crew-ask-who'),
-                    initialValue: _who?.staffId,
-                    isExpanded: true,
-                    decoration: InputDecoration(
-                      labelText: l10n.crewAskWho,
-                      errorText: _tried && _who == null
-                          ? l10n.crewAskWhoError
-                          : null,
-                    ),
-                    items: [
-                      for (final c in candidates)
-                        DropdownMenuItem(
-                          value: c.staffId,
-                          child: Text(
-                            [
-                              c.displayName,
-                              c.personnelId ?? l10n.personnelIdMissing,
-                              c.callSign ?? l10n.crewNoUnit,
-                            ].join(' · '),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
-                    onChanged: (id) => setState(
-                      () =>
-                          _who = candidates.firstWhere((c) => c.staffId == id),
-                    ),
-                  ),
-              ] else ...[
-                TextField(
-                  key: const ValueKey('crew-ask-name'),
-                  controller: _name,
-                  decoration: InputDecoration(
-                    labelText: l10n.fieldName,
-                    errorText: _tried && !_nameOk ? l10n.fieldNameError : null,
-                  ),
+              const SizedBox(height: SagipSpace.md),
+              TextField(
+                key: const ValueKey('crew-ask-email'),
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: l10n.fieldEmail,
+                  errorText: _tried && !_emailOk ? l10n.fieldEmailError : null,
                 ),
-                const SizedBox(height: SagipSpace.md),
-                TextField(
-                  key: const ValueKey('crew-ask-email'),
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: l10n.fieldEmail,
-                    errorText: _tried && !_emailOk
-                        ? l10n.fieldEmailError
-                        : null,
-                  ),
+              ),
+              const SizedBox(height: SagipSpace.md),
+              TextField(
+                key: const ValueKey('crew-ask-personnel-id'),
+                controller: _personnelId,
+                textCapitalization: TextCapitalization.characters,
+                decoration: InputDecoration(
+                  labelText: l10n.fieldPersonnelId,
+                  helperText: l10n.fieldPersonnelIdHelp,
+                  errorText: _tried ? _personnelIdError(l10n) : null,
                 ),
-                const SizedBox(height: SagipSpace.md),
-                TextField(
-                  key: const ValueKey('crew-ask-personnel-id'),
-                  controller: _personnelId,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: InputDecoration(
-                    labelText: l10n.fieldPersonnelId,
-                    helperText: l10n.fieldPersonnelIdHelp,
-                    errorText: _tried ? _personnelIdError(l10n) : null,
-                  ),
-                ),
-                const SizedBox(height: SagipSpace.sm),
-                Text(
-                  l10n.crewNewPersonHint,
-                  style: text.bodySmall!.copyWith(color: p.textSecondary),
-                ),
-              ],
+              ),
               const SizedBox(height: SagipSpace.md),
               TextField(
                 key: const ValueKey('crew-ask-note'),
@@ -683,7 +607,7 @@ class _AskAddDialogState extends ConsumerState<_AskAddDialog> {
                 decoration: InputDecoration(labelText: l10n.crewAskNote),
               ),
               Text(
-                l10n.crewAskBody,
+                l10n.crewNewPersonHint,
                 style: text.bodySmall!.copyWith(color: p.textSecondary),
               ),
             ],
@@ -697,7 +621,7 @@ class _AskAddDialogState extends ConsumerState<_AskAddDialog> {
         ),
         FilledButton(
           key: const ValueKey('crew-ask-send'),
-          onPressed: !_newPerson && candidates.isEmpty ? null : _send,
+          onPressed: _send,
           child: Text(l10n.crewAskSend),
         ),
       ],

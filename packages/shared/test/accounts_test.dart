@@ -86,20 +86,25 @@ void main() {
     // A member who is not a head cannot ask.
     await signInAs('l.cruz@sagip.test', MockSeed.demoPassword);
     await expectLater(
-      crew.requestAdd('usr-resp-04'),
+      crew.requestNew(name: 'Someone', email: 'someone@sagip.test'),
       rejected(ActionRejection.notAllowed),
     );
     expect(await crew.watchRequests().first, isEmpty);
 
-    // The head (J. Reyes) asks to add C. Garcia, once.
+    // The head (J. Reyes) asks for a new person, once; never for someone
+    // already on another unit (2026-11-01).
     await signInAs('j.reyes@sagip.test', MockSeed.demoPassword);
-    expect(
-      (await crew.watchCandidates().first).map((c) => c.displayName),
-      isNot(contains('R. Mendoza')),
-    );
-    await crew.requestAdd('usr-resp-04', note: 'Trained boat crew');
     await expectLater(
-      crew.requestAdd('usr-resp-04'),
+      backend.requestCrewChange(CrewRequestKind.add, staffId: 'usr-resp-04'),
+      rejected(ActionRejection.notAllowed),
+    );
+    await crew.requestNew(
+      name: 'Ben Cruz',
+      email: 'ben.cruz@sagip.test',
+      note: 'Trained boat crew',
+    );
+    await expectLater(
+      crew.requestNew(name: 'Ben Cruz', email: 'ben.cruz@sagip.test'),
       rejected(ActionRejection.alreadyExists),
     );
     await expectLater(
@@ -125,17 +130,10 @@ void main() {
     // The admin decides.
     await signInAs('admin@sagip.test', MockSeed.demoPassword);
     final all = await crew.watchRequests().first;
-    final add = all.firstWhere((r) => r.kind == CrewRequestKind.add);
+    final ben = all.firstWhere((r) => r.newEmail == 'ben.cruz@sagip.test');
     final remove = all.firstWhere((r) => r.kind == CrewRequestKind.remove);
-    final fresh = all.firstWhere((r) => r.kind == CrewRequestKind.newMember);
-    expect(fresh.newEmail, 'ana.ramos@sagip.test');
-    await crew.decide(add.id, approve: true);
-    expect(
-      (await resources.watchResponders().first)
-          .firstWhere((s) => s.id == 'usr-resp-04')
-          .unitId,
-      'unit-r03',
-    );
+    final fresh = all.firstWhere((r) => r.newEmail == 'ana.ramos@sagip.test');
+    await crew.decide(ben.id, approve: false, note: 'No slot this month');
     await expectLater(
       crew.decide(remove.id, approve: false),
       rejected(ActionRejection.invalidValue),

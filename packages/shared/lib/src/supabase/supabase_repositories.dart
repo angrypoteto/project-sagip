@@ -405,7 +405,7 @@ class SupabaseResourceRepository implements ResourceRepository {
 }
 
 /// Crew heads and requests (`crew_request`, `request_crew_change`,
-/// `decide_crew_request`, `crew_candidates`, `admin_set_unit_leads`).
+/// `decide_crew_request`, `admin_set_unit_leads`).
 class SupabaseCrewRepository implements CrewRepository {
   const SupabaseCrewRepository(this._client);
 
@@ -428,25 +428,8 @@ class SupabaseCrewRepository implements CrewRepository {
     ],
   );
 
-  /// Staff changes happen in a table only admins may watch: fetched again
-  /// every minute and when units change.
-  @override
-  Stream<List<CrewCandidate>> watchCandidates() => liveQuery(
-    _client,
-    tables: const ['response_unit'],
-    refreshEvery: const Duration(minutes: 1),
-    fetch: () async => [
-      for (final r in await _client.rpc<List<dynamic>>('crew_candidates'))
-        CrewCandidate.fromJson(r as _Row),
-    ],
-  );
-
   Future<String> _ask(Map<String, Object?> params) =>
       _call(() => _client.rpc<String>('request_crew_change', params: params));
-
-  @override
-  Future<String> requestAdd(String staffId, {String? note}) =>
-      _ask({'p_kind': 'add', 'p_staff_id': staffId, 'p_note': note});
 
   @override
   Future<String> requestRemove(String staffId, {String? note}) =>

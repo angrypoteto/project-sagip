@@ -310,35 +310,6 @@ class CrewRequest {
   );
 }
 
-/// Someone a crew head can ask to add: an active responder not on their
-/// unit (`crew_candidates()`): name, personnel ID, and unit only.
-@immutable
-class CrewCandidate {
-  const CrewCandidate({
-    required this.staffId,
-    required this.displayName,
-    this.personnelId,
-    this.unitId,
-    this.callSign,
-  });
-
-  final String staffId;
-  final String displayName;
-  final String? personnelId;
-  final String? unitId;
-
-  /// Their unit's call sign; null when on none.
-  final String? callSign;
-
-  factory CrewCandidate.fromJson(Map<String, Object?> json) => CrewCandidate(
-    staffId: '${json['staff_id']}',
-    displayName: json['display_name']! as String,
-    personnelId: json['personnel_id'] as String?,
-    unitId: json['unit_id'] as String?,
-    callSign: json['call_sign'] as String?,
-  );
-}
-
 /// [raw] as a personnel ID is stored: trimmed and in capitals; null when
 /// blank. [isValidPersonnelId] checks the result (as the database does).
 String? normalizePersonnelId(String? raw) {

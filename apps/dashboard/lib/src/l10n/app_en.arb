@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-
   "appTitle": "S.A.G.I.P. Command Center",
   "brandName": "S.A.G.I.P.",
   "brandOffice": "Manila City MDRRMD",
@@ -12,7 +11,6 @@
   "yes": "Yes",
   "no": "No",
   "loadFailed": "Couldn't load this data.",
-
   "signInTitle": "Sign in to the command board",
   "signInSubtitle": "For MDRRMD dispatchers and administrators.",
   "emailLabel": "Email",
@@ -30,7 +28,6 @@
   "forgotPassword": "Forgot your password? Ask an administrator.",
   "demoAccountsHint": "Demo accounts: dispatcher@sagip.test or admin@sagip.test. Password: {password}",
   "@demoAccountsHint": {"placeholders": {"password": {"type": "String"}}},
-
   "wallOpen": "Open the map in its own window (for another screen)",
   "wallFullScreen": "Full screen",
   "wallExitFullScreen": "Leave full screen",
@@ -87,7 +84,6 @@
   "navResources": "Resources",
   "navSettings": "Configuration",
   "navAuditLog": "Audit log",
-
   "signalLevel": "Signal No. {level}",
   "@signalLevel": {"placeholders": {"level": {"type": "int"}}},
   "noSignal": "No signal raised",
@@ -117,7 +113,6 @@
   "@offlineBanner": {"placeholders": {"time": {"type": "String"}}},
   "reconnectingBanner": "Live updates paused. Reconnecting.",
   "offlineActionsDisabled": "Reconnect to take actions.",
-
   "queueTitle": "Triage queue",
   "queueCount": "{count} active, by priority",
   "@queueCount": {"placeholders": {"count": {"type": "int"}}},
@@ -143,12 +138,10 @@
   "statusWithUnit": "{status} {unit}",
   "@statusWithUnit": {"placeholders": {"status": {"type": "String"}, "unit": {"type": "String"}}},
   "statusPendingShort": "Pending",
-
   "channelApp": "App",
   "channelSms": "SMS",
   "channelBle": "Relayed (Bluetooth)",
   "channelWeb": "Web form",
-
   "statusPendingVerification": "Pending verification",
   "statusUnverified": "Unverified",
   "statusConfirmed": "Confirmed",
@@ -156,17 +149,14 @@
   "statusEnRoute": "En route",
   "statusOnScene": "On scene",
   "statusResolved": "Resolved",
-
   "typeFlood": "Flood",
   "typeFire": "Fire",
   "typeMedical": "Medical",
   "typeStructural": "Structural",
-
   "vulnSenior": "Senior citizen",
   "vulnPwd": "Person with disability",
   "vulnPregnant": "Pregnant",
   "vulnOther": "Other",
-
   "unitAmbulance": "Ambulance",
   "unitRescueBoat": "Rescue boat",
   "unitRescueTeam": "Rescue team",
@@ -226,7 +216,6 @@
   "unitAvailable": "Available",
   "unitEnRoute": "En route",
   "unitOnScene": "On scene",
-
   "viewMap": "Map",
   "viewList": "List",
   "layersTitle": "Layers",
@@ -247,11 +236,9 @@
   "legendUnitBusy": "Unit busy",
   "legendUnitStation": "Station of a unit that is out",
   "legendUnitCrew": "Where a free crew is",
-
   "newSosTitle": "New SOS",
   "newSosBody": "{place}, {ago}",
   "@newSosBody": {"placeholders": {"place": {"type": "String"}, "ago": {"type": "String"}}},
-
   "colPriority": "Priority",
   "colWaiting": "Waiting",
   "colStatus": "Status",
@@ -261,11 +248,9 @@
   "colVerified": "Verified",
   "colVulnerable": "Vulnerable",
   "colUnit": "Unit",
-
   "severityCritical": "Critical",
   "severityHigh": "High",
   "severityNormal": "Normal",
-
   "drawerIncidentId": "Incident {id}",
   "@drawerIncidentId": {"placeholders": {"id": {"type": "String"}}},
   "waitingFor": "Waiting {duration}",
@@ -289,7 +274,6 @@
   "facebookPostLine": "{state, select, switchedOff{Facebook: incident posts are switched off on the Configuration page} needsType{Facebook: not posted until the incident type is confirmed} neverPosted{Facebook: not posted; only floods, fires, and structural damage are} waitingForUnit{Facebook: posted as unverified once a unit is assigned} posting{Facebook: posting now} postedUnverified{Facebook: posted as unverified} postedConfirmed{Facebook: posted as confirmed} postedFalseAlarm{Facebook: post changed to a false alarm} postedWithdrawn{Facebook: post changed to withdrawn} notNeeded{Facebook: not posted; withdrawn or false before it went up} failed{Facebook: posting failed} pageNotSetUp{Facebook: the Page is not set up} simulated{Facebook: simulated incidents are never posted} heldBack{Facebook: not posted; posting was switched off at the time} other{Facebook}}",
   "@facebookPostLine": {"placeholders": {"state": {"type": "String"}}},
   "@typeConfirmedSnack": {"placeholders": {"type": {"type": "String"}}},
-
   "verificationTitle": "Verification",
   "checkAccountVerified": "Registered account, verified mobile number",
   "checkAccountNotVerified": "Account not verified",
@@ -310,13 +294,11 @@
   "markVerified": "Mark verified",
   "verifiedSnack": "SOS verified",
   "markFalse": "Mark as false report",
-
   "residentTitle": "Resident",
   "showNumber": "Show number",
   "peopleCount": "{count, plural, =1{1 person} other{{count} people}}",
   "@peopleCount": {"placeholders": {"count": {"type": "int"}}},
   "residentNote": "Note from the resident",
-
   "clusterReportsTitle": "Reports in this cluster",
   "priorityTitle": "Why it's ranked here",
   "factorSos": "SOS",
@@ -327,7 +309,6 @@
   "provisionalRules": "Provisional weights until MDRRMD's triage SOP is added.",
   "points": "{points, plural, =1{1 pt} other{{points} pts}}",
   "@points": {"placeholders": {"points": {"type": "int"}}},
-
   "suggestedUnitsTitle": "Suggested units",
   "suggestedByRoad": "Available units, by travel time on the road network",
   "suggestedAvoidsFloods": "{count, plural, =1{Roads near 1 confirmed flood count as 4 times slower.} other{Roads near {count} confirmed floods count as 4 times slower.}}",
@@ -353,7 +334,6 @@
   "resolvedSnack": "Incident resolved",
   "unitStationCrew": "{station}, crew of {crew}",
   "@unitStationCrew": {"placeholders": {"station": {"type": "String"}, "crew": {"type": "int"}}},
-
   "timelineTitle": "Timeline",
   "eventReceived": "Received",
   "eventSmsCheckSent": "SMS check sent",
@@ -384,7 +364,6 @@
   "residentMoved": "The resident is now {distance} from where the SOS was sent · updated {time}. Units are sent to the newest position.",
   "@residentMoved": {"placeholders": {"distance": {"type": "String"}, "time": {"type": "String"}}},
   "incidentClosed": "This incident was closed.",
-
   "overrideTitle": "Assign {unit} instead of the top suggestion?",
   "@overrideTitle": {"placeholders": {"unit": {"type": "String"}}},
   "overrideBody": "{top} is about {minutes} min closer. You can still choose another unit. Add a reason so the audit log explains the choice.",
@@ -398,17 +377,14 @@
   "overrideReasonMissing": "Choose a reason.",
   "chooseUnitTitle": "Choose a unit",
   "chooseUnitBody": "Units that are available now, nearest first.",
-
   "falseReportTitle": "Mark as a false report?",
   "falseReportBody": "It leaves the queue, and any assigned unit becomes available. This is recorded in the audit log.",
   "falseReportDone": "Marked as a false report",
-
   "callTitle": "Call {name}",
   "@callTitle": {"placeholders": {"name": {"type": "String"}}},
   "callBody": "Call this number from the command center phone. Viewing it is recorded in the audit log.",
   "copyNumber": "Copy number",
   "copiedSnack": "Number copied",
-
   "errorOffline": "You're offline. Reconnect and try again.",
   "errorUnitTaken": "That unit is no longer available. Choose another.",
   "errorAlreadyAssigned": "This incident already has that unit.",
@@ -417,7 +393,6 @@
   "errorInvalidValue": "That value is outside the allowed range.",
   "errorNotFound": "That item no longer exists. Reload the page.",
   "errorGeneric": "Something went wrong. Try again.",
-
   "crowdReportsTitle": "Crowd reports",
   "crowdWindow": "Last 60 minutes",
   "crowdSummary": "{total} reports: {clusters} in confirmed clusters, {singles} unverified",
@@ -431,7 +406,6 @@
   "@reportMeta": {"placeholders": {"time": {"type": "String"}, "channel": {"type": "String"}, "type": {"type": "String"}, "percent": {"type": "int"}}},
   "crowdRule": "Three or more reports within 50 m in the last 60 minutes become a confirmed incident. A single report is never confirmed on its own.",
   "crowdEmpty": "No crowd reports in the last 60 minutes.",
-
   "unitsTitle": "Units",
   "countAvailable": "{count} available",
   "@countAvailable": {"placeholders": {"count": {"type": "int"}}},
@@ -449,7 +423,6 @@
   "unitsEmpty": "No units set up",
   "unitsEmptyMessage": "An administrator can add units in Resources.",
   "assignedNotStarted": "Assigned, waiting for crew",
-
   "vulnerableTitle": "Vulnerable Resident Priority List",
   "vulnerablePrivacy": "Only dispatchers and administrators can see this list (Data Privacy Act, RA 10173).",
   "colResident": "Resident",
@@ -458,7 +431,6 @@
   "colUpdated": "Updated",
   "colContact": "Contact",
   "vulnerableEmpty": "No registered vulnerable residents yet.",
-
   "weatherTitle": "Weather and advisories",
   "feedTitle": "PAGASA, PHIVOLCS, and river feeds",
   "feedNotConnected": "Not connected: sample data uses simulated weather.",
@@ -526,7 +498,6 @@
   "feedPhivolcs": "PHIVOLCS earthquake list",
   "feedQuakes": "{events} events listed, {near} within 300 km of Manila",
   "@feedQuakes": {"placeholders": {"events": {"type": "int"}, "near": {"type": "int"}}},
-
   "auditTitle": "Audit log",
   "auditSubtitle": "Every dispatch action, status change, and verification, with who did it (FR11).",
   "colTime": "Time",
@@ -784,7 +755,6 @@
   "configReportsTitle": "Crowd reports",
   "configReportsNote": "The limit applies to each resident account, across the app and the web form (FR15).",
   "settingReportsPerHour": "Reports per account each hour",
-
   "configAlertsTitle": "Alert thresholds",
   "configAlertsNote": "A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. River levels are shown on the Weather page and relayed by hand.",
   "settingRainfallWarning": "Rainfall warning, mm per hour",
@@ -830,7 +800,6 @@
   "unsavedStay": "Stay",
   "unsavedLeave": "Leave",
   "actionWeatherSimulated": "Simulated a weather reading",
-
   "advisoryTitle": "Issue an advisory",
   "advisoryReviewTitle": "Review before sending",
   "advisoryFrom": "From",
@@ -1102,7 +1071,6 @@
   "@deliveryLine": {"placeholders": {"channel": {"type": "String"}, "status": {"type": "String"}}},
   "deliveryCounts": "{channel}: sent to {delivered} of {recipients}",
   "@deliveryCounts": {"placeholders": {"channel": {"type": "String"}, "delivered": {"type": "int"}, "recipients": {"type": "int"}}},
-
   "webAppTitle": "S.A.G.I.P. hazard report",
   "webSignInTitle": "Report a hazard to MDRRMD",
   "webSignInBody": "Sign in with your mobile number. We'll text you a code.",
@@ -1158,7 +1126,6 @@
   "webPrivacyKeepBody": "Your account details, as long as you have an account. One year after a report is closed (MDRRMD may set a different period), what points at you is removed from it: your name and the exact place. The record itself stays for MDRRMD's reports.",
   "webPrivacyRightsTitle": "Your rights",
   "webPrivacyRightsBody": "Under the Data Privacy Act (RA 10173) you can see, correct, or ask MDRRMD to delete your data. Ask in the S.A.G.I.P. app or at the MDRRMD office.",
-
   "webReportTitle": "Report a hazard",
   "webReportBody": "MDRRMD checks reports against others nearby before acting. One report alone is not treated as an emergency.",
   "webSignedInAs": "Signed in as {name}",
@@ -1200,7 +1167,6 @@
   "webPinLabel": "Report location",
   "webSearchBarangay": "Search barangays",
   "webNoBarangayMatch": "No barangay matches that.",
-
   "webReceivedTitle": "Report received",
   "webReference": "Reference {id}",
   "@webReference": {"placeholders": {"id": {"type": "String"}}},
@@ -1219,14 +1185,11 @@
   "webStageNotConfirmed": "Not confirmed",
   "webStageResolved": "Resolved",
   "auditEmpty": "No actions recorded yet.",
-
   "comingSoonTitle": "Not built yet",
   "working": "Working",
-
   "notFoundTitle": "Page not found",
   "notFoundBody": "It may have moved, or your account can't open it.",
   "backToBoard": "Back to the Command Board",
-
   "secondsAgo": "{count} s ago",
   "@secondsAgo": {"placeholders": {"count": {"type": "int"}}},
   "minutesAgo": "{count} min ago",
@@ -1318,29 +1281,6 @@
   "myUnitCrewTitle": "Crew",
   "myUnitCrewYou": "You",
   "myUnitCrewEmpty": "No one else is on this unit yet. An administrator adds crew on Units.",
-  "crewAdd": "Add crew member",
-  "crewAddTitle": "Add crew to {callSign}",
-  "@crewAddTitle": {"placeholders": {"callSign": {"type": "String"}}},
-  "crewOnUnit": "On {callSign}",
-  "@crewOnUnit": {"placeholders": {"callSign": {"type": "String"}}},
-  "crewAllHere": "Every responder is already on {callSign}.",
-  "@crewAllHere": {"placeholders": {"callSign": {"type": "String"}}},
-  "crewNewHint": "Someone new? Create their responder account on Accounts first.",
-  "crewMoveTitle": "Move {name} to {callSign}?",
-  "@crewMoveTitle": {"placeholders": {"name": {"type": "String"}, "callSign": {"type": "String"}}},
-  "crewMoveBody": "{name} is on {from} now and will leave it.",
-  "@crewMoveBody": {"placeholders": {"name": {"type": "String"}, "from": {"type": "String"}}},
-  "crewMove": "Move",
-  "crewAdded": "{name} added to {callSign}",
-  "@crewAdded": {"placeholders": {"name": {"type": "String"}, "callSign": {"type": "String"}}},
-  "crewRemove": "Take {name} off {callSign}",
-  "@crewRemove": {"placeholders": {"name": {"type": "String"}, "callSign": {"type": "String"}}},
-  "crewRemoveTitle": "Take {name} off {callSign}?",
-  "@crewRemoveTitle": {"placeholders": {"name": {"type": "String"}, "callSign": {"type": "String"}}},
-  "crewRemoveBody": "They stay a responder and can be added to a unit again.",
-  "crewRemoveConfirm": "Take off unit",
-  "crewRemoved": "{name} taken off {callSign}",
-  "@crewRemoved": {"placeholders": {"name": {"type": "String"}, "callSign": {"type": "String"}}},
   "actionCrewLeadsChanged": "Named a crew head",
   "actionCrewRequested": "Asked for a crew change",
   "actionCrewRequestDecided": "Decided a crew request",
@@ -1380,7 +1320,7 @@
   "@crewDecisionNote": {"placeholders": {"note": {"type": "String"}}},
   "crewDecidedBy": "{status} by {name}",
   "@crewDecidedBy": {"placeholders": {"status": {"type": "String"}, "name": {"type": "String"}}},
-  "crewAskAdd": "Request to add a member",
+  "crewAskAdd": "Request a new member",
   "crewAskRemove": "Request to take {name} off",
   "@crewAskRemove": {"placeholders": {"name": {"type": "String"}}},
   "crewAskRemoveTitle": "Ask to take {name} off {callSign}?",
@@ -1391,16 +1331,10 @@
   "crewAskSent": "Request sent to the administrators",
   "crewAskAddTitle": "Request a new crew member for {callSign}",
   "@crewAskAddTitle": {"placeholders": {"callSign": {"type": "String"}}},
-  "crewHasAccount": "Has an account",
-  "crewNewPerson": "New person",
-  "crewNoCandidates": "Every responder is already on your unit. For someone new, choose New person.",
-  "crewNewPersonHint": "An administrator creates their account when approving.",
+  "crewNewPersonHint": "Only someone new: an administrator creates their account when approving it. Moving someone from another unit is for administrators.",
   "myUnitRequestsTitle": "Requests",
   "myUnitLeadNote": "{role, select, head{You are this unit's crew head} other{You are this unit's assistant head}}: you can ask an administrator to add or remove crew members.",
   "@myUnitLeadNote": {"placeholders": {"role": {"type": "String"}}},
-  "crewAskWho": "Responder",
-  "crewAskWhoError": "Choose a responder.",
-  "crewNoUnit": "No unit",
   "crewMyAddLine": "Add {name}",
   "@crewMyAddLine": {"placeholders": {"name": {"type": "String"}}},
   "crewMyRemoveLine": "Take {name} off",
@@ -1443,8 +1377,6 @@
   "noCrewOnDuty": "No crew on duty",
   "countNoCrewOnDuty": "{count, plural, =1{1 unit with no crew on duty} other{{count} units with no crew on duty}}",
   "@countNoCrewOnDuty": {"placeholders": {"count": {"type": "int"}}},
-  "dutySwitch": "On duty: {name}",
-  "@dutySwitch": {"placeholders": {"name": {"type": "String"}}},
   "dutyStartedSnack": "{name} is on duty",
   "@dutyStartedSnack": {"placeholders": {"name": {"type": "String"}}},
   "dutyEndedSnack": "{name} is off duty",

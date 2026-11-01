@@ -306,10 +306,8 @@ abstract interface class CrewRepository {
   /// Newest first.
   Stream<List<CrewRequest>> watchRequests();
 
-  /// For a head or assistant: the active responders not on their unit.
-  Stream<List<CrewCandidate>> watchCandidates();
-
-  Future<String> requestAdd(String staffId, {String? note});
+  /// A head or assistant asks to take a member of their own unit off, or
+  /// for a new person (never someone from another unit, 2026-11-01).
   Future<String> requestRemove(String staffId, {String? note});
   Future<String> requestNew({
     required String name,

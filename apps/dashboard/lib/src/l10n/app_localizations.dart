@@ -6753,90 +6753,6 @@ abstract class AppLocalizations {
   /// **'No one else is on this unit yet. An administrator adds crew on Units.'**
   String get myUnitCrewEmpty;
 
-  /// No description provided for @crewAdd.
-  ///
-  /// In en, this message translates to:
-  /// **'Add crew member'**
-  String get crewAdd;
-
-  /// No description provided for @crewAddTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Add crew to {callSign}'**
-  String crewAddTitle(String callSign);
-
-  /// No description provided for @crewOnUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'On {callSign}'**
-  String crewOnUnit(String callSign);
-
-  /// No description provided for @crewAllHere.
-  ///
-  /// In en, this message translates to:
-  /// **'Every responder is already on {callSign}.'**
-  String crewAllHere(String callSign);
-
-  /// No description provided for @crewNewHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Someone new? Create their responder account on Accounts first.'**
-  String get crewNewHint;
-
-  /// No description provided for @crewMoveTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Move {name} to {callSign}?'**
-  String crewMoveTitle(String name, String callSign);
-
-  /// No description provided for @crewMoveBody.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} is on {from} now and will leave it.'**
-  String crewMoveBody(String name, String from);
-
-  /// No description provided for @crewMove.
-  ///
-  /// In en, this message translates to:
-  /// **'Move'**
-  String get crewMove;
-
-  /// No description provided for @crewAdded.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} added to {callSign}'**
-  String crewAdded(String name, String callSign);
-
-  /// No description provided for @crewRemove.
-  ///
-  /// In en, this message translates to:
-  /// **'Take {name} off {callSign}'**
-  String crewRemove(String name, String callSign);
-
-  /// No description provided for @crewRemoveTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Take {name} off {callSign}?'**
-  String crewRemoveTitle(String name, String callSign);
-
-  /// No description provided for @crewRemoveBody.
-  ///
-  /// In en, this message translates to:
-  /// **'They stay a responder and can be added to a unit again.'**
-  String get crewRemoveBody;
-
-  /// No description provided for @crewRemoveConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Take off unit'**
-  String get crewRemoveConfirm;
-
-  /// No description provided for @crewRemoved.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} taken off {callSign}'**
-  String crewRemoved(String name, String callSign);
-
   /// No description provided for @actionCrewLeadsChanged.
   ///
   /// In en, this message translates to:
@@ -7014,7 +6930,7 @@ abstract class AppLocalizations {
   /// No description provided for @crewAskAdd.
   ///
   /// In en, this message translates to:
-  /// **'Request to add a member'**
+  /// **'Request a new member'**
   String get crewAskAdd;
 
   /// No description provided for @crewAskRemove.
@@ -7059,28 +6975,10 @@ abstract class AppLocalizations {
   /// **'Request a new crew member for {callSign}'**
   String crewAskAddTitle(String callSign);
 
-  /// No description provided for @crewHasAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Has an account'**
-  String get crewHasAccount;
-
-  /// No description provided for @crewNewPerson.
-  ///
-  /// In en, this message translates to:
-  /// **'New person'**
-  String get crewNewPerson;
-
-  /// No description provided for @crewNoCandidates.
-  ///
-  /// In en, this message translates to:
-  /// **'Every responder is already on your unit. For someone new, choose New person.'**
-  String get crewNoCandidates;
-
   /// No description provided for @crewNewPersonHint.
   ///
   /// In en, this message translates to:
-  /// **'An administrator creates their account when approving.'**
+  /// **'Only someone new: an administrator creates their account when approving it. Moving someone from another unit is for administrators.'**
   String get crewNewPersonHint;
 
   /// No description provided for @myUnitRequestsTitle.
@@ -7094,24 +6992,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{role, select, head{You are this unit\'s crew head} other{You are this unit\'s assistant head}}: you can ask an administrator to add or remove crew members.'**
   String myUnitLeadNote(String role);
-
-  /// No description provided for @crewAskWho.
-  ///
-  /// In en, this message translates to:
-  /// **'Responder'**
-  String get crewAskWho;
-
-  /// No description provided for @crewAskWhoError.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose a responder.'**
-  String get crewAskWhoError;
-
-  /// No description provided for @crewNoUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'No unit'**
-  String get crewNoUnit;
 
   /// No description provided for @crewMyAddLine.
   ///
@@ -7292,12 +7172,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 unit with no crew on duty} other{{count} units with no crew on duty}}'**
   String countNoCrewOnDuty(int count);
-
-  /// No description provided for @dutySwitch.
-  ///
-  /// In en, this message translates to:
-  /// **'On duty: {name}'**
-  String dutySwitch(String name);
 
   /// No description provided for @dutyStartedSnack.
   ///

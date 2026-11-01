@@ -3953,68 +3953,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'No one else is on this unit yet. An administrator adds crew on Units.';
 
   @override
-  String get crewAdd => 'Add crew member';
-
-  @override
-  String crewAddTitle(String callSign) {
-    return 'Add crew to $callSign';
-  }
-
-  @override
-  String crewOnUnit(String callSign) {
-    return 'On $callSign';
-  }
-
-  @override
-  String crewAllHere(String callSign) {
-    return 'Every responder is already on $callSign.';
-  }
-
-  @override
-  String get crewNewHint =>
-      'Someone new? Create their responder account on Accounts first.';
-
-  @override
-  String crewMoveTitle(String name, String callSign) {
-    return 'Move $name to $callSign?';
-  }
-
-  @override
-  String crewMoveBody(String name, String from) {
-    return '$name is on $from now and will leave it.';
-  }
-
-  @override
-  String get crewMove => 'Move';
-
-  @override
-  String crewAdded(String name, String callSign) {
-    return '$name added to $callSign';
-  }
-
-  @override
-  String crewRemove(String name, String callSign) {
-    return 'Take $name off $callSign';
-  }
-
-  @override
-  String crewRemoveTitle(String name, String callSign) {
-    return 'Take $name off $callSign?';
-  }
-
-  @override
-  String get crewRemoveBody =>
-      'They stay a responder and can be added to a unit again.';
-
-  @override
-  String get crewRemoveConfirm => 'Take off unit';
-
-  @override
-  String crewRemoved(String name, String callSign) {
-    return '$name taken off $callSign';
-  }
-
-  @override
   String get actionCrewLeadsChanged => 'Named a crew head';
 
   @override
@@ -4128,7 +4066,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get crewAskAdd => 'Request to add a member';
+  String get crewAskAdd => 'Request a new member';
 
   @override
   String crewAskRemove(String name) {
@@ -4158,18 +4096,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get crewHasAccount => 'Has an account';
-
-  @override
-  String get crewNewPerson => 'New person';
-
-  @override
-  String get crewNoCandidates =>
-      'Every responder is already on your unit. For someone new, choose New person.';
-
-  @override
   String get crewNewPersonHint =>
-      'An administrator creates their account when approving.';
+      'Only someone new: an administrator creates their account when approving it. Moving someone from another unit is for administrators.';
 
   @override
   String get myUnitRequestsTitle => 'Requests';
@@ -4182,15 +4110,6 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return '$_temp0: you can ask an administrator to add or remove crew members.';
   }
-
-  @override
-  String get crewAskWho => 'Responder';
-
-  @override
-  String get crewAskWhoError => 'Choose a responder.';
-
-  @override
-  String get crewNoUnit => 'No unit';
 
   @override
   String crewMyAddLine(String name) {
@@ -4321,11 +4240,6 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 unit with no crew on duty',
     );
     return '$_temp0';
-  }
-
-  @override
-  String dutySwitch(String name) {
-    return 'On duty: $name';
   }
 
   @override

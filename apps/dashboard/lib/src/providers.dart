@@ -227,14 +227,6 @@ final crewRequestsProvider = StreamProvider<List<CrewRequest>>(
       _forAccount(ref, () => ref.watch(crewRepositoryProvider).watchRequests()),
 );
 
-/// Whom a crew head can ask to add: active responders not on their unit.
-final crewCandidatesProvider = StreamProvider<List<CrewCandidate>>(
-  (ref) => _forAccount(
-    ref,
-    () => ref.watch(crewRepositoryProvider).watchCandidates(),
-  ),
-);
-
 /// The responder's own unit and its supplies (the "My unit" page).
 final myUnitProvider = StreamProvider<ResponseUnit?>(
   (ref) => _forAccount(

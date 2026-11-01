@@ -367,14 +367,6 @@ class MockCrewRepository implements CrewRepository {
   Stream<List<CrewRequest>> watchRequests() => _backend.watchCrewRequests();
 
   @override
-  Stream<List<CrewCandidate>> watchCandidates() =>
-      _backend.watchCrewCandidates();
-
-  @override
-  Future<String> requestAdd(String staffId, {String? note}) => _backend
-      .requestCrewChange(CrewRequestKind.add, staffId: staffId, note: note);
-
-  @override
   Future<String> requestRemove(String staffId, {String? note}) => _backend
       .requestCrewChange(CrewRequestKind.remove, staffId: staffId, note: note);
 

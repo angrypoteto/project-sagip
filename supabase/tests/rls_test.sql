@@ -2770,13 +2770,15 @@ select throws_ok($$ select public.admin_set_unit_leads('unit-r05', '00000000-000
   'P0001', 'invalid_value', 'a head must be on the unit');
 
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000013", "role": "authenticated"}';
-select throws_ok($$ select public.request_crew_change('add', '00000000-0000-4000-8000-000000000011') $$,
+select throws_ok($$ select public.request_crew_change('new', p_name => 'Someone', p_email => 'someone@test.local') $$,
   'P0001', 'not_allowed', 'a crew member who is not a head cannot ask');
 
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
-select lives_ok($$ select public.request_crew_change('add', '00000000-0000-4000-8000-000000000011') $$,
-  'the head asks to add a responder');
 select throws_ok($$ select public.request_crew_change('add', '00000000-0000-4000-8000-000000000011') $$,
+  'P0001', 'not_allowed', 'a head cannot ask for a responder of another unit (2026-11-01)');
+select lives_ok($$ select public.request_crew_change('new', p_name => 'Helper One', p_email => 'helper.one@test.local') $$,
+  'the head asks for a new person');
+select throws_ok($$ select public.request_crew_change('new', p_name => 'Helper One', p_email => 'helper.one@test.local') $$,
   'P0001', 'already_exists', 'the same request waits only once');
 select throws_ok($$ select public.request_crew_change('remove', '00000000-0000-4000-8000-00000000000b') $$,
   'P0001', 'own_account', 'a head cannot ask to remove themself');
@@ -2791,10 +2793,8 @@ select throws_ok($$ select public.request_crew_change('new', p_name => 'Again', 
   'P0001', 'already_exists', 'not for an email that already has an account');
 select is((select count(*)::int from public.crew_request where unit_id = 'unit-r05' and status = 'pending'), 3,
   'the unit''s head and assistant see its requests');
-select is((select count(*)::int from public.crew_candidates() where unit_id = 'unit-r05'), 0,
-  'whom to ask for: nobody already on the unit');
-select ok(exists (select 1 from public.crew_candidates() where staff_id = '00000000-0000-4000-8000-000000000011'),
-  'and the responders who are not');
+select hasnt_function('public', 'crew_candidates',
+  'no list of other units'' responders to pick from');
 
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
 select is((select count(*)::int from public.crew_request), 0, 'a dispatcher sees no crew requests');
@@ -2805,19 +2805,20 @@ select is((select count(*)::int from public.crew_request), 0, 'nor does a crew m
 
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}';
 select throws_ok($$ select public.decide_crew_request(
-    (select request_id from public.crew_request where staff_id = '00000000-0000-4000-8000-000000000011' and status = 'pending'), false) $$,
+    (select request_id from public.crew_request where new_email = 'helper.one@test.local' and status = 'pending'), false) $$,
   'P0001', 'invalid_value', 'declining needs a reason');
 select lives_ok($$ select public.decide_crew_request(
-    (select request_id from public.crew_request where staff_id = '00000000-0000-4000-8000-000000000011' and status = 'pending'), true) $$,
-  'an admin approves adding');
-select is((select unit_id from public.staff where id = '00000000-0000-4000-8000-000000000011'), 'unit-r05',
-  'and the responder is on the unit at once');
+    (select request_id from public.crew_request where new_email = 'helper.one@test.local' and status = 'pending'),
+    false, 'No slot this month') $$,
+  'an admin declines a new person');
+select is((select decision_note from public.crew_request where new_email = 'helper.one@test.local'),
+  'No slot this month', 'the reason is kept for the head to see');
 select lives_ok($$ select public.decide_crew_request(
     (select request_id from public.crew_request where staff_id = '00000000-0000-4000-8000-00000000000b' and status = 'pending'),
     false, 'Keep them until Friday') $$,
-  'an admin declines, with a reason');
-select is((select decision_note from public.crew_request where staff_id = '00000000-0000-4000-8000-00000000000b' and kind = 'remove'),
-  'Keep them until Friday', 'the reason is kept for the head to see');
+  'an admin declines a removal, with a reason');
+select is((select unit_id from public.staff where id = '00000000-0000-4000-8000-00000000000b'), 'unit-r05',
+  'a declined removal changes nothing');
 select lives_ok($$ select public.admin_create_staff('new.person@test.local', 'New Person', 'responder', 'unit-r05') $$,
   'the admin creates the new person''s account');
 select lives_ok($$ select public.decide_crew_request(
@@ -2834,7 +2835,7 @@ select ok((select crew_head_id is null from public.response_unit where unit_id =
   'and is no longer its head');
 
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
-select throws_ok($$ select public.request_crew_change('add', '00000000-0000-4000-8000-000000000013') $$,
+select throws_ok($$ select public.request_crew_change('new', p_name => 'Later', p_email => 'later@test.local') $$,
   'P0001', 'not_allowed', 'nor can ask for crew changes');
 reset role;
 update public.staff set unit_id = 'unit-r05' where id = '00000000-0000-4000-8000-00000000000b';

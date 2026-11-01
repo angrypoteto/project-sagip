@@ -762,7 +762,7 @@ void main() {
     expect(find.text('R. Mendoza'), findsNothing);
   });
 
-  testWidgets('D7: an admin adds, moves, and takes off crew members', (
+  testWidgets('D7: admins see each crew but do not add or remove members', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -770,65 +770,18 @@ void main() {
     await signIn(tester, 'admin@sagip.test');
     await tester.tap(find.byTooltip('Units'));
     await settle(tester);
-    await tester.tap(find.text('R-05'));
+    await tester.tap(find.text('R-03'));
     await settle(tester);
-    expect(find.text('M. Lim'), findsOneWidget);
-
-    // C. Garcia is on no unit: added at once.
-    await tester.tap(find.byKey(const ValueKey('crew-add-unit-r05')));
-    await settle(tester);
-    expect(find.text('Add crew to R-05'), findsOneWidget);
-    // Those already on R-05 are not offered.
-    expect(find.byKey(const ValueKey('crew-pick-usr-resp-02')), findsNothing);
-    expect(find.text('No ID yet · No unit'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('crew-pick-usr-resp-04')));
-    await settle(tester);
-    expect(find.text('C. Garcia added to R-05'), findsOneWidget);
-    expect(find.text('C. Garcia'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 5));
-    await settle(tester);
-
-    // R. Mendoza is on R-03: moved after asking.
-    await tester.tap(find.byKey(const ValueKey('crew-add-unit-r05')));
-    await settle(tester);
-    expect(find.text('MDRRMD-0102 · On R-03'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('crew-pick-usr-resp-05')));
-    await settle(tester);
-    expect(find.text('Move R. Mendoza to R-05?'), findsOneWidget);
-    expect(find.text('R. Mendoza is on R-03 now and will leave it.'), findsOne);
-    await tester.tap(find.widgetWithText(FilledButton, 'Move'));
-    await settle(tester);
-    expect(find.text('R. Mendoza added to R-05'), findsOneWidget);
-    expect(find.text('R. Mendoza'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 5));
-    await settle(tester);
-
-    // M. Lim is taken off, after asking.
-    await tester.ensureVisible(
-      find.byKey(const ValueKey('crew-remove-usr-resp-02')),
-    );
-    await settle(tester);
-    await tester.tap(find.byKey(const ValueKey('crew-remove-usr-resp-02')));
-    await settle(tester);
-    expect(find.text('Take M. Lim off R-05?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Take off unit'));
-    await settle(tester);
-    expect(find.text('M. Lim taken off R-05'), findsOneWidget);
-    expect(find.text('M. Lim'), findsNothing);
-
-    final audit = await tester.runAsync(
-      () => MockAuditRepository(backend).watchRecent().first,
-    );
-    expect(
-      audit!
-          .where((e) => e.action == AuditAction.rosterChanged)
-          .map((e) => e.detail),
-      containsAll([
-        'C. Garcia: no unit → R-05',
-        'R. Mendoza: R-03 → R-05',
-        'M. Lim: R-05 → no unit',
-      ]),
-    );
+    // Names, personnel IDs, and duty (2026-11-01: adding and taking off
+    // crew is the crew head's, by request).
+    expect(find.text('J. Reyes'), findsOneWidget);
+    expect(find.text('MDRRMD-0101'), findsOneWidget);
+    expect(find.text('2 of 3 on duty'), findsOneWidget);
+    expect(find.byKey(const ValueKey('crew-add-unit-r03')), findsNothing);
+    expect(find.byKey(const ValueKey('crew-remove-usr-resp-06')), findsNothing);
+    expect(find.text('Add crew member'), findsNothing);
+    // Naming the crew head stays with admins.
+    expect(find.byKey(const ValueKey('crew-role-usr-resp-06')), findsOneWidget);
   });
 
   testWidgets('My unit: the responder sees their crew, marked You', (
@@ -918,29 +871,13 @@ void main() {
       isNull,
     );
 
-    // Add C. Garcia, who has an account.
+    // A new person, with no account yet: the only kind of member a head
+    // asks for (2026-11-01). Nobody from another unit is offered.
     await tester.tap(find.byKey(const ValueKey('crew-ask-add')));
     await settle(tester);
     expect(find.text('Request a new crew member for R-03'), findsOneWidget);
-    // Nobody chosen yet: said on the field.
-    await tester.tap(find.byKey(const ValueKey('crew-ask-send')));
-    await settle(tester);
-    expect(find.text('Choose a responder.'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('crew-ask-who')));
-    await settle(tester);
-    await tester.tap(find.text('C. Garcia · No ID yet · No unit').last);
-    await settle(tester);
-    await tester.tap(find.byKey(const ValueKey('crew-ask-send')));
-    await settle(tester);
-    await tester.pump(const Duration(seconds: 5));
-    await settle(tester);
-    expect(inRequests('Add C. Garcia'), findsOneWidget);
-
-    // A new person, with no account yet.
-    await tester.tap(find.byKey(const ValueKey('crew-ask-add')));
-    await settle(tester);
-    await tester.tap(find.text('New person'));
-    await settle(tester);
+    expect(find.text('Has an account'), findsNothing);
+    expect(find.text('C. Garcia'), findsNothing);
     await tester.enterText(
       find.byKey(const ValueKey('crew-ask-name')),
       'D. Ramos',
@@ -968,7 +905,7 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
     await settle(tester);
     expect(inRequests('New member: D. Ramos'), findsOneWidget);
-    expect(inRequests('Waiting'), findsNWidgets(3));
+    expect(inRequests('Waiting'), findsNWidgets(2));
 
     // An admin sees them waiting on Units.
     await tester.runAsync(() => MockAuthRepository(backend).signOut());
@@ -979,7 +916,7 @@ void main() {
     final panel = find.byKey(const ValueKey('crew-requests'));
     Finder inPanel(String text) =>
         find.descendant(of: panel, matching: find.text(text));
-    expect(inPanel('3 waiting'), findsOneWidget);
+    expect(inPanel('2 waiting'), findsOneWidget);
     expect(inPanel('Take L. Cruz off R-03'), findsOneWidget);
     expect(inPanel('Note: Moved to the Tondo station'), findsOneWidget);
     expect(inPanel('d.ramos@sagip.test · MDRRMD-0150'), findsOneWidget);
@@ -1001,13 +938,7 @@ void main() {
     await settle(tester);
     await tester.pump(const Duration(seconds: 5));
     await settle(tester);
-    expect(inPanel('2 waiting'), findsOneWidget);
-
-    // Approve C. Garcia.
-    await tester.tap(find.byKey(ValueKey('crew-approve-${ids['C. Garcia']}')));
-    await settle(tester);
-    await tester.pump(const Duration(seconds: 5));
-    await settle(tester);
+    expect(inPanel('1 waiting'), findsOneWidget);
 
     // Decline L. Cruz's removal: a reason is needed.
     await tester.tap(find.byKey(ValueKey('crew-decline-${ids['L. Cruz']}')));
@@ -1031,7 +962,6 @@ void main() {
     String? unitOf(String name) =>
         crew!.firstWhere((c) => c.displayName == name).unitId;
     expect(unitOf('D. Ramos'), 'unit-r03');
-    expect(unitOf('C. Garcia'), 'unit-r03');
     expect(unitOf('L. Cruz'), 'unit-r03');
     final ramos = crew!.firstWhere((c) => c.displayName == 'D. Ramos');
     expect(ramos.personnelId, 'MDRRMD-0150');
@@ -1040,7 +970,7 @@ void main() {
     await tester.runAsync(() => MockAuthRepository(backend).signOut());
     await settle(tester);
     await signIn(tester, 'j.reyes@sagip.test');
-    expect(inRequests('Approved'), findsNWidgets(2));
+    expect(inRequests('Approved'), findsOneWidget);
     expect(inRequests('Declined'), findsOneWidget);
     expect(inRequests('Reason: R-03 needs four on the boat'), findsOneWidget);
     expect(inRequests('Declined by E. Navarro'), findsOneWidget);
