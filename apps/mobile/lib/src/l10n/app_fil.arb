@@ -668,5 +668,7 @@
   "dutyStartedSnack": "Naka-duty na si {name}",
   "dutyEndedSnack": "Wala na sa duty si {name}",
   "dutyOffline": "Kailangan ng internet para magpalit ng duty. Subukan ulit kapag online ka na.",
-  "notSharingOffDuty": "Hindi ibinabahagi ang lokasyon habang wala ka sa duty"
+  "notSharingOffDuty": "Hindi ibinabahagi ang lokasyon habang wala ka sa duty",
+  "alertsReadAll": "Markahang nabasa lahat",
+  "alertsReadAllDone": "Nabasa na ang lahat ng alerto"
 }

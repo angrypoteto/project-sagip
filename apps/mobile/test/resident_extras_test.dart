@@ -137,6 +137,24 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('R7: mark all alerts as read at once', (tester) async {
+    await pumpApp(tester);
+    await tap(tester, 'Continue as resident');
+    expect(find.text('3'), findsOneWidget, reason: 'unread count on the tab');
+    await tap(tester, 'Alerts');
+    await tester.tap(find.byKey(const ValueKey('alerts-read-all')));
+    await settle(tester);
+    expect(find.text('All alerts marked as read'), findsOneWidget);
+    expect(container.read(alertFeedProvider).value!.unread, 0);
+    expect(find.text('3'), findsNothing);
+    // Nothing left unread: the button goes.
+    expect(find.byKey(const ValueKey('alerts-read-all')), findsNothing);
+    // Only on the Alerts tab.
+    await tap(tester, 'Forecast');
+    expect(find.byKey(const ValueKey('alerts-read-all')), findsNothing);
+    await finish(tester);
+  });
+
   testWidgets('R7, R8: alerts, reading one, forecast, offline copy', (
     tester,
   ) async {
@@ -146,8 +164,12 @@ void main() {
 
     await tap(tester, 'Alerts');
     expect(find.text('Flooding on Dapitan St and España Blvd'), findsOneWidget);
+    // Built, though it may sit just below the fold.
     expect(
-      find.text('Taal Volcano advisory: possible light ashfall'),
+      find.text(
+        'Taal Volcano advisory: possible light ashfall',
+        skipOffstage: false,
+      ),
       findsOne,
     );
 

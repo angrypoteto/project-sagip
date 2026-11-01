@@ -784,5 +784,7 @@
   "dutyEndedSnack": "{name} is off duty",
   "@dutyEndedSnack": {"placeholders": {"name": {"type": "String"}}},
   "dutyOffline": "Switching duty needs internet. Try again when you are online.",
-  "notSharingOffDuty": "Location not shared while you are off duty"
+  "notSharingOffDuty": "Location not shared while you are off duty",
+  "alertsReadAll": "Mark all as read",
+  "alertsReadAllDone": "All alerts marked as read"
 }

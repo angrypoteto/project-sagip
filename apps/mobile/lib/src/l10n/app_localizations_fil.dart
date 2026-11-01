@@ -2390,4 +2390,10 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get notSharingOffDuty =>
       'Hindi ibinabahagi ang lokasyon habang wala ka sa duty';
+
+  @override
+  String get alertsReadAll => 'Markahang nabasa lahat';
+
+  @override
+  String get alertsReadAllDone => 'Nabasa na ang lahat ng alerto';
 }

@@ -23,6 +23,22 @@ class AlertsPage extends ConsumerStatefulWidget {
 class _AlertsPageState extends ConsumerState<AlertsPage> {
   var _tab = _Tab.alerts;
 
+  /// Marks every unread alert and rescue confirmation as read (Joshua,
+  /// 2026-11-01). Each shows as read on the phone at once; offline, the
+  /// server is told on the next read online.
+  Future<void> _readAll(AlertFeed feed) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final repo = ref.read(alertRepositoryProvider);
+    await Future.wait([
+      for (final a in feed.alerts)
+        if (!a.read) repo.markRead(a.id),
+      for (final c in feed.confirmations)
+        if (!c.read) repo.markConfirmationRead(c.id),
+    ]);
+    messenger.showSnackBar(SnackBar(content: Text(l10n.alertsReadAllDone)));
+  }
+
   Future<void> _refresh() async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -57,7 +73,20 @@ class _AlertsPageState extends ConsumerState<AlertsPage> {
             SagipSpace.xl,
             SagipSpace.md,
           ),
-          child: Text(l10n.alertsTitle, style: text.headlineSmall),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(l10n.alertsTitle, style: text.headlineSmall),
+              ),
+              if (_tab == _Tab.alerts && (saved?.unread ?? 0) > 0)
+                TextButton.icon(
+                  key: const ValueKey('alerts-read-all'),
+                  onPressed: () => _readAll(saved!),
+                  icon: const Icon(Symbols.done_all_rounded),
+                  label: Text(l10n.alertsReadAll),
+                ),
+            ],
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: SagipSpace.xl),

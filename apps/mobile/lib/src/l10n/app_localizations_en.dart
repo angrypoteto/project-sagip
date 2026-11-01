@@ -2358,4 +2358,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notSharingOffDuty => 'Location not shared while you are off duty';
+
+  @override
+  String get alertsReadAll => 'Mark all as read';
+
+  @override
+  String get alertsReadAllDone => 'All alerts marked as read';
 }

@@ -4111,6 +4111,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location not shared while you are off duty'**
   String get notSharingOffDuty;
+
+  /// No description provided for @alertsReadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get alertsReadAll;
+
+  /// No description provided for @alertsReadAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All alerts marked as read'**
+  String get alertsReadAllDone;
 }
 
 class _AppLocalizationsDelegate
