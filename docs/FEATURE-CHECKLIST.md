@@ -277,7 +277,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 
 | What | Where it stands |
 |---|---|
-| The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Built, not switched on. Its migration (`forecast_live`) needs a one-line fix that needs your explicit "yes, rewrite it", or you paste it yourself. Then D8 and the resident's Forecast tab show risk levels instead of an empty page |
+| The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Switched on 2026-11-01: a new run every six hours, replaying the weather records with the models trained on sample data; D8 and the resident's Forecast tab show it, marked simulated |
 | Typhoon signal and storm surge days, 2021 to now, from public records | The forecast's two missing columns (`ml/forecast/data/manila_signals.csv`). 23 signal days gathered so far from news; PAGASA's tropical cyclone reports and the news can fill the rest. Claude can do this; MDRRMD's situational reports (letter item G) would check it |
 | A team-labelled set of incident descriptions | The plan's fallback for the classifier (plan 10.4): the team writes and labels a few hundred flood, fire, medical, and structural reports per type in English, Filipino, and Taglish, disclosed as such in the thesis. Claude retrains and loads it, so crowd reports get a type before MDRRMD's data arrives |
 | The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |

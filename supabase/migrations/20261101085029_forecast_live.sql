@@ -1,4 +1,5 @@
--- The forecast's simulated live feed (FR4; thesis scope: "LSTM and KDE
+-- The forecast's simulated live feed (applied 2026-11-01, after the two
+-- replay updates were given a where clause the database tool accepts) (FR4; thesis scope: "LSTM and KDE
 -- trained, simulated live feed"; plan 10.5).
 --
 -- forecast_model holds the exported model (supabase/data/
@@ -63,7 +64,7 @@ begin
   insert into public.forecast_model (version, model, is_active)
   values (v, p_model, true)
   on conflict (version) do update set model = excluded.model, is_active = true, loaded_at = now();
-  update public.forecast_replay set day_index = null;
+  update public.forecast_replay set day_index = null where id;
   return v || ': ' || jsonb_array_length(p_model -> 'days') || ' days';
 end $$;
 
@@ -111,7 +112,8 @@ begin
     left join jsonb_each_text(p_levels) v on v.key = b.name;
   get diagnostics n = row_count;
   update public.forecast_replay
-     set day_index = p_next_index, last_run_at = issued, last_window_end = p_window_end;
+     set day_index = p_next_index, last_run_at = issued, last_window_end = p_window_end
+   where id;
   return n;
 end $$;
 
