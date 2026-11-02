@@ -94,6 +94,7 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] D8 72-hour forecast: ranked list, barangay panel **[S]**
 - [ ] **[N]** D8 "Heatmap" (2026-11-02): the 72-hour forecast as a heat map: moderate barangays glow amber, high red, low not painted; one view (Hotspots removed); click a barangay or a row to open its panel **[S]**
 - [ ] **[N]** D8 The barangay panel says why each hazard has its level: the chance in Manila in the next 72 hours (LSTM), past incidents there relative to the busiest barangay (KDE), and which part of the rule gave the level; and the incidents recorded there in the last 12 months **[S]**
+- [ ] **[N]** D8 Typhoon tracker (2026-11-02): a switch on the Heatmap page zooms out to the Philippines and draws the cyclone that touched PAR (track so far, forecast track and cone, 60/90/120 km/h wind zones; GDACS from JTWC advisories, every 30 minutes), PAGASA's warnings in force (signal levels by province, flood advisory areas on the map), and NASA IMERG satellite rainfall tiles; each layer can be hidden; with no storm now it shows the last one, marked ended **[S]**
 - [ ] D9 Vulnerable Resident Priority List; numbers masked; revealing one is written to the audit log
 - [ ] D10 Weather readings marked Warning or Critical against the thresholds
 - [ ] D10 "Alerts sent" list with each channel's result

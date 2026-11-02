@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(627);
+select plan(642);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2996,6 +2996,45 @@ select ok((select bool_and(not is_simulated) from public.barangay_forecast
   'marked not simulated, under its label');
 select ok((select bool_and(is_simulated) from public.barangay_forecast where model_version like 'test-v %'),
   'a replay is still marked simulated');
+
+-- ------------------------------------------------------- typhoon tracker
+-- ingest-storms saves GDACS storms and PAGASA warnings (2026-11-02);
+-- dispatchers and admins read them, only the server writes.
+
+reset role;
+select ok((select bool_and(relrowsecurity) from pg_class
+            where oid in ('public.storm_track'::regclass, 'public.pagasa_warning'::regclass)), 'RLS on both');
+select ok(not has_table_privilege('anon', 'public.storm_track', 'select')
+  and not has_table_privilege('anon', 'public.pagasa_warning', 'select'), 'anon reads neither');
+select ok(not has_table_privilege('authenticated', 'public.storm_track', 'insert')
+  and not has_table_privilege('authenticated', 'public.pagasa_warning', 'update'), 'staff cannot write them');
+select ok(not has_function_privilege('authenticated', 'public.save_hazard_feeds(jsonb, jsonb)', 'execute')
+  and not has_function_privilege('anon', 'public.save_hazard_feeds(jsonb, jsonb)', 'execute'), 'only the server saves');
+select is(public.save_hazard_feeds(
+  '[{"event_id": 1, "episode_id": 3, "name": "TEST-26", "alert_level": "Orange", "is_current": true, "from_at": "2026-10-30T00:00:00Z", "to_at": "2026-11-01T18:00:00Z", "max_wind_kmh": 150, "track": [{"t": "2026-10-30T00:00:00Z", "lat": 12, "lng": 130, "category": "TS", "forecast": false}]}]',
+  '[{"id": "w1", "kind": "wcp", "event": "Tropical Cyclone Warning", "headline": "Signal #1", "signal_level": 1, "sent_at": "2026-11-01T04:00:00+08", "expires_at": "2026-11-01T16:00:00+08", "areas": [{"name": "Batanes", "rings": []}]}]'),
+  '{"storms": 1, "warnings": 1}'::jsonb, 'saves a storm and a warning');
+select is(public.save_hazard_feeds(
+  '[{"event_id": 1, "episode_id": 4, "name": "TEST-26", "alert_level": "Red", "is_current": true, "from_at": "2026-10-30T00:00:00Z", "to_at": "2026-11-02T00:00:00Z"}]',
+  '[{"id": "w1", "kind": "wcp", "event": "changed", "sent_at": "2026-11-01T04:00:00+08"}]'),
+  '{"storms": 1, "warnings": 0}'::jsonb, 'a storm is replaced, a warning kept');
+select is((select episode_id || alert_level from public.storm_track where event_id = 1), '4Red', 'the newer episode');
+select is((select event from public.pagasa_warning where id = 'w1'), 'Tropical Cyclone Warning',
+  'the warning as first read');
+select is(public.save_hazard_feeds(null, '[]'), '{"storms": 0, "warnings": 0}'::jsonb,
+  'GDACS unread: the storms are left alone');
+select ok((select is_current from public.storm_track where event_id = 1), 'still current');
+select is(public.save_hazard_feeds('[]', '[]'), '{"storms": 0, "warnings": 0}'::jsonb, 'an empty run');
+select ok((select not is_current from public.storm_track where event_id = 1), 'a storm no longer listed is over');
+select throws_ok($$select public.save_hazard_feeds('{}', '[]')$$, 'P0001', 'invalid_value', 'rejects a non-list');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is((select count(*)::int from public.storm_track) + (select count(*)::int from public.pagasa_warning), 2,
+  'a dispatcher reads both');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select is((select count(*)::int from public.storm_track) + (select count(*)::int from public.pagasa_warning), 0,
+  'a responder reads neither');
+reset role;
 
 -- The counters as the real records need them (see the top).
 reset role;

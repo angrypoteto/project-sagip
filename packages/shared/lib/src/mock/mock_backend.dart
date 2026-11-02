@@ -26,6 +26,7 @@ import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import '../models/safe_place.dart';
 import '../models/settings.dart';
+import '../models/storm.dart';
 import '../repositories/repositories.dart';
 import 'live_value.dart';
 import 'mock_seed.dart';
@@ -55,6 +56,7 @@ class MockBackend {
     _alertLog = LiveValue(_seed.sentAlerts);
     _forecast = LiveValue(ForecastRun.latest(_seed.forecasts));
     _density = LiveValue(_seed.densities);
+    _hazardFeeds = LiveValue(_seed.hazardFeeds);
   }
 
   final DateTime Function() _clock;
@@ -74,6 +76,7 @@ class MockBackend {
   late final LiveValue<List<SentAlert>> _alertLog;
   late final LiveValue<ForecastRun?> _forecast;
   late final LiveValue<List<HazardDensity>> _density;
+  late final LiveValue<HazardFeeds> _hazardFeeds;
 
   /// What responders reported, by incident (the dashboard mock has no
   /// phones, so only the past rescues have one).
@@ -1881,6 +1884,11 @@ class MockBackend {
 
   /// Scenario switcher: another KDE fit, or none yet (empty).
   void setDensity(List<HazardDensity> rows) => _density.value = rows;
+
+  Stream<HazardFeeds> watchHazardFeeds() => _hazardFeeds.watch();
+
+  /// Scenario switcher: other storms and warnings, or none.
+  void setHazardFeeds(HazardFeeds feeds) => _hazardFeeds.value = feeds;
 
   Stream<LinkState> watchLink() => _link.watch();
 

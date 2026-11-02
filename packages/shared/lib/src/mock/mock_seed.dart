@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../models/alerts.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
@@ -8,6 +10,7 @@ import '../models/ndrrmc.dart';
 import '../models/people.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/storm.dart';
 
 /// Sample Manila data for Phase 1. All names and numbers are fictional.
 /// Times are relative to [t0] so the queue always looks "live".
@@ -889,6 +892,98 @@ class MockSeed {
     'usr-resp-02': t0.subtract(const Duration(seconds: 20)),
     'usr-resp-03': t0.subtract(const Duration(minutes: 2)),
   };
+
+  /// The typhoon tracker's sample (made up): a typhoon crossing northern
+  /// Luzon, still followed, with Signal No. 2 over Metro Manila.
+  HazardFeeds get hazardFeeds {
+    final start = t0.toUtc().subtract(const Duration(days: 2));
+    const path = [
+      (12.0, 130.5, 'TS'),
+      (13.2, 128.4, 'TS'),
+      (14.5, 126.0, 'TY'),
+      (15.6, 123.6, 'TY'),
+      (16.4, 121.4, 'TY'),
+      (17.2, 119.0, 'TS'),
+      (18.0, 116.4, 'TS'),
+    ];
+    List<GeoPoint> circle(GeoPoint c, double r) => [
+      for (var k = 0; k <= 24; k++)
+        GeoPoint(
+          c.lat + r * math.sin(k * math.pi / 12),
+          c.lng + r * math.cos(k * math.pi / 12),
+        ),
+    ];
+    final track = [
+      for (var i = 0; i < path.length; i++)
+        StormPoint(
+          time: start.add(Duration(hours: 12 * i)),
+          at: GeoPoint(path[i].$1, path[i].$2),
+          category: path[i].$3,
+          forecast: i >= 4,
+        ),
+    ];
+    final now = track[3].at;
+    return HazardFeeds(
+      storms: [
+        Storm(
+          eventId: 1,
+          name: 'SAMPLE-26',
+          alertLevel: 'Orange',
+          isCurrent: true,
+          from: start,
+          to: track[3].time,
+          updatedAt: track[3].time,
+          maxWindKmh: 150,
+          source: 'JTWC',
+          track: track,
+          windZones: [
+            WindZone(kmh: 60, rings: [circle(now, 2.4)]),
+            WindZone(kmh: 90, rings: [circle(now, 1.4)]),
+            WindZone(kmh: 120, rings: [circle(now, 0.7)]),
+          ],
+          cone: [
+            [
+              const GeoPoint(16.4, 123.6),
+              const GeoPoint(19.4, 116.4),
+              const GeoPoint(16.6, 116.4),
+              const GeoPoint(14.8, 123.6),
+              const GeoPoint(16.4, 123.6),
+            ],
+          ],
+        ),
+      ],
+      warnings: [
+        PagasaWarning(
+          id: 'sample-wcp-2',
+          kind: 'wcp',
+          event: 'Tropical Cyclone Warning',
+          headline:
+              'Tropical Cyclone Warning : Typhoon Sample (SAMPLE) Signal #2',
+          signalLevel: 2,
+          sentAt: track[3].time,
+          expiresAt: t0.toUtc().add(const Duration(hours: 12)),
+          areas: const [
+            WarningArea(name: 'Metro Manila'),
+            WarningArea(name: 'Bulacan'),
+          ],
+        ),
+        PagasaWarning(
+          id: 'sample-gfa-1',
+          kind: 'gfa',
+          event: 'General Flood Advisory',
+          headline: 'General Flood Advisory',
+          sentAt: track[3].time,
+          expiresAt: t0.toUtc().add(const Duration(hours: 12)),
+          areas: [
+            WarningArea(
+              name: 'Rizal',
+              rings: [circle(const GeoPoint(14.6, 121.3), 0.15)],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
   /// Sample hotspots (the KDE's relative density): made up, clustered so
   /// the heat map shows a few hot areas per hazard.

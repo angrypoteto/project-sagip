@@ -7220,6 +7220,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The models are still the sample-trained ones and the levels provisional.'**
   String get forecastLiveWeatherNote;
+
+  /// No description provided for @trackerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Typhoon tracker'**
+  String get trackerTitle;
+
+  /// No description provided for @trackerLayerTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Storm track and wind'**
+  String get trackerLayerTrack;
+
+  /// No description provided for @trackerLayerWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'PAGASA warnings'**
+  String get trackerLayerWarnings;
+
+  /// No description provided for @trackerLayerRainfall.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite rainfall'**
+  String get trackerLayerRainfall;
+
+  /// No description provided for @trackerLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading storms and warnings…'**
+  String get trackerLoading;
+
+  /// No description provided for @trackerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Storms and warnings could not be loaded. The map layers still show.'**
+  String get trackerError;
+
+  /// No description provided for @trackerNoStorm.
+  ///
+  /// In en, this message translates to:
+  /// **'No tropical cyclone has entered PAR in the last 60 days.'**
+  String get trackerNoStorm;
+
+  /// No description provided for @trackerNoStormNow.
+  ///
+  /// In en, this message translates to:
+  /// **'No tropical cyclone in PAR now. Showing the last one.'**
+  String get trackerNoStormNow;
+
+  /// No description provided for @trackerStormLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} ({local})'**
+  String trackerStormLocal(String name, String local);
+
+  /// No description provided for @trackerActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get trackerActive;
+
+  /// No description provided for @trackerEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get trackerEnded;
+
+  /// No description provided for @trackerMaxWind.
+  ///
+  /// In en, this message translates to:
+  /// **'Strongest wind {kmh} km/h'**
+  String trackerMaxWind(int kmh);
+
+  /// No description provided for @trackerAdvisory.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest advisory {time}'**
+  String trackerAdvisory(String time);
+
+  /// No description provided for @trackerCategoryTd.
+  ///
+  /// In en, this message translates to:
+  /// **'Tropical depression'**
+  String get trackerCategoryTd;
+
+  /// No description provided for @trackerCategoryTs.
+  ///
+  /// In en, this message translates to:
+  /// **'Tropical storm'**
+  String get trackerCategoryTs;
+
+  /// No description provided for @trackerCategorySts.
+  ///
+  /// In en, this message translates to:
+  /// **'Severe tropical storm'**
+  String get trackerCategorySts;
+
+  /// No description provided for @trackerCategoryTy.
+  ///
+  /// In en, this message translates to:
+  /// **'Typhoon'**
+  String get trackerCategoryTy;
+
+  /// No description provided for @trackerCategorySty.
+  ///
+  /// In en, this message translates to:
+  /// **'Super typhoon'**
+  String get trackerCategorySty;
+
+  /// No description provided for @trackerWarningsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PAGASA warnings in force'**
+  String get trackerWarningsTitle;
+
+  /// No description provided for @trackerNoWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'None right now.'**
+  String get trackerNoWarnings;
+
+  /// No description provided for @trackerSignal.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal {level}'**
+  String trackerSignal(int level);
+
+  /// No description provided for @trackerFloodAdvisory.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood advisory'**
+  String get trackerFloodAdvisory;
+
+  /// No description provided for @trackerKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Key'**
+  String get trackerKeyTitle;
+
+  /// No description provided for @trackerKeyTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Track so far'**
+  String get trackerKeyTrack;
+
+  /// No description provided for @trackerKeyForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast track'**
+  String get trackerKeyForecast;
+
+  /// No description provided for @trackerKeyWind.
+  ///
+  /// In en, this message translates to:
+  /// **'Winds of {kmh} km/h or more'**
+  String trackerKeyWind(int kmh);
+
+  /// No description provided for @trackerKeyFlood.
+  ///
+  /// In en, this message translates to:
+  /// **'PAGASA flood advisory area'**
+  String get trackerKeyFlood;
+
+  /// No description provided for @trackerKeyPar.
+  ///
+  /// In en, this message translates to:
+  /// **'Philippine Area of Responsibility'**
+  String get trackerKeyPar;
+
+  /// No description provided for @trackerSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Storms: GDACS (JTWC advisories), every 30 minutes. Warnings: PAGASA. Rainfall: NASA IMERG, about 6 hours behind. For monitoring only; PAGASA\'s bulletins are the official word.'**
+  String get trackerSources;
 }
 
 class _AppLocalizationsDelegate

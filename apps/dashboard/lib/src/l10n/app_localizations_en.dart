@@ -4276,4 +4276,105 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forecastLiveWeatherNote =>
       'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The models are still the sample-trained ones and the levels provisional.';
+
+  @override
+  String get trackerTitle => 'Typhoon tracker';
+
+  @override
+  String get trackerLayerTrack => 'Storm track and wind';
+
+  @override
+  String get trackerLayerWarnings => 'PAGASA warnings';
+
+  @override
+  String get trackerLayerRainfall => 'Satellite rainfall';
+
+  @override
+  String get trackerLoading => 'Loading storms and warnings…';
+
+  @override
+  String get trackerError =>
+      'Storms and warnings could not be loaded. The map layers still show.';
+
+  @override
+  String get trackerNoStorm =>
+      'No tropical cyclone has entered PAR in the last 60 days.';
+
+  @override
+  String get trackerNoStormNow =>
+      'No tropical cyclone in PAR now. Showing the last one.';
+
+  @override
+  String trackerStormLocal(String name, String local) {
+    return '$name ($local)';
+  }
+
+  @override
+  String get trackerActive => 'Active';
+
+  @override
+  String get trackerEnded => 'Ended';
+
+  @override
+  String trackerMaxWind(int kmh) {
+    return 'Strongest wind $kmh km/h';
+  }
+
+  @override
+  String trackerAdvisory(String time) {
+    return 'Latest advisory $time';
+  }
+
+  @override
+  String get trackerCategoryTd => 'Tropical depression';
+
+  @override
+  String get trackerCategoryTs => 'Tropical storm';
+
+  @override
+  String get trackerCategorySts => 'Severe tropical storm';
+
+  @override
+  String get trackerCategoryTy => 'Typhoon';
+
+  @override
+  String get trackerCategorySty => 'Super typhoon';
+
+  @override
+  String get trackerWarningsTitle => 'PAGASA warnings in force';
+
+  @override
+  String get trackerNoWarnings => 'None right now.';
+
+  @override
+  String trackerSignal(int level) {
+    return 'Signal $level';
+  }
+
+  @override
+  String get trackerFloodAdvisory => 'Flood advisory';
+
+  @override
+  String get trackerKeyTitle => 'Key';
+
+  @override
+  String get trackerKeyTrack => 'Track so far';
+
+  @override
+  String get trackerKeyForecast => 'Forecast track';
+
+  @override
+  String trackerKeyWind(int kmh) {
+    return 'Winds of $kmh km/h or more';
+  }
+
+  @override
+  String get trackerKeyFlood => 'PAGASA flood advisory area';
+
+  @override
+  String get trackerKeyPar => 'Philippine Area of Responsibility';
+
+  @override
+  String get trackerSources =>
+      'Storms: GDACS (JTWC advisories), every 30 minutes. Warnings: PAGASA. Rainfall: NASA IMERG, about 6 hours behind. For monitoring only; PAGASA\'s bulletins are the official word.';
 }

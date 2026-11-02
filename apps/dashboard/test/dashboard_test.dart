@@ -15,6 +15,7 @@ import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
 import 'package:sagip_dashboard/src/features/forecast/forecast_page.dart';
 import 'package:sagip_dashboard/src/features/forecast/heat_layer.dart';
+import 'package:sagip_dashboard/src/features/forecast/storm_tracker.dart';
 import 'package:sagip_dashboard/src/features/shell/top_bar.dart';
 import 'package:sagip_dashboard/src/l10n/app_localizations.dart';
 import 'package:sagip_dashboard/src/providers.dart';
@@ -2024,6 +2025,67 @@ void main() {
     await settle(tester);
     expect(find.text('Barangay 412 only'), findsNothing);
     expect(find.text(elsewhere.fullName), findsOneWidget);
+  });
+
+  testWidgets('D8: the typhoon tracker zooms out and draws the storm', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Heatmap'));
+    await settle(tester);
+
+    // Off at first: the city, its barangay outlines, and the legend.
+    expect(find.text('Typhoon tracker'), findsOneWidget);
+    expect(find.byKey(const ValueKey('tracker-track')), findsNothing);
+    expect(find.byType(BarangayBoundaries), findsOneWidget);
+    expect(find.byKey(const ValueKey('forecast-legend')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('tracker-switch')));
+    await settle(tester);
+    // The sample typhoon: track, wind zones, its eye; PAGASA's Signal 2
+    // over Metro Manila and a flood advisory area; the sources named.
+    expect(find.byKey(const ValueKey('tracker-track')), findsOneWidget);
+    expect(find.byKey(const ValueKey('tracker-zones')), findsOneWidget);
+    expect(find.byKey(const ValueKey('tracker-eye')), findsOneWidget);
+    expect(find.byKey(const ValueKey('tracker-floods')), findsOneWidget);
+    expect(find.byKey(const ValueKey('tracker-par')), findsOneWidget);
+    expect(find.text('SAMPLE (Sample)'), findsOneWidget);
+    expect(find.text('Active'), findsOneWidget);
+    expect(find.text('Signal 2'), findsOneWidget);
+    expect(find.text('Metro Manila, Bulacan'), findsOneWidget);
+    expect(find.textContaining('GDACS'), findsOneWidget);
+    // Zoomed out to the Philippines; the outlines and legend step aside.
+    final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
+    expect(map.options.minZoom, trackerMinZoom);
+    expect(find.byType(BarangayBoundaries), findsNothing);
+    expect(find.byKey(const ValueKey('forecast-legend')), findsNothing);
+
+    // Each layer can be hidden.
+    await tester.tap(find.byKey(const ValueKey('tracker-layer-track')));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('tracker-track')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('tracker-layer-warnings')));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('tracker-floods')), findsNothing);
+
+    // No storm and no warnings: said plainly.
+    backend.setHazardFeeds(HazardFeeds.empty);
+    await settle(tester);
+    expect(
+      find.text('No tropical cyclone has entered PAR in the last 60 days.'),
+      findsOneWidget,
+    );
+    expect(find.text('None right now.'), findsOneWidget);
+
+    // Off again: back to the city.
+    await tester.tap(find.byKey(const ValueKey('tracker-switch')));
+    await settle(tester);
+    expect(find.byType(BarangayBoundaries), findsOneWidget);
+    expect(
+      tester.widget<FlutterMap>(find.byType(FlutterMap)).options.minZoom,
+      mapMinZoom,
+    );
   });
 
   testWidgets('D8: an overdue run is flagged; no run is said plainly', (

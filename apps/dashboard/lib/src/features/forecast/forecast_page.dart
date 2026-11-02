@@ -12,6 +12,7 @@ import '../../providers.dart';
 import '../../router.dart';
 import '../board/map_parts.dart';
 import 'heat_layer.dart';
+import 'storm_tracker.dart';
 
 /// Where each barangay's marker sits: its center (inside its boundary).
 final _centers = {
@@ -24,7 +25,8 @@ final _centers = {
 /// low is not painted) and ranked in the list. A barangay's panel shows
 /// all three hazards and why each has its level (the chance, the past
 /// incidents there, and the rule), what was recorded there in the last 12
-/// months, the registered vulnerable residents, and the weather now.
+/// months, the registered vulnerable residents, and the weather now. The
+/// typhoon tracker switch zooms out to the Philippines (storm_tracker.dart).
 
 class ForecastPage extends ConsumerStatefulWidget {
   const ForecastPage({super.key});
@@ -37,6 +39,8 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
   final _map = MapController();
   var _hazard = ForecastHazard.flood;
   String? _selected;
+  var _tracker = false;
+  var _layers = const TrackerLayers();
 
   @override
   void dispose() {
@@ -45,9 +49,29 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
   }
 
   void _select(String barangay) {
-    setState(() => _selected = barangay);
+    // Choosing a barangay goes back to the city.
+    setState(() {
+      _selected = barangay;
+      _tracker = false;
+    });
     final center = _centers[barangay];
     if (center != null) _map.move(toLatLng(center), 15);
+  }
+
+  void _setTracker(bool on) {
+    if (on) {
+      setState(() {
+        _tracker = true;
+        _selected = null;
+      });
+      // After the wider limits are in place.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _map.move(trackerCenter, trackerZoom);
+      });
+    } else {
+      _map.move(manilaCenter, 13.2);
+      setState(() => _tracker = false);
+    }
   }
 
   @override
@@ -57,6 +81,8 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
     final runAsync = ref.watch(forecastProvider);
     final run = runAsync.value;
     final selected = _selected;
+    final feeds = ref.watch(hazardFeedsProvider).value ?? HazardFeeds.empty;
+    final now = ref.watch(slowClockProvider).value ?? DateTime.now();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,8 +118,10 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 mapController: _map,
                 options: MapOptions(
                   backgroundColor: mapBackground(context),
-                  minZoom: mapMinZoom,
-                  cameraConstraint: mapCameraConstraint,
+                  minZoom: _tracker ? trackerMinZoom : mapMinZoom,
+                  cameraConstraint: _tracker
+                      ? trackerCameraConstraint
+                      : mapCameraConstraint,
                   initialCenter: manilaCenter,
                   initialZoom: 13.2,
                   maxZoom: 18,
@@ -103,15 +131,25 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 ),
                 children: [
                   const SagipBaseMap(),
+                  if (_tracker)
+                    ...trackerMapLayers(
+                      context: context,
+                      feeds: feeds,
+                      layers: _layers,
+                      tiles: ref.watch(mapTilesEnabledProvider),
+                      now: now,
+                    ),
                   // The heat map: a glow per barangay at moderate or high
                   // risk; the barangay lines stay on top, faint, for
                   // finding and clicking one.
                   if (run != null)
                     HeatLayer(weights: riskWeights(run, _hazard)),
-                  BarangayBoundaries(
-                    highlight: selected,
-                    onTap: run == null ? null : _select,
-                  ),
+                  // 897 outlines are noise at the scale of the country.
+                  if (!_tracker)
+                    BarangayBoundaries(
+                      highlight: selected,
+                      onTap: run == null ? null : _select,
+                    ),
                   if (run != null && selected != null)
                     _SelectedMarker(
                       run: run,
@@ -121,12 +159,26 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                   const MapAttribution(),
                 ],
               ),
-              if (run != null)
+              if (run != null && !_tracker)
                 Positioned(
                   left: SagipSpace.lg,
                   bottom: SagipSpace.x3,
                   child: _Legend(hazard: _hazard),
                 ),
+              Positioned(
+                left: SagipSpace.lg,
+                top: SagipSpace.lg,
+                bottom: SagipSpace.x3,
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: TrackerCard(
+                    on: _tracker,
+                    layers: _layers,
+                    onToggle: _setTracker,
+                    onLayers: (l) => setState(() => _layers = l),
+                  ),
+                ),
+              ),
               Positioned(
                 right: SagipSpace.lg,
                 bottom: SagipSpace.x3,

@@ -320,6 +320,14 @@ final forecastProvider = StreamProvider<ForecastRun?>(
   ),
 );
 
+/// The typhoon tracker's storms and PAGASA warnings (Heatmap page).
+final hazardFeedsProvider = StreamProvider<HazardFeeds>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(forecastRepositoryProvider).watchHazardFeeds(),
+  ),
+);
+
 /// The KDE's density per barangay and hazard: the Heatmap page's Hotspots.
 final densityProvider = StreamProvider<List<HazardDensity>>(
   (ref) => _forAccount(
