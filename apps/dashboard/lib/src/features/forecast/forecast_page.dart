@@ -37,7 +37,7 @@ class ForecastPage extends ConsumerStatefulWidget {
 
 class _ForecastPageState extends ConsumerState<ForecastPage> {
   final _map = MapController();
-  var _hazard = ForecastHazard.flood;
+  var _topic = HeatmapTopic.flood;
   String? _selected;
   var _tracker = false;
   var _layers = const TrackerLayers();
@@ -56,6 +56,15 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
     });
     final center = _centers[barangay];
     if (center != null) _map.move(toLatLng(center), 15);
+  }
+
+  /// The forecast hazard shown (flood while a recorded type is shown).
+  ForecastHazard get _hazard => _topic.hazard ?? ForecastHazard.flood;
+
+  void _setTopic(HeatmapTopic topic) {
+    // The tracker is for flood and storm surge only.
+    if (_tracker && !topic.allowsTracker) _setTracker(false);
+    setState(() => _topic = topic);
   }
 
   void _setTracker(bool on) {
@@ -83,6 +92,8 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
     final selected = _selected;
     final feeds = ref.watch(hazardFeedsProvider).value ?? HazardFeeds.empty;
     final now = ref.watch(slowClockProvider).value ?? DateTime.now();
+    final recordedType = _topic.recordedType;
+    final history = ref.watch(yearHistoryProvider);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,22 +104,46 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
             color: p.panel,
             border: Border(right: BorderSide(color: p.hairline)),
           ),
-          child: AsyncBody(
-            value: runAsync,
-            isEmpty: (run) => run == null,
-            empty: EmptyState(
-              icon: Symbols.radar_rounded,
-              title: l10n.forecastEmpty,
-              message: l10n.forecastEmptyHint,
-            ),
-            onRetry: () => ref.invalidate(forecastProvider),
-            builder: (run) => _RankedList(
-              run: run!,
-              hazard: _hazard,
-              selected: selected,
-              onHazard: (h) => setState(() => _hazard = h),
-              onSelect: _select,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _TopicPicker(
+                topic: _topic,
+                onTopic: _setTopic,
+                tracker: _tracker,
+                onTracker: _setTracker,
+              ),
+              Divider(height: 1, color: p.hairline),
+              Expanded(
+                child: recordedType != null
+                    ? AsyncBody(
+                        value: history,
+                        onRetry: () => ref.invalidate(yearHistoryProvider),
+                        builder: (history) => _RecordedList(
+                          type: recordedType,
+                          counts: recordedCounts(history, recordedType),
+                          selected: selected,
+                          onSelect: run == null ? null : _select,
+                        ),
+                      )
+                    : AsyncBody(
+                        value: runAsync,
+                        isEmpty: (run) => run == null,
+                        empty: EmptyState(
+                          icon: Symbols.radar_rounded,
+                          title: l10n.forecastEmpty,
+                          message: l10n.forecastEmptyHint,
+                        ),
+                        onRetry: () => ref.invalidate(forecastProvider),
+                        builder: (run) => _RankedList(
+                          run: run!,
+                          hazard: _hazard,
+                          selected: selected,
+                          onSelect: _select,
+                        ),
+                      ),
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -142,7 +177,16 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                   // The heat map: a glow per barangay at moderate or high
                   // risk; the barangay lines stay on top, faint, for
                   // finding and clicking one.
-                  if (run != null)
+                  if (recordedType != null)
+                    HeatLayer(
+                      weights: recordedWeights(
+                        recordedCounts(
+                          history.value ?? const <ClosedIncident>[],
+                          recordedType,
+                        ),
+                      ),
+                    )
+                  else if (run != null)
                     HeatLayer(weights: riskWeights(run, _hazard)),
                   // 897 outlines are noise at the scale of the country.
                   if (!_tracker)
@@ -150,7 +194,7 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                       highlight: selected,
                       onTap: run == null ? null : _select,
                     ),
-                  if (run != null && selected != null)
+                  if (run != null && selected != null && recordedType == null)
                     _SelectedMarker(
                       run: run,
                       hazard: _hazard,
@@ -159,26 +203,18 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                   const MapAttribution(),
                 ],
               ),
-              if (run != null && !_tracker)
+              if (recordedType != null)
+                Positioned(
+                  left: SagipSpace.lg,
+                  bottom: SagipSpace.x3,
+                  child: _RecordedLegend(type: recordedType),
+                )
+              else if (run != null && !_tracker)
                 Positioned(
                   left: SagipSpace.lg,
                   bottom: SagipSpace.x3,
                   child: _Legend(hazard: _hazard),
                 ),
-              Positioned(
-                left: SagipSpace.lg,
-                top: SagipSpace.lg,
-                bottom: SagipSpace.x3,
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: TrackerCard(
-                    on: _tracker,
-                    layers: _layers,
-                    onToggle: _setTracker,
-                    onLayers: (l) => setState(() => _layers = l),
-                  ),
-                ),
-              ),
               Positioned(
                 right: SagipSpace.lg,
                 bottom: SagipSpace.x3,
@@ -187,7 +223,20 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
             ],
           ),
         ),
-        if (run != null && selected != null)
+        if (_tracker)
+          Container(
+            width: 340,
+            decoration: BoxDecoration(
+              color: p.panel,
+              border: Border(left: BorderSide(color: p.hairline)),
+            ),
+            child: TrackerPanel(
+              layers: _layers,
+              onLayers: (l) => setState(() => _layers = l),
+              onClose: () => _setTracker(false),
+            ),
+          )
+        else if (run != null && selected != null)
           Container(
             width: 340,
             decoration: BoxDecoration(
@@ -221,19 +270,322 @@ Map<String, double> riskWeights(ForecastRun run, ForecastHazard hazard) => {
       f.barangay: riskHeat[f.riskOf(hazard)]!,
 };
 
+/// What the Heatmap page shows (2026-11-02): one of the forecast's three
+/// hazards, or where medical and structural incidents were recorded in the
+/// last 12 months (the forecast does not predict those; thesis scope).
+enum HeatmapTopic {
+  flood(hazard: ForecastHazard.flood),
+  fire(hazard: ForecastHazard.fire),
+  stormSurge(hazard: ForecastHazard.stormSurge),
+  medical(recordedType: IncidentType.medical),
+  structural(recordedType: IncidentType.structural);
+
+  const HeatmapTopic({this.hazard, this.recordedType});
+
+  final ForecastHazard? hazard;
+  final IncidentType? recordedType;
+
+  /// The typhoon tracker is offered for flood and storm surge only.
+  bool get allowsTracker =>
+      this == HeatmapTopic.flood || this == HeatmapTopic.stormSurge;
+}
+
+/// Resolved incidents of [type] per barangay, as the barangay panel counts
+/// them ("Recorded here, last 12 months").
+Map<String, int> recordedCounts(
+  List<ClosedIncident> history,
+  IncidentType type,
+) {
+  final out = <String, int>{};
+  for (final c in history) {
+    final b = c.incident.barangay;
+    if (c.ending == IncidentEnding.resolved && c.incident.type == type) {
+      out[b] = (out[b] ?? 0) + 1;
+    }
+  }
+  return out;
+}
+
+/// The heat map's glow for recorded counts: the busiest barangay is red.
+Map<String, double> recordedWeights(Map<String, int> counts) {
+  if (counts.isEmpty) return const {};
+  final most = counts.values.reduce((a, b) => a > b ? a : b);
+  return {
+    for (final MapEntry(:key, :value) in counts.entries)
+      key: (value / most).clamp(0.1, 1.0),
+  };
+}
+
+/// The topic chips (forecast hazards, recorded types) and, for flood and
+/// storm surge, the typhoon tracker switch.
+class _TopicPicker extends StatelessWidget {
+  const _TopicPicker({
+    required this.topic,
+    required this.onTopic,
+    required this.tracker,
+    required this.onTracker,
+  });
+
+  final HeatmapTopic topic;
+  final ValueChanged<HeatmapTopic> onTopic;
+  final bool tracker;
+  final ValueChanged<bool> onTracker;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final label = text.labelMedium!.copyWith(
+      color: p.textSecondary,
+      fontWeight: FontWeight.w600,
+    );
+    Widget chips(List<HeatmapTopic> topics) => Wrap(
+      spacing: SagipSpace.sm,
+      runSpacing: SagipSpace.sm,
+      children: [
+        for (final t in topics)
+          ChoiceChip(
+            key: ValueKey('heatmap-topic-${t.name}'),
+            label: Text(
+              t.hazard != null
+                  ? l10n.hazard(t.hazard!)
+                  : l10n.incidentType(t.recordedType!),
+            ),
+            selected: topic == t,
+            showCheckmark: false,
+            onSelected: (_) => onTopic(t),
+          ),
+      ],
+    );
+    Widget group(String title, List<HeatmapTopic> topics) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 76,
+          child: Padding(
+            padding: const EdgeInsets.only(top: SagipSpace.sm),
+            child: Text(title, style: label),
+          ),
+        ),
+        Expanded(child: chips(topics)),
+      ],
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        SagipSpace.lg,
+        SagipSpace.md,
+        SagipSpace.lg,
+        SagipSpace.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          group(l10n.heatmapForecastGroup, const [
+            HeatmapTopic.flood,
+            HeatmapTopic.fire,
+            HeatmapTopic.stormSurge,
+          ]),
+          const SizedBox(height: SagipSpace.sm),
+          group(l10n.heatmapRecordedGroup, const [
+            HeatmapTopic.medical,
+            HeatmapTopic.structural,
+          ]),
+          if (topic.allowsTracker) ...[
+            const SizedBox(height: SagipSpace.sm),
+            Container(
+              padding: const EdgeInsets.only(
+                left: SagipSpace.md,
+                right: SagipSpace.xs,
+              ),
+              decoration: BoxDecoration(
+                color: tracker ? p.panelRaised : Colors.transparent,
+                borderRadius: BorderRadius.circular(SagipRadius.card),
+                border: Border.all(color: p.hairline),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Symbols.cyclone_rounded,
+                    size: 20,
+                    color: p.textSecondary,
+                  ),
+                  const SizedBox(width: SagipSpace.md),
+                  Expanded(
+                    child: Text(l10n.trackerTitle, style: text.titleSmall),
+                  ),
+                  Switch(
+                    key: const ValueKey('tracker-switch'),
+                    value: tracker,
+                    onChanged: onTracker,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Barangays ranked by how many incidents of [type] were recorded there.
+class _RecordedList extends StatelessWidget {
+  const _RecordedList({
+    required this.type,
+    required this.counts,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final IncidentType type;
+  final Map<String, int> counts;
+  final String? selected;
+  final ValueChanged<String>? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final districts = {for (final b in manilaBarangays) b.name: b.district};
+    final ranked = counts.entries.toList()
+      ..sort((a, b) {
+        final c = b.value.compareTo(a.value);
+        return c != 0 ? c : a.key.compareTo(b.key);
+      });
+    final kind = l10n.incidentType(type).toLowerCase();
+    return ListView(
+      key: const ValueKey('recorded-list'),
+      padding: const EdgeInsets.only(bottom: SagipSpace.xxl),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(SagipSpace.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(l10n.recordedTitle, style: text.titleMedium),
+                  ),
+                  SagipChip(
+                    label: l10n.recordedNotForecast,
+                    tone: p.neutral,
+                    icon: Symbols.history_rounded,
+                  ),
+                ],
+              ),
+              const SizedBox(height: SagipSpace.sm),
+              Text(l10n.recordedNote(kind), style: text.bodySmall),
+              const SizedBox(height: SagipSpace.md),
+              Text(
+                l10n.recordedSummary(
+                  counts.values.fold(0, (a, b) => a + b),
+                  counts.length,
+                ),
+                style: text.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        Divider(height: 1, color: p.hairline),
+        if (ranked.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(SagipSpace.lg),
+            child: EmptyState(
+              icon: incidentTypeIcon(type),
+              title: l10n.recordedEmpty(kind),
+              message: l10n.recordedEmptyHint,
+            ),
+          ),
+        for (final MapEntry(key: barangay, value: n) in ranked)
+          _BarangayRow(
+            key: ValueKey('recorded-row-$barangay'),
+            barangay: barangay,
+            district: districts[barangay] ?? '',
+            trailing: SagipChip(
+              label: l10n.recordedCount(n),
+              tone: p.neutral,
+              icon: incidentTypeIcon(type),
+            ),
+            selected: barangay == selected,
+            onTap: onSelect == null ? null : () => onSelect!(barangay),
+          ),
+      ],
+    );
+  }
+}
+
+/// The key for a recorded type: fewer to more, and that it is no forecast.
+class _RecordedLegend extends StatelessWidget {
+  const _RecordedLegend({required this.type});
+
+  final IncidentType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final warm = p.warning.fill, hot = p.critical.fill;
+    return Container(
+      key: const ValueKey('recorded-legend'),
+      width: 340,
+      padding: const EdgeInsets.all(SagipSpace.md),
+      decoration: floatingCard(p),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            l10n.recordedLegend(l10n.incidentType(type)),
+            style: text.labelMedium,
+          ),
+          const SizedBox(height: SagipSpace.sm),
+          Container(
+            height: 10,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: p.hairline),
+              gradient: LinearGradient(
+                colors: [
+                  for (final r in [0.1, 0.55, 1.0])
+                    Color.alphaBlend(
+                      heatColor(r, warm, hot).withValues(alpha: heatAlpha(r)),
+                      p.canvas,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: SagipSpace.xs),
+          Row(
+            children: [
+              Text(l10n.recordedFewer, style: text.bodySmall),
+              const Spacer(),
+              Text(l10n.recordedMore, style: text.bodySmall),
+            ],
+          ),
+          const SizedBox(height: SagipSpace.sm),
+          Text(l10n.recordedLegendNote, style: text.bodySmall),
+        ],
+      ),
+    );
+  }
+}
+
 class _RankedList extends ConsumerWidget {
   const _RankedList({
     required this.run,
     required this.hazard,
     required this.selected,
-    required this.onHazard,
     required this.onSelect,
   });
 
   final ForecastRun run;
   final ForecastHazard hazard;
   final String? selected;
-  final ValueChanged<ForecastHazard> onHazard;
   final ValueChanged<String> onSelect;
 
   @override
@@ -303,17 +655,6 @@ class _RankedList extends ConsumerWidget {
                 const SizedBox(height: SagipSpace.md),
                 _StaleNotice(message: l10n.forecastStale),
               ],
-              const SizedBox(height: SagipSpace.lg),
-              SegmentedButton<ForecastHazard>(
-                segments: [
-                  for (final h in ForecastHazard.values)
-                    // Text only: with icons "Storm surge" wraps at this width.
-                    ButtonSegment(value: h, label: Text(l10n.hazard(h))),
-                ],
-                selected: {hazard},
-                showSelectedIcon: false,
-                onSelectionChanged: (s) => onHazard(s.first),
-              ),
               const SizedBox(height: SagipSpace.md),
               Text(
                 l10n.forecastCounts(
@@ -332,7 +673,10 @@ class _RankedList extends ConsumerWidget {
             key: ValueKey('forecast-row-${f.barangay}'),
             barangay: f.barangay,
             district: f.district,
-            risk: f.riskOf(hazard),
+            trailing: SagipChip.status(
+              label: l10n.risk(f.riskOf(hazard)),
+              visual: riskVisual(f.riskOf(hazard), p),
+            ),
             selected: f.barangay == selected,
             onTap: () => onSelect(f.barangay),
           ),
@@ -357,7 +701,7 @@ class _RankedList extends ConsumerWidget {
               key: ValueKey('forecast-row-${b.name}'),
               barangay: b.name,
               district: b.district,
-              risk: null,
+              trailing: null,
               selected: false,
               onTap: null,
             ),
@@ -405,7 +749,7 @@ class _BarangayRow extends StatelessWidget {
     super.key,
     required this.barangay,
     required this.district,
-    required this.risk,
+    required this.trailing,
     required this.selected,
     required this.onTap,
   });
@@ -413,14 +757,13 @@ class _BarangayRow extends StatelessWidget {
   final String barangay;
   final String district;
 
-  /// Null for a barangay the run has no forecast for.
-  final RiskLevel? risk;
+  /// The risk or count chip; null for a barangay with nothing to show.
+  final Widget? trailing;
   final bool selected;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
     return Semantics(
@@ -457,11 +800,7 @@ class _BarangayRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (risk != null)
-                  SagipChip.status(
-                    label: l10n.risk(risk!),
-                    visual: riskVisual(risk!, p),
-                  ),
+                ?trailing,
               ],
             ),
           ),

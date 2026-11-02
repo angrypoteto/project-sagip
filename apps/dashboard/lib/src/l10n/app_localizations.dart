@@ -7230,7 +7230,7 @@ abstract class AppLocalizations {
   /// No description provided for @trackerLayerTrack.
   ///
   /// In en, this message translates to:
-  /// **'Storm track and wind'**
+  /// **'Typhoon track'**
   String get trackerLayerTrack;
 
   /// No description provided for @trackerLayerWarnings.
@@ -7244,6 +7244,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Satellite rainfall'**
   String get trackerLayerRainfall;
+
+  /// No description provided for @trackerLayerSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Himawari satellite'**
+  String get trackerLayerSatellite;
+
+  /// No description provided for @trackerLayersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Layers'**
+  String get trackerLayersTitle;
+
+  /// No description provided for @trackerSourceTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'GDACS, from JTWC advisories, every 30 minutes'**
+  String get trackerSourceTrack;
+
+  /// No description provided for @trackerSourceSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'NASA GIBS, Himawari infrared, every 10 minutes'**
+  String get trackerSourceSatellite;
+
+  /// No description provided for @trackerSourceRainfall.
+  ///
+  /// In en, this message translates to:
+  /// **'NASA IMERG, about 6 hours behind'**
+  String get trackerSourceRainfall;
+
+  /// No description provided for @trackerSourceWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'PAGASA public alerts'**
+  String get trackerSourceWarnings;
+
+  /// No description provided for @trackerOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get trackerOpacity;
+
+  /// No description provided for @trackerKeyCone.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast cone'**
+  String get trackerKeyCone;
+
+  /// No description provided for @trackerKeyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'GDACS gives no wind for each position, so a severe tropical storm shows as a tropical storm.'**
+  String get trackerKeyNote;
+
+  /// No description provided for @trackerAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About this data'**
+  String get trackerAboutTitle;
+
+  /// No description provided for @trackerCategoryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get trackerCategoryOther;
 
   /// No description provided for @trackerLoading.
   ///
@@ -7329,12 +7395,6 @@ abstract class AppLocalizations {
   /// **'Super typhoon'**
   String get trackerCategorySty;
 
-  /// No description provided for @trackerWarningsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'PAGASA warnings in force'**
-  String get trackerWarningsTitle;
-
   /// No description provided for @trackerNoWarnings.
   ///
   /// In en, this message translates to:
@@ -7392,8 +7452,86 @@ abstract class AppLocalizations {
   /// No description provided for @trackerSources.
   ///
   /// In en, this message translates to:
-  /// **'Storms: GDACS (JTWC advisories), every 30 minutes. Warnings: PAGASA. Rainfall: NASA IMERG, about 6 hours behind. For monitoring only; PAGASA\'s bulletins are the official word.'**
+  /// **'For monitoring only; PAGASA\'s bulletins are the official word. Satellite imagery courtesy of NASA GIBS (JMA Himawari). Storms from GDACS (European Commission and UN).'**
   String get trackerSources;
+
+  /// No description provided for @heatmapForecastGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast'**
+  String get heatmapForecastGroup;
+
+  /// No description provided for @heatmapRecordedGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded'**
+  String get heatmapRecordedGroup;
+
+  /// No description provided for @recordedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded incidents'**
+  String get recordedTitle;
+
+  /// No description provided for @recordedNotForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a forecast'**
+  String get recordedNotForecast;
+
+  /// No description provided for @recordedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Where {kind} incidents were resolved in the last 12 months. The forecast does not predict this type.'**
+  String recordedNote(String kind);
+
+  /// No description provided for @recordedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 incident} other{{count} incidents}} in {barangays, plural, =1{1 barangay} other{{barangays} barangays}}'**
+  String recordedSummary(int count, int barangays);
+
+  /// No description provided for @recordedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}'**
+  String recordedCount(int count);
+
+  /// No description provided for @recordedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No {kind} incidents resolved in the last 12 months'**
+  String recordedEmpty(String kind);
+
+  /// No description provided for @recordedEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved incidents appear here once closed.'**
+  String get recordedEmptyHint;
+
+  /// No description provided for @recordedLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} incidents recorded, last 12 months'**
+  String recordedLegend(String type);
+
+  /// No description provided for @recordedFewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer'**
+  String get recordedFewer;
+
+  /// No description provided for @recordedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get recordedMore;
+
+  /// No description provided for @recordedLegendNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded incidents, not a forecast. Click a barangay to see its history.'**
+  String get recordedLegendNote;
 }
 
 class _AppLocalizationsDelegate

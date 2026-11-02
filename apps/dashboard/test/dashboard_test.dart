@@ -2043,8 +2043,15 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('tracker-switch')));
     await settle(tester);
-    // The sample typhoon: track, wind zones, its eye; PAGASA's Signal 2
-    // over Metro Manila and a flood advisory area; the sources named.
+    // The sample typhoon: track with a category marker per position, wind
+    // zones, its latest position; PAGASA's Signal 2 over Metro Manila and a
+    // flood advisory area; in a panel on the right with the key.
+    expect(find.byKey(const ValueKey('tracker-panel')), findsOneWidget);
+    expect(find.byKey(const ValueKey('tracker-markers')), findsOneWidget);
+    expect(find.byType(CategoryMarker), findsAtLeastNWidgets(7));
+    expect(find.text('Super typhoon'), findsOneWidget);
+    expect(find.text('Himawari satellite'), findsOneWidget);
+    expect(find.text('Opacity'), findsOneWidget, reason: 'satellite only');
     expect(find.byKey(const ValueKey('tracker-track')), findsOneWidget);
     expect(find.byKey(const ValueKey('tracker-zones')), findsOneWidget);
     expect(find.byKey(const ValueKey('tracker-eye')), findsOneWidget);
@@ -2054,7 +2061,7 @@ void main() {
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('Signal 2'), findsOneWidget);
     expect(find.text('Metro Manila, Bulacan'), findsOneWidget);
-    expect(find.textContaining('GDACS'), findsOneWidget);
+    expect(find.textContaining('GDACS'), findsWidgets);
     // Zoomed out to the Philippines; the outlines and legend step aside.
     final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
     expect(map.options.minZoom, trackerMinZoom);
@@ -2078,14 +2085,70 @@ void main() {
     );
     expect(find.text('None right now.'), findsOneWidget);
 
-    // Off again: back to the city.
-    await tester.tap(find.byKey(const ValueKey('tracker-switch')));
+    // Closed from its panel: back to the city.
+    await tester.tap(find.byKey(const ValueKey('tracker-close')));
     await settle(tester);
     expect(find.byType(BarangayBoundaries), findsOneWidget);
+    expect(find.byKey(const ValueKey('tracker-panel')), findsNothing);
     expect(
       tester.widget<FlutterMap>(find.byType(FlutterMap)).options.minZoom,
       mapMinZoom,
     );
+
+    // Offered for flood and storm surge only; choosing fire turns it off.
+    await tester.tap(find.byKey(const ValueKey('tracker-switch')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-fire')));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('tracker-switch')), findsNothing);
+    expect(find.byKey(const ValueKey('tracker-panel')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-stormSurge')));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('tracker-switch')), findsOneWidget);
+  });
+
+  testWidgets('D8: medical and structural show recorded incidents', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Heatmap'));
+    await settle(tester);
+
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-medical')));
+    await settle(tester);
+    // Recorded, not forecast: said in the list and the key; no tracker.
+    expect(find.byKey(const ValueKey('recorded-list')), findsOneWidget);
+    expect(find.text('Not a forecast'), findsOneWidget);
+    expect(find.byKey(const ValueKey('recorded-legend')), findsOneWidget);
+    expect(find.byKey(const ValueKey('forecast-legend')), findsNothing);
+    expect(find.byKey(const ValueKey('tracker-switch')), findsNothing);
+
+    // The heat map follows the counts: the busiest barangay is red.
+    final history = await tester.runAsync(
+      () => container
+          .read(incidentRepositoryProvider)
+          .watchHistory(from: now.subtract(const Duration(days: 365)), to: now)
+          .first,
+    );
+    final counts = recordedCounts(history!, IncidentType.medical);
+    final heat = tester.widget<HeatLayer>(find.byType(HeatLayer));
+    expect(heat.weights.keys.toSet(), counts.keys.toSet());
+    if (counts.isNotEmpty) {
+      expect(heat.weights.values.reduce((a, b) => a > b ? a : b), 1.0);
+      final top = counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
+      expect(find.byKey(ValueKey('recorded-row-${top.key}')), findsOneWidget);
+    } else {
+      expect(
+        find.text('No medical incidents resolved in the last 12 months'),
+        findsOneWidget,
+      );
+    }
+
+    // Back to a forecast hazard.
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-flood')));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('forecast-list')), findsOneWidget);
   });
 
   testWidgets('D8: an overdue run is flagged; no run is said plainly', (
@@ -2097,6 +2160,14 @@ void main() {
     await settle(tester);
 
     // Barangays the run has nothing for are listed apart, without a risk.
+    await tester.scrollUntilVisible(
+      find.text('No forecast'),
+      200,
+      scrollable: find.descendant(
+        of: find.byKey(const ValueKey('forecast-list')),
+        matching: find.byType(Scrollable),
+      ),
+    );
     expect(find.text('No forecast'), findsOneWidget);
     // All 897 barangays are listed; the first ones the run has nothing for
     // come right after the heading.

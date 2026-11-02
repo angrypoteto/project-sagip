@@ -4281,13 +4281,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerTitle => 'Typhoon tracker';
 
   @override
-  String get trackerLayerTrack => 'Storm track and wind';
+  String get trackerLayerTrack => 'Typhoon track';
 
   @override
   String get trackerLayerWarnings => 'PAGASA warnings';
 
   @override
   String get trackerLayerRainfall => 'Satellite rainfall';
+
+  @override
+  String get trackerLayerSatellite => 'Himawari satellite';
+
+  @override
+  String get trackerLayersTitle => 'Layers';
+
+  @override
+  String get trackerSourceTrack =>
+      'GDACS, from JTWC advisories, every 30 minutes';
+
+  @override
+  String get trackerSourceSatellite =>
+      'NASA GIBS, Himawari infrared, every 10 minutes';
+
+  @override
+  String get trackerSourceRainfall => 'NASA IMERG, about 6 hours behind';
+
+  @override
+  String get trackerSourceWarnings => 'PAGASA public alerts';
+
+  @override
+  String get trackerOpacity => 'Opacity';
+
+  @override
+  String get trackerKeyCone => 'Forecast cone';
+
+  @override
+  String get trackerKeyNote =>
+      'GDACS gives no wind for each position, so a severe tropical storm shows as a tropical storm.';
+
+  @override
+  String get trackerAboutTitle => 'About this data';
+
+  @override
+  String get trackerCategoryOther => 'Other';
 
   @override
   String get trackerLoading => 'Loading storms and warnings…';
@@ -4341,9 +4377,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackerCategorySty => 'Super typhoon';
 
   @override
-  String get trackerWarningsTitle => 'PAGASA warnings in force';
-
-  @override
   String get trackerNoWarnings => 'None right now.';
 
   @override
@@ -4376,5 +4409,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackerSources =>
-      'Storms: GDACS (JTWC advisories), every 30 minutes. Warnings: PAGASA. Rainfall: NASA IMERG, about 6 hours behind. For monitoring only; PAGASA\'s bulletins are the official word.';
+      'For monitoring only; PAGASA\'s bulletins are the official word. Satellite imagery courtesy of NASA GIBS (JMA Himawari). Storms from GDACS (European Commission and UN).';
+
+  @override
+  String get heatmapForecastGroup => 'Forecast';
+
+  @override
+  String get heatmapRecordedGroup => 'Recorded';
+
+  @override
+  String get recordedTitle => 'Recorded incidents';
+
+  @override
+  String get recordedNotForecast => 'Not a forecast';
+
+  @override
+  String recordedNote(String kind) {
+    return 'Where $kind incidents were resolved in the last 12 months. The forecast does not predict this type.';
+  }
+
+  @override
+  String recordedSummary(int count, int barangays) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count incidents',
+      one: '1 incident',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      barangays,
+      locale: localeName,
+      other: '$barangays barangays',
+      one: '1 barangay',
+    );
+    return '$_temp0 in $_temp1';
+  }
+
+  @override
+  String recordedCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String recordedEmpty(String kind) {
+    return 'No $kind incidents resolved in the last 12 months';
+  }
+
+  @override
+  String get recordedEmptyHint => 'Resolved incidents appear here once closed.';
+
+  @override
+  String recordedLegend(String type) {
+    return '$type incidents recorded, last 12 months';
+  }
+
+  @override
+  String get recordedFewer => 'Fewer';
+
+  @override
+  String get recordedMore => 'More';
+
+  @override
+  String get recordedLegendNote =>
+      'Recorded incidents, not a forecast. Click a barangay to see its history.';
 }
