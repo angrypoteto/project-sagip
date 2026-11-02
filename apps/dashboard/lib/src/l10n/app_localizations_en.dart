@@ -4269,4 +4269,11 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$type: $_temp0, last on $date';
   }
+
+  @override
+  String get forecastLiveWeather => 'Live weather';
+
+  @override
+  String get forecastLiveWeatherNote =>
+      'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The models are still the sample-trained ones and the levels provisional.';
 }

@@ -2103,8 +2103,9 @@ void main() {
             ForecastHazard.fire: RiskLevel.low,
             ForecastHazard.stormSurge: RiskLevel.low,
           },
-          isSimulated: true,
-          modelVersion: 'lstm-kde-v1 live',
+          modelVersion:
+              'lstm-kde-v1 live weather, 14 days to 2026-09-30 '
+              '(sample-trained model, provisional levels)',
         );
     backend.setForecast(
       ForecastRun.latest([
@@ -2123,6 +2124,13 @@ void main() {
     );
     await tester.tap(find.byTooltip('Heatmap'));
     await settle(tester);
+    // A run on this week's weather says so, and that the model is the
+    // sample-trained one.
+    expect(find.byKey(const ValueKey('forecast-live-weather')), findsOneWidget);
+    expect(
+      find.textContaining('still the sample-trained ones'),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const ValueKey('forecast-row-Barangay 412')));
     await settle(tester);
     final panel = find.byKey(const ValueKey('forecast-panel'));

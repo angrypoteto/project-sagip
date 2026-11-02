@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(617);
+select plan(627);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2953,18 +2953,49 @@ insert into public.forecast_model (version, model, is_active)
 select is(
   public.record_forecast_run('test-v', '2023-01-20', '{"flood": 0.6, "fire": 0.3, "storm_surge": 0.0}',
                              '{"Barangay 412": "hll"}', 20), 897, 'a run writes every barangay');
-select is((select (probabilities ->> 'flood')::numeric from public.forecast_run_detail where model_version = 'test-v'),
+select is((select (probabilities ->> 'flood')::numeric from public.forecast_run_detail where model_version like 'test-v %'),
   0.6, 'and keeps the run''s chances');
-select ok((select rule ? 'high' and rule ? 'moderate' from public.forecast_run_detail where model_version = 'test-v'),
+select ok((select rule ? 'high' and rule ? 'moderate' from public.forecast_run_detail where model_version like 'test-v %'),
   'and the rule in force');
 select ok(not has_table_privilege('anon', 'public.forecast_run_detail', 'select'), 'anon cannot read it');
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
-select is((select count(*)::int from public.forecast_run_detail where model_version = 'test-v'), 1,
+select is((select count(*)::int from public.forecast_run_detail where model_version like 'test-v %'), 1,
   'a dispatcher reads it');
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
 select is((select count(*)::int from public.forecast_run_detail), 0, 'a responder does not');
 reset role;
+
+-- ------------------------------------------------------- forecast on live weather
+-- run-forecast builds the 14 days to yesterday from Open-Meteo and SAGIP's
+-- own records (2026-11-02); a live run is labelled and not simulated.
+
+reset role;
+insert into public.weather_alert (signal_level, issued_at, storm_surge_m)
+  values (2, '2026-10-20 10:00+08', 1.5), (0, '2026-10-21 18:00+08', 0);
+select is((select count(*)::int from public.forecast_live_days('2026-10-18', '2026-11-01')), 15, 'one row a day');
+select is((select signal from public.forecast_live_days('2026-10-20', '2026-10-20')), 2, 'the signal raised that day');
+select is((select signal from public.forecast_live_days('2026-10-21', '2026-10-21')), 2,
+  'a reading lasts until the next one');
+select is((select signal from public.forecast_live_days('2026-10-22', '2026-10-22')), 0, 'and ends when it is lowered');
+select is((select surge_m from public.forecast_live_days('2026-10-20', '2026-10-20')), 1.5::real,
+  'the storm surge in force');
+select ok(not has_function_privilege('authenticated', 'public.forecast_live_days(date, date)', 'execute')
+  and not has_function_privilege('anon', 'public.forecast_live_days(date, date)', 'execute'),
+  'only the server reads the days');
+select ok(not has_function_privilege('authenticated',
+    'public.record_forecast_run_labelled(text, date, jsonb, jsonb, int, text, boolean)', 'execute')
+  and not has_function_privilege('anon',
+    'public.record_forecast_run_labelled(text, date, jsonb, jsonb, int, text, boolean)', 'execute'),
+  'only the server records runs');
+select is(public.record_forecast_run_labelled('test-l', '2026-11-01', '{"flood": 0.3}', '{}', 20,
+  'live weather, 14 days to 2026-11-01 (sample-trained model, provisional levels)', false), 897,
+  'a live run writes every barangay');
+select ok((select bool_and(not is_simulated) from public.barangay_forecast
+   where model_version = 'test-l live weather, 14 days to 2026-11-01 (sample-trained model, provisional levels)'),
+  'marked not simulated, under its label');
+select ok((select bool_and(is_simulated) from public.barangay_forecast where model_version like 'test-v %'),
+  'a replay is still marked simulated');
 
 -- The counters as the real records need them (see the top).
 reset role;

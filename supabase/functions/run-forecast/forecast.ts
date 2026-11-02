@@ -164,3 +164,101 @@ export function forecastRun(model: LiveModel, current: number | null) {
   }
   return { windowEnd: model.days[day], probabilities: probs, levels: levelCodes(model, probs), next };
 }
+
+// ------------------------------------------------------------- live weather
+
+/** Open-Meteo's answer, as run-forecast asks for it (Manila City Hall). */
+export interface OpenMeteo {
+  daily: {
+    time: string[];
+    precipitation_sum: (number | null)[];
+    wind_speed_10m_max: (number | null)[];
+  };
+  hourly: { time: string[]; precipitation: (number | null)[] };
+}
+
+/** One day of SAGIP's own records (`forecast_live_days`). */
+export interface RecordedDay {
+  day: string;
+  signal: number;
+  surge_m: number;
+  flood: number;
+  fire: number;
+}
+
+/** [iso] (YYYY-MM-DD) moved [n] days. */
+export function addDays(iso: string, n: number): string {
+  const t = new Date(`${iso}T00:00:00Z`);
+  t.setUTCDate(t.getUTCDate() + n);
+  return t.toISOString().slice(0, 10);
+}
+
+export interface LiveWindow {
+  days: string[];
+  /** The five weather readings of each day, as model.weather. */
+  weather: number[][];
+  /** Each hazard's incidents on the day before each day. */
+  prior: Record<Hazard, number[]>;
+}
+
+/**
+ * The [model.window] days ending on [end] from live sources (2026-11-02),
+ * built as the training data was (ml/forecast/data_prep/fetch_weather.py):
+ * the day's rain, its wettest hour, and its strongest 10 m wind from
+ * Open-Meteo; the highest PAGASA signal and storm surge in force that day,
+ * and the day before's incidents, from SAGIP's records. SAGIP has no storm
+ * surge incident type, so that count is 0. Null when a day is missing.
+ */
+export function liveWindow(
+  model: LiveModel,
+  om: OpenMeteo,
+  recorded: RecordedDay[],
+  end: string,
+): LiveWindow | null {
+  const days: string[] = [];
+  for (let k = model.window - 1; k >= 0; k--) days.push(addDays(end, -k));
+  const rainOf = new Map<string, number>();
+  const windOf = new Map<string, number>();
+  om.daily.time.forEach((d, i) => {
+    const rain = om.daily.precipitation_sum[i];
+    const wind = om.daily.wind_speed_10m_max[i];
+    if (rain !== null && rain !== undefined) rainOf.set(d, rain);
+    if (wind !== null && wind !== undefined) windOf.set(d, wind);
+  });
+  const wettest = new Map<string, number>();
+  om.hourly.time.forEach((stamp, i) => {
+    const mm = om.hourly.precipitation[i];
+    if (mm === null || mm === undefined) return;
+    const d = stamp.slice(0, 10);
+    wettest.set(d, Math.max(wettest.get(d) ?? 0, mm));
+  });
+  const ours = new Map(recorded.map((r) => [r.day, r]));
+  const weather: number[][] = [];
+  const prior: Record<Hazard, number[]> = { flood: [], fire: [], storm_surge: [] };
+  for (const d of days) {
+    const rain = rainOf.get(d);
+    const wind = windOf.get(d);
+    const day = ours.get(d);
+    const before = ours.get(addDays(d, -1));
+    if (rain === undefined || wind === undefined || !day || !before) return null;
+    weather.push([rain, wettest.get(d) ?? 0, day.signal, wind, day.surge_m]);
+    prior.flood.push(before.flood);
+    prior.fire.push(before.fire);
+    prior.storm_surge.push(0);
+  }
+  return { days, weather, prior };
+}
+
+/** One run on a live window: the probabilities and the level codes. */
+export function liveRun(model: LiveModel, win: LiveWindow) {
+  const probs = {} as Record<Hazard, number>;
+  for (const hz of hazards) {
+    const rows = win.weather.map((w, i) => [...w, win.prior[hz][i]]);
+    probs[hz] = probability(model.hazards[hz], rows);
+  }
+  return {
+    windowEnd: win.days[win.days.length - 1],
+    probabilities: probs,
+    levels: levelCodes(model, probs),
+  };
+}

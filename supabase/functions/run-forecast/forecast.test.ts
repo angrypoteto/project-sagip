@@ -6,12 +6,17 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
+  addDays,
   forecastRun,
   type Hazard,
   hazards,
   levelCodes,
+  liveRun,
+  liveWindow,
   type LiveModel,
+  type OpenMeteo,
   probability,
+  type RecordedDay,
   replayDay,
   riskLevel,
   windowAt,
@@ -83,4 +88,73 @@ test("a whole run: three probabilities and the codes", () => {
   assert.ok(Math.abs(run.probabilities.fire - fire.probability) < 1e-5);
   assert.equal(run.next, model.window - 1, "the last day wraps around");
   assert.ok(Object.keys(run.levels).length > 0, "fire at 66% raises some barangays");
+});
+
+// ------------------------------------------------------------- live weather
+
+/** Open-Meteo and SAGIP records that hold the replayed days [from..to]:
+ * each day's wettest hour as one hour, the rest dry. */
+function sourcesFor(from: number, to: number): { om: OpenMeteo; recorded: RecordedDay[] } {
+  const om: OpenMeteo = {
+    daily: { time: [], precipitation_sum: [], wind_speed_10m_max: [] },
+    hourly: { time: [], precipitation: [] },
+  };
+  const recorded: RecordedDay[] = [];
+  for (let d = from; d <= to; d++) {
+    const day = model.days[d];
+    const [rain, wettest, signal, wind, surge] = model.weather[d];
+    om.daily.time.push(day);
+    om.daily.precipitation_sum.push(rain);
+    om.daily.wind_speed_10m_max.push(wind);
+    for (let h = 0; h < 24; h++) {
+      om.hourly.time.push(`${day}T${String(h).padStart(2, "0")}:00`);
+      om.hourly.precipitation.push(h === 12 ? wettest : 0);
+    }
+    // prior_day_incidents[d + 1] is the count of day d.
+    recorded.push({
+      day,
+      signal,
+      surge_m: surge,
+      flood: model.hazards.flood.prior_day_incidents[d + 1] ?? 0,
+      fire: model.hazards.fire.prior_day_incidents[d + 1] ?? 0,
+    });
+  }
+  return { om, recorded };
+}
+
+test("a live window is built as the training data was", () => {
+  const end = model.days.indexOf("2024-07-02");
+  const { om, recorded } = sourcesFor(end - 14, end);
+  const win = liveWindow(model, om, recorded, "2024-07-02")!;
+  assert.equal(win.days.length, 14);
+  assert.equal(win.days[13], "2024-07-02");
+  assert.equal(win.days[0], addDays("2024-07-02", -13));
+  for (let i = 0; i < 14; i++) {
+    const d = end - 13 + i;
+    assert.deepEqual(win.weather[i], model.weather[d]);
+    assert.equal(win.prior.flood[i], model.hazards.flood.prior_day_incidents[d]);
+    assert.equal(win.prior.storm_surge[i], 0, "no storm surge incident type");
+  }
+});
+
+test("on live inputs the LSTM still matches Keras", () => {
+  for (const v of model.test_vectors.filter((t) => t.hazard !== "storm_surge")) {
+    const end = model.days.indexOf(v.window_end);
+    const { om, recorded } = sourcesFor(end - 14, end);
+    const run = liveRun(model, liveWindow(model, om, recorded, v.window_end)!);
+    assert.ok(
+      Math.abs(run.probabilities[v.hazard] - v.probability) < 1e-5,
+      `${v.hazard} ${v.window_end}: ${run.probabilities[v.hazard]} against Keras ${v.probability}`,
+    );
+    assert.equal(run.windowEnd, v.window_end);
+  }
+});
+
+test("a missing day gives no live window", () => {
+  const end = model.days.indexOf("2024-07-02");
+  const { om, recorded } = sourcesFor(end - 14, end);
+  assert.equal(liveWindow(model, om, recorded.slice(1), "2024-07-02"), null, "no record of the day before");
+  om.daily.precipitation_sum[5] = null;
+  const fresh = sourcesFor(end - 14, end).recorded;
+  assert.equal(liveWindow(model, om, fresh, "2024-07-02"), null, "no rain for a day");
 });

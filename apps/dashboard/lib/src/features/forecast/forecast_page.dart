@@ -221,6 +221,13 @@ class _RankedList extends ConsumerWidget {
                       label: l10n.simulatedFeed,
                       tone: p.neutral,
                       icon: Symbols.replay_rounded,
+                    )
+                  else if (run.isLiveWeather)
+                    SagipChip(
+                      key: const ValueKey('forecast-live-weather'),
+                      label: l10n.forecastLiveWeather,
+                      tone: p.neutral,
+                      icon: Symbols.partly_cloudy_day_rounded,
                     ),
                 ],
               ),
@@ -235,6 +242,10 @@ class _RankedList extends ConsumerWidget {
               if (run.isSample) ...[
                 const SizedBox(height: SagipSpace.xs),
                 Text(l10n.forecastSampleNote, style: text.bodySmall),
+              ],
+              if (run.isLiveWeather) ...[
+                const SizedBox(height: SagipSpace.xs),
+                Text(l10n.forecastLiveWeatherNote, style: text.bodySmall),
               ],
               if (run.isStaleAt(now)) ...[
                 const SizedBox(height: SagipSpace.md),

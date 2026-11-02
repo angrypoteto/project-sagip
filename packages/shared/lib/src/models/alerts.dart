@@ -456,6 +456,10 @@ class ForecastRun {
   /// Made-up values, not model output.
   bool get isSample => modelVersion == sampleModel;
 
+  /// A run on this week's real weather (2026-11-02), with the
+  /// sample-trained models: `run-forecast` names it "live weather".
+  bool get isLiveWeather => modelVersion?.contains('live weather') ?? false;
+
   bool isStaleAt(DateTime now) => now.difference(issuedAt) > staleAfter;
 
   BarangayForecast? forBarangay(String barangay) {

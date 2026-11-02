@@ -1385,5 +1385,7 @@
   "forecastHistoryTitle": "Recorded here, last 12 months",
   "forecastHistoryNone": "No incidents recorded here in the last 12 months.",
   "forecastHistoryLine": "{type}: {count, plural, =1{1 incident} other{{count} incidents}}, last on {date}",
-  "@forecastHistoryLine": {"placeholders": {"type": {"type": "String"}, "count": {"type": "int"}, "date": {"type": "String"}}}
+  "@forecastHistoryLine": {"placeholders": {"type": {"type": "String"}, "count": {"type": "int"}, "date": {"type": "String"}}},
+  "forecastLiveWeather": "Live weather",
+  "forecastLiveWeatherNote": "Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The models are still the sample-trained ones and the levels provisional."
 }

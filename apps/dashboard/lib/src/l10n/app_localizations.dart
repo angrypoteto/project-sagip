@@ -7208,6 +7208,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{type}: {count, plural, =1{1 incident} other{{count} incidents}}, last on {date}'**
   String forecastHistoryLine(String type, int count, String date);
+
+  /// No description provided for @forecastLiveWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Live weather'**
+  String get forecastLiveWeather;
+
+  /// No description provided for @forecastLiveWeatherNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The models are still the sample-trained ones and the levels provisional.'**
+  String get forecastLiveWeatherNote;
 }
 
 class _AppLocalizationsDelegate
