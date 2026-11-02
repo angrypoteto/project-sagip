@@ -21,7 +21,8 @@ Usage (from the repo root, after collect_dromic.py and collect_txtfire.py):
   .venv/Scripts/python ml/forecast/data_prep/place_fires.py
 
 Writes ml/forecast/data/manila_fire_dromic_placed.csv and
-ml/forecast/data/manila_fire_txtfire_placed.csv.
+ml/forecast/data/manila_fire_txtfire_placed.csv, and, when
+collect_txtfire_telegram.py has run, manila_fire_txtfire_telegram_placed.csv.
 """
 
 import csv
@@ -151,8 +152,8 @@ def street_query(place, district):
     return f"{text}, {district}, Manila" if text else None
 
 
-def place_txtfire(barangays, centres, locator):
-    rows = list(csv.DictReader((DATA / "manila_fire_txtfire.csv").open(encoding="utf-8")))
+def place_txtfire(barangays, centres, locator, source="manila_fire_txtfire.csv"):
+    rows = list(csv.DictReader((DATA / source).open(encoding="utf-8")))
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
     names_district = {n: d for n, (d, _, _) in barangays.items()}
     out = []
@@ -199,6 +200,10 @@ def main():
     write(DATA / "manila_fire_dromic_placed.csv", dromic)
     txt = place_txtfire(barangays, centres, locator)
     write(DATA / "manila_fire_txtfire_placed.csv", txt)
+    # TXTFIRE's Telegram channel (collect_txtfire_telegram.py, 2026-11-02), same rules.
+    if (DATA / "manila_fire_txtfire_telegram.csv").exists():
+        tg = place_txtfire(barangays, centres, locator, "manila_fire_txtfire_telegram.csv")
+        write(DATA / "manila_fire_txtfire_telegram_placed.csv", tg)
     for name, rows in (("DROMIC", dromic), ("TXTFIRE", txt)):
         counts = {}
         for r in rows:

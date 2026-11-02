@@ -786,5 +786,6 @@
   "dutyOffline": "Switching duty needs internet. Try again when you are online.",
   "notSharingOffDuty": "Location not shared while you are off duty",
   "alertsReadAll": "Mark all as read",
-  "alertsReadAllDone": "All alerts marked as read"
+  "alertsReadAllDone": "All alerts marked as read",
+  "forecastNotForecast": "Not forecast"
 }

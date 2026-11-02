@@ -4500,7 +4500,7 @@ abstract class AppLocalizations {
   /// No description provided for @forecastLegendNote.
   ///
   /// In en, this message translates to:
-  /// **'Amber glow: moderate risk. Red: high. Low is not painted. Click a barangay to see why. Boundaries: PSA, indicative.'**
+  /// **'Blue: low, with past incidents here. Purple: moderate. Red: high. Point at a barangay for its level; click it to see why. Boundaries: PSA, indicative.'**
   String get forecastLegendNote;
 
   /// No description provided for @forecastRisks.
@@ -7218,7 +7218,7 @@ abstract class AppLocalizations {
   /// No description provided for @forecastLiveWeatherNote.
   ///
   /// In en, this message translates to:
-  /// **'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The models are still the sample-trained ones and the levels provisional.'**
+  /// **'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The levels are provisional.'**
   String get forecastLiveWeatherNote;
 
   /// No description provided for @heatmapForecastGroup.
@@ -7298,6 +7298,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recorded incidents, not a forecast. Click a barangay to see its history.'**
   String get recordedLegendNote;
+
+  /// No description provided for @forecastNotForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Not forecast'**
+  String get forecastNotForecast;
+
+  /// No description provided for @forecastNotForecastNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{hazard} is not forecast: the recorded data (2021 to 2026) has no {hazard} incidents to learn from.'**
+  String forecastNotForecastNote(String hazard);
+
+  /// No description provided for @heatmapHoverPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'{barangay}, {district}'**
+  String heatmapHoverPlace(String barangay, String district);
+
+  /// No description provided for @heatmapHoverRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'{level} {hazard} risk'**
+  String heatmapHoverRisk(String level, String hazard);
+
+  /// No description provided for @heatmapHoverRiskChance.
+  ///
+  /// In en, this message translates to:
+  /// **'{level} {hazard} risk · {percent}% chance in Manila'**
+  String heatmapHoverRiskChance(String level, String hazard, String percent);
+
+  /// No description provided for @heatmapHoverRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No incidents recorded} =1{1 incident recorded} other{{count} incidents recorded}}'**
+  String heatmapHoverRecorded(int count);
 }
 
 class _AppLocalizationsDelegate

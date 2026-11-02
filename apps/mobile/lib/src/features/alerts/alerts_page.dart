@@ -471,7 +471,11 @@ class _ForecastView extends StatelessWidget {
           Text(l10n.forecastExplain, style: secondary),
           const SizedBox(height: SagipSpace.md),
           for (final h in ForecastHazard.values)
-            _RiskRow(hazard: h, risk: f.risks[h] ?? RiskLevel.low),
+            _RiskRow(
+              hazard: h,
+              risk: f.risks[h] ?? RiskLevel.low,
+              forecast: f.covers(h),
+            ),
           const SizedBox(height: SagipSpace.sm),
           Text(
             l10n.forecastValid(formatDateTime(f.validUntil, locale)),
@@ -499,10 +503,18 @@ class _ForecastView extends StatelessWidget {
 }
 
 class _RiskRow extends StatelessWidget {
-  const _RiskRow({required this.hazard, required this.risk});
+  const _RiskRow({
+    required this.hazard,
+    required this.risk,
+    this.forecast = true,
+  });
 
   final ForecastHazard hazard;
   final RiskLevel risk;
+
+  /// False for a hazard the model is not trained for (storm surge, from
+  /// 2026-11-02): "Not forecast" instead of a level.
+  final bool forecast;
 
   @override
   Widget build(BuildContext context) {
@@ -518,11 +530,19 @@ class _RiskRow extends StatelessWidget {
           Icon(icon, color: p.textSecondary),
           const SizedBox(width: SagipSpace.md),
           Expanded(child: Text(l10n.hazard(hazard), style: text.bodyLarge)),
-          SagipChip.status(
-            label: l10n.risk(risk),
-            visual: visual,
-            dense: false,
-          ),
+          if (forecast)
+            SagipChip.status(
+              label: l10n.risk(risk),
+              visual: visual,
+              dense: false,
+            )
+          else
+            SagipChip(
+              label: l10n.forecastNotForecast,
+              tone: p.neutral,
+              icon: Symbols.block_rounded,
+              dense: false,
+            ),
         ],
       ),
     );

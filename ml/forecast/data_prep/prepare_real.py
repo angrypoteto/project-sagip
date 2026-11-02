@@ -38,11 +38,20 @@ records found later the same day (--variant):
                   (data/manila_fire_txtfire_placed.csv), fires only in the months
                   TXTFIRE posted alerts (TXTFIRE_ACTIVE)
 
+  recorded        (2026-11-02, the model the live forecast runs) 2021-01-01 to
+                  2026-10-05; rainfall from ERA5 via Open-Meteo on every day (the
+                  source run-forecast reads live, so the model sees the same kind
+                  of numbers it was trained on); fires: DROMIC, TXTFIRE's website,
+                  and TXTFIRE's Telegram channel
+                  (data/manila_fire_txtfire_telegram_placed.csv,
+                  collect_txtfire_telegram.py), which posts every month of the
+                  period; floods and signals as dromic
+
 DROMIC posted only 4 Manila fire reports in 2017 and no 2016 to 2017 weather
 reports that still open, so both start in 2018.
 
 Usage (from ml/forecast):
-  ../../.venv/Scripts/python data_prep/prepare_real.py [--variant news|dromic|dromic_txtfire]
+  ../../.venv/Scripts/python data_prep/prepare_real.py [--variant news|dromic|dromic_txtfire|recorded]
 
 Writes (the news variant without the suffix):
   data/prepared[/<variant>]/manila_weather_prepared.csv     the daily features
@@ -54,6 +63,7 @@ Writes (the news variant without the suffix):
 
 import csv
 import json
+import math
 import sys
 from collections import Counter
 from datetime import date, timedelta
@@ -110,6 +120,15 @@ VARIANTS = {
     "news": {"fire": "news", "flood": "news", "track_signals": False},
     "dromic": {"fire": "dromic", "flood": "dromic", "track_signals": True},
     "dromic_txtfire": {"fire": "dromic+txtfire", "flood": "dromic", "track_signals": True},
+    "recorded": {"fire": "dromic+txtfire+telegram", "flood": "dromic", "track_signals": True,
+                 "rain": "era5", "period": (date(2021, 1, 1), date(2026, 10, 5))},
+    # EXPERIMENT (Joshua, 2026-11-02: "try the alarm-level question first"):
+    # as recorded, but a fire counts only if it reached an alarm level on
+    # TXTFIRE, or DROMIC reported it (families affected). Fires almost always
+    # happen somewhere in Manila within 72 hours; alarm-level fires do not.
+    "recorded_alarm": {"fire": "dromic+txtfire+telegram", "flood": "dromic", "track_signals": True,
+                       "rain": "era5", "period": (date(2021, 1, 1), date(2026, 10, 5)),
+                       "alarm_only": True},
 }
 
 
@@ -151,7 +170,7 @@ def days_between(first, last):
 # --- Weather ----------------------------------------------------------------
 
 
-def prepare_weather(log, track_signals=False):
+def prepare_weather(log, track_signals=False, rain="gsmap"):
     first, last = PERIOD
     period = days_between(first, last)
 
@@ -191,6 +210,13 @@ def prepare_weather(log, track_signals=False):
         "weather: GSMaP rainfall", "keep the period", len(gsmap), len(inside), removed=len(gsmap) - len(inside),
         note=f"{first} to {last}, the days every weather source covers",
     ))
+    if rain == "era5":
+        log.append(step(
+            "weather: GSMaP rainfall", "not used", len(inside), 0, removed=len(inside),
+            note="the recorded variant takes every day's rainfall from ERA5 (Open-Meteo), the source the live "
+            "forecast reads, so training and live inputs are the same kind of number",
+        ))
+        inside = {}
 
     # ERA5 (Open-Meteo): wettest hour and wind for every day.
     era5_rows = read_csv(DATA / "manila_weather_daily.csv")
@@ -475,8 +501,14 @@ def _placed_rows(path, name, log, coverage, read_note, keep=lambda r: True, remo
     return covered
 
 
-def prepare_fires_v2(log, with_txtfire):
+def prepare_fires_v2(log, with_txtfire, with_telegram=False, alarm_only=False):
     coverage = COVERAGE["fire"]
+    # The alarm-level experiment keeps only TXTFIRE fires that reached an
+    # alarm (DROMIC's are kept: each one affected families).
+    alarm_rule = {
+        "keep": lambda r: r.get("kind") == "alarm",
+        "removed_note": ", or no alarm level reached (the alarm-level experiment)",
+    } if alarm_only else {}
     fires = _placed_rows(
         DATA / "manila_fire_dromic_placed.csv", "incidents: fire (DSWD DROMIC)", log, coverage,
         "every DROMIC report of a fire in the City of Manila (fires that affected families), 2017 to 2026",
@@ -488,7 +520,16 @@ def prepare_fires_v2(log, with_txtfire):
         "TXTFIRE alerts grouped into fires (collect_txtfire.py) that reached an alarm level or were put out; "
         "alerts never verified or called false alarms were left out by place_fires.py "
         "(see manila_fire_txtfire.csv)",
+        **alarm_rule,
     )
+    if with_telegram:
+        telegram = _placed_rows(
+            DATA / "manila_fire_txtfire_telegram_placed.csv", "incidents: fire (TXTFIRE Telegram)", log, coverage,
+            "TXTFIRE's Telegram alerts grouped into fires (collect_txtfire_telegram.py), same rules as the "
+            "website's: an alarm level reached or the fire put out (see manila_fire_txtfire_telegram.csv)",
+            **alarm_rule,
+        )
+        alerts = alerts + telegram
     merged, same = list(fires), 0
     for a in alerts:
         match = any(
@@ -573,10 +614,43 @@ def prepare_floods_v2(log, locator):
 
 
 FORECAST_RAIN_DAYS = 0
+FIRE_EXTRAS = False
+
+# EXPERIMENT (Joshua, 2026-11-02: "try the extra-inputs experiment"), not the
+# thesis feature set: inputs that might tell fire days apart, each known on the
+# day the forecast is made. Fires in the records rise about 2x around New Year
+# and about 1.1x on dry-air days, and run about 1.2x in January to February.
+EXTRA_FEATURES = [
+    "humidity_min_pct (experiment)",
+    "days_since_rain (experiment)",
+    "season_sin (experiment)",
+    "season_cos (experiment)",
+    "holiday_next_72h (experiment)",
+]
+# Month-day of the days with more fires (New Year's Eve and Day, Christmas
+# Eve and Day, All Saints' Day): fixed every year, so known ahead.
+FIRE_HOLIDAYS = {"12-24", "12-25", "12-31", "01-01", "11-01"}
 
 
 def feature_names():
-    return list(FEATURES) + ([f"rain_next_{FORECAST_RAIN_DAYS}d_mm (experiment)"] if FORECAST_RAIN_DAYS else [])
+    return (list(FEATURES)
+            + ([f"rain_next_{FORECAST_RAIN_DAYS}d_mm (experiment)"] if FORECAST_RAIN_DAYS else [])
+            + (EXTRA_FEATURES if FIRE_EXTRAS else []))
+
+
+def extra_features(days, rain):
+    """The EXTRA_FEATURES for each day in days (ISO dates)."""
+    humidity = {r["date"]: r["humidity_min_pct"] for r in read_csv(DATA / "manila_humidity_daily.csv")}
+    out, dry = [], 0
+    for i, d in enumerate(days):
+        day = date.fromisoformat(d)
+        dry = 0 if rain[i] >= 1 else dry + 1
+        angle = 2 * math.pi * (day.timetuple().tm_yday - 1) / 365.25
+        ahead = [(day + timedelta(k)).strftime("%m-%d") for k in range(1, HORIZON + 1)]
+        h = humidity.get(d) or "70"
+        out.append([float(h), float(min(dry, 30)), math.sin(angle), math.cos(angle),
+                    1.0 if any(a in FIRE_HOLIDAYS for a in ahead) else 0.0])
+    return np.array(out)
 
 
 def segment_windows(weather_rows, incidents, segments):
@@ -597,6 +671,8 @@ def segment_windows(weather_rows, incidents, segments):
             rain = weather[:, 0]
             ahead = np.array([rain[i + 1 : i + 1 + FORECAST_RAIN_DAYS].sum() for i in range(len(rain))])
             features = np.column_stack([features, ahead])
+        if FIRE_EXTRAS:
+            features = np.column_stack([features, extra_features(days, weather[:, 0])])
         label = labels(count)
         for t in range(WINDOW, len(days)):
             if label[t] >= 0:
@@ -667,35 +743,49 @@ DATA_NOTES = {
     "docs/OBJECTIVE-2-RESULTS.md",
     "dromic_txtfire": "As dromic, with TXTFIRE's confirmed fire alerts added and fires limited to the months "
     "TXTFIRE posted alerts. See docs/OBJECTIVE-2-RESULTS.md",
+    "recorded_alarm": "EXPERIMENT (2026-11-02): as recorded, but a fire counts only if it reached an alarm "
+    "level on TXTFIRE, or DROMIC reported it (families affected).",
+    "recorded": "The live forecast's model (2026-11-02): 2021-01-01 to 2026-10-05, rainfall from ERA5 (Open-Meteo) "
+    "as the live feed reads it, fires from DROMIC and TXTFIRE (website and Telegram channel), floods from DROMIC "
+    "and MMDA lists in the news, signals from news and storm tracks. Real, but incomplete; see "
+    "docs/OBJECTIVE-2-RESULTS.md"
 }
 
 
 def main():
     import argparse
 
-    global COVERAGE, BUILD, OUT_DIR
+    global COVERAGE, BUILD, OUT_DIR, PERIOD
     parser = argparse.ArgumentParser()
     parser.add_argument("--variant", choices=list(VARIANTS), default="news")
+    parser.add_argument("--fire-extras", action="store_true",
+                        help="EXPERIMENT (2026-11-02): add humidity, dry days, season, and holidays as inputs")
     parser.add_argument("--forecast-rain-days", type=int, default=0,
                         help="EXPERIMENT (plan Q50 c): add the next N days' actual rain as a 7th feature")
     args = parser.parse_args()
     variant = args.variant
-    global FORECAST_RAIN_DAYS
+    global FORECAST_RAIN_DAYS, FIRE_EXTRAS
     FORECAST_RAIN_DAYS = args.forecast_rain_days
+    FIRE_EXTRAS = args.fire_extras
     config = VARIANTS[variant]
+    if "period" in config:
+        PERIOD = config["period"]
     if variant != "news":
-        BUILD = FORECAST / "build" / "real" / (variant + (f"_fc{FORECAST_RAIN_DAYS}d" if FORECAST_RAIN_DAYS else ""))
+        BUILD = FORECAST / "build" / "real" / (variant + (f"_fc{FORECAST_RAIN_DAYS}d" if FORECAST_RAIN_DAYS else "")
+                                               + ("_extras" if FIRE_EXTRAS else ""))
         OUT_DIR = DATA / "prepared" / variant
-        fire_cover = txtfire_active() if config["fire"] == "dromic+txtfire" else [(V2_START, PERIOD[1])]
-        COVERAGE = {"fire": fire_cover, "flood": [(V2_START, PERIOD[1])]}
+        fire_cover = txtfire_active() if config["fire"] == "dromic+txtfire" else [(max(V2_START, PERIOD[0]), PERIOD[1])]
+        COVERAGE = {"fire": fire_cover, "flood": [(max(V2_START, PERIOD[0]), PERIOD[1])]}
 
     log = []
-    weather = prepare_weather(log, track_signals=config["track_signals"])
+    weather = prepare_weather(log, track_signals=config["track_signals"], rain=config.get("rain", "gsmap"))
     locator = Locator()
     if variant == "news":
         incidents = {"fire": prepare_fires(log, locator), "flood": prepare_floods(log, locator)}
     else:
-        incidents = {"fire": prepare_fires_v2(log, config["fire"] == "dromic+txtfire"),
+        incidents = {"fire": prepare_fires_v2(log, config["fire"].startswith("dromic+txtfire"),
+                                              with_telegram=config["fire"].endswith("+telegram"),
+                                              alarm_only=config.get("alarm_only", False)),
                      "flood": prepare_floods_v2(log, locator)}
     log.append(step(
         "incidents: storm surge", "read", 0, 0,
@@ -732,6 +822,10 @@ def main():
         "hazards": {h: build_hazard(h, weather, rows) for h, rows in incidents.items()},
     }
     name = "prep_summary_real.json" if variant == "news" else f"prep_summary_{variant}.json"
+    if FIRE_EXTRAS:
+        name = f"prep_summary_{variant}_extras.json"
+        summary["experiment"] = ("extra fire inputs (humidity, days since rain, season, holidays in the next "
+                                 "72 hours); not the thesis feature set")
     if FORECAST_RAIN_DAYS:
         name = f"prep_summary_{variant}_fc{FORECAST_RAIN_DAYS}d.json"
         summary["experiment"] = (f"plan Q50 (c): a 7th feature, the actual rain of the next {FORECAST_RAIN_DAYS} "

@@ -21,6 +21,17 @@ model, nothing secret):
 
 Usage (TensorFlow is in .venv-tf), after train_lstm.py and kde.py:
   ../../.venv-tf/Scripts/python heatmap/export_live.py
+
+The live forecast's model (2026-11-02, Joshua: live weather, the model
+trained on the recorded 2021 to 2026 data) is exported with
+  ../../.venv-tf/Scripts/python heatmap/export_live.py --variant recorded
+after prepare_real.py --variant recorded, train_lstm.py on it, and kde.py on
+its incidents (kde/kde_summary_recorded.json). It writes
+supabase/data/forecast_live_v2.json ("lstm-kde-v2"): the LSTMs the records
+could train (flood and fire; there is no storm surge record), their scalers,
+the KDE density, the rule, and test vectors (raw 14-day windows from the
+test period with Keras's probability). It has no replay days: run-forecast
+feeds it the last 14 days of live weather.
 """
 
 import json
@@ -133,5 +144,74 @@ def main():
     print(f"wrote {OUT} ({OUT.stat().st_size // 1024} KB)")
 
 
+def main_recorded(variant):
+    import tensorflow as tf
+
+    build = BUILD / "real" / variant
+    prep = json.loads((FORECAST / "data_prep" / f"prep_summary_{variant}.json").read_text(encoding="utf-8"))
+    metrics = json.loads((FORECAST / "lstm" / f"lstm_metrics_{variant}.json").read_text(encoding="utf-8"))
+    kde = json.loads((FORECAST / "kde" / f"kde_summary_{variant}.json").read_text(encoding="utf-8"))
+    floor = min([RULE["high"]["density"]] + [m["density"] for m in RULE["moderate"]])
+
+    hazards, vectors, tested = {}, [], {}
+    for hazard in HAZARDS:
+        path = build / f"lstm_{hazard}.keras"
+        if not path.exists():
+            continue
+        data = np.load(build / f"windows_{hazard}.npz")
+        model = tf.keras.models.load_model(path)
+        mean, std = data["scaler_mean"], data["scaler_std"]
+        scored = kde["hazards"].get(hazard, {}).get("barangays", {})
+        hazards[hazard] = {
+            "scaler_mean": r(mean),
+            "scaler_std": r(std),
+            "model": export_model(model),
+            "density": {
+                name: round(b["relative"], 4)
+                for name, b in sorted(scored.items())
+                if b["relative"] >= floor
+            },
+        }
+        x = data["x_test"]
+        for i in sorted({0, len(x) // 2, len(x) - 1}):
+            raw = x[i] * std + mean
+            p = float(model.predict(x[i][np.newaxis, ...], verbose=0).ravel()[0])
+            vectors.append({"hazard": hazard, "window": [r(row, 9) for row in raw], "probability": p})
+        test = metrics["hazards"][hazard]["test"]
+        tested[hazard] = {
+            "windows": test["windows"],
+            "positives": test["positives"],
+            "lstm": {k: test["lstm"][k] for k in ("accuracy", "precision", "recall", "f1", "rmse")},
+            "always_majority_accuracy": test["baselines"]["always_majority"]["accuracy"],
+        }
+
+    out = {
+        "version": "lstm-kde-v2",
+        "data": prep["data"],
+        "trained_on": prep["period"],
+        "features": list(FEATURES),
+        "window": WINDOW,
+        "horizon_hours": 72,
+        "rule": RULE,
+        # Live only: run-forecast builds the window from today's weather.
+        "days": [],
+        "weather": [],
+        "hazards": hazards,
+        "test": tested,
+        "test_vectors": vectors,
+    }
+    out_path = OUT.with_name("forecast_live_v2.json")
+    out_path.write_text(json.dumps(out, separators=(",", ":")) + "\n", encoding="utf-8")
+    print(f"wrote {out_path} ({out_path.stat().st_size // 1024} KB): {', '.join(hazards)}")
+
+
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--variant", default=None, help="recorded: the live forecast's model (lstm-kde-v2)")
+    args = parser.parse_args()
+    if args.variant:
+        main_recorded(args.variant)
+    else:
+        main()

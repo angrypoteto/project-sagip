@@ -2364,4 +2364,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertsReadAllDone => 'All alerts marked as read';
+
+  @override
+  String get forecastNotForecast => 'Not forecast';
 }

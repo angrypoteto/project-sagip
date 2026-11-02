@@ -4,8 +4,10 @@
 // Since 2026-11-02 it runs on live weather: the 14 days to yesterday from
 // Open-Meteo (Manila City Hall) and SAGIP's own records
 // (`forecast_live_days`: PAGASA signal and storm surge, incidents), built as
-// the training data was. If a source fails it falls back to the replay
-// below and says so in the run's model version.
+// the training data was. The model is lstm-kde-v2, trained on the recorded
+// 2021 to 2026 data (export_live.py --variant recorded); it has no replay
+// days, so when a source fails the run is skipped and the last forecast
+// stays. (The sample model, v1, still falls back to its replay.)
 //
 // Every few hours the database calls this (migration forecast_live: pg_cron
 // and pg_net, with the same shared secret as send-alerts). It reads the
@@ -18,7 +20,7 @@
 // marked simulated and names the replayed day in its model version, a live
 // one names the last day of its window.
 //
-// The model is the sample one (made-up data): nothing it says is a result.
+// The levels come from the provisional rule (plan Q22).
 //
 // Deploy with JWT checking off (the shared secret is the check):
 //   supabase functions deploy run-forecast --no-verify-jwt
@@ -27,6 +29,7 @@ import { authorized } from "../sms-intake/intake.ts";
 import {
   addDays,
   forecastRun,
+  hazards,
   liveRun,
   liveWindow,
   type LiveModel,
@@ -115,15 +118,34 @@ Deno.serve(async (req) => {
     const input = await rpc<Input | null>("forecast_live_input");
     if (!input) return json(200, { status: "no model loaded" });
     let mode = "live";
-    let run: { windowEnd: string; probabilities: Record<string, number>; levels: Record<string, string>; next: number };
+    let run: {
+      windowEnd: string;
+      probabilities: Partial<Record<string, number>>;
+      levels: Record<string, string>;
+      next: number;
+    };
     let label: string | null;
     try {
       const r = await live(input.model);
       // The replay stays where it was, for the next fallback.
-      run = { ...r, next: replayDay(input.model, input.day_index).day };
-      label = `live weather, 14 days to ${r.windowEnd} (sample-trained model, provisional levels)`;
+      run = { ...r, next: input.model.days.length ? replayDay(input.model, input.day_index).day : 0 };
+      const trained = input.model.trained_on
+        ? `trained on recorded data ${input.model.trained_on[0].slice(0, 4)} to ${input.model.trained_on[1].slice(0, 4)}`
+        : "sample-trained model";
+      // Hazards the model was not trained for are named, so both apps say
+      // "Not forecast" instead of "Low" (2026-11-02).
+      const missing = hazards
+        .filter((hz) => !input.model.hazards[hz])
+        .map((hz) => `${hz.replace("_", " ")} not forecast`);
+      label = `live weather, 14 days to ${r.windowEnd} (${[trained, ...missing, "provisional levels"].join("; ")})`;
     } catch (e) {
-      mode = `replay (${e instanceof Error ? e.message : String(e)})`;
+      const why = e instanceof Error ? e.message : String(e);
+      if (!input.model.days.length) {
+        // A live-only model has nothing to replay: keep the last forecast.
+        console.log(`run-forecast: skipped (${why})`);
+        return json(503, { status: "skipped", reason: why });
+      }
+      mode = `replay (${why})`;
       run = forecastRun(input.model, input.day_index);
       label = null;
     }

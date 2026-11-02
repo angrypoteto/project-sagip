@@ -241,6 +241,20 @@ class SentAlert {
 /// Hazards the 72-hour forecast covers (LSTM + KDE, plan 10.5).
 enum ForecastHazard { flood, fire, stormSurge }
 
+/// Whether a run labelled [modelVersion] forecasts [hazard]. `run-forecast`
+/// names the hazards a model was not trained for in the run's label
+/// (2026-11-02: the model trained on the recorded 2021 to 2026 data has no
+/// storm surge record, so its runs say "storm surge not forecast"), so both
+/// apps can say so instead of showing "Low".
+bool forecastsHazard(String? modelVersion, ForecastHazard hazard) {
+  final name = switch (hazard) {
+    ForecastHazard.flood => 'flood',
+    ForecastHazard.fire => 'fire',
+    ForecastHazard.stormSurge => 'storm surge',
+  };
+  return !(modelVersion?.contains('$name not forecast') ?? false);
+}
+
 enum RiskLevel { low, moderate, high }
 
 /// The 72-hour risk forecast for one barangay (R7 Forecast tab, FR4).
@@ -270,6 +284,9 @@ class BarangayForecast {
   final String? modelVersion;
 
   RiskLevel riskOf(ForecastHazard hazard) => risks[hazard] ?? RiskLevel.low;
+
+  /// Whether this run's model forecasts [hazard] (see [forecastsHazard]).
+  bool covers(ForecastHazard hazard) => forecastsHazard(modelVersion, hazard);
 
   /// The hazard with the highest risk, for the preparation tips.
   ForecastHazard? get topHazard {
@@ -456,9 +473,12 @@ class ForecastRun {
   /// Made-up values, not model output.
   bool get isSample => modelVersion == sampleModel;
 
-  /// A run on this week's real weather (2026-11-02), with the
-  /// sample-trained models: `run-forecast` names it "live weather".
+  /// A run on this week's real weather (2026-11-02): `run-forecast` names
+  /// it "live weather".
   bool get isLiveWeather => modelVersion?.contains('live weather') ?? false;
+
+  /// Whether this run forecasts [hazard] (see [forecastsHazard]).
+  bool covers(ForecastHazard hazard) => forecastsHazard(modelVersion, hazard);
 
   bool isStaleAt(DateTime now) => now.difference(issuedAt) > staleAfter;
 

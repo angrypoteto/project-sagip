@@ -11,9 +11,14 @@ The model version is 'sample' while kde_summary.json comes from the made-up
 records (make_sample_data.py), so the dashboard labels the view a sample.
 
 Usage:
-  python ml/forecast/kde/export_density.py
+  python ml/forecast/kde/export_density.py [--summary kde/kde_summary_recorded.json]
+
+With the recorded fit (2026-11-02, the live forecast's model lstm-kde-v2) the
+rows are labelled kde-v2, so the barangay panel's "past incidents here" is the
+same KDE the live forecast uses.
 """
 
+import argparse
 import json
 from pathlib import Path
 
@@ -27,12 +32,15 @@ def quote(text):
 
 
 def main():
-    summary = json.loads((HERE / "kde_summary.json").read_text(encoding="utf-8"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--summary", default=HERE / "kde_summary.json")
+    args = parser.parse_args()
+    summary = json.loads(Path(args.summary).read_text(encoding="utf-8"))
     sample = str(summary.get("data", "")).startswith("SAMPLE")
-    version = "sample" if sample else "kde-v1"
+    version = "sample" if sample else ("kde-v2" if "recorded" in Path(args.summary).name else "kde-v1")
     rows = []
     for hazard, fit in summary["hazards"].items():
-        for name, b in fit["barangays"].items():
+        for name, b in fit.get("barangays", {}).items():
             if b["relative"] <= 0:
                 continue
             rows.append(

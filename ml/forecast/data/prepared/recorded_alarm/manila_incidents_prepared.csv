@@ -1,0 +1,670 @@
+incident_id,date,hazard,latitude,longitude,precision,barangay,use_for_kde,source_url
+TXTFIRE-20210106T1523,2021-01-06,fire,14.60954,120.96972,street,Barangay 56,yes,https://txtfire.net/fire-alert-01-06-2021-032343-pm/
+TXTFIRE-TG-20210106T1523,2021-01-06,fire,14.60954,120.96972,street,Barangay 56,yes,https://t.me/txtfirephilippines/14173
+TXTFIRE-20210119T2306,2021-01-19,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-01-19-2021-110625-pm/
+TXTFIRE-TG-20210119T2306,2021-01-19,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/14338
+TXTFIRE-TG-20210124T0608,2021-01-24,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/14398
+TXTFIRE-TG-20210130T1627,2021-01-30,fire,14.58515,121.00999,street,Barangay 905,yes,https://t.me/txtfirephilippines/14488
+TXTFIRE-TG-20210202T2125,2021-02-02,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/14531
+TXTFIRE-TG-20210216T2005,2021-02-16,fire,14.60231,120.97195,street,Barangay 287,yes,https://t.me/txtfirephilippines/14748
+TXTFIRE-TG-20210216T0150,2021-02-16,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/14736
+TXTFIRE-TG-20210216T2035,2021-02-16,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/14751
+DROMIC-fire-incident-in-parola-tondo-manila-city-20-february-2021,2021-02-20,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-parola-tondo-manila-city-20-february-2021/
+TXTFIRE-TG-20210221T0004,2021-02-21,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/14793
+TXTFIRE-TG-20210226T2058,2021-02-26,fire,14.61671,120.96198,street,Barangay 112,yes,https://t.me/txtfirephilippines/14880
+TXTFIRE-TG-20210305T1140,2021-03-05,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/14994
+DROMIC-fire-incident-in-brgy-719-vito-cruz-st-malate-manila-city-09,2021-03-09,fire,14.56189,120.99062,barangay,Barangay 719,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-719-vito-cruz-st-malate-manila-city-09-mar-2021/
+TXTFIRE-TG-20210309T0314,2021-03-09,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/15079
+TXTFIRE-TG-20210310T1024,2021-03-10,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/15090
+TXTFIRE-TG-20210311T0437,2021-03-11,fire,14.62117,120.97414,barangay,Barangay 155,yes,https://t.me/txtfirephilippines/15105
+DROMIC-fire-incident-in-brgys-574-and-576-manila-city-13-march-2021,2021-03-13,fire,14.60581,121.00440,barangay,Barangay 574,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-574-and-576-manila-city-13-march-2021/
+TXTFIRE-TG-20210317T0251,2021-03-17,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/15182
+TXTFIRE-TG-20210320T1435,2021-03-20,fire,14.58475,120.99848,street,Barangay 826,yes,https://t.me/txtfirephilippines/15239
+TXTFIRE-TG-20210403T1143,2021-04-03,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/15446
+TXTFIRE-TG-20210404T0519,2021-04-04,fire,14.59741,120.97566,street,Barangay 287,yes,https://t.me/txtfirephilippines/15474
+DROMIC-fire-incident-in-brgy-17-manila-city-23-apr-2021terminated,2021-04-23,fire,14.60161,120.96379,barangay,Barangay 17,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-17-manila-city-23-apr-2021terminated/
+TXTFIRE-TG-20210423T1039,2021-04-23,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/15706
+DROMIC-fire-incident-in-brgy-51-manila-city-30-apr-2021,2021-04-27,fire,14.61109,120.97195,barangay,Barangay 51,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-51-manila-city-30-apr-2021/
+TXTFIRE-TG-20210427T1643,2021-04-27,fire,14.59075,120.97548,district,,no,https://t.me/txtfirephilippines/15787
+TXTFIRE-TG-20210427T1738,2021-04-27,fire,14.58895,120.97782,street,Barangay 658,yes,https://t.me/txtfirephilippines/15791
+DROMIC-fire-incident-in-brgy-48-manila-city-30-apr-2021,2021-04-28,fire,14.60840,120.97138,barangay,Barangay 48,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-48-manila-city-30-apr-2021/
+TXTFIRE-TG-20210428T0615,2021-04-28,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/15815
+TXTFIRE-TG-20210428T0226,2021-04-28,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/15804
+TXTFIRE-TG-20210502T1525,2021-05-02,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/15889
+DROMIC-fire-incident-in-brgys-25-and-26-tondo-manila-10-may-2021,2021-05-10,fire,14.60468,120.96529,barangay,Barangay 25,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-25-and-26-tondo-manila-10-may-2021/
+TXTFIRE-TG-20210510T1016,2021-05-10,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/15978
+TXTFIRE-TG-20210516T0049,2021-05-16,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/16069
+TXTFIRE-TG-20210522T1916,2021-05-22,fire,14.58165,120.99164,street,Barangay 672,yes,https://t.me/txtfirephilippines/16187
+TXTFIRE-TG-20210522T1025,2021-05-22,fire,14.63425,120.97739,barangay,Barangay 199,yes,https://t.me/txtfirephilippines/16173
+TXTFIRE-TG-20210522T2349,2021-05-22,fire,14.59975,120.97386,street,Barangay 287,yes,https://t.me/txtfirephilippines/16192
+TXTFIRE-TG-20210522T0239,2021-05-22,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/16166
+DROMIC-fire-incident-in-brgy-650-zone-68-manila-city-26-may-2021,2021-05-26,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-650-zone-68-manila-city-26-may-2021/
+TXTFIRE-TG-20210529T0646,2021-05-29,fire,14.59162,121.01436,street,Barangay 839,yes,https://t.me/txtfirephilippines/16329
+DROMIC-fire-incident-in-brgys-275-and-286-manila-city-12-june-2021,2021-06-12,fire,14.59742,120.96502,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgys-275-and-286-manila-city-12-june-2021/
+TXTFIRE-TG-20210625T0800,2021-06-25,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/16638
+TXTFIRE-TG-20210626T2058,2021-06-26,fire,14.57827,120.99778,street,Barangay 685,yes,https://t.me/txtfirephilippines/16665
+TXTFIRE-20210706T0936,2021-07-06,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-7-6-2021-93634-am/
+TXTFIRE-20210706T0410,2021-07-06,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-7-6-2021-41042-am/
+TXTFIRE-TG-20210706T0936,2021-07-06,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/16791
+TXTFIRE-TG-20210706T0410,2021-07-06,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/16785
+DROMIC-fire-incident-in-brgy-767-manila-city15-july-2021,2021-07-15,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-767-manila-city15-july-2021/
+TXTFIRE-20210716T0120,2021-07-16,fire,14.58002,120.97899,street,Barangay 666,yes,https://txtfire.net/fire-alert-7-16-2021-12022-am/
+TXTFIRE-TG-20210716T0120,2021-07-16,fire,14.58002,120.97899,street,Barangay 666,yes,https://t.me/txtfirephilippines/16915
+TXTFIRE-20210717T0040,2021-07-17,fire,14.59694,120.98297,street,Barangay 306,yes,https://txtfire.net/fire-alert-7-17-2021-124036-am/
+TXTFIRE-TG-20210717T0040,2021-07-17,fire,14.59694,120.98297,street,Barangay 306,yes,https://t.me/txtfirephilippines/16927
+TXTFIRE-20210725T0420,2021-07-25,fire,14.61217,120.99525,street,Barangay 475,yes,https://txtfire.net/fire-alert-7-25-2021-42041-am/
+TXTFIRE-TG-20210725T0420,2021-07-25,fire,14.61217,120.99525,street,Barangay 475,yes,https://t.me/txtfirephilippines/17074
+TXTFIRE-20210731T1558,2021-07-31,fire,14.60530,120.98213,street,Barangay 312,yes,https://txtfire.net/fire-alert-7-31-2021-35829-pm/
+TXTFIRE-TG-20210731T1558,2021-07-31,fire,14.60530,120.98213,street,Barangay 312,yes,https://t.me/txtfirephilippines/17182
+TXTFIRE-20210905T0106,2021-09-05,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-9-5-2021-10622-am/
+TXTFIRE-TG-20210905T0106,2021-09-05,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/17519
+TXTFIRE-20211013T1844,2021-10-13,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://txtfire.net/fire-alert-10-13-2021-64415-pm/
+TXTFIRE-TG-20211013T1844,2021-10-13,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/17912
+DROMIC-fire-incident-in-brgy-649-manila-city-14-oct-2021,2021-10-14,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-14-oct-2021/
+TXTFIRE-20211016T1724,2021-10-16,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-10-16-2021-52409-pm/
+TXTFIRE-TG-20211016T1724,2021-10-16,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/17952
+TXTFIRE-20211023T0937,2021-10-23,fire,14.59945,121.01558,street,Barangay 591,yes,https://txtfire.net/fire-alert-10-23-2021-93738-am/
+TXTFIRE-TG-20211023T0937,2021-10-23,fire,14.59945,121.01558,street,Barangay 591,yes,https://t.me/txtfirephilippines/18031
+TXTFIRE-20211031T1733,2021-10-31,fire,14.62943,120.97279,street,Barangay 179,yes,https://txtfire.net/fire-alert-10-31-2021-53356-pm/
+TXTFIRE-TG-20211031T1728,2021-10-31,fire,14.62943,120.97279,street,Barangay 179,yes,https://t.me/txtfirephilippines/18081
+TXTFIRE-20211101T1638,2021-11-01,fire,14.59975,120.96741,barangay,Barangay 272,yes,https://txtfire.net/fire-alert-11-1-2021-43832-pm/
+TXTFIRE-TG-20211101T1638,2021-11-01,fire,14.59975,120.96741,barangay,Barangay 272,yes,https://t.me/txtfirephilippines/18099
+TXTFIRE-20211117T1456,2021-11-17,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-11-17-2021-25606-pm/
+TXTFIRE-TG-20211117T1456,2021-11-17,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/18297
+TXTFIRE-20211202T0029,2021-12-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-2-2021-122948-am/
+TXTFIRE-TG-20211202T0029,2021-12-02,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/18482
+DROMIC-fire-incident-in-brgy-775-manila-city-07-dec-2021,2021-12-07,fire,14.57193,121.00672,barangay,Barangay 775,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-775-manila-city-07-dec-2021/
+TXTFIRE-20211215T2130,2021-12-15,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-12-15-2021-93055-pm/
+TXTFIRE-TG-20211215T2130,2021-12-15,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/18708
+TXTFIRE-20211231T1707,2021-12-31,fire,14.57315,121.00295,street,Barangay 802,yes,https://txtfire.net/fire-alert-12-31-2021-50733-pm/
+TXTFIRE-TG-20211231T1707,2021-12-31,fire,14.57315,121.00295,street,Barangay 802,yes,https://t.me/txtfirephilippines/18865
+TXTFIRE-20220102T0316,2022-01-02,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-1-2-2022-31605-am/
+TXTFIRE-TG-20220102T0316,2022-01-02,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/18915
+TXTFIRE-20220103T1248,2022-01-03,fire,14.61308,120.96229,barangay,Barangay 120,yes,https://txtfire.net/fire-alert-1-3-2022-124838-pm/
+TXTFIRE-20220103T1305,2022-01-03,fire,14.57746,120.99513,street,Barangay 684,yes,https://txtfire.net/fire-alert-1-3-2022-10510-pm/
+TXTFIRE-TG-20220103T1248,2022-01-03,fire,14.61308,120.96229,barangay,Barangay 120,yes,https://t.me/txtfirephilippines/18941
+TXTFIRE-TG-20220103T1305,2022-01-03,fire,14.57746,120.99513,street,Barangay 684,yes,https://t.me/txtfirephilippines/18945
+DROMIC-fire-incident-in-brgy-656-manila-city-12-jan-2022,2022-01-12,fire,14.59404,120.97234,barangay,Barangay 656,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-656-manila-city-12-jan-2022/
+TXTFIRE-20220112T1533,2022-01-12,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-1-12-2022-33348-pm/
+TXTFIRE-TG-20220112T1533,2022-01-12,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/19101
+TXTFIRE-TG-20220115T0035,2022-01-15,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/19161
+TXTFIRE-20220118T1024,2022-01-18,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-1-18-2022-102440-am/
+TXTFIRE-TG-20220118T1024,2022-01-18,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/19220
+TXTFIRE-20220213T0821,2022-02-13,fire,14.61250,120.96384,barangay,Barangay 121,yes,https://txtfire.net/fire-alert-2-13-2022-82102-am/
+TXTFIRE-20220213T2223,2022-02-13,fire,14.60440,120.95341,street,Barangay 20,yes,https://txtfire.net/fire-alert-2-13-2022-102333-pm/
+TXTFIRE-TG-20220213T0821,2022-02-13,fire,14.61250,120.96384,barangay,Barangay 121,yes,https://t.me/txtfirephilippines/19619
+TXTFIRE-TG-20220213T2223,2022-02-13,fire,14.60440,120.95341,street,Barangay 20,yes,https://t.me/txtfirephilippines/19628
+TXTFIRE-TG-20220215T1455,2022-02-15,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/19674
+TXTFIRE-TG-20220217T1105,2022-02-17,fire,14.58463,120.98407,district,,no,https://t.me/txtfirephilippines/19715
+TXTFIRE-20220220T0946,2022-02-20,fire,14.61568,120.98332,district,,no,https://txtfire.net/fire-alert-2-20-2022-94656-am/
+TXTFIRE-TG-20220220T0946,2022-02-20,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/19756
+DROMIC-fire-incident-in-baseco-compound-brgy-649-manila-city-04-mar,2022-03-04,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-brgy-649-manila-city-04-mar-2022/
+TXTFIRE-20220320T2031,2022-03-20,fire,14.60724,121.00166,district,,no,https://txtfire.net/fire-alert-3-20-2022-83149-pm/
+TXTFIRE-TG-20220320T2031,2022-03-20,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/20242
+DROMIC-fire-incident-in-brgy-369-sta-cruz-manila-city-03-apr-2022,2022-04-03,fire,14.62318,120.98708,barangay,Barangay 369,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-369-sta-cruz-manila-city-03-apr-2022/
+TXTFIRE-TG-20220408T0615,2022-04-08,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/20574
+DROMIC-fire-incident-in-brgy-129-manila-city-19-apr-2022,2022-04-18,fire,14.62996,120.96345,barangay,Barangay 129,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-129-manila-city-19-apr-2022/
+TXTFIRE-20220502T1816,2022-05-02,fire,14.61089,120.97067,street,Barangay 56,yes,https://txtfire.net/fire-alert-5-2-2022-61612-pm/
+TXTFIRE-TG-20220502T1816,2022-05-02,fire,14.61089,120.97067,street,Barangay 56,yes,https://t.me/txtfirephilippines/20957
+DROMIC-fire-incident-in-brgy-215-tondo-manila-city-06-may-2022,2022-05-06,fire,14.62637,120.97795,barangay,Barangay 215,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-215-tondo-manila-city-06-may-2022/
+TXTFIRE-20220507T2250,2022-05-07,fire,14.61878,120.97050,district,,no,https://txtfire.net/fire-alert-5-7-2022-105045-pm/
+TXTFIRE-20220507T2101,2022-05-07,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-5-7-2022-90109-pm/
+TXTFIRE-TG-20220507T2250,2022-05-07,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/21087
+TXTFIRE-TG-20220507T2101,2022-05-07,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/21079
+DROMIC-fire-incident-in-brgy-310-sta-cruz-manila-city-10-may-2022,2022-05-10,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-sta-cruz-manila-city-10-may-2022/
+DROMIC-fire-incident-in-brgy-649-manila-city-19-may-2022terminated,2022-05-19,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-19-may-2022terminated/
+DROMIC-fire-incident-in-baseco-compound-tondo-manila-city-21-may-20,2022-05-21,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-tondo-manila-city-21-may-2022/
+TXTFIRE-20220521T1723,2022-05-21,fire,14.58780,121.00466,district,,no,https://txtfire.net/fire-alert-5-21-2022-52344-pm/
+TXTFIRE-20220521T0712,2022-05-21,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-5-21-2022-71211-am/
+TXTFIRE-TG-20220521T1723,2022-05-21,fire,14.58780,121.00466,district,,no,https://t.me/txtfirephilippines/21285
+TXTFIRE-TG-20220521T0712,2022-05-21,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/21278
+TXTFIRE-20220529T1535,2022-05-29,fire,14.59670,120.98302,street,Barangay 306,yes,https://txtfire.net/fire-alert-5-29-2022-33546-pm/
+TXTFIRE-TG-20220529T1535,2022-05-29,fire,14.59670,120.98302,street,Barangay 306,yes,https://t.me/txtfirephilippines/21423
+TXTFIRE-20220601T0441,2022-06-01,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-6-1-2022-44113-am/
+TXTFIRE-TG-20220601T0441,2022-06-01,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/21465
+TXTFIRE-20220602T0149,2022-06-02,fire,14.59455,120.98831,street,Barangay 385,yes,https://txtfire.net/fire-alert-6-2-2022-14927-am/
+TXTFIRE-TG-20220602T0149,2022-06-02,fire,14.59455,120.98831,street,Barangay 385,yes,https://t.me/txtfirephilippines/21480
+DROMIC-fire-incident-in-brgy-20-manila-city-08-jun-2022,2022-06-08,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-manila-city-08-jun-2022/
+TXTFIRE-20220614T1943,2022-06-14,fire,14.63185,120.97096,street,Barangay 182,yes,https://txtfire.net/fire-alert-6-14-2022-74327-pm/
+TXTFIRE-TG-20220614T1943,2022-06-14,fire,14.63185,120.97096,street,Barangay 182,yes,https://t.me/txtfirephilippines/21628
+TXTFIRE-20220617T0857,2022-06-17,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-6-17-2022-85744-am/
+TXTFIRE-TG-20220617T0857,2022-06-17,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/21663
+TXTFIRE-20220618T1015,2022-06-18,fire,14.59550,121.01462,street,Barangay 621,yes,https://txtfire.net/fire-alert-6-18-2022-101510-am/
+TXTFIRE-TG-20220618T1015,2022-06-18,fire,14.59550,121.01462,street,Barangay 621,yes,https://t.me/txtfirephilippines/21688
+TXTFIRE-20220619T1559,2022-06-19,fire,14.59790,120.95804,street,Barangay 20,yes,https://txtfire.net/fire-alert-6-19-2022-35932-pm/
+TXTFIRE-TG-20220619T1559,2022-06-19,fire,14.59790,120.95804,street,Barangay 20,yes,https://t.me/txtfirephilippines/21692
+TXTFIRE-20220622T1434,2022-06-22,fire,14.59950,120.98420,city,,no,https://txtfire.net/fire-alert-6-22-2022-23409-pm/
+TXTFIRE-TG-20220622T1434,2022-06-22,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/21731
+TXTFIRE-20220627T1949,2022-06-27,fire,14.59997,120.98811,street,Barangay 391,yes,https://txtfire.net/fire-alert-6-27-2022-74902-pm/
+TXTFIRE-TG-20220627T1949,2022-06-27,fire,14.59997,120.98811,street,Barangay 391,yes,https://t.me/txtfirephilippines/21780
+DROMIC-fire-incident-in-brgy-148-zone-13-tondo-manila-city-05-july-,2022-07-05,fire,14.62417,120.96968,barangay,Barangay 148,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-148-zone-13-tondo-manila-city-05-july-2022/
+TXTFIRE-20220711T2219,2022-07-11,fire,14.61802,120.97787,barangay,Barangay 226,yes,https://txtfire.net/fire-alert-7-11-2022-101948-pm/
+TXTFIRE-TG-20220711T2219,2022-07-11,fire,14.61802,120.97787,barangay,Barangay 226,yes,https://t.me/txtfirephilippines/21923
+TXTFIRE-20220716T1916,2022-07-16,fire,14.60134,120.97567,district,,no,https://txtfire.net/fire-alert-7-16-2022-71657-pm/
+TXTFIRE-TG-20220716T1916,2022-07-16,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/21990
+TXTFIRE-TG-20220726T1119,2022-07-26,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/22090
+TXTFIRE-TG-20220731T1854,2022-07-31,fire,14.59075,120.97548,district,,no,https://t.me/txtfirephilippines/22144
+DROMIC-fire-incident-in-brgy-311-sta-cruz-manila-02-august-2022,2022-08-02,fire,14.60669,120.98465,barangay,Barangay 311,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-311-sta-cruz-manila-02-august-2022/
+TXTFIRE-TG-20220804T0054,2022-08-04,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/22179
+TXTFIRE-TG-20220806T0942,2022-08-06,fire,14.56739,120.98584,street,Barangay 701,yes,https://t.me/txtfirephilippines/22237
+TXTFIRE-TG-20220814T0031,2022-08-14,fire,14.61495,120.98103,barangay,Barangay 331,yes,https://t.me/txtfirephilippines/22319
+TXTFIRE-TG-20220815T0116,2022-08-15,fire,14.57999,121.00063,street,Barangay 815,yes,https://t.me/txtfirephilippines/22338
+TXTFIRE-TG-20220817T2155,2022-08-17,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/22369
+DROMIC-fire-incident-in-brgy-636-zone-64-sta-mesa-manila-city-21-au,2022-08-21,fire,14.59709,121.00141,barangay,Barangay 636,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-636-zone-64-sta-mesa-manila-city-21-aug-2022/
+TXTFIRE-TG-20220829T1806,2022-08-29,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/22545
+TXTFIRE-TG-20220829T1249,2022-08-29,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/22538
+DROMIC-fire-incident-in-brgy-633-manila-city-30-aug-2022,2022-08-30,fire,14.59990,121.00249,barangay,Barangay 633,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-633-manila-city-30-aug-2022/
+DROMIC-fire-incident-in-brgy-147-manila-city-07-sep-2022,2022-09-07,fire,14.62322,120.96848,barangay,Barangay 147,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-147-manila-city-07-sep-2022/
+DROMIC-fire-incident-in-brgy-773-manila-city-07-sep-2022,2022-09-07,fire,14.57442,121.00669,barangay,Barangay 773,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-773-manila-city-07-sep-2022/
+DROMIC-fire-incident-in-brgy-13-manila-city-08-sep-2022,2022-09-08,fire,14.60309,120.96598,barangay,Barangay 13,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-13-manila-city-08-sep-2022/
+DROMIC-fire-incident-in-brgy-439-sampaloc-manila-city-11-sep-2022,2022-09-11,fire,14.60599,120.99884,barangay,Barangay 439,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-439-sampaloc-manila-city-11-sep-2022/
+TXTFIRE-TG-20220913T0956,2022-09-13,fire,14.59871,120.98616,district,,no,https://t.me/txtfirephilippines/22661
+DROMIC-fire-incident-in-brgy-662-zone-71-paco-manila-city-14-sep-20,2022-09-14,fire,14.58838,120.99293,barangay,Barangay 662,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-662-zone-71-paco-manila-city-14-sep-2022/
+TXTFIRE-TG-20220928T2218,2022-09-28,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/22853
+TXTFIRE-TG-20221027T2122,2022-10-27,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/23204
+TXTFIRE-TG-20221030T1900,2022-10-30,fire,14.60870,120.99614,street,Barangay 455,yes,https://t.me/txtfirephilippines/23266
+TXTFIRE-TG-20221103T1915,2022-11-03,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/23320
+TXTFIRE-TG-20221110T1433,2022-11-10,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/23391
+DROMIC-fire-incident-in-brgy-128-manila-city-13-nov-2022,2022-11-12,fire,14.63204,120.95273,barangay,Barangay 128,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-128-manila-city-13-nov-2022/
+TXTFIRE-TG-20221115T1009,2022-11-15,fire,14.58828,120.98819,barangay,Barangay 661,yes,https://t.me/txtfirephilippines/23463
+TXTFIRE-TG-20221119T1226,2022-11-19,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/23513
+TXTFIRE-TG-20221120T2227,2022-11-20,fire,14.58165,120.99164,street,Barangay 672,yes,https://t.me/txtfirephilippines/23521
+TXTFIRE-TG-20221128T2152,2022-11-28,fire,14.56850,120.99814,barangay,Barangay 754,yes,https://t.me/txtfirephilippines/23627
+DROMIC-fire-incident-in-brgy-450-zone-45-manila-city-30-nov-2022,2022-11-30,fire,14.61129,120.99710,barangay,Barangay 450,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-450-zone-45-manila-city-30-nov-2022/
+TXTFIRE-TG-20221211T2325,2022-12-11,fire,14.62117,120.97414,barangay,Barangay 155,yes,https://t.me/txtfirephilippines/23803
+TXTFIRE-TG-20221218T1618,2022-12-18,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/23956
+DROMIC-fire-incident-in-brgy-387-manila-city-29-dec-2022,2022-12-29,fire,14.59714,120.98769,barangay,Barangay 387,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-387-manila-city-29-dec-2022/
+DROMIC-fire-incident-in-brgy-254-tondo-manila-city-31-dec-2022,2022-12-31,fire,14.61188,120.97706,barangay,Barangay 254,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-254-tondo-manila-city-31-dec-2022/
+TXTFIRE-TG-20230101T0020,2023-01-01,fire,14.61188,120.97706,barangay,Barangay 254,yes,https://t.me/txtfirephilippines/24127
+TXTFIRE-TG-20230114T1254,2023-01-14,fire,14.58400,121.01146,barangay,Barangay 900,yes,https://t.me/txtfirephilippines/24329
+TXTFIRE-TG-20230116T0223,2023-01-16,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/24372
+DROMIC-fire-incident-in-brgy-35-manila-city-21-jan-2023,2023-01-21,fire,14.60636,120.96473,barangay,Barangay 35,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-35-manila-city-21-jan-2023/
+TXTFIRE-TG-20230122T1349,2023-01-22,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/24436
+TXTFIRE-TG-20230122T1436,2023-01-22,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/24442
+DROMIC-fire-incident-in-brgy-739-manila-city-24-jan-2023,2023-01-24,fire,14.57162,120.99794,barangay,Barangay 739,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-739-manila-city-24-jan-2023/
+DROMIC-fire-incident-in-brgy-209-manila-city-30-jan-2023,2023-01-30,fire,14.62475,120.98165,barangay,Barangay 209,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-209-manila-city-30-jan-2023/
+TXTFIRE-TG-20230203T2106,2023-02-03,fire,14.57753,120.99827,barangay,Barangay 811,yes,https://t.me/txtfirephilippines/24661
+TXTFIRE-TG-20230203T1303,2023-02-03,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/24639
+TXTFIRE-TG-20230203T1334,2023-02-03,fire,14.62713,120.97026,street,Barangay 170,yes,https://t.me/txtfirephilippines/24642
+TXTFIRE-TG-20230204T0544,2023-02-04,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/24670
+DROMIC-fire-incident-in-brgy-316-sta-cruz-manila-10-feb-2023,2023-02-10,fire,14.60866,120.98271,barangay,Barangay 316,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-316-sta-cruz-manila-10-feb-2023/
+DROMIC-fire-incident-in-brgy-sta-cruz-manila-city-15-feb-2023,2023-02-15,fire,14.61568,120.98332,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-brgy-sta-cruz-manila-city-15-feb-2023/
+DROMIC-fire-incident-in-brgy-649-manila-city-17-feb-2023,2023-02-17,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-manila-city-17-feb-2023/
+TXTFIRE-TG-20230217T1302,2023-02-17,fire,14.60696,120.98867,barangay,Barangay 469,yes,https://t.me/txtfirephilippines/24947
+TXTFIRE-TG-20230217T0602,2023-02-17,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/24933
+TXTFIRE-TG-20230228T1440,2023-02-28,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/25175
+TXTFIRE-TG-20230304T0311,2023-03-04,fire,14.56400,120.99816,street,Barangay 762,yes,https://t.me/txtfirephilippines/25262
+DROMIC-fire-incident-in-brgy-108-manila-city-08-march-2023,2023-03-08,fire,14.61904,120.96257,barangay,Barangay 108,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-108-manila-city-08-march-2023/
+TXTFIRE-TG-20230309T1245,2023-03-09,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/25352
+DROMIC-fire-incident-in-brgy-275-manila-city-13-mar-2023,2023-03-13,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-manila-city-13-mar-2023/
+TXTFIRE-TG-20230313T0439,2023-03-13,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/25442
+DROMIC-fire-incident-in-brgy-767-san-andres-manila-city-19-march-20,2023-03-19,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-767-san-andres-manila-city-19-march-2023/
+TXTFIRE-TG-20230320T1258,2023-03-20,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/25596
+DROMIC-fire-incident-in-brgy-317-manila-city-21-mar-2023,2023-03-21,fire,14.61131,120.98529,barangay,Barangay 317,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-317-manila-city-21-mar-2023/
+TXTFIRE-TG-20230321T0629,2023-03-21,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/25622
+TXTFIRE-TG-20230324T0940,2023-03-24,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/25687
+DROMIC-fire-incident-in-brgy-730-malate-manila-city-28-mar-2023,2023-03-28,fire,14.56256,120.99755,barangay,Barangay 730,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-730-malate-manila-city-28-mar-2023/
+DROMIC-fire-incident-in-brgy-387-quiapo-manila-city-30-mar-2023,2023-03-30,fire,14.59714,120.98769,barangay,Barangay 387,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-387-quiapo-manila-city-30-mar-2023/
+TXTFIRE-TG-20230401T1546,2023-04-01,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/25909
+TXTFIRE-TG-20230428T2242,2023-04-28,fire,14.61755,120.97051,street,Barangay 91,yes,https://t.me/txtfirephilippines/26361
+TXTFIRE-TG-20230429T0949,2023-04-29,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/26369
+DROMIC-fire-incident-in-brgy-783-sta-ana-manila-city-05-may-2023,2023-05-05,fire,14.57514,121.01124,barangay,Barangay 783,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-783-sta-ana-manila-city-05-may-2023/
+DROMIC-fire-incident-in-brgy-310-sta-cruz-manila-city-14-may-2023,2023-05-14,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-sta-cruz-manila-city-14-may-2023/
+TXTFIRE-TG-20230522T0148,2023-05-22,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/26711
+TXTFIRE-TG-20230524T0845,2023-05-24,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/26757
+TXTFIRE-TG-20230528T1503,2023-05-28,fire,14.57691,120.98155,street,Barangay 668,yes,https://t.me/txtfirephilippines/26829
+TXTFIRE-TG-20230602T1822,2023-06-02,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/26926
+TXTFIRE-TG-20230603T1034,2023-06-03,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/26939
+DROMIC-fire-incident-in-brgy-418-sampaloc-manila-city-06-july-2023,2023-07-06,fire,14.60237,121.00060,barangay,Barangay 418,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-418-sampaloc-manila-city-06-july-2023/
+TXTFIRE-TG-20230713T1541,2023-07-13,fire,14.58460,120.97405,street,Barangay 653,yes,https://t.me/txtfirephilippines/27559
+TXTFIRE-TG-20230713T1452,2023-07-13,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/27556
+TXTFIRE-TG-20230731T2107,2023-07-31,fire,14.61307,120.95993,barangay,Barangay 118,yes,https://t.me/txtfirephilippines/27802
+DROMIC-fire-incident-in-brgy-650-port-area-manila-city-05-aug-2023,2023-08-05,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-650-port-area-manila-city-05-aug-2023/
+TXTFIRE-TG-20230814T1638,2023-08-14,fire,14.60647,120.96807,street,Barangay 7,yes,https://t.me/txtfirephilippines/27964
+TXTFIRE-TG-20230817T0406,2023-08-17,fire,14.57302,120.99814,barangay,Barangay 738,yes,https://t.me/txtfirephilippines/27995
+TXTFIRE-TG-20230823T1122,2023-08-23,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/28043
+TXTFIRE-TG-20230830T1633,2023-08-30,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/28135
+TXTFIRE-TG-20230901T0927,2023-09-01,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/28155
+TXTFIRE-TG-20230902T2058,2023-09-02,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/28186
+DROMIC-fire-incident-in-brgy-384-quiapo-manila-city-06-sept-2023,2023-09-06,fire,14.59583,120.98412,barangay,Barangay 384,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-384-quiapo-manila-city-06-sept-2023/
+TXTFIRE-TG-20230928T1855,2023-09-28,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/28457
+DROMIC-fire-incident-in-brgy-120-manila-city-09-oct-2023,2023-10-09,fire,14.61308,120.96229,barangay,Barangay 120,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-120-manila-city-09-oct-2023/
+TXTFIRE-TG-20231009T1834,2023-10-09,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://t.me/txtfirephilippines/28589
+TXTFIRE-TG-20231013T1329,2023-10-13,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/28640
+TXTFIRE-TG-20231028T1847,2023-10-28,fire,14.58844,120.99791,barangay,Barangay 831,yes,https://t.me/txtfirephilippines/28765
+TXTFIRE-TG-20231101T1239,2023-11-01,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/28821
+TXTFIRE-TG-20231104T0857,2023-11-04,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/28863
+TXTFIRE-TG-20231106T0408,2023-11-06,fire,14.60930,120.99689,street,Barangay 453,yes,https://t.me/txtfirephilippines/28894
+TXTFIRE-TG-20231110T0533,2023-11-10,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/28962
+TXTFIRE-TG-20231110T1850,2023-11-10,fire,14.57968,120.97946,street,Barangay 666,yes,https://t.me/txtfirephilippines/28977
+DROMIC-fire-incident-in-brgy-846-manila-city-19-nov-2023,2023-11-19,fire,14.58922,121.00223,barangay,Barangay 846,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-846-manila-city-19-nov-2023/
+TXTFIRE-TG-20231122T1821,2023-11-22,fire,14.60211,120.97165,street,Barangay 287,yes,https://t.me/txtfirephilippines/29151
+DROMIC-fire-incident-in-brgy-123-tondo-manila-city-03-dec-2023,2023-12-03,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-manila-city-03-dec-2023/
+TXTFIRE-TG-20231204T1323,2023-12-04,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/29288
+TXTFIRE-TG-20231205T0032,2023-12-05,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/29295
+DROMIC-fire-incident-in-brgy-105-happyland-tondo-manila-city-12-dec,2023-12-12,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-happyland-tondo-manila-city-12-dec-2023/
+TXTFIRE-TG-20231213T1758,2023-12-13,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/29485
+DROMIC-fire-incident-in-tondo-manila-city-19-dec-2023,2023-12-19,fire,14.61963,120.96493,barangay,Barangay 95,yes,https://dromic.dswd.gov.ph/fire-incident-in-tondo-manila-city-19-dec-2023/
+TXTFIRE-TG-20231228T1824,2023-12-28,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/29691
+TXTFIRE-TG-20231231T1558,2023-12-31,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/29727
+TXTFIRE-TG-20240103T1631,2024-01-03,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/29811
+DROMIC-fire-incident-in-brgy-262-tondo-manila-11-jan-2024,2024-01-11,fire,14.60898,120.97839,barangay,Barangay 262,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-262-tondo-manila-11-jan-2024/
+DROMIC-fire-incident-in-pandacan-manila-city-11-jan-2024,2024-01-11,fire,14.58780,121.00466,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-pandacan-manila-city-11-jan-2024/
+TXTFIRE-TG-20240114T1651,2024-01-14,fire,14.61005,120.96292,street,Barangay 72,yes,https://t.me/txtfirephilippines/29992
+TXTFIRE-TG-20240115T0135,2024-01-15,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/30004
+TXTFIRE-TG-20240120T0406,2024-01-20,fire,14.60937,120.97436,street,Barangay 248,yes,https://t.me/txtfirephilippines/30085
+DROMIC-fire-incident-in-brgy-101-tondo-manila-city-28-jan-2024,2024-01-28,fire,14.62746,120.96070,barangay,Barangay 101,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-101-tondo-manila-city-28-jan-2024/
+DROMIC-fire-incident-in-brgy-310-manila-city-31-jan-2024,2024-01-31,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-manila-city-31-jan-2024/
+TXTFIRE-TG-20240203T0736,2024-02-03,fire,14.61357,120.97506,street,Barangay 241,yes,https://t.me/txtfirephilippines/30292
+TXTFIRE-TG-20240207T0732,2024-02-07,fire,14.60860,121.00456,street,Barangay 567,yes,https://t.me/txtfirephilippines/30357
+TXTFIRE-TG-20240208T0102,2024-02-08,fire,14.59386,121.01083,barangay,Barangay 836,yes,https://t.me/txtfirephilippines/30384
+TXTFIRE-TG-20240214T0852,2024-02-14,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://t.me/txtfirephilippines/30518
+DROMIC-fire-incident-in-brgy-330-sta-cruz-manila-city-15-feb-2024,2024-02-15,fire,14.60759,120.97994,barangay,Barangay 330,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-330-sta-cruz-manila-city-15-feb-2024/
+TXTFIRE-TG-20240218T0627,2024-02-18,fire,14.58816,121.00564,barangay,Barangay 862,yes,https://t.me/txtfirephilippines/30608
+TXTFIRE-TG-20240218T0204,2024-02-18,fire,14.57072,120.99660,barangay,Barangay 731,yes,https://t.me/txtfirephilippines/30596
+DROMIC-fire-incident-in-brgy-52-tondo-manila-city-21-feb-2024,2024-02-21,fire,14.61433,120.97142,barangay,Barangay 52,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-52-tondo-manila-city-21-feb-2024/
+DROMIC-fire-incident-in-brgy-598-manila-city-21-feb-2024,2024-02-21,fire,14.60006,121.02041,barangay,Barangay 598,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-598-manila-city-21-feb-2024/
+TXTFIRE-TG-20240223T0629,2024-02-23,fire,14.60164,121.00510,street,Barangay 626,yes,https://t.me/txtfirephilippines/30727
+TXTFIRE-TG-20240224T0121,2024-02-24,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/30756
+DROMIC-fire-incident-in-brgy-256-tondo-manila-city-26-feb-2024,2024-02-26,fire,14.61566,120.97862,barangay,Barangay 256,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-256-tondo-manila-city-26-feb-2024/
+TXTFIRE-TG-20240227T0940,2024-02-27,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/30827
+DROMIC-fire-incident-in-brgy-97-tondo-manila-city-march-10-2024,2024-03-10,fire,14.62149,120.96442,barangay,Barangay 97,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-97-tondo-manila-city-march-10-2024/
+DROMIC-fire-incident-in-brgy-87-tondo-manila-city-march-13-2024,2024-03-13,fire,14.61727,120.96829,barangay,Barangay 87,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-87-tondo-manila-city-march-13-2024/
+DROMIC-fire-incident-in-brgy-112-tondo-manila-city-15-march-2024,2024-03-15,fire,14.61734,120.96238,barangay,Barangay 112,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-112-tondo-manila-city-15-march-2024/
+TXTFIRE-TG-20240317T2335,2024-03-17,fire,14.61834,120.98287,street,Barangay 346,yes,https://t.me/txtfirephilippines/31116
+TXTFIRE-TG-20240317T2330,2024-03-17,fire,14.61686,120.99619,street,Barangay 520,yes,https://t.me/txtfirephilippines/31113
+TXTFIRE-TG-20240319T0153,2024-03-19,fire,14.63142,120.97536,barangay,Barangay 186,yes,https://t.me/txtfirephilippines/31148
+DROMIC-fire-incident-in-brgy-105-tondo-manila-city-21-mar-2024,2024-03-21,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-city-21-mar-2024/
+TXTFIRE-TG-20240322T0005,2024-03-22,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://t.me/txtfirephilippines/31238
+DROMIC-fire-incident-in-brgy-107-manila-city-24-march-2024,2024-03-24,fire,14.61879,120.95919,barangay,Barangay 107,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-107-manila-city-24-march-2024/
+TXTFIRE-TG-20240324T1954,2024-03-24,fire,14.61816,120.97067,street,Barangay 151,yes,https://t.me/txtfirephilippines/31315
+TXTFIRE-TG-20240329T0249,2024-03-29,fire,14.58166,120.99720,district,,no,https://t.me/txtfirephilippines/31381
+TXTFIRE-TG-20240330T1123,2024-03-30,fire,14.59670,120.98302,street,Barangay 306,yes,https://t.me/txtfirephilippines/31399
+DROMIC-fire-incident-in-brgy-335-manila-city-05-apr-2024,2024-04-05,fire,14.60764,120.98168,barangay,Barangay 335,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-335-manila-city-05-apr-2024/
+DROMIC-fire-incident-in-brgy-753-san-andres-manila-city-05-apr-2024,2024-04-05,fire,14.56930,120.99847,barangay,Barangay 753,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-753-san-andres-manila-city-05-apr-2024/
+DROMIC-fire-incident-in-brgy-20-manila-city-10-apr-2024,2024-04-10,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-manila-city-10-apr-2024/
+TXTFIRE-TG-20240410T0819,2024-04-10,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/31604
+DROMIC-fire-incident-in-brgy-275-san-nicolas-manila-city-12-apr-202,2024-04-12,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-san-nicolas-manila-city-12-apr-2024/
+TXTFIRE-TG-20240412T1141,2024-04-12,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/31644
+TXTFIRE-TG-20240420T2001,2024-04-20,fire,14.58005,120.99510,street,Barangay 680,yes,https://t.me/txtfirephilippines/31810
+DROMIC-fire-incident-in-brgy-275-san-nicolas-manila-city-23-apr-202,2024-04-23,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-san-nicolas-manila-city-23-apr-2024/
+TXTFIRE-TG-20240423T1221,2024-04-23,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/31905
+TXTFIRE-TG-20240424T1622,2024-04-24,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/31940
+TXTFIRE-TG-20240425T0208,2024-04-25,fire,14.58461,121.00879,barangay,Barangay 905,yes,https://t.me/txtfirephilippines/31954
+TXTFIRE-TG-20240426T0148,2024-04-26,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/31991
+TXTFIRE-TG-20240503T1825,2024-05-03,fire,14.61442,120.98920,street,Barangay 490,yes,https://t.me/txtfirephilippines/32162
+TXTFIRE-TG-20240505T0933,2024-05-05,fire,14.58002,120.97899,street,Barangay 666,yes,https://t.me/txtfirephilippines/32203
+TXTFIRE-TG-20240506T2136,2024-05-06,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/32253
+TXTFIRE-TG-20240507T1019,2024-05-07,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/32275
+TXTFIRE-TG-20240507T0014,2024-05-07,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/32260
+TXTFIRE-TG-20240507T0540,2024-05-07,fire,14.60847,121.00362,street,Barangay 552,yes,https://t.me/txtfirephilippines/32263
+TXTFIRE-TG-20240515T1420,2024-05-15,fire,14.61841,120.96785,street,Barangay 91,yes,https://t.me/txtfirephilippines/32397
+TXTFIRE-TG-20240518T0259,2024-05-18,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/32426
+TXTFIRE-TG-20240523T1121,2024-05-23,fire,14.58390,121.00500,barangay,Barangay 867,yes,https://t.me/txtfirephilippines/32496
+TXTFIRE-TG-20240523T1740,2024-05-23,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/32509
+TXTFIRE-TG-20240525T0444,2024-05-25,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/32534
+TXTFIRE-TG-20240527T0023,2024-05-27,fire,14.56552,120.99462,street,Barangay 727,yes,https://t.me/txtfirephilippines/32560
+TXTFIRE-TG-20240528T0635,2024-05-28,fire,14.61524,120.97661,barangay,Barangay 235,yes,https://t.me/txtfirephilippines/32577
+DROMIC-fire-incident-in-brgy-125-tondo-manila-city-01-june-2024,2024-06-01,fire,14.63460,120.96683,barangay,Barangay 125,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-125-tondo-manila-city-01-june-2024/
+TXTFIRE-TG-20240603T1433,2024-06-03,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/32667
+DROMIC-fire-incident-in-brgy-351-sta-cruz-manila-city-09-jun-2024,2024-06-09,fire,14.61990,120.98820,barangay,Barangay 351,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-351-sta-cruz-manila-city-09-jun-2024/
+DROMIC-fire-incident-in-brgy-108-tondo-manila-city-13-jun-2024termi,2024-06-13,fire,14.61904,120.96257,barangay,Barangay 108,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-108-tondo-manila-city-13-jun-2024terminated/
+TXTFIRE-TG-20240615T2009,2024-06-15,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/32838
+DROMIC-fire-incident-in-brgy-58-tondo-manila-16-jun-2024,2024-06-16,fire,14.61225,120.97043,barangay,Barangay 58,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-58-tondo-manila-16-jun-2024/
+DROMIC-fire-incident-in-brgy-79-tondo-manila-city-16-jun-2024,2024-06-16,fire,14.61592,120.96532,barangay,Barangay 79,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-79-tondo-manila-city-16-jun-2024/
+TXTFIRE-TG-20240616T2019,2024-06-16,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/32856
+TXTFIRE-TG-20240618T1735,2024-06-18,fire,14.60950,120.99491,street,Barangay 454,yes,https://t.me/txtfirephilippines/32880
+TXTFIRE-TG-20240623T2120,2024-06-23,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/32932
+DROMIC-fire-incident-in-brgy-234-tondo-manila-city-24-jun-2024,2024-06-24,fire,14.61641,120.97519,barangay,Barangay 234,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-234-tondo-manila-city-24-jun-2024/
+TXTFIRE-TG-20240625T1346,2024-06-25,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/32953
+TXTFIRE-TG-20240702T0316,2024-07-02,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/33015
+TXTFIRE-TG-20240703T1147,2024-07-03,fire,14.61240,120.97699,street,Barangay 254,yes,https://t.me/txtfirephilippines/33029
+TXTFIRE-TG-20240717T1444,2024-07-17,fire,14.60990,120.96489,street,Barangay 69,yes,https://t.me/txtfirephilippines/33213
+TXTFIRE-TG-20240719T0729,2024-07-19,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/33248
+TXTFIRE-TG-20240721T0140,2024-07-21,fire,14.59917,120.98136,street,Barangay 307,yes,https://t.me/txtfirephilippines/33276
+TXTFIRE-TG-20240721T0150,2024-07-21,fire,14.59871,120.98616,district,,no,https://t.me/txtfirephilippines/33278
+TXTFIRE-TG-20240727T1027,2024-07-27,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/33424
+TXTFIRE-TG-20240728T2055,2024-07-28,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/33454
+TXTFIRE-TG-20240728T1310,2024-07-28,fire,14.60246,120.98127,street,Barangay 304,yes,https://t.me/txtfirephilippines/33449
+TXTFIRE-TG-20240729T0710,2024-07-29,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/33459
+TXTFIRE-TG-20240729T1445,2024-07-29,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/33474
+TXTFIRE-TG-20240730T1807,2024-07-30,fire,14.61143,120.96594,barangay,Barangay 71,yes,https://t.me/txtfirephilippines/33492
+TXTFIRE-TG-20240730T1756,2024-07-30,fire,14.60447,120.96464,street,Barangay 31,yes,https://t.me/txtfirephilippines/33489
+TXTFIRE-TG-20240731T1021,2024-07-31,fire,14.58079,120.99622,barangay,Barangay 680,yes,https://t.me/txtfirephilippines/33507
+TXTFIRE-TG-20240802T0720,2024-08-02,fire,14.59973,120.97569,street,Barangay 289,yes,https://t.me/txtfirephilippines/33518
+DROMIC-fire-incident-in-brgy-527-sampaloc-manila-city-05-aug-2024,2024-08-05,fire,14.61403,121.00246,barangay,Barangay 527,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-527-sampaloc-manila-city-05-aug-2024/
+DROMIC-fire-incident-in-brgy-417-sampaloc-manila-city-07-aug-2024,2024-08-07,fire,14.60412,120.99994,barangay,Barangay 417,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-417-sampaloc-manila-city-07-aug-2024/
+TXTFIRE-TG-20240808T1953,2024-08-08,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/33605
+TXTFIRE-TG-20240809T0209,2024-08-09,fire,14.62663,120.98127,barangay,Barangay 211,yes,https://t.me/txtfirephilippines/33611
+TXTFIRE-TG-20240812T0611,2024-08-12,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/33645
+TXTFIRE-TG-20240817T0046,2024-08-17,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/33683
+TXTFIRE-TG-20240817T0120,2024-08-17,fire,14.60963,120.97836,street,Barangay 262,yes,https://t.me/txtfirephilippines/33686
+TXTFIRE-TG-20240820T1232,2024-08-20,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/33731
+TXTFIRE-TG-20240822T0027,2024-08-22,fire,14.60071,120.97566,street,Barangay 288,yes,https://t.me/txtfirephilippines/33755
+TXTFIRE-TG-20240829T1115,2024-08-29,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/33854
+TXTFIRE-TG-20240831T1636,2024-08-31,fire,14.61309,120.97302,street,Barangay 241,yes,https://t.me/txtfirephilippines/33883
+TXTFIRE-TG-20240901T0110,2024-09-01,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/33890
+TXTFIRE-TG-20240904T0321,2024-09-04,fire,14.61971,120.96003,street,Barangay 107,yes,https://t.me/txtfirephilippines/33937
+TXTFIRE-TG-20240913T1118,2024-09-13,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/34069
+DROMIC-fire-incident-in-brgy-105-tondo-manila-city-14-sep-2024,2024-09-14,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-city-14-sep-2024/
+TXTFIRE-TG-20240914T1141,2024-09-14,fire,14.61891,120.96604,street,Barangay 92,yes,https://t.me/txtfirephilippines/34077
+TXTFIRE-TG-20240916T1918,2024-09-16,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/34119
+TXTFIRE-TG-20240916T0613,2024-09-16,fire,14.58463,120.98407,district,,no,https://t.me/txtfirephilippines/34109
+TXTFIRE-TG-20240918T1635,2024-09-18,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/34140
+TXTFIRE-TG-20240923T1441,2024-09-23,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/34192
+TXTFIRE-TG-20240924T0341,2024-09-24,fire,14.60687,121.00301,street,Barangay 551,yes,https://t.me/txtfirephilippines/34202
+TXTFIRE-TG-20240927T0951,2024-09-27,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/34245
+TXTFIRE-TG-20240929T0434,2024-09-29,fire,14.60208,120.96693,street,Barangay 14,yes,https://t.me/txtfirephilippines/34279
+TXTFIRE-TG-20241009T2320,2024-10-09,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/34371
+TXTFIRE-TG-20241013T1729,2024-10-13,fire,14.60776,120.99300,street,Barangay 460,yes,https://t.me/txtfirephilippines/34399
+DROMIC-fire-incident-in-brgy-775-sta-ana-manila-city-15-oct-2024,2024-10-15,fire,14.57193,121.00672,barangay,Barangay 775,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-775-sta-ana-manila-city-15-oct-2024/
+TXTFIRE-TG-20241022T1541,2024-10-22,fire,14.62705,120.97018,street,Barangay 168,yes,https://t.me/txtfirephilippines/34490
+TXTFIRE-TG-20241022T0656,2024-10-22,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/34482
+DROMIC-fire-incident-in-brgy-275-san-nicolas-manila-city-28-oct-202,2024-10-28,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-san-nicolas-manila-city-28-oct-2024/
+TXTFIRE-TG-20241107T2331,2024-11-07,fire,14.63204,120.95273,barangay,Barangay 128,yes,https://t.me/txtfirephilippines/34699
+DROMIC-fire-incident-in-brgy-128-zone-10-balut-tondo-manila-city-08,2024-11-08,fire,14.63204,120.95273,barangay,Barangay 128,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-128-zone-10-balut-tondo-manila-city-08-nov-2024/
+TXTFIRE-TG-20241108T1519,2024-11-08,fire,14.58886,120.98297,barangay,Barangay 659,yes,https://t.me/txtfirephilippines/34706
+TXTFIRE-TG-20241109T1202,2024-11-09,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/34717
+TXTFIRE-TG-20241109T1740,2024-11-09,fire,14.60593,120.99120,street,Barangay 398,yes,https://t.me/txtfirephilippines/34726
+TXTFIRE-TG-20241110T0619,2024-11-10,fire,14.60748,120.97619,barangay,Barangay 259,yes,https://t.me/txtfirephilippines/34735
+TXTFIRE-TG-20241118T1653,2024-11-18,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/34801
+DROMIC-fire-incident-in-brgy-20-tondo-manila-city-24-nov-2024,2024-11-24,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-tondo-manila-city-24-nov-2024/
+DROMIC-fire-incident-in-sampaloc-manila-city-24-nov-2024,2024-11-24,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-sampaloc-manila-city-24-nov-2024/
+DROMIC-fire-incident-in-tondo-manila-city-25-nov-2024,2024-11-25,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-manila-city-25-nov-2024/
+TXTFIRE-TG-20241126T1052,2024-11-26,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/34912
+DROMIC-fire-incident-in-brgy-310-santa-cruz-manila-city-27-nov-2024,2024-11-27,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-310-santa-cruz-manila-city-27-nov-2024/
+TXTFIRE-TG-20241128T0008,2024-11-28,fire,14.60461,120.98382,barangay,Barangay 310,yes,https://t.me/txtfirephilippines/34937
+TXTFIRE-TG-20241202T0937,2024-12-02,fire,14.59868,121.00639,barangay,Barangay 628,yes,https://t.me/txtfirephilippines/34988
+DROMIC-fire-incident-in-brgy-774-san-andres-bukid-manila-city-04-de,2024-12-04,fire,14.57553,121.00664,barangay,Barangay 774,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-774-san-andres-bukid-manila-city-04-dec-2024/
+TXTFIRE-TG-20241204T0658,2024-12-04,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/35013
+TXTFIRE-TG-20241204T2251,2024-12-04,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/35033
+TXTFIRE-TG-20241207T0247,2024-12-07,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/35066
+TXTFIRE-TG-20241208T0446,2024-12-08,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/35087
+DROMIC-fire-incident-in-brgy-218-tondo-manila-city-12-dec-2024,2024-12-12,fire,14.62286,120.97572,barangay,Barangay 218,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-218-tondo-manila-city-12-dec-2024/
+TXTFIRE-TG-20241216T0038,2024-12-16,fire,14.59917,120.98136,street,Barangay 307,yes,https://t.me/txtfirephilippines/35196
+TXTFIRE-TG-20241216T0853,2024-12-16,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/35203
+TXTFIRE-TG-20241218T0409,2024-12-18,fire,14.60679,120.96984,street,Barangay 9,yes,https://t.me/txtfirephilippines/35227
+TXTFIRE-TG-20241221T2039,2024-12-21,fire,14.59847,121.00669,street,Barangay 628,yes,https://t.me/txtfirephilippines/35289
+TXTFIRE-TG-20241221T1110,2024-12-21,fire,14.62770,120.97913,street,Barangay 207,yes,https://t.me/txtfirephilippines/35282
+TXTFIRE-TG-20241225T2114,2024-12-25,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/35356
+TXTFIRE-TG-20241226T2151,2024-12-26,fire,14.62176,120.96246,barangay,Barangay 103,yes,https://t.me/txtfirephilippines/35365
+TXTFIRE-TG-20241230T2240,2024-12-30,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/35411
+TXTFIRE-TG-20250104T0807,2025-01-04,fire,14.58745,120.97690,street,Barangay 657,yes,https://t.me/txtfirephilippines/35503
+DROMIC-fire-incident-in-brgy-123-tondo-manila-city-06-jan-2025,2025-01-06,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-manila-city-06-jan-2025/
+TXTFIRE-TG-20250109T1054,2025-01-09,fire,14.57705,121.00684,street,Barangay 791,yes,https://t.me/txtfirephilippines/35562
+TXTFIRE-TG-20250109T1524,2025-01-09,fire,14.58166,120.99720,district,,no,https://t.me/txtfirephilippines/35570
+TXTFIRE-TG-20250114T1712,2025-01-14,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/35655
+DROMIC-fire-incident-in-brgy-458-sampaloc-manila-city-16-jan-2025,2025-01-16,fire,14.60596,120.99266,barangay,Barangay 458,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-458-sampaloc-manila-city-16-jan-2025/
+DROMIC-fire-incident-in-brgy-459-sampaloc-manila-city-18-jan-2025,2025-01-18,fire,14.60743,120.99151,barangay,Barangay 459,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-459-sampaloc-manila-city-18-jan-2025/
+TXTFIRE-TG-20250118T0417,2025-01-18,fire,14.59284,121.01182,barangay,Barangay 838,yes,https://t.me/txtfirephilippines/35714
+TXTFIRE-TG-20250119T1641,2025-01-19,fire,14.60840,120.97138,barangay,Barangay 48,yes,https://t.me/txtfirephilippines/35745
+TXTFIRE-TG-20250120T0547,2025-01-20,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/35758
+TXTFIRE-TG-20250120T2037,2025-01-20,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/35777
+TXTFIRE-TG-20250121T1135,2025-01-21,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/35788
+TXTFIRE-TG-20250121T1942,2025-01-21,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/35799
+DROMIC-fire-incident-in-brgy-20-tondo-manila-city-23-jan-2025,2025-01-23,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-tondo-manila-city-23-jan-2025/
+TXTFIRE-TG-20250123T2115,2025-01-23,fire,14.59826,120.98361,street,Barangay 307,yes,https://t.me/txtfirephilippines/35831
+TXTFIRE-TG-20250123T2115,2025-01-23,fire,14.59870,120.98701,street,Barangay 393,yes,https://t.me/txtfirephilippines/35832
+TXTFIRE-TG-20250124T1325,2025-01-24,fire,14.61686,120.99619,street,Barangay 520,yes,https://t.me/txtfirephilippines/35842
+DROMIC-fire-incident-in-brgy-91-tondo-manila-city-28-jan-2025,2025-01-28,fire,14.61866,120.96874,barangay,Barangay 91,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-91-tondo-manila-city-28-jan-2025/
+TXTFIRE-TG-20250129T0340,2025-01-29,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/35931
+TXTFIRE-TG-20250129T1156,2025-01-29,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/35942
+TXTFIRE-TG-20250129T1309,2025-01-29,fire,14.61903,120.96669,barangay,Barangay 92,yes,https://t.me/txtfirephilippines/35955
+TXTFIRE-TG-20250129T1242,2025-01-29,fire,14.62308,120.96480,street,Barangay 94,yes,https://t.me/txtfirephilippines/35950
+TXTFIRE-TG-20250205T1620,2025-02-05,fire,14.60679,120.96984,street,Barangay 9,yes,https://t.me/txtfirephilippines/36096
+TXTFIRE-TG-20250208T2328,2025-02-08,fire,14.62914,120.97388,street,Barangay 179,yes,https://t.me/txtfirephilippines/36197
+TXTFIRE-TG-20250208T2350,2025-02-08,fire,14.63277,120.97130,street,Barangay 182,yes,https://t.me/txtfirephilippines/36199
+TXTFIRE-TG-20250210T1905,2025-02-10,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/36236
+DROMIC-fire-incident-in-brgy-353-santa-cruz-manila-city-14-feb-2025,2025-02-14,fire,14.61736,120.98134,barangay,Barangay 353,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-353-santa-cruz-manila-city-14-feb-2025/
+TXTFIRE-TG-20250214T1600,2025-02-14,fire,14.60712,120.98007,street,Barangay 330,yes,https://t.me/txtfirephilippines/36283
+TXTFIRE-TG-20250221T1929,2025-02-21,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/36395
+TXTFIRE-TG-20250302T0800,2025-03-02,fire,14.60840,120.97138,barangay,Barangay 48,yes,https://t.me/txtfirephilippines/36542
+TXTFIRE-TG-20250302T0804,2025-03-02,fire,14.59181,121.00422,barangay,Barangay 848,yes,https://t.me/txtfirephilippines/36543
+DROMIC-fire-incident-in-brgy-317-sta-cruz-manila-city-08-mar-2025,2025-03-08,fire,14.61131,120.98529,barangay,Barangay 317,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-317-sta-cruz-manila-city-08-mar-2025/
+DROMIC-fire-incident-in-brgy-602-sta-mesa-manila-city-12-mar-2025,2025-03-12,fire,14.59613,121.02376,barangay,Barangay 602,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-602-sta-mesa-manila-city-12-mar-2025/
+DROMIC-fire-incident-in-baseco-compound-port-area-tondo-manila-city,2025-03-14,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-baseco-compound-port-area-tondo-manila-city-14-mar-2025/
+TXTFIRE-TG-20250320T1323,2025-03-20,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/36741
+TXTFIRE-TG-20250325T0256,2025-03-25,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/36821
+TXTFIRE-TG-20250326T1415,2025-03-26,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/36855
+TXTFIRE-TG-20250331T0102,2025-03-31,fire,14.58153,121.00361,barangay,Barangay 818,yes,https://t.me/txtfirephilippines/36908
+TXTFIRE-TG-20250407T1001,2025-04-07,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/37015
+TXTFIRE-TG-20250413T1220,2025-04-13,fire,14.62847,120.97368,street,Barangay 173,yes,https://t.me/txtfirephilippines/37122
+TXTFIRE-TG-20250420T1108,2025-04-20,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/37214
+DROMIC-fire-incident-in-brgy-118-tondo-manila-city-23-apr-2025,2025-04-23,fire,14.61307,120.95993,barangay,Barangay 118,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-118-tondo-manila-city-23-apr-2025/
+DROMIC-fire-incident-in-brgy-123-tondo-manila-city-23-apr-2025,2025-04-23,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-manila-city-23-apr-2025/
+DROMIC-fire-incident-in-brgy-650-tondo-manila-city-23-apr-2025,2025-04-23,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-650-tondo-manila-city-23-apr-2025/
+TXTFIRE-TG-20250425T1407,2025-04-25,fire,14.58728,120.96769,district,,no,https://t.me/txtfirephilippines/37322
+DROMIC-fire-incident-in-brgy-767-san-andres-bukid-manila-city-28-ap,2025-04-28,fire,14.57134,121.00486,barangay,Barangay 767,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-767-san-andres-bukid-manila-city-28-apr-2025/
+DROMIC-fire-incident-in-brgy-595-and-596-sta-mesa-manila-city-02-ma,2025-05-02,fire,14.60196,121.01780,barangay,Barangay 595,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-595-and-596-sta-mesa-manila-city-02-may-2025/
+DROMIC-fire-incident-in-brgy-106-tondo-manila-city-18-may-2025,2025-05-18,fire,14.62474,120.96160,barangay,Barangay 106,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-106-tondo-manila-city-18-may-2025/
+DROMIC-fire-incident-in-brgy-628-sta-mesa-manila-city-19-may-2025,2025-05-19,fire,14.59868,121.00639,barangay,Barangay 628,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-628-sta-mesa-manila-city-19-may-2025/
+DROMIC-fire-incident-in-brgy-384-quiapo-manila-city-04-jun-2025,2025-06-04,fire,14.59583,120.98412,barangay,Barangay 384,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-384-quiapo-manila-city-04-jun-2025/
+DROMIC-fire-incident-in-brgy-773-san-andres-bukid-manila-city-26-ju,2025-06-26,fire,14.57442,121.00669,barangay,Barangay 773,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-773-san-andres-bukid-manila-city-26-jun-2025/
+DROMIC-fire-incident-in-brgy-439-sampaloc-manila-city-01-jul-2025,2025-07-01,fire,14.60599,120.99884,barangay,Barangay 439,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-439-sampaloc-manila-city-01-jul-2025/
+DROMIC-fire-incident-in-sampaloc-manila-city-02-jul-2025,2025-07-02,fire,14.60724,121.00166,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-sampaloc-manila-city-02-jul-2025/
+DROMIC-fire-incident-in-brgy-420-sampaloc-manila-city-03-jul-2025,2025-07-03,fire,14.60163,120.99922,barangay,Barangay 420,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-420-sampaloc-manila-city-03-jul-2025/
+DROMIC-fire-incident-in-brgy-375-sta-cruz-manila-city-04-jul-2025,2025-07-04,fire,14.62931,120.98361,barangay,Barangay 375,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-375-sta-cruz-manila-city-04-jul-2025/
+TXTFIRE-TG-20250704T0000,2025-07-04,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://t.me/txtfirephilippines/37602
+DROMIC-fire-incident-in-brgy-129-tondo-city-of-manila-05-jul-2025,2025-07-05,fire,14.62996,120.96345,barangay,Barangay 129,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-129-tondo-city-of-manila-05-jul-2025/
+TXTFIRE-TG-20250705T0930,2025-07-05,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/37624
+TXTFIRE-TG-20250712T0441,2025-07-12,fire,14.59694,120.97474,street,Barangay 287,yes,https://t.me/txtfirephilippines/37723
+TXTFIRE-TG-20250718T0656,2025-07-18,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/37782
+TXTFIRE-TG-20250719T0427,2025-07-19,fire,14.57426,121.01098,street,Barangay 778,yes,https://t.me/txtfirephilippines/37791
+DROMIC-fire-incident-in-brgy-93-tondo-manila-city-29-jul-2025,2025-07-29,fire,14.62041,120.96662,barangay,Barangay 93,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-93-tondo-manila-city-29-jul-2025/
+DROMIC-fire-incident-in-brgy-306-quiapo-manila-city-02-aug-2025,2025-08-02,fire,14.59744,120.98212,barangay,Barangay 306,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-306-quiapo-manila-city-02-aug-2025/
+DROMIC-fire-incident-in-brgy-105-tondo-manila-city-06-aug-2025,2025-08-06,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-manila-city-06-aug-2025/
+TXTFIRE-TG-20250822T0952,2025-08-22,fire,14.59371,120.99837,barangay,Barangay 830,yes,https://t.me/txtfirephilippines/38276
+TXTFIRE-TG-20250828T1626,2025-08-28,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/38332
+TXTFIRE-TG-20250905T0640,2025-09-05,fire,14.61240,120.97699,street,Barangay 254,yes,https://t.me/txtfirephilippines/38395
+TXTFIRE-TG-20250905T0612,2025-09-05,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/38391
+TXTFIRE-TG-20250905T1721,2025-09-05,fire,14.58383,120.99912,barangay,Barangay 822,yes,https://t.me/txtfirephilippines/38405
+DROMIC-fire-incident-in-brgy-105-tondo-city-of-manila-13-sep-2025,2025-09-13,fire,14.62402,120.95726,barangay,Barangay 105,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-105-tondo-city-of-manila-13-sep-2025/
+TXTFIRE-TG-20250916T0648,2025-09-16,fire,14.60984,120.97537,street,Barangay 238,yes,https://t.me/txtfirephilippines/38548
+TXTFIRE-TG-20250918T0850,2025-09-18,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/38566
+TXTFIRE-TG-20250919T1118,2025-09-19,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/38586
+TXTFIRE-TG-20250922T2105,2025-09-22,fire,14.59874,120.98032,street,Barangay 303,yes,https://t.me/txtfirephilippines/38633
+TXTFIRE-TG-20250922T1846,2025-09-22,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/38628
+TXTFIRE-TG-20250922T2118,2025-09-22,fire,14.60010,120.97630,street,Barangay 290,yes,https://t.me/txtfirephilippines/38638
+TXTFIRE-TG-20250922T2112,2025-09-22,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/38636
+TXTFIRE-TG-20250926T1444,2025-09-26,fire,14.60476,120.96399,barangay,Barangay 31,yes,https://t.me/txtfirephilippines/38700
+TXTFIRE-TG-20250926T0455,2025-09-26,fire,14.60913,120.96485,street,Barangay 47,yes,https://t.me/txtfirephilippines/38681
+TXTFIRE-TG-20250926T0454,2025-09-26,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/38680
+DROMIC-fire-incident-in-tondo-city-of-manila-29-sep-2025,2025-09-29,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-29-sep-2025/
+TXTFIRE-TG-20250930T1845,2025-09-30,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/38751
+DROMIC-fire-incident-in-brgy-705-malate-city-of-manila-03-oct-2025,2025-10-03,fire,14.56847,120.98875,barangay,Barangay 705,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-705-malate-city-of-manila-03-oct-2025/
+TXTFIRE-TG-20251010T1244,2025-10-10,fire,14.62530,120.97691,street,Barangay 213,yes,https://t.me/txtfirephilippines/38854
+TXTFIRE-TG-20251015T1718,2025-10-15,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/38913
+TXTFIRE-TG-20251016T1151,2025-10-16,fire,14.58509,121.01770,street,Barangay 891,yes,https://t.me/txtfirephilippines/38926
+TXTFIRE-TG-20251017T1330,2025-10-17,fire,14.58916,120.96854,barangay,Barangay 650,yes,https://t.me/txtfirephilippines/38945
+TXTFIRE-TG-20251019T2133,2025-10-19,fire,14.57463,121.00313,street,Barangay 786,yes,https://t.me/txtfirephilippines/38970
+TXTFIRE-TG-20251109T2136,2025-11-09,fire,14.60156,120.99314,street,Barangay 416,yes,https://t.me/txtfirephilippines/39228
+TXTFIRE-TG-20251112T0908,2025-11-12,fire,14.58470,121.01209,street,Barangay 900,yes,https://t.me/txtfirephilippines/39255
+TXTFIRE-TG-20251114T1735,2025-11-14,fire,14.61525,120.96533,barangay,Barangay 80,yes,https://t.me/txtfirephilippines/39293
+DROMIC-fire-incident-in-tondo-city-of-manila-17-nov-2025,2025-11-17,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-17-nov-2025/
+TXTFIRE-TG-20251121T1515,2025-11-21,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/39381
+TXTFIRE-TG-20251121T1259,2025-11-21,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/39373
+TXTFIRE-TG-20251124T1116,2025-11-24,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/39422
+TXTFIRE-TG-20251129T1307,2025-11-29,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/39498
+TXTFIRE-TG-20251203T1908,2025-12-03,fire,14.60944,120.96171,street,Barangay 43,yes,https://t.me/txtfirephilippines/39545
+TXTFIRE-TG-20251210T0908,2025-12-10,fire,14.60726,121.01181,barangay,Barangay 584,yes,https://t.me/txtfirephilippines/39633
+TXTFIRE-TG-20251211T1538,2025-12-11,fire,14.61385,120.96671,street,Barangay 74,yes,https://t.me/txtfirephilippines/39639
+TXTFIRE-TG-20251214T1159,2025-12-14,fire,14.58463,120.99832,street,Barangay 827,yes,https://t.me/txtfirephilippines/39696
+DROMIC-fire-incident-in-brgy-123-tondo-city-of-manila-16-dec-2025,2025-12-16,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-123-tondo-city-of-manila-16-dec-2025/
+TXTFIRE-TG-20251226T0314,2025-12-26,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/39903
+TXTFIRE-TG-20251226T0402,2025-12-26,fire,14.61005,120.96292,street,Barangay 72,yes,https://t.me/txtfirephilippines/39908
+TXTFIRE-TG-20251231T1635,2025-12-31,fire,14.58206,120.98758,street,Barangay 674,yes,https://t.me/txtfirephilippines/40002
+DROMIC-fire-incident-in-brgy-102-tondo-city-of-manila-04-jan-2026,2026-01-04,fire,14.62299,120.96226,barangay,Barangay 102,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-102-tondo-city-of-manila-04-jan-2026/
+TXTFIRE-TG-20260112T0401,2026-01-12,fire,14.59075,120.97548,district,,no,https://t.me/txtfirephilippines/40188
+TXTFIRE-TG-20260113T1342,2026-01-13,fire,14.61686,120.99619,street,Barangay 520,yes,https://t.me/txtfirephilippines/40210
+TXTFIRE-TG-20260113T1120,2026-01-13,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/40205
+TXTFIRE-TG-20260119T0920,2026-01-19,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/40311
+DROMIC-fire-incident-in-brgy-607-city-of-manila-20-jan-2026,2026-01-20,fire,14.59358,121.02478,barangay,Barangay 607,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-607-city-of-manila-20-jan-2026/
+TXTFIRE-TG-20260120T1621,2026-01-20,fire,14.59719,121.01598,street,Barangay 621,yes,https://t.me/txtfirephilippines/40327
+TXTFIRE-TG-20260120T1659,2026-01-20,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/40331
+TXTFIRE-TG-20260128T0943,2026-01-28,fire,14.59887,120.97009,street,Barangay 285,yes,https://t.me/txtfirephilippines/40452
+TXTFIRE-TG-20260203T1906,2026-02-03,fire,14.61937,120.98254,street,Barangay 358,yes,https://t.me/txtfirephilippines/40581
+TXTFIRE-TG-20260204T0154,2026-02-04,fire,14.61762,120.99162,street,Barangay 485,yes,https://t.me/txtfirephilippines/40593
+TXTFIRE-TG-20260205T1516,2026-02-05,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/40632
+DROMIC-fire-incident-in-brgy-402-sampaloc-city-of-manila-06-feb-202,2026-02-06,fire,14.60233,120.99226,barangay,Barangay 402,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-402-sampaloc-city-of-manila-06-feb-2026/
+DROMIC-fire-incident-in-brgy-61-tondo-city-of-manila-06-feb-2026,2026-02-06,fire,14.61539,120.97039,barangay,Barangay 61,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-61-tondo-city-of-manila-06-feb-2026/
+TXTFIRE-TG-20260209T0525,2026-02-09,fire,14.57553,121.00664,barangay,Barangay 774,yes,https://t.me/txtfirephilippines/40698
+TXTFIRE-TG-20260209T0125,2026-02-09,fire,14.56184,120.99523,street,Barangay 719,yes,https://t.me/txtfirephilippines/40695
+DROMIC-fire-incident-in-brgy-580-sampaloc-city-of-manila-11-feb-202,2026-02-11,fire,14.60408,121.00736,barangay,Barangay 580,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-580-sampaloc-city-of-manila-11-feb-2026/
+TXTFIRE-TG-20260219T0946,2026-02-19,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/40900
+DROMIC-fire-incident-in-brgy-655-city-of-manila-25-feb-2026,2026-02-25,fire,14.59075,120.97367,barangay,Barangay 655,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-655-city-of-manila-25-feb-2026/
+TXTFIRE-TG-20260301T1816,2026-03-01,fire,14.58762,121.01250,barangay,Barangay 898,yes,https://t.me/txtfirephilippines/41080
+TXTFIRE-TG-20260305T2225,2026-03-05,fire,14.58266,121.00492,barangay,Barangay 870,yes,https://t.me/txtfirephilippines/41146
+DROMIC-fire-incident-in-brgy-20-tondo-city-of-manila-06-mar-2026,2026-03-06,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-20-tondo-city-of-manila-06-mar-2026/
+TXTFIRE-TG-20260328T0901,2026-03-28,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/41512
+TXTFIRE-TG-20260403T2128,2026-04-03,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/41639
+TXTFIRE-TG-20260403T0234,2026-04-03,fire,14.56978,120.99239,district,,no,https://t.me/txtfirephilippines/41615
+TXTFIRE-TG-20260404T0829,2026-04-04,fire,14.57823,121.01438,barangay,Barangay 882,yes,https://t.me/txtfirephilippines/41649
+DROMIC-fire-incident-in-brgy-121-tondo-city-of-manila-15-apr-2026,2026-04-15,fire,14.61250,120.96384,barangay,Barangay 121,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-121-tondo-city-of-manila-15-apr-2026/
+TXTFIRE-TG-20260416T1220,2026-04-16,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/41879
+TXTFIRE-TG-20260419T1131,2026-04-19,fire,14.58896,120.96861,street,Barangay 650,yes,https://t.me/txtfirephilippines/41955
+TXTFIRE-TG-20260420T1730,2026-04-20,fire,14.60259,120.99174,street,Barangay 402,yes,https://t.me/txtfirephilippines/41991
+TXTFIRE-TG-20260422T1923,2026-04-22,fire,14.61385,120.96671,street,Barangay 74,yes,https://t.me/txtfirephilippines/42047
+TXTFIRE-TG-20260428T2116,2026-04-28,fire,14.61179,121.00206,barangay,Barangay 535,yes,https://t.me/txtfirephilippines/42547
+DROMIC-fire-incident-in-brgy-262-sta-cruz-city-of-manila-30-apr-202,2026-04-30,fire,14.60898,120.97839,barangay,Barangay 262,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-262-sta-cruz-city-of-manila-30-apr-2026/
+TXTFIRE-TG-20260516T1733,2026-05-16,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/43642
+DROMIC-fire-incident-in-brgy-275-binondo-city-of-manila-23-may-2026,2026-05-23,fire,14.59771,120.96272,barangay,Barangay 275,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-275-binondo-city-of-manila-23-may-2026/
+TXTFIRE-TG-20260523T2039,2026-05-23,fire,14.59075,120.97548,district,,no,https://t.me/txtfirephilippines/44019
+TXTFIRE-TG-20260525T0826,2026-05-25,fire,14.57626,121.00694,district,,no,https://t.me/txtfirephilippines/44101
+TXTFIRE-TG-20260528T1538,2026-05-28,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://t.me/txtfirephilippines/44243
+DROMIC-fire-incident-in-brgy-649-city-of-manila-14-may-2026,2026-05-30,fire,14.59077,120.95771,barangay,Barangay 649,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-649-city-of-manila-14-may-2026/
+TXTFIRE-TG-20260602T2305,2026-06-02,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/44472
+TXTFIRE-TG-20260607T0322,2026-06-07,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/44578
+TXTFIRE-TG-20260608T1209,2026-06-08,fire,14.60043,120.95229,barangay,Barangay 20,yes,https://t.me/txtfirephilippines/44623
+DROMIC-fire-incident-in-brgy-121-tondo-city-of-manila-11-jun-2026,2026-06-11,fire,14.61250,120.96384,barangay,Barangay 121,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-121-tondo-city-of-manila-11-jun-2026/
+TXTFIRE-TG-20260619T0835,2026-06-19,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/44984
+TXTFIRE-TG-20260619T0830,2026-06-19,fire,14.60315,120.98012,street,Barangay 305,yes,https://t.me/txtfirephilippines/44978
+TXTFIRE-TG-20260620T2012,2026-06-20,fire,14.60440,120.95341,street,Barangay 20,yes,https://t.me/txtfirephilippines/45030
+TXTFIRE-TG-20260626T2314,2026-06-26,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/45249
+TXTFIRE-TG-20260627T0015,2026-06-27,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/45251
+DROMIC-fire-incident-in-brgy-50-tondo-city-of-manila-04-jul-2026,2026-07-04,fire,14.61345,120.97234,barangay,Barangay 50,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-50-tondo-city-of-manila-04-jul-2026/
+DROMIC-fire-incident-inbrgy-158-tondo-city-of-manila-06-jul-2026,2026-07-06,fire,14.62086,120.97251,barangay,Barangay 158,yes,https://dromic.dswd.gov.ph/fire-incident-inbrgy-158-tondo-city-of-manila-06-jul-2026/
+DROMIC-fire-incident-in-tondo-city-of-manila-09-jul-2026,2026-07-09,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-09-jul-2026/
+DROMIC-fire-incident-in-brgy-745-city-of-manila-14-jul-2026,2026-07-14,fire,14.56773,120.99842,barangay,Barangay 745,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-745-city-of-manila-14-jul-2026/
+DROMIC-fire-incident-in-tondo-city-of-manila-14-jul-2026,2026-07-14,fire,14.61878,120.97050,district,,no,https://dromic.dswd.gov.ph/fire-incident-in-tondo-city-of-manila-14-jul-2026/
+DROMIC-fire-incident-in-brgy-11-tondo-city-of-manila-19-jul-2026,2026-07-19,fire,14.60176,120.96569,barangay,Barangay 11,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-11-tondo-city-of-manila-19-jul-2026/
+TXTFIRE-TG-20260724T1648,2026-07-24,fire,14.59805,120.97006,street,Barangay 284,yes,https://t.me/txtfirephilippines/46136
+TXTFIRE-TG-20260728T1223,2026-07-28,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/46249
+TXTFIRE-TG-20260728T1215,2026-07-28,fire,14.60320,120.98089,street,Barangay 305,yes,https://t.me/txtfirephilippines/46245
+DROMIC-fire-incident-in-brgy-830-city-of-manila-29-jul-2026,2026-07-29,fire,14.59371,120.99837,barangay,Barangay 830,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-830-city-of-manila-29-jul-2026/
+TXTFIRE-TG-20260729T0438,2026-07-29,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/46291
+TXTFIRE-TG-20260729T0411,2026-07-29,fire,14.62855,120.97548,street,Barangay 185,yes,https://t.me/txtfirephilippines/46288
+TXTFIRE-TG-20260804T2104,2026-08-04,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/46568
+TXTFIRE-TG-20260806T1822,2026-08-06,fire,14.59983,120.96882,district,,no,https://t.me/txtfirephilippines/46626
+TXTFIRE-TG-20260809T2341,2026-08-09,fire,14.59983,120.96882,district,,no,https://t.me/txtfirephilippines/46871
+TXTFIRE-TG-20260810T2257,2026-08-10,fire,14.60950,120.99491,street,Barangay 454,yes,https://t.me/txtfirephilippines/46919
+TXTFIRE-TG-20260810T2303,2026-08-10,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/46925
+DROMIC-fire-incident-in-brgy-739-malate-city-of-manila-12-aug-2026,2026-08-12,fire,14.57162,120.99794,barangay,Barangay 739,yes,https://dromic.dswd.gov.ph/fire-incident-in-brgy-739-malate-city-of-manila-12-aug-2026/
+TXTFIRE-TG-20260813T0140,2026-08-13,fire,14.60134,120.97567,district,,no,https://t.me/txtfirephilippines/47018
+TXTFIRE-TG-20260815T0103,2026-08-15,fire,14.60724,121.00166,district,,no,https://t.me/txtfirephilippines/47105
+TXTFIRE-TG-20260817T1400,2026-08-17,fire,14.61878,120.97050,district,,no,https://t.me/txtfirephilippines/47243
+TXTFIRE-TG-20260824T2133,2026-08-24,fire,14.60726,121.01181,barangay,Barangay 584,yes,https://t.me/txtfirephilippines/47494
+TXTFIRE-TG-20260902T1940,2026-09-02,fire,14.57316,121.00293,street,Barangay 802,yes,https://t.me/txtfirephilippines/47989
+TXTFIRE-TG-20260902T0547,2026-09-02,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/47943
+TXTFIRE-TG-20260905T2037,2026-09-05,fire,14.57408,120.99798,barangay,Barangay 737,yes,https://t.me/txtfirephilippines/48132
+TXTFIRE-TG-20260907T1202,2026-09-07,fire,14.61046,120.96071,barangay,Barangay 123,yes,https://t.me/txtfirephilippines/48188
+TXTFIRE-TG-20260913T0720,2026-09-13,fire,14.59950,120.98420,city,,no,https://t.me/txtfirephilippines/48437
+TXTFIRE-TG-20260919T1529,2026-09-19,fire,14.59871,120.98616,district,,no,https://t.me/txtfirephilippines/48665
+DROMIC-fire-incident-in-brgy-23-city-of-manila-21-sep-2026,2026-09-21,fire,14.59950,120.98420,city,,no,https://dromic.dswd.gov.ph/fire-incident-in-brgy-23-city-of-manila-21-sep-2026/
+TXTFIRE-TG-20260922T1359,2026-09-22,fire,14.61149,120.97476,barangay,Barangay 243,yes,https://t.me/txtfirephilippines/48805
+TXTFIRE-TG-20260922T1347,2026-09-22,fire,14.61568,120.98332,district,,no,https://t.me/txtfirephilippines/48797
+TXTFIRE-TG-20260925T2210,2026-09-25,fire,14.59983,120.96882,district,,no,https://t.me/txtfirephilippines/48956
+TXTFIRE-TG-20260925T0524,2026-09-25,fire,14.57695,120.98509,barangay,Barangay 669,yes,https://t.me/txtfirephilippines/48899
+TXTFIRE-TG-20260927T1141,2026-09-27,fire,14.56478,120.99023,street,Barangay 721,yes,https://t.me/txtfirephilippines/49036
+TXTFIRE-TG-20260929T0257,2026-09-29,fire,14.58287,121.01625,barangay,Barangay 886,yes,https://t.me/txtfirephilippines/49076
+TXTFIRE-TG-20261002T0740,2026-10-02,fire,14.58166,120.99720,district,,no,https://t.me/txtfirephilippines/49158
+TXTFIRE-TG-20261002T1522,2026-10-02,fire,14.57103,120.98532,street,Barangay 699,yes,https://t.me/txtfirephilippines/49179
+FDAY-20210721,2021-07-21,flood,,,city,,no,https://mb.com.ph/2021/7/21/advisory-list-of-flooded-areas-in-metro-manila-due-to-heavy-rains
+DROMIC-effects-of-southwest-monsoon-enhanced-by-typhoon-fabian-22-july-2021,2021-07-22,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-enhanced-by-typhoon-fabian-22-july-2021/
+FDAY-20210723,2021-07-23,flood,,,city,,no,https://www.topgear.com.ph/news/motoring-news/taft-flood-july-2021-gallery-a4354-20210723
+FLD-20210725-001,2021-07-25,flood,14.60971,120.98236,street,Barangay 333,yes,https://www.gmanetwork.com/news/topstories/metro/796691/list-flooded-areas-in-metro-manila-on-sunday-july-25-2021/story/
+DROMIC-effects-of-southwest-monsoon-27-jul-2021,2021-07-27,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-27-jul-2021/
+DROMIC-tropical-depression-jolina-06-sep-2021,2021-09-06,flood,,,city,,no,https://dromic.dswd.gov.ph/tropical-depression-jolina-06-sep-2021/
+DROMIC-severe-tropical-storm-maring07-oct-2021,2021-10-07,flood,,,city,,no,https://dromic.dswd.gov.ph/severe-tropical-storm-maring07-oct-2021/
+FLD-20220808-002,2022-08-08,flood,14.58610,120.98258,street,Barangay 666,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-003,2022-08-08,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-004,2022-08-08,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-005,2022-08-08,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FLD-20220808-006,2022-08-08,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.philstar.com/nation/2022/08/10/2201510/floods-hit-metro-manila-anew
+FDAY-20220903,2022-09-03,flood,,,city,,no,https://www.abs-cbn.com/news/09/03/22/floods-swamp-parts-of-manila
+FDAY-20220920,2022-09-20,flood,,,city,,no,https://mb.com.ph/2022/09/20/heavy-rain-causes-gutter-deep-floods-along-taft-avenue-manila
+DROMIC-super-typhoon-karding-23-sep-2022,2022-09-23,flood,,,city,,no,https://dromic.dswd.gov.ph/super-typhoon-karding-23-sep-2022/
+FDAY-20220927,2022-09-27,flood,,,city,,no,https://mb.com.ph/2022/09/27/heavy-rain-causes-gutter-deep-floods-in-parts-of-manila
+DROMIC-low-pressure-area-24-oct-2022,2022-10-24,flood,,,city,,no,https://dromic.dswd.gov.ph/low-pressure-area-24-oct-2022/
+FLD-20221029-007,2022-10-29,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://news.abs-cbn.com/news/10/30/22/some-parts-of-metro-manila-experience-flooding-due-to-paeng
+FDAY-20221030,2022-10-30,flood,,,city,,no,https://www.abs-cbn.com/news/10/30/22/some-parts-of-metro-manila-experience-flooding-due-to-paeng
+DROMIC-severe-tropical-storm-egay-21-july-2023,2023-07-21,flood,,,city,,no,https://dromic.dswd.gov.ph/severe-tropical-storm-egay-21-july-2023/
+FDAY-20230727,2023-07-27,flood,,,city,,no,https://philstar.com/headlines/2023/07/27/2284222/list-flooded-areas-july-27-due-egay
+FDAY-20230728,2023-07-28,flood,,,city,,no,https://mb.com.ph/2023/7/30/strong-habagat-rains-from-egay-falcon-bring-floods-to-central-luzon-metro-manila
+FDAY-20230729,2023-07-29,flood,,,city,,no,https://mb.com.ph/2023/7/30/strong-habagat-rains-from-egay-falcon-bring-floods-to-central-luzon-metro-manila
+FDAY-20230803,2023-08-03,flood,,,city,,no,https://manilatimes.net/2023/08/03/news/4-roads-in-manila-flooded/1903712
+FDAY-20230831,2023-08-31,flood,,,city,,no,https://mb.com.ph/2023/8/31/motorists-commuters-experience-gutter-deep-flood-along-espana-blvd-taft-avenue
+FDAY-20230901,2023-09-01,flood,,,city,,no,https://www.philstar.com/nation/2023/09/01/2292864/goring-floods-metro
+FDAY-20230903,2023-09-03,flood,,,city,,no,https://alpha.pna.gov.ph/articles/1209100
+FLD-20230923-008,2023-09-23,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.philstar.com/headlines/2023/09/24/2298617/floods-hit-metro-manila-roads-2-lpas-monitored
+DROMIC-effects-of-southwest-monsoon-enhanced-by-sty-carina-21-jul-2024,2024-07-21,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-enhanced-by-sty-carina-21-jul-2024/
+FLD-20240724-010,2024-07-24,flood,14.60972,120.99282,street,Barangay 479,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-011,2024-07-24,flood,14.61293,120.99634,street,Barangay 503,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240724-012,2024-07-24,flood,14.57984,120.97733,street,Barangay 666,yes,https://newsinfo.inquirer.net/1964611/flood-hits-metro-manila-roads-on-wednesday
+FLD-20240725-013,2024-07-25,flood,14.60375,120.98192,street,Barangay 313,yes,https://www.gmanetwork.com/news/topstories/metro/914660/flooded-areas-metro-manila-july-25-2024/story/
+DROMIC-effects-of-sts-enteng-and-southwest-monsoon-31-aug-2024,2024-08-31,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-sts-enteng-and-southwest-monsoon-31-aug-2024/
+FDAY-20240903,2024-09-03,flood,,,city,,no,https://www.abs-cbn.com/news/2024/9/3/list-flooded-areas-due-to-sept-3-bad-weather-1223
+FDAY-20241024,2024-10-24,flood,,,city,,no,https://newsinfo.inquirer.net/1997056/flooded-main-roads-in-metro-manila-waist-deep-in-some-areas
+FLD-20241025-014,2024-10-25,flood,14.60972,120.99282,street,Barangay 479,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+FLD-20241025-016,2024-10-25,flood,14.61175,120.99507,street,Barangay 475,yes,https://www.gmanetwork.com/news/topstories/metro/924865/flooded-areas-metro-manila-kristine/story/
+DROMIC-effects-of-southwest-monsoon-and-tropical-depression-crising-17-jul-20,2025-07-17,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-and-tropical-depression-crising-17-jul-2025/
+FLD-20250718-017,2025-07-18,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-018,2025-07-18,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FLD-20250718-020,2025-07-18,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953095/floods-hit-metro-manila-due-to-habagat-rains-enhanced-by-crising/story/
+FDAY-20250719,2025-07-19,flood,,,city,,no,https://www.abs-cbn.com/news/nation/2025/7/19/storm-crising-habagat-spawn-floods-in-manila-1903
+FDAY-20250720,2025-07-20,flood,,,city,,no,https://mb.com.ph/2025/07/20/flooding-hits-several-areas-in-manila-some-roads-impassable-to-light-vehicles
+FLD-20250721-021,2025-07-21,flood,14.60972,120.99282,street,Barangay 479,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250721-022,2025-07-21,flood,14.61293,120.99634,street,Barangay 503,yes,https://tribune.net.ph/2025/07/21/flooding-submerges-metro-manila-roads
+FLD-20250722-023,2025-07-22,flood,14.60035,120.99100,street,Barangay 416,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-024,2025-07-22,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-029,2025-07-22,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-030,2025-07-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-031,2025-07-22,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-032,2025-07-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-033,2025-07-22,flood,14.55959,120.98715,street,Barangay 719,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-034,2025-07-22,flood,14.57873,120.99836,street,Barangay 682,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-035,2025-07-22,flood,14.61675,120.97733,street,Barangay 229,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250722-036,2025-07-22,flood,14.60608,120.97486,street,Barangay 259,yes,https://www.gmanetwork.com/news/topstories/metro/953333/list-of-reported-flooded-areas-in-metro-manila-as-of-tuesday-12-02-a-m/story/
+FLD-20250822-037,2025-08-22,flood,14.56432,120.98512,street,Barangay 701,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-038,2025-08-22,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-040,2025-08-22,flood,14.57992,120.98610,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-041,2025-08-22,flood,14.58614,120.98267,street,Barangay 659,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+FLD-20250822-042,2025-08-22,flood,14.58359,120.98405,street,Barangay 660-A,yes,https://www.gmanetwork.com/news/topstories/metro/956643/flooded-roads-metro-manila/story/
+DROMIC-effects-of-southwest-monsoon-and-low-pressure-area-25-aug-2025,2025-08-24,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-southwest-monsoon-and-low-pressure-area-25-aug-2025/
+FLD-20250905-043,2025-09-05,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/958113/list-flooded-roads-in-metro-manila-amid-habagat-rains/story/
+DROMIC-effects-of-tropical-depression-mirasol-16-sep-2025,2025-09-16,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-tropical-depression-mirasol-16-sep-2025/
+FDAY-20250926,2025-09-26,flood,,,city,,no,https://tribune.net.ph/2025/09/26/opong-felt-in-metro-manila
+DROMIC-effects-of-typhoon-tino-03-nov-2025,2025-11-03,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-typhoon-tino-03-nov-2025/
+DROMIC-effects-of-typhoon-uwan-07-nov-2025,2025-11-08,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-typhoon-uwan-07-nov-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-662,2025-12-11,flood,14.58838,120.99293,barangay,Barangay 662,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-671,2025-12-11,flood,14.58167,120.99311,barangay,Barangay 671,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-672,2025-12-11,flood,14.58331,120.99178,barangay,Barangay 672,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-674,2025-12-11,flood,14.58200,120.98883,barangay,Barangay 674,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-677,2025-12-11,flood,14.58361,120.99398,barangay,Barangay 677,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-734,2025-12-11,flood,14.57615,120.99689,barangay,Barangay 734,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+DROMIC-flooding-incident-in-city-of-manila-11-dec-2025-736,2025-12-11,flood,14.57501,120.99625,barangay,Barangay 736,yes,https://dromic.dswd.gov.ph/flooding-incident-in-city-of-manila-11-dec-2025/
+FDAY-20260704,2026-07-04,flood,,,city,,no,https://mb.com.ph/2026/07/04/gutter-deep-floods-hit-manila-after-sudden-downpour
+FLD-20260710-044,2026-07-10,flood,14.57609,120.98830,street,Barangay 669,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+FLD-20260710-045,2026-07-10,flood,14.61443,120.99802,street,Barangay 517,yes,https://www.gmanetwork.com/news/topstories/metro/994434/list-flooded-areas-in-metro-manila-on-july-10-2026/story/
+DROMIC-effects-of-tropical-cyclone-luis-30-jul-2026,2026-07-30,flood,,,city,,no,https://dromic.dswd.gov.ph/effects-of-tropical-cyclone-luis-30-jul-2026/
+FLD-20260809-047,2026-08-09,flood,14.57028,120.99156,street,Barangay 703,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-048,2026-08-09,flood,14.57731,120.98767,street,Barangay 676,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260809-049,2026-08-09,flood,14.58243,120.98468,street,Barangay 670,yes,https://www.gmanetwork.com/news/topstories/metro/997867/list-flooded-areas-in-metro-manila-due-to-habagat-caused-rains-aug-9-2026/story/
+FLD-20260810-050,2026-08-10,flood,14.57313,120.98109,street,Barangay 668,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-051,2026-08-10,flood,14.61293,120.99634,street,Barangay 503,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FLD-20260810-052,2026-08-10,flood,14.57984,120.97733,street,Barangay 666,yes,https://www.gmanetwork.com/news/topstories/metro/997941/list-flooded-areas-in-metro-manila-due-to-habagat-rains-aug-10-2026/story/
+FDAY-20260817,2026-08-17,flood,,,city,,no,https://tribune.net.ph/2026/08/17/flooded-manila-2
+FLD-20260818-053,2026-08-18,flood,14.60811,120.99113,street,Barangay 459,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-054,2026-08-18,flood,14.61101,120.98246,street,Barangay 334,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260818-055,2026-08-18,flood,14.61961,120.97770,street,Barangay 231,yes,https://www.dzrh.com.ph/post/list-flooded-metro-manila-areas-on-tuesday-aug-18-due-to-habagat
+FLD-20260819-056,2026-08-19,flood,14.61125,120.99452,street,Barangay 476,yes,https://www.gmanetwork.com/news/topstories/metro/999051/flood-alert-flooded-roads-in-metro-manila-on-wednesday-august-19-2026/story/
+FDAY-20260829,2026-08-29,flood,,,city,,no,https://mb.com.ph/2026/08/30/rainfall-on-aug-29-equivalent-to-10-days-worth-manila-drrm

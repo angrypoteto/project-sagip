@@ -670,5 +670,6 @@
   "dutyOffline": "Kailangan ng internet para magpalit ng duty. Subukan ulit kapag online ka na.",
   "notSharingOffDuty": "Hindi ibinabahagi ang lokasyon habang wala ka sa duty",
   "alertsReadAll": "Markahang nabasa lahat",
-  "alertsReadAllDone": "Nabasa na ang lahat ng alerto"
+  "alertsReadAllDone": "Nabasa na ang lahat ng alerto",
+  "forecastNotForecast": "Walang pagtataya"
 }

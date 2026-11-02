@@ -1939,13 +1939,24 @@ void main() {
     expect(find.text('2 high, 1 moderate, 5 low'), findsOneWidget);
     expect(top('Barangay 649'), lessThan(top('Barangay 105')));
     expect(top('Barangay 105'), lessThan(top('Barangay 412')));
-    // The heat map (2026-11-02): a glow per barangay at moderate or high,
-    // stronger at high; low is not painted. The outlines carry no colour
+    // The heat map (2026-11-02, radar look): each level in its own band of
+    // the ramp, high in the reds, moderate in the purples, low (only where
+    // incidents happened before) in the blues. The outlines carry no colour
     // and take the clicks.
     final heat = tester.widget<HeatLayer>(find.byType(HeatLayer));
-    expect(heat.weights['Barangay 649'], 1.0);
-    expect(heat.weights['Barangay 105'], riskHeat[RiskLevel.moderate]);
-    expect(heat.weights.containsKey('Barangay 412'), isFalse);
+    bool inBand(String barangay, RiskLevel level) {
+      final v = heat.weights[barangay];
+      final (low, high) = riskHeat[level]!;
+      return v != null && v >= low && v <= high;
+    }
+
+    expect(inBand('Barangay 649', RiskLevel.high), isTrue);
+    expect(inBand('Barangay 105', RiskLevel.moderate), isTrue);
+    expect(
+      !heat.weights.containsKey('Barangay 412') ||
+          inBand('Barangay 412', RiskLevel.low),
+      isTrue,
+    );
     final shading = tester.widget<BarangayBoundaries>(
       find.byType(BarangayBoundaries),
     );
@@ -2024,6 +2035,88 @@ void main() {
     await settle(tester);
     expect(find.text('Barangay 412 only'), findsNothing);
     expect(find.text(elsewhere.fullName), findsOneWidget);
+  });
+
+  testWidgets('D8: pointing at the map names the barangay and its level', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Heatmap'));
+    await settle(tester);
+
+    // The map opens on Manila City Hall, inside a barangay.
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(find.byType(FlutterMap)));
+    await tester.pump();
+    final card = find.byKey(const ValueKey('heatmap-hover'));
+    expect(card, findsOneWidget);
+    expect(
+      find.descendant(of: card, matching: find.textContaining('flood risk')),
+      findsOneWidget,
+    );
+
+    // Leaving the map hides it.
+    await mouse.moveTo(const Offset(5, 5));
+    await tester.pump();
+    expect(card, findsNothing);
+  });
+
+  testWidgets('D8: a hazard the model is not trained for says so', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Heatmap'));
+    await settle(tester);
+
+    // The recorded model (2026-11-02) has no storm surge record; its runs
+    // say "storm surge not forecast" in their label.
+    final issued = now.subtract(const Duration(hours: 1));
+    const label =
+        'lstm-kde-v2 live weather, 14 days to 2026-09-30 (trained on '
+        'recorded data 2021 to 2026; storm surge not forecast; provisional '
+        'levels)';
+    backend.setForecast(
+      ForecastRun.latest([
+        BarangayForecast(
+          barangay: 'Barangay 412',
+          district: 'Sampaloc',
+          issuedAt: issued,
+          validUntil: issued.add(const Duration(hours: 72)),
+          risks: const {ForecastHazard.flood: RiskLevel.high},
+          modelVersion: label,
+        ),
+      ]),
+    );
+    await settle(tester);
+    expect(find.text('Live weather'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-stormSurge')));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('forecast-not-forecast')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('forecast-row-Barangay 412')),
+      findsNothing,
+    );
+    expect(tester.widget<HeatLayer>(find.byType(HeatLayer)).weights, isEmpty);
+
+    // Flood is forecast as usual, and the panel marks storm surge.
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-flood')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('forecast-row-Barangay 412')));
+    await settle(tester);
+    final panel = find.byKey(const ValueKey('forecast-panel'));
+    expect(
+      find.descendant(of: panel, matching: find.text('Not forecast')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: panel, matching: find.text('High')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('D8: medical and structural show recorded incidents', (
@@ -2175,11 +2268,10 @@ void main() {
     );
     await tester.tap(find.byTooltip('Heatmap'));
     await settle(tester);
-    // A run on this week's weather says so, and that the model is the
-    // sample-trained one.
+    // A run on this week's weather says so.
     expect(find.byKey(const ValueKey('forecast-live-weather')), findsOneWidget);
     expect(
-      find.textContaining('still the sample-trained ones'),
+      find.textContaining('Run on the last 14 days of real weather'),
       findsOneWidget,
     );
     await tester.tap(find.byKey(const ValueKey('forecast-row-Barangay 412')));

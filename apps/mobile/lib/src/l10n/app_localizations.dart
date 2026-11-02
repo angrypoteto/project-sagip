@@ -4123,6 +4123,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All alerts marked as read'**
   String get alertsReadAllDone;
+
+  /// No description provided for @forecastNotForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Not forecast'**
+  String get forecastNotForecast;
 }
 
 class _AppLocalizationsDelegate

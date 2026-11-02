@@ -50,4 +50,26 @@ void main() {
     expect(detailed.rule!.moderate, hasLength(1));
     expect(detailed.forecasts, run.forecasts);
   });
+
+  test('a run names the hazards its model does not forecast', () {
+    const v2 =
+        'lstm-kde-v2 live weather, 14 days to 2026-11-01 (trained on '
+        'recorded data 2021 to 2026; storm surge not forecast; provisional '
+        'levels)';
+    expect(forecastsHazard(v2, ForecastHazard.flood), isTrue);
+    expect(forecastsHazard(v2, ForecastHazard.fire), isTrue);
+    expect(forecastsHazard(v2, ForecastHazard.stormSurge), isFalse);
+    expect(forecastsHazard(null, ForecastHazard.stormSurge), isTrue);
+    expect(forecastsHazard('sample', ForecastHazard.stormSurge), isTrue);
+    final f = BarangayForecast(
+      barangay: 'Barangay 412',
+      district: 'Sampaloc',
+      issuedAt: DateTime(2026, 11, 2),
+      validUntil: DateTime(2026, 11, 5),
+      risks: const {},
+      modelVersion: v2,
+    );
+    expect(f.covers(ForecastHazard.stormSurge), isFalse);
+    expect(ForecastRun.latest([f])!.covers(ForecastHazard.stormSurge), isFalse);
+  });
 }

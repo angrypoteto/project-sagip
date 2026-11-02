@@ -4,7 +4,8 @@
 // functions, tested with Node (forecast.test.ts) against Keras's own
 // output for the same windows.
 //
-// The model file is supabase/data/forecast_live_v1.json, written by
+// The model file is supabase/data/forecast_live_v2.json (lstm-kde-v2,
+// trained on the recorded 2021 to 2026 data; v1 was the sample), written by
 // ml/forecast/heatmap/export_live.py and kept in the `forecast_model` table.
 
 export const hazards = ["flood", "fire", "storm_surge"] as const;
@@ -46,11 +47,24 @@ export interface LiveModel {
   window: number;
   horizon_hours: number;
   rule: Rule;
-  /** One ISO date per replayed day. */
+  /** One ISO date per replayed day (none in a live-only model). */
   days: string[];
   /** The five weather readings of each day. */
   weather: number[][];
-  hazards: Record<Hazard, HazardModel>;
+  /**
+   * The hazards the model was trained for. The recorded model (lstm-kde-v2,
+   * 2026-11-02) has flood and fire only: there is no storm surge record to
+   * learn from, so storm surge is not forecast and stays low.
+   */
+  hazards: Partial<Record<Hazard, HazardModel>>;
+  /** What the model was trained on (export_live.py). */
+  data?: string;
+  trained_on?: [string, string];
+}
+
+/** The hazards [model] forecasts, in the usual order. */
+export function forecastHazards(model: LiveModel): Hazard[] {
+  return hazards.filter((hz) => model.hazards[hz] !== undefined);
 }
 
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
@@ -90,7 +104,7 @@ export function lstm(layer: LstmLayer, inputs: number[][]): number[][] {
 
 /** The six features of the [window] days ending on day [end]. */
 export function windowAt(model: LiveModel, hazard: Hazard, end: number): number[][] {
-  const prior = model.hazards[hazard].prior_day_incidents;
+  const prior = model.hazards[hazard]!.prior_day_incidents;
   const rows: number[][] = [];
   for (let d = end - model.window + 1; d <= end; d++) {
     rows.push([...model.weather[d], prior[d]]);
@@ -120,21 +134,26 @@ export function riskLevel(rule: Rule, p: number, density: number): Level {
 /**
  * The barangays that are not low on every hazard, each as three letters
  * (l, m, h) for flood, fire, and storm surge, as record_forecast_run
- * takes them. Every other barangay is low.
+ * takes them. Every other barangay is low, and so is a hazard the model
+ * does not forecast.
  */
 export function levelCodes(
   model: LiveModel,
-  probs: Record<Hazard, number>,
+  probs: Partial<Record<Hazard, number>>,
 ): Record<string, string> {
   const names = new Set<string>();
-  for (const hz of hazards) {
-    for (const name of Object.keys(model.hazards[hz].density)) names.add(name);
+  for (const hz of forecastHazards(model)) {
+    for (const name of Object.keys(model.hazards[hz]!.density)) names.add(name);
   }
   const letter: Record<Level, string> = { low: "l", moderate: "m", high: "h" };
   const out: Record<string, string> = {};
   for (const name of [...names].sort()) {
     const code = hazards
-      .map((hz) => letter[riskLevel(model.rule, probs[hz], model.hazards[hz].density[name] ?? 0)])
+      .map((hz) => {
+        const m = model.hazards[hz];
+        const p = probs[hz];
+        return m && p !== undefined ? letter[riskLevel(model.rule, p, m.density[name] ?? 0)] : "l";
+      })
       .join("");
     if (code !== "lll") out[name] = code;
   }
@@ -158,9 +177,9 @@ export function replayDay(model: LiveModel, current: number | null): { day: numb
 /** One run: the probabilities and the level codes for the replayed day. */
 export function forecastRun(model: LiveModel, current: number | null) {
   const { day, next } = replayDay(model, current);
-  const probs = {} as Record<Hazard, number>;
-  for (const hz of hazards) {
-    probs[hz] = probability(model.hazards[hz], windowAt(model, hz, day));
+  const probs: Partial<Record<Hazard, number>> = {};
+  for (const hz of forecastHazards(model)) {
+    probs[hz] = probability(model.hazards[hz]!, windowAt(model, hz, day));
   }
   return { windowEnd: model.days[day], probabilities: probs, levels: levelCodes(model, probs), next };
 }
@@ -251,10 +270,10 @@ export function liveWindow(
 
 /** One run on a live window: the probabilities and the level codes. */
 export function liveRun(model: LiveModel, win: LiveWindow) {
-  const probs = {} as Record<Hazard, number>;
-  for (const hz of hazards) {
+  const probs: Partial<Record<Hazard, number>> = {};
+  for (const hz of forecastHazards(model)) {
     const rows = win.weather.map((w, i) => [...w, win.prior[hz][i]]);
-    probs[hz] = probability(model.hazards[hz], rows);
+    probs[hz] = probability(model.hazards[hz]!, rows);
   }
   return {
     windowEnd: win.days[win.days.length - 1],

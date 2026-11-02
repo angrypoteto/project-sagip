@@ -1,0 +1,77 @@
+{
+  "variant": "recorded",
+  "events": [
+    {
+      "hazard": "flood",
+      "event": "Carina (Gaemi) and the southwest monsoon",
+      "forecast_made": "2024-07-24",
+      "chance_next_72h": 0.978,
+      "recorded_next_72h": 4,
+      "rain_last_14_days_mm": 270.1,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "flood",
+      "event": "Enteng (Yagi)",
+      "forecast_made": "2024-09-02",
+      "chance_next_72h": 0.903,
+      "recorded_next_72h": 1,
+      "rain_last_14_days_mm": 188.8,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "flood",
+      "event": "Kristine (Trami)",
+      "forecast_made": "2024-10-24",
+      "chance_next_72h": 0.975,
+      "recorded_next_72h": 3,
+      "rain_last_14_days_mm": 155.2,
+      "highest_signal_last_14_days": 2.0
+    },
+    {
+      "hazard": "flood",
+      "event": "Southwest monsoon, July 2025",
+      "forecast_made": "2025-07-21",
+      "chance_next_72h": 0.385,
+      "recorded_next_72h": 12,
+      "rain_last_14_days_mm": 172.3,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "flood",
+      "event": "A dry-season day (control)",
+      "forecast_made": "2025-03-10",
+      "chance_next_72h": 0.0,
+      "recorded_next_72h": 0,
+      "rain_last_14_days_mm": 12.9,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "fire",
+      "event": "Busiest fire day in the records (8 fires)",
+      "forecast_made": "2022-01-03",
+      "chance_next_72h": 0.544,
+      "recorded_next_72h": 10,
+      "rain_last_14_days_mm": 46.6,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "fire",
+      "event": "Busiest fire day in the records (7 fires)",
+      "forecast_made": "2022-05-06",
+      "chance_next_72h": 0.6,
+      "recorded_next_72h": 11,
+      "rain_last_14_days_mm": 20.1,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "fire",
+      "event": "A day with no fire recorded in the next 72 hours (control)",
+      "forecast_made": "2021-03-25",
+      "chance_next_72h": 0.55,
+      "recorded_next_72h": 0,
+      "rain_last_14_days_mm": 31.6,
+      "highest_signal_last_14_days": 0.0
+    }
+  ]
+}

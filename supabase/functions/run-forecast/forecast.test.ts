@@ -4,9 +4,10 @@
 // TypeScript LSTM must give the same.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import {
   addDays,
+  forecastHazards,
   forecastRun,
   type Hazard,
   hazards,
@@ -157,4 +158,28 @@ test("a missing day gives no live window", () => {
   om.daily.precipitation_sum[5] = null;
   const fresh = sourcesFor(end - 14, end).recorded;
   assert.equal(liveWindow(model, om, fresh, "2024-07-02"), null, "no rain for a day");
+});
+
+// The live forecast's model (lstm-kde-v2, 2026-11-02): trained on the
+// recorded 2021 to 2026 data, flood and fire only, no replay days.
+const v2File = new URL("../../data/forecast_live_v2.json", import.meta.url);
+const v2 = existsSync(v2File)
+  ? JSON.parse(readFileSync(v2File, "utf8")) as LiveModel & {
+    test_vectors: { hazard: Hazard; window: number[][]; probability: number }[];
+  }
+  : null;
+
+test("v2: the LSTM matches Keras on windows from the test period", { skip: !v2 }, () => {
+  assert.ok(v2!.test_vectors.length >= 4);
+  for (const v of v2!.test_vectors) {
+    const p = probability(v2!.hazards[v.hazard]!, v.window);
+    assert.ok(Math.abs(p - v.probability) < 1e-5, `${v.hazard}: ${p} against Keras ${v.probability}`);
+  }
+});
+
+test("v2: storm surge is not forecast, so it is low everywhere", { skip: !v2 }, () => {
+  assert.deepEqual(forecastHazards(v2!), ["flood", "fire"]);
+  assert.equal(v2!.days.length, 0);
+  const codes = levelCodes(v2!, { flood: 1, fire: 1 });
+  assert.ok(Object.values(codes).every((c) => c.length === 3 && c[2] === "l"));
 });

@@ -176,6 +176,75 @@ Not the thesis feature set; run only to inform the team. PAGASA's past forecasts
 - It does nothing for fires, as expected.
 - Of the three Q50 options, (c) is worth adopting for floods only together with better flood records. On its own it does not meet the 80% objective in a meaningful way.
 
+## 9. The live forecast's model: recorded data, 2021 to 2026 (2026-11-02)
+
+Joshua chose to run the forecast on live weather with a model trained on the records collected so far (`lstm-kde-v2`, `supabase/data/forecast_live_v2.json`). Same thesis LSTM and KDE parameters. What changed from section 7:
+
+- **Period:** 2021-01-01 to 2026-10-05 (2,104 days), the years every source covers.
+- **Rainfall:** ERA5 through Open-Meteo on every day, the source `run-forecast` reads live, so the model is trained on the same kind of numbers it is given.
+- **Fires:** DROMIC, TXTFIRE's website, and **TXTFIRE's Telegram channel** (`collect_txtfire_telegram.py`: 36,335 posts since 2021; 3,410 Manila fires, of which 1,692 confirmed by an alarm level or "fire out"; unverified alerts and false alarms left out).
+- **Floods:** `manila_flood_days.csv` grew from 19 to 46 days (27 Manila flood days in 2021 to 2026 found and checked by hand; `manila_flood_checks.csv` lists the 86 days looked at). Typhoon signals: 23 verified days since 2021, with the storm-track estimate (section 7).
+- **Storm surge:** still no recorded incident, so v2 does not forecast it; the dashboard and app say "Not forecast".
+
+### Step log (new rows)
+
+| Dataset | Step | In | Retained | Corrected | Removed | What happened |
+|---|---|---:|---:|---:|---:|---|
+| Fire (TXTFIRE Telegram) | Read | 1,692 | 1,692 | 0 | 0 | confirmed fires only |
+| Fire (TXTFIRE Telegram) | Clean | 1,692 | 1,583 | 0 | 109 | the same fire twice |
+| Fire (TXTFIRE Telegram) | Geocode | 1,583 | 1,583 | 0 | 0 | street on OpenStreetMap inside its district 450, barangay centre 410, district centre 707, City Hall 125 (of the 1,692 read) |
+| Fire (TXTFIRE Telegram) | Time-align | 1,583 | 1,558 | 0 | 25 | outside 2021-01-01 to 2026-10-05 |
+| Fire (DROMIC + TXTFIRE) | Merge | 1,879 | 1,745 | 134 | 0 | the same fire in two sources counted once; **1,745 fires on 1,090 days** |
+| Flood (news + DROMIC) | Merge and time-align | 96 | 90 | 0 | 6 | 90 flood records on 54 days |
+
+### Results on the test part (2025-11-23 to 2026-10-02, 314 windows)
+
+| Hazard | LSTM accuracy | Balanced accuracy | Caught | Baseline accuracy | Heatmap per barangay (balanced) |
+|---|---:|---:|---|---:|---:|
+| Flood | 82.2% | **61.7%** | 9 of 24 | 92.4% never warn | 97.1% KDE (66.1%); UP NOAH 84.9% (70.5%); blend 90.2% (73.2%) |
+| Fire | 59.2% | 45.4% | 179 of 290 | 92.4% always warn | **80.6%** KDE (55.7%) |
+
+"Nothing at risk" scores 99.98% (flood) and 99.83% (fire) per barangay on the same cells.
+
+- **Flood** is the best result so far: balanced accuracy 61.7% against 53.9% (dromic) and 54.8% (news), with the right behaviour on known events: replayed through `backtest_events.py`, the chance of a flood in Manila in the next 72 hours was 98% for Carina (24 Jul 2024), 90% for Enteng, 98% for Kristine (these three are in the training part, so they show what was learned, not a prediction), **39% for the July 2025 southwest monsoon** (validation part, not trained on: moderate where floods cluster), and 0% on a dry-season control day.
+- **Fire** has no skill (best epoch 1). With the Telegram channel there is a fire somewhere in Manila in 86% to 92% of all 72-hour windows, so the LSTM's question is nearly always "yes", and the weather cannot tell the few "no" windows apart. The replayed fire chance was 54% and 60% on the two busiest fire days and 55% on a day with no fire.
+- **KDE:** flood 54 placed incidents, bandwidth 300 m, densest Barangay 452; fire 869 placed fires (from 86 in section 7), bandwidth 100 m (many fires sit on the same barangay centres), densest Barangay 179; fires cluster in Tondo and Santa Cruz.
+
+### Why fire fails: three more tries
+
+Joshua asked whether the problem was the data or the LSTM being "for flood". It is neither: the LSTM learns any pattern its inputs carry, and the weather inputs do not carry fire timing. Three tries, same parameters and test days:
+
+| Try | What changed | Positive windows (test) | Fire balanced accuracy |
+|---|---|---:|---:|
+| Any fire (the live model) | | 92% | 45.4% |
+| Alarm-level fire (`--variant recorded_alarm`) | a fire counts only if TXTFIRE recorded an alarm level, or DROMIC reported it (579 fires) | 57% | 45.6% |
+| Any fire + extra inputs (`--fire-extras`) | lowest daily humidity (`fetch_fire_inputs.py`, Open-Meteo), days since rain, season, New Year / Christmas / All Saints in the next 72 hours | 92% | 52.7% |
+| Alarm-level + extra inputs | both | 57% | 50.0% |
+
+A coin toss is 50%. None of the four has skill. (Flood with the extra inputs caught 12 of 24 instead of 9, balanced 65.0%, in a single run; not adopted.)
+
+What does go with more fires, 2021 to 2026 (fires per day against the average day; alarm-level in brackets):
+
+| Input | Effect |
+|---|---|
+| New Year's Eve and Day | 2.2x (alarm-level 3.6x on the eve); 2 days a year |
+| Luzon grid red alerts (rotating brownouts; the 15 days found in the news: 31 May to 2 Jun 2021; 16 to 18, 23, 24 Apr and 23, 27 to 29 May 2024; 13 to 15 May 2026) | 1.5x (1.7x) |
+| January to February | 1.2x; August to October 0.8x |
+| Dry air (lowest humidity under 55%) | 1.1x |
+| Rain (dry, wet, very wet days) | none (0.89, 0.79, 0.85 a day) |
+| Heat (temperature, heat index) | none (cooler days slightly higher) |
+| Day of the week | none |
+
+So fire timing in Manila depends on people and power (wiring, cooking, open flames, New Year, brownouts), not weather. A study of Manila's fires from 2011 to 2016 found the same: no pattern by time of day, day of the week, or month, with faulty electrical connections the main cause all year ("A spatiotemporal analysis of fire incidents in Manila from 2011-2016: Implications for fire prevention", *Disaster Prevention and Management*, Emerald, DOI 10.1108/DPM-05-2018-0147). The red-alert days are the best lead, but they are few (about 15 in five years) and fall in the hot season, so they do not prove a link yet.
+
+### Decided (Joshua, 2026-11-02)
+
+- The live forecast runs v2 as trained: **LSTM + KDE for flood and fire** (the thesis design). For fire, the LSTM's chance hardly moves, so in practice the KDE (where fires cluster) decides which barangays show fire risk. Storm surge: not forecast.
+- Chapter 5 reports the fire result as a finding, with the four tries and the table above, and cites the 2011 to 2016 study.
+- Data: request BFP's Manila fire records (date, time, barangay, cause, alarm level) through eFOI; with causes, electrical fires can be checked against grid alerts.
+- Recommendations for future work: grid alerts and power interruptions (NGCP advisories, Meralco), and holidays, as fire inputs; flood records from MDRRMD or MMDA.
+- The experiments stay in the code, off by default: `--variant recorded_alarm`, `--fire-extras`.
+
 ## How to rerun
 
 ```bash
@@ -195,5 +264,25 @@ for v in dromic dromic_txtfire; do
   ../../.venv/Scripts/python data_prep/prepare_real.py --variant $v
   ../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_$v.json --build build/real/$v --out lstm/lstm_metrics_$v.json
   ../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py --variant $v
+done
+
+# Section 9: the live forecast's model (lstm-kde-v2)
+../../.venv/Scripts/python data_prep/collect_txtfire_telegram.py   # TXTFIRE's Telegram channel since 2021; cached in data/downloads/
+../../.venv/Scripts/python data_prep/place_fires.py
+../../.venv/Scripts/python data_prep/prepare_real.py --variant recorded
+../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_recorded.json --build build/real/recorded --out lstm/lstm_metrics_recorded.json
+../../.venv/Scripts/python kde/kde.py --incidents data/prepared/recorded/manila_incidents_prepared.csv --weather data/prepared/recorded/manila_weather_prepared.csv --summary kde/kde_summary_recorded.json --grid-dir build/real/recorded
+../../.venv-tf/Scripts/python heatmap/export_live.py --variant recorded        # supabase/data/forecast_live_v2.json
+../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py --variant recorded
+../../.venv-tf/Scripts/python heatmap/backtest_events.py --variant recorded
+../../.venv/Scripts/python kde/export_density.py --summary kde/kde_summary_recorded.json   # build/density_insert.sql
+
+# Section 9 fire tries
+../../.venv/Scripts/python data_prep/fetch_fire_inputs.py      # humidity, for --fire-extras
+../../.venv/Scripts/python data_prep/prepare_real.py --variant recorded_alarm
+../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_recorded_alarm.json --build build/real/recorded_alarm --out lstm/lstm_metrics_recorded_alarm.json
+for v in recorded recorded_alarm; do
+  ../../.venv/Scripts/python data_prep/prepare_real.py --variant $v --fire-extras
+  ../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_${v}_extras.json --build build/real/${v}_extras --out lstm/lstm_metrics_${v}_extras.json
 done
 ```

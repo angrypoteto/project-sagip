@@ -297,13 +297,21 @@ def main():
     parser.add_argument("--weather", default=FORECAST / "data" / "sample_weather_daily.csv")
     parser.add_argument("--barangays", default=ROOT / "supabase" / "data" / "manila_barangays.csv")
     parser.add_argument("--boundaries", default=None)
+    # 2026-11-02 (the recorded model): where the summary and grids go, so a
+    # real-data fit does not overwrite the sample's kde_summary.json.
+    parser.add_argument("--summary", default=HERE / "kde_summary.json")
+    parser.add_argument("--grid-dir", default=FORECAST / "build")
     args = parser.parse_args()
 
     # The same cleaning as the LSTM's data preparation, over the same period.
     days, _ = load_weather(read_csv(args.weather))
-    incidents, log = clean_incidents(read_csv(args.incidents), days[0], days[-1])
+    rows = read_csv(args.incidents)
+    # Prepared real records mark the ones placed only at a district (too
+    # coarse for a density surface) with use_for_kde = no.
+    rows = [r for r in rows if r.get("use_for_kde", "yes") == "yes"]
+    incidents, log = clean_incidents(rows, days[0], days[-1])
     boundaries = load_boundaries(args.boundaries or default_boundaries())
-    hazards = run(incidents, load_barangays(args.barangays), boundaries, out_dir=FORECAST / "build")
+    hazards = run(incidents, load_barangays(args.barangays), boundaries, out_dir=Path(args.grid_dir))
 
     sample = "sample_" in Path(args.incidents).name
     provisional = ["risk levels: how the density and the LSTM probability combine is not decided (plan Q22); run_forecast.py uses a provisional rule"]
@@ -321,7 +329,7 @@ def main():
         "incident_records": log,
         "hazards": hazards,
     }
-    (HERE / "kde_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    Path(args.summary).write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     for hazard, h in hazards.items():
         if "skipped" in h:
             print(f"  {hazard}: skipped ({h['skipped']})")

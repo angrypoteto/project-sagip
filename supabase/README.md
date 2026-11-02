@@ -24,6 +24,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_forecast_live.sql` | The simulated live forecast feed (applied 2026-11-01): `forecast_model`, `forecast_replay`, `forecast_live_input()`, `record_forecast_run()` (service role), pg_cron `run-forecast` every six hours |
 | `migrations/*_forecast_run_detail.sql` | Each run's chance per hazard and the rule in force (2026-11-02), for D8's "why"; dispatchers and admins read it |
 | `migrations/*_forecast_live_weather.sql` | The forecast on live weather (2026-11-02): `forecast_live_days()` gives run-forecast each day's highest PAGASA signal and storm surge in force and the flood and fire incidents received (service role only); `record_forecast_run_labelled()` records a run under its own label, a live one not marked simulated (`record_forecast_run()` now goes through it) |
+| `migrations/*_forecast_model_v2.sql` | Model v2 (2026-11-02, applied as `20261102085119`): `private.load_forecast_model()` takes a model with flood and fire only and no replay days (`supabase/data/forecast_live_v2.json`, `lstm-kde-v2`) |
 | `migrations/*_web_form.sql` | W1 to W3: `submit_crowd_report` records the channel (`p_source`: `app` or `webForm`), the hourly report limit moves to `app_setting` (`reports.per_hour`, set on A3), `my_report_quota()` tells a resident how many reports are left this hour, and `my_crowd_reports()` returns each report's channel |
 | `migrations/*_alert_engine.sql` | The rest of A3 and the threshold engine: settings for alert thresholds, channel switches, the hotline and SMS gateway number, and simulation mode; `client_config()` (the two numbers, readable before sign-in); a trigger on `weather_alert` that issues an alert when a reading crosses a threshold; `alert_delivery` (one row per alert and channel); `simulate_weather` (admins, simulation mode only, audited) |
 | `migrations/*_resources.sql` | A2: units can be retired (`retired_at`) and are then never dispatched; `save_unit`, `retire_unit`, `restore_unit`, `set_responder_unit` (admins only, audited) |
@@ -295,6 +296,19 @@ With simulation mode on (Configuration page), an admin can make a **simulated SO
 ## Final NDRRMC report PDFs (migration `report_pdfs`)
 
 When an admin marks a report final (A6), the dashboard builds its PDF and keeps it in the private Storage bucket `ndrrmc-reports` as `<report id>.pdf`; `attach_report_pdf()` records it on the report. Only active admins can read the bucket, a file can be added only for a final report and only once, and there is no update or delete, so the stored copy stays as issued. "Download PDF" on a final report gives the stored copy. If storing fails (no connection), the report is still final and "Store the PDF" tries again.
+
+## Loading model v2 (`lstm-kde-v2`, 2026-11-02)
+
+The live forecast's model trained on the recorded 2021 to 2026 data (`docs/OBJECTIVE-2-RESULTS.md` section 9). After the commit with `supabase/data/forecast_live_v2.json` is on GitHub, in the SQL editor (or through the connector):
+
+```sql
+select net.http_get('https://raw.githubusercontent.com/angrypoteto/project-sagip/<commit>/supabase/data/forecast_live_v2.json');
+-- a few seconds later, with the id it returned:
+select private.load_forecast_model(content::jsonb) from net._http_response where id = <id>;
+-- "lstm-kde-v2: fire, flood, 0 replay days"; v1 is made inactive (kept)
+```
+
+Then the barangay panel's densities, from the same KDE: run `ml/forecast/kde/export_density.py --summary kde/kde_summary_recorded.json` and paste `ml/forecast/build/density_insert.sql` (it replaces every row of `hazard_density`; 1,471 rows, `kde-v2`). The next six-hourly run uses v2; a run can be started at once the same way as before (`run-forecast` with the shared secret). To go back: `update public.forecast_model set is_active = (version = 'lstm-kde-v1');`.
 
 ## The forecast's live feed (migration `forecast_live`, **not applied yet**)
 

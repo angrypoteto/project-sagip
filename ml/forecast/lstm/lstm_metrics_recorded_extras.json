@@ -1,0 +1,288 @@
+{
+  "data": "The live forecast's model (2026-11-02): 2021-01-01 to 2026-10-05, rainfall from ERA5 (Open-Meteo) as the live feed reads it, fires from DROMIC and TXTFIRE (website and Telegram channel), floods from DROMIC and MMDA lists in the news, signals from news and storm tracks. Real, but incomplete; see docs/OBJECTIVE-2-RESULTS.md",
+  "tensorflow": "2.21.0",
+  "architecture": {
+    "lstm_units": [
+      64,
+      32
+    ],
+    "dropout": 0.2,
+    "output": "dense, sigmoid",
+    "loss": "binary cross-entropy with class weights",
+    "optimizer": "Adam, learning rate 0.001",
+    "batch": 32,
+    "max_epochs": 100,
+    "early_stopping_patience": 10
+  },
+  "threshold": 0.5,
+  "hazards": {
+    "flood": {
+      "epochs_run": 23,
+      "best_epoch": 13,
+      "best_val_loss": 0.3875,
+      "train_seconds": 15.1,
+      "validation": {
+        "windows": 310,
+        "positives": 28,
+        "lstm": {
+          "accuracy": 0.7935,
+          "precision": 0.2,
+          "recall": 0.4286,
+          "f1": 0.2727,
+          "rmse": 0.3626,
+          "confusion": {
+            "tp": 12,
+            "fp": 48,
+            "fn": 16,
+            "tn": 234
+          }
+        },
+        "baselines": {
+          "positives": 28,
+          "windows": 310,
+          "always_majority": {
+            "accuracy": 0.9097,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.3005,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 28,
+              "tn": 282
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8645,
+            "precision": 0.25,
+            "recall": 0.25,
+            "f1": 0.25,
+            "rmse": 0.3681,
+            "confusion": {
+              "tp": 7,
+              "fp": 21,
+              "fn": 21,
+              "tn": 261
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.829,
+            "precision": 0.234,
+            "recall": 0.3929,
+            "f1": 0.2933,
+            "rmse": 0.3484,
+            "confusion": {
+              "tp": 11,
+              "fp": 36,
+              "fn": 17,
+              "tn": 246
+            }
+          }
+        }
+      },
+      "test": {
+        "windows": 314,
+        "positives": 24,
+        "lstm": {
+          "accuracy": 0.7771,
+          "precision": 0.1714,
+          "recall": 0.5,
+          "f1": 0.2553,
+          "rmse": 0.3716,
+          "confusion": {
+            "tp": 12,
+            "fp": 58,
+            "fn": 12,
+            "tn": 232
+          }
+        },
+        "baselines": {
+          "positives": 24,
+          "windows": 314,
+          "always_majority": {
+            "accuracy": 0.9236,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.2765,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 24,
+              "tn": 290
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8599,
+            "precision": 0.0833,
+            "recall": 0.0833,
+            "f1": 0.0833,
+            "rmse": 0.3743,
+            "confusion": {
+              "tp": 2,
+              "fp": 22,
+              "fn": 22,
+              "tn": 268
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.8758,
+            "precision": 0.2,
+            "recall": 0.2083,
+            "f1": 0.2041,
+            "rmse": 0.3129,
+            "confusion": {
+              "tp": 5,
+              "fp": 20,
+              "fn": 19,
+              "tn": 270
+            }
+          }
+        }
+      },
+      "test_f1_vs_best_baseline": [
+        0.2553,
+        0.2041
+      ],
+      "tflite": {
+        "bytes": 201652,
+        "largest_difference_from_keras": 1.94e-07
+      }
+    },
+    "fire": {
+      "epochs_run": 11,
+      "best_epoch": 1,
+      "best_val_loss": 0.7305,
+      "train_seconds": 8.2,
+      "validation": {
+        "windows": 310,
+        "positives": 250,
+        "lstm": {
+          "accuracy": 0.4129,
+          "precision": 0.7361,
+          "recall": 0.424,
+          "f1": 0.5381,
+          "rmse": 0.5184,
+          "confusion": {
+            "tp": 106,
+            "fp": 38,
+            "fn": 144,
+            "tn": 22
+          }
+        },
+        "baselines": {
+          "positives": 250,
+          "windows": 310,
+          "always_majority": {
+            "accuracy": 0.8065,
+            "precision": 0.8065,
+            "recall": 1.0,
+            "f1": 0.8929,
+            "rmse": 0.4399,
+            "confusion": {
+              "tp": 250,
+              "fp": 60,
+              "fn": 0,
+              "tn": 0
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8194,
+            "precision": 0.888,
+            "recall": 0.888,
+            "f1": 0.888,
+            "rmse": 0.425,
+            "confusion": {
+              "tp": 222,
+              "fp": 28,
+              "fn": 28,
+              "tn": 32
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.5871,
+            "precision": 0.8177,
+            "recall": 0.628,
+            "f1": 0.7104,
+            "rmse": 0.5043,
+            "confusion": {
+              "tp": 157,
+              "fp": 35,
+              "fn": 93,
+              "tn": 25
+            }
+          }
+        }
+      },
+      "test": {
+        "windows": 314,
+        "positives": 290,
+        "lstm": {
+          "accuracy": 0.586,
+          "precision": 0.9301,
+          "recall": 0.5966,
+          "f1": 0.7269,
+          "rmse": 0.4779,
+          "confusion": {
+            "tp": 173,
+            "fp": 13,
+            "fn": 117,
+            "tn": 11
+          }
+        },
+        "baselines": {
+          "positives": 290,
+          "windows": 314,
+          "always_majority": {
+            "accuracy": 0.9236,
+            "precision": 0.9236,
+            "recall": 1.0,
+            "f1": 0.9603,
+            "rmse": 0.2765,
+            "confusion": {
+              "tp": 290,
+              "fp": 24,
+              "fn": 0,
+              "tn": 0
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8662,
+            "precision": 0.9276,
+            "recall": 0.9276,
+            "f1": 0.9276,
+            "rmse": 0.3657,
+            "confusion": {
+              "tp": 269,
+              "fp": 21,
+              "fn": 21,
+              "tn": 3
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.707,
+            "precision": 0.9304,
+            "recall": 0.7379,
+            "f1": 0.8231,
+            "rmse": 0.4476,
+            "confusion": {
+              "tp": 214,
+              "fp": 16,
+              "fn": 76,
+              "tn": 8
+            }
+          }
+        }
+      },
+      "test_f1_vs_best_baseline": [
+        0.7269,
+        0.9603
+      ],
+      "tflite": {
+        "bytes": 201652,
+        "largest_difference_from_keras": 1.19e-07
+      }
+    }
+  }
+}

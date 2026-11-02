@@ -2624,7 +2624,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forecastLegendNote =>
-      'Amber glow: moderate risk. Red: high. Low is not painted. Click a barangay to see why. Boundaries: PSA, indicative.';
+      'Blue: low, with past incidents here. Purple: moderate. Red: high. Point at a barangay for its level; click it to see why. Boundaries: PSA, indicative.';
 
   @override
   String get forecastRisks => 'Risk by hazard';
@@ -4275,7 +4275,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forecastLiveWeatherNote =>
-      'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The models are still the sample-trained ones and the levels provisional.';
+      'Run on the last 14 days of real weather (Open-Meteo, PAGASA readings, recorded incidents). The levels are provisional.';
 
   @override
   String get heatmapForecastGroup => 'Forecast';
@@ -4338,4 +4338,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recordedLegendNote =>
       'Recorded incidents, not a forecast. Click a barangay to see its history.';
+
+  @override
+  String get forecastNotForecast => 'Not forecast';
+
+  @override
+  String forecastNotForecastNote(String hazard) {
+    return '$hazard is not forecast: the recorded data (2021 to 2026) has no $hazard incidents to learn from.';
+  }
+
+  @override
+  String heatmapHoverPlace(String barangay, String district) {
+    return '$barangay, $district';
+  }
+
+  @override
+  String heatmapHoverRisk(String level, String hazard) {
+    return '$level $hazard risk';
+  }
+
+  @override
+  String heatmapHoverRiskChance(String level, String hazard, String percent) {
+    return '$level $hazard risk · $percent% chance in Manila';
+  }
+
+  @override
+  String heatmapHoverRecorded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count incidents recorded',
+      one: '1 incident recorded',
+      zero: 'No incidents recorded',
+    );
+    return '$_temp0';
+  }
 }

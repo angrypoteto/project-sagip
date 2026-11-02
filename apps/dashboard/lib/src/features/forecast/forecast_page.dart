@@ -35,11 +35,25 @@ class ForecastPage extends ConsumerStatefulWidget {
 
 class _ForecastPageState extends ConsumerState<ForecastPage> {
   final _map = MapController();
+
+  /// The barangay under the mouse, for the hover label.
+  final _hover = ValueNotifier<_Hover?>(null);
+
+  void _hoverAt(Offset at) {
+    final ll = _map.camera.screenOffsetToLatLng(at);
+    final b = nearestBarangay(
+      GeoPoint(ll.latitude, ll.longitude),
+      withinMeters: 0,
+    );
+    _hover.value = b == null ? null : _Hover(b, at);
+  }
+
   var _topic = HeatmapTopic.flood;
   String? _selected;
 
   @override
   void dispose() {
+    _hover.dispose();
     _map.dispose();
     super.dispose();
   }
@@ -114,47 +128,81 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
         Expanded(
           child: Stack(
             children: [
-              FlutterMap(
-                mapController: _map,
-                options: MapOptions(
-                  backgroundColor: mapBackground(context),
-                  minZoom: mapMinZoom,
-                  cameraConstraint: mapCameraConstraint,
-                  initialCenter: manilaCenter,
-                  initialZoom: 13.2,
-                  maxZoom: 18,
-                  interactionOptions: const InteractionOptions(
-                    flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              MouseRegion(
+                onHover: (e) => _hoverAt(e.localPosition),
+                onExit: (_) => _hover.value = null,
+                child: FlutterMap(
+                  mapController: _map,
+                  options: MapOptions(
+                    backgroundColor: mapBackground(context),
+                    minZoom: mapMinZoom,
+                    cameraConstraint: mapCameraConstraint,
+                    initialCenter: manilaCenter,
+                    initialZoom: 13.2,
+                    maxZoom: 18,
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                    ),
                   ),
-                ),
-                children: [
-                  const SagipBaseMap(),
-                  // The heat map: a glow per barangay at moderate or high
-                  // risk; the barangay lines stay on top, faint, for
-                  // finding and clicking one.
-                  if (recordedType != null)
-                    HeatLayer(
-                      weights: recordedWeights(
-                        recordedCounts(
-                          history.value ?? const <ClosedIncident>[],
-                          recordedType,
+                  children: [
+                    const SagipBaseMap(),
+                    // The heat map: one smooth field, low in blues, moderate
+                    // in purples, high in reds; the barangay lines stay on
+                    // top, faint, for finding and clicking one.
+                    if (recordedType != null)
+                      HeatLayer(
+                        weights: recordedWeights(
+                          recordedCounts(
+                            history.value ?? const <ClosedIncident>[],
+                            recordedType,
+                          ),
+                        ),
+                      )
+                    else if (run != null)
+                      HeatLayer(
+                        weights: riskWeights(
+                          run,
+                          _hazard,
+                          densities:
+                              ref.watch(densityProvider).value ??
+                              const <HazardDensity>[],
                         ),
                       ),
-                    )
-                  else if (run != null)
-                    HeatLayer(weights: riskWeights(run, _hazard)),
-                  BarangayBoundaries(
-                    highlight: selected,
-                    onTap: run == null ? null : _select,
-                  ),
-                  if (run != null && selected != null && recordedType == null)
-                    _SelectedMarker(
-                      run: run,
-                      hazard: _hazard,
-                      barangay: selected,
+                    BarangayBoundaries(
+                      highlight: selected,
+                      onTap: run == null ? null : _select,
                     ),
-                  const MapAttribution(),
-                ],
+                    if (run != null && selected != null && recordedType == null)
+                      _SelectedMarker(
+                        run: run,
+                        hazard: _hazard,
+                        barangay: selected,
+                      ),
+                    const MapAttribution(),
+                  ],
+                ),
+              ),
+              ValueListenableBuilder<_Hover?>(
+                valueListenable: _hover,
+                builder: (context, hover, _) => hover == null
+                    ? const SizedBox.shrink()
+                    : Positioned(
+                        left: hover.at.dx + 14,
+                        top: hover.at.dy + 14,
+                        child: IgnorePointer(
+                          child: _HoverCard(
+                            barangay: hover.barangay,
+                            topic: _topic,
+                            run: run,
+                            counts: recordedType == null
+                                ? const {}
+                                : recordedCounts(
+                                    history.value ?? const <ClosedIncident>[],
+                                    recordedType,
+                                  ),
+                          ),
+                        ),
+                      ),
               ),
               if (recordedType != null)
                 Positioned(
@@ -194,21 +242,125 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
   }
 }
 
-/// How strongly each level glows on the heat map (2026-11-02): low is not
-/// painted, moderate glows amber, high red.
+/// Where each level sits on the heat map's ramp (2026-11-02, "like weather
+/// radar"): low in the blues, moderate in the purples, high in the reds.
+/// Within its band a barangay is shaded by how close it is to the next
+/// level, so the colour never says more than its level.
 const riskHeat = {
-  RiskLevel.low: 0.0,
-  // At the amber end, so moderate never reads as high.
-  RiskLevel.moderate: 0.1,
-  RiskLevel.high: 1.0,
+  RiskLevel.low: (0.1, 0.3),
+  RiskLevel.moderate: (0.5, 0.72),
+  RiskLevel.high: (0.88, 1.0),
 };
 
-/// Every barangay of [run] above low for [hazard], with its glow.
-Map<String, double> riskWeights(ForecastRun run, ForecastHazard hazard) => {
-  for (final f in run.forecasts)
-    if (f.riskOf(hazard) != RiskLevel.low)
-      f.barangay: riskHeat[f.riskOf(hazard)]!,
-};
+/// Every barangay of [run] on the heat map for [hazard], with its value
+/// (0 to 1). [densities] (the KDE, relative to the busiest barangay)
+/// shades each level's band and puts low barangays with past incidents on
+/// the map, faintly; a low barangay with none is left off.
+Map<String, double> riskWeights(
+  ForecastRun run,
+  ForecastHazard hazard, {
+  List<HazardDensity> densities = const [],
+}) {
+  if (!run.covers(hazard)) return const {};
+  final density = {
+    for (final d in densities)
+      if (d.hazard == hazard) d.barangay: d.relative,
+  };
+  final chance = run.chances?[hazard];
+  final rule = run.rule;
+  double shade(String barangay) {
+    final d = density[barangay] ?? 0;
+    if (chance == null || rule == null) return d;
+    final top = rule.high.chance * rule.high.density;
+    return top <= 0 ? d : (chance * d / top).clamp(0, 1).toDouble();
+  }
+
+  final out = <String, double>{};
+  for (final f in run.forecasts) {
+    final level = f.riskOf(hazard);
+    if (level == RiskLevel.low && (density[f.barangay] ?? 0) <= 0) continue;
+    final (low, high) = riskHeat[level]!;
+    out[f.barangay] = low + (high - low) * shade(f.barangay);
+  }
+  // Barangays the run left out are low; those with past incidents show.
+  final (low, high) = riskHeat[RiskLevel.low]!;
+  for (final MapEntry(key: name, value: d) in density.entries) {
+    if (d > 0 && !out.containsKey(name) && run.forBarangay(name) == null) {
+      out[name] = low + (high - low) * shade(name);
+    }
+  }
+  return out;
+}
+
+class _Hover {
+  const _Hover(this.barangay, this.at);
+
+  final Barangay barangay;
+  final Offset at;
+}
+
+/// The label by the mouse, as on a weather radar: the barangay, its level
+/// (or recorded count), and the chance in Manila when the run has it.
+class _HoverCard extends StatelessWidget {
+  const _HoverCard({
+    required this.barangay,
+    required this.topic,
+    required this.run,
+    required this.counts,
+  });
+
+  final Barangay barangay;
+  final HeatmapTopic topic;
+  final ForecastRun? run;
+  final Map<String, int> counts;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final hazard = topic.hazard;
+    final String line;
+    if (hazard == null) {
+      line = l10n.heatmapHoverRecorded(counts[barangay.name] ?? 0);
+    } else if (run == null || !run!.covers(hazard)) {
+      line = l10n.forecastNotForecast;
+    } else {
+      final level =
+          run!.forBarangay(barangay.name)?.riskOf(hazard) ?? RiskLevel.low;
+      final chance = run!.chances?[hazard];
+      line = chance == null
+          ? l10n.heatmapHoverRisk(
+              l10n.risk(level),
+              l10n.hazard(hazard).toLowerCase(),
+            )
+          : l10n.heatmapHoverRiskChance(
+              l10n.risk(level),
+              l10n.hazard(hazard).toLowerCase(),
+              '${(chance * 100).round()}',
+            );
+    }
+    return Container(
+      key: const ValueKey('heatmap-hover'),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SagipSpace.md,
+        vertical: SagipSpace.sm,
+      ),
+      decoration: floatingCard(p),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            l10n.heatmapHoverPlace(barangay.name, barangay.district),
+            style: text.labelMedium!.copyWith(fontWeight: FontWeight.w600),
+          ),
+          Text(line, style: text.bodySmall),
+        ],
+      ),
+    );
+  }
+}
 
 /// What the Heatmap page shows (2026-11-02): one of the forecast's three
 /// hazards, or where medical and structural incidents were recorded in the
@@ -242,7 +394,7 @@ Map<String, int> recordedCounts(
   return out;
 }
 
-/// The heat map's glow for recorded counts: the busiest barangay is red.
+/// The heat map's value for recorded counts: the busiest barangay is red.
 Map<String, double> recordedWeights(Map<String, int> counts) {
   if (counts.isEmpty) return const {};
   final most = counts.values.reduce((a, b) => a > b ? a : b);
@@ -424,7 +576,7 @@ class _RecordedLegend extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
-    final warm = p.warning.fill, hot = p.critical.fill;
+    final ramp = heatRamp(p);
     return Container(
       key: const ValueKey('recorded-legend'),
       width: 340,
@@ -446,9 +598,9 @@ class _RecordedLegend extends StatelessWidget {
               border: Border.all(color: p.hairline),
               gradient: LinearGradient(
                 colors: [
-                  for (final r in [0.1, 0.55, 1.0])
+                  for (final r in [0.1, 0.33, 0.67, 1.0])
                     Color.alphaBlend(
-                      heatColor(r, warm, hot).withValues(alpha: heatAlpha(r)),
+                      heatColor(r, ramp).withValues(alpha: heatAlpha(r)),
                       p.canvas,
                     ),
                 ],
@@ -552,30 +704,38 @@ class _RankedList extends ConsumerWidget {
                 _StaleNotice(message: l10n.forecastStale),
               ],
               const SizedBox(height: SagipSpace.md),
-              Text(
-                l10n.forecastCounts(
-                  run.count(hazard, RiskLevel.high),
-                  run.count(hazard, RiskLevel.moderate),
-                  run.count(hazard, RiskLevel.low),
+              if (!run.covers(hazard))
+                Text(
+                  l10n.forecastNotForecastNote(l10n.hazard(hazard)),
+                  key: const ValueKey('forecast-not-forecast'),
+                  style: text.bodySmall,
+                )
+              else
+                Text(
+                  l10n.forecastCounts(
+                    run.count(hazard, RiskLevel.high),
+                    run.count(hazard, RiskLevel.moderate),
+                    run.count(hazard, RiskLevel.low),
+                  ),
+                  style: text.bodySmall,
                 ),
-                style: text.bodySmall,
-              ),
             ],
           ),
         ),
         Divider(height: 1, color: p.hairline),
-        for (final f in run.ranked(hazard))
-          _BarangayRow(
-            key: ValueKey('forecast-row-${f.barangay}'),
-            barangay: f.barangay,
-            district: f.district,
-            trailing: SagipChip.status(
-              label: l10n.risk(f.riskOf(hazard)),
-              visual: riskVisual(f.riskOf(hazard), p),
+        if (run.covers(hazard))
+          for (final f in run.ranked(hazard))
+            _BarangayRow(
+              key: ValueKey('forecast-row-${f.barangay}'),
+              barangay: f.barangay,
+              district: f.district,
+              trailing: SagipChip.status(
+                label: l10n.risk(f.riskOf(hazard)),
+                visual: riskVisual(f.riskOf(hazard), p),
+              ),
+              selected: f.barangay == selected,
+              onTap: () => onSelect(f.barangay),
             ),
-            selected: f.barangay == selected,
-            onTap: () => onSelect(f.barangay),
-          ),
         if (without.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -807,7 +967,7 @@ class _Legend extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
-    final warm = p.warning.fill, hot = p.critical.fill;
+    final ramp = heatRamp(p);
     return Container(
       key: const ValueKey('forecast-legend'),
       width: 340,
@@ -829,13 +989,10 @@ class _Legend extends StatelessWidget {
               border: Border.all(color: p.hairline),
               gradient: LinearGradient(
                 colors: [
-                  for (final r in [0.0, riskHeat[RiskLevel.moderate]!, 1.0])
+                  // The three bands, left to right: low, moderate, high.
+                  for (final r in [0.1, 0.3, 0.5, 0.72, 0.88, 1.0])
                     Color.alphaBlend(
-                      heatColor(
-                        r,
-                        warm,
-                        hot,
-                      ).withValues(alpha: r == 0 ? 0 : heatAlpha(r)),
+                      heatColor(r, ramp).withValues(alpha: heatAlpha(r)),
                       p.canvas,
                     ),
                 ],
@@ -977,10 +1134,17 @@ class _BarangayPanel extends ConsumerWidget {
                 Icon(hazardIcon(h), size: 20, color: p.textSecondary),
                 const SizedBox(width: SagipSpace.md),
                 Expanded(child: Text(l10n.hazard(h), style: text.bodyMedium)),
-                SagipChip.status(
-                  label: l10n.risk(forecast.riskOf(h)),
-                  visual: riskVisual(forecast.riskOf(h), p),
-                ),
+                if (run.covers(h))
+                  SagipChip.status(
+                    label: l10n.risk(forecast.riskOf(h)),
+                    visual: riskVisual(forecast.riskOf(h), p),
+                  )
+                else
+                  SagipChip(
+                    label: l10n.forecastNotForecast,
+                    tone: p.neutral,
+                    icon: Symbols.block_rounded,
+                  ),
               ],
             ),
           ),

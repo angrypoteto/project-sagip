@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(642);
+select plan(647);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2996,6 +2996,16 @@ select ok((select bool_and(not is_simulated) from public.barangay_forecast
   'marked not simulated, under its label');
 select ok((select bool_and(is_simulated) from public.barangay_forecast where model_version like 'test-v %'),
   'a replay is still marked simulated');
+
+-- The recorded model (lstm-kde-v2, 2026-11-02): flood and fire, no replay days.
+select is(private.load_forecast_model('{"version": "test-v2", "days": [], "weather": [], "hazards": {"flood": {}, "fire": {}}}'),
+  'test-v2: fire, flood, 0 replay days', 'a live-only model with flood and fire loads');
+select is((select version from public.forecast_model where is_active), 'test-v2', 'and is the active one');
+select is((select count(*)::int from public.forecast_model where is_active), 1, 'only one model is active');
+select throws_ok($$select private.load_forecast_model('{"version": "x", "days": [], "weather": [], "hazards": {"flood": {}}}')$$,
+  'P0001', 'invalid_value', 'flood alone is refused');
+select throws_ok($$select private.load_forecast_model('{"version": "x", "days": ["2026-01-01"], "weather": [], "hazards": {"flood": {}, "fire": {}}}')$$,
+  'P0001', 'invalid_value', 'replay days and weather must match');
 
 -- ------------------------------------------------------- typhoon tracker
 -- ingest-storms saves GDACS storms and PAGASA warnings (2026-11-02);

@@ -14,11 +14,26 @@ date,typhoon_signal,storm_surge_m,storm,source_url
 2020-10-31,2,0,Rolly,https://newsinfo.inquirer.net/1354779/metro-manila-other-luzon-areas-now-under-signal-no-2-as-rolly-maintains-strength/amp
 2020-11-11,3,0,Ulysses,https://newsinfo.inquirer.net/1359362/ulysses-intensifies-can-remain-a-typhoon-even-while-hitting-land-signal-no-3-up-in-ncr
 2020-11-12,3,0,Ulysses (lowered to 2 at 11 a.m.),https://newsinfo.inquirer.net/1359645/ncr-downgraded-to-signal-no-2-as-ulysses-moves-over-zambales
+2021-06-02,1,0,Dante,https://mb.com.ph/2021/6/2/dante-to-make-3rd-landfall-over-romblon-signal-no-1-up-in-metro-manila
 2021-09-07,1,0,Jolina,https://www.philstar.com/headlines/2021/09/07/2125470/signal-no-1-over-metro-manila-due-typhoon-jolina/amp/
+2021-09-08,2,0,Jolina,https://newsinfo.inquirer.net/1485314/jolina-weakens-into-a-tropical-storm-signal-no-2-still-up-in-ncr-parts-of-luzon/amp
+2022-09-25,3,0,"Karding (Signal 4 only in the northern cities, not the City of Manila)",https://newsinfo.inquirer.net/1669989/signal-no-5-up-in-quezon-areas-due-to-karding
 2022-10-28,2,0,Paeng,https://newsinfo.inquirer.net/?p=1686352
 2022-10-29,3,0,Paeng,https://mirror.pia.gov.ph/news/2022/10/29/signal-no-3-up-in-metro-manila-10-other-areas-as-paeng-moves-across-marinduque
+2022-10-30,1,0,Paeng,https://mirror.pia.gov.ph/news/2022/10/30/signal-no-1-still-up-over-metro-manila-other-luzon-areas-as-paeng-maintains-strength
 2023-07-24,1,0,Egay,https://newsinfo.inquirer.net/1806155/typhoon-signal-2-up-in-8-areas-ncr-under-signal-1-due-to-egay
 2023-07-25,1,0,Egay,https://www.gmanetwork.com/news/scitech/weather/876816/egay-now-a-super-typhoon-4-areas-under-signal-no-3/story/
 2024-05-25,1,0,Aghon,https://www.abs-cbn.com/news/2024/5/25/-signal-no-1-hoisted-over-metro-manila-lifted-in-some-visayas-areas-due-to-aghonph-1546
+2024-09-02,1,0,Enteng,https://www.gmanetwork.com/news/weather/content/918968/signal-no-2-up-over-9-luzon-areas-as-enteng-moves-east-of-polillo-islands/story/
+2024-10-22,1,0,Kristine,https://newsinfo.inquirer.net/?p=1995285
+2024-10-23,2,0,Kristine,https://philstar.com/sports/2024/10/23/2394690/metro-manila-30-other-areas-under-signal-no-2-due-kristine
+2024-10-24,2,0,"Kristine (briefly 1 at 5 p.m., back to 2 at 8 p.m.)",https://newsinfo.inquirer.net/1997005/metro-manila-portions-of-calabarzon-placed-back-at-signal-no-2
 2024-10-25,2,0,Kristine (lowered to 1 that morning),https://newsinfo.inquirer.net/?p=1997185
+2024-11-10,1,0,Nika (the whole of Metro Manila by the evening bulletin),https://philstar.com/nation/2024/11/10/2399101/entire-metro-manila-under-signal-no-1-11-areas-signal-no-2-due-nika
 2024-11-15,1,0,Pepito,https://manilatimes.net/2024/11/15/news/metro-manila-under-signal-no-1-pagasa/2005599/amp
+2024-11-16,2,0,Pepito,https://mb.com.ph/2024/11/16/mayor-honey-orders-preemptive-evacuation-along-coastal-areas
+2024-11-17,2,0,Pepito,https://mb.com.ph/2024/11/17/metro-cities-suspend-classes-on-nov-18-due-to-pepito
+2025-09-25,1,0,Opong,https://mb.com.ph/2025/09/25/opong-still-likely-to-hit-bicol-as-typhoon-signal-no-3-raised-over-parts-of-samar-island
+2025-09-26,2,0,Opong (Malaya reported Signal 1 the same day),https://mb.com.ph/2025/09/26/opong-leaves-landmass-may-reintensify-before-exiting-par
+2025-10-19,2,0,Ramil (the City of Manila named in the afternoon bulletin),https://www.gmanetwork.com/news/scitech/weather/962960/ramil-luzon-pagasa/story/
+2025-11-08,1,0,Uwan,https://mb.com.ph/2025/11/08/uwan-may-shift-south-threatening-a-possible-direct-hit-or-landfall-over-catanduanes-pagasa

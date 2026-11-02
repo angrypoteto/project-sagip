@@ -2396,4 +2396,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get alertsReadAllDone => 'Nabasa na ang lahat ng alerto';
+
+  @override
+  String get forecastNotForecast => 'Walang pagtataya';
 }

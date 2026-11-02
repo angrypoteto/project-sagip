@@ -1,0 +1,120 @@
+{
+  "data": "public records standing in for PAGASA's and MDRRMD's (prepare_real.py)",
+  "rule": "at risk = moderate or high by run_forecast.py's provisional rule (plan Q22)",
+  "truth": "a placed incident of the hazard in the barangay on days t+1 to t+3",
+  "hazards": {
+    "flood": {
+      "test_days": [
+        "2025-11-23",
+        "2026-10-02"
+      ],
+      "test_windows": 314,
+      "barangay_days_with_a_placed_incident": 57,
+      "spatial": {
+        "kde_points": 14,
+        "kde_bandwidth_m": 400
+      },
+      "variants": {
+        "kde": {
+          "cells": 281658,
+          "accuracy": 0.9707,
+          "balanced_accuracy": 0.6609,
+          "precision": 0.0024,
+          "recall": 0.3509,
+          "f1": 0.0048,
+          "confusion": {
+            "tp": 20,
+            "fp": 8206,
+            "fn": 37,
+            "tn": 273395
+          }
+        },
+        "noah": {
+          "cells": 281658,
+          "accuracy": 0.8489,
+          "balanced_accuracy": 0.7052,
+          "precision": 0.0008,
+          "recall": 0.5614,
+          "f1": 0.0015,
+          "confusion": {
+            "tp": 32,
+            "fp": 42543,
+            "fn": 25,
+            "tn": 239058
+          }
+        },
+        "blend": {
+          "cells": 281658,
+          "accuracy": 0.9022,
+          "balanced_accuracy": 0.7318,
+          "precision": 0.0012,
+          "recall": 0.5614,
+          "f1": 0.0023,
+          "confusion": {
+            "tp": 32,
+            "fp": 27518,
+            "fn": 25,
+            "tn": 254083
+          }
+        },
+        "nothing_at_risk": {
+          "cells": 281658,
+          "accuracy": 0.9998,
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 57,
+            "tn": 281601
+          }
+        }
+      }
+    },
+    "fire": {
+      "test_days": [
+        "2025-11-23",
+        "2026-10-02"
+      ],
+      "test_windows": 314,
+      "barangay_days_with_a_placed_incident": 483,
+      "spatial": {
+        "kde_points": 627,
+        "kde_bandwidth_m": 100
+      },
+      "variants": {
+        "kde": {
+          "cells": 281658,
+          "accuracy": 0.8058,
+          "balanced_accuracy": 0.5566,
+          "precision": 0.0027,
+          "recall": 0.3064,
+          "f1": 0.0054,
+          "confusion": {
+            "tp": 148,
+            "fp": 54352,
+            "fn": 335,
+            "tn": 226823
+          }
+        },
+        "nothing_at_risk": {
+          "cells": 281658,
+          "accuracy": 0.9983,
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 483,
+            "tn": 281175
+          }
+        }
+      }
+    }
+  },
+  "variant": "kde"
+}
