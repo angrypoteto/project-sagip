@@ -28,7 +28,6 @@ import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import '../models/safe_place.dart';
 import '../models/settings.dart';
-import '../models/storm.dart';
 import '../models/sos.dart';
 import '../offline/mobile_server.dart';
 import '../offline/outbox.dart';
@@ -1375,42 +1374,6 @@ class SupabaseForecastRepository implements ForecastRepository {
       for (final r in await _client.from('hazard_density').select())
         HazardDensity.fromRow(r),
     ],
-  );
-
-  @override
-  Stream<HazardFeeds> watchHazardFeeds() => liveQuery(
-    _client,
-    tables: const ['storm_track', 'pagasa_warning'],
-    // ingest-storms runs every 30 minutes; the tables are not realtime.
-    refreshEvery: const Duration(minutes: 5),
-    fetch: () async {
-      final now = DateTime.now().toUtc();
-      final storms = await _client
-          .from('storm_track')
-          .select()
-          .gte(
-            'to_at',
-            now.subtract(const Duration(days: 60)).toIso8601String(),
-          )
-          .order('to_at', ascending: false)
-          .limit(4);
-      final warnings = await _client
-          .from('pagasa_warning')
-          .select(
-            'id, kind, event, sent_at, headline, description, response_type, '
-            'signal_level, expires_at, refs, areas',
-          )
-          .gte(
-            'sent_at',
-            now.subtract(const Duration(days: 3)).toIso8601String(),
-          )
-          .order('sent_at', ascending: false)
-          .limit(100);
-      return HazardFeeds(
-        storms: [for (final r in storms) Storm.fromJson(r)],
-        warnings: [for (final r in warnings) PagasaWarning.fromJson(r)],
-      );
-    },
   );
 }
 

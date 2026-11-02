@@ -17,7 +17,6 @@ import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import '../models/safe_place.dart';
 import '../models/settings.dart';
-import '../models/storm.dart';
 import '../repositories/repositories.dart';
 import 'mock_backend.dart';
 
@@ -533,9 +532,6 @@ class MockForecastRepository implements ForecastRepository {
 
   @override
   Stream<List<HazardDensity>> watchDensity() => _backend.watchDensity();
-
-  @override
-  Stream<HazardFeeds> watchHazardFeeds() => _backend.watchHazardFeeds();
 }
 
 class MockAuditRepository implements AuditRepository {

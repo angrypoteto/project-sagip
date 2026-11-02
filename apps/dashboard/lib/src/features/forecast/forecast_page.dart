@@ -12,7 +12,6 @@ import '../../providers.dart';
 import '../../router.dart';
 import '../board/map_parts.dart';
 import 'heat_layer.dart';
-import 'storm_tracker.dart';
 
 /// Where each barangay's marker sits: its center (inside its boundary).
 final _centers = {
@@ -25,8 +24,7 @@ final _centers = {
 /// low is not painted) and ranked in the list. A barangay's panel shows
 /// all three hazards and why each has its level (the chance, the past
 /// incidents there, and the rule), what was recorded there in the last 12
-/// months, the registered vulnerable residents, and the weather now. The
-/// typhoon tracker switch zooms out to the Philippines (storm_tracker.dart).
+/// months, the registered vulnerable residents, and the weather now.
 
 class ForecastPage extends ConsumerStatefulWidget {
   const ForecastPage({super.key});
@@ -39,8 +37,6 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
   final _map = MapController();
   var _topic = HeatmapTopic.flood;
   String? _selected;
-  var _tracker = false;
-  var _layers = const TrackerLayers();
 
   @override
   void dispose() {
@@ -49,11 +45,7 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
   }
 
   void _select(String barangay) {
-    // Choosing a barangay goes back to the city.
-    setState(() {
-      _selected = barangay;
-      _tracker = false;
-    });
+    setState(() => _selected = barangay);
     final center = _centers[barangay];
     if (center != null) _map.move(toLatLng(center), 15);
   }
@@ -61,27 +53,7 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
   /// The forecast hazard shown (flood while a recorded type is shown).
   ForecastHazard get _hazard => _topic.hazard ?? ForecastHazard.flood;
 
-  void _setTopic(HeatmapTopic topic) {
-    // The tracker is for flood and storm surge only.
-    if (_tracker && !topic.allowsTracker) _setTracker(false);
-    setState(() => _topic = topic);
-  }
-
-  void _setTracker(bool on) {
-    if (on) {
-      setState(() {
-        _tracker = true;
-        _selected = null;
-      });
-      // After the wider limits are in place.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _map.move(trackerCenter, trackerZoom);
-      });
-    } else {
-      _map.move(manilaCenter, 13.2);
-      setState(() => _tracker = false);
-    }
-  }
+  void _setTopic(HeatmapTopic topic) => setState(() => _topic = topic);
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +62,6 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
     final runAsync = ref.watch(forecastProvider);
     final run = runAsync.value;
     final selected = _selected;
-    final feeds = ref.watch(hazardFeedsProvider).value ?? HazardFeeds.empty;
-    final now = ref.watch(slowClockProvider).value ?? DateTime.now();
     final recordedType = _topic.recordedType;
     final history = ref.watch(yearHistoryProvider);
 
@@ -107,12 +77,7 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _TopicPicker(
-                topic: _topic,
-                onTopic: _setTopic,
-                tracker: _tracker,
-                onTracker: _setTracker,
-              ),
+              _TopicPicker(topic: _topic, onTopic: _setTopic),
               Divider(height: 1, color: p.hairline),
               Expanded(
                 child: recordedType != null
@@ -153,10 +118,8 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 mapController: _map,
                 options: MapOptions(
                   backgroundColor: mapBackground(context),
-                  minZoom: _tracker ? trackerMinZoom : mapMinZoom,
-                  cameraConstraint: _tracker
-                      ? trackerCameraConstraint
-                      : mapCameraConstraint,
+                  minZoom: mapMinZoom,
+                  cameraConstraint: mapCameraConstraint,
                   initialCenter: manilaCenter,
                   initialZoom: 13.2,
                   maxZoom: 18,
@@ -166,14 +129,6 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 ),
                 children: [
                   const SagipBaseMap(),
-                  if (_tracker)
-                    ...trackerMapLayers(
-                      context: context,
-                      feeds: feeds,
-                      layers: _layers,
-                      tiles: ref.watch(mapTilesEnabledProvider),
-                      now: now,
-                    ),
                   // The heat map: a glow per barangay at moderate or high
                   // risk; the barangay lines stay on top, faint, for
                   // finding and clicking one.
@@ -188,12 +143,10 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                     )
                   else if (run != null)
                     HeatLayer(weights: riskWeights(run, _hazard)),
-                  // 897 outlines are noise at the scale of the country.
-                  if (!_tracker)
-                    BarangayBoundaries(
-                      highlight: selected,
-                      onTap: run == null ? null : _select,
-                    ),
+                  BarangayBoundaries(
+                    highlight: selected,
+                    onTap: run == null ? null : _select,
+                  ),
                   if (run != null && selected != null && recordedType == null)
                     _SelectedMarker(
                       run: run,
@@ -209,7 +162,7 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                   bottom: SagipSpace.x3,
                   child: _RecordedLegend(type: recordedType),
                 )
-              else if (run != null && !_tracker)
+              else if (run != null)
                 Positioned(
                   left: SagipSpace.lg,
                   bottom: SagipSpace.x3,
@@ -223,20 +176,7 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
             ],
           ),
         ),
-        if (_tracker)
-          Container(
-            width: 340,
-            decoration: BoxDecoration(
-              color: p.panel,
-              border: Border(left: BorderSide(color: p.hairline)),
-            ),
-            child: TrackerPanel(
-              layers: _layers,
-              onLayers: (l) => setState(() => _layers = l),
-              onClose: () => _setTracker(false),
-            ),
-          )
-        else if (run != null && selected != null)
+        if (run != null && selected != null)
           Container(
             width: 340,
             decoration: BoxDecoration(
@@ -284,10 +224,6 @@ enum HeatmapTopic {
 
   final ForecastHazard? hazard;
   final IncidentType? recordedType;
-
-  /// The typhoon tracker is offered for flood and storm surge only.
-  bool get allowsTracker =>
-      this == HeatmapTopic.flood || this == HeatmapTopic.stormSurge;
 }
 
 /// Resolved incidents of [type] per barangay, as the barangay panel counts
@@ -316,20 +252,12 @@ Map<String, double> recordedWeights(Map<String, int> counts) {
   };
 }
 
-/// The topic chips (forecast hazards, recorded types) and, for flood and
-/// storm surge, the typhoon tracker switch.
+/// The topic chips: the forecast's hazards and the recorded types.
 class _TopicPicker extends StatelessWidget {
-  const _TopicPicker({
-    required this.topic,
-    required this.onTopic,
-    required this.tracker,
-    required this.onTracker,
-  });
+  const _TopicPicker({required this.topic, required this.onTopic});
 
   final HeatmapTopic topic;
   final ValueChanged<HeatmapTopic> onTopic;
-  final bool tracker;
-  final ValueChanged<bool> onTracker;
 
   @override
   Widget build(BuildContext context) {
@@ -391,38 +319,6 @@ class _TopicPicker extends StatelessWidget {
             HeatmapTopic.medical,
             HeatmapTopic.structural,
           ]),
-          if (topic.allowsTracker) ...[
-            const SizedBox(height: SagipSpace.sm),
-            Container(
-              padding: const EdgeInsets.only(
-                left: SagipSpace.md,
-                right: SagipSpace.xs,
-              ),
-              decoration: BoxDecoration(
-                color: tracker ? p.panelRaised : Colors.transparent,
-                borderRadius: BorderRadius.circular(SagipRadius.card),
-                border: Border.all(color: p.hairline),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Symbols.cyclone_rounded,
-                    size: 20,
-                    color: p.textSecondary,
-                  ),
-                  const SizedBox(width: SagipSpace.md),
-                  Expanded(
-                    child: Text(l10n.trackerTitle, style: text.titleSmall),
-                  ),
-                  Switch(
-                    key: const ValueKey('tracker-switch'),
-                    value: tracker,
-                    onChanged: onTracker,
-                  ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );

@@ -50,7 +50,6 @@ export 'src/models/road_route.dart';
 export 'src/models/safe_place.dart';
 export 'src/models/settings.dart';
 export 'src/models/sos.dart';
-export 'src/models/storm.dart';
 export 'src/offline/cached_repositories.dart';
 export 'src/offline/mobile_server.dart';
 export 'src/offline/outbox.dart';

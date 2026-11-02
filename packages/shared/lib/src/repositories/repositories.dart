@@ -21,7 +21,6 @@ import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import '../models/safe_place.dart';
 import '../models/settings.dart';
-import '../models/storm.dart';
 import '../models/sos.dart';
 
 // Repository interfaces. The UI depends only on these. Phase 1 uses the Mock*
@@ -226,10 +225,6 @@ abstract interface class ForecastRepository {
   /// The KDE's density per barangay and hazard (hotspots of past
   /// incidents). Dispatchers and admins; empty before the first fit.
   Stream<List<HazardDensity>> watchDensity();
-
-  /// The typhoon tracker: cyclones that touched PAR in the last 60 days
-  /// and PAGASA's warnings of the last 3 days. Dispatchers and admins.
-  Stream<HazardFeeds> watchHazardFeeds();
 }
 
 abstract interface class AuditRepository {
