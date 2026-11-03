@@ -339,8 +339,9 @@ public GitHub repo (the letter promises it); only the trained models do.
 ## 9b. Surge test (NFR7, 2026-11-03)
 
 Done on the database: `docs/SURGE-TEST.md`. 10,000 SOS in 5.6 s, the
-Priority Queue held. The ID fix is applied. Open: SOS per-account limit,
-clustering speed, board reloads, the Free plan's 200 connections (plan Q53).
+Priority Queue held. Fixed the same day: record numbers, repeat SOS join the open one,
+clustering speed, the board reads only what changed. Open: the Free plan's
+200 connections (plan Q53).
 Not done: many phones at once over the internet.
 
 ## 10. Never tested on a real phone

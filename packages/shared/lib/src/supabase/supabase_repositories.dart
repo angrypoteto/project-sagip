@@ -35,6 +35,7 @@ import '../offline/safe_places.dart';
 import '../offline/streams.dart';
 import '../push/push.dart';
 import '../repositories/repositories.dart';
+import 'board_cache.dart';
 import 'live_query.dart';
 
 part 'mobile_repositories.dart';
@@ -1041,18 +1042,35 @@ class SupabaseIncidentRepository implements IncidentRepository {
     for (final r in rows) Incident.fromJson(r),
   ];
 
+  /// The open incidents. After the first read only what changed is read
+  /// again ([BoardCache]; surge test finding 4, 2026-11-03), with a full
+  /// read once a minute.
   @override
-  Stream<List<Incident>> watchActive() => liveQuery(
-    _client,
-    tables: _boardTables,
-    fetch: () async => _incidents(
-      await _client
-          .from('incident_board')
-          .select()
-          .neq('status', IncidentStatus.resolved.name)
-          .order('received_at'),
-    ),
-  );
+  Stream<List<Incident>> watchActive() {
+    final board = BoardCache(
+      fetchOpen: () async => [
+        for (final r
+            in await _client
+                .from('incident_board')
+                .select()
+                .neq('status', IncidentStatus.resolved.name))
+          r,
+      ],
+      fetchChangedSince: (since) async => [
+        for (final r
+            in await _client
+                .from('incident_board')
+                .select()
+                .gt('updated_at', since.toUtc().toIso8601String()))
+          r,
+      ],
+    );
+    return liveQuery(
+      _client,
+      tables: _boardTables,
+      fetch: () async => _incidents(await board.read()),
+    );
+  }
 
   @override
   Stream<List<Incident>> watchResolved({
