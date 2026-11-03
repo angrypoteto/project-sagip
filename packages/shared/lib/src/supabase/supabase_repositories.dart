@@ -48,14 +48,30 @@ part 'web_form_repositories.dart';
 // the caller's role and writes the audit log (FR11).
 
 /// All repositories for one [SupabaseClient].
+///
+/// The `staff` and `manila_resident` tables send no Realtime changes, yet
+/// what they hold shows in lists owned by several repositories (accounts,
+/// rosters, crews and their duty, a responder's own unit, residents). One
+/// signal, [staffChanged], is sent after every change this dashboard makes
+/// to them, and every list built on them refetches (2026-11-03: a duty
+/// switch showed its new position only after a reload).
 class SupabaseBackend {
-  SupabaseBackend(SupabaseClient client)
+  factory SupabaseBackend(SupabaseClient client) =>
+      SupabaseBackend._(client, StreamController<Object?>.broadcast());
+
+  SupabaseBackend._(SupabaseClient client, this.staffChanged)
     : auth = SupabaseAuthRepository(client),
       incidents = SupabaseIncidentRepository(client),
-      units = SupabaseUnitRepository(client),
-      inventory = SupabaseUnitInventoryRepository(client),
+      units = SupabaseUnitRepository(client, staffChanged: staffChanged.stream),
+      inventory = SupabaseUnitInventoryRepository(
+        client,
+        staffChanged: staffChanged.stream,
+      ),
       crowdReports = SupabaseCrowdReportRepository(client),
-      residents = SupabaseResidentRepository(client),
+      residents = SupabaseResidentRepository(
+        client,
+        refreshOn: staffChanged.stream,
+      ),
       weather = SupabaseWeatherRepository(client),
       feeds = SupabaseFeedStatusRepository(client),
       forecasts = SupabaseForecastRepository(client),
@@ -67,10 +83,13 @@ class SupabaseBackend {
       alertLog = SupabaseAlertLogRepository(client),
       simulation = SupabaseSimulationRepository(client),
       analytics = SupabaseAnalyticsRepository(client),
-      resources = SupabaseResourceRepository(client),
+      resources = SupabaseResourceRepository(client, changed: staffChanged),
       safePlaces = SupabaseSafePlaceRepository(client),
-      crew = SupabaseCrewRepository(client),
-      accounts = SupabaseAccountRepository(client);
+      crew = SupabaseCrewRepository(client, staffChanged: staffChanged),
+      accounts = SupabaseAccountRepository(client, changed: staffChanged);
+
+  /// Sent after any change to staff or resident records (see above).
+  final StreamController<Object?> staffChanged;
 
   final SupabaseAuthRepository auth;
   final SupabaseIncidentRepository incidents;
@@ -193,10 +212,13 @@ class SupabaseSafePlaceRepository implements SafePlaceRepository {
 }
 
 class SupabaseAccountRepository implements AccountRepository {
-  SupabaseAccountRepository(this._client);
+  SupabaseAccountRepository(this._client, {StreamController<Object?>? changed})
+    : _changed = changed ?? StreamController<Object?>.broadcast();
 
   final SupabaseClient _client;
-  final _changed = StreamController<Object?>.broadcast();
+
+  /// The backend's staff signal: other repositories' lists refetch too.
+  final StreamController<Object?> _changed;
 
   Future<T> _change<T>(Future<T> Function() body) async {
     final result = await _call(body);
@@ -204,10 +226,12 @@ class SupabaseAccountRepository implements AccountRepository {
     return result;
   }
 
+  /// Also every minute, for changes another admin makes.
   @override
   Stream<List<StaffAccount>> watchStaff() => liveQuery(
     _client,
     tables: const ['response_unit'],
+    refreshEvery: const Duration(minutes: 1),
     refreshOn: _changed.stream,
     fetch: () async => [
       for (final r
@@ -314,10 +338,13 @@ class SupabaseAccountRepository implements AccountRepository {
 /// `set_responder_unit` (admins only). The staff table is not sent over
 /// Realtime, so the roster refreshes after each change made here.
 class SupabaseResourceRepository implements ResourceRepository {
-  SupabaseResourceRepository(this._client);
+  SupabaseResourceRepository(this._client, {StreamController<Object?>? changed})
+    : _changed = changed ?? StreamController<Object?>.broadcast();
 
   final SupabaseClient _client;
-  final _changed = StreamController<Object?>.broadcast();
+
+  /// The backend's staff signal: rosters change staff rows.
+  final StreamController<Object?> _changed;
 
   @override
   Stream<List<ResponseUnit>> watchUnits() => liveQuery(
@@ -331,10 +358,12 @@ class SupabaseResourceRepository implements ResourceRepository {
     ],
   );
 
+  /// Also every minute, for changes another admin makes.
   @override
   Stream<List<StaffAccount>> watchResponders() => liveQuery(
     _client,
     tables: const ['response_unit'],
+    refreshEvery: const Duration(minutes: 1),
     refreshOn: _changed.stream,
     fetch: () async => [
       for (final r
@@ -407,9 +436,19 @@ class SupabaseResourceRepository implements ResourceRepository {
 /// Crew heads and requests (`crew_request`, `request_crew_change`,
 /// `decide_crew_request`, `admin_set_unit_leads`).
 class SupabaseCrewRepository implements CrewRepository {
-  const SupabaseCrewRepository(this._client);
+  const SupabaseCrewRepository(this._client, {this.staffChanged});
 
   final SupabaseClient _client;
+
+  /// The backend's staff signal: approving a request, naming leads, and
+  /// switching duty change staff rows the crew lists are built from.
+  final StreamController<Object?>? staffChanged;
+
+  Future<T> _change<T>(Future<T> Function() body) async {
+    final result = await _call(body);
+    staffChanged?.add(null);
+    return result;
+  }
 
   /// Row Level Security shows admins every request and a head or assistant
   /// their own unit's.
@@ -455,7 +494,7 @@ class SupabaseCrewRepository implements CrewRepository {
     required bool approve,
     String? note,
     String? createdStaffId,
-  }) => _call(
+  }) => _change(
     () => _client.rpc<void>(
       'decide_crew_request',
       params: {
@@ -469,7 +508,7 @@ class SupabaseCrewRepository implements CrewRepository {
 
   @override
   Future<void> setLeads(String unitId, {String? headId, String? assistantId}) =>
-      _call(
+      _change(
         () => _client.rpc<void>(
           'admin_set_unit_leads',
           params: {
@@ -481,7 +520,7 @@ class SupabaseCrewRepository implements CrewRepository {
       );
 
   @override
-  Future<void> setDuty(String staffId, {required bool onDuty}) => _call(
+  Future<void> setDuty(String staffId, {required bool onDuty}) => _change(
     () => _client.rpc<void>(
       'set_crew_duty',
       params: {'p_staff_id': staffId, 'p_on': onDuty},
@@ -1069,9 +1108,12 @@ class SupabaseIncidentRepository implements IncidentRepository {
 // ------------------------------------------------------------------ units
 
 class SupabaseUnitRepository implements UnitRepository {
-  const SupabaseUnitRepository(this._client);
+  const SupabaseUnitRepository(this._client, {this.staffChanged});
 
   final SupabaseClient _client;
+
+  /// The backend's staff signal (see [SupabaseBackend]).
+  final Stream<Object?>? staffChanged;
 
   @override
   Stream<List<ResponseUnit>> watchAll() => liveQuery(
@@ -1099,13 +1141,15 @@ class SupabaseUnitRepository implements UnitRepository {
     ],
   );
 
-  /// `unit_crew()` decides who sees which crew. Staff changes happen in a
-  /// table only admins may watch, so the list is also fetched every minute.
+  /// `unit_crew()` decides who sees which crew. Staff rows send no
+  /// Realtime changes, so the list refetches after this dashboard changes
+  /// one ([staffChanged]) and every minute for anyone else's change.
   @override
   Stream<List<CrewMember>> watchCrew() => liveQuery(
     _client,
     tables: const ['response_unit'],
     refreshEvery: const Duration(minutes: 1),
+    refreshOn: staffChanged,
     fetch: () async => [
       for (final r in await _client.rpc<List<dynamic>>('unit_crew'))
         CrewMember.fromJson(r as _Row),
@@ -1116,9 +1160,12 @@ class SupabaseUnitRepository implements UnitRepository {
 /// The responder's own unit and its supplies (`set_unit_supply`). Row
 /// Level Security shows a responder only their own unit's supplies.
 class SupabaseUnitInventoryRepository implements UnitInventoryRepository {
-  const SupabaseUnitInventoryRepository(this._client);
+  const SupabaseUnitInventoryRepository(this._client, {this.staffChanged});
 
   final SupabaseClient _client;
+
+  /// The backend's staff signal (see [SupabaseBackend]).
+  final Stream<Object?>? staffChanged;
 
   Future<String?> _myUnitId() async {
     final me = await _client
@@ -1129,10 +1176,14 @@ class SupabaseUnitInventoryRepository implements UnitInventoryRepository {
     return me?['unit_id'] as String?;
   }
 
+  /// The staff row (which unit is mine) sends no Realtime changes: also
+  /// every minute, in case an admin moves this responder.
   @override
   Stream<ResponseUnit?> watchMyUnit() => liveQuery(
     _client,
-    tables: const ['response_unit', 'staff'],
+    tables: const ['response_unit'],
+    refreshEvery: const Duration(minutes: 1),
+    refreshOn: staffChanged,
     fetch: () async {
       final unitId = await _myUnitId();
       if (unitId == null) return null;
@@ -1236,6 +1287,7 @@ class SupabaseResidentRepository implements ResidentRepository {
   Stream<List<Resident>> watchVulnerable() => liveQuery(
     _client,
     tables: _tables,
+    refreshOn: refreshOn,
     fetch: () async => [
       for (final r
           in await _client

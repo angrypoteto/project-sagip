@@ -549,9 +549,14 @@ class SupabaseAlertRepository implements AlertRepository {
 /// same record again after a reconnect and the server stores it once
 /// (NFR1, plan Q31).
 class SupabaseMobileRemote implements MobileServer {
-  const SupabaseMobileRemote(this._client);
+  SupabaseMobileRemote(this._client);
 
   final SupabaseClient _client;
+
+  /// Duty lives on the staff row, which sends no Realtime changes: the crew
+  /// list refetches after this phone switches duty or accepts a job
+  /// (2026-11-03), and every half minute for anyone else's switch.
+  final _crewChanged = StreamController<Object?>.broadcast();
 
   static String _utc(DateTime t) => t.toUtc().toIso8601String();
 
@@ -757,12 +762,19 @@ class SupabaseMobileRemote implements MobileServer {
   );
 
   @override
-  Future<void> accept(String incidentId, DateTime capturedAt) => _call(
-    () => _client.rpc<void>(
-      'accept_assignment',
-      params: {'p_incident_id': incidentId, 'p_captured_at': _utc(capturedAt)},
-    ),
-  );
+  Future<void> accept(String incidentId, DateTime capturedAt) async {
+    await _call(
+      () => _client.rpc<void>(
+        'accept_assignment',
+        params: {
+          'p_incident_id': incidentId,
+          'p_captured_at': _utc(capturedAt),
+        },
+      ),
+    );
+    // Accepting puts whoever accepts on duty.
+    _crewChanged.add(null);
+  }
 
   @override
   Future<void> arrive(String incidentId, DateTime capturedAt) => _call(
@@ -841,6 +853,7 @@ class SupabaseMobileRemote implements MobileServer {
     _client,
     tables: const ['response_unit'],
     refreshEvery: const Duration(seconds: 30),
+    refreshOn: _crewChanged.stream,
     fetch: () async => [
       for (final r in _rows(await _client.rpc<Object?>('unit_crew')))
         CrewMember.fromJson(r),
@@ -848,12 +861,15 @@ class SupabaseMobileRemote implements MobileServer {
   );
 
   @override
-  Future<void> setDuty(String staffId, {required bool onDuty}) => _call(
-    () => _client.rpc<void>(
-      'set_crew_duty',
-      params: {'p_staff_id': staffId, 'p_on': onDuty},
-    ),
-  );
+  Future<void> setDuty(String staffId, {required bool onDuty}) async {
+    await _call(
+      () => _client.rpc<void>(
+        'set_crew_duty',
+        params: {'p_staff_id': staffId, 'p_on': onDuty},
+      ),
+    );
+    _crewChanged.add(null);
+  }
 
   @override
   Future<void> noteAppOpen() => _call(() => _client.rpc<void>('note_app_open'));

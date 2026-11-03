@@ -177,9 +177,6 @@ class _DutyCard extends ConsumerWidget {
           ),
         ),
       );
-      // Duty lives on the staff row, which sends no live updates: fetch the
-      // crew again now instead of waiting for the next poll.
-      if (context.mounted) ref.invalidate(crewProvider);
     } on ActionRejected catch (e) {
       messenger.showSnackBar(
         SnackBar(

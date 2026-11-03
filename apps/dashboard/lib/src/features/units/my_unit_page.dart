@@ -150,9 +150,6 @@ class _CrewCard extends ConsumerWidget {
           ? l10n.dutyStartedSnack(m.displayName)
           : l10n.dutyEndedSnack(m.displayName),
     );
-    // Duty lives on the staff row, which sends no live updates: fetch the
-    // crew again now instead of waiting for the next minute's poll.
-    if (context.mounted) ref.invalidate(crewProvider);
   }
 
   Future<void> _askRemove(
