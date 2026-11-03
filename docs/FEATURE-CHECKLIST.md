@@ -336,6 +336,13 @@ public GitHub repo (the letter promises it); only the trained models do.
 - A responder declining an assignment: the dispatcher is only offered
   available units, and reassigns if a unit cannot go.
 
+## 9b. Surge test (NFR7, 2026-11-03)
+
+Done on the database: `docs/SURGE-TEST.md`. 10,000 SOS in 5.6 s, the
+Priority Queue held. The ID fix is applied. Open: SOS per-account limit,
+clustering speed, board reloads, the Free plan's 200 connections (plan Q53).
+Not done: many phones at once over the internet.
+
 ## 10. Never tested on a real phone
 
 Everything marked **[P]** above, plus: the Bluetooth relay between three phones,
