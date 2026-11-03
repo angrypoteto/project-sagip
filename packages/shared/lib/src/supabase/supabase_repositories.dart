@@ -911,6 +911,18 @@ class SupabaseIncidentRepository implements IncidentRepository {
 
   final SupabaseClient _client;
 
+  @override
+  Future<String?> activeClassifier() async {
+    final row = await _call(
+      () => _client
+          .from('classifier_model')
+          .select('model_id')
+          .eq('is_active', true)
+          .maybeSingle(),
+    );
+    return row?['model_id'] as String?;
+  }
+
   static const _boardTables = [
     'incident_report',
     'incident_event',
@@ -1351,6 +1363,16 @@ class SupabaseFeedStatusRepository implements FeedStatusRepository {
   );
 
   @override
+  Stream<List<VolcanoStatus>> watchVolcanoes() => liveQuery(
+    _client,
+    tables: const ['volcano_status'],
+    fetch: () async => sortVolcanoes([
+      for (final r in await _client.from('volcano_status').select())
+        VolcanoStatus.fromJson(r),
+    ]),
+  );
+
+  @override
   Stream<List<Earthquake>> watchEarthquakes() => liveQuery(
     _client,
     tables: const ['phivolcs_event'],
@@ -1427,6 +1449,14 @@ class SupabaseForecastRepository implements ForecastRepository {
         HazardDensity.fromRow(r),
     ],
   );
+
+  @override
+  Future<ForecastModelTest?> modelTest() async {
+    final json = await _call(() => _client.rpc<Object?>('forecast_model_test'));
+    return json is Map
+        ? ForecastModelTest.fromJson(json.cast<String, Object?>())
+        : null;
+  }
 }
 
 // ---------------------------------------------------------------- reports

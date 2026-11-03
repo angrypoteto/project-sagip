@@ -1,8 +1,9 @@
 // Reads PHIVOLCS's public list of recent earthquakes
-// (https://earthquake.phivolcs.dost.gov.ph/), for the advisory relay of
-// FR14: the dispatcher sees the ones near Manila on the Weather page and
-// decides whether to pass one on. Pure functions, tested with Node
-// (phivolcs.test.ts) on a saved copy of the page.
+// (https://earthquake.phivolcs.dost.gov.ph/) and its volcano alert levels,
+// for the advisory relay of FR14: the database passes the ones felt in
+// Manila on to residents (2026-11-03), and the dispatcher sees them all on
+// the Weather page. Pure functions, tested with Node (phivolcs.test.ts) on
+// saved copies of the pages.
 
 export interface Quake {
   /** Stable id: the time and place as PHIVOLCS lists them. */
@@ -105,4 +106,36 @@ export function nearManila(
 ): Quake[] {
   const since = now.getTime() - hours * 3600_000;
   return quakes.filter((q) => q.distanceKm <= withinKm && Date.parse(q.occurredAt) >= since);
+}
+
+// ------------------------------------------------------------- volcanoes
+
+/**
+ * PHIVOLCS's volcano bulletin list (WOVOdat). Its header carries every
+ * monitored volcano's current Volcano Alert Level (FR14, 2026-11-03), as
+ * `<span class="tvo-scroll-level scroll-item">Taal - 1</span>`. There is no
+ * API; this is read with the earthquakes, every 15 minutes.
+ */
+export const volcanoPage = "https://wovodat.phivolcs.dost.gov.ph/bulletin/list-of-bulletin";
+
+export interface VolcanoLevel {
+  /** PHIVOLCS's own code: tvo (Taal), pvo (Pinatubo), mvo, kvo, bvo. */
+  code: string;
+  volcano: string;
+  /** Volcano Alert Level, 0 (normal) to 5 (hazardous eruption). */
+  level: number;
+}
+
+/** Every volcano's alert level in the list page's header. */
+export function parseVolcanoLevels(html: string): VolcanoLevel[] {
+  const out: VolcanoLevel[] = [];
+  const seen = new Set<string>();
+  const span = /<span\s+class="([a-z]+)-scroll-level[^"]*"[^>]*>\s*([A-Za-z][A-Za-z .'-]*?)\s*-\s*([0-5])\s*<\/span>/g;
+  for (const m of html.matchAll(span)) {
+    const code = m[1].toLowerCase();
+    if (seen.has(code)) continue;
+    seen.add(code);
+    out.push({ code, volcano: m[2].trim(), level: Number(m[3]) });
+  }
+  return out;
 }

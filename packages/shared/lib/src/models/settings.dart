@@ -98,6 +98,16 @@ abstract final class SettingKeys {
   static const surgeWarning = 'alerts.surge_warning';
   static const surgeCritical = 'alerts.surge_critical';
 
+  /// FR14 (2026-11-03): PHIVOLCS earthquakes felt in Manila are passed on
+  /// to residents by themselves (app and push, information only).
+  static const quakeRelay = 'alerts.quake_relay';
+  static const quakeMinMagnitude = 'alerts.quake_min_magnitude';
+  static const quakeMaxKm = 'alerts.quake_max_km';
+
+  /// A change in Taal's or Pinatubo's alert level is passed on, with
+  /// ashfall guidance (FR14, 2026-11-03).
+  static const volcanoRelay = 'alerts.volcano_relay';
+
   /// In the order A3 shows them.
   static const alerts = [
     rainfallWarning,
@@ -212,6 +222,35 @@ const defaultOtherSettings = [
     min: 0.1,
     max: 10,
     description: 'Storm surge height in metres that raises a critical alert',
+  ),
+  AppSetting(
+    key: SettingKeys.quakeRelay,
+    category: 'alerts',
+    value: true,
+    description: 'Earthquakes PHIVOLCS reports near Manila are passed on to residents as information, in the app and by push',
+  ),
+  AppSetting(
+    key: SettingKeys.volcanoRelay,
+    category: 'alerts',
+    value: true,
+    description: 'A change in the PHIVOLCS alert level of Taal or Pinatubo is passed on to residents, with ashfall guidance, in the app and by push',
+  ),
+  AppSetting(
+    key: SettingKeys.quakeMinMagnitude,
+    category: 'alerts',
+    value: 5,
+    min: 3,
+    max: 8,
+    description:
+        'Earthquakes of at least this magnitude are passed on to residents',
+  ),
+  AppSetting(
+    key: SettingKeys.quakeMaxKm,
+    category: 'alerts',
+    value: 150,
+    min: 10,
+    max: 300,
+    description: 'Earthquakes at most this many km from Manila City Hall are passed on to residents',
   ),
   AppSetting(
     key: SettingKeys.pushChannel,

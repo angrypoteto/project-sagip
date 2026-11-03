@@ -1278,7 +1278,79 @@ class _BarangayPanel extends ConsumerWidget {
               : l10n.forecastAboutModel(run.modelVersion!),
           style: text.bodySmall,
         ),
+        if (!run.isSample) _ModelAccuracy(run: run),
       ],
+    );
+  }
+}
+
+/// FR4: the model's tested accuracy, RMSE, and confusion matrix for each
+/// hazard the run forecasts, beside the "never warn" or "always warn"
+/// baseline, so a level is not a black box (2026-11-03).
+class _ModelAccuracy extends ConsumerWidget {
+  const _ModelAccuracy({required this.run});
+
+  final ForecastRun run;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = SagipPalette.of(context);
+    final test = ref.watch(forecastModelTestProvider).value;
+    if (test == null || test.hazards.isEmpty) return const SizedBox.shrink();
+    String pct(double v) => (v * 100).toStringAsFixed(1);
+    final windows = test.hazards.values.first.windows;
+    return Padding(
+      key: const ValueKey('forecast-accuracy'),
+      padding: const EdgeInsets.only(top: SagipSpace.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.forecastTestTitle(windows), style: text.labelLarge),
+          for (final h in ForecastHazard.values)
+            if (forecastsHazard(run.modelVersion, h))
+              if (test.hazards[h] case final t?)
+                Padding(
+                  key: ValueKey('forecast-accuracy-${h.name}'),
+                  padding: const EdgeInsets.only(top: SagipSpace.xs),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.forecastTestLine(
+                          l10n.hazard(h),
+                          pct(t.accuracy),
+                          pct(t.balancedAccuracy),
+                          t.rmse.toStringAsFixed(2),
+                        ),
+                        style: text.bodySmall,
+                      ),
+                      Text(
+                        l10n.forecastTestMatrix(
+                          t.caught,
+                          t.positives,
+                          t.missed,
+                          t.falseAlarms,
+                          t.quiet,
+                        ),
+                        style: text.bodySmall!.copyWith(color: p.textSecondary),
+                      ),
+                      Text(
+                        t.baselineNeverWarns
+                            ? l10n.forecastTestNeverWarn(
+                                pct(t.majorityAccuracy),
+                              )
+                            : l10n.forecastTestAlwaysWarn(
+                                pct(t.majorityAccuracy),
+                              ),
+                        style: text.bodySmall!.copyWith(color: p.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+        ],
+      ),
     );
   }
 }

@@ -664,6 +664,8 @@ class _Earthquakes extends ConsumerWidget {
           in ref.watch(earthquakesProvider).value ?? const <Earthquake>[])
         if (q.worthShowing) q,
     ];
+    final volcanoes =
+        ref.watch(volcanoesProvider).value ?? const <VolcanoStatus>[];
 
     AdvisoryDraft draft(Earthquake q) {
       final magnitude = q.magnitude.toStringAsFixed(1);
@@ -698,6 +700,50 @@ class _Earthquakes extends ConsumerWidget {
                   Text(l10n.phivolcsTitle, style: text.titleSmall),
                   const SizedBox(height: SagipSpace.xs),
                   Text(l10n.phivolcsNote, style: text.bodySmall),
+                  // FR14 (2026-11-03): every volcano's alert level; a
+                  // change of Taal or Pinatubo goes to residents by itself.
+                  if (volcanoes.isNotEmpty) ...[
+                    const SizedBox(height: SagipSpace.sm),
+                    Wrap(
+                      key: const ValueKey('volcano-levels'),
+                      spacing: SagipSpace.sm,
+                      runSpacing: SagipSpace.xs,
+                      children: [
+                        for (final v in volcanoes)
+                          SagipChip(
+                            key: ValueKey('volcano-${v.code}'),
+                            label: l10n.volcanoLevel(v.volcano, v.level),
+                            tone: v.level >= 3
+                                ? p.critical
+                                : v.level == 2
+                                ? p.warning
+                                : p.neutral,
+                            icon: Symbols.volcano_rounded,
+                          ),
+                      ],
+                    ),
+                    for (final v in volcanoes)
+                      if (v.changedAt != null && v.previousLevel != null)
+                        Text(
+                          v.relayedAlertId != null
+                              ? l10n.volcanoChangedSent(
+                                  v.volcano,
+                                  v.previousLevel!,
+                                  v.level,
+                                  formatDateTime(v.changedAt!, locale),
+                                )
+                              : l10n.volcanoChanged(
+                                  v.volcano,
+                                  v.previousLevel!,
+                                  v.level,
+                                  formatDateTime(v.changedAt!, locale),
+                                ),
+                          key: ValueKey('volcano-change-${v.code}'),
+                          style: text.bodySmall!.copyWith(
+                            color: p.textSecondary,
+                          ),
+                        ),
+                  ],
                   const SizedBox(height: SagipSpace.sm),
                   if (quakes.isEmpty)
                     Text(l10n.phivolcsNone, style: text.bodyMedium)
@@ -733,15 +779,25 @@ class _Earthquakes extends ConsumerWidget {
                                 ],
                               ),
                             ),
-                            TextButton(
-                              onPressed: online
-                                  ? () => showAdvisoryDialog(
-                                      context,
-                                      draft: draft(q),
-                                    )
-                                  : null,
-                              child: Text(l10n.phivolcsRelay),
-                            ),
+                            // Passed on by itself (FR14, 2026-11-03): no
+                            // second notice by hand.
+                            if (q.relayedAlertId != null)
+                              SagipChip(
+                                key: ValueKey('quake-sent-${q.key}'),
+                                label: l10n.phivolcsSent,
+                                tone: p.info,
+                                icon: Symbols.notifications_active_rounded,
+                              )
+                            else
+                              TextButton(
+                                onPressed: online
+                                    ? () => showAdvisoryDialog(
+                                        context,
+                                        draft: draft(q),
+                                      )
+                                    : null,
+                                child: Text(l10n.phivolcsRelay),
+                              ),
                           ],
                         ),
                       ),

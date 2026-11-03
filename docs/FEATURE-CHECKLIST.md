@@ -101,7 +101,11 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] D10 "Alerts sent" list with each channel's result
 - [ ] D10 Issue an advisory (pick barangays by number, name, or district) and End it
 - [ ] D10 Feeds card: last read and last success for PAGASA and PHIVOLCS
-- [ ] D10 PHIVOLCS earthquakes near Manila with "Relay as advisory"
+- [ ] D10 PHIVOLCS earthquakes near Manila with "Relay as advisory"; one already sent by itself shows "Sent to residents" (2026-11-03)
+- [ ] **[N]** FR14 (2026-11-03): an earthquake of magnitude 5 or more within 150 km (A3, "Earthquakes and volcanoes") reaches every resident by itself as an information notice, in the app and by push only, once, for 24 hours
+- [ ] **[N]** FR14 (2026-11-03): D10 shows every volcano's PHIVOLCS alert level (Taal, Pinatubo, Mayon, Kanlaon, Bulusan); a change of Taal or Pinatubo with the old or new level 2 or more reaches residents with ashfall guidance (face mask), and the line under the levels says so
+- [ ] **[N]** FR4 (2026-11-03): D8's barangay panel, under "About this forecast": the model's test figures per hazard (accuracy, balanced accuracy, RMSE; caught, missed, false alarms, correctly quiet; the never-warn or always-warn baseline)
+- [ ] **[N]** FR12 (2026-11-03): a crowd cluster's type reads "Flood (suggested by the sample model)" while the sample classifier is active
 - [ ] D10 "River water levels": 17 stations with their levels, raised ones first, "Relay as advisory"
 
 ### Admin pages
@@ -264,7 +268,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 | The Meta app "SAGIP Alerts" and the test Page | Yours to remove after the defense, as you planned (that also ends the tokens) |
 | Leftovers of the first relay tag (2026-10-19) | `drop function public.my_relay_tag(); drop function private.relay_sender(uuid); alter table public.manila_resident drop column relay_tag;` in the SQL editor. Nothing uses them; nobody can call them |
 | Make the newest build required | After the team installs build 11 (`https://sagip.me/download/sagip.apk`), set A3 "Oldest app build allowed" to 11. APKs before build 2 cannot be asked (they have no check) |
-| Removing expired photo files | Retention hides photos from everyone, but the files stay in the bucket until a small cleanup function (Storage API) is written |
+| ~~Removing expired photo files~~ | **Done 2026-11-03**: `purge-photos` deletes them daily, 30 minutes after retention (migration `photo_file_cleanup`) |
 | One leftover database function that does nothing | `drop function private.unit_returns_home();` in the SQL editor. Nobody can run it any more (2026-10-13); dropping it is only tidying |
 
 ---
@@ -282,7 +286,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 |---|---|
 | The simulated forecast feed (what the thesis promises: "trained, simulated live feed") | Switched on 2026-11-01: a new run every six hours, replaying the weather records with the models trained on sample data; D8 and the resident's Forecast tab show it, marked simulated |
 | Typhoon signal and storm surge days, 2021 to now, from public records | The forecast's two missing columns (`ml/forecast/data/manila_signals.csv`). 23 signal days gathered so far from news; PAGASA's tropical cyclone reports and the news can fill the rest. Claude can do this; MDRRMD's situational reports (letter item G) would check it |
-| A team-labelled set of incident descriptions | The plan's fallback for the classifier (plan 10.4): the team writes and labels a few hundred flood, fire, medical, and structural reports per type in English, Filipino, and Taglish, disclosed as such in the thesis. Claude retrains and loads it, so crowd reports get a type before MDRRMD's data arrives |
+| A team-labelled set of incident descriptions | **Ready for the team (2026-11-03):** `ml/classifier/TEAM-LABELLING.md` (300 per type, at least 100; the template `data/team_reports_template.csv`). Claude runs `train_classifier.py --team` and loads `v2-team`. Until then the sample model is active on the hosted project (loaded 2026-11-03) and its guesses are marked on the board |
 | The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |
 | A Storage bucket for final NDRRMC reports | The PDF is made in the browser and downloaded; the plan says "to Storage". Only if you or MDRRMD want the files kept on the server |
 | Filipino for the dashboard and the web form | Not asked for; the mobile app has it |
@@ -294,7 +298,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 | What | Letter item | Where it stands |
 |---|---|---|
 | **The 72-hour forecast on real data** (LSTM and KDE) | A, G | The page is empty. Gathered so far from public news: 131 fires, 17 flood days, 23 signal days, real weather from 2012. A first training on that was too weak to show (flood F1 0.24, fire 0.31, storm surge not trainable) |
-| Forecast accuracy figures and a run selector on D8 | A | After the real model |
+| ~~Forecast accuracy figures on D8~~ (done 2026-11-03 for model v2); a run selector | A | The figures update with the model |
 | The classifier on real descriptions | B | Until then crowd reports get no type; an SOS gets one from the resident's tap or the dispatcher |
 | The dispatch-time baseline (before and after) | C | Our side is built (A4 Analytics measures our times); MDRRMD's current times are the "before" |
 | Real call signs, unit types, and crew sizes | D | The ten units are real stations from OpenStreetMap; their call signs were assigned by us and their supply levels are made up for the demo |

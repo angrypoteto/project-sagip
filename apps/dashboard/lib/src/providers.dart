@@ -18,6 +18,13 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final staffSessionProvider = Provider<StaffSessionRepository>(
   (ref) => _missing('StaffSessionRepository'),
 );
+
+/// The classifier that tags crowd reports now (FR12; 2026-11-03), so the
+/// board can say when its guess comes from the sample model.
+final activeClassifierProvider = FutureProvider<String?>(
+  (ref) => ref.watch(incidentRepositoryProvider).activeClassifier(),
+);
+
 final incidentRepositoryProvider = Provider<IncidentRepository>(
   (ref) => _missing('IncidentRepository'),
 );
@@ -289,6 +296,14 @@ final earthquakesProvider = StreamProvider<List<Earthquake>>(
   ),
 );
 
+/// Each volcano's PHIVOLCS alert level (D10, FR14).
+final volcanoesProvider = StreamProvider<List<VolcanoStatus>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(feedStatusRepositoryProvider).watchVolcanoes(),
+  ),
+);
+
 /// The newest water level of each river station (D10).
 final riverLevelsProvider = StreamProvider<List<RiverLevel>>(
   (ref) => _forAccount(
@@ -321,6 +336,13 @@ final forecastProvider = StreamProvider<ForecastRun?>(
 );
 
 /// The KDE's density per barangay and hazard: the Heatmap page's Hotspots.
+/// The active model's measured accuracy (FR4), fetched again when a run
+/// from another model arrives.
+final forecastModelTestProvider = FutureProvider<ForecastModelTest?>((ref) {
+  ref.watch(forecastProvider.select((r) => r.value?.modelVersion));
+  return ref.watch(forecastRepositoryProvider).modelTest();
+});
+
 final densityProvider = StreamProvider<List<HazardDensity>>(
   (ref) => _forAccount(
     ref,

@@ -897,6 +897,38 @@ class MockSeed {
     'usr-resp-06': t0.subtract(const Duration(minutes: 4)),
   };
 
+  /// The test figures of `lstm-kde-v2` (supabase/data/forecast_live_v2.json).
+  ForecastModelTest get modelTest => ForecastModelTest.fromJson(const {
+    'version': 'lstm-kde-v2',
+    'trained_on': ['2021-01-01', '2026-10-05'],
+    'test': {
+      'flood': {
+        'windows': 314,
+        'positives': 24,
+        'lstm': {
+          'accuracy': 0.8217,
+          'precision': 0.18,
+          'recall': 0.375,
+          'f1': 0.2432,
+          'rmse': 0.3463,
+        },
+        'always_majority_accuracy': 0.9236,
+      },
+      'fire': {
+        'windows': 314,
+        'positives': 290,
+        'lstm': {
+          'accuracy': 0.5924,
+          'precision': 0.9133,
+          'recall': 0.6172,
+          'f1': 0.7366,
+          'rmse': 0.4857,
+        },
+        'always_majority_accuracy': 0.9236,
+      },
+    },
+  });
+
   /// Sample hotspots (the KDE's relative density): made up, clustered so
   /// the heat map shows a few hot areas per hazard.
   List<HazardDensity> get densities {

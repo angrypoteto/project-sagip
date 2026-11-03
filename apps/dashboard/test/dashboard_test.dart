@@ -1368,7 +1368,7 @@ void main() {
   testWidgets('admins set the hourly crowd report limit on A3', (tester) async {
     await pumpApp(tester);
     // Tall, so the card below the priority weights is on screen.
-    tester.view.physicalSize = const Size(1440, 2400);
+    tester.view.physicalSize = const Size(1440, 3400);
     await signIn(tester, 'admin@sagip.test');
     await tester.tap(find.byTooltip('Configuration'));
     await settle(tester);
@@ -1439,7 +1439,7 @@ void main() {
   ) async {
     await pumpApp(tester);
     // Tall, so every card on the page is on screen.
-    tester.view.physicalSize = const Size(1440, 4200);
+    tester.view.physicalSize = const Size(1440, 5200);
     await signIn(tester, 'admin@sagip.test');
     await tester.tap(find.byTooltip('Configuration'));
     await settle(tester);
@@ -1704,6 +1704,125 @@ void main() {
         'No earthquake of magnitude 3 or more within 200 km in the last 48 hours.',
       ),
       findsOneWidget,
+    );
+  });
+
+  testWidgets('FR14: a felt earthquake is sent to residents by itself; A3 '
+      'sets which (2026-11-03)', (tester) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 2400);
+    backend.setEarthquakes([
+      Earthquake(
+        key: 'felt',
+        occurredAt: DateTime.now().subtract(const Duration(hours: 1)),
+        location: '010 km N of Somewhere (Batangas)',
+        point: const GeoPoint(14.0, 121.0),
+        depthKm: 12,
+        magnitude: 5.6,
+        distanceKm: 80,
+        relayedAlertId: 'alert-1',
+      ),
+      Earthquake(
+        key: 'small',
+        occurredAt: DateTime.now().subtract(const Duration(hours: 2)),
+        location: '020 km S of Elsewhere (Rizal)',
+        point: const GeoPoint(14.4, 121.2),
+        depthKm: 8,
+        magnitude: 3.4,
+        distanceKm: 40,
+      ),
+    ]);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byTooltip('Weather and advisories'));
+    await settle(tester);
+    // The one already sent shows so, with no second relay by hand.
+    expect(find.byKey(const ValueKey('quake-sent-felt')), findsOneWidget);
+    expect(find.text('Sent to residents'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('quake-felt')),
+        matching: find.text('Relay as advisory'),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('quake-small')),
+        matching: find.text('Relay as advisory'),
+      ),
+      findsOneWidget,
+    );
+    // Every volcano's level, Taal and Pinatubo first; a change says whether
+    // residents were told.
+    expect(find.text('Taal: Alert Level 1'), findsOneWidget);
+    expect(find.text('Mayon: Alert Level 3'), findsOneWidget);
+    backend.setVolcanoes([
+      VolcanoStatus(
+        code: 'tvo',
+        volcano: 'Taal',
+        level: 2,
+        previousLevel: 1,
+        changedAt: DateTime(2026, 11, 3, 9, 30),
+        relayedAlertId: 'alert-2',
+      ),
+      const VolcanoStatus(code: 'mvo', volcano: 'Mayon', level: 3),
+    ]);
+    await settle(tester);
+    expect(find.text('Taal: Alert Level 2'), findsOneWidget);
+    final change = find.byKey(const ValueKey('volcano-change-tvo'));
+    expect(change, findsOneWidget);
+    final line = tester.widget<Text>(change).data!;
+    expect(line, startsWith('Taal went from Alert Level 1 to 2 on '));
+    expect(line, endsWith('residents were told, with ashfall guidance.'));
+
+    // A3: the switch and the two limits, within their ranges.
+    await tester.runAsync(() => MockAuthRepository(backend).signOut());
+    await settle(tester);
+    tester.view.physicalSize = const Size(1440, 5200);
+    await signIn(tester, 'admin@sagip.test');
+    await tester.tap(find.byTooltip('Configuration'));
+    await settle(tester);
+    expect(find.text('Earthquakes and volcanoes (PHIVOLCS)'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('switch-alerts.volcano_relay')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('switch-alerts.quake_relay')),
+      findsOneWidget,
+    );
+    final magnitude = find.byKey(
+      const ValueKey('setting-alerts.quake_min_magnitude'),
+    );
+    await tester.ensureVisible(magnitude);
+    await tester.enterText(magnitude, '9');
+    await tester.pump();
+    expect(find.text('Use a number from 3 to 8.'), findsOneWidget);
+    await tester.enterText(magnitude, '4.5');
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('save-quakes')));
+    await settle(tester);
+    final saved = await tester.runAsync(
+      () => MockSettingsRepository(backend).watch().first,
+    );
+    expect(
+      saved!.firstWhere((x) => x.key == SettingKeys.quakeMinMagnitude).number,
+      4.5,
+    );
+  });
+
+  testWidgets('FR12: a guess by the sample model says so on the board '
+      '(2026-11-03)', (tester) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    // INC-0146: a crowd cluster the classifier tagged as a flood.
+    await tester.tap(
+      find.textContaining(RegExp(r'^Flood, [0-9]+ reports$')).first,
+    );
+    await settle(tester);
+    expect(
+      find.textContaining('Flood (suggested by the sample model)'),
+      findsWidgets,
     );
   });
 
@@ -2370,6 +2489,60 @@ void main() {
           .first,
     );
     expect(find.byKey(const ValueKey('forecast-history-none')), findsOneWidget);
+
+    // FR4: the model's tested accuracy, RMSE, and confusion matrix, beside
+    // the baseline (2026-11-03; the mock gives lstm-kde-v2's figures).
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('forecast-accuracy-fire')),
+      200,
+      scrollable: find
+          .descendant(of: panel, matching: find.byType(Scrollable))
+          .first,
+    );
+    await settle(tester);
+    Finder acc(String hazard, String text) => find.descendant(
+      of: find.byKey(ValueKey('forecast-accuracy-$hazard')),
+      matching: find.text(text),
+    );
+    expect(
+      find.text('Measured on 314 three-day periods the model never trained on'),
+      findsOne,
+    );
+    expect(
+      acc('flood', 'Flood: accuracy 82.2% · balanced 61.7% · RMSE 0.35'),
+      findsOne,
+    );
+    expect(
+      acc(
+        'flood',
+        'Caught 9 of 24 · missed 15 · false alarms 41 · correctly quiet 249',
+      ),
+      findsOne,
+    );
+    expect(
+      acc(
+        'flood',
+        'Never warning would score 92.4% accuracy; balanced accuracy 50% is '
+            'a coin toss.',
+      ),
+      findsOne,
+    );
+    expect(
+      acc('fire', 'Fire: accuracy 59.2% · balanced 45.4% · RMSE 0.49'),
+      findsOne,
+    );
+    expect(
+      acc(
+        'fire',
+        'Caught 179 of 290 · missed 111 · false alarms 17 · correctly quiet 7',
+      ),
+      findsOne,
+    );
+    expect(
+      find.byKey(const ValueKey('forecast-accuracy-stormSurge')),
+      findsNothing,
+      reason: 'no test figures for storm surge',
+    );
   });
 
   testWidgets('admins see analytics for a period and export them', (

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(658);
+select plan(671);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -3087,6 +3087,64 @@ select is((select count(*)::int from public.storm_track) + (select count(*)::int
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
 select is((select count(*)::int from public.storm_track) + (select count(*)::int from public.pagasa_warning), 0,
   'a responder reads neither');
+reset role;
+
+-- ------------------------------------------- thesis gaps (2026-11-03)
+-- FR4: the model's test figures, dispatchers and admins only. NFR4: expired
+-- photo files are listed and marked by the service role only. FR14: felt
+-- earthquakes and Taal or Pinatubo alert level changes reach residents by
+-- themselves, in the app and by push, once; volcano levels for staff only.
+
+reset role;
+select ok(not has_function_privilege('anon', 'public.forecast_model_test()', 'execute'),
+  'anon cannot read the model test figures');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
+select ok(public.forecast_model_test() is null, 'a responder gets no model test figures');
+reset role;
+select ok(not has_function_privilege('authenticated', 'public.expired_photo_files(integer)', 'execute')
+          and not has_function_privilege('authenticated', 'public.mark_photo_files_removed(uuid[])', 'execute'),
+  'no signed-in account can list or mark photo files');
+select ok(not has_function_privilege('authenticated', 'public.record_volcano_levels(jsonb)', 'execute'),
+  'no signed-in account can record volcano levels');
+
+update public.app_setting set value = 'true' where key in ('alerts.quake_relay', 'alerts.volcano_relay');
+select public.record_phivolcs_events(jsonb_build_array(
+  jsonb_build_object('key', 'rls-felt', 'occurred_at', now() - interval '10 minutes', 'latitude', 14.0,
+    'longitude', 121.0, 'depth_km', 12, 'magnitude', 5.6, 'location', 'test place', 'distance_km', 80,
+    'bulletin_url', null),
+  jsonb_build_object('key', 'rls-small', 'occurred_at', now() - interval '10 minutes', 'latitude', 14.0,
+    'longitude', 121.0, 'depth_km', 12, 'magnitude', 3.2, 'location', 'test place', 'distance_km', 60,
+    'bulletin_url', null)));
+select is((select count(*)::int from public.phivolcs_event
+            where event_key in ('rls-felt', 'rls-small') and relayed_alert_id is not null), 1,
+  'a felt earthquake is passed on; a small one is not');
+select is((select string_agg(d.channel || ':' || d.status, ',' order by d.channel)
+             from public.alert_delivery d join public.phivolcs_event e on e.relayed_alert_id = d.alert_id
+            where e.event_key = 'rls-felt'),
+  'app:sent,facebook:off,push:queued,sms:off', 'in the app and by push only');
+select public.record_phivolcs_events(jsonb_build_array(
+  jsonb_build_object('key', 'rls-felt', 'occurred_at', now() - interval '10 minutes', 'latitude', 14.0,
+    'longitude', 121.0, 'depth_km', 12, 'magnitude', 5.7, 'location', 'test place', 'distance_km', 80,
+    'bulletin_url', null)));
+select is((select count(*)::int from public.public_alert where title like 'Magnitude 5.% earthquake, 80 km from Manila'), 1,
+  'once, even when PHIVOLCS lists it again');
+
+select is(public.record_volcano_levels('[{"code": "zzt", "volcano": "Test", "level": 4}]'), 0,
+  'a first reading is only stored');
+insert into public.volcano_status (code, volcano, alert_level) values ('tvo', 'Taal', 1)
+  on conflict (code) do update set alert_level = 1, relayed_alert_id = null;
+select is(public.record_volcano_levels('[{"code": "tvo", "volcano": "Taal", "level": 3}]'), 1,
+  'Taal raised to 3 is passed on');
+select is((select level from public.public_alert a join public.volcano_status v on v.relayed_alert_id = a.alert_id
+            where v.code = 'tvo'), 'warning', 'as a warning, with ashfall guidance');
+select is(public.record_volcano_levels('[{"code": "mvo", "volcano": "Mayon", "level": 3}, {"code": "mvo", "volcano": "Mayon", "level": 4}]'), 0,
+  'Mayon, far from Manila, is not');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select ok((select count(*) from public.volcano_status) >= 2, 'a dispatcher reads the volcano levels');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select is((select count(*)::int from public.volcano_status), 0, 'a resident reads none');
 reset role;
 
 -- The counters as the real records need them (see the top).

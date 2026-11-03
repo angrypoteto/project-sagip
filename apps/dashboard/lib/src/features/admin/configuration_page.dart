@@ -51,6 +51,36 @@ class ConfigurationPage extends ConsumerWidget {
               settings: settings,
             ),
             const SizedBox(height: SagipSpace.xl),
+            // FR14 (2026-11-03): earthquakes passed on by themselves.
+            SwitchSettingsCard(
+              title: l10n.configQuakesTitle,
+              note: l10n.configQuakesNote,
+              switches: [
+                (
+                  key: SettingKeys.quakeRelay,
+                  label: l10n.settingQuakeRelay,
+                  caption: l10n.settingQuakeRelayNote,
+                ),
+                (
+                  key: SettingKeys.volcanoRelay,
+                  label: l10n.settingVolcanoRelay,
+                  caption: l10n.settingVolcanoRelayNote,
+                ),
+              ],
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.md),
+            NumberSettingsCard(
+              id: 'quakes',
+              title: l10n.configQuakeLimitsTitle,
+              note: l10n.configQuakeLimitsNote,
+              labels: {
+                SettingKeys.quakeMinMagnitude: l10n.settingQuakeMagnitude,
+                SettingKeys.quakeMaxKm: l10n.settingQuakeKm,
+              },
+              settings: settings,
+            ),
+            const SizedBox(height: SagipSpace.xl),
             SwitchSettingsCard(
               title: l10n.configChannelsTitle,
               note: l10n.configChannelsNote,

@@ -388,6 +388,110 @@ class HazardDensity {
   );
 }
 
+/// One hazard's result on the forecast model's test part (FR4): the
+/// three-day windows it never trained on, how many had an incident, and how
+/// the LSTM did. The confusion matrix follows from these: [caught] from
+/// recall, the correct answers from accuracy.
+@immutable
+class HazardTest {
+  const HazardTest({
+    required this.windows,
+    required this.positives,
+    required this.accuracy,
+    required this.precision,
+    required this.recall,
+    required this.f1,
+    required this.rmse,
+    required this.majorityAccuracy,
+  });
+
+  factory HazardTest.fromJson(Map<String, Object?> json) {
+    final lstm = (json['lstm']! as Map).cast<String, Object?>();
+    double d(Object? v) => (v! as num).toDouble();
+    return HazardTest(
+      windows: (json['windows']! as num).toInt(),
+      positives: (json['positives']! as num).toInt(),
+      accuracy: d(lstm['accuracy']),
+      precision: d(lstm['precision']),
+      recall: d(lstm['recall']),
+      f1: d(lstm['f1']),
+      rmse: d(lstm['rmse']),
+      majorityAccuracy: d(json['always_majority_accuracy']),
+    );
+  }
+
+  final int windows;
+
+  /// Windows with at least one incident.
+  final int positives;
+  final double accuracy;
+  final double precision;
+  final double recall;
+  final double f1;
+
+  /// Root mean squared error of the chance against what happened (0 or 1).
+  final double rmse;
+
+  /// The accuracy of always giving the commoner answer (never warn, or
+  /// always warn): the baseline the model is compared with (plan Q23).
+  final double majorityAccuracy;
+
+  int get negatives => windows - positives;
+
+  /// Windows with an incident that the model warned of.
+  int get caught => (recall * positives).round();
+  int get missed => positives - caught;
+
+  /// Quiet windows the model correctly left quiet.
+  int get quiet => ((accuracy * windows).round() - caught).clamp(0, negatives);
+  int get falseAlarms => negatives - quiet;
+
+  /// The mean of the share caught and the share correctly quiet: 50% is a
+  /// coin toss, whatever the mix of windows.
+  double get balancedAccuracy =>
+      ((positives == 0 ? 0 : caught / positives) +
+          (negatives == 0 ? 0 : quiet / negatives)) /
+      2;
+
+  /// True when the commoner answer is "no incident" (the baseline never
+  /// warns); false when it is "an incident" (it always warns).
+  bool get baselineNeverWarns => positives * 2 < windows;
+}
+
+/// The active forecast model's measured accuracy (`forecast_model_test()`,
+/// dispatchers and admins; FR4).
+@immutable
+class ForecastModelTest {
+  const ForecastModelTest({
+    required this.version,
+    required this.hazards,
+    this.trainedFrom,
+    this.trainedTo,
+  });
+
+  factory ForecastModelTest.fromJson(Map<String, Object?> json) {
+    final trained = json['trained_on'] as List<Object?>?;
+    return ForecastModelTest(
+      version: json['version']! as String,
+      trainedFrom: trained == null
+          ? null
+          : DateTime.parse(trained[0]! as String),
+      trainedTo: trained == null ? null : DateTime.parse(trained[1]! as String),
+      hazards: {
+        for (final e in ((json['test'] as Map?) ?? const {}).entries)
+          ?ForecastRun._hazardKey(e.key as String): HazardTest.fromJson(
+            (e.value as Map).cast<String, Object?>(),
+          ),
+      },
+    );
+  }
+
+  final String version;
+  final DateTime? trainedFrom;
+  final DateTime? trainedTo;
+  final Map<ForecastHazard, HazardTest> hazards;
+}
+
 /// One run of the forecast model: the forecasts issued together, one per
 /// barangay (D8, FR4). The model runs once a day.
 @immutable

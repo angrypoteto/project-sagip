@@ -66,6 +66,11 @@ class IncidentClassifier {
   /// Which training run this is, for example `v1-sample`.
   final String version;
 
+  /// The model trained on made-up descriptions (ml/classifier), a
+  /// placeholder until the team's or MDRRMD's labelled set: its suggestions
+  /// are marked as such on the board (2026-11-03).
+  static const sampleVersion = 'v1-sample';
+
   /// The types in the order the model scores them.
   final List<IncidentType> labels;
 

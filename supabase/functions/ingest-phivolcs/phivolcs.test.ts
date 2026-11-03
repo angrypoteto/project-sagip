@@ -2,7 +2,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { kmBetween, manila, nearManila, parseEarthquakes, phivolcsTime } from "./phivolcs.ts";
+import {
+  kmBetween,
+  manila,
+  nearManila,
+  parseEarthquakes,
+  parseVolcanoLevels,
+  phivolcsTime,
+} from "./phivolcs.ts";
 
 const page = readFileSync(
   new URL("./fixtures/phivolcs_2026-10-03.html", import.meta.url),
@@ -47,4 +54,25 @@ test("only the events near Manila and recent are kept", () => {
 
 test("a page with no event rows gives nothing", () => {
   assert.deepEqual(parseEarthquakes("<html><body><table><tr><td>Maintenance</td></tr></table></body></html>"), []);
+});
+
+const volcanoHeader = readFileSync(
+  new URL("./fixtures/volcano_levels_2026-11-03.html", import.meta.url),
+  "utf8",
+);
+
+test("every volcano's alert level is read from the bulletin list header", () => {
+  assert.deepEqual(parseVolcanoLevels(volcanoHeader), [
+    { code: "tvo", volcano: "Taal", level: 1 },
+    { code: "kvo", volcano: "Kanlaon", level: 2 },
+    { code: "mvo", volcano: "Mayon", level: 3 },
+    { code: "bvo", volcano: "Bulusan", level: 1 },
+    { code: "pvo", volcano: "Pinatubo", level: 0 },
+  ]);
+});
+
+test("a page without the header gives no levels; a repeat counts once", () => {
+  assert.deepEqual(parseVolcanoLevels("<html><body>Maintenance</body></html>"), []);
+  const twice = '<span class="tvo-scroll-level scroll-item">Taal - 2</span>'.repeat(2);
+  assert.deepEqual(parseVolcanoLevels(twice), [{ code: "tvo", volcano: "Taal", level: 2 }]);
 });

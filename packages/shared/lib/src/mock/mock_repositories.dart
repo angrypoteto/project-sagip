@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import '../algorithms/incident_classifier.dart';
 import '../algorithms/dijkstra/routing_log.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
@@ -58,6 +59,10 @@ class MockIncidentRepository implements IncidentRepository {
 
   @override
   Stream<List<Incident>> watchActive() => _backend.watchActive();
+
+  /// The sample data is tagged by the sample model.
+  @override
+  Future<String?> activeClassifier() async => IncidentClassifier.sampleVersion;
 
   @override
   Stream<List<Incident>> watchResolved({
@@ -311,6 +316,9 @@ class MockFeedStatusRepository implements FeedStatusRepository {
   Stream<List<Earthquake>> watchEarthquakes() => _backend.watchEarthquakes();
 
   @override
+  Stream<List<VolcanoStatus>> watchVolcanoes() => _backend.watchVolcanoes();
+
+  @override
   Stream<List<RiverLevel>> watchRiverLevels() => _backend.watchRiverLevels();
 }
 
@@ -532,6 +540,9 @@ class MockForecastRepository implements ForecastRepository {
 
   @override
   Stream<List<HazardDensity>> watchDensity() => _backend.watchDensity();
+
+  @override
+  Future<ForecastModelTest?> modelTest() async => _backend.modelTest;
 }
 
 class MockAuditRepository implements AuditRepository {

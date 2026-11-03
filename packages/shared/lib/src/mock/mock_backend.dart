@@ -126,6 +126,21 @@ class MockBackend {
   ]);
 
   Stream<List<Earthquake>> watchEarthquakes() => _quakes.watch();
+
+  /// The levels PHIVOLCS listed on 2026-11-03.
+  late final _volcanoes = LiveValue<List<VolcanoStatus>>(
+    sortVolcanoes(const [
+      VolcanoStatus(code: 'tvo', volcano: 'Taal', level: 1),
+      VolcanoStatus(code: 'pvo', volcano: 'Pinatubo', level: 0),
+      VolcanoStatus(code: 'mvo', volcano: 'Mayon', level: 3),
+      VolcanoStatus(code: 'kvo', volcano: 'Kanlaon', level: 2),
+      VolcanoStatus(code: 'bvo', volcano: 'Bulusan', level: 1),
+    ]),
+  );
+
+  Stream<List<VolcanoStatus>> watchVolcanoes() => _volcanoes.watch();
+  void setVolcanoes(List<VolcanoStatus> list) =>
+      _volcanoes.value = sortVolcanoes(list);
   void setEarthquakes(List<Earthquake> quakes) => _quakes.value = quakes;
 
   /// Sample river stations (levels as PAGASA listed them on 2026-10-11,
@@ -1880,6 +1895,10 @@ class MockBackend {
 
   /// Scenario switcher: another run of the forecast model, or none yet.
   void setForecast(ForecastRun? run) => _forecast.value = run;
+
+  /// The model's test figures (FR4): those of `lstm-kde-v2`, the model on
+  /// the hosted project (supabase/data/forecast_live_v2.json).
+  ForecastModelTest? get modelTest => _seed.modelTest;
 
   Stream<List<HazardDensity>> watchDensity() => _density.watch();
 

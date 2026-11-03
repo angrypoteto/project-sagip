@@ -113,6 +113,11 @@ abstract interface class IncidentRepository {
   /// Incidents on the Triage Queue: everything not yet resolved.
   Stream<List<Incident>> watchActive();
 
+  /// The classifier model that tags crowd reports now (FR12), for example
+  /// [IncidentClassifier.sampleVersion]; null when none is active.
+  /// Dispatchers and admins.
+  Future<String?> activeClassifier();
+
   /// Incidents resolved within [since] (for the timeline and analytics).
   Stream<List<Incident>> watchResolved({Duration since});
 
@@ -213,6 +218,9 @@ abstract interface class FeedStatusRepository {
   /// PHIVOLCS earthquakes near Manila from the last 48 hours, newest first.
   Stream<List<Earthquake>> watchEarthquakes();
 
+  /// Each volcano's PHIVOLCS alert level (FR14), Taal and Pinatubo first.
+  Stream<List<VolcanoStatus>> watchVolcanoes();
+
   /// The newest water level of each river station.
   Stream<List<RiverLevel>> watchRiverLevels();
 }
@@ -225,6 +233,11 @@ abstract interface class ForecastRepository {
   /// The KDE's density per barangay and hazard (hotspots of past
   /// incidents). Dispatchers and admins; empty before the first fit.
   Stream<List<HazardDensity>> watchDensity();
+
+  /// The active model's measured accuracy on its test part (FR4).
+  /// Dispatchers and admins; null for anyone else or before a model with
+  /// test figures is loaded.
+  Future<ForecastModelTest?> modelTest();
 }
 
 abstract interface class AuditRepository {

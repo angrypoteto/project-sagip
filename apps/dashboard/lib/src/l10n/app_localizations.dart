@@ -1456,6 +1456,12 @@ abstract class AppLocalizations {
   /// **'{type} (suggested)'**
   String typeSuggested(String type);
 
+  /// No description provided for @typeSuggestedSample.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} (suggested by the sample model)'**
+  String typeSuggestedSample(String type);
+
   /// No description provided for @typeFromResident.
   ///
   /// In en, this message translates to:
@@ -2551,8 +2557,44 @@ abstract class AppLocalizations {
   /// No description provided for @phivolcsNote.
   ///
   /// In en, this message translates to:
-  /// **'Magnitude 3 and up within 200 km in the last 48 hours (provisional). Earthquakes are relayed by hand: nothing is sent to residents by itself.'**
+  /// **'Magnitude 3 and up within 200 km in the last 48 hours (provisional). Those likely felt in Manila (Settings: magnitude and distance) are passed on to residents by themselves, in the app and by push; relay any other by hand.'**
   String get phivolcsNote;
+
+  /// No description provided for @phivolcsSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to residents'**
+  String get phivolcsSent;
+
+  /// No description provided for @volcanoLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'{volcano}: Alert Level {level}'**
+  String volcanoLevel(String volcano, int level);
+
+  /// No description provided for @volcanoChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'{volcano} went from Alert Level {from} to {to} on {time}.'**
+  String volcanoChanged(String volcano, int from, int to, String time);
+
+  /// No description provided for @volcanoChangedSent.
+  ///
+  /// In en, this message translates to:
+  /// **'{volcano} went from Alert Level {from} to {to} on {time}; residents were told, with ashfall guidance.'**
+  String volcanoChangedSent(String volcano, int from, int to, String time);
+
+  /// No description provided for @settingVolcanoRelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass Taal and Pinatubo alert level changes on to residents'**
+  String get settingVolcanoRelay;
+
+  /// No description provided for @settingVolcanoRelayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'With ashfall guidance (keep a face mask ready), when the old or new level is 2 or more'**
+  String get settingVolcanoRelayNote;
 
   /// No description provided for @phivolcsNone.
   ///
@@ -3975,6 +4017,54 @@ abstract class AppLocalizations {
   /// **'Alert thresholds'**
   String get configAlertsTitle;
 
+  /// No description provided for @configQuakesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Earthquakes and volcanoes (PHIVOLCS)'**
+  String get configQuakesTitle;
+
+  /// No description provided for @configQuakesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'An earthquake PHIVOLCS reports near Manila, strong and close enough, is passed on to every resident by itself as information: in the app and by push, never by SMS or Facebook, once, ending after 24 hours (FR14). Dispatchers can still relay any other from the Weather page.'**
+  String get configQuakesNote;
+
+  /// No description provided for @settingQuakeRelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass felt earthquakes on to residents'**
+  String get settingQuakeRelay;
+
+  /// No description provided for @settingQuakeRelayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: earthquakes are only listed on the Weather page for a dispatcher to relay'**
+  String get settingQuakeRelayNote;
+
+  /// No description provided for @configQuakeLimitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which earthquakes are passed on'**
+  String get configQuakeLimitsTitle;
+
+  /// No description provided for @configQuakeLimitsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Provisional values until MDRRMD confirms them: roughly the earthquakes felt in Manila.'**
+  String get configQuakeLimitsNote;
+
+  /// No description provided for @settingQuakeMagnitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnitude at least'**
+  String get settingQuakeMagnitude;
+
+  /// No description provided for @settingQuakeKm.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance from Manila City Hall at most (km)'**
+  String get settingQuakeKm;
+
   /// No description provided for @configAlertsNote.
   ///
   /// In en, this message translates to:
@@ -4574,6 +4664,47 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The run did not record which model made it.'**
   String get forecastAboutNoVersion;
+
+  /// No description provided for @forecastTestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured on {windows} three-day periods the model never trained on'**
+  String forecastTestTitle(int windows);
+
+  /// No description provided for @forecastTestLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{hazard}: accuracy {accuracy}% · balanced {balanced}% · RMSE {rmse}'**
+  String forecastTestLine(
+    String hazard,
+    String accuracy,
+    String balanced,
+    String rmse,
+  );
+
+  /// No description provided for @forecastTestMatrix.
+  ///
+  /// In en, this message translates to:
+  /// **'Caught {caught} of {positives} · missed {missed} · false alarms {falseAlarms} · correctly quiet {quiet}'**
+  String forecastTestMatrix(
+    int caught,
+    int positives,
+    int missed,
+    int falseAlarms,
+    int quiet,
+  );
+
+  /// No description provided for @forecastTestNeverWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'Never warning would score {accuracy}% accuracy; balanced accuracy 50% is a coin toss.'**
+  String forecastTestNeverWarn(String accuracy);
+
+  /// No description provided for @forecastTestAlwaysWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'Always warning would score {accuracy}% accuracy; balanced accuracy 50% is a coin toss.'**
+  String forecastTestAlwaysWarn(String accuracy);
 
   /// No description provided for @hazardFlood.
   ///

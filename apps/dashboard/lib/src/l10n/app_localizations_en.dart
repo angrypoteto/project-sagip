@@ -811,6 +811,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String typeSuggestedSample(String type) {
+    return '$type (suggested by the sample model)';
+  }
+
+  @override
   String typeFromResident(String type) {
     return '$type (resident\'s choice)';
   }
@@ -1508,7 +1513,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phivolcsNote =>
-      'Magnitude 3 and up within 200 km in the last 48 hours (provisional). Earthquakes are relayed by hand: nothing is sent to residents by itself.';
+      'Magnitude 3 and up within 200 km in the last 48 hours (provisional). Those likely felt in Manila (Settings: magnitude and distance) are passed on to residents by themselves, in the app and by push; relay any other by hand.';
+
+  @override
+  String get phivolcsSent => 'Sent to residents';
+
+  @override
+  String volcanoLevel(String volcano, int level) {
+    return '$volcano: Alert Level $level';
+  }
+
+  @override
+  String volcanoChanged(String volcano, int from, int to, String time) {
+    return '$volcano went from Alert Level $from to $to on $time.';
+  }
+
+  @override
+  String volcanoChangedSent(String volcano, int from, int to, String time) {
+    return '$volcano went from Alert Level $from to $to on $time; residents were told, with ashfall guidance.';
+  }
+
+  @override
+  String get settingVolcanoRelay =>
+      'Pass Taal and Pinatubo alert level changes on to residents';
+
+  @override
+  String get settingVolcanoRelayNote =>
+      'With ashfall guidance (keep a face mask ready), when the old or new level is 2 or more';
 
   @override
   String get phivolcsNone =>
@@ -2323,6 +2354,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configAlertsTitle => 'Alert thresholds';
 
   @override
+  String get configQuakesTitle => 'Earthquakes and volcanoes (PHIVOLCS)';
+
+  @override
+  String get configQuakesNote =>
+      'An earthquake PHIVOLCS reports near Manila, strong and close enough, is passed on to every resident by itself as information: in the app and by push, never by SMS or Facebook, once, ending after 24 hours (FR14). Dispatchers can still relay any other from the Weather page.';
+
+  @override
+  String get settingQuakeRelay => 'Pass felt earthquakes on to residents';
+
+  @override
+  String get settingQuakeRelayNote =>
+      'Off: earthquakes are only listed on the Weather page for a dispatcher to relay';
+
+  @override
+  String get configQuakeLimitsTitle => 'Which earthquakes are passed on';
+
+  @override
+  String get configQuakeLimitsNote =>
+      'Provisional values until MDRRMD confirms them: roughly the earthquakes felt in Manila.';
+
+  @override
+  String get settingQuakeMagnitude => 'Magnitude at least';
+
+  @override
+  String get settingQuakeKm => 'Distance from Manila City Hall at most (km)';
+
+  @override
   String get configAlertsNote =>
       'A PAGASA reading at or above a threshold raises an alert for residents by itself (FR5). Provisional values until MDRRMD confirms them. River levels are shown on the Weather page and relayed by hand.';
 
@@ -2676,6 +2734,42 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forecastAboutNoVersion =>
       'The run did not record which model made it.';
+
+  @override
+  String forecastTestTitle(int windows) {
+    return 'Measured on $windows three-day periods the model never trained on';
+  }
+
+  @override
+  String forecastTestLine(
+    String hazard,
+    String accuracy,
+    String balanced,
+    String rmse,
+  ) {
+    return '$hazard: accuracy $accuracy% · balanced $balanced% · RMSE $rmse';
+  }
+
+  @override
+  String forecastTestMatrix(
+    int caught,
+    int positives,
+    int missed,
+    int falseAlarms,
+    int quiet,
+  ) {
+    return 'Caught $caught of $positives · missed $missed · false alarms $falseAlarms · correctly quiet $quiet';
+  }
+
+  @override
+  String forecastTestNeverWarn(String accuracy) {
+    return 'Never warning would score $accuracy% accuracy; balanced accuracy 50% is a coin toss.';
+  }
+
+  @override
+  String forecastTestAlwaysWarn(String accuracy) {
+    return 'Always warning would score $accuracy% accuracy; balanced accuracy 50% is a coin toss.';
+  }
 
   @override
   String get hazardFlood => 'Flood';

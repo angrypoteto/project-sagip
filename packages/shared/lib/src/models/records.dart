@@ -81,8 +81,10 @@ class FeedStatus {
   );
 }
 
-/// A PHIVOLCS earthquake near Manila (`phivolcs_event`, D10). Relayed by
-/// hand only (FR14): nothing reaches residents by itself.
+/// A PHIVOLCS earthquake near Manila (`phivolcs_event`, D10). Since
+/// 2026-11-03 (FR14) one felt in Manila (A3: magnitude and distance) is
+/// passed on to residents by itself as an informational alert
+/// ([relayedAlertId]); a dispatcher may still relay any other by hand.
 @immutable
 class Earthquake {
   const Earthquake({
@@ -94,6 +96,7 @@ class Earthquake {
     required this.magnitude,
     required this.distanceKm,
     this.bulletinUrl,
+    this.relayedAlertId,
   });
 
   final String key;
@@ -108,6 +111,9 @@ class Earthquake {
   /// From Manila City Hall.
   final double distanceKm;
   final String? bulletinUrl;
+
+  /// The alert this earthquake was passed on as by itself, if it was.
+  final String? relayedAlertId;
 
   /// The Weather page lists these (provisional): magnitude 3 and up within
   /// 200 km.
@@ -128,8 +134,56 @@ class Earthquake {
     magnitude: (json['magnitude']! as num).toDouble(),
     distanceKm: (json['distance_km']! as num).toDouble(),
     bulletinUrl: json['bulletin_url'] as String?,
+    relayedAlertId: json['relayed_alert_id'] as String?,
   );
 }
+
+/// A volcano's PHIVOLCS alert level (`volcano_status`, D10; FR14,
+/// 2026-11-03). A change of Taal or Pinatubo, the two whose ash can reach
+/// Manila, is passed on to residents with ashfall guidance.
+@immutable
+class VolcanoStatus {
+  const VolcanoStatus({
+    required this.code,
+    required this.volcano,
+    required this.level,
+    this.previousLevel,
+    this.changedAt,
+    this.relayedAlertId,
+  });
+
+  factory VolcanoStatus.fromJson(Map<String, Object?> json) => VolcanoStatus(
+    code: json['code']! as String,
+    volcano: json['volcano']! as String,
+    level: (json['alert_level']! as num).toInt(),
+    previousLevel: (json['previous_level'] as num?)?.toInt(),
+    changedAt: timeFromJsonOrNull(json['changed_at']),
+    relayedAlertId: json['relayed_alert_id'] as String?,
+  );
+
+  /// PHIVOLCS's code: tvo (Taal), pvo (Pinatubo), mvo, kvo, bvo.
+  final String code;
+  final String volcano;
+
+  /// Volcano Alert Level, 0 (normal) to 5 (hazardous eruption).
+  final int level;
+  final int? previousLevel;
+  final DateTime? changedAt;
+
+  /// The notice the latest change became, if it was passed on.
+  final String? relayedAlertId;
+
+  /// Taal and Pinatubo: the ones whose changes are passed on.
+  bool get nearManila => code == 'tvo' || code == 'pvo';
+}
+
+/// Taal and Pinatubo first, then the rest by name.
+List<VolcanoStatus> sortVolcanoes(Iterable<VolcanoStatus> list) =>
+    [...list]..sort(
+      (a, b) => a.nearManila != b.nearManila
+          ? (a.nearManila ? -1 : 1)
+          : a.volcano.compareTo(b.volcano),
+    );
 
 /// How high the water is against a station's own levels.
 enum RiverState { normal, alert, alarm, critical }

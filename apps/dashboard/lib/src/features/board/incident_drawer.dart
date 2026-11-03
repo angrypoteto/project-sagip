@@ -519,7 +519,7 @@ class FacebookPostLine extends ConsumerWidget {
   }
 }
 
-class _TypeRow extends StatelessWidget {
+class _TypeRow extends ConsumerWidget {
   const _TypeRow({
     required this.incident,
     required this.choice,
@@ -535,7 +535,7 @@ class _TypeRow extends StatelessWidget {
   final ValueChanged<IncidentType> onConfirm;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
     final unchanged =
@@ -544,10 +544,17 @@ class _TypeRow extends StatelessWidget {
     // An SOS's type was picked by the resident who sent it; a crowd
     // cluster's was guessed by the classifier (Joshua, 2026-10-16: "it
     // should not be suggested because I chose it as a user").
+    // The sample model's guesses say so (2026-11-03): it was trained on
+    // made-up descriptions.
+    final sampleModel =
+        ref.watch(activeClassifierProvider).value ==
+        IncidentClassifier.sampleVersion;
     String label(IncidentType t) =>
         !incident.typeConfirmed && t == incident.suggestedType
         ? (incident.origin == IncidentOrigin.sos
               ? l10n.typeFromResident(l10n.incidentType(t))
+              : sampleModel
+              ? l10n.typeSuggestedSample(l10n.incidentType(t))
               : l10n.typeSuggested(l10n.incidentType(t)))
         : l10n.incidentType(t);
 
