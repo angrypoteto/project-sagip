@@ -425,11 +425,14 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
       ),
       const DataCell(Text('')),
       // Under the unit's station, status, and last GPS: since when, on or
-      // off duty, and when the phone last reported (2026-11-01).
+      // off duty, and when the phone last reported (2026-11-01). Off duty:
+      // when the app was last open (2026-11-03).
       DataCell(
         Text(
           m.onDuty && m.dutySince != null
               ? l10n.dutySince(formatTime(m.dutySince!, locale))
+              : !m.onDuty && m.appOpenAt != null
+              ? l10n.dutyAppOpen(l10n.ago(m.appOpenAt!, now))
               : '',
           style: TextStyle(color: p.textSecondary),
         ),

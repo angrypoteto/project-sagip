@@ -148,6 +148,9 @@ class FakeServer implements MobileServer {
   @override
   Future<void> setDuty(String staffId, {required bool onDuty}) async =>
       calls.add('setDuty');
+
+  @override
+  Future<void> noteAppOpen() async => calls.add('noteAppOpen');
   final hazards = StreamController<List<HazardZone>>.broadcast();
   @override
   Stream<List<HazardZone>> watchRoadHazards() => hazards.stream;
@@ -1146,6 +1149,37 @@ void main() {
       await sharer.stop();
     },
   );
+
+  test('the app checks in while open and online (2026-11-03)', () async {
+    final checkIn = ResponderCheckIn(
+      server: server,
+      online: online.stream,
+      every: const Duration(milliseconds: 40),
+    )..start();
+    await pumpEventQueue();
+    expect(server.calls, isEmpty, reason: 'offline');
+
+    await goOnline(true);
+    expect(server.calls, ['noteAppOpen'], reason: 'at once on connecting');
+
+    checkIn.setForeground(false);
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    await pumpEventQueue();
+    expect(server.calls, hasLength(1), reason: 'not while off screen');
+
+    checkIn.setForeground(true);
+    await pumpEventQueue();
+    expect(server.calls, hasLength(2), reason: 'again on coming back');
+
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    await pumpEventQueue();
+    expect(server.calls.length, greaterThan(2), reason: 'and on a timer');
+
+    await checkIn.stop();
+    final sent = server.calls.length;
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    expect(server.calls, hasLength(sent), reason: 'nothing after stop');
+  });
 }
 
 class _Weather implements WeatherRepository {

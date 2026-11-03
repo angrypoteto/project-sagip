@@ -308,6 +308,7 @@ class MockMobileBackend {
       staffId: 'rsp-r03-cruz',
       displayName: 'L. Cruz',
       lastSeenAt: _t0.subtract(const Duration(days: 1)),
+      appOpenAt: _t0.subtract(const Duration(minutes: 4)),
     ),
   ]);
 
@@ -320,7 +321,8 @@ class MockMobileBackend {
         : Stream.value(const <CrewMember>[]),
   );
 
-  /// `set_crew_duty`, with the same checks.
+  /// `set_crew_duty`, with the same checks: the head, the assistant while
+  /// the head is off duty, or anyone starting their own duty (2026-11-03).
   Future<void> setCrewDuty(String staffId, {required bool onDuty}) async {
     if (_signal.value != SignalState.internet) {
       throw const ActionRejected(ActionRejection.offline);
@@ -331,24 +333,25 @@ class MockMobileBackend {
     final headOn = crew.any((c) => c.staffId == unit.crewHeadId && c.onDuty);
     if (me == null ||
         !(me.id == unit.crewHeadId ||
-            (me.id == unit.assistantHeadId && !headOn))) {
+            (me.id == unit.assistantHeadId && !headOn) ||
+            (staffId == me.id && onDuty))) {
       throw const ActionRejected(ActionRejection.notAllowed);
     }
     final i = crew.indexWhere((c) => c.staffId == staffId);
     if (i < 0) throw const ActionRejected(ActionRejection.invalidValue);
-    final c = crew[i];
-    if (c.onDuty == onDuty) return;
+    _putOnDuty(staffId, onDuty);
+  }
+
+  void _putOnDuty(String staffId, bool onDuty) {
+    final crew = _crew.value;
+    if (crew.every((c) => c.staffId != staffId || c.onDuty == onDuty)) return;
     _crew.value = [
       for (final x in crew)
         x.staffId == staffId
-            ? CrewMember(
-                unitId: x.unitId,
-                staffId: x.staffId,
-                displayName: x.displayName,
-                personnelId: x.personnelId,
+            ? x.copyWith(
                 onDuty: onDuty,
                 dutySince: onDuty ? _clock() : null,
-                lastSeenAt: x.lastSeenAt,
+                clearDutySince: !onDuty,
               )
             : x,
     ];
@@ -674,8 +677,13 @@ class MockMobileBackend {
 
   // --------------------------------------------------------------- responder
 
-  Future<void> acceptAssignment(String incidentId) =>
-      _responder.accept(incidentId);
+  /// Accepting puts whoever accepts on duty (2026-11-03), as the database.
+  Future<void> acceptAssignment(String incidentId) async {
+    await _responder.accept(incidentId);
+    final me = _user.value;
+    if (me != null) _putOnDuty(me.id, true);
+  }
+
   Future<void> setUnitStatus(UnitStatus status) => _responder.setStatus(status);
   Future<void> arrive() => _responder.arrive();
   Future<void> confirmOnScene({

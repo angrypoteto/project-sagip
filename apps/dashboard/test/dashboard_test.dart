@@ -1033,7 +1033,9 @@ void main() {
     expect(chip('usr-resp-01', 'On duty'), findsOneWidget);
     // On duty, but the phone has been quiet for 25 minutes (over 15).
     expect(chip('usr-resp-05', 'Not reporting'), findsOneWidget);
-    expect(chip('usr-resp-06', 'Off duty'), findsOneWidget);
+    // Off duty, but the app was open 4 minutes ago (2026-11-03).
+    expect(chip('usr-resp-06', 'Off duty, app in use'), findsOneWidget);
+    expect(find.textContaining('app open 4 min ago'), findsOneWidget);
     expect(find.text('25 min ago'), findsOneWidget);
     // Switching duty is for the crew head, not dispatch.
     expect(find.byType(Switch), findsNothing);
@@ -1046,8 +1048,9 @@ void main() {
     await signIn(tester, 'j.reyes@sagip.test');
     expect(
       find.text(
-        "You start and end your crew's duty. Dispatch suggests only units "
-        'with someone on duty.',
+        "You start and end your crew's duty. Members can also start their "
+        'own, and accepting a job starts it; only you end it. Dispatch '
+        'suggests only units with someone on duty.',
       ),
       findsOneWidget,
     );
@@ -1083,7 +1086,7 @@ void main() {
       find.byKey(const ValueKey('duty-switch-usr-resp-06')),
       findsOneWidget,
     );
-    // ...and a member never does.
+    // ...and a member never switches anyone; they may only start their own.
     await tester.runAsync(() => MockAuthRepository(backend).signOut());
     await settle(tester);
     await signIn(tester, 'l.cruz@sagip.test');
@@ -1091,10 +1094,11 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('my-duty-usr-resp-06')),
-        matching: find.text('Off duty'),
+        matching: find.text('Off duty, app in use'),
       ),
       findsOneWidget,
     );
+    expect(find.byKey(const ValueKey('start-my-duty')), findsOneWidget);
 
     // R-03 had the top suggestion for INC-0147; with nobody on duty it is
     // not suggested, but "Choose another unit" still lists it.
@@ -1116,6 +1120,39 @@ void main() {
     await tester.tap(find.text('Choose another unit'));
     await settle(tester);
     expect(find.byKey(const ValueKey('no-crew-unit-r03')), findsOneWidget);
+  });
+
+  testWidgets('Duty: a member starts their own duty; only the head ends it '
+      '(2026-11-03)', (tester) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(1440, 3000);
+    await signIn(tester, 'l.cruz@sagip.test');
+    expect(find.byType(Switch), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('start-my-duty')));
+    await settle(tester);
+    expect(find.text('You are on duty'), findsOneWidget);
+    // On duty now; their phone last sent a position a day ago, so they
+    // show as not reporting until it does.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('my-duty-usr-resp-06')),
+        matching: find.text('Not reporting'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('start-my-duty')),
+      findsNothing,
+      reason: 'ending it is the head\'s',
+    );
+    expect(find.byType(Switch), findsNothing);
+    final audit = await tester.runAsync(
+      () => MockAuditRepository(backend).watchRecent().first,
+    );
+    expect(
+      audit!.where((e) => e.action == AuditAction.dutyStarted).single.detail,
+      'R-03: L. Cruz',
+    );
   });
 
   testWidgets('A1: an admin sets a personnel ID, checked before saving', (

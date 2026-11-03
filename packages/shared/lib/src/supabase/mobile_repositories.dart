@@ -855,6 +855,9 @@ class SupabaseMobileRemote implements MobileServer {
     ),
   );
 
+  @override
+  Future<void> noteAppOpen() => _call(() => _client.rpc<void>('note_app_open'));
+
   /// Finished jobs for this unit, newest first (F7).
   @override
   Stream<List<CompletedAssignment>> watchHistory() => liveQuery(

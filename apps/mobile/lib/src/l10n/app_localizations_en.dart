@@ -2327,11 +2327,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dutyOffLine => 'Off duty. Your crew head starts your duty.';
+  String get dutyOffLine =>
+      'Off duty. Start your duty when you begin work. Only your crew head can end it.';
+
+  @override
+  String get dutyStartMine => 'Start my duty';
+
+  @override
+  String get dutyStartedMineSnack => 'You are on duty';
+
+  @override
+  String dutyInUse(String ago) {
+    return 'Off duty, but the app was open $ago';
+  }
 
   @override
   String get dutyHeadNote =>
-      'Switch on who is working now. Dispatch sends jobs only to units with someone on duty.';
+      'Switch on who is working now. Members can also start their own duty, and accepting a job starts it; only you end it. Dispatch sends jobs only to units with someone on duty.';
 
   @override
   String get dutyActingNote =>

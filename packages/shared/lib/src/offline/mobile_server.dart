@@ -65,4 +65,8 @@ abstract interface class MobileServer {
   Stream<List<CompletedAssignment>> watchHistory();
   Stream<List<CrewMember>> watchCrew();
   Future<void> setDuty(String staffId, {required bool onDuty});
+
+  /// The responder app is open on screen (2026-11-03): stamps the time, no
+  /// position.
+  Future<void> noteAppOpen();
 }

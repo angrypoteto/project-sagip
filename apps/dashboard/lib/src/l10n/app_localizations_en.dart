@@ -4154,6 +4154,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutyNeverSeen => 'no position from the phone yet';
 
   @override
+  String get dutyInUse => 'Off duty, app in use';
+
+  @override
+  String dutyAppOpen(String ago) {
+    return 'app open $ago';
+  }
+
+  @override
+  String get dutyStartMine => 'Start my duty';
+
+  @override
+  String get dutyStartedMineSnack => 'You are on duty';
+
+  @override
   String dutyCount(int on, int total) {
     return '$on of $total on duty';
   }
@@ -4184,7 +4198,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myUnitDutyHead =>
-      'You start and end your crew\'s duty. Dispatch suggests only units with someone on duty.';
+      'You start and end your crew\'s duty. Members can also start their own, and accepting a job starts it; only you end it. Dispatch suggests only units with someone on duty.';
 
   @override
   String get myUnitDutyActing =>
@@ -4192,7 +4206,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myUnitDutyWait =>
-      'The crew head is on duty and starts and ends duty.';
+      'The crew head is on duty and starts and ends duty. Anyone can start their own.';
 
   @override
   String get configDutyTitle => 'Crew duty';

@@ -990,6 +990,7 @@ class MockBackend {
             onDuty: _dutySince.containsKey(s.id),
             dutySince: _dutySince[s.id],
             lastSeenAt: _lastSeen[s.id],
+            appOpenAt: _appOpen[s.id],
           ),
     ]..sort(
       (x, y) => x.unitId == y.unitId
@@ -1431,6 +1432,7 @@ class MockBackend {
   /// when each phone last reported (`last_seen_at`).
   late final Map<String, DateTime> _dutySince = {..._seed.dutySince};
   late final Map<String, DateTime> _lastSeen = {..._seed.lastSeen};
+  late final Map<String, DateTime> _appOpen = {..._seed.appOpen};
 
   /// The `staff_end_duty_on_leave` trigger. The crew list is sent again.
   void _endDuty(String staffId) {
@@ -1440,7 +1442,8 @@ class MockBackend {
   }
 
   /// `set_crew_duty`, with the same checks: the head, or the assistant
-  /// head while the head is off duty (or none is named).
+  /// head while the head is off duty (or none is named); anyone may start
+  /// their own duty (2026-11-03).
   Future<void> setCrewDuty(String staffId, {required bool onDuty}) async {
     await _pause();
     if (_link.value == LinkState.offline) {
@@ -1455,7 +1458,8 @@ class MockBackend {
         unit.retired ||
         !(unit.crewHeadId == me.id ||
             (unit.assistantHeadId == me.id &&
-                !_dutySince.containsKey(unit.crewHeadId)))) {
+                !_dutySince.containsKey(unit.crewHeadId)) ||
+            (staffId == me.id && onDuty))) {
       throw const ActionRejected(ActionRejection.notAllowed);
     }
     final s = _accounts.value[staffId];

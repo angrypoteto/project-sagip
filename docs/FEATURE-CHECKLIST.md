@@ -85,7 +85,7 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] D6 Barangay boundaries layer
 - [ ] D7 Units table: status counts, stale-GPS flag; a unit opens like a tree to show its crew (name and personnel ID, 2026-10-28); admins see the crew but do not add or take off members there: that is the crew head's, by request (2026-11-01)
 - [ ] **[N]** D7 crew heads (2026-10-29): an admin names a unit's crew head and assistant head from the badge menu beside a name; "Head" and "Assistant head" show on Units and My unit
-- [ ] **[N]** D7 crew duty (2026-11-01): each unit shows "2 of 3 on duty" or "No crew on duty"; an open unit's crew shows On duty (since when), Off duty, or Not reporting (on duty but no position from the phone for 15 minutes, an A3 setting), and when each phone last reported
+- [ ] **[N]** D7 crew duty (2026-11-01): each unit shows "2 of 3 on duty" or "No crew on duty"; an open unit's crew shows On duty (since when), Off duty, Not reporting (on duty but no position from the phone for 15 minutes, an A3 setting), or Off duty, app in use (the app was open within those 15 minutes; 2026-11-03, with "app open … ago"), and when each phone last reported
 - [ ] **[N]** D2 A unit with crew accounts but nobody on duty is not in "Suggested units"; "Choose another unit" still lists it, marked "No crew on duty"
 - [ ] **[N]** D7 crew requests: the requests a head sent wait at the top of Units; Approve moves the person (a new person: Create account opens filled in first); Decline needs a reason
 - [ ] **[N]** D7 "Whose" column (MDRRMD, BFP, EMS) and fire trucks as a unit type
@@ -217,7 +217,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] **[N]** S3 Sign in: the logo and heading are centred and the MDRRMD hotline card sits at the bottom of the screen (sign out to see it)
 - [ ] F1 Home: unit, status control, location sharing line, weather strip
 - [ ] F1 "Keep S.A.G.I.P. running" battery prompt
-- [ ] **[N]** F1 Crew duty (2026-11-01): the crew head sees "Crew on duty" with a switch per member (themself included); the assistant head gets the switches only while the head is off duty; others see "On duty since …" or "Off duty. Your crew head starts your duty."
+- [ ] **[N]** F1 Crew duty (2026-11-01): the crew head sees "Crew on duty" with a switch per member (themself included); the assistant head gets the switches only while the head is off duty; others see "On duty since …" or, off duty, "Start my duty" (2026-11-03; only the head ends it). Accepting a job puts the one who accepts on duty. In the head's list, someone off duty with the app open lately shows "Off duty, but the app was open … ago"
 - [ ] **[N]** F1 Off duty: "Location not shared while you are off duty", the unit's position is not sent, and a new job does not open the full-screen alert
 - [ ] F2 Incoming assignment: full screen, the app's own tone, vibration, Accept **[P]** for the sound
 - [ ] F3 Assignment detail: map, where to go, what was reported, vulnerable types

@@ -2358,11 +2358,22 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get dutyOffLine =>
-      'Wala sa duty. Ang crew head ang magsisimula ng duty mo.';
+      'Wala sa duty. Simulan ang duty mo pagsimula ng trabaho. Ang crew head lang ang makakatapos nito.';
+
+  @override
+  String get dutyStartMine => 'Simulan ang duty ko';
+
+  @override
+  String get dutyStartedMineSnack => 'Naka-duty ka na';
+
+  @override
+  String dutyInUse(String ago) {
+    return 'Wala sa duty, pero binuksan ang app $ago';
+  }
 
   @override
   String get dutyHeadNote =>
-      'I-on kung sino ang nagtatrabaho ngayon. Sa mga unit lang na may naka-duty nagpapadala ng trabaho ang dispatch.';
+      'I-on kung sino ang nagtatrabaho ngayon. Puwede ring simulan ng miyembro ang sariling duty, at nagsisimula ito kapag tumanggap ng trabaho; ikaw lang ang makakatapos nito. Sa mga unit lang na may naka-duty nagpapadala ng trabaho ang dispatch.';
 
   @override
   String get dutyActingNote =>

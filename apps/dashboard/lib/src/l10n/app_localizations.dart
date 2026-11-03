@@ -7059,6 +7059,30 @@ abstract class AppLocalizations {
   /// **'no position from the phone yet'**
   String get dutyNeverSeen;
 
+  /// No description provided for @dutyInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Off duty, app in use'**
+  String get dutyInUse;
+
+  /// No description provided for @dutyAppOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'app open {ago}'**
+  String dutyAppOpen(String ago);
+
+  /// No description provided for @dutyStartMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Start my duty'**
+  String get dutyStartMine;
+
+  /// No description provided for @dutyStartedMineSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You are on duty'**
+  String get dutyStartedMineSnack;
+
   /// No description provided for @dutyCount.
   ///
   /// In en, this message translates to:
@@ -7092,7 +7116,7 @@ abstract class AppLocalizations {
   /// No description provided for @myUnitDutyHead.
   ///
   /// In en, this message translates to:
-  /// **'You start and end your crew\'s duty. Dispatch suggests only units with someone on duty.'**
+  /// **'You start and end your crew\'s duty. Members can also start their own, and accepting a job starts it; only you end it. Dispatch suggests only units with someone on duty.'**
   String get myUnitDutyHead;
 
   /// No description provided for @myUnitDutyActing.
@@ -7104,7 +7128,7 @@ abstract class AppLocalizations {
   /// No description provided for @myUnitDutyWait.
   ///
   /// In en, this message translates to:
-  /// **'The crew head is on duty and starts and ends duty.'**
+  /// **'The crew head is on duty and starts and ends duty. Anyone can start their own.'**
   String get myUnitDutyWait;
 
   /// No description provided for @configDutyTitle.

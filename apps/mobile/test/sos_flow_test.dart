@@ -823,6 +823,15 @@ void main() {
     SwitchListTile tile(String id) =>
         tester.widget<SwitchListTile>(find.byKey(ValueKey('duty-switch-$id')));
     expect(tile('rsp-r03-cruz').value, isFalse);
+    // L. Cruz is off duty but had the app open 4 minutes ago (2026-11-03).
+    expect(
+      find.byKey(const ValueKey('duty-in-use-rsp-r03-cruz')),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Off duty, but the app was open 4 min ago'),
+      findsOneWidget,
+    );
 
     // The head ends their own duty: the phone stops sharing the unit's
     // location, and the job offered next does not take over the screen.
@@ -844,6 +853,11 @@ void main() {
     await settle(tester);
     expect(find.text('L. Cruz is on duty'), findsOneWidget);
     expect(tile('rsp-r03-cruz').value, isTrue);
+    expect(
+      find.byKey(const ValueKey('duty-in-use-rsp-r03-cruz')),
+      findsNothing,
+      reason: 'on duty now, so no longer flagged',
+    );
     await finish(tester);
   });
 

@@ -55,6 +55,7 @@ export 'src/offline/mobile_server.dart';
 export 'src/offline/outbox.dart';
 export 'src/offline/outbox_repositories.dart';
 export 'src/offline/relay.dart';
+export 'src/offline/responder_check_in.dart';
 export 'src/offline/safe_places.dart';
 export 'src/offline/sos_location_sharer.dart';
 export 'src/offline/streams.dart';

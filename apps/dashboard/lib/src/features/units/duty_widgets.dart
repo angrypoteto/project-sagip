@@ -6,8 +6,9 @@ import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 
 /// A crew member's duty (2026-11-01): On duty, Not reporting (on duty but
-/// the phone has been quiet longer than [quiet]), or Off duty. Always icon
-/// and words, never color alone.
+/// the phone has been quiet longer than [quiet]), Off duty, or Off duty but
+/// the app was open within [quiet] (2026-11-03: maybe working, not switched
+/// on). Always icon and words, never color alone.
 class DutyChip extends StatelessWidget {
   const DutyChip({
     super.key,
@@ -24,7 +25,9 @@ class DutyChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
-    final (label, tone, icon) = !member.onDuty
+    final (label, tone, icon) = member.isInUseOffDuty(now, quiet)
+        ? (l10n.dutyInUse, p.warning, Symbols.smartphone_rounded)
+        : !member.onDuty
         ? (l10n.dutyOff, p.neutral, Symbols.bedtime_rounded)
         : member.isQuiet(now, quiet)
         ? (l10n.dutyQuiet, p.warning, Symbols.signal_disconnected_rounded)
@@ -33,8 +36,8 @@ class DutyChip extends StatelessWidget {
   }
 }
 
-/// "Since 7:02 AM · seen 1 min ago"; for someone off duty, only when their
-/// phone was last seen.
+/// "Since 7:02 AM · seen 1 min ago"; for someone off duty, when their
+/// phone last sent a position and when the app was last open.
 String dutyDetail(
   AppLocalizations l10n,
   CrewMember m,
@@ -47,4 +50,6 @@ String dutyDetail(
     l10n.dutySeen(l10n.ago(m.lastSeenAt!, now))
   else if (m.onDuty)
     l10n.dutyNeverSeen,
+  if (!m.onDuty && m.appOpenAt != null)
+    l10n.dutyAppOpen(l10n.ago(m.appOpenAt!, now)),
 ].join(' · ');

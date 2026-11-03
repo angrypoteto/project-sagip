@@ -146,6 +146,13 @@ Future<List<Override>> _live() async {
     location: location.watch(),
     online: online(),
   );
+  // While a responder has the app on screen it checks in (2026-11-03, no
+  // position), so someone off duty who is using it stands out to the head.
+  final checkIn = ResponderCheckIn(server: backend.remote, online: online());
+  AppLifecycleListener(
+    onStateChange: (state) =>
+        checkIn.setForeground(state == AppLifecycleState.resumed),
+  );
   // Push notifications (plan part 7): only when the app was built with the
   // Firebase project's config file.
   final pushDevice = await FcmPushDevice.start();
@@ -191,6 +198,7 @@ Future<List<Override>> _live() async {
     unawaited(dutySub?.cancel());
     dutySub = null;
     if (user?.role == UserRole.responder) {
+      checkIn.start();
       setSharing(true);
       // Only while on duty (2026-11-01). Until the crew list arrives it
       // shares, so a slow start never leaves a crew on duty untracked.
@@ -199,6 +207,7 @@ Future<List<Override>> _live() async {
         setSharing(mine?.onDuty ?? true);
       }, onError: (Object _) {});
     } else {
+      unawaited(checkIn.stop());
       setSharing(false);
     }
   });

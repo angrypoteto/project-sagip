@@ -154,6 +154,7 @@ class CrewMember {
     this.onDuty = false,
     this.dutySince,
     this.lastSeenAt,
+    this.appOpenAt,
   });
 
   final String unitId;
@@ -164,17 +165,43 @@ class CrewMember {
   final String? personnelId;
 
   /// On duty now (2026-11-01): switched by the unit's crew head, or by the
-  /// assistant head while the head is off duty.
+  /// assistant head while the head is off duty. Since 2026-11-03 a member
+  /// may also start their own duty, and accepting a job starts it; only the
+  /// head (or the acting assistant) ends it.
   final bool onDuty;
   final DateTime? dutySince;
 
   /// When their phone last sent the unit's position.
   final DateTime? lastSeenAt;
 
+  /// When the S.A.G.I.P. app was last open on their phone (2026-11-03; no
+  /// position): the app checks in while it is on screen.
+  final DateTime? appOpenAt;
+
   /// On duty, but their phone has not reported for [quiet]: it may be off,
   /// out of signal, or left behind.
   bool isQuiet(DateTime now, Duration quiet) =>
       onDuty && (lastSeenAt == null || now.difference(lastSeenAt!) > quiet);
+
+  /// Off duty, but the app was open on their phone within [quiet]: they may
+  /// be working and the head forgot to switch them on (2026-11-03).
+  bool isInUseOffDuty(DateTime now, Duration quiet) =>
+      !onDuty && appOpenAt != null && now.difference(appOpenAt!) <= quiet;
+
+  CrewMember copyWith({
+    bool? onDuty,
+    DateTime? dutySince,
+    bool clearDutySince = false,
+  }) => CrewMember(
+    unitId: unitId,
+    staffId: staffId,
+    displayName: displayName,
+    personnelId: personnelId,
+    onDuty: onDuty ?? this.onDuty,
+    dutySince: clearDutySince ? null : dutySince ?? this.dutySince,
+    lastSeenAt: lastSeenAt,
+    appOpenAt: appOpenAt,
+  );
 
   factory CrewMember.fromJson(Map<String, Object?> json) => CrewMember(
     unitId: json['unit_id']! as String,
@@ -184,6 +211,7 @@ class CrewMember {
     onDuty: json['on_duty'] as bool? ?? false,
     dutySince: timeFromJsonOrNull(json['duty_since']),
     lastSeenAt: timeFromJsonOrNull(json['last_seen_at']),
+    appOpenAt: timeFromJsonOrNull(json['app_open_at']),
   );
 }
 

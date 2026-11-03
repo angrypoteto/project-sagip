@@ -140,13 +140,19 @@ class _CrewCard extends ConsumerWidget {
     bool on,
   ) async {
     final l10n = AppLocalizations.of(context);
+    final mine = m.staffId == ref.read(currentUserProvider).value?.id;
     await runAction(
       context,
       () => ref.read(crewRepositoryProvider).setDuty(m.staffId, onDuty: on),
-      success: on
+      success: on && mine
+          ? l10n.dutyStartedMineSnack
+          : on
           ? l10n.dutyStartedSnack(m.displayName)
           : l10n.dutyEndedSnack(m.displayName),
     );
+    // Duty lives on the staff row, which sends no live updates: fetch the
+    // crew again now instead of waiting for the next minute's poll.
+    if (context.mounted) ref.invalidate(crewProvider);
   }
 
   Future<void> _askRemove(
@@ -187,7 +193,7 @@ class _CrewCard extends ConsumerWidget {
     final quiet = ref.watch(dutyQuietProvider);
     final locale = Localizations.localeOf(context).toString();
     // Duty (2026-11-01): the head switches it; the assistant head while
-    // the head is off duty.
+    // the head is off duty. Anyone may start their own (2026-11-03).
     final headOnDuty = crew.any(
       (c) => c.staffId == unit.crewHeadId && c.onDuty,
     );
@@ -318,6 +324,15 @@ class _CrewCard extends ConsumerWidget {
                         onChanged: online
                             ? (on) => _setDuty(context, ref, c, on)
                             : null,
+                      ),
+                    ] else if (c.staffId == me && !c.onDuty) ...[
+                      const SizedBox(width: SagipSpace.sm),
+                      FilledButton.tonal(
+                        key: const ValueKey('start-my-duty'),
+                        onPressed: online
+                            ? () => _setDuty(context, ref, c, true)
+                            : null,
+                        child: Text(l10n.dutyStartMine),
                       ),
                     ],
                     // Never on one's own row: a lead cannot ask to take

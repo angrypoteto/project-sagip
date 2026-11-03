@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(647);
+select plan(658);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2894,8 +2894,8 @@ select ok(exists (select 1 from public.app_setting where key = 'duty.quiet_minut
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000013", "role": "authenticated"}';
-select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', true) $$,
-  'P0001', 'not_allowed', 'a crew member cannot switch duty, not even their own');
+select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-00000000000b', true) $$,
+  'P0001', 'not_allowed', 'a crew member cannot switch someone else''s duty');
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000012", "role": "authenticated"}';
 select lives_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', true) $$,
   'the assistant head can while the head is off duty');
@@ -2942,6 +2942,49 @@ update public.staff set unit_id = 'unit-r03' where id = '00000000-0000-4000-8000
 select ok((select not on_duty and duty_since is null from public.staff where id = '00000000-0000-4000-8000-00000000000b'),
   'moving to another unit ends duty');
 update public.staff set unit_id = 'unit-r05' where id = '00000000-0000-4000-8000-00000000000b';
+
+-- ------------------------------------------------- crew duty safety nets
+-- (2026-11-03) A member starts their own duty; only the head (or the
+-- assistant while the head is off duty) ends it. Accepting a job starts the
+-- duty of whoever accepts. The app's check-in shows an off-duty phone in use.
+
+reset role;
+update public.staff set on_duty = false, duty_since = null, app_open_at = null
+ where id in ('00000000-0000-4000-8000-000000000012', '00000000-0000-4000-8000-000000000013');
+select ok(not has_function_privilege('anon', 'public.note_app_open()', 'execute'), 'anon cannot check in');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000013", "role": "authenticated"}';
+select lives_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', true) $$,
+  'a crew member starts their own duty');
+select ok((select on_duty from public.unit_crew() where staff_id = '00000000-0000-4000-8000-000000000013'), 'and is on duty');
+select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000013', false) $$,
+  'P0001', 'not_allowed', 'but cannot end it');
+select throws_ok($$ select public.set_crew_duty('00000000-0000-4000-8000-000000000012', true) $$,
+  'P0001', 'not_allowed', 'nor start someone else''s');
+select lives_ok($$ select public.note_app_open() $$, 'the app checks in');
+select ok((select app_open_at > now() - interval '1 minute' from public.unit_crew()
+            where staff_id = '00000000-0000-4000-8000-000000000013'),
+  'the crew list shows when the app was last open');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select throws_ok($$ select public.note_app_open() $$, 'P0001', 'not_allowed', 'only responders check in');
+
+reset role;
+select set_config('test.duty_inc', (select incident_id from public.incident_report
+                                     where status <> 'resolved' order by incident_id limit 1), true);
+update public.incident_report set assigned_unit_id = 'unit-r05', status = 'assigned'
+ where incident_id = current_setting('test.duty_inc');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-000000000012", "role": "authenticated"}';
+select lives_ok(format($f$ select public.accept_assignment(%L) $f$, current_setting('test.duty_inc')),
+  'an off-duty member accepts a job');
+select ok((select on_duty and duty_since is not null from public.unit_crew() where staff_id = '00000000-0000-4000-8000-000000000012'),
+  'and is put on duty');
+reset role;
+select ok(exists (select 1 from public.audit_log
+                   where action_type = 'dutyStarted' and target_id = '00000000-0000-4000-8000-000000000012'
+                     and detail like ('%(accepted ' || current_setting('test.duty_inc') || ')')),
+  'audited, naming the job');
 
 -- ------------------------------------------------------- forecast detail
 -- Each run keeps its chances and rule, for D8's "why" (2026-11-02).

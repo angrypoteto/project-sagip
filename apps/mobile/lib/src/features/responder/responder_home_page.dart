@@ -146,7 +146,8 @@ class _SharingLine extends ConsumerWidget {
 
 /// Who is on duty (2026-11-01). The crew head, or the assistant head while
 /// the head is off duty, switches each member on or off; everyone else
-/// sees their own duty.
+/// sees their own duty and, when off, may start it (2026-11-03). A member
+/// off duty with the app open lately is flagged in the head's list.
 class _DutyCard extends ConsumerWidget {
   const _DutyCard({required this.unit});
 
@@ -160,6 +161,7 @@ class _DutyCard extends ConsumerWidget {
   ) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final mine = m.staffId == ref.read(currentUserProvider).value?.id;
     try {
       await ref
           .read(responderRepositoryProvider)
@@ -167,12 +169,17 @@ class _DutyCard extends ConsumerWidget {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            on
+            on && mine
+                ? l10n.dutyStartedMineSnack
+                : on
                 ? l10n.dutyStartedSnack(m.displayName)
                 : l10n.dutyEndedSnack(m.displayName),
           ),
         ),
       );
+      // Duty lives on the staff row, which sends no live updates: fetch the
+      // crew again now instead of waiting for the next poll.
+      if (context.mounted) ref.invalidate(crewProvider);
     } on ActionRejected catch (e) {
       messenger.showSnackBar(
         SnackBar(
@@ -231,10 +238,19 @@ class _DutyCard extends ConsumerWidget {
                 style: text.bodyMedium,
               ),
             ),
+            if (!mine.onDuty) ...[
+              const SizedBox(width: SagipSpace.sm),
+              FilledButton.tonal(
+                key: const ValueKey('start-my-duty'),
+                onPressed: online ? () => _set(context, ref, mine, true) : null,
+                child: Text(l10n.dutyStartMine),
+              ),
+            ],
           ],
         ),
       );
     }
+    final now = ref.watch(clockProvider).value ?? DateTime.now();
 
     return Padding(
       padding: const EdgeInsets.only(top: SagipSpace.lg),
@@ -278,15 +294,21 @@ class _DutyCard extends ConsumerWidget {
                           ? '${c.displayName} (${l10n.dutyYou})'
                           : c.displayName,
                     ),
-                    subtitle: Text(
-                      c.onDuty
-                          ? l10n.dutySinceLine(
-                              c.dutySince == null
-                                  ? '–'
-                                  : formatTime(c.dutySince!, locale),
-                            )
-                          : l10n.dutyOff,
-                    ),
+                    subtitle: c.isInUseOffDuty(now, _dutyQuiet)
+                        ? Text(
+                            l10n.dutyInUse(l10n.ago(c.appOpenAt!, now)),
+                            key: ValueKey('duty-in-use-${c.staffId}'),
+                            style: TextStyle(color: p.warning.text),
+                          )
+                        : Text(
+                            c.onDuty
+                                ? l10n.dutySinceLine(
+                                    c.dutySince == null
+                                        ? '–'
+                                        : formatTime(c.dutySince!, locale),
+                                  )
+                                : l10n.dutyOff,
+                          ),
                     value: c.onDuty,
                     onChanged: online
                         ? (on) => _set(context, ref, c, on)
@@ -300,6 +322,11 @@ class _DutyCard extends ConsumerWidget {
     );
   }
 }
+
+/// How long ago the app may have been open for someone off duty to be
+/// flagged: the A3 default for "not reporting" (`duty.quiet_minutes`),
+/// which the phone does not read.
+const _dutyQuiet = Duration(minutes: 15);
 
 /// Asks to be left running in the background when the phone's battery
 /// saver could stop location sharing. Gone once the phone says exempt.

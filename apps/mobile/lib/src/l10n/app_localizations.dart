@@ -4067,13 +4067,31 @@ abstract class AppLocalizations {
   /// No description provided for @dutyOffLine.
   ///
   /// In en, this message translates to:
-  /// **'Off duty. Your crew head starts your duty.'**
+  /// **'Off duty. Start your duty when you begin work. Only your crew head can end it.'**
   String get dutyOffLine;
+
+  /// No description provided for @dutyStartMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Start my duty'**
+  String get dutyStartMine;
+
+  /// No description provided for @dutyStartedMineSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You are on duty'**
+  String get dutyStartedMineSnack;
+
+  /// No description provided for @dutyInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Off duty, but the app was open {ago}'**
+  String dutyInUse(String ago);
 
   /// No description provided for @dutyHeadNote.
   ///
   /// In en, this message translates to:
-  /// **'Switch on who is working now. Dispatch sends jobs only to units with someone on duty.'**
+  /// **'Switch on who is working now. Members can also start their own duty, and accepting a job starts it; only you end it. Dispatch sends jobs only to units with someone on duty.'**
   String get dutyHeadNote;
 
   /// No description provided for @dutyActingNote.

@@ -386,6 +386,32 @@ void main() {
       }
     }
 
+    test(
+      'crew duty: own start, head ends, accepting starts it (2026-11-03)',
+      () async {
+        const me = MockMobileBackend.responder;
+        bool onDuty(List<CrewMember> crew, String id) =>
+            crew.firstWhere((c) => c.staffId == id).onDuty;
+
+        // The head ends their own duty: the assistant now acts for them.
+        await r.setCrewDuty(me.id, onDuty: false);
+        expect(onDuty(await r.watchCrew().first, me.id), isFalse);
+
+        // Accepting a job puts whoever accepts back on duty.
+        r.sendOfferNow();
+        await r.acceptAssignment('INC-0147');
+        await settle();
+        final crew = await r.watchCrew().first;
+        expect(onDuty(crew, me.id), isTrue);
+        expect(crew.firstWhere((c) => c.staffId == me.id).dutySince, now);
+
+        // L. Cruz, off duty with the app open 4 minutes ago, is flagged.
+        final cruz = crew.firstWhere((c) => c.displayName == 'L. Cruz');
+        expect(cruz.isInUseOffDuty(now, const Duration(minutes: 15)), isTrue);
+        expect(cruz.isInUseOffDuty(now, const Duration(minutes: 3)), isFalse);
+      },
+    );
+
     test('an offer is accepted and the unit drives to the scene', () async {
       expect(await tryStatus(UnitStatus.onScene), StatusRejection.noAssignment);
       r.sendOfferNow();

@@ -890,6 +890,13 @@ class MockSeed {
     'usr-resp-03': t0.subtract(const Duration(minutes: 2)),
   };
 
+  /// When each responder's app was last open (2026-11-03). L. Cruz is off
+  /// duty with the app open 4 minutes ago, so the Units page flags them.
+  Map<String, DateTime> get appOpen => {
+    'usr-resp-01': t0.subtract(const Duration(minutes: 1)),
+    'usr-resp-06': t0.subtract(const Duration(minutes: 4)),
+  };
+
   /// Sample hotspots (the KDE's relative density): made up, clustered so
   /// the heat map shows a few hot areas per hazard.
   List<HazardDensity> get densities {
