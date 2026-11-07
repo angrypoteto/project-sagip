@@ -105,6 +105,7 @@ changed between 2026-10-12 and 2026-10-20.
 - [ ] **[N]** FR14 (2026-11-03): an earthquake of magnitude 5 or more within 150 km (A3, "Earthquakes and volcanoes") reaches every resident by itself as an information notice, in the app and by push only, once, for 24 hours
 - [ ] **[N]** FR14 (2026-11-03): D10 shows every volcano's PHIVOLCS alert level (Taal, Pinatubo, Mayon, Kanlaon, Bulusan); a change of Taal or Pinatubo with the old or new level 2 or more reaches residents with ashfall guidance (face mask), and the line under the levels says so
 - [ ] **[N]** FR4 (2026-11-03): D8's barangay panel, under "About this forecast": the model's test figures per hazard (accuracy, balanced accuracy, RMSE; caught, missed, false alarms, correctly quiet; the never-warn or always-warn baseline)
+- [ ] **[N]** Model v3 (2026-11-07): trained on MDRRMD's fire and flood records with a 48-hour lead time (Joshua's choice, plan Q54); D8's titles, legend, and "why" and the resident's Forecast tab say the run's own hours; D8's Medical view shows where MDRRMD's medical calls and road accidents cluster (EMR records, marked past calls, not a forecast). **Loaded on the hosted project after the push** (`supabase/README.md`, "Loading model v3") **[S]**
 - [ ] **[N]** FR12 (2026-11-03): a crowd cluster's type reads "Flood (suggested by the sample model)" while the sample classifier is active
 - [ ] D10 "River water levels": 17 stations with their levels, raised ones first, "Relay as advisory"
 

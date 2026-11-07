@@ -129,6 +129,20 @@ VARIANTS = {
     "recorded_alarm": {"fire": "dromic+txtfire+telegram", "flood": "dromic", "track_signals": True,
                        "rain": "era5", "period": (date(2021, 1, 1), date(2026, 10, 5)),
                        "alarm_only": True},
+    # MDRRMD's own records (Joshua, 2026-11-07: "we can use just the mdrrmd"): its fire and flood
+    # records with GPS points (ml/datasets/mdrrmd, not in git), ERA5 rain as the live feed reads it.
+    # Fires are logged from December 2024 (one earlier record), floods from June 2025.
+    "mdrrmd": {"fire": "mdrrmd", "flood": "mdrrmd", "track_signals": True, "rain": "era5",
+               "period": (date(2024, 12, 1), date(2026, 10, 31)),
+               "coverage": {"fire": [(date(2024, 12, 1), date(2026, 10, 31))],
+                            "flood": [(date(2025, 6, 1), date(2026, 10, 31))]}},
+}
+
+# MDRRMD's records as given (Google Drive, 2026-11-04), never committed.
+MDRRMD = FORECAST.parent / "datasets" / "mdrrmd"
+MDRRMD_FILES = {
+    "fire": [("2025/2025Fire_Records.csv", "FIRE INCIDENT DATE"), ("2026/2026Fire_Records.csv", "FIRE INCIDENT DATE")],
+    "flood": [("2025/2025Flood_Records.csv", "FLOOD DATE AND TIME "), ("2026/2026Flood_Records.csv", "DATE AND TIME")],
 }
 
 
@@ -613,6 +627,61 @@ def prepare_floods_v2(log, locator):
 # --- Windows ----------------------------------------------------------------
 
 
+def _mdrrmd_day(text):
+    """MDRRMD's dates are month/day/year, sometimes with a time."""
+    import re
+
+    m = re.match(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})", text or "")
+    if not m:
+        return None
+    try:
+        return date(int(m[3]), int(m[1]), int(m[2]))
+    except ValueError:
+        return None
+
+
+def prepare_mdrrmd(hazard, log, locator, coverage):
+    """MDRRMD's fire or flood records: read, clean, place, merge, time-align."""
+    name = f"incidents: {hazard} (MDRRMD records)"
+    rows = []
+    for rel, col in MDRRMD_FILES[hazard]:
+        with (MDRRMD / rel).open(encoding="utf-8-sig", newline="") as f:
+            for r in csv.DictReader(f):
+                rows.append((rel, col, r))
+    log.append(step(name, "read", len(rows), len(rows),
+                    note="every record in MDRRMD's 2025 and 2026 files (x, y are longitude, latitude)"))
+    usable, unreadable, outside = [], 0, 0
+    for rel, col, r in rows:
+        d = _mdrrmd_day(r.get(col, ""))
+        try:
+            lat, lng = float(r["y"]), float(r["x"])
+        except (KeyError, ValueError):
+            unreadable += 1
+            continue
+        if d is None:
+            unreadable += 1
+            continue
+        brgy = locator.barangay(lat, lng)
+        if brgy is None:
+            outside += 1
+            continue
+        usable.append({
+            "incident_id": f"mdrrmd-{hazard}-{rel[:4]}-{r['ObjectID']}", "date": d, "lat": lat, "lng": lng,
+            "precision": "point", "barangay": brgy, "use_for_kde": True, "source_url": "",
+        })
+    log.append(step(name, "clean and geocode", len(rows), len(usable), removed=unreadable + outside,
+                    note="removed: no readable date or position; a position outside the City of Manila's "
+                    "barangays", unreadable=unreadable, outside_manila=outside))
+    deduped, duplicates = _dedupe(usable)
+    log.append(step(name, "merge", len(usable), len(deduped), removed=duplicates,
+                    note=f"records of the same {hazard} on the same day within {SAME_INCIDENT_M} m are one incident "
+                    "(flood records are monitoring points: one flooded street can be logged several times)"))
+    covered = [r for r in deduped if any(a <= r["date"] <= b for a, b in coverage)]
+    log.append(step(name, "time-align", len(deduped), len(covered), removed=len(deduped) - len(covered),
+                    note="kept the days MDRRMD logged this hazard: " + ", ".join(f"{a} to {b}" for a, b in coverage)))
+    return covered
+
+
 FORECAST_RAIN_DAYS = 0
 FIRE_EXTRAS = False
 
@@ -745,6 +814,9 @@ DATA_NOTES = {
     "TXTFIRE posted alerts. See docs/OBJECTIVE-2-RESULTS.md",
     "recorded_alarm": "EXPERIMENT (2026-11-02): as recorded, but a fire counts only if it reached an alarm "
     "level on TXTFIRE, or DROMIC reported it (families affected).",
+    "mdrrmd": "MDRRMD's own fire and flood records (given 2026-11-04): fires December 2024 to October 2026, floods "
+    "June 2025 to October 2026, each with its GPS point; rainfall from ERA5 (Open-Meteo) as the live feed reads it; "
+    "signals from news and storm tracks. Floods are logged in the rainy months only. See docs/OBJECTIVE-2-RESULTS.md",
     "recorded": "The live forecast's model (2026-11-02): 2021-01-01 to 2026-10-05, rainfall from ERA5 (Open-Meteo) "
     "as the live feed reads it, fires from DROMIC and TXTFIRE (website and Telegram channel), floods from DROMIC "
     "and MMDA lists in the news, signals from news and storm tracks. Real, but incomplete; see "
@@ -755,33 +827,44 @@ DATA_NOTES = {
 def main():
     import argparse
 
-    global COVERAGE, BUILD, OUT_DIR, PERIOD
+    global COVERAGE, BUILD, OUT_DIR, PERIOD, HORIZON
     parser = argparse.ArgumentParser()
     parser.add_argument("--variant", choices=list(VARIANTS), default="news")
     parser.add_argument("--fire-extras", action="store_true",
                         help="EXPERIMENT (2026-11-02): add humidity, dry days, season, and holidays as inputs")
+    parser.add_argument("--horizon-days", type=int, default=HORIZON,
+                        help="how far ahead the label looks (thesis: 3 days, 72 hours; MDRRMD model: 2)")
     parser.add_argument("--forecast-rain-days", type=int, default=0,
                         help="EXPERIMENT (plan Q50 c): add the next N days' actual rain as a 7th feature")
     args = parser.parse_args()
     variant = args.variant
     global FORECAST_RAIN_DAYS, FIRE_EXTRAS
     FORECAST_RAIN_DAYS = args.forecast_rain_days
+    # The lead time (Joshua, 2026-11-07: 48 hours for MDRRMD's short records). labels(),
+    # split_in_time(), and baselines() read it from their own module.
+    import lstm.prepare_windows as windows
+    HORIZON = windows.HORIZON = args.horizon_days
+    horizon_tag = "" if HORIZON == 3 else f"_h{HORIZON}"
     FIRE_EXTRAS = args.fire_extras
     config = VARIANTS[variant]
     if "period" in config:
         PERIOD = config["period"]
     if variant != "news":
         BUILD = FORECAST / "build" / "real" / (variant + (f"_fc{FORECAST_RAIN_DAYS}d" if FORECAST_RAIN_DAYS else "")
-                                               + ("_extras" if FIRE_EXTRAS else ""))
+                                               + ("_extras" if FIRE_EXTRAS else "") + horizon_tag)
         OUT_DIR = DATA / "prepared" / variant
         fire_cover = txtfire_active() if config["fire"] == "dromic+txtfire" else [(max(V2_START, PERIOD[0]), PERIOD[1])]
         COVERAGE = {"fire": fire_cover, "flood": [(max(V2_START, PERIOD[0]), PERIOD[1])]}
+        if "coverage" in config:
+            COVERAGE = config["coverage"]
 
     log = []
     weather = prepare_weather(log, track_signals=config["track_signals"], rain=config.get("rain", "gsmap"))
     locator = Locator()
     if variant == "news":
         incidents = {"fire": prepare_fires(log, locator), "flood": prepare_floods(log, locator)}
+    elif config["fire"] == "mdrrmd":
+        incidents = {h: prepare_mdrrmd(h, log, locator, COVERAGE[h]) for h in ("fire", "flood")}
     else:
         incidents = {"fire": prepare_fires_v2(log, config["fire"].startswith("dromic+txtfire"),
                                               with_telegram=config["fire"].endswith("+telegram"),
@@ -821,7 +904,7 @@ def main():
         "steps": log,
         "hazards": {h: build_hazard(h, weather, rows) for h, rows in incidents.items()},
     }
-    name = "prep_summary_real.json" if variant == "news" else f"prep_summary_{variant}.json"
+    name = "prep_summary_real.json" if variant == "news" else f"prep_summary_{variant}{horizon_tag}.json"
     if FIRE_EXTRAS:
         name = f"prep_summary_{variant}_extras.json"
         summary["experiment"] = ("extra fire inputs (humidity, days since rain, season, holidays in the next "

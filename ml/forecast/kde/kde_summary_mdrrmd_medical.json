@@ -1,0 +1,7225 @@
+{
+  "data": "as given",
+  "provisional": [
+    "risk levels: how the density and the LSTM probability combine is not decided (plan Q22); run_forecast.py uses a provisional rule"
+  ],
+  "kernel": "gaussian",
+  "distance": "haversine",
+  "bandwidths_tried_m": [
+    100,
+    200,
+    300,
+    400,
+    500
+  ],
+  "folds": 5,
+  "grid_step_m": 100,
+  "period": [
+    "2023-12-31",
+    "2026-11-03"
+  ],
+  "incident_records": {
+    "read": 6062,
+    "removed_unreadable_date": 0,
+    "removed_outside_period": 0,
+    "removed_unknown_hazard": 0,
+    "removed_bad_coordinates": 0,
+    "removed_outside_manila": 0,
+    "removed_duplicates": 83,
+    "kept": 5979
+  },
+  "hazards": {
+    "medical": {
+      "incidents": 5979,
+      "bandwidth_m": 100,
+      "mean_log_likelihood": {
+        "100": 14.3601,
+        "200": 14.1482,
+        "300": 14.0442,
+        "400": 13.9739,
+        "500": 13.9179
+      },
+      "grid_cells": 9870,
+      "densest_cell_per_km2": 3670.16,
+      "incidents_under_the_surface": 5978.9,
+      "barangays": {
+        "Barangay 1": {
+          "district": "Tondo",
+          "mean_per_km2": 124.023,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 446
+        },
+        "Barangay 2": {
+          "district": "Tondo",
+          "mean_per_km2": 124.103,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 445
+        },
+        "Barangay 3": {
+          "district": "Tondo",
+          "mean_per_km2": 159.475,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 307
+        },
+        "Barangay 4": {
+          "district": "Tondo",
+          "mean_per_km2": 172.076,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.133,
+          "rank": 257
+        },
+        "Barangay 5": {
+          "district": "Tondo",
+          "mean_per_km2": 198.91,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.154,
+          "rank": 201
+        },
+        "Barangay 6": {
+          "district": "Tondo",
+          "mean_per_km2": 261.023,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.202,
+          "rank": 80
+        },
+        "Barangay 7": {
+          "district": "Tondo",
+          "mean_per_km2": 180.048,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.139,
+          "rank": 243
+        },
+        "Barangay 8": {
+          "district": "Tondo",
+          "mean_per_km2": 135.906,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.105,
+          "rank": 400
+        },
+        "Barangay 9": {
+          "district": "Tondo",
+          "mean_per_km2": 135.569,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.105,
+          "rank": 401
+        },
+        "Barangay 10": {
+          "district": "Tondo",
+          "mean_per_km2": 314.253,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.243,
+          "rank": 37
+        },
+        "Barangay 11": {
+          "district": "Tondo",
+          "mean_per_km2": 79.706,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 656
+        },
+        "Barangay 12": {
+          "district": "Tondo",
+          "mean_per_km2": 142.042,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.11,
+          "rank": 369
+        },
+        "Barangay 13": {
+          "district": "Tondo",
+          "mean_per_km2": 99.616,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.077,
+          "rank": 558
+        },
+        "Barangay 14": {
+          "district": "Tondo",
+          "mean_per_km2": 91.891,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.071,
+          "rank": 597
+        },
+        "Barangay 15": {
+          "district": "Tondo",
+          "mean_per_km2": 145.086,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 359
+        },
+        "Barangay 16": {
+          "district": "Tondo",
+          "mean_per_km2": 115.542,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.089,
+          "rank": 493
+        },
+        "Barangay 17": {
+          "district": "Tondo",
+          "mean_per_km2": 126.511,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.098,
+          "rank": 429
+        },
+        "Barangay 18": {
+          "district": "Tondo",
+          "mean_per_km2": 111.868,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 514
+        },
+        "Barangay 19": {
+          "district": "Tondo",
+          "mean_per_km2": 133.517,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.103,
+          "rank": 411
+        },
+        "Barangay 20": {
+          "district": "Tondo",
+          "mean_per_km2": 11.908,
+          "cells": 136,
+          "area": "boundary",
+          "relative": 0.009,
+          "rank": 895
+        },
+        "Barangay 25": {
+          "district": "Tondo",
+          "mean_per_km2": 138.95,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 389
+        },
+        "Barangay 26": {
+          "district": "Tondo",
+          "mean_per_km2": 129.173,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.1,
+          "rank": 420
+        },
+        "Barangay 28": {
+          "district": "Tondo",
+          "mean_per_km2": 177.544,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.138,
+          "rank": 246
+        },
+        "Barangay 29": {
+          "district": "Tondo",
+          "mean_per_km2": 111.5,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.086,
+          "rank": 518
+        },
+        "Barangay 30": {
+          "district": "Tondo",
+          "mean_per_km2": 160.083,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 303
+        },
+        "Barangay 31": {
+          "district": "Tondo",
+          "mean_per_km2": 159.815,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 305
+        },
+        "Barangay 32": {
+          "district": "Tondo",
+          "mean_per_km2": 153.774,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.119,
+          "rank": 329
+        },
+        "Barangay 33": {
+          "district": "Tondo",
+          "mean_per_km2": 153.987,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.119,
+          "rank": 328
+        },
+        "Barangay 34": {
+          "district": "Tondo",
+          "mean_per_km2": 221.862,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.172,
+          "rank": 145
+        },
+        "Barangay 35": {
+          "district": "Tondo",
+          "mean_per_km2": 116.872,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 485
+        },
+        "Barangay 36": {
+          "district": "Tondo",
+          "mean_per_km2": 164.155,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.127,
+          "rank": 285
+        },
+        "Barangay 37": {
+          "district": "Tondo",
+          "mean_per_km2": 174.804,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.135,
+          "rank": 250
+        },
+        "Barangay 38": {
+          "district": "Tondo",
+          "mean_per_km2": 241.39,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.187,
+          "rank": 109
+        },
+        "Barangay 39": {
+          "district": "Tondo",
+          "mean_per_km2": 115.319,
+          "cells": 13,
+          "area": "boundary",
+          "relative": 0.089,
+          "rank": 496
+        },
+        "Barangay 41": {
+          "district": "Tondo",
+          "mean_per_km2": 187.067,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.145,
+          "rank": 220
+        },
+        "Barangay 42": {
+          "district": "Tondo",
+          "mean_per_km2": 214.884,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.166,
+          "rank": 158
+        },
+        "Barangay 43": {
+          "district": "Tondo",
+          "mean_per_km2": 260.534,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.202,
+          "rank": 81
+        },
+        "Barangay 44": {
+          "district": "Tondo",
+          "mean_per_km2": 137.465,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.106,
+          "rank": 394
+        },
+        "Barangay 45": {
+          "district": "Tondo",
+          "mean_per_km2": 182.729,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.142,
+          "rank": 235
+        },
+        "Barangay 46": {
+          "district": "Tondo",
+          "mean_per_km2": 229.662,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.178,
+          "rank": 126
+        },
+        "Barangay 47": {
+          "district": "Tondo",
+          "mean_per_km2": 199.145,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.154,
+          "rank": 200
+        },
+        "Barangay 48": {
+          "district": "Tondo",
+          "mean_per_km2": 122.763,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 456
+        },
+        "Barangay 49": {
+          "district": "Tondo",
+          "mean_per_km2": 199.394,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.154,
+          "rank": 199
+        },
+        "Barangay 50": {
+          "district": "Tondo",
+          "mean_per_km2": 29.64,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.023,
+          "rank": 870
+        },
+        "Barangay 51": {
+          "district": "Tondo",
+          "mean_per_km2": 89.249,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 609
+        },
+        "Barangay 52": {
+          "district": "Tondo",
+          "mean_per_km2": 81.047,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 650
+        },
+        "Barangay 53": {
+          "district": "Tondo",
+          "mean_per_km2": 64.175,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 746
+        },
+        "Barangay 54": {
+          "district": "Tondo",
+          "mean_per_km2": 156.737,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.121,
+          "rank": 321
+        },
+        "Barangay 55": {
+          "district": "Tondo",
+          "mean_per_km2": 216.91,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.168,
+          "rank": 155
+        },
+        "Barangay 56": {
+          "district": "Tondo",
+          "mean_per_km2": 94.045,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 584
+        },
+        "Barangay 57": {
+          "district": "Tondo",
+          "mean_per_km2": 125.983,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.098,
+          "rank": 431
+        },
+        "Barangay 58": {
+          "district": "Tondo",
+          "mean_per_km2": 49.296,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.038,
+          "rank": 816
+        },
+        "Barangay 59": {
+          "district": "Tondo",
+          "mean_per_km2": 92.295,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.071,
+          "rank": 596
+        },
+        "Barangay 60": {
+          "district": "Tondo",
+          "mean_per_km2": 104.698,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.081,
+          "rank": 539
+        },
+        "Barangay 61": {
+          "district": "Tondo",
+          "mean_per_km2": 159.408,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.123,
+          "rank": 308
+        },
+        "Barangay 62": {
+          "district": "Tondo",
+          "mean_per_km2": 147.204,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.114,
+          "rank": 350
+        },
+        "Barangay 63": {
+          "district": "Tondo",
+          "mean_per_km2": 85.869,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 624
+        },
+        "Barangay 64": {
+          "district": "Tondo",
+          "mean_per_km2": 273.56,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.212,
+          "rank": 67
+        },
+        "Barangay 65": {
+          "district": "Tondo",
+          "mean_per_km2": 113.836,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.088,
+          "rank": 500
+        },
+        "Barangay 66": {
+          "district": "Tondo",
+          "mean_per_km2": 80.373,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 651
+        },
+        "Barangay 67": {
+          "district": "Tondo",
+          "mean_per_km2": 78.488,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.061,
+          "rank": 661
+        },
+        "Barangay 68": {
+          "district": "Tondo",
+          "mean_per_km2": 85.736,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.066,
+          "rank": 625
+        },
+        "Barangay 69": {
+          "district": "Tondo",
+          "mean_per_km2": 117.243,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 483
+        },
+        "Barangay 70": {
+          "district": "Tondo",
+          "mean_per_km2": 61.105,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.047,
+          "rank": 759
+        },
+        "Barangay 71": {
+          "district": "Tondo",
+          "mean_per_km2": 122.452,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 459
+        },
+        "Barangay 72": {
+          "district": "Tondo",
+          "mean_per_km2": 151.018,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.117,
+          "rank": 340
+        },
+        "Barangay 73": {
+          "district": "Tondo",
+          "mean_per_km2": 136.386,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.106,
+          "rank": 396
+        },
+        "Barangay 74": {
+          "district": "Tondo",
+          "mean_per_km2": 100.453,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.078,
+          "rank": 554
+        },
+        "Barangay 75": {
+          "district": "Tondo",
+          "mean_per_km2": 101.909,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.079,
+          "rank": 550
+        },
+        "Barangay 76": {
+          "district": "Tondo",
+          "mean_per_km2": 62.124,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.048,
+          "rank": 757
+        },
+        "Barangay 77": {
+          "district": "Tondo",
+          "mean_per_km2": 59.76,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.046,
+          "rank": 766
+        },
+        "Barangay 78": {
+          "district": "Tondo",
+          "mean_per_km2": 96.553,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 574
+        },
+        "Barangay 79": {
+          "district": "Tondo",
+          "mean_per_km2": 68.494,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.053,
+          "rank": 718
+        },
+        "Barangay 80": {
+          "district": "Tondo",
+          "mean_per_km2": 70.824,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.055,
+          "rank": 700
+        },
+        "Barangay 81": {
+          "district": "Tondo",
+          "mean_per_km2": 69.79,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 708
+        },
+        "Barangay 82": {
+          "district": "Tondo",
+          "mean_per_km2": 109.804,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.085,
+          "rank": 521
+        },
+        "Barangay 83": {
+          "district": "Tondo",
+          "mean_per_km2": 126.247,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.098,
+          "rank": 430
+        },
+        "Barangay 84": {
+          "district": "Tondo",
+          "mean_per_km2": 140.653,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 376
+        },
+        "Barangay 85": {
+          "district": "Tondo",
+          "mean_per_km2": 81.88,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 643
+        },
+        "Barangay 86": {
+          "district": "Tondo",
+          "mean_per_km2": 240.932,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.187,
+          "rank": 112
+        },
+        "Barangay 87": {
+          "district": "Tondo",
+          "mean_per_km2": 134.001,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 408
+        },
+        "Barangay 88": {
+          "district": "Tondo",
+          "mean_per_km2": 111.918,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 512
+        },
+        "Barangay 89": {
+          "district": "Tondo",
+          "mean_per_km2": 96.185,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 576
+        },
+        "Barangay 90": {
+          "district": "Tondo",
+          "mean_per_km2": 111.918,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.087,
+          "rank": 513
+        },
+        "Barangay 91": {
+          "district": "Tondo",
+          "mean_per_km2": 128.195,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.099,
+          "rank": 424
+        },
+        "Barangay 92": {
+          "district": "Tondo",
+          "mean_per_km2": 111.507,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.086,
+          "rank": 517
+        },
+        "Barangay 93": {
+          "district": "Tondo",
+          "mean_per_km2": 188.314,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.146,
+          "rank": 215
+        },
+        "Barangay 94": {
+          "district": "Tondo",
+          "mean_per_km2": 98.767,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.077,
+          "rank": 562
+        },
+        "Barangay 95": {
+          "district": "Tondo",
+          "mean_per_km2": 159.355,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.123,
+          "rank": 309
+        },
+        "Barangay 96": {
+          "district": "Tondo",
+          "mean_per_km2": 115.469,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.089,
+          "rank": 494
+        },
+        "Barangay 97": {
+          "district": "Tondo",
+          "mean_per_km2": 156.938,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.122,
+          "rank": 319
+        },
+        "Barangay 98": {
+          "district": "Tondo",
+          "mean_per_km2": 41.734,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.032,
+          "rank": 844
+        },
+        "Barangay 99": {
+          "district": "Tondo",
+          "mean_per_km2": 45.16,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.035,
+          "rank": 831
+        },
+        "Barangay 100": {
+          "district": "Tondo",
+          "mean_per_km2": 265.801,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.206,
+          "rank": 73
+        },
+        "Barangay 101": {
+          "district": "Tondo",
+          "mean_per_km2": 81.098,
+          "cells": 10,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 647
+        },
+        "Barangay 102": {
+          "district": "Tondo",
+          "mean_per_km2": 167.993,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.13,
+          "rank": 274
+        },
+        "Barangay 103": {
+          "district": "Tondo",
+          "mean_per_km2": 96.577,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 573
+        },
+        "Barangay 104": {
+          "district": "Tondo",
+          "mean_per_km2": 120.522,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 465
+        },
+        "Barangay 105": {
+          "district": "Tondo",
+          "mean_per_km2": 73.324,
+          "cells": 49,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 690
+        },
+        "Barangay 106": {
+          "district": "Tondo",
+          "mean_per_km2": 214.553,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.166,
+          "rank": 159
+        },
+        "Barangay 107": {
+          "district": "Tondo",
+          "mean_per_km2": 128.898,
+          "cells": 15,
+          "area": "boundary",
+          "relative": 0.1,
+          "rank": 421
+        },
+        "Barangay 108": {
+          "district": "Tondo",
+          "mean_per_km2": 104.42,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.081,
+          "rank": 540
+        },
+        "Barangay 109": {
+          "district": "Tondo",
+          "mean_per_km2": 91.408,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.071,
+          "rank": 601
+        },
+        "Barangay 110": {
+          "district": "Tondo",
+          "mean_per_km2": 94.534,
+          "cells": 19,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 582
+        },
+        "Barangay 111": {
+          "district": "Tondo",
+          "mean_per_km2": 64.98,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 739
+        },
+        "Barangay 112": {
+          "district": "Tondo",
+          "mean_per_km2": 71.658,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.056,
+          "rank": 697
+        },
+        "Barangay 116": {
+          "district": "Tondo",
+          "mean_per_km2": 116.909,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 484
+        },
+        "Barangay 117": {
+          "district": "Tondo",
+          "mean_per_km2": 57.913,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.045,
+          "rank": 775
+        },
+        "Barangay 118": {
+          "district": "Tondo",
+          "mean_per_km2": 158.796,
+          "cells": 12,
+          "area": "boundary",
+          "relative": 0.123,
+          "rank": 310
+        },
+        "Barangay 119": {
+          "district": "Tondo",
+          "mean_per_km2": 123.985,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 447
+        },
+        "Barangay 120": {
+          "district": "Tondo",
+          "mean_per_km2": 158.457,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.123,
+          "rank": 312
+        },
+        "Barangay 121": {
+          "district": "Tondo",
+          "mean_per_km2": 93.648,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 587
+        },
+        "Barangay 122": {
+          "district": "Tondo",
+          "mean_per_km2": 101.4,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.079,
+          "rank": 552
+        },
+        "Barangay 123": {
+          "district": "Tondo",
+          "mean_per_km2": 199.476,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.155,
+          "rank": 197
+        },
+        "Barangay 124": {
+          "district": "Tondo",
+          "mean_per_km2": 78.794,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.061,
+          "rank": 660
+        },
+        "Barangay 125": {
+          "district": "Tondo",
+          "mean_per_km2": 19.035,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.015,
+          "rank": 891
+        },
+        "Barangay 126": {
+          "district": "Tondo",
+          "mean_per_km2": 111.996,
+          "cells": 12,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 511
+        },
+        "Barangay 127": {
+          "district": "Tondo",
+          "mean_per_km2": 13.748,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.011,
+          "rank": 892
+        },
+        "Barangay 128": {
+          "district": "Tondo",
+          "mean_per_km2": 13.6,
+          "cells": 108,
+          "area": "boundary",
+          "relative": 0.011,
+          "rank": 893
+        },
+        "Barangay 129": {
+          "district": "Tondo",
+          "mean_per_km2": 77.087,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 668
+        },
+        "Barangay 130": {
+          "district": "Tondo",
+          "mean_per_km2": 50.834,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.039,
+          "rank": 811
+        },
+        "Barangay 131": {
+          "district": "Tondo",
+          "mean_per_km2": 98.006,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.076,
+          "rank": 565
+        },
+        "Barangay 132": {
+          "district": "Tondo",
+          "mean_per_km2": 141.738,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.11,
+          "rank": 371
+        },
+        "Barangay 133": {
+          "district": "Tondo",
+          "mean_per_km2": 91.76,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.071,
+          "rank": 599
+        },
+        "Barangay 134": {
+          "district": "Tondo",
+          "mean_per_km2": 144.497,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 362
+        },
+        "Barangay 135": {
+          "district": "Tondo",
+          "mean_per_km2": 58.042,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.045,
+          "rank": 774
+        },
+        "Barangay 136": {
+          "district": "Tondo",
+          "mean_per_km2": 87.89,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.068,
+          "rank": 613
+        },
+        "Barangay 137": {
+          "district": "Tondo",
+          "mean_per_km2": 140.07,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 381
+        },
+        "Barangay 138": {
+          "district": "Tondo",
+          "mean_per_km2": 53.154,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.041,
+          "rank": 794
+        },
+        "Barangay 139": {
+          "district": "Tondo",
+          "mean_per_km2": 98.632,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.076,
+          "rank": 563
+        },
+        "Barangay 140": {
+          "district": "Tondo",
+          "mean_per_km2": 124.566,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 439
+        },
+        "Barangay 141": {
+          "district": "Tondo",
+          "mean_per_km2": 116.827,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.09,
+          "rank": 486
+        },
+        "Barangay 142": {
+          "district": "Tondo",
+          "mean_per_km2": 59.45,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.046,
+          "rank": 767
+        },
+        "Barangay 143": {
+          "district": "Tondo",
+          "mean_per_km2": 41.264,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.032,
+          "rank": 845
+        },
+        "Barangay 144": {
+          "district": "Tondo",
+          "mean_per_km2": 44.807,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.035,
+          "rank": 832
+        },
+        "Barangay 145": {
+          "district": "Tondo",
+          "mean_per_km2": 62.409,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.048,
+          "rank": 756
+        },
+        "Barangay 146": {
+          "district": "Tondo",
+          "mean_per_km2": 77.75,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 664
+        },
+        "Barangay 147": {
+          "district": "Tondo",
+          "mean_per_km2": 139.815,
+          "cells": 15,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 382
+        },
+        "Barangay 148": {
+          "district": "Tondo",
+          "mean_per_km2": 155.9,
+          "cells": 10,
+          "area": "boundary",
+          "relative": 0.121,
+          "rank": 324
+        },
+        "Barangay 149": {
+          "district": "Tondo",
+          "mean_per_km2": 227.629,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.176,
+          "rank": 133
+        },
+        "Barangay 150": {
+          "district": "Tondo",
+          "mean_per_km2": 117.38,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 481
+        },
+        "Barangay 151": {
+          "district": "Tondo",
+          "mean_per_km2": 196.032,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.152,
+          "rank": 204
+        },
+        "Barangay 152": {
+          "district": "Tondo",
+          "mean_per_km2": 64.142,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 747
+        },
+        "Barangay 153": {
+          "district": "Tondo",
+          "mean_per_km2": 243.569,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.189,
+          "rank": 106
+        },
+        "Barangay 154": {
+          "district": "Tondo",
+          "mean_per_km2": 219.021,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.17,
+          "rank": 150
+        },
+        "Barangay 155": {
+          "district": "Tondo",
+          "mean_per_km2": 81.125,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 646
+        },
+        "Barangay 156": {
+          "district": "Tondo",
+          "mean_per_km2": 222.68,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.172,
+          "rank": 143
+        },
+        "Barangay 157": {
+          "district": "Tondo",
+          "mean_per_km2": 76.82,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 670
+        },
+        "Barangay 158": {
+          "district": "Tondo",
+          "mean_per_km2": 232.151,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.18,
+          "rank": 122
+        },
+        "Barangay 159": {
+          "district": "Tondo",
+          "mean_per_km2": 58.132,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.045,
+          "rank": 773
+        },
+        "Barangay 160": {
+          "district": "Tondo",
+          "mean_per_km2": 77.876,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 663
+        },
+        "Barangay 161": {
+          "district": "Tondo",
+          "mean_per_km2": 173.948,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.135,
+          "rank": 252
+        },
+        "Barangay 162": {
+          "district": "Tondo",
+          "mean_per_km2": 145.125,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 358
+        },
+        "Barangay 163": {
+          "district": "Tondo",
+          "mean_per_km2": 59.982,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.046,
+          "rank": 764
+        },
+        "Barangay 164": {
+          "district": "Tondo",
+          "mean_per_km2": 54.068,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.042,
+          "rank": 791
+        },
+        "Barangay 165": {
+          "district": "Tondo",
+          "mean_per_km2": 93.842,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 586
+        },
+        "Barangay 166": {
+          "district": "Tondo",
+          "mean_per_km2": 127.452,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.099,
+          "rank": 427
+        },
+        "Barangay 167": {
+          "district": "Tondo",
+          "mean_per_km2": 77.179,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 667
+        },
+        "Barangay 168": {
+          "district": "Tondo",
+          "mean_per_km2": 79.663,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 657
+        },
+        "Barangay 169": {
+          "district": "Tondo",
+          "mean_per_km2": 60.123,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.047,
+          "rank": 762
+        },
+        "Barangay 170": {
+          "district": "Tondo",
+          "mean_per_km2": 69.471,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 710
+        },
+        "Barangay 171": {
+          "district": "Tondo",
+          "mean_per_km2": 117.326,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 482
+        },
+        "Barangay 172": {
+          "district": "Tondo",
+          "mean_per_km2": 95.782,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.074,
+          "rank": 577
+        },
+        "Barangay 173": {
+          "district": "Tondo",
+          "mean_per_km2": 218.591,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.169,
+          "rank": 151
+        },
+        "Barangay 174": {
+          "district": "Tondo",
+          "mean_per_km2": 227.898,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.177,
+          "rank": 131
+        },
+        "Barangay 175": {
+          "district": "Tondo",
+          "mean_per_km2": 89.646,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 605
+        },
+        "Barangay 176": {
+          "district": "Tondo",
+          "mean_per_km2": 112.224,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 510
+        },
+        "Barangay 177": {
+          "district": "Tondo",
+          "mean_per_km2": 51.216,
+          "cells": 14,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 806
+        },
+        "Barangay 178": {
+          "district": "Tondo",
+          "mean_per_km2": 134.192,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 405
+        },
+        "Barangay 179": {
+          "district": "Tondo",
+          "mean_per_km2": 227.796,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.176,
+          "rank": 132
+        },
+        "Barangay 180": {
+          "district": "Tondo",
+          "mean_per_km2": 84.365,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.065,
+          "rank": 630
+        },
+        "Barangay 181": {
+          "district": "Tondo",
+          "mean_per_km2": 156.754,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.121,
+          "rank": 320
+        },
+        "Barangay 182": {
+          "district": "Tondo",
+          "mean_per_km2": 65.024,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 738
+        },
+        "Barangay 183": {
+          "district": "Tondo",
+          "mean_per_km2": 120.024,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 469
+        },
+        "Barangay 184": {
+          "district": "Tondo",
+          "mean_per_km2": 100.713,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.078,
+          "rank": 553
+        },
+        "Barangay 185": {
+          "district": "Tondo",
+          "mean_per_km2": 157.469,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.122,
+          "rank": 316
+        },
+        "Barangay 186": {
+          "district": "Tondo",
+          "mean_per_km2": 116.372,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.09,
+          "rank": 490
+        },
+        "Barangay 187": {
+          "district": "Tondo",
+          "mean_per_km2": 51.874,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 800
+        },
+        "Barangay 188": {
+          "district": "Tondo",
+          "mean_per_km2": 59.785,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.046,
+          "rank": 765
+        },
+        "Barangay 189": {
+          "district": "Tondo",
+          "mean_per_km2": 55.44,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.043,
+          "rank": 783
+        },
+        "Barangay 190": {
+          "district": "Tondo",
+          "mean_per_km2": 49.859,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.039,
+          "rank": 814
+        },
+        "Barangay 191": {
+          "district": "Tondo",
+          "mean_per_km2": 55.906,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.043,
+          "rank": 781
+        },
+        "Barangay 192": {
+          "district": "Tondo",
+          "mean_per_km2": 33.05,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.026,
+          "rank": 864
+        },
+        "Barangay 193": {
+          "district": "Tondo",
+          "mean_per_km2": 62.632,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.049,
+          "rank": 753
+        },
+        "Barangay 194": {
+          "district": "Tondo",
+          "mean_per_km2": 51.205,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 807
+        },
+        "Barangay 195": {
+          "district": "Tondo",
+          "mean_per_km2": 46.557,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.036,
+          "rank": 825
+        },
+        "Barangay 196": {
+          "district": "Tondo",
+          "mean_per_km2": 42.214,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.033,
+          "rank": 843
+        },
+        "Barangay 197": {
+          "district": "Tondo",
+          "mean_per_km2": 83.013,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.064,
+          "rank": 636
+        },
+        "Barangay 198": {
+          "district": "Tondo",
+          "mean_per_km2": 58.428,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.045,
+          "rank": 771
+        },
+        "Barangay 199": {
+          "district": "Tondo",
+          "mean_per_km2": 44.761,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.035,
+          "rank": 833
+        },
+        "Barangay 200": {
+          "district": "Tondo",
+          "mean_per_km2": 56.077,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.043,
+          "rank": 780
+        },
+        "Barangay 201": {
+          "district": "Tondo",
+          "mean_per_km2": 165.465,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.128,
+          "rank": 279
+        },
+        "Barangay 202": {
+          "district": "Tondo",
+          "mean_per_km2": 123.772,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 448
+        },
+        "Barangay 202-A": {
+          "district": "Tondo",
+          "mean_per_km2": 243.061,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.188,
+          "rank": 107
+        },
+        "Barangay 203": {
+          "district": "Tondo",
+          "mean_per_km2": 70.662,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.055,
+          "rank": 702
+        },
+        "Barangay 204": {
+          "district": "Tondo",
+          "mean_per_km2": 83.797,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.065,
+          "rank": 635
+        },
+        "Barangay 205": {
+          "district": "Tondo",
+          "mean_per_km2": 96.284,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 575
+        },
+        "Barangay 206": {
+          "district": "Tondo",
+          "mean_per_km2": 225.372,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.175,
+          "rank": 137
+        },
+        "Barangay 207": {
+          "district": "Tondo",
+          "mean_per_km2": 109.537,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.085,
+          "rank": 525
+        },
+        "Barangay 208": {
+          "district": "Tondo",
+          "mean_per_km2": 157.256,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.122,
+          "rank": 317
+        },
+        "Barangay 209": {
+          "district": "Tondo",
+          "mean_per_km2": 99.266,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.077,
+          "rank": 560
+        },
+        "Barangay 210": {
+          "district": "Tondo",
+          "mean_per_km2": 245.833,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.19,
+          "rank": 102
+        },
+        "Barangay 211": {
+          "district": "Tondo",
+          "mean_per_km2": 83.839,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.065,
+          "rank": 634
+        },
+        "Barangay 212": {
+          "district": "Tondo",
+          "mean_per_km2": 110.281,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.085,
+          "rank": 520
+        },
+        "Barangay 213": {
+          "district": "Tondo",
+          "mean_per_km2": 73.878,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 687
+        },
+        "Barangay 214": {
+          "district": "Tondo",
+          "mean_per_km2": 99.915,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.077,
+          "rank": 557
+        },
+        "Barangay 215": {
+          "district": "Tondo",
+          "mean_per_km2": 136.441,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.106,
+          "rank": 395
+        },
+        "Barangay 216": {
+          "district": "Tondo",
+          "mean_per_km2": 119.619,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 470
+        },
+        "Barangay 217": {
+          "district": "Tondo",
+          "mean_per_km2": 39.782,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.031,
+          "rank": 849
+        },
+        "Barangay 218": {
+          "district": "Tondo",
+          "mean_per_km2": 23.109,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.018,
+          "rank": 881
+        },
+        "Barangay 219": {
+          "district": "Tondo",
+          "mean_per_km2": 112.901,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 505
+        },
+        "Barangay 220": {
+          "district": "Tondo",
+          "mean_per_km2": 66.727,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.052,
+          "rank": 728
+        },
+        "Barangay 221": {
+          "district": "Tondo",
+          "mean_per_km2": 68.926,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.053,
+          "rank": 715
+        },
+        "Barangay 222": {
+          "district": "Tondo",
+          "mean_per_km2": 92.513,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.072,
+          "rank": 595
+        },
+        "Barangay 223": {
+          "district": "Tondo",
+          "mean_per_km2": 173.064,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.134,
+          "rank": 254
+        },
+        "Barangay 224": {
+          "district": "Tondo",
+          "mean_per_km2": 116.652,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.09,
+          "rank": 487
+        },
+        "Barangay 225": {
+          "district": "Tondo",
+          "mean_per_km2": 134.491,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 404
+        },
+        "Barangay 226": {
+          "district": "Tondo",
+          "mean_per_km2": 212.3,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.164,
+          "rank": 165
+        },
+        "Barangay 227": {
+          "district": "Tondo",
+          "mean_per_km2": 92.602,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.072,
+          "rank": 593
+        },
+        "Barangay 228": {
+          "district": "Tondo",
+          "mean_per_km2": 30.37,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.024,
+          "rank": 868
+        },
+        "Barangay 229": {
+          "district": "Tondo",
+          "mean_per_km2": 180.648,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.14,
+          "rank": 241
+        },
+        "Barangay 230": {
+          "district": "Tondo",
+          "mean_per_km2": 209.635,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.162,
+          "rank": 169
+        },
+        "Barangay 231": {
+          "district": "Tondo",
+          "mean_per_km2": 133.83,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 410
+        },
+        "Barangay 232": {
+          "district": "Tondo",
+          "mean_per_km2": 128.513,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.1,
+          "rank": 422
+        },
+        "Barangay 233": {
+          "district": "Tondo",
+          "mean_per_km2": 185.126,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.143,
+          "rank": 231
+        },
+        "Barangay 234": {
+          "district": "Tondo",
+          "mean_per_km2": 168.69,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.131,
+          "rank": 273
+        },
+        "Barangay 235": {
+          "district": "Tondo",
+          "mean_per_km2": 295.765,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.229,
+          "rank": 47
+        },
+        "Barangay 236": {
+          "district": "Tondo",
+          "mean_per_km2": 91.798,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.071,
+          "rank": 598
+        },
+        "Barangay 237": {
+          "district": "Tondo",
+          "mean_per_km2": 81.151,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 645
+        },
+        "Barangay 238": {
+          "district": "Tondo",
+          "mean_per_km2": 144.506,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 361
+        },
+        "Barangay 239": {
+          "district": "Tondo",
+          "mean_per_km2": 316.518,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.245,
+          "rank": 36
+        },
+        "Barangay 240": {
+          "district": "Tondo",
+          "mean_per_km2": 276.71,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.214,
+          "rank": 62
+        },
+        "Barangay 241": {
+          "district": "Tondo",
+          "mean_per_km2": 43.172,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.033,
+          "rank": 840
+        },
+        "Barangay 242": {
+          "district": "Tondo",
+          "mean_per_km2": 96.958,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 572
+        },
+        "Barangay 243": {
+          "district": "Tondo",
+          "mean_per_km2": 118.529,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.092,
+          "rank": 475
+        },
+        "Barangay 244": {
+          "district": "Tondo",
+          "mean_per_km2": 93.53,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.072,
+          "rank": 590
+        },
+        "Barangay 245": {
+          "district": "Tondo",
+          "mean_per_km2": 63.721,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.049,
+          "rank": 749
+        },
+        "Barangay 246": {
+          "district": "Tondo",
+          "mean_per_km2": 245.052,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.19,
+          "rank": 103
+        },
+        "Barangay 247": {
+          "district": "Tondo",
+          "mean_per_km2": 204.294,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.158,
+          "rank": 183
+        },
+        "Barangay 248": {
+          "district": "Tondo",
+          "mean_per_km2": 44.683,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.035,
+          "rank": 834
+        },
+        "Barangay 249": {
+          "district": "Tondo",
+          "mean_per_km2": 311.752,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.241,
+          "rank": 40
+        },
+        "Barangay 250": {
+          "district": "Tondo",
+          "mean_per_km2": 109.774,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.085,
+          "rank": 522
+        },
+        "Barangay 251": {
+          "district": "Tondo",
+          "mean_per_km2": 194.445,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.151,
+          "rank": 205
+        },
+        "Barangay 252": {
+          "district": "Tondo",
+          "mean_per_km2": 253.749,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.197,
+          "rank": 88
+        },
+        "Barangay 253": {
+          "district": "Tondo",
+          "mean_per_km2": 287.5,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.223,
+          "rank": 50
+        },
+        "Barangay 254": {
+          "district": "Tondo",
+          "mean_per_km2": 399.674,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.31,
+          "rank": 14
+        },
+        "Barangay 255": {
+          "district": "Tondo",
+          "mean_per_km2": 84.252,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.065,
+          "rank": 631
+        },
+        "Barangay 256": {
+          "district": "Tondo",
+          "mean_per_km2": 188.31,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.146,
+          "rank": 217
+        },
+        "Barangay 257": {
+          "district": "Tondo",
+          "mean_per_km2": 212.218,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.164,
+          "rank": 167
+        },
+        "Barangay 258": {
+          "district": "Tondo",
+          "mean_per_km2": 294.193,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.228,
+          "rank": 48
+        },
+        "Barangay 259": {
+          "district": "Tondo",
+          "mean_per_km2": 144.732,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 360
+        },
+        "Barangay 260": {
+          "district": "Tondo",
+          "mean_per_km2": 98.977,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.077,
+          "rank": 561
+        },
+        "Barangay 261": {
+          "district": "Tondo",
+          "mean_per_km2": 73.362,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 688
+        },
+        "Barangay 262": {
+          "district": "Tondo",
+          "mean_per_km2": 66.397,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.051,
+          "rank": 731
+        },
+        "Barangay 263": {
+          "district": "Tondo",
+          "mean_per_km2": 77.353,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 666
+        },
+        "Barangay 264": {
+          "district": "Tondo",
+          "mean_per_km2": 120.109,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 467
+        },
+        "Barangay 265": {
+          "district": "Tondo",
+          "mean_per_km2": 102.862,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.08,
+          "rank": 546
+        },
+        "Barangay 266": {
+          "district": "Tondo",
+          "mean_per_km2": 125.365,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.097,
+          "rank": 435
+        },
+        "Barangay 267": {
+          "district": "Tondo",
+          "mean_per_km2": 112.723,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 507
+        },
+        "Barangay 268": {
+          "district": "San Nicolas",
+          "mean_per_km2": 253.14,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.196,
+          "rank": 91
+        },
+        "Barangay 269": {
+          "district": "San Nicolas",
+          "mean_per_km2": 122.526,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 457
+        },
+        "Barangay 270": {
+          "district": "San Nicolas",
+          "mean_per_km2": 67.151,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.052,
+          "rank": 726
+        },
+        "Barangay 271": {
+          "district": "San Nicolas",
+          "mean_per_km2": 72.455,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.056,
+          "rank": 693
+        },
+        "Barangay 272": {
+          "district": "San Nicolas",
+          "mean_per_km2": 171.59,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.133,
+          "rank": 260
+        },
+        "Barangay 273": {
+          "district": "San Nicolas",
+          "mean_per_km2": 93.51,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.072,
+          "rank": 591
+        },
+        "Barangay 274": {
+          "district": "San Nicolas",
+          "mean_per_km2": 102.834,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.08,
+          "rank": 547
+        },
+        "Barangay 275": {
+          "district": "San Nicolas",
+          "mean_per_km2": 86.686,
+          "cells": 30,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 619
+        },
+        "Barangay 276": {
+          "district": "San Nicolas",
+          "mean_per_km2": 94.112,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 583
+        },
+        "Barangay 281": {
+          "district": "San Nicolas",
+          "mean_per_km2": 120.417,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 466
+        },
+        "Barangay 282": {
+          "district": "San Nicolas",
+          "mean_per_km2": 161.025,
+          "cells": 12,
+          "area": "boundary",
+          "relative": 0.125,
+          "rank": 298
+        },
+        "Barangay 283": {
+          "district": "San Nicolas",
+          "mean_per_km2": 125.658,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.097,
+          "rank": 432
+        },
+        "Barangay 284": {
+          "district": "San Nicolas",
+          "mean_per_km2": 79.418,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 658
+        },
+        "Barangay 285": {
+          "district": "San Nicolas",
+          "mean_per_km2": 89.329,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 608
+        },
+        "Barangay 286": {
+          "district": "San Nicolas",
+          "mean_per_km2": 243.867,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.189,
+          "rank": 105
+        },
+        "Barangay 287": {
+          "district": "Binondo",
+          "mean_per_km2": 258.903,
+          "cells": 13,
+          "area": "boundary",
+          "relative": 0.201,
+          "rank": 84
+        },
+        "Barangay 288": {
+          "district": "Binondo",
+          "mean_per_km2": 305.82,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.237,
+          "rank": 43
+        },
+        "Barangay 289": {
+          "district": "Binondo",
+          "mean_per_km2": 232.395,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.18,
+          "rank": 120
+        },
+        "Barangay 290": {
+          "district": "Binondo",
+          "mean_per_km2": 200.431,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.155,
+          "rank": 195
+        },
+        "Barangay 291": {
+          "district": "Binondo",
+          "mean_per_km2": 263.203,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.204,
+          "rank": 76
+        },
+        "Barangay 292": {
+          "district": "Binondo",
+          "mean_per_km2": 264.826,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.205,
+          "rank": 74
+        },
+        "Barangay 293": {
+          "district": "Binondo",
+          "mean_per_km2": 213.471,
+          "cells": 12,
+          "area": "boundary",
+          "relative": 0.165,
+          "rank": 161
+        },
+        "Barangay 294": {
+          "district": "Binondo",
+          "mean_per_km2": 180.537,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.14,
+          "rank": 242
+        },
+        "Barangay 295": {
+          "district": "Binondo",
+          "mean_per_km2": 88.912,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 611
+        },
+        "Barangay 296": {
+          "district": "Binondo",
+          "mean_per_km2": 164.042,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.127,
+          "rank": 288
+        },
+        "Barangay 297": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 160.11,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 302
+        },
+        "Barangay 298": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 266.111,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.206,
+          "rank": 72
+        },
+        "Barangay 299": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 93.543,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.072,
+          "rank": 589
+        },
+        "Barangay 300": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 95.441,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.074,
+          "rank": 579
+        },
+        "Barangay 301": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 163.49,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.127,
+          "rank": 290
+        },
+        "Barangay 302": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 123.126,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 453
+        },
+        "Barangay 303": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 377.65,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.293,
+          "rank": 20
+        },
+        "Barangay 304": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 248.159,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.192,
+          "rank": 97
+        },
+        "Barangay 305": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 215.799,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.167,
+          "rank": 157
+        },
+        "Barangay 306": {
+          "district": "Quiapo",
+          "mean_per_km2": 432.699,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.335,
+          "rank": 9
+        },
+        "Barangay 307": {
+          "district": "Quiapo",
+          "mean_per_km2": 308.143,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.239,
+          "rank": 42
+        },
+        "Barangay 308": {
+          "district": "Quiapo",
+          "mean_per_km2": 276.203,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.214,
+          "rank": 64
+        },
+        "Barangay 309": {
+          "district": "Quiapo",
+          "mean_per_km2": 218.573,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.169,
+          "rank": 152
+        },
+        "Barangay 310": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 259.977,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.201,
+          "rank": 83
+        },
+        "Barangay 311": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 252.452,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.196,
+          "rank": 92
+        },
+        "Barangay 312": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 170.124,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.132,
+          "rank": 266
+        },
+        "Barangay 313": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 185.172,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.143,
+          "rank": 229
+        },
+        "Barangay 314": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 97.085,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 569
+        },
+        "Barangay 315": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 185.262,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.143,
+          "rank": 227
+        },
+        "Barangay 316": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 204.145,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.158,
+          "rank": 184
+        },
+        "Barangay 317": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 204.636,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.159,
+          "rank": 182
+        },
+        "Barangay 318": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 153.005,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.119,
+          "rank": 332
+        },
+        "Barangay 319": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 169.098,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.131,
+          "rank": 270
+        },
+        "Barangay 320": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 199.441,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.154,
+          "rank": 198
+        },
+        "Barangay 321": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 184.542,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.143,
+          "rank": 233
+        },
+        "Barangay 322": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 179.863,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.139,
+          "rank": 244
+        },
+        "Barangay 323": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 204.804,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.159,
+          "rank": 181
+        },
+        "Barangay 324": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 249.991,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.194,
+          "rank": 94
+        },
+        "Barangay 325": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 277.004,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.215,
+          "rank": 61
+        },
+        "Barangay 326": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 90.069,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.07,
+          "rank": 604
+        },
+        "Barangay 327": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 88.652,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 612
+        },
+        "Barangay 328": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 77.507,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 665
+        },
+        "Barangay 329": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 51.058,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 809
+        },
+        "Barangay 330": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 59.983,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.046,
+          "rank": 763
+        },
+        "Barangay 331": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 91.45,
+          "cells": 15,
+          "area": "boundary",
+          "relative": 0.071,
+          "rank": 600
+        },
+        "Barangay 332": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 140.417,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 378
+        },
+        "Barangay 333": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 158.277,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.123,
+          "rank": 313
+        },
+        "Barangay 334": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 162.968,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.126,
+          "rank": 292
+        },
+        "Barangay 335": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 113.131,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.088,
+          "rank": 504
+        },
+        "Barangay 336": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 182.506,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.141,
+          "rank": 236
+        },
+        "Barangay 337": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 150.986,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.117,
+          "rank": 341
+        },
+        "Barangay 338": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 166.773,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.129,
+          "rank": 276
+        },
+        "Barangay 339": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 213.082,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.165,
+          "rank": 163
+        },
+        "Barangay 340": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 159.887,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 304
+        },
+        "Barangay 341": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 169.509,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.131,
+          "rank": 268
+        },
+        "Barangay 342": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 213.374,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.165,
+          "rank": 162
+        },
+        "Barangay 343": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 210.268,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.163,
+          "rank": 168
+        },
+        "Barangay 344": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 206.529,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.16,
+          "rank": 176
+        },
+        "Barangay 345": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 171.94,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.133,
+          "rank": 258
+        },
+        "Barangay 346": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 224.437,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.174,
+          "rank": 140
+        },
+        "Barangay 347": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 143.725,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.111,
+          "rank": 365
+        },
+        "Barangay 348": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 187.21,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.145,
+          "rank": 218
+        },
+        "Barangay 349": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 38.819,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.03,
+          "rank": 853
+        },
+        "Barangay 350": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 72.471,
+          "cells": 17,
+          "area": "boundary",
+          "relative": 0.056,
+          "rank": 692
+        },
+        "Barangay 351": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 94.621,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 581
+        },
+        "Barangay 352": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 184.319,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.143,
+          "rank": 234
+        },
+        "Barangay 353": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 176.701,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.137,
+          "rank": 248
+        },
+        "Barangay 354": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 177.47,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.137,
+          "rank": 247
+        },
+        "Barangay 355": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 122.784,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 455
+        },
+        "Barangay 356": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 151.84,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.118,
+          "rank": 337
+        },
+        "Barangay 357": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 151.878,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.118,
+          "rank": 336
+        },
+        "Barangay 358": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 160.673,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 299
+        },
+        "Barangay 359": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 48.567,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.038,
+          "rank": 818
+        },
+        "Barangay 360": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 71.304,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.055,
+          "rank": 698
+        },
+        "Barangay 361": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 138.627,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.107,
+          "rank": 390
+        },
+        "Barangay 362": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 129.6,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.1,
+          "rank": 418
+        },
+        "Barangay 363": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 208.959,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.162,
+          "rank": 171
+        },
+        "Barangay 364": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 114.382,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.089,
+          "rank": 497
+        },
+        "Barangay 365": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 141.968,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.11,
+          "rank": 370
+        },
+        "Barangay 366": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 139.788,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 383
+        },
+        "Barangay 367": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 160.528,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 300
+        },
+        "Barangay 368": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 92.622,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.072,
+          "rank": 592
+        },
+        "Barangay 369": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 118.233,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.092,
+          "rank": 477
+        },
+        "Barangay 370": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 263.558,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.204,
+          "rank": 75
+        },
+        "Barangay 371": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 191.738,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.149,
+          "rank": 212
+        },
+        "Barangay 372": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 57.419,
+          "cells": 56,
+          "area": "boundary",
+          "relative": 0.044,
+          "rank": 776
+        },
+        "Barangay 373": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 82.427,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.064,
+          "rank": 638
+        },
+        "Barangay 374": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 145.457,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.113,
+          "rank": 353
+        },
+        "Barangay 375": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 164.063,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.127,
+          "rank": 287
+        },
+        "Barangay 376": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 246.705,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.191,
+          "rank": 99
+        },
+        "Barangay 377": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 193.131,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.15,
+          "rank": 210
+        },
+        "Barangay 378": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 266.112,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.206,
+          "rank": 71
+        },
+        "Barangay 379": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 283.134,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.219,
+          "rank": 56
+        },
+        "Barangay 380": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 202.074,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.157,
+          "rank": 190
+        },
+        "Barangay 381": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 285.12,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.221,
+          "rank": 54
+        },
+        "Barangay 382": {
+          "district": "Santa Cruz",
+          "mean_per_km2": 396.644,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.307,
+          "rank": 15
+        },
+        "Barangay 383": {
+          "district": "Quiapo",
+          "mean_per_km2": 450.824,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.349,
+          "rank": 8
+        },
+        "Barangay 384": {
+          "district": "Quiapo",
+          "mean_per_km2": 367.549,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.285,
+          "rank": 25
+        },
+        "Barangay 385": {
+          "district": "Quiapo",
+          "mean_per_km2": 157.161,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.122,
+          "rank": 318
+        },
+        "Barangay 386": {
+          "district": "Quiapo",
+          "mean_per_km2": 130.636,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.101,
+          "rank": 415
+        },
+        "Barangay 387": {
+          "district": "Quiapo",
+          "mean_per_km2": 246.197,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.191,
+          "rank": 101
+        },
+        "Barangay 388": {
+          "district": "Quiapo",
+          "mean_per_km2": 297.1,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.23,
+          "rank": 45
+        },
+        "Barangay 389": {
+          "district": "Quiapo",
+          "mean_per_km2": 286.091,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.222,
+          "rank": 52
+        },
+        "Barangay 390": {
+          "district": "Quiapo",
+          "mean_per_km2": 256.769,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.199,
+          "rank": 86
+        },
+        "Barangay 391": {
+          "district": "Quiapo",
+          "mean_per_km2": 218.415,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.169,
+          "rank": 153
+        },
+        "Barangay 392": {
+          "district": "Quiapo",
+          "mean_per_km2": 243.968,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.189,
+          "rank": 104
+        },
+        "Barangay 393": {
+          "district": "Quiapo",
+          "mean_per_km2": 261.106,
+          "cells": 10,
+          "area": "boundary",
+          "relative": 0.202,
+          "rank": 79
+        },
+        "Barangay 394": {
+          "district": "Quiapo",
+          "mean_per_km2": 134.163,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 407
+        },
+        "Barangay 395": {
+          "district": "Sampaloc",
+          "mean_per_km2": 253.407,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.196,
+          "rank": 90
+        },
+        "Barangay 396": {
+          "district": "Sampaloc",
+          "mean_per_km2": 231.205,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.179,
+          "rank": 123
+        },
+        "Barangay 397": {
+          "district": "Sampaloc",
+          "mean_per_km2": 249.65,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.193,
+          "rank": 95
+        },
+        "Barangay 398": {
+          "district": "Sampaloc",
+          "mean_per_km2": 235.655,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.183,
+          "rank": 118
+        },
+        "Barangay 399": {
+          "district": "Sampaloc",
+          "mean_per_km2": 202.207,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.157,
+          "rank": 189
+        },
+        "Barangay 400": {
+          "district": "Sampaloc",
+          "mean_per_km2": 107.409,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.083,
+          "rank": 534
+        },
+        "Barangay 401": {
+          "district": "Sampaloc",
+          "mean_per_km2": 118.865,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.092,
+          "rank": 473
+        },
+        "Barangay 402": {
+          "district": "Sampaloc",
+          "mean_per_km2": 127.794,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.099,
+          "rank": 425
+        },
+        "Barangay 403": {
+          "district": "Sampaloc",
+          "mean_per_km2": 184.789,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.143,
+          "rank": 232
+        },
+        "Barangay 404": {
+          "district": "Sampaloc",
+          "mean_per_km2": 167.158,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.129,
+          "rank": 275
+        },
+        "Barangay 405": {
+          "district": "Sampaloc",
+          "mean_per_km2": 193.704,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.15,
+          "rank": 207
+        },
+        "Barangay 406": {
+          "district": "Sampaloc",
+          "mean_per_km2": 182.494,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.141,
+          "rank": 237
+        },
+        "Barangay 407": {
+          "district": "Sampaloc",
+          "mean_per_km2": 155.384,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.12,
+          "rank": 326
+        },
+        "Barangay 408": {
+          "district": "Sampaloc",
+          "mean_per_km2": 173.786,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.135,
+          "rank": 253
+        },
+        "Barangay 409": {
+          "district": "Sampaloc",
+          "mean_per_km2": 161.058,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.125,
+          "rank": 297
+        },
+        "Barangay 410": {
+          "district": "Sampaloc",
+          "mean_per_km2": 219.359,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.17,
+          "rank": 149
+        },
+        "Barangay 411": {
+          "district": "Sampaloc",
+          "mean_per_km2": 163.527,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.127,
+          "rank": 289
+        },
+        "Barangay 412": {
+          "district": "Sampaloc",
+          "mean_per_km2": 181.68,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.141,
+          "rank": 238
+        },
+        "Barangay 413": {
+          "district": "Sampaloc",
+          "mean_per_km2": 139.307,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 385
+        },
+        "Barangay 414": {
+          "district": "Sampaloc",
+          "mean_per_km2": 177.687,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.138,
+          "rank": 245
+        },
+        "Barangay 415": {
+          "district": "Sampaloc",
+          "mean_per_km2": 153.22,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.119,
+          "rank": 331
+        },
+        "Barangay 416": {
+          "district": "Sampaloc",
+          "mean_per_km2": 187.1,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.145,
+          "rank": 219
+        },
+        "Barangay 417": {
+          "district": "Sampaloc",
+          "mean_per_km2": 125.261,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.097,
+          "rank": 436
+        },
+        "Barangay 418": {
+          "district": "Sampaloc",
+          "mean_per_km2": 161.777,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.125,
+          "rank": 296
+        },
+        "Barangay 419": {
+          "district": "Sampaloc",
+          "mean_per_km2": 171.295,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.133,
+          "rank": 261
+        },
+        "Barangay 420": {
+          "district": "Sampaloc",
+          "mean_per_km2": 268.208,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.208,
+          "rank": 70
+        },
+        "Barangay 421": {
+          "district": "Sampaloc",
+          "mean_per_km2": 86.026,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 623
+        },
+        "Barangay 422": {
+          "district": "Sampaloc",
+          "mean_per_km2": 92.531,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.072,
+          "rank": 594
+        },
+        "Barangay 423": {
+          "district": "Sampaloc",
+          "mean_per_km2": 140.123,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 380
+        },
+        "Barangay 424": {
+          "district": "Sampaloc",
+          "mean_per_km2": 148.947,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.115,
+          "rank": 345
+        },
+        "Barangay 425": {
+          "district": "Sampaloc",
+          "mean_per_km2": 164.325,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.127,
+          "rank": 284
+        },
+        "Barangay 426": {
+          "district": "Sampaloc",
+          "mean_per_km2": 128.301,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.099,
+          "rank": 423
+        },
+        "Barangay 427": {
+          "district": "Sampaloc",
+          "mean_per_km2": 192.201,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.149,
+          "rank": 211
+        },
+        "Barangay 428": {
+          "district": "Sampaloc",
+          "mean_per_km2": 67.901,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.053,
+          "rank": 722
+        },
+        "Barangay 429": {
+          "district": "Sampaloc",
+          "mean_per_km2": 118.029,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 478
+        },
+        "Barangay 430": {
+          "district": "Sampaloc",
+          "mean_per_km2": 170.541,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.132,
+          "rank": 264
+        },
+        "Barangay 431": {
+          "district": "Sampaloc",
+          "mean_per_km2": 145.61,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.113,
+          "rank": 352
+        },
+        "Barangay 432": {
+          "district": "Sampaloc",
+          "mean_per_km2": 66.155,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.051,
+          "rank": 733
+        },
+        "Barangay 433": {
+          "district": "Sampaloc",
+          "mean_per_km2": 145.417,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.113,
+          "rank": 354
+        },
+        "Barangay 434": {
+          "district": "Sampaloc",
+          "mean_per_km2": 119.6,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 471
+        },
+        "Barangay 435": {
+          "district": "Sampaloc",
+          "mean_per_km2": 142.764,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.111,
+          "rank": 367
+        },
+        "Barangay 436": {
+          "district": "Sampaloc",
+          "mean_per_km2": 111.762,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 515
+        },
+        "Barangay 437": {
+          "district": "Sampaloc",
+          "mean_per_km2": 97.551,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.076,
+          "rank": 568
+        },
+        "Barangay 438": {
+          "district": "Sampaloc",
+          "mean_per_km2": 74.805,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 680
+        },
+        "Barangay 439": {
+          "district": "Sampaloc",
+          "mean_per_km2": 81.07,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 649
+        },
+        "Barangay 440": {
+          "district": "Sampaloc",
+          "mean_per_km2": 76.791,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.059,
+          "rank": 671
+        },
+        "Barangay 441": {
+          "district": "Sampaloc",
+          "mean_per_km2": 95.737,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.074,
+          "rank": 578
+        },
+        "Barangay 442": {
+          "district": "Sampaloc",
+          "mean_per_km2": 79.831,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 655
+        },
+        "Barangay 443": {
+          "district": "Sampaloc",
+          "mean_per_km2": 69.551,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 709
+        },
+        "Barangay 444": {
+          "district": "Sampaloc",
+          "mean_per_km2": 70.652,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.055,
+          "rank": 703
+        },
+        "Barangay 445": {
+          "district": "Sampaloc",
+          "mean_per_km2": 76.395,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.059,
+          "rank": 673
+        },
+        "Barangay 446": {
+          "district": "Sampaloc",
+          "mean_per_km2": 72.346,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.056,
+          "rank": 694
+        },
+        "Barangay 447": {
+          "district": "Sampaloc",
+          "mean_per_km2": 135.486,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.105,
+          "rank": 402
+        },
+        "Barangay 448": {
+          "district": "Sampaloc",
+          "mean_per_km2": 71.28,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.055,
+          "rank": 699
+        },
+        "Barangay 449": {
+          "district": "Sampaloc",
+          "mean_per_km2": 118.312,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.092,
+          "rank": 476
+        },
+        "Barangay 450": {
+          "district": "Sampaloc",
+          "mean_per_km2": 188.314,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.146,
+          "rank": 216
+        },
+        "Barangay 451": {
+          "district": "Sampaloc",
+          "mean_per_km2": 212.241,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.164,
+          "rank": 166
+        },
+        "Barangay 452": {
+          "district": "Sampaloc",
+          "mean_per_km2": 212.907,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.165,
+          "rank": 164
+        },
+        "Barangay 453": {
+          "district": "Sampaloc",
+          "mean_per_km2": 139.213,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 386
+        },
+        "Barangay 454": {
+          "district": "Sampaloc",
+          "mean_per_km2": 174.086,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.135,
+          "rank": 251
+        },
+        "Barangay 455": {
+          "district": "Sampaloc",
+          "mean_per_km2": 129.224,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.1,
+          "rank": 419
+        },
+        "Barangay 456": {
+          "district": "Sampaloc",
+          "mean_per_km2": 186.267,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.144,
+          "rank": 223
+        },
+        "Barangay 457": {
+          "district": "Sampaloc",
+          "mean_per_km2": 163.236,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.126,
+          "rank": 291
+        },
+        "Barangay 458": {
+          "district": "Sampaloc",
+          "mean_per_km2": 173.056,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.134,
+          "rank": 255
+        },
+        "Barangay 459": {
+          "district": "Sampaloc",
+          "mean_per_km2": 164.446,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.127,
+          "rank": 283
+        },
+        "Barangay 460": {
+          "district": "Sampaloc",
+          "mean_per_km2": 194.134,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.15,
+          "rank": 206
+        },
+        "Barangay 461": {
+          "district": "Sampaloc",
+          "mean_per_km2": 203.321,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.157,
+          "rank": 186
+        },
+        "Barangay 462": {
+          "district": "Sampaloc",
+          "mean_per_km2": 279.364,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.216,
+          "rank": 59
+        },
+        "Barangay 463": {
+          "district": "Sampaloc",
+          "mean_per_km2": 274.31,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.212,
+          "rank": 66
+        },
+        "Barangay 464": {
+          "district": "Sampaloc",
+          "mean_per_km2": 311.493,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.241,
+          "rank": 41
+        },
+        "Barangay 465": {
+          "district": "Sampaloc",
+          "mean_per_km2": 169.997,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.132,
+          "rank": 267
+        },
+        "Barangay 466": {
+          "district": "Sampaloc",
+          "mean_per_km2": 228.81,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.177,
+          "rank": 127
+        },
+        "Barangay 467": {
+          "district": "Sampaloc",
+          "mean_per_km2": 224.561,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.174,
+          "rank": 139
+        },
+        "Barangay 468": {
+          "district": "Sampaloc",
+          "mean_per_km2": 255.415,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.198,
+          "rank": 87
+        },
+        "Barangay 469": {
+          "district": "Sampaloc",
+          "mean_per_km2": 296.984,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.23,
+          "rank": 46
+        },
+        "Barangay 470": {
+          "district": "Sampaloc",
+          "mean_per_km2": 87.755,
+          "cells": 28,
+          "area": "boundary",
+          "relative": 0.068,
+          "rank": 614
+        },
+        "Barangay 471": {
+          "district": "Sampaloc",
+          "mean_per_km2": 156.639,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.121,
+          "rank": 322
+        },
+        "Barangay 472": {
+          "district": "Sampaloc",
+          "mean_per_km2": 201.3,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.156,
+          "rank": 193
+        },
+        "Barangay 473": {
+          "district": "Sampaloc",
+          "mean_per_km2": 276.466,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.214,
+          "rank": 63
+        },
+        "Barangay 474": {
+          "district": "Sampaloc",
+          "mean_per_km2": 123.745,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 449
+        },
+        "Barangay 475": {
+          "district": "Sampaloc",
+          "mean_per_km2": 217.883,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.169,
+          "rank": 154
+        },
+        "Barangay 476": {
+          "district": "Sampaloc",
+          "mean_per_km2": 251.272,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.195,
+          "rank": 93
+        },
+        "Barangay 477": {
+          "district": "Sampaloc",
+          "mean_per_km2": 113.681,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.088,
+          "rank": 501
+        },
+        "Barangay 478": {
+          "district": "Sampaloc",
+          "mean_per_km2": 154.756,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.12,
+          "rank": 327
+        },
+        "Barangay 479": {
+          "district": "Sampaloc",
+          "mean_per_km2": 151.711,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.118,
+          "rank": 338
+        },
+        "Barangay 480": {
+          "district": "Sampaloc",
+          "mean_per_km2": 136.011,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.105,
+          "rank": 399
+        },
+        "Barangay 481": {
+          "district": "Sampaloc",
+          "mean_per_km2": 159.794,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 306
+        },
+        "Barangay 482": {
+          "district": "Sampaloc",
+          "mean_per_km2": 216.513,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.168,
+          "rank": 156
+        },
+        "Barangay 483": {
+          "district": "Sampaloc",
+          "mean_per_km2": 138.183,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.107,
+          "rank": 392
+        },
+        "Barangay 484": {
+          "district": "Sampaloc",
+          "mean_per_km2": 153.486,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.119,
+          "rank": 330
+        },
+        "Barangay 485": {
+          "district": "Sampaloc",
+          "mean_per_km2": 101.432,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.079,
+          "rank": 551
+        },
+        "Barangay 486": {
+          "district": "Sampaloc",
+          "mean_per_km2": 206.646,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.16,
+          "rank": 174
+        },
+        "Barangay 487": {
+          "district": "Sampaloc",
+          "mean_per_km2": 82.221,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.064,
+          "rank": 640
+        },
+        "Barangay 488": {
+          "district": "Sampaloc",
+          "mean_per_km2": 129.756,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.101,
+          "rank": 417
+        },
+        "Barangay 489": {
+          "district": "Sampaloc",
+          "mean_per_km2": 164.782,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.128,
+          "rank": 281
+        },
+        "Barangay 490": {
+          "district": "Sampaloc",
+          "mean_per_km2": 232.153,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.18,
+          "rank": 121
+        },
+        "Barangay 491": {
+          "district": "Sampaloc",
+          "mean_per_km2": 236.498,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.183,
+          "rank": 116
+        },
+        "Barangay 492": {
+          "district": "Sampaloc",
+          "mean_per_km2": 133.856,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 409
+        },
+        "Barangay 493": {
+          "district": "Sampaloc",
+          "mean_per_km2": 170.137,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.132,
+          "rank": 265
+        },
+        "Barangay 494": {
+          "district": "Sampaloc",
+          "mean_per_km2": 37.474,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.029,
+          "rank": 855
+        },
+        "Barangay 495": {
+          "district": "Sampaloc",
+          "mean_per_km2": 64.448,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 742
+        },
+        "Barangay 496": {
+          "district": "Sampaloc",
+          "mean_per_km2": 59.042,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.046,
+          "rank": 769
+        },
+        "Barangay 497": {
+          "district": "Sampaloc",
+          "mean_per_km2": 141.175,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 374
+        },
+        "Barangay 498": {
+          "district": "Sampaloc",
+          "mean_per_km2": 106.11,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.082,
+          "rank": 535
+        },
+        "Barangay 499": {
+          "district": "Sampaloc",
+          "mean_per_km2": 97.57,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.076,
+          "rank": 567
+        },
+        "Barangay 500": {
+          "district": "Sampaloc",
+          "mean_per_km2": 108.389,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.084,
+          "rank": 528
+        },
+        "Barangay 501": {
+          "district": "Sampaloc",
+          "mean_per_km2": 132.586,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.103,
+          "rank": 413
+        },
+        "Barangay 502": {
+          "district": "Sampaloc",
+          "mean_per_km2": 248.949,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.193,
+          "rank": 96
+        },
+        "Barangay 503": {
+          "district": "Sampaloc",
+          "mean_per_km2": 226.504,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.175,
+          "rank": 134
+        },
+        "Barangay 504": {
+          "district": "Sampaloc",
+          "mean_per_km2": 105.518,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.082,
+          "rank": 537
+        },
+        "Barangay 505": {
+          "district": "Sampaloc",
+          "mean_per_km2": 172.247,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.133,
+          "rank": 256
+        },
+        "Barangay 506": {
+          "district": "Sampaloc",
+          "mean_per_km2": 94.039,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 585
+        },
+        "Barangay 507": {
+          "district": "Sampaloc",
+          "mean_per_km2": 113.361,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.088,
+          "rank": 502
+        },
+        "Barangay 508": {
+          "district": "Sampaloc",
+          "mean_per_km2": 76.222,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.059,
+          "rank": 674
+        },
+        "Barangay 509": {
+          "district": "Sampaloc",
+          "mean_per_km2": 65.841,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.051,
+          "rank": 734
+        },
+        "Barangay 510": {
+          "district": "Sampaloc",
+          "mean_per_km2": 120.049,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 468
+        },
+        "Barangay 511": {
+          "district": "Sampaloc",
+          "mean_per_km2": 68.211,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.053,
+          "rank": 720
+        },
+        "Barangay 512": {
+          "district": "Sampaloc",
+          "mean_per_km2": 162.14,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.126,
+          "rank": 294
+        },
+        "Barangay 513": {
+          "district": "Sampaloc",
+          "mean_per_km2": 185.958,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.144,
+          "rank": 226
+        },
+        "Barangay 514": {
+          "district": "Sampaloc",
+          "mean_per_km2": 165.003,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.128,
+          "rank": 280
+        },
+        "Barangay 515": {
+          "district": "Sampaloc",
+          "mean_per_km2": 236.92,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.184,
+          "rank": 115
+        },
+        "Barangay 516": {
+          "district": "Sampaloc",
+          "mean_per_km2": 53.079,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.041,
+          "rank": 795
+        },
+        "Barangay 517": {
+          "district": "Sampaloc",
+          "mean_per_km2": 260.465,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.202,
+          "rank": 82
+        },
+        "Barangay 518": {
+          "district": "Sampaloc",
+          "mean_per_km2": 97.96,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.076,
+          "rank": 566
+        },
+        "Barangay 519": {
+          "district": "Sampaloc",
+          "mean_per_km2": 107.669,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.083,
+          "rank": 530
+        },
+        "Barangay 520": {
+          "district": "Sampaloc",
+          "mean_per_km2": 268.327,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.208,
+          "rank": 69
+        },
+        "Barangay 521": {
+          "district": "Sampaloc",
+          "mean_per_km2": 144.325,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 364
+        },
+        "Barangay 522": {
+          "district": "Sampaloc",
+          "mean_per_km2": 171.896,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.133,
+          "rank": 259
+        },
+        "Barangay 523": {
+          "district": "Sampaloc",
+          "mean_per_km2": 235.446,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.182,
+          "rank": 119
+        },
+        "Barangay 524": {
+          "district": "Sampaloc",
+          "mean_per_km2": 226.015,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.175,
+          "rank": 135
+        },
+        "Barangay 525": {
+          "district": "Sampaloc",
+          "mean_per_km2": 108.688,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.084,
+          "rank": 526
+        },
+        "Barangay 526": {
+          "district": "Sampaloc",
+          "mean_per_km2": 185.179,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.143,
+          "rank": 228
+        },
+        "Barangay 527": {
+          "district": "Sampaloc",
+          "mean_per_km2": 169.083,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.131,
+          "rank": 271
+        },
+        "Barangay 528": {
+          "district": "Sampaloc",
+          "mean_per_km2": 203.019,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.157,
+          "rank": 187
+        },
+        "Barangay 529": {
+          "district": "Sampaloc",
+          "mean_per_km2": 112.236,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 509
+        },
+        "Barangay 530": {
+          "district": "Sampaloc",
+          "mean_per_km2": 68.499,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.053,
+          "rank": 717
+        },
+        "Barangay 531": {
+          "district": "Sampaloc",
+          "mean_per_km2": 54.629,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.042,
+          "rank": 787
+        },
+        "Barangay 532": {
+          "district": "Sampaloc",
+          "mean_per_km2": 81.092,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 648
+        },
+        "Barangay 533": {
+          "district": "Sampaloc",
+          "mean_per_km2": 169.266,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.131,
+          "rank": 269
+        },
+        "Barangay 534": {
+          "district": "Sampaloc",
+          "mean_per_km2": 112.388,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 508
+        },
+        "Barangay 535": {
+          "district": "Sampaloc",
+          "mean_per_km2": 64.342,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 744
+        },
+        "Barangay 536": {
+          "district": "Sampaloc",
+          "mean_per_km2": 158.526,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.123,
+          "rank": 311
+        },
+        "Barangay 537": {
+          "district": "Sampaloc",
+          "mean_per_km2": 193.497,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.15,
+          "rank": 208
+        },
+        "Barangay 538": {
+          "district": "Sampaloc",
+          "mean_per_km2": 124.609,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.097,
+          "rank": 438
+        },
+        "Barangay 539": {
+          "district": "Sampaloc",
+          "mean_per_km2": 74.758,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 682
+        },
+        "Barangay 540": {
+          "district": "Sampaloc",
+          "mean_per_km2": 51.16,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 808
+        },
+        "Barangay 541": {
+          "district": "Sampaloc",
+          "mean_per_km2": 36.246,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.028,
+          "rank": 859
+        },
+        "Barangay 542": {
+          "district": "Sampaloc",
+          "mean_per_km2": 46.715,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.036,
+          "rank": 823
+        },
+        "Barangay 543": {
+          "district": "Sampaloc",
+          "mean_per_km2": 69.97,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 705
+        },
+        "Barangay 544": {
+          "district": "Sampaloc",
+          "mean_per_km2": 63.651,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.049,
+          "rank": 750
+        },
+        "Barangay 545": {
+          "district": "Sampaloc",
+          "mean_per_km2": 54.764,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.042,
+          "rank": 786
+        },
+        "Barangay 546": {
+          "district": "Sampaloc",
+          "mean_per_km2": 93.615,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 588
+        },
+        "Barangay 547": {
+          "district": "Sampaloc",
+          "mean_per_km2": 58.319,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.045,
+          "rank": 772
+        },
+        "Barangay 548": {
+          "district": "Sampaloc",
+          "mean_per_km2": 63.933,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 748
+        },
+        "Barangay 549": {
+          "district": "Sampaloc",
+          "mean_per_km2": 81.652,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.063,
+          "rank": 644
+        },
+        "Barangay 550": {
+          "district": "Sampaloc",
+          "mean_per_km2": 50.846,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.039,
+          "rank": 810
+        },
+        "Barangay 551": {
+          "district": "Sampaloc",
+          "mean_per_km2": 73.911,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 686
+        },
+        "Barangay 552": {
+          "district": "Sampaloc",
+          "mean_per_km2": 68.778,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.053,
+          "rank": 716
+        },
+        "Barangay 553": {
+          "district": "Sampaloc",
+          "mean_per_km2": 40.404,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.031,
+          "rank": 848
+        },
+        "Barangay 554": {
+          "district": "Sampaloc",
+          "mean_per_km2": 43.749,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.034,
+          "rank": 838
+        },
+        "Barangay 555": {
+          "district": "Sampaloc",
+          "mean_per_km2": 49.222,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.038,
+          "rank": 817
+        },
+        "Barangay 556": {
+          "district": "Sampaloc",
+          "mean_per_km2": 56.656,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.044,
+          "rank": 779
+        },
+        "Barangay 557": {
+          "district": "Sampaloc",
+          "mean_per_km2": 44.321,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.034,
+          "rank": 836
+        },
+        "Barangay 558": {
+          "district": "Sampaloc",
+          "mean_per_km2": 51.603,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 803
+        },
+        "Barangay 559": {
+          "district": "Sampaloc",
+          "mean_per_km2": 51.819,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.04,
+          "rank": 801
+        },
+        "Barangay 560": {
+          "district": "Sampaloc",
+          "mean_per_km2": 53.517,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.041,
+          "rank": 793
+        },
+        "Barangay 561": {
+          "district": "Sampaloc",
+          "mean_per_km2": 46.317,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.036,
+          "rank": 826
+        },
+        "Barangay 562": {
+          "district": "Sampaloc",
+          "mean_per_km2": 46.637,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.036,
+          "rank": 824
+        },
+        "Barangay 563": {
+          "district": "Sampaloc",
+          "mean_per_km2": 56.818,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.044,
+          "rank": 778
+        },
+        "Barangay 564": {
+          "district": "Sampaloc",
+          "mean_per_km2": 43.395,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.034,
+          "rank": 839
+        },
+        "Barangay 565": {
+          "district": "Sampaloc",
+          "mean_per_km2": 54.877,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.043,
+          "rank": 785
+        },
+        "Barangay 566": {
+          "district": "Sampaloc",
+          "mean_per_km2": 20.557,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.016,
+          "rank": 889
+        },
+        "Barangay 567": {
+          "district": "Sampaloc",
+          "mean_per_km2": 52.844,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.041,
+          "rank": 796
+        },
+        "Barangay 568": {
+          "district": "Sampaloc",
+          "mean_per_km2": 48.297,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.037,
+          "rank": 819
+        },
+        "Barangay 569": {
+          "district": "Sampaloc",
+          "mean_per_km2": 54.975,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.043,
+          "rank": 784
+        },
+        "Barangay 570": {
+          "district": "Sampaloc",
+          "mean_per_km2": 47.824,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.037,
+          "rank": 821
+        },
+        "Barangay 571": {
+          "district": "Sampaloc",
+          "mean_per_km2": 47.817,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.037,
+          "rank": 822
+        },
+        "Barangay 572": {
+          "district": "Sampaloc",
+          "mean_per_km2": 64.254,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 745
+        },
+        "Barangay 573": {
+          "district": "Sampaloc",
+          "mean_per_km2": 82.035,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.064,
+          "rank": 642
+        },
+        "Barangay 574": {
+          "district": "Sampaloc",
+          "mean_per_km2": 52.754,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.041,
+          "rank": 797
+        },
+        "Barangay 575": {
+          "district": "Sampaloc",
+          "mean_per_km2": 67.583,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.052,
+          "rank": 723
+        },
+        "Barangay 576": {
+          "district": "Sampaloc",
+          "mean_per_km2": 53.995,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.042,
+          "rank": 792
+        },
+        "Barangay 577": {
+          "district": "Sampaloc",
+          "mean_per_km2": 80.354,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 652
+        },
+        "Barangay 578": {
+          "district": "Sampaloc",
+          "mean_per_km2": 50.289,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.039,
+          "rank": 813
+        },
+        "Barangay 579": {
+          "district": "Sampaloc",
+          "mean_per_km2": 116.626,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.09,
+          "rank": 488
+        },
+        "Barangay 580": {
+          "district": "Sampaloc",
+          "mean_per_km2": 46.053,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.036,
+          "rank": 828
+        },
+        "Barangay 581": {
+          "district": "Sampaloc",
+          "mean_per_km2": 86.841,
+          "cells": 18,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 618
+        },
+        "Barangay 582": {
+          "district": "Sampaloc",
+          "mean_per_km2": 68.142,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.053,
+          "rank": 721
+        },
+        "Barangay 583": {
+          "district": "Sampaloc",
+          "mean_per_km2": 45.528,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.035,
+          "rank": 830
+        },
+        "Barangay 584": {
+          "district": "Sampaloc",
+          "mean_per_km2": 10.224,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.008,
+          "rank": 897
+        },
+        "Barangay 585": {
+          "district": "Sampaloc",
+          "mean_per_km2": 66.482,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.051,
+          "rank": 730
+        },
+        "Barangay 586": {
+          "district": "Sampaloc",
+          "mean_per_km2": 139.454,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 384
+        },
+        "Barangay 587": {
+          "district": "Sampaloc",
+          "mean_per_km2": 253.707,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.197,
+          "rank": 89
+        },
+        "Barangay 587-A": {
+          "district": "Sampaloc",
+          "mean_per_km2": 261.512,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.203,
+          "rank": 78
+        },
+        "Barangay 588": {
+          "district": "Sampaloc",
+          "mean_per_km2": 165.982,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.129,
+          "rank": 278
+        },
+        "Barangay 589": {
+          "district": "Sampaloc",
+          "mean_per_km2": 140.211,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 379
+        },
+        "Barangay 590": {
+          "district": "Sampaloc",
+          "mean_per_km2": 125.404,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.097,
+          "rank": 434
+        },
+        "Barangay 591": {
+          "district": "Sampaloc",
+          "mean_per_km2": 130.441,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.101,
+          "rank": 416
+        },
+        "Barangay 592": {
+          "district": "Sampaloc",
+          "mean_per_km2": 152.775,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.118,
+          "rank": 334
+        },
+        "Barangay 593": {
+          "district": "Sampaloc",
+          "mean_per_km2": 199.574,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.155,
+          "rank": 196
+        },
+        "Barangay 594": {
+          "district": "Sampaloc",
+          "mean_per_km2": 121.574,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.094,
+          "rank": 460
+        },
+        "Barangay 595": {
+          "district": "Sampaloc",
+          "mean_per_km2": 65.815,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.051,
+          "rank": 735
+        },
+        "Barangay 596": {
+          "district": "Sampaloc",
+          "mean_per_km2": 125.421,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.097,
+          "rank": 433
+        },
+        "Barangay 597": {
+          "district": "Sampaloc",
+          "mean_per_km2": 69.455,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 711
+        },
+        "Barangay 598": {
+          "district": "Sampaloc",
+          "mean_per_km2": 39.156,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.03,
+          "rank": 852
+        },
+        "Barangay 599": {
+          "district": "Sampaloc",
+          "mean_per_km2": 74.023,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 685
+        },
+        "Barangay 600": {
+          "district": "Sampaloc",
+          "mean_per_km2": 41.211,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.032,
+          "rank": 847
+        },
+        "Barangay 601": {
+          "district": "Sampaloc",
+          "mean_per_km2": 12.395,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.01,
+          "rank": 894
+        },
+        "Barangay 602": {
+          "district": "Sampaloc",
+          "mean_per_km2": 26.192,
+          "cells": 13,
+          "area": "boundary",
+          "relative": 0.02,
+          "rank": 877
+        },
+        "Barangay 603": {
+          "district": "Sampaloc",
+          "mean_per_km2": 91.038,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.071,
+          "rank": 602
+        },
+        "Barangay 604": {
+          "district": "Sampaloc",
+          "mean_per_km2": 28.358,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.022,
+          "rank": 872
+        },
+        "Barangay 605": {
+          "district": "Sampaloc",
+          "mean_per_km2": 28.733,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.022,
+          "rank": 871
+        },
+        "Barangay 606": {
+          "district": "Sampaloc",
+          "mean_per_km2": 54.551,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.042,
+          "rank": 789
+        },
+        "Barangay 607": {
+          "district": "Sampaloc",
+          "mean_per_km2": 61.214,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.047,
+          "rank": 758
+        },
+        "Barangay 608": {
+          "district": "Sampaloc",
+          "mean_per_km2": 52.653,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.041,
+          "rank": 799
+        },
+        "Barangay 609": {
+          "district": "Sampaloc",
+          "mean_per_km2": 113.85,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.088,
+          "rank": 499
+        },
+        "Barangay 610": {
+          "district": "Sampaloc",
+          "mean_per_km2": 42.224,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.033,
+          "rank": 842
+        },
+        "Barangay 611": {
+          "district": "Sampaloc",
+          "mean_per_km2": 74.212,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 684
+        },
+        "Barangay 612": {
+          "district": "Sampaloc",
+          "mean_per_km2": 26.109,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.02,
+          "rank": 878
+        },
+        "Barangay 613": {
+          "district": "Sampaloc",
+          "mean_per_km2": 26.303,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.02,
+          "rank": 876
+        },
+        "Barangay 614": {
+          "district": "Sampaloc",
+          "mean_per_km2": 44.162,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.034,
+          "rank": 837
+        },
+        "Barangay 615": {
+          "district": "Sampaloc",
+          "mean_per_km2": 36.822,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.029,
+          "rank": 856
+        },
+        "Barangay 616": {
+          "district": "Sampaloc",
+          "mean_per_km2": 23.181,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.018,
+          "rank": 880
+        },
+        "Barangay 617": {
+          "district": "Sampaloc",
+          "mean_per_km2": 41.226,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.032,
+          "rank": 846
+        },
+        "Barangay 618": {
+          "district": "Sampaloc",
+          "mean_per_km2": 82.724,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.064,
+          "rank": 637
+        },
+        "Barangay 619": {
+          "district": "Sampaloc",
+          "mean_per_km2": 39.597,
+          "cells": 22,
+          "area": "boundary",
+          "relative": 0.031,
+          "rank": 850
+        },
+        "Barangay 620": {
+          "district": "Sampaloc",
+          "mean_per_km2": 145.64,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.113,
+          "rank": 351
+        },
+        "Barangay 621": {
+          "district": "Sampaloc",
+          "mean_per_km2": 86.184,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 621
+        },
+        "Barangay 622": {
+          "district": "Sampaloc",
+          "mean_per_km2": 157.968,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.122,
+          "rank": 314
+        },
+        "Barangay 623": {
+          "district": "Sampaloc",
+          "mean_per_km2": 88.996,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 610
+        },
+        "Barangay 624": {
+          "district": "Sampaloc",
+          "mean_per_km2": 152.947,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.118,
+          "rank": 333
+        },
+        "Barangay 625": {
+          "district": "Sampaloc",
+          "mean_per_km2": 57.282,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.044,
+          "rank": 777
+        },
+        "Barangay 626": {
+          "district": "Sampaloc",
+          "mean_per_km2": 201.848,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.156,
+          "rank": 192
+        },
+        "Barangay 627": {
+          "district": "Sampaloc",
+          "mean_per_km2": 62.691,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.049,
+          "rank": 752
+        },
+        "Barangay 628": {
+          "district": "Sampaloc",
+          "mean_per_km2": 38.412,
+          "cells": 17,
+          "area": "boundary",
+          "relative": 0.03,
+          "rank": 854
+        },
+        "Barangay 629": {
+          "district": "Sampaloc",
+          "mean_per_km2": 100.402,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.078,
+          "rank": 555
+        },
+        "Barangay 630": {
+          "district": "Sampaloc",
+          "mean_per_km2": 51.685,
+          "cells": 26,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 802
+        },
+        "Barangay 631": {
+          "district": "Sampaloc",
+          "mean_per_km2": 143.713,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.111,
+          "rank": 366
+        },
+        "Barangay 632": {
+          "district": "Sampaloc",
+          "mean_per_km2": 115.435,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.089,
+          "rank": 495
+        },
+        "Barangay 633": {
+          "district": "Sampaloc",
+          "mean_per_km2": 84.938,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.066,
+          "rank": 628
+        },
+        "Barangay 634": {
+          "district": "Sampaloc",
+          "mean_per_km2": 205.996,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.16,
+          "rank": 178
+        },
+        "Barangay 635": {
+          "district": "Sampaloc",
+          "mean_per_km2": 202.055,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.157,
+          "rank": 191
+        },
+        "Barangay 636": {
+          "district": "Sampaloc",
+          "mean_per_km2": 220.22,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.171,
+          "rank": 146
+        },
+        "Barangay 637": {
+          "district": "San Miguel",
+          "mean_per_km2": 166.639,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.129,
+          "rank": 277
+        },
+        "Barangay 638": {
+          "district": "San Miguel",
+          "mean_per_km2": 139.038,
+          "cells": 12,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 388
+        },
+        "Barangay 639": {
+          "district": "San Miguel",
+          "mean_per_km2": 35.773,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.028,
+          "rank": 860
+        },
+        "Barangay 640": {
+          "district": "San Miguel",
+          "mean_per_km2": 76.918,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.06,
+          "rank": 669
+        },
+        "Barangay 641": {
+          "district": "San Miguel",
+          "mean_per_km2": 109.729,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.085,
+          "rank": 523
+        },
+        "Barangay 642": {
+          "district": "San Miguel",
+          "mean_per_km2": 31.403,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.024,
+          "rank": 865
+        },
+        "Barangay 643": {
+          "district": "San Miguel",
+          "mean_per_km2": 31.4,
+          "cells": 13,
+          "area": "boundary",
+          "relative": 0.024,
+          "rank": 866
+        },
+        "Barangay 644": {
+          "district": "San Miguel",
+          "mean_per_km2": 22.127,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.017,
+          "rank": 884
+        },
+        "Barangay 645": {
+          "district": "San Miguel",
+          "mean_per_km2": 20.531,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.016,
+          "rank": 890
+        },
+        "Barangay 646": {
+          "district": "San Miguel",
+          "mean_per_km2": 170.607,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.132,
+          "rank": 263
+        },
+        "Barangay 647": {
+          "district": "San Miguel",
+          "mean_per_km2": 137.714,
+          "cells": 13,
+          "area": "boundary",
+          "relative": 0.107,
+          "rank": 393
+        },
+        "Barangay 648": {
+          "district": "San Miguel",
+          "mean_per_km2": 207.457,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.161,
+          "rank": 173
+        },
+        "Barangay 649": {
+          "district": "Port Area",
+          "mean_per_km2": 47.893,
+          "cells": 109,
+          "area": "boundary",
+          "relative": 0.037,
+          "rank": 820
+        },
+        "Barangay 650": {
+          "district": "Port Area",
+          "mean_per_km2": 45.673,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.035,
+          "rank": 829
+        },
+        "Barangay 651": {
+          "district": "Port Area",
+          "mean_per_km2": 27.539,
+          "cells": 20,
+          "area": "boundary",
+          "relative": 0.021,
+          "rank": 874
+        },
+        "Barangay 652": {
+          "district": "Port Area",
+          "mean_per_km2": 24.544,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.019,
+          "rank": 879
+        },
+        "Barangay 653": {
+          "district": "Port Area",
+          "mean_per_km2": 51.364,
+          "cells": 32,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 804
+        },
+        "Barangay 654": {
+          "district": "Intramuros",
+          "mean_per_km2": 99.535,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.077,
+          "rank": 559
+        },
+        "Barangay 655": {
+          "district": "Intramuros",
+          "mean_per_km2": 64.905,
+          "cells": 18,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 741
+        },
+        "Barangay 656": {
+          "district": "Intramuros",
+          "mean_per_km2": 114.312,
+          "cells": 34,
+          "area": "boundary",
+          "relative": 0.089,
+          "rank": 498
+        },
+        "Barangay 657": {
+          "district": "Intramuros",
+          "mean_per_km2": 313.284,
+          "cells": 35,
+          "area": "boundary",
+          "relative": 0.243,
+          "rank": 38
+        },
+        "Barangay 658": {
+          "district": "Intramuros",
+          "mean_per_km2": 347.053,
+          "cells": 24,
+          "area": "boundary",
+          "relative": 0.269,
+          "rank": 30
+        },
+        "Barangay 659": {
+          "district": "Ermita",
+          "mean_per_km2": 1291.061,
+          "cells": 16,
+          "area": "boundary",
+          "relative": 1.0,
+          "rank": 1
+        },
+        "Barangay 659-A": {
+          "district": "Ermita",
+          "mean_per_km2": 900.225,
+          "cells": 33,
+          "area": "boundary",
+          "relative": 0.697,
+          "rank": 2
+        },
+        "Barangay 660": {
+          "district": "Ermita",
+          "mean_per_km2": 283.933,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.22,
+          "rank": 55
+        },
+        "Barangay 660-A": {
+          "district": "Ermita",
+          "mean_per_km2": 223.169,
+          "cells": 12,
+          "area": "boundary",
+          "relative": 0.173,
+          "rank": 142
+        },
+        "Barangay 661": {
+          "district": "Ermita",
+          "mean_per_km2": 35.344,
+          "cells": 12,
+          "area": "boundary",
+          "relative": 0.027,
+          "rank": 861
+        },
+        "Barangay 662": {
+          "district": "Paco",
+          "mean_per_km2": 74.801,
+          "cells": 14,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 681
+        },
+        "Barangay 663": {
+          "district": "Ermita",
+          "mean_per_km2": 175.172,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.136,
+          "rank": 249
+        },
+        "Barangay 663-A": {
+          "district": "Ermita",
+          "mean_per_km2": 73.334,
+          "cells": 10,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 689
+        },
+        "Barangay 664": {
+          "district": "Ermita",
+          "mean_per_km2": 100.338,
+          "cells": 14,
+          "area": "boundary",
+          "relative": 0.078,
+          "rank": 556
+        },
+        "Barangay 664-A": {
+          "district": "Paco",
+          "mean_per_km2": 34.577,
+          "cells": 16,
+          "area": "boundary",
+          "relative": 0.027,
+          "rank": 862
+        },
+        "Barangay 666": {
+          "district": "Ermita",
+          "mean_per_km2": 268.838,
+          "cells": 68,
+          "area": "boundary",
+          "relative": 0.208,
+          "rank": 68
+        },
+        "Barangay 667": {
+          "district": "Ermita",
+          "mean_per_km2": 219.898,
+          "cells": 20,
+          "area": "boundary",
+          "relative": 0.17,
+          "rank": 147
+        },
+        "Barangay 668": {
+          "district": "Ermita",
+          "mean_per_km2": 180.686,
+          "cells": 17,
+          "area": "boundary",
+          "relative": 0.14,
+          "rank": 240
+        },
+        "Barangay 669": {
+          "district": "Ermita",
+          "mean_per_km2": 111.735,
+          "cells": 24,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 516
+        },
+        "Barangay 670": {
+          "district": "Ermita",
+          "mean_per_km2": 147.484,
+          "cells": 14,
+          "area": "boundary",
+          "relative": 0.114,
+          "rank": 348
+        },
+        "Barangay 671": {
+          "district": "Paco",
+          "mean_per_km2": 134.644,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 403
+        },
+        "Barangay 672": {
+          "district": "Paco",
+          "mean_per_km2": 107.561,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.083,
+          "rank": 531
+        },
+        "Barangay 673": {
+          "district": "Paco",
+          "mean_per_km2": 145.406,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.113,
+          "rank": 355
+        },
+        "Barangay 674": {
+          "district": "Paco",
+          "mean_per_km2": 185.159,
+          "cells": 19,
+          "area": "boundary",
+          "relative": 0.143,
+          "rank": 230
+        },
+        "Barangay 675": {
+          "district": "Paco",
+          "mean_per_km2": 209.231,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.162,
+          "rank": 170
+        },
+        "Barangay 676": {
+          "district": "Paco",
+          "mean_per_km2": 205.797,
+          "cells": 14,
+          "area": "boundary",
+          "relative": 0.159,
+          "rank": 179
+        },
+        "Barangay 677": {
+          "district": "Paco",
+          "mean_per_km2": 118.665,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.092,
+          "rank": 474
+        },
+        "Barangay 678": {
+          "district": "Paco",
+          "mean_per_km2": 185.986,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.144,
+          "rank": 225
+        },
+        "Barangay 679": {
+          "district": "Paco",
+          "mean_per_km2": 141.341,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 372
+        },
+        "Barangay 680": {
+          "district": "Paco",
+          "mean_per_km2": 246.274,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.191,
+          "rank": 100
+        },
+        "Barangay 681": {
+          "district": "Paco",
+          "mean_per_km2": 198.655,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.154,
+          "rank": 203
+        },
+        "Barangay 682": {
+          "district": "Paco",
+          "mean_per_km2": 311.785,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.241,
+          "rank": 39
+        },
+        "Barangay 683": {
+          "district": "Paco",
+          "mean_per_km2": 162.872,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.126,
+          "rank": 293
+        },
+        "Barangay 684": {
+          "district": "Paco",
+          "mean_per_km2": 171.077,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.133,
+          "rank": 262
+        },
+        "Barangay 685": {
+          "district": "Paco",
+          "mean_per_km2": 376.956,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.292,
+          "rank": 21
+        },
+        "Barangay 686": {
+          "district": "Paco",
+          "mean_per_km2": 224.841,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.174,
+          "rank": 138
+        },
+        "Barangay 687": {
+          "district": "Paco",
+          "mean_per_km2": 119.407,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.092,
+          "rank": 472
+        },
+        "Barangay 688": {
+          "district": "Malate",
+          "mean_per_km2": 363.696,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.282,
+          "rank": 26
+        },
+        "Barangay 689": {
+          "district": "Malate",
+          "mean_per_km2": 391.552,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.303,
+          "rank": 16
+        },
+        "Barangay 690": {
+          "district": "Malate",
+          "mean_per_km2": 516.779,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.4,
+          "rank": 6
+        },
+        "Barangay 691": {
+          "district": "Malate",
+          "mean_per_km2": 390.588,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.303,
+          "rank": 17
+        },
+        "Barangay 692": {
+          "district": "Malate",
+          "mean_per_km2": 430.554,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.333,
+          "rank": 10
+        },
+        "Barangay 693": {
+          "district": "Malate",
+          "mean_per_km2": 423.709,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.328,
+          "rank": 11
+        },
+        "Barangay 694": {
+          "district": "Malate",
+          "mean_per_km2": 418.711,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.324,
+          "rank": 12
+        },
+        "Barangay 695": {
+          "district": "Malate",
+          "mean_per_km2": 285.359,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.221,
+          "rank": 53
+        },
+        "Barangay 696": {
+          "district": "Malate",
+          "mean_per_km2": 340.036,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.263,
+          "rank": 32
+        },
+        "Barangay 697": {
+          "district": "Malate",
+          "mean_per_km2": 204.967,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.159,
+          "rank": 180
+        },
+        "Barangay 698": {
+          "district": "Malate",
+          "mean_per_km2": 282.204,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.219,
+          "rank": 58
+        },
+        "Barangay 699": {
+          "district": "Malate",
+          "mean_per_km2": 228.025,
+          "cells": 19,
+          "area": "boundary",
+          "relative": 0.177,
+          "rank": 130
+        },
+        "Barangay 700": {
+          "district": "Malate",
+          "mean_per_km2": 343.103,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.266,
+          "rank": 31
+        },
+        "Barangay 701": {
+          "district": "Malate",
+          "mean_per_km2": 375.846,
+          "cells": 18,
+          "area": "boundary",
+          "relative": 0.291,
+          "rank": 23
+        },
+        "Barangay 702": {
+          "district": "Malate",
+          "mean_per_km2": 347.739,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.269,
+          "rank": 29
+        },
+        "Barangay 703": {
+          "district": "Malate",
+          "mean_per_km2": 223.65,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.173,
+          "rank": 141
+        },
+        "Barangay 704": {
+          "district": "Malate",
+          "mean_per_km2": 718.933,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.557,
+          "rank": 3
+        },
+        "Barangay 705": {
+          "district": "Malate",
+          "mean_per_km2": 683.137,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.529,
+          "rank": 5
+        },
+        "Barangay 706": {
+          "district": "Malate",
+          "mean_per_km2": 388.515,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.301,
+          "rank": 18
+        },
+        "Barangay 707": {
+          "district": "Malate",
+          "mean_per_km2": 350.638,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.272,
+          "rank": 28
+        },
+        "Barangay 708": {
+          "district": "Malate",
+          "mean_per_km2": 180.756,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.14,
+          "rank": 239
+        },
+        "Barangay 709": {
+          "district": "Malate",
+          "mean_per_km2": 282.913,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.219,
+          "rank": 57
+        },
+        "Barangay 710": {
+          "district": "Malate",
+          "mean_per_km2": 700.246,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.542,
+          "rank": 4
+        },
+        "Barangay 711": {
+          "district": "Malate",
+          "mean_per_km2": 362.472,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.281,
+          "rank": 27
+        },
+        "Barangay 712": {
+          "district": "Malate",
+          "mean_per_km2": 198.811,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.154,
+          "rank": 202
+        },
+        "Barangay 713": {
+          "district": "Malate",
+          "mean_per_km2": 124.242,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 441
+        },
+        "Barangay 714": {
+          "district": "Malate",
+          "mean_per_km2": 328.446,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.254,
+          "rank": 33
+        },
+        "Barangay 715": {
+          "district": "Malate",
+          "mean_per_km2": 275.987,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.214,
+          "rank": 65
+        },
+        "Barangay 716": {
+          "district": "Malate",
+          "mean_per_km2": 124.242,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.096,
+          "rank": 442
+        },
+        "Barangay 717": {
+          "district": "Malate",
+          "mean_per_km2": 124.242,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.096,
+          "rank": 443
+        },
+        "Barangay 718": {
+          "district": "Malate",
+          "mean_per_km2": 86.894,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 617
+        },
+        "Barangay 719": {
+          "district": "Malate",
+          "mean_per_km2": 138.511,
+          "cells": 49,
+          "area": "boundary",
+          "relative": 0.107,
+          "rank": 391
+        },
+        "Barangay 720": {
+          "district": "Malate",
+          "mean_per_km2": 140.621,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 377
+        },
+        "Barangay 721": {
+          "district": "Malate",
+          "mean_per_km2": 472.978,
+          "cells": 14,
+          "area": "boundary",
+          "relative": 0.366,
+          "rank": 7
+        },
+        "Barangay 722": {
+          "district": "Malate",
+          "mean_per_km2": 228.523,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.177,
+          "rank": 129
+        },
+        "Barangay 723": {
+          "district": "Malate",
+          "mean_per_km2": 411.421,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.319,
+          "rank": 13
+        },
+        "Barangay 724": {
+          "district": "Malate",
+          "mean_per_km2": 104.035,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.081,
+          "rank": 541
+        },
+        "Barangay 725": {
+          "district": "Malate",
+          "mean_per_km2": 237.717,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.184,
+          "rank": 114
+        },
+        "Barangay 726": {
+          "district": "Malate",
+          "mean_per_km2": 124.168,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 444
+        },
+        "Barangay 727": {
+          "district": "Malate",
+          "mean_per_km2": 160.443,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.124,
+          "rank": 301
+        },
+        "Barangay 728": {
+          "district": "Malate",
+          "mean_per_km2": 203.446,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.158,
+          "rank": 185
+        },
+        "Barangay 729": {
+          "district": "Malate",
+          "mean_per_km2": 241.165,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.187,
+          "rank": 110
+        },
+        "Barangay 730": {
+          "district": "Malate",
+          "mean_per_km2": 75.081,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 677
+        },
+        "Barangay 731": {
+          "district": "Malate",
+          "mean_per_km2": 94.698,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.073,
+          "rank": 580
+        },
+        "Barangay 732": {
+          "district": "Malate",
+          "mean_per_km2": 85.488,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.066,
+          "rank": 627
+        },
+        "Barangay 733": {
+          "district": "Malate",
+          "mean_per_km2": 101.994,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.079,
+          "rank": 549
+        },
+        "Barangay 734": {
+          "district": "Malate",
+          "mean_per_km2": 318.526,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.247,
+          "rank": 35
+        },
+        "Barangay 735": {
+          "district": "Malate",
+          "mean_per_km2": 134.168,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.104,
+          "rank": 406
+        },
+        "Barangay 736": {
+          "district": "Malate",
+          "mean_per_km2": 236.168,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.183,
+          "rank": 117
+        },
+        "Barangay 737": {
+          "district": "Malate",
+          "mean_per_km2": 145.195,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 357
+        },
+        "Barangay 738": {
+          "district": "Malate",
+          "mean_per_km2": 229.991,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.178,
+          "rank": 125
+        },
+        "Barangay 739": {
+          "district": "Malate",
+          "mean_per_km2": 155.604,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.121,
+          "rank": 325
+        },
+        "Barangay 740": {
+          "district": "Malate",
+          "mean_per_km2": 131.587,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.102,
+          "rank": 414
+        },
+        "Barangay 741": {
+          "district": "Malate",
+          "mean_per_km2": 127.651,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.099,
+          "rank": 426
+        },
+        "Barangay 742": {
+          "district": "Malate",
+          "mean_per_km2": 376.185,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.291,
+          "rank": 22
+        },
+        "Barangay 743": {
+          "district": "Malate",
+          "mean_per_km2": 228.713,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.177,
+          "rank": 128
+        },
+        "Barangay 744": {
+          "district": "Malate",
+          "mean_per_km2": 79.376,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.061,
+          "rank": 659
+        },
+        "Barangay 745": {
+          "district": "Santa Ana",
+          "mean_per_km2": 103.025,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.08,
+          "rank": 544
+        },
+        "Barangay 746": {
+          "district": "Santa Ana",
+          "mean_per_km2": 122.47,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 458
+        },
+        "Barangay 747": {
+          "district": "Santa Ana",
+          "mean_per_km2": 206.554,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.16,
+          "rank": 175
+        },
+        "Barangay 748": {
+          "district": "Santa Ana",
+          "mean_per_km2": 164.683,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.128,
+          "rank": 282
+        },
+        "Barangay 749": {
+          "district": "Santa Ana",
+          "mean_per_km2": 242.711,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.188,
+          "rank": 108
+        },
+        "Barangay 750": {
+          "district": "Santa Ana",
+          "mean_per_km2": 380.026,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.294,
+          "rank": 19
+        },
+        "Barangay 751": {
+          "district": "Santa Ana",
+          "mean_per_km2": 123.208,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 452
+        },
+        "Barangay 752": {
+          "district": "Santa Ana",
+          "mean_per_km2": 89.628,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 606
+        },
+        "Barangay 753": {
+          "district": "Santa Ana",
+          "mean_per_km2": 68.224,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.053,
+          "rank": 719
+        },
+        "Barangay 754": {
+          "district": "Santa Ana",
+          "mean_per_km2": 75.49,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 676
+        },
+        "Barangay 755": {
+          "district": "Santa Ana",
+          "mean_per_km2": 79.932,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 654
+        },
+        "Barangay 756": {
+          "district": "Santa Ana",
+          "mean_per_km2": 84.784,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.066,
+          "rank": 629
+        },
+        "Barangay 757": {
+          "district": "Santa Ana",
+          "mean_per_km2": 103.398,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.08,
+          "rank": 543
+        },
+        "Barangay 758": {
+          "district": "Santa Ana",
+          "mean_per_km2": 188.408,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.146,
+          "rank": 214
+        },
+        "Barangay 759": {
+          "district": "Santa Ana",
+          "mean_per_km2": 277.714,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.215,
+          "rank": 60
+        },
+        "Barangay 760": {
+          "district": "Santa Ana",
+          "mean_per_km2": 164.124,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.127,
+          "rank": 286
+        },
+        "Barangay 761": {
+          "district": "Santa Ana",
+          "mean_per_km2": 125.102,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.097,
+          "rank": 437
+        },
+        "Barangay 762": {
+          "district": "Santa Ana",
+          "mean_per_km2": 83.91,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.065,
+          "rank": 632
+        },
+        "Barangay 763": {
+          "district": "Santa Ana",
+          "mean_per_km2": 108.635,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.084,
+          "rank": 527
+        },
+        "Barangay 764": {
+          "district": "Santa Ana",
+          "mean_per_km2": 225.737,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.175,
+          "rank": 136
+        },
+        "Barangay 765": {
+          "district": "Santa Ana",
+          "mean_per_km2": 66.289,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.051,
+          "rank": 732
+        },
+        "Barangay 766": {
+          "district": "Santa Ana",
+          "mean_per_km2": 54.142,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.042,
+          "rank": 790
+        },
+        "Barangay 767": {
+          "district": "Santa Ana",
+          "mean_per_km2": 85.692,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.066,
+          "rank": 626
+        },
+        "Barangay 768": {
+          "district": "Santa Ana",
+          "mean_per_km2": 116.208,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.09,
+          "rank": 491
+        },
+        "Barangay 769": {
+          "district": "Santa Ana",
+          "mean_per_km2": 187.044,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.145,
+          "rank": 221
+        },
+        "Barangay 770": {
+          "district": "Santa Ana",
+          "mean_per_km2": 55.615,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.043,
+          "rank": 782
+        },
+        "Barangay 771": {
+          "district": "Santa Ana",
+          "mean_per_km2": 80.35,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.062,
+          "rank": 653
+        },
+        "Barangay 772": {
+          "district": "Santa Ana",
+          "mean_per_km2": 76.419,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.059,
+          "rank": 672
+        },
+        "Barangay 773": {
+          "district": "Santa Ana",
+          "mean_per_km2": 98.103,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.076,
+          "rank": 564
+        },
+        "Barangay 774": {
+          "district": "Santa Ana",
+          "mean_per_km2": 115.918,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.09,
+          "rank": 492
+        },
+        "Barangay 775": {
+          "district": "Santa Ana",
+          "mean_per_km2": 64.916,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 740
+        },
+        "Barangay 776": {
+          "district": "Santa Ana",
+          "mean_per_km2": 193.38,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.15,
+          "rank": 209
+        },
+        "Barangay 777": {
+          "district": "Santa Ana",
+          "mean_per_km2": 121.063,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.094,
+          "rank": 462
+        },
+        "Barangay 778": {
+          "district": "Santa Ana",
+          "mean_per_km2": 60.702,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.047,
+          "rank": 760
+        },
+        "Barangay 779": {
+          "district": "Santa Ana",
+          "mean_per_km2": 148.338,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.115,
+          "rank": 347
+        },
+        "Barangay 780": {
+          "district": "Santa Ana",
+          "mean_per_km2": 186.873,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.145,
+          "rank": 222
+        },
+        "Barangay 781": {
+          "district": "Santa Ana",
+          "mean_per_km2": 141.328,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 373
+        },
+        "Barangay 782": {
+          "district": "Santa Ana",
+          "mean_per_km2": 123.269,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 451
+        },
+        "Barangay 783": {
+          "district": "Santa Ana",
+          "mean_per_km2": 58.547,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.045,
+          "rank": 770
+        },
+        "Barangay 784": {
+          "district": "Santa Ana",
+          "mean_per_km2": 73.192,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.057,
+          "rank": 691
+        },
+        "Barangay 785": {
+          "district": "Santa Ana",
+          "mean_per_km2": 71.807,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.056,
+          "rank": 696
+        },
+        "Barangay 786": {
+          "district": "Santa Ana",
+          "mean_per_km2": 74.99,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 678
+        },
+        "Barangay 787": {
+          "district": "Santa Ana",
+          "mean_per_km2": 70.702,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.055,
+          "rank": 701
+        },
+        "Barangay 788": {
+          "district": "Santa Ana",
+          "mean_per_km2": 66.882,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.052,
+          "rank": 727
+        },
+        "Barangay 789": {
+          "district": "Santa Ana",
+          "mean_per_km2": 83.884,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.065,
+          "rank": 633
+        },
+        "Barangay 790": {
+          "district": "Santa Ana",
+          "mean_per_km2": 110.59,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.086,
+          "rank": 519
+        },
+        "Barangay 791": {
+          "district": "Santa Ana",
+          "mean_per_km2": 142.075,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.11,
+          "rank": 368
+        },
+        "Barangay 792": {
+          "district": "Santa Ana",
+          "mean_per_km2": 150.461,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.117,
+          "rank": 343
+        },
+        "Barangay 793": {
+          "district": "Santa Ana",
+          "mean_per_km2": 214.037,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.166,
+          "rank": 160
+        },
+        "Barangay 794": {
+          "district": "Santa Ana",
+          "mean_per_km2": 70.161,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 704
+        },
+        "Barangay 795": {
+          "district": "Santa Ana",
+          "mean_per_km2": 69.312,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.054,
+          "rank": 712
+        },
+        "Barangay 796": {
+          "district": "Santa Ana",
+          "mean_per_km2": 69.312,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 713
+        },
+        "Barangay 797": {
+          "district": "Santa Ana",
+          "mean_per_km2": 69.312,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.054,
+          "rank": 714
+        },
+        "Barangay 798": {
+          "district": "Santa Ana",
+          "mean_per_km2": 219.845,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.17,
+          "rank": 148
+        },
+        "Barangay 799": {
+          "district": "Santa Ana",
+          "mean_per_km2": 105.578,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.082,
+          "rank": 536
+        },
+        "Barangay 800": {
+          "district": "Santa Ana",
+          "mean_per_km2": 186.145,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.144,
+          "rank": 224
+        },
+        "Barangay 801": {
+          "district": "Santa Ana",
+          "mean_per_km2": 107.558,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.083,
+          "rank": 532
+        },
+        "Barangay 802": {
+          "district": "Santa Ana",
+          "mean_per_km2": 123.515,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 450
+        },
+        "Barangay 803": {
+          "district": "Santa Ana",
+          "mean_per_km2": 241.001,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.187,
+          "rank": 111
+        },
+        "Barangay 804": {
+          "district": "Santa Ana",
+          "mean_per_km2": 96.991,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 570
+        },
+        "Barangay 805": {
+          "district": "Santa Ana",
+          "mean_per_km2": 120.684,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.093,
+          "rank": 464
+        },
+        "Barangay 806": {
+          "district": "Santa Ana",
+          "mean_per_km2": 120.752,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.094,
+          "rank": 463
+        },
+        "Barangay 807": {
+          "district": "Santa Ana",
+          "mean_per_km2": 169.041,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.131,
+          "rank": 272
+        },
+        "Barangay 808": {
+          "district": "Santa Ana",
+          "mean_per_km2": 200.976,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.156,
+          "rank": 194
+        },
+        "Barangay 809": {
+          "district": "Paco",
+          "mean_per_km2": 102.579,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.079,
+          "rank": 548
+        },
+        "Barangay 810": {
+          "district": "Paco",
+          "mean_per_km2": 104.841,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.081,
+          "rank": 538
+        },
+        "Barangay 811": {
+          "district": "Paco",
+          "mean_per_km2": 370.382,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.287,
+          "rank": 24
+        },
+        "Barangay 812": {
+          "district": "Paco",
+          "mean_per_km2": 89.364,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.069,
+          "rank": 607
+        },
+        "Barangay 813": {
+          "district": "Paco",
+          "mean_per_km2": 122.876,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.095,
+          "rank": 454
+        },
+        "Barangay 814": {
+          "district": "Paco",
+          "mean_per_km2": 113.161,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.088,
+          "rank": 503
+        },
+        "Barangay 815": {
+          "district": "Paco",
+          "mean_per_km2": 230.63,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.179,
+          "rank": 124
+        },
+        "Barangay 816": {
+          "district": "Paco",
+          "mean_per_km2": 96.986,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.075,
+          "rank": 571
+        },
+        "Barangay 817": {
+          "district": "Paco",
+          "mean_per_km2": 87.127,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 616
+        },
+        "Barangay 818": {
+          "district": "Paco",
+          "mean_per_km2": 46.07,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.036,
+          "rank": 827
+        },
+        "Barangay 818-A": {
+          "district": "Santa Ana",
+          "mean_per_km2": 42.612,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.033,
+          "rank": 841
+        },
+        "Barangay 819": {
+          "district": "Paco",
+          "mean_per_km2": 87.718,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.068,
+          "rank": 615
+        },
+        "Barangay 820": {
+          "district": "Paco",
+          "mean_per_km2": 90.281,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.07,
+          "rank": 603
+        },
+        "Barangay 821": {
+          "district": "Paco",
+          "mean_per_km2": 162.102,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.126,
+          "rank": 295
+        },
+        "Barangay 822": {
+          "district": "Paco",
+          "mean_per_km2": 152.508,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.118,
+          "rank": 335
+        },
+        "Barangay 823": {
+          "district": "Paco",
+          "mean_per_km2": 151.382,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.117,
+          "rank": 339
+        },
+        "Barangay 824": {
+          "district": "Paco",
+          "mean_per_km2": 222.542,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.172,
+          "rank": 144
+        },
+        "Barangay 825": {
+          "district": "Paco",
+          "mean_per_km2": 299.746,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.232,
+          "rank": 44
+        },
+        "Barangay 826": {
+          "district": "Paco",
+          "mean_per_km2": 86.14,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 622
+        },
+        "Barangay 827": {
+          "district": "Paco",
+          "mean_per_km2": 126.875,
+          "cells": 10,
+          "area": "boundary",
+          "relative": 0.098,
+          "rank": 428
+        },
+        "Barangay 828": {
+          "district": "Paco",
+          "mean_per_km2": 20.946,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.016,
+          "rank": 888
+        },
+        "Barangay 829": {
+          "district": "Paco",
+          "mean_per_km2": 49.715,
+          "cells": 16,
+          "area": "boundary",
+          "relative": 0.039,
+          "rank": 815
+        },
+        "Barangay 830": {
+          "district": "Paco",
+          "mean_per_km2": 78.325,
+          "cells": 43,
+          "area": "boundary",
+          "relative": 0.061,
+          "rank": 662
+        },
+        "Barangay 831": {
+          "district": "Paco",
+          "mean_per_km2": 64.407,
+          "cells": 16,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 743
+        },
+        "Barangay 832": {
+          "district": "Paco",
+          "mean_per_km2": 139.118,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.108,
+          "rank": 387
+        },
+        "Barangay 833": {
+          "district": "Pandacan",
+          "mean_per_km2": 107.517,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.083,
+          "rank": 533
+        },
+        "Barangay 834": {
+          "district": "Pandacan",
+          "mean_per_km2": 21.321,
+          "cells": 28,
+          "area": "boundary",
+          "relative": 0.017,
+          "rank": 887
+        },
+        "Barangay 835": {
+          "district": "Pandacan",
+          "mean_per_km2": 149.213,
+          "cells": 11,
+          "area": "boundary",
+          "relative": 0.116,
+          "rank": 344
+        },
+        "Barangay 836": {
+          "district": "Pandacan",
+          "mean_per_km2": 74.622,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 683
+        },
+        "Barangay 837": {
+          "district": "Pandacan",
+          "mean_per_km2": 21.818,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.017,
+          "rank": 885
+        },
+        "Barangay 838": {
+          "district": "Pandacan",
+          "mean_per_km2": 86.455,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.067,
+          "rank": 620
+        },
+        "Barangay 839": {
+          "district": "Pandacan",
+          "mean_per_km2": 22.668,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.018,
+          "rank": 882
+        },
+        "Barangay 840": {
+          "district": "Pandacan",
+          "mean_per_km2": 102.997,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.08,
+          "rank": 545
+        },
+        "Barangay 841": {
+          "district": "Pandacan",
+          "mean_per_km2": 124.302,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.096,
+          "rank": 440
+        },
+        "Barangay 842": {
+          "district": "Pandacan",
+          "mean_per_km2": 257.173,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.199,
+          "rank": 85
+        },
+        "Barangay 843": {
+          "district": "Pandacan",
+          "mean_per_km2": 54.618,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.042,
+          "rank": 788
+        },
+        "Barangay 844": {
+          "district": "Pandacan",
+          "mean_per_km2": 136.097,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.105,
+          "rank": 398
+        },
+        "Barangay 845": {
+          "district": "Pandacan",
+          "mean_per_km2": 206.105,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.16,
+          "rank": 177
+        },
+        "Barangay 846": {
+          "district": "Pandacan",
+          "mean_per_km2": 156.194,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.121,
+          "rank": 323
+        },
+        "Barangay 847": {
+          "district": "Pandacan",
+          "mean_per_km2": 140.682,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.109,
+          "rank": 375
+        },
+        "Barangay 848": {
+          "district": "Pandacan",
+          "mean_per_km2": 238.565,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.185,
+          "rank": 113
+        },
+        "Barangay 849": {
+          "district": "Pandacan",
+          "mean_per_km2": 189.468,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.147,
+          "rank": 213
+        },
+        "Barangay 850": {
+          "district": "Pandacan",
+          "mean_per_km2": 287.08,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.222,
+          "rank": 51
+        },
+        "Barangay 851": {
+          "district": "Pandacan",
+          "mean_per_km2": 327.164,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.253,
+          "rank": 34
+        },
+        "Barangay 852": {
+          "district": "Pandacan",
+          "mean_per_km2": 262.874,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.204,
+          "rank": 77
+        },
+        "Barangay 853": {
+          "district": "Pandacan",
+          "mean_per_km2": 247.845,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.192,
+          "rank": 98
+        },
+        "Barangay 855": {
+          "district": "Pandacan",
+          "mean_per_km2": 293.001,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.227,
+          "rank": 49
+        },
+        "Barangay 856": {
+          "district": "Pandacan",
+          "mean_per_km2": 202.866,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.157,
+          "rank": 188
+        },
+        "Barangay 857": {
+          "district": "Pandacan",
+          "mean_per_km2": 208.732,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.162,
+          "rank": 172
+        },
+        "Barangay 858": {
+          "district": "Pandacan",
+          "mean_per_km2": 117.669,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 480
+        },
+        "Barangay 859": {
+          "district": "Pandacan",
+          "mean_per_km2": 147.465,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.114,
+          "rank": 349
+        },
+        "Barangay 860": {
+          "district": "Pandacan",
+          "mean_per_km2": 109.559,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.085,
+          "rank": 524
+        },
+        "Barangay 861": {
+          "district": "Pandacan",
+          "mean_per_km2": 148.43,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.115,
+          "rank": 346
+        },
+        "Barangay 862": {
+          "district": "Pandacan",
+          "mean_per_km2": 108.351,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.084,
+          "rank": 529
+        },
+        "Barangay 863": {
+          "district": "Pandacan",
+          "mean_per_km2": 117.959,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.091,
+          "rank": 479
+        },
+        "Barangay 864": {
+          "district": "Pandacan",
+          "mean_per_km2": 132.949,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.103,
+          "rank": 412
+        },
+        "Barangay 865": {
+          "district": "Pandacan",
+          "mean_per_km2": 74.845,
+          "cells": 20,
+          "area": "boundary",
+          "relative": 0.058,
+          "rank": 679
+        },
+        "Barangay 866": {
+          "district": "Santa Ana",
+          "mean_per_km2": 145.311,
+          "cells": 15,
+          "area": "boundary",
+          "relative": 0.113,
+          "rank": 356
+        },
+        "Barangay 867": {
+          "district": "Pandacan",
+          "mean_per_km2": 72.285,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.056,
+          "rank": 695
+        },
+        "Barangay 868": {
+          "district": "Pandacan",
+          "mean_per_km2": 150.961,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.117,
+          "rank": 342
+        },
+        "Barangay 869": {
+          "district": "Pandacan",
+          "mean_per_km2": 121.371,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.094,
+          "rank": 461
+        },
+        "Barangay 870": {
+          "district": "Pandacan",
+          "mean_per_km2": 36.444,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.028,
+          "rank": 857
+        },
+        "Barangay 871": {
+          "district": "Pandacan",
+          "mean_per_km2": 65.143,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.05,
+          "rank": 737
+        },
+        "Barangay 872": {
+          "district": "Pandacan",
+          "mean_per_km2": 157.524,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.122,
+          "rank": 315
+        },
+        "Barangay 873": {
+          "district": "Santa Ana",
+          "mean_per_km2": 59.119,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.046,
+          "rank": 768
+        },
+        "Barangay 874": {
+          "district": "Santa Ana",
+          "mean_per_km2": 112.771,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.087,
+          "rank": 506
+        },
+        "Barangay 875": {
+          "district": "Santa Ana",
+          "mean_per_km2": 67.16,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.052,
+          "rank": 725
+        },
+        "Barangay 876": {
+          "district": "Santa Ana",
+          "mean_per_km2": 103.727,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.08,
+          "rank": 542
+        },
+        "Barangay 877": {
+          "district": "Santa Ana",
+          "mean_per_km2": 136.194,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.105,
+          "rank": 397
+        },
+        "Barangay 878": {
+          "district": "Santa Ana",
+          "mean_per_km2": 144.468,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.112,
+          "rank": 363
+        },
+        "Barangay 879": {
+          "district": "Santa Ana",
+          "mean_per_km2": 60.45,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.047,
+          "rank": 761
+        },
+        "Barangay 880": {
+          "district": "Santa Ana",
+          "mean_per_km2": 116.494,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.09,
+          "rank": 489
+        },
+        "Barangay 881": {
+          "district": "Santa Ana",
+          "mean_per_km2": 62.612,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.048,
+          "rank": 755
+        },
+        "Barangay 882": {
+          "district": "Santa Ana",
+          "mean_per_km2": 27.963,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.022,
+          "rank": 873
+        },
+        "Barangay 883": {
+          "district": "Santa Ana",
+          "mean_per_km2": 11.737,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.009,
+          "rank": 896
+        },
+        "Barangay 884": {
+          "district": "Santa Ana",
+          "mean_per_km2": 22.551,
+          "cells": 8,
+          "area": "boundary",
+          "relative": 0.017,
+          "rank": 883
+        },
+        "Barangay 885": {
+          "district": "Santa Ana",
+          "mean_per_km2": 52.753,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.041,
+          "rank": 798
+        },
+        "Barangay 886": {
+          "district": "Santa Ana",
+          "mean_per_km2": 82.05,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.064,
+          "rank": 641
+        },
+        "Barangay 887": {
+          "district": "Santa Ana",
+          "mean_per_km2": 62.614,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.048,
+          "rank": 754
+        },
+        "Barangay 888": {
+          "district": "Santa Ana",
+          "mean_per_km2": 66.592,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.052,
+          "rank": 729
+        },
+        "Barangay 889": {
+          "district": "Santa Ana",
+          "mean_per_km2": 29.87,
+          "cells": 7,
+          "area": "boundary",
+          "relative": 0.023,
+          "rank": 869
+        },
+        "Barangay 890": {
+          "district": "Santa Ana",
+          "mean_per_km2": 39.19,
+          "cells": 9,
+          "area": "boundary",
+          "relative": 0.03,
+          "rank": 851
+        },
+        "Barangay 891": {
+          "district": "Santa Ana",
+          "mean_per_km2": 63.11,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.049,
+          "rank": 751
+        },
+        "Barangay 892": {
+          "district": "Santa Ana",
+          "mean_per_km2": 65.257,
+          "cells": 4,
+          "area": "boundary",
+          "relative": 0.051,
+          "rank": 736
+        },
+        "Barangay 893": {
+          "district": "Santa Ana",
+          "mean_per_km2": 44.48,
+          "cells": 6,
+          "area": "boundary",
+          "relative": 0.034,
+          "rank": 835
+        },
+        "Barangay 894": {
+          "district": "Santa Ana",
+          "mean_per_km2": 76.209,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.059,
+          "rank": 675
+        },
+        "Barangay 895": {
+          "district": "Santa Ana",
+          "mean_per_km2": 82.257,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.064,
+          "rank": 639
+        },
+        "Barangay 896": {
+          "district": "Santa Ana",
+          "mean_per_km2": 26.656,
+          "cells": 14,
+          "area": "boundary",
+          "relative": 0.021,
+          "rank": 875
+        },
+        "Barangay 897": {
+          "district": "Santa Ana",
+          "mean_per_km2": 30.702,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.024,
+          "rank": 867
+        },
+        "Barangay 898": {
+          "district": "Santa Ana",
+          "mean_per_km2": 51.242,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.04,
+          "rank": 805
+        },
+        "Barangay 899": {
+          "district": "Santa Ana",
+          "mean_per_km2": 50.463,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.039,
+          "rank": 812
+        },
+        "Barangay 900": {
+          "district": "Santa Ana",
+          "mean_per_km2": 21.356,
+          "cells": 5,
+          "area": "boundary",
+          "relative": 0.017,
+          "rank": 886
+        },
+        "Barangay 901": {
+          "district": "Santa Ana",
+          "mean_per_km2": 69.959,
+          "cells": 1,
+          "area": "boundary",
+          "relative": 0.054,
+          "rank": 706
+        },
+        "Barangay 902": {
+          "district": "Santa Ana",
+          "mean_per_km2": 34.174,
+          "cells": 2,
+          "area": "boundary",
+          "relative": 0.026,
+          "rank": 863
+        },
+        "Barangay 903": {
+          "district": "Santa Ana",
+          "mean_per_km2": 36.374,
+          "cells": 3,
+          "area": "boundary",
+          "relative": 0.028,
+          "rank": 858
+        },
+        "Barangay 904": {
+          "district": "Santa Ana",
+          "mean_per_km2": 69.959,
+          "cells": 1,
+          "area": "nearest cell",
+          "relative": 0.054,
+          "rank": 707
+        },
+        "Barangay 905": {
+          "district": "Santa Ana",
+          "mean_per_km2": 67.398,
+          "cells": 17,
+          "area": "boundary",
+          "relative": 0.052,
+          "rank": 724
+        }
+      }
+    }
+  }
+}

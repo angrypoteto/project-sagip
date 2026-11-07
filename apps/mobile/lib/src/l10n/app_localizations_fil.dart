@@ -1859,7 +1859,9 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
-  String get forecastTitle => 'Susunod na 72 oras';
+  String forecastTitle(int hours) {
+    return 'Susunod na $hours oras';
+  }
 
   @override
   String get forecastExplain =>

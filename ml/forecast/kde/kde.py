@@ -292,16 +292,23 @@ def run(incidents, barangays, boundaries=None, out_dir=None):
 
 
 def main():
+    global HAZARDS
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--incidents", default=FORECAST / "data" / "sample_incidents.csv")
-    parser.add_argument("--weather", default=FORECAST / "data" / "sample_weather_daily.csv")
+    parser.add_argument("--incidents", default=FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_incidents.csv")
+    parser.add_argument("--weather", default=FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_weather_daily.csv")
     parser.add_argument("--barangays", default=ROOT / "supabase" / "data" / "manila_barangays.csv")
     parser.add_argument("--boundaries", default=None)
     # 2026-11-02 (the recorded model): where the summary and grids go, so a
     # real-data fit does not overwrite the sample's kde_summary.json.
     parser.add_argument("--summary", default=HERE / "kde_summary.json")
     parser.add_argument("--grid-dir", default=FORECAST / "build")
+    # 2026-11-07: the Heatmap's Medical layer fits MDRRMD's EMR calls as the
+    # hazard "medical" (no forecast; data_prep/prepare_emr.py).
+    parser.add_argument("--hazards", default=",".join(HAZARDS),
+                        help="comma-separated hazards to fit (default flood,fire,storm_surge)")
     args = parser.parse_args()
+    import lstm.prepare_windows as windows
+    HAZARDS = windows.HAZARDS = tuple(h.strip() for h in args.hazards.split(",") if h.strip())
 
     # The same cleaning as the LSTM's data preparation, over the same period.
     days, _ = load_weather(read_csv(args.weather))

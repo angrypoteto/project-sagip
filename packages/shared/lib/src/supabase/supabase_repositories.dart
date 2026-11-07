@@ -1463,9 +1463,28 @@ class SupabaseForecastRepository implements ForecastRepository {
     _client,
     tables: const ['hazard_density'],
     fetch: () async => [
-      for (final r in await _client.from('hazard_density').select())
+      // The forecast's hazards only: the table also holds the Medical
+      // layer (2026-11-07), which is not a forecast hazard.
+      for (final r in await _client.from('hazard_density').select().inFilter(
+        'hazard',
+        ['flood', 'fire', 'stormSurge'],
+      ))
         HazardDensity.fromRow(r),
     ],
+  );
+
+  @override
+  Stream<Map<String, double>> watchMedicalHotspots() => liveQuery(
+    _client,
+    tables: const ['hazard_density'],
+    fetch: () async => {
+      for (final r
+          in await _client
+              .from('hazard_density')
+              .select('barangay, relative')
+              .eq('hazard', 'medical'))
+        r['barangay']! as String: (r['relative']! as num).toDouble(),
+    },
   );
 
   @override

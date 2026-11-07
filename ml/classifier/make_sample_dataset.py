@@ -1,4 +1,4 @@
-"""Writes ml/classifier/data/sample_reports.csv: a SAMPLE set of crowd report
+"""Writes ml/datasets/made_up/classifier/sample_reports.csv: a SAMPLE set of crowd report
 descriptions for the incident type classifier (FR12, plan 10.4).
 
 THIS IS NOT MDRRMD DATA. Every line is made up: phrases written for
@@ -24,7 +24,7 @@ from pathlib import Path
 
 SEED = 20261002
 PER_CLASS = 300
-OUT = Path(__file__).parent / "data" / "sample_reports.csv"
+OUT = Path(__file__).resolve().parents[1] / "datasets" / "made_up" / "classifier" / "sample_reports.csv"
 
 # Places are shared by every class, so a place name never gives the type away.
 # Some hold words that matter elsewhere (tulay, covered court, health center).

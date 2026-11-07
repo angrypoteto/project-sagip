@@ -542,6 +542,10 @@ class MockForecastRepository implements ForecastRepository {
   Stream<List<HazardDensity>> watchDensity() => _backend.watchDensity();
 
   @override
+  Stream<Map<String, double>> watchMedicalHotspots() =>
+      _backend.watchMedicalHotspots();
+
+  @override
   Future<ForecastModelTest?> modelTest() async => _backend.modelTest;
 }
 

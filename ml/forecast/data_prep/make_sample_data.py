@@ -1,7 +1,7 @@
 """Writes SAMPLE inputs for the 72-hour forecast (FR4, plan 10.5):
 
-  ml/forecast/data/sample_weather_daily.csv   one row per day
-  ml/forecast/data/sample_incidents.csv       one row per incident
+  ml/datasets/made_up/forecast/sample_weather_daily.csv   one row per day
+  ml/datasets/made_up/forecast/sample_incidents.csv       one row per incident
 
 THIS IS NOT PAGASA OR MDRRMD DATA. Every number is made up by the rules
 below, so the data preparation and the KDE can be built and tested before
@@ -30,7 +30,8 @@ import numpy as np
 SEED = 20261002
 START = date(2023, 1, 1)
 END = date(2025, 12, 31)
-DATA = Path(__file__).resolve().parents[1] / "data"
+# Archived with its output (2026-11-07): ml/datasets/made_up/forecast.
+DATA = Path(__file__).resolve().parents[2] / "datasets" / "made_up" / "forecast"
 EARTH_RADIUS_M = 6_371_008.8
 
 # (latitude, longitude, spread in metres, share of that hazard's incidents)

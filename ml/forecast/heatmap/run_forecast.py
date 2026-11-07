@@ -146,8 +146,8 @@ select b.name, b.district, timestamptz '{issued_at}', timestamptz '{issued_at}' 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--weather", default=FORECAST / "data" / "sample_weather_daily.csv")
-    parser.add_argument("--incidents", default=FORECAST / "data" / "sample_incidents.csv")
+    parser.add_argument("--weather", default=FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_weather_daily.csv")
+    parser.add_argument("--incidents", default=FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_incidents.csv")
     parser.add_argument("--as-of", default=None, help="the window's last day, YYYY-MM-DD")
     parser.add_argument("--issued-at", default=None, help="ISO time for the run (default: now)")
     args = parser.parse_args()

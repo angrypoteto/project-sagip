@@ -3221,8 +3221,8 @@ abstract class AppLocalizations {
   /// No description provided for @forecastTitle.
   ///
   /// In en, this message translates to:
-  /// **'Next 72 hours'**
-  String get forecastTitle;
+  /// **'Next {hours} hours'**
+  String forecastTitle(int hours);
 
   /// No description provided for @forecastExplain.
   ///

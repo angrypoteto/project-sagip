@@ -2275,6 +2275,51 @@ void main() {
     );
   });
 
+  testWidgets('D8: the Medical layer from MDRRMD records; a 48-hour run '
+      'says so (2026-11-07)', (tester) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    backend.setMedicalHotspots({
+      'Barangay 659': 1.0,
+      'Barangay 412': 0.4,
+      'Barangay 105': 0.02,
+    });
+    await tester.tap(find.byTooltip('Heatmap'));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-medical')));
+    await settle(tester);
+    expect(
+      find.text('Where medical calls and road accidents cluster'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('medical-hotspot-note')), findsOneWidget);
+    final heat = tester.widget<HeatLayer>(find.byType(HeatLayer));
+    expect(heat.weights, {'Barangay 659': 1.0, 'Barangay 412': 0.4});
+
+    // A run made by the 48-hour model says 48 hours.
+    final issued = DateTime.now().subtract(const Duration(hours: 1));
+    backend.setForecast(
+      ForecastRun.latest([
+        BarangayForecast(
+          barangay: 'Barangay 412',
+          district: 'Sampaloc',
+          issuedAt: issued,
+          validUntil: issued.add(const Duration(hours: 48)),
+          risks: const {
+            ForecastHazard.flood: RiskLevel.high,
+            ForecastHazard.fire: RiskLevel.low,
+            ForecastHazard.stormSurge: RiskLevel.low,
+          },
+          modelVersion: 'lstm-kde-v3 live weather',
+        ),
+      ]),
+    );
+    await tester.tap(find.byKey(const ValueKey('heatmap-topic-flood')));
+    await settle(tester);
+    expect(find.text('48-hour forecast'), findsOneWidget);
+    expect(find.text('Flood risk, next 48 hours'), findsOneWidget);
+  });
+
   testWidgets('D8: medical and structural show recorded incidents', (
     tester,
   ) async {

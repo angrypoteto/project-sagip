@@ -63,7 +63,7 @@ Joshua decided on 2026-10-12 that the forecast must be real, by the thesis's met
 |---|---|---|
 | Daily rainfall total, wettest hour, highest wind | `forecast/data/manila_weather_daily.csv` | **Real**, 2021-01-01 to 2026-10-05, from Open-Meteo's archive (ERA5 reanalysis, CC BY 4.0) by `data_prep/fetch_weather.py`. A reanalysis smooths local downpours and shows light rain on many days; PAGASA's own daily records for Port Area would be better if the team can get them |
 | Typhoon signal and storm surge per day | `forecast/data/manila_signals.csv` (`date,typhoon_signal,storm_surge_m`, only the days that had one) | **Missing.** From PAGASA's records: every day from 2021 on when a wind signal was up over Manila (the highest that day) or a storm surge was warned of for Manila Bay (the height in meters). Then run `data_prep/fetch_weather.py ... --signals` |
-| Past incidents | a CSV like `forecast/data/sample_incidents.csv`: `incident_id,date,hazard,latitude,longitude` | **Missing.** From MDRRMD: every flood, fire, and storm surge incident, with its date, its type, and where (coordinates, or the barangay or street so it can be placed). Two years or more, the same years as the weather. No names or phone numbers |
+| Past incidents | a CSV like `datasets/made_up/forecast/sample_incidents.csv`: `incident_id,date,hazard,latitude,longitude` | **Missing.** From MDRRMD: every flood, fire, and storm surge incident, with its date, its type, and where (coordinates, or the barangay or street so it can be placed). Two years or more, the same years as the weather. No names or phone numbers |
 
 Until the last two arrive, `lstm/prepare_windows.py` refuses the real weather file (the two columns are empty), on purpose. With them: `lstm/prepare_windows.py --weather ... --incidents ...`, `kde/kde.py`, `lstm/train_lstm.py`, `heatmap/export_live.py`, then load the model on the hosted project.
 
@@ -145,3 +145,15 @@ cd ml/forecast
 - **LSTM** (`lstm/train_lstm.py`, the thesis parameters): two stacked LSTM layers of 64 and 32 units with dropout 0.2 after each, a sigmoid output, binary cross-entropy weighted by the class weights from the preparation, Adam at 0.001, batch 32, up to 100 epochs, early stopping after 10 epochs without a better validation loss (best weights kept), a fixed seed so a rerun gives the same model. One model per hazard. Writes `lstm/lstm_metrics.json` (epochs, the LSTM's accuracy, precision, recall, F1, RMSE, and confusion matrix on validation and test, next to the three baselines) and `build/lstm_<hazard>.keras` and `.tflite` (git-ignored).
 - **The phone copy:** the TFLite file is made from a copy of the same network with the 14 steps unrolled and one window at a time, so it needs only TFLite's built-in operations (about 195 KB; no TensorFlow "select ops", which would add megabytes to the app). The script checks it against Keras on the test windows (largest difference about 0.0000005). Whether the phone runs it at all is plan Q2.
 - **On the sample data the LSTM does not beat the baselines** (test F1 0.27 for floods against 0.36 for "an incident in the last 3 days"). That is expected from made-up data and from the past-only window described above; it is not a result either way. Rerun on the real records before reading anything into it.
+
+## Datasets (2026-11-07)
+
+- `datasets/mdrrmd/`: MDRRMD's records as given (fire, flood, and EMR records
+  for 2025 and 2026, the barangay boundary shapefile, the survey forms).
+  **Git-ignored and never shared** (the data request letter). Only the
+  trained models and aggregated results (per-barangay densities, metrics)
+  are committed. Model v3 is trained on them (`docs/OBJECTIVE-2-RESULTS.md`
+  section 10).
+- `datasets/made_up/`: the made-up records used before MDRRMD's arrived,
+  kept for checking only and not used for training (see its README).
+

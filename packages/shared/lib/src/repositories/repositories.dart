@@ -234,6 +234,12 @@ abstract interface class ForecastRepository {
   /// incidents). Dispatchers and admins; empty before the first fit.
   Stream<List<HazardDensity>> watchDensity();
 
+  /// Where MDRRMD's medical calls and road accidents clustered (a KDE of
+  /// its EMR records, 2026-11-07): each barangay's share of the busiest,
+  /// 0 to 1. No forecast. Dispatchers and admins; empty before it is
+  /// loaded.
+  Stream<Map<String, double>> watchMedicalHotspots();
+
   /// The active model's measured accuracy on its test part (FR4).
   /// Dispatchers and admins; null for anyone else or before a model with
   /// test figures is loaded.

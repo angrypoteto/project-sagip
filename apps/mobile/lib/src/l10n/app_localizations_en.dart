@@ -1841,7 +1841,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get forecastTitle => 'Next 72 hours';
+  String forecastTitle(int hours) {
+    return 'Next $hours hours';
+  }
 
   @override
   String get forecastExplain =>

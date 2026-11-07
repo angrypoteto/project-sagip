@@ -462,7 +462,7 @@ class _ForecastView extends StatelessWidget {
       ),
       children: [
         card([
-          Text(l10n.forecastTitle, style: text.titleMedium),
+          Text(l10n.forecastTitle(f.horizonHours), style: text.titleMedium),
           Text(
             l10n.place(f.barangay, f.district),
             style: text.bodyMedium!.copyWith(color: p.textSecondary),

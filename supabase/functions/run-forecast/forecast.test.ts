@@ -183,3 +183,26 @@ test("v2: storm surge is not forecast, so it is low everywhere", { skip: !v2 }, 
   const codes = levelCodes(v2!, { flood: 1, fire: 1 });
   assert.ok(Object.values(codes).every((c) => c.length === 3 && c[2] === "l"));
 });
+
+// Model v3 (lstm-kde-v3, 2026-11-07): MDRRMD's own fire and flood records,
+// a 48-hour lead time, flood and fire only.
+const v3File = new URL("../../data/forecast_live_v3.json", import.meta.url);
+const v3 = existsSync(v3File)
+  ? JSON.parse(readFileSync(v3File, "utf8")) as LiveModel & {
+    test_vectors: { hazard: Hazard; window: number[][]; probability: number }[];
+  }
+  : null;
+
+test("v3: the LSTM matches Keras on windows from the test period", { skip: !v3 }, () => {
+  assert.ok(v3!.test_vectors.length >= 4);
+  for (const v of v3!.test_vectors) {
+    const p = probability(v3!.hazards[v.hazard]!, v.window);
+    assert.ok(Math.abs(p - v.probability) < 1e-5, `${v.hazard}: ${p} against Keras ${v.probability}`);
+  }
+});
+
+test("v3: a 48-hour lead time, flood and fire", { skip: !v3 }, () => {
+  assert.equal(v3!.horizon_hours, 48);
+  assert.deepEqual(forecastHazards(v3!), ["flood", "fire"]);
+  assert.equal(v3!.days.length, 0);
+});

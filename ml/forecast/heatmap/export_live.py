@@ -93,9 +93,9 @@ def export_model(model):
 def main():
     import tensorflow as tf
 
-    days, weather = load_weather(read_csv(FORECAST / "data" / "sample_weather_daily.csv"))
+    days, weather = load_weather(read_csv(FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_weather_daily.csv"))
     incidents, _ = clean_incidents(
-        read_csv(FORECAST / "data" / "sample_incidents.csv"), days[0], days[-1]
+        read_csv(FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_incidents.csv"), days[0], days[-1]
     )
     kde = json.loads((FORECAST / "kde" / "kde_summary.json").read_text(encoding="utf-8"))
     floor = min(
@@ -144,13 +144,13 @@ def main():
     print(f"wrote {OUT} ({OUT.stat().st_size // 1024} KB)")
 
 
-def main_recorded(variant):
+def main_recorded(variant, kde_name=None, version="lstm-kde-v2", out_name="forecast_live_v2.json"):
     import tensorflow as tf
 
     build = BUILD / "real" / variant
     prep = json.loads((FORECAST / "data_prep" / f"prep_summary_{variant}.json").read_text(encoding="utf-8"))
     metrics = json.loads((FORECAST / "lstm" / f"lstm_metrics_{variant}.json").read_text(encoding="utf-8"))
-    kde = json.loads((FORECAST / "kde" / f"kde_summary_{variant}.json").read_text(encoding="utf-8"))
+    kde = json.loads((FORECAST / "kde" / (kde_name or f"kde_summary_{variant}.json")).read_text(encoding="utf-8"))
     floor = min([RULE["high"]["density"]] + [m["density"] for m in RULE["moderate"]])
 
     hazards, vectors, tested = {}, [], {}
@@ -186,12 +186,14 @@ def main_recorded(variant):
         }
 
     out = {
-        "version": "lstm-kde-v2",
+        "version": version,
         "data": prep["data"],
         "trained_on": prep["period"],
         "features": list(FEATURES),
         "window": WINDOW,
-        "horizon_hours": 72,
+        # The lead time the windows were labelled with (72 hours in the thesis;
+        # 48 for MDRRMD's records, 2026-11-07).
+        "horizon_hours": int(prep.get("horizon_days", 3)) * 24,
         "rule": RULE,
         # Live only: run-forecast builds the window from today's weather.
         "days": [],
@@ -200,7 +202,7 @@ def main_recorded(variant):
         "test": tested,
         "test_vectors": vectors,
     }
-    out_path = OUT.with_name("forecast_live_v2.json")
+    out_path = OUT.with_name(out_name)
     out_path.write_text(json.dumps(out, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"wrote {out_path} ({out_path.stat().st_size // 1024} KB): {', '.join(hazards)}")
 
@@ -210,8 +212,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--variant", default=None, help="recorded: the live forecast's model (lstm-kde-v2)")
+    parser.add_argument("--kde", default=None, help="the KDE summary in kde/ (default kde_summary_<variant>.json)")
+    parser.add_argument("--version", default="lstm-kde-v2")
+    parser.add_argument("--out-name", default="forecast_live_v2.json")
     args = parser.parse_args()
     if args.variant:
-        main_recorded(args.variant)
+        main_recorded(args.variant, args.kde, args.version, args.out_name)
     else:
         main()

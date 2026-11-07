@@ -78,6 +78,10 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
     final selected = _selected;
     final recordedType = _topic.recordedType;
     final history = ref.watch(yearHistoryProvider);
+    // The Medical layer: MDRRMD's past calls, when loaded (2026-11-07).
+    final hotspots = recordedType == IncidentType.medical
+        ? ref.watch(medicalHotspotsProvider).value ?? const <String, double>{}
+        : const <String, double>{};
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -149,7 +153,9 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                     // The heat map: one smooth field, low in blues, moderate
                     // in purples, high in reds; the barangay lines stay on
                     // top, faint, for finding and clicking one.
-                    if (recordedType != null)
+                    if (hotspots.isNotEmpty)
+                      HeatLayer(weights: hotspotWeights(hotspots))
+                    else if (recordedType != null)
                       HeatLayer(
                         weights: recordedWeights(
                           recordedCounts(
@@ -208,13 +214,16 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
                 Positioned(
                   left: SagipSpace.lg,
                   bottom: SagipSpace.x3,
-                  child: _RecordedLegend(type: recordedType),
+                  child: _RecordedLegend(
+                    type: recordedType,
+                    mdrrmd: hotspots.isNotEmpty,
+                  ),
                 )
               else if (run != null)
                 Positioned(
                   left: SagipSpace.lg,
                   bottom: SagipSpace.x3,
-                  child: _Legend(hazard: _hazard),
+                  child: _Legend(hazard: _hazard, hours: run.horizonHours),
                 ),
               Positioned(
                 right: SagipSpace.lg,
@@ -404,6 +413,13 @@ Map<String, double> recordedWeights(Map<String, int> counts) {
   };
 }
 
+/// The heat map's value for the Medical layer: each barangay's share of
+/// the busiest; the faintest are left out.
+Map<String, double> hotspotWeights(Map<String, double> relative) => {
+  for (final MapEntry(:key, :value) in relative.entries)
+    if (value >= 0.05) key: value.clamp(0.1, 1.0),
+};
+
 /// The topic chips: the forecast's hazards and the recorded types.
 class _TopicPicker extends StatelessWidget {
   const _TopicPicker({required this.topic, required this.onTopic});
@@ -567,9 +583,12 @@ class _RecordedList extends StatelessWidget {
 
 /// The key for a recorded type: fewer to more, and that it is no forecast.
 class _RecordedLegend extends StatelessWidget {
-  const _RecordedLegend({required this.type});
+  const _RecordedLegend({required this.type, this.mdrrmd = false});
 
   final IncidentType type;
+
+  /// The Medical layer from MDRRMD's records rather than SAGIP's own.
+  final bool mdrrmd;
 
   @override
   Widget build(BuildContext context) {
@@ -587,7 +606,9 @@ class _RecordedLegend extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            l10n.recordedLegend(l10n.incidentType(type)),
+            mdrrmd
+                ? l10n.medicalHotspotLegend
+                : l10n.recordedLegend(l10n.incidentType(type)),
             style: text.labelMedium,
           ),
           const SizedBox(height: SagipSpace.sm),
@@ -616,7 +637,11 @@ class _RecordedLegend extends StatelessWidget {
             ],
           ),
           const SizedBox(height: SagipSpace.sm),
-          Text(l10n.recordedLegendNote, style: text.bodySmall),
+          Text(
+            mdrrmd ? l10n.medicalHotspotNote : l10n.recordedLegendNote,
+            key: mdrrmd ? const ValueKey('medical-hotspot-note') : null,
+            style: text.bodySmall,
+          ),
         ],
       ),
     );
@@ -660,7 +685,10 @@ class _RankedList extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text(l10n.forecastTitle, style: text.titleMedium),
+                    child: Text(
+                      l10n.forecastTitle(run.horizonHours),
+                      style: text.titleMedium,
+                    ),
                   ),
                   if (run.isSample)
                     SagipChip(
@@ -958,9 +986,10 @@ class _RiskMarker extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const _Legend({required this.hazard});
+  const _Legend({required this.hazard, required this.hours});
 
   final ForecastHazard hazard;
+  final int hours;
 
   @override
   Widget build(BuildContext context) {
@@ -978,7 +1007,7 @@ class _Legend extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            l10n.forecastLegend(l10n.hazard(hazard)),
+            l10n.forecastLegend(l10n.hazard(hazard), hours),
             style: text.labelMedium,
           ),
           const SizedBox(height: SagipSpace.sm),
@@ -1161,7 +1190,7 @@ class _BarangayPanel extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l10n.forecastWhyChance(percent(chance)),
+                    l10n.forecastWhyChance(percent(chance), run.horizonHours),
                     style: text.bodySmall!.copyWith(color: p.textSecondary),
                   ),
                   Text(

@@ -343,6 +343,14 @@ final forecastModelTestProvider = FutureProvider<ForecastModelTest?>((ref) {
   return ref.watch(forecastRepositoryProvider).modelTest();
 });
 
+/// Where MDRRMD's medical calls clustered (the Heatmap's Medical layer).
+final medicalHotspotsProvider = StreamProvider<Map<String, double>>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(forecastRepositoryProvider).watchMedicalHotspots(),
+  ),
+);
+
 final densityProvider = StreamProvider<List<HazardDensity>>(
   (ref) => _forAccount(
     ref,

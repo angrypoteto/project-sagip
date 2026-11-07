@@ -1,0 +1,497 @@
+{
+  "variant": "mdrrmd",
+  "data": "MDRRMD's own fire and flood records (given 2026-11-04): fires December 2024 to October 2026, floods June 2025 to October 2026, each with its GPS point; rainfall from ERA5 (Open-Meteo) as the live feed reads it; signals from news and storm tracks. Floods are logged in the rainy months only. See docs/OBJECTIVE-2-RESULTS.md",
+  "window_days": 14,
+  "horizon_days": 1,
+  "split": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "features": [
+    "rainfall_total_mm",
+    "rainfall_max_hourly_mm",
+    "typhoon_signal",
+    "max_wind_kph",
+    "storm_surge_m",
+    "prior_day_incidents"
+  ],
+  "period": [
+    "2024-12-01",
+    "2026-10-31"
+  ],
+  "steps": [
+    {
+      "dataset": "weather: GSMaP rainfall",
+      "step": "read",
+      "in": 5413,
+      "retained": 5333,
+      "corrected": 0,
+      "removed": 80,
+      "note": "days asked for 2012-01-01 to 2026-10-26; JAXA has no file for the removed days"
+    },
+    {
+      "dataset": "weather: GSMaP rainfall",
+      "step": "clean",
+      "in": 5333,
+      "retained": 5318,
+      "corrected": 0,
+      "removed": 15,
+      "note": "removed: a cell with no reading (JAXA's no-data value) or a value outside 0 to 1500 mm",
+      "detail": {
+        "no_reading": 15,
+        "out_of_range": 0
+      }
+    },
+    {
+      "dataset": "weather: GSMaP rainfall",
+      "step": "time-align",
+      "in": 5318,
+      "retained": 5318,
+      "corrected": 0,
+      "removed": 0,
+      "note": "GSMaP's day runs 00:00 to 23:59 UTC = 08:00 to 07:59 Manila time (PAGASA's 8 AM rainfall day); kept as the Manila date it starts on (16 of its 24 hours)"
+    },
+    {
+      "dataset": "weather: GSMaP rainfall",
+      "step": "keep the period",
+      "in": 5318,
+      "retained": 669,
+      "corrected": 0,
+      "removed": 4649,
+      "note": "2024-12-01 to 2026-10-31, the days every weather source covers"
+    },
+    {
+      "dataset": "weather: GSMaP rainfall",
+      "step": "not used",
+      "in": 669,
+      "retained": 0,
+      "corrected": 0,
+      "removed": 669,
+      "note": "the recorded variant takes every day's rainfall from ERA5 (Open-Meteo), the source the live forecast reads, so training and live inputs are the same kind of number"
+    },
+    {
+      "dataset": "weather: ERA5 (Open-Meteo)",
+      "step": "read and clean",
+      "in": 5419,
+      "retained": 5419,
+      "corrected": 0,
+      "removed": 0,
+      "note": "already in Manila days (Asia/Manila); wettest hour and highest wind of each day"
+    },
+    {
+      "dataset": "weather: typhoon signals",
+      "step": "read",
+      "in": 39,
+      "retained": 5,
+      "corrected": 0,
+      "removed": 34,
+      "note": "days a PAGASA wind signal was up over Metro Manila, from news reports (incomplete); every other day is written as signal 0; no storm surge height was found for any day"
+    },
+    {
+      "dataset": "weather: typhoon signals",
+      "step": "estimate from storm tracks",
+      "in": 260,
+      "retained": 5,
+      "corrected": 0,
+      "removed": 0,
+      "note": "NOAA IBTrACS tracks give an estimated signal for every day (storm_signal.py; it matches 19 of the 23 news days on the day); each day keeps the higher of the news signal and the estimate. corrected = days given a signal the news did not report, or a higher one",
+      "detail": {
+        "days_added": 0,
+        "days_raised": 0
+      }
+    },
+    {
+      "dataset": "weather: daily features",
+      "step": "merge and correct",
+      "in": 700,
+      "retained": 700,
+      "corrected": 700,
+      "removed": 0,
+      "note": "one row for every day of the period; corrected = a day without GSMaP rainfall filled with ERA5's total, or a wettest hour (ERA5) above the day's total (GSMaP) lowered to that total",
+      "detail": {
+        "filled_from_era5": 700,
+        "wettest_hour_capped": 0
+      }
+    },
+    {
+      "dataset": "incidents: fire (MDRRMD records)",
+      "step": "read",
+      "in": 263,
+      "retained": 263,
+      "corrected": 0,
+      "removed": 0,
+      "note": "every record in MDRRMD's 2025 and 2026 files (x, y are longitude, latitude)"
+    },
+    {
+      "dataset": "incidents: fire (MDRRMD records)",
+      "step": "clean and geocode",
+      "in": 263,
+      "retained": 262,
+      "corrected": 0,
+      "removed": 1,
+      "note": "removed: no readable date or position; a position outside the City of Manila's barangays",
+      "detail": {
+        "unreadable": 0,
+        "outside_manila": 1
+      }
+    },
+    {
+      "dataset": "incidents: fire (MDRRMD records)",
+      "step": "merge",
+      "in": 262,
+      "retained": 258,
+      "corrected": 0,
+      "removed": 4,
+      "note": "records of the same fire on the same day within 300 m are one incident (flood records are monitoring points: one flooded street can be logged several times)"
+    },
+    {
+      "dataset": "incidents: fire (MDRRMD records)",
+      "step": "time-align",
+      "in": 258,
+      "retained": 257,
+      "corrected": 0,
+      "removed": 1,
+      "note": "kept the days MDRRMD logged this hazard: 2024-12-01 to 2026-10-31"
+    },
+    {
+      "dataset": "incidents: flood (MDRRMD records)",
+      "step": "read",
+      "in": 474,
+      "retained": 474,
+      "corrected": 0,
+      "removed": 0,
+      "note": "every record in MDRRMD's 2025 and 2026 files (x, y are longitude, latitude)"
+    },
+    {
+      "dataset": "incidents: flood (MDRRMD records)",
+      "step": "clean and geocode",
+      "in": 474,
+      "retained": 472,
+      "corrected": 0,
+      "removed": 2,
+      "note": "removed: no readable date or position; a position outside the City of Manila's barangays",
+      "detail": {
+        "unreadable": 0,
+        "outside_manila": 2
+      }
+    },
+    {
+      "dataset": "incidents: flood (MDRRMD records)",
+      "step": "merge",
+      "in": 472,
+      "retained": 236,
+      "corrected": 0,
+      "removed": 236,
+      "note": "records of the same flood on the same day within 300 m are one incident (flood records are monitoring points: one flooded street can be logged several times)"
+    },
+    {
+      "dataset": "incidents: flood (MDRRMD records)",
+      "step": "time-align",
+      "in": 236,
+      "retained": 236,
+      "corrected": 0,
+      "removed": 0,
+      "note": "kept the days MDRRMD logged this hazard: 2025-06-01 to 2026-10-31"
+    },
+    {
+      "dataset": "incidents: storm surge",
+      "step": "read",
+      "in": 0,
+      "retained": 0,
+      "corrected": 0,
+      "removed": 0,
+      "note": "no storm surge incident in Manila was found in the news or in DROMIC for these years: the LSTM cannot be trained for it; its map comes from UP NOAH's storm surge zones (noah_barangays.py) instead"
+    }
+  ],
+  "hazards": {
+    "fire": {
+      "periods": [
+        [
+          "2024-12-01",
+          "2026-10-31"
+        ]
+      ],
+      "incident_records": 257,
+      "days_with_an_incident": 195,
+      "windows": 685,
+      "parts": {
+        "train": {
+          "windows": 478,
+          "positives": 126,
+          "positive_rate": 0.2636,
+          "first_window_ends": "2024-12-15",
+          "last_window_ends": "2026-04-06"
+        },
+        "validation": {
+          "windows": 102,
+          "positives": 28,
+          "positive_rate": 0.2745,
+          "first_window_ends": "2026-04-08",
+          "last_window_ends": "2026-07-18"
+        },
+        "test": {
+          "windows": 103,
+          "positives": 41,
+          "positive_rate": 0.3981,
+          "first_window_ends": "2026-07-20",
+          "last_window_ends": "2026-10-30"
+        }
+      },
+      "class_weights": {
+        "0": 0.679,
+        "1": 1.8968
+      },
+      "scaler": {
+        "mean": [
+          5.5356,
+          1.7813,
+          0.0126,
+          13.7301,
+          0.0,
+          0.3522
+        ],
+        "std": [
+          9.0542,
+          2.4869,
+          0.1441,
+          5.2529,
+          1.0,
+          0.6983
+        ]
+      },
+      "baselines": {
+        "validation": {
+          "positives": 28,
+          "windows": 102,
+          "always_majority": {
+            "accuracy": 0.7255,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.5239,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 28,
+              "tn": 74
+            }
+          },
+          "persistence": {
+            "accuracy": 0.598,
+            "precision": 0.2593,
+            "recall": 0.25,
+            "f1": 0.2545,
+            "rmse": 0.634,
+            "confusion": {
+              "tp": 7,
+              "fp": 20,
+              "fn": 21,
+              "tn": 54
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.5686,
+            "precision": 0.3182,
+            "recall": 0.5,
+            "f1": 0.3889,
+            "rmse": 0.5024,
+            "confusion": {
+              "tp": 14,
+              "fp": 30,
+              "fn": 14,
+              "tn": 44
+            }
+          }
+        },
+        "test": {
+          "positives": 41,
+          "windows": 103,
+          "always_majority": {
+            "accuracy": 0.6019,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.6309,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 41,
+              "tn": 62
+            }
+          },
+          "persistence": {
+            "accuracy": 0.5728,
+            "precision": 0.4634,
+            "recall": 0.4634,
+            "f1": 0.4634,
+            "rmse": 0.6536,
+            "confusion": {
+              "tp": 19,
+              "fp": 22,
+              "fn": 22,
+              "tn": 40
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.5825,
+            "precision": 0.4783,
+            "recall": 0.5366,
+            "f1": 0.5057,
+            "rmse": 0.5228,
+            "confusion": {
+              "tp": 22,
+              "fp": 24,
+              "fn": 19,
+              "tn": 38
+            }
+          }
+        }
+      }
+    },
+    "flood": {
+      "periods": [
+        [
+          "2025-06-01",
+          "2026-10-31"
+        ]
+      ],
+      "incident_records": 236,
+      "days_with_an_incident": 38,
+      "windows": 503,
+      "parts": {
+        "train": {
+          "windows": 351,
+          "positives": 17,
+          "positive_rate": 0.0484,
+          "first_window_ends": "2025-06-15",
+          "last_window_ends": "2026-05-31"
+        },
+        "validation": {
+          "windows": 74,
+          "positives": 12,
+          "positive_rate": 0.1622,
+          "first_window_ends": "2026-06-02",
+          "last_window_ends": "2026-08-14"
+        },
+        "test": {
+          "windows": 76,
+          "positives": 7,
+          "positive_rate": 0.0921,
+          "first_window_ends": "2026-08-16",
+          "last_window_ends": "2026-10-30"
+        }
+      },
+      "class_weights": {
+        "0": 0.5254,
+        "1": 10.3235
+      },
+      "scaler": {
+        "mean": [
+          6.2331,
+          1.9158,
+          0.0171,
+          14.0424,
+          0.0,
+          0.3291
+        ],
+        "std": [
+          9.858,
+          2.5459,
+          0.1679,
+          5.6418,
+          1.0,
+          2.1612
+        ]
+      },
+      "baselines": {
+        "validation": {
+          "positives": 12,
+          "windows": 74,
+          "always_majority": {
+            "accuracy": 0.8378,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.4027,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 12,
+              "tn": 62
+            }
+          },
+          "persistence": {
+            "accuracy": 0.7838,
+            "precision": 0.3333,
+            "recall": 0.3333,
+            "f1": 0.3333,
+            "rmse": 0.465,
+            "confusion": {
+              "tp": 4,
+              "fp": 8,
+              "fn": 8,
+              "tn": 54
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.8649,
+            "precision": 0.6,
+            "recall": 0.5,
+            "f1": 0.5455,
+            "rmse": 0.359,
+            "confusion": {
+              "tp": 6,
+              "fp": 4,
+              "fn": 6,
+              "tn": 58
+            }
+          }
+        },
+        "test": {
+          "positives": 7,
+          "windows": 76,
+          "always_majority": {
+            "accuracy": 0.9079,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.3035,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 7,
+              "tn": 69
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8289,
+            "precision": 0.125,
+            "recall": 0.1429,
+            "f1": 0.1333,
+            "rmse": 0.4136,
+            "confusion": {
+              "tp": 1,
+              "fp": 7,
+              "fn": 6,
+              "tn": 62
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.7895,
+            "precision": 0.1538,
+            "recall": 0.2857,
+            "f1": 0.2,
+            "rmse": 0.4052,
+            "confusion": {
+              "tp": 2,
+              "fp": 11,
+              "fn": 5,
+              "tn": 58
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -4524,8 +4524,8 @@ abstract class AppLocalizations {
   /// No description provided for @forecastTitle.
   ///
   /// In en, this message translates to:
-  /// **'72-hour forecast'**
-  String get forecastTitle;
+  /// **'{hours}-hour forecast'**
+  String forecastTitle(int hours);
 
   /// No description provided for @forecastSample.
   ///
@@ -4584,8 +4584,8 @@ abstract class AppLocalizations {
   /// No description provided for @forecastLegend.
   ///
   /// In en, this message translates to:
-  /// **'{hazard} risk, next 72 hours'**
-  String forecastLegend(String hazard);
+  /// **'{hazard} risk, next {hours} hours'**
+  String forecastLegend(String hazard, int hours);
 
   /// No description provided for @forecastLegendNote.
   ///
@@ -7295,8 +7295,8 @@ abstract class AppLocalizations {
   /// No description provided for @forecastWhyChance.
   ///
   /// In en, this message translates to:
-  /// **'{percent}% chance in Manila in the next 72 hours'**
-  String forecastWhyChance(String percent);
+  /// **'{percent}% chance in Manila in the next {hours} hours'**
+  String forecastWhyChance(String percent, int hours);
 
   /// No description provided for @forecastWhyDensity.
   ///
@@ -7453,6 +7453,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recorded incidents, not a forecast. Click a barangay to see its history.'**
   String get recordedLegendNote;
+
+  /// No description provided for @medicalHotspotLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Where medical calls and road accidents cluster'**
+  String get medicalHotspotLegend;
+
+  /// No description provided for @medicalHotspotNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From MDRRMD\'s emergency medical records, January 2024 to November 2026. Past calls, not a forecast.'**
+  String get medicalHotspotNote;
 
   /// No description provided for @forecastNotForecast.
   ///

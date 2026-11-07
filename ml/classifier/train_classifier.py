@@ -4,8 +4,9 @@ TF-IDF over word unigrams and bigrams (the thesis parameters) with
 multinomial logistic regression, four labels: flood, fire, medical,
 structural.
 
-Reads   ml/classifier/data/sample_reports.csv      (made-up sample data)
-        ml/classifier/data/handwritten_check.csv   (written apart from it)
+Reads   ml/datasets/made_up/classifier/sample_reports.csv     (made-up sample data,
+                                                               archived 2026-11-07)
+        ml/datasets/made_up/classifier/handwritten_check.csv  (written apart from it)
 Writes  packages/shared/assets/classifier/incident_classifier_v1.json
         packages/shared/test/fixtures/classifier_reference.json
         ml/classifier/metrics.json
@@ -44,8 +45,9 @@ from sklearn.pipeline import make_pipeline
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent.parent
-SAMPLE = HERE / "data" / "sample_reports.csv"
-HANDWRITTEN = HERE / "data" / "handwritten_check.csv"
+MADE_UP = HERE.parent / "datasets" / "made_up" / "classifier"
+SAMPLE = MADE_UP / "sample_reports.csv"
+HANDWRITTEN = MADE_UP / "handwritten_check.csv"
 MODEL_OUT = ROOT / "packages/shared/assets/classifier/incident_classifier_v1.json"
 REFERENCE_OUT = ROOT / "packages/shared/test/fixtures/classifier_reference.json"
 METRICS_OUT = HERE / "metrics.json"

@@ -24,7 +24,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 BUILD = HERE.parent / "build"
-DB_HAZARD = {"flood": "flood", "fire": "fire", "storm_surge": "stormSurge"}
+DB_HAZARD = {"flood": "flood", "fire": "fire", "storm_surge": "stormSurge", "medical": "medical"}
 
 
 def quote(text):
@@ -33,20 +33,34 @@ def quote(text):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--summary", default=HERE / "kde_summary.json")
+    # 2026-11-07 (model v3): several summaries at once (MDRRMD's fire and
+    # flood, and the Medical layer), a version label, and a JSON copy the
+    # database can fetch (supabase/README.md, "Loading model v3").
+    parser.add_argument("--summary", action="append", default=None)
+    parser.add_argument("--version", default=None)
+    parser.add_argument("--json-out", default=None)
     args = parser.parse_args()
-    summary = json.loads(Path(args.summary).read_text(encoding="utf-8"))
-    sample = str(summary.get("data", "")).startswith("SAMPLE")
-    version = "sample" if sample else ("kde-v2" if "recorded" in Path(args.summary).name else "kde-v1")
-    rows = []
-    for hazard, fit in summary["hazards"].items():
-        for name, b in fit.get("barangays", {}).items():
-            if b["relative"] <= 0:
-                continue
-            rows.append(
-                f"({quote(name)}, {quote(b['district'])}, {quote(DB_HAZARD[hazard])}, "
-                f"{b['relative']}, {quote(version)})"
-            )
+    summaries = args.summary or [HERE / "kde_summary.json"]
+    rows, records = [], []
+    for path in summaries:
+        summary = json.loads(Path(path).read_text(encoding="utf-8"))
+        sample = str(summary.get("data", "")).startswith("SAMPLE")
+        version = args.version or (
+            "sample" if sample else ("kde-v2" if "recorded" in Path(path).name else "kde-v1"))
+        for hazard, fit in summary["hazards"].items():
+            for name, b in fit.get("barangays", {}).items():
+                if b["relative"] <= 0:
+                    continue
+                rows.append(
+                    f"({quote(name)}, {quote(b['district'])}, {quote(DB_HAZARD[hazard])}, "
+                    f"{b['relative']}, {quote(version)})"
+                )
+                records.append({"barangay": name, "district": b["district"], "hazard": DB_HAZARD[hazard],
+                                "relative": b["relative"], "model_version": version})
+    if args.json_out:
+        text = json.dumps(records, separators=(",", ":"))
+        Path(args.json_out).write_text(text + chr(10), encoding="utf-8")
+        print(f"{len(records)} rows -> {args.json_out}")
     BUILD.mkdir(exist_ok=True)
     sql = (
         "begin;\n"

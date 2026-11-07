@@ -2637,7 +2637,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionAlertEnded => 'Ended an alert';
 
   @override
-  String get forecastTitle => '72-hour forecast';
+  String forecastTitle(int hours) {
+    return '$hours-hour forecast';
+  }
 
   @override
   String get forecastSample => 'Sample forecast';
@@ -2676,8 +2678,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String forecastLegend(String hazard) {
-    return '$hazard risk, next 72 hours';
+  String forecastLegend(String hazard, int hours) {
+    return '$hazard risk, next $hours hours';
   }
 
   @override
@@ -4321,8 +4323,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Report what your unit carries. Dispatch sees it on the Units page and knows before sending you if something is short.';
 
   @override
-  String forecastWhyChance(String percent) {
-    return '$percent% chance in Manila in the next 72 hours';
+  String forecastWhyChance(String percent, int hours) {
+    return '$percent% chance in Manila in the next $hours hours';
   }
 
   @override
@@ -4446,6 +4448,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recordedLegendNote =>
       'Recorded incidents, not a forecast. Click a barangay to see its history.';
+
+  @override
+  String get medicalHotspotLegend =>
+      'Where medical calls and road accidents cluster';
+
+  @override
+  String get medicalHotspotNote =>
+      'From MDRRMD\'s emergency medical records, January 2024 to November 2026. Past calls, not a forecast.';
 
   @override
   String get forecastNotForecast => 'Not forecast';

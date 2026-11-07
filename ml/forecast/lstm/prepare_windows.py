@@ -371,8 +371,8 @@ def prepare(weather_rows, incident_rows, out_dir=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--weather", default=FORECAST / "data" / "sample_weather_daily.csv")
-    parser.add_argument("--incidents", default=FORECAST / "data" / "sample_incidents.csv")
+    parser.add_argument("--weather", default=FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_weather_daily.csv")
+    parser.add_argument("--incidents", default=FORECAST.parent / "datasets" / "made_up" / "forecast" / "sample_incidents.csv")
     args = parser.parse_args()
     sample = "sample_" in Path(args.weather).name or "sample_" in Path(args.incidents).name
     summary = prepare(read_csv(args.weather), read_csv(args.incidents), out_dir=FORECAST / "build")

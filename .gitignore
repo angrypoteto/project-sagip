@@ -38,3 +38,7 @@ ml/forecast/data/noah/
 supabase/.temp/
 # Raw downloads (DROMIC reports, NOAA, IBTrACS, HDX); only derived tables are kept
 ml/forecast/data/downloads/
+
+# MDRRMD records (2026-11-07): never in the public repo (data request letter)
+ml/datasets/mdrrmd/
+ml/forecast/data/prepared/mdrrmd/

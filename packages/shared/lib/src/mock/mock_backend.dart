@@ -1902,6 +1902,13 @@ class MockBackend {
 
   Stream<List<HazardDensity>> watchDensity() => _density.watch();
 
+  /// The Medical layer (2026-11-07): none until a test sets some.
+  final _medicalHotspots = LiveValue<Map<String, double>>(const {});
+  Stream<Map<String, double>> watchMedicalHotspots() =>
+      _medicalHotspots.watch();
+  void setMedicalHotspots(Map<String, double> hotspots) =>
+      _medicalHotspots.value = hotspots;
+
   /// Scenario switcher: another KDE fit, or none yet (empty).
   void setDensity(List<HazardDensity> rows) => _density.value = rows;
 

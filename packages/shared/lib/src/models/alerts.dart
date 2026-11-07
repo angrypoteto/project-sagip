@@ -276,6 +276,11 @@ class BarangayForecast {
   final DateTime validUntil;
   final Map<ForecastHazard, RiskLevel> risks;
 
+  /// How far ahead the forecast looks: 72 hours in the thesis, 48 for the
+  /// model trained on MDRRMD's records (2026-11-07). From the row's own
+  /// times, so the screens follow whichever model made it.
+  int get horizonHours => horizonHoursBetween(issuedAt, validUntil);
+
   /// True while the model runs on a simulated live feed (thesis scope).
   final bool isSimulated;
 
@@ -492,6 +497,13 @@ class ForecastModelTest {
   final Map<ForecastHazard, HazardTest> hazards;
 }
 
+/// Whole hours from [issued] to [validUntil]; 72 (the thesis) when the times
+/// say nothing sensible.
+int horizonHoursBetween(DateTime issued, DateTime validUntil) {
+  final hours = (validUntil.difference(issued).inMinutes / 60).round();
+  return hours > 0 && hours <= 240 ? hours : 72;
+}
+
 /// One run of the forecast model: the forecasts issued together, one per
 /// barangay (D8, FR4). The model runs once a day.
 @immutable
@@ -539,6 +551,9 @@ class ForecastRun {
   final DateTime issuedAt;
   final DateTime validUntil;
   final List<BarangayForecast> forecasts;
+
+  /// How far ahead this run looks (see [BarangayForecast.horizonHours]).
+  int get horizonHours => horizonHoursBetween(issuedAt, validUntil);
 
   /// True when any forecast in the run came from a simulated feed.
   final bool isSimulated;

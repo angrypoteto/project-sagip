@@ -520,7 +520,7 @@
   "alertWhatToDo": "Ano ang gagawin",
   "alertGone": "Wala na ang alert na ito.",
   "unreadAlerts": "{n, plural, =1{1 bagong alert} other{{n} bagong alert}}",
-  "forecastTitle": "Susunod na 72 oras",
+  "forecastTitle": "Susunod na {hours} oras",
   "forecastExplain": "Tsansang magkaroon ng kahit isang insidente sa iyong barangay.",
   "forecastValid": "May bisa hanggang {time}",
   "forecastSimulated": "Halimbawang pagtataya. Ginagayang data muna ang gamit ng modelo.",

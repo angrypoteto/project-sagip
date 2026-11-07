@@ -245,6 +245,73 @@ So fire timing in Manila depends on people and power (wiring, cooking, open flam
 - Recommendations for future work: grid alerts and power interruptions (NGCP advisories, Meralco), and holidays, as fire inputs; flood records from MDRRMD or MMDA.
 - The experiments stay in the code, off by default: `--variant recorded_alarm`, `--fire-extras`.
 
+## 10. MDRRMD's own records, 48-hour lead time (2026-11-07)
+
+MDRRMD sent its records (Google Drive, shared 2026-11-04; kept in
+`ml/datasets/mdrrmd/`, never in git, per the data request letter). Joshua
+chose to train **on MDRRMD's records only**, with a **48-hour lead time**
+instead of the thesis's 72 hours to suit the short span (thesis change: plan
+Q54). Model `lstm-kde-v3` (`supabase/data/forecast_live_v3.json`). Same LSTM
+and KDE parameters as the thesis otherwise.
+
+**What MDRRMD gave** (letter items A and D): fire records (263, Dec 2024 to
+Oct 2026, GPS point, barangay, alarm level, type), flood records (474
+monitoring points on 38 days, Jun 2025 to Sep 2026, GPS point, depth),
+emergency medical records (10,780 calls, Jan 2024 to Nov 2026), and the
+official barangay boundary shapefile. Items B (description texts) and C
+(dispatch times) are on MDRRMD's Facebook Page, per MDRRMD; not collected
+yet.
+
+### Preparation (`prepare_real.py --variant mdrrmd --horizon-days 2`)
+
+| Dataset | Step | In | Kept | Removed | What happened |
+|---|---|---:|---:|---:|---|
+| Fire (MDRRMD) | clean and geocode | 263 | 262 | 1 | a point outside the City of Manila's barangays |
+| Fire (MDRRMD) | merge | 262 | 258 | 4 | the same fire twice (same day, within 300 m) |
+| Fire (MDRRMD) | time-align | 258 | 257 | 1 | before December 2024 (logging starts then) |
+| Flood (MDRRMD) | clean and geocode | 474 | 472 | 2 | outside Manila |
+| Flood (MDRRMD) | merge | 472 | 236 | 236 | monitoring points of the same flooded place on the same day |
+| Weather (ERA5) | | 700 days | | | Dec 2024 to Oct 2026; extended to 2026-11-01 (`fetch_weather.py`) |
+
+Fire is covered Dec 2024 to Oct 2026, flood Jun 2025 to Oct 2026 (MDRRMD
+logs floods in the rainy months; a dry-month day with no record is read as
+no flood). One 2026 signal day was added from MDRRMD's flood file (Signal
+No. 3, 9 Aug 2026); no other 2026 Manila signal was found in the news.
+
+### LSTM results on the test part (the last 15%, Aug to Oct 2026)
+
+| Lead | Hazard | Test windows (with an incident) | Accuracy | Balanced | Caught | Never or always warn | Best other baseline (balanced) |
+|---|---|---|---:|---:|---:|---:|---:|
+| 24 h | Flood | 76 (7) | 48.7% | 71.7% | 7 of 7 | 90.8% | 56.3% |
+| 24 h | Fire | 103 (41) | 52.4% | 51.0% | 18 of 41 | 60.2% | 57.5% |
+| **48 h** | **Flood** | 76 (11) | 47.4% | **69.2%** | **11 of 11** | 85.5% | 53.6% |
+| **48 h** | **Fire** | 103 (61) | 56.3% | 52.7% | 44 of 61 | 40.8% | 58.6% |
+| 72 h | Flood | 76 (15) | 51.3% | 69.7% | 15 of 15 | 80.3% | 57.7% |
+| 72 h | Fire | 103 (73) | 59.2% | 48.7% | 54 of 73 | 70.9% | 51.3% |
+
+- **Flood** beats every baseline on balanced accuracy (69.2% at 48 h, against
+  61.7% for v2 on public records) and caught every flood in the test part,
+  at the cost of many false alarms (40 of 65 quiet windows), so plain
+  accuracy is under 50% and the thesis's 80% is not reached. The test part
+  holds only 11 flood windows: the figure is uncertain.
+- **Fire** still has no skill from weather (about 50%), as in section 9.
+- **Lead time** changes little: 24, 48, and 72 hours give about the same
+  balanced accuracy for flood. A shorter lead does not add data; it makes
+  the question shorter.
+- RMSE and the confusion matrix per hazard are in
+  `lstm/lstm_metrics_mdrrmd_h2.json` and shown on D8 (FR4).
+
+### KDE (`kde.py`, MDRRMD's GPS points)
+
+| Layer | Points | Bandwidth (5-fold CV) | Densest barangay |
+|---|---:|---:|---|
+| Flood | 236 | 200 m | Barangay 694 |
+| Fire | 257 | 300 m | Barangay 93 |
+| Medical (no forecast) | 5,979 medical calls and road accidents (`prepare_emr.py`; medical standby and patient transport left out) | 100 m | Barangay 659 |
+
+The Medical layer shows on the Heatmap's Medical view (D8), labelled as past
+MDRRMD calls, not a forecast.
+
 ## How to rerun
 
 ```bash
@@ -286,3 +353,18 @@ for v in recorded recorded_alarm; do
   ../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_${v}_extras.json --build build/real/${v}_extras --out lstm/lstm_metrics_${v}_extras.json
 done
 ```
+
+```bash
+# Section 10: MDRRMD's records (ml/datasets/mdrrmd, not in git), from ml/forecast
+for h in 1 2 3; do ../../.venv/Scripts/python data_prep/prepare_real.py --variant mdrrmd --horizon-days $h; done
+for t in _h1 _h2 ""; do
+  ../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_mdrrmd$t.json --build build/real/mdrrmd$t --out lstm/lstm_metrics_mdrrmd$t.json
+done
+../../.venv/Scripts/python kde/kde.py --incidents data/prepared/mdrrmd/manila_incidents_prepared.csv --weather data/prepared/mdrrmd/manila_weather_prepared.csv --summary kde/kde_summary_mdrrmd.json --grid-dir build/real/mdrrmd_h2 --hazards flood,fire
+../../.venv/Scripts/python data_prep/prepare_emr.py
+../../.venv/Scripts/python kde/kde.py --incidents data/prepared/mdrrmd/manila_medical_prepared.csv --weather build/real/mdrrmd_medical/period.csv --summary kde/kde_summary_mdrrmd_medical.json --grid-dir build/real/mdrrmd_medical --hazards medical
+../../.venv-tf/Scripts/python heatmap/export_live.py --variant mdrrmd_h2 --kde kde_summary_mdrrmd.json --version lstm-kde-v3 --out-name forecast_live_v3.json
+../../.venv/Scripts/python kde/export_density.py --summary kde/kde_summary_mdrrmd.json --summary kde/kde_summary_mdrrmd_medical.json --version kde-v3 --json-out ../../supabase/data/hazard_density_v3.json
+```
+(`build/real/mdrrmd_medical/period.csv` is a date list from 2023-12-31 to 2026-11-03 with zero weather; kde.py only reads its dates.)
+
