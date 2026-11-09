@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#0B1724",
+    "theme_color": "#070E17",
     "description": "S.A.G.I.P., the Manila City MDRRMD emergency response system.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,

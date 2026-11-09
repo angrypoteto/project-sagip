@@ -7,9 +7,9 @@ import 'dart:ui' show Color;
 /// for signal colors, so light and dark mode stay correct.
 abstract final class SagipColors {
   // Neutrals (the canvas).
-  static const bay = Color(0xFF0B1724);
-  static const harbor = Color(0xFF132436);
-  static const harborHigh = Color(0xFF1B3047);
+  static const bay = Color(0xFF070E17);
+  static const harbor = Color(0xFF0D1724);
+  static const harborHigh = Color(0xFF142235);
   static const mist = Color(0xFFEEF2F5);
   static const porcelain = Color(0xFFFFFFFF);
   static const ink = Color(0xFF0F1C2A);

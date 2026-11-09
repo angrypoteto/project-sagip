@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import 'webform/browser/browser.dart' show DraftStore, createDraftStore;
+
 // ---------------------------------------------------------------------------
 // Repositories. Each throws until main.dart overrides it, so screens can only
 // reach data through these interfaces (CLAUDE.md architecture rule).
@@ -731,15 +733,30 @@ final unitsWithNobodyOnDutyProvider = Provider<Set<String>>(
 // UI preferences.
 // ---------------------------------------------------------------------------
 
-/// The command center defaults to dark (design skill).
+/// Settings kept in this browser across reloads (its localStorage; in
+/// tests and private windows a store that lasts until the page closes).
+final uiPrefsStoreProvider = Provider<DraftStore>((ref) => createDraftStore());
+
+/// The command center defaults to dark (design skill). The choice is kept
+/// in this browser, so a reload no longer turns light mode back to dark
+/// (Joshua, 2026-11-10).
 class ThemeModeController extends Notifier<ThemeMode> {
+  static const _key = 'sagip.dashboard.theme';
+
   @override
-  ThemeMode build() => ThemeMode.dark;
+  ThemeMode build() {
+    final saved = ref.read(uiPrefsStoreProvider).read(_key);
+    return ThemeMode.values.where((m) => m.name == saved).firstOrNull ??
+        ThemeMode.dark;
+  }
 
   void toggle() =>
-      state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+      set(state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
 
-  void set(ThemeMode mode) => state = mode;
+  void set(ThemeMode mode) {
+    state = mode;
+    ref.read(uiPrefsStoreProvider).write(_key, mode.name);
+  }
 }
 
 /// Whether an SOS nobody has been sent to yet pings on the map. Widget

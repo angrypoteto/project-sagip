@@ -32,9 +32,9 @@ Neutrals (the canvas):
 
 | Token | Hex | Use |
 |---|---|---|
-| `bay` | `#0B1724` | Dark mode background; deepest layer |
-| `harbor` | `#132436` | Dark mode raised surface (panels, sheets) |
-| `harborHigh` | `#1B3047` | Dark mode highest surface (drawer, hover) |
+| `bay` | `#070E17` | Dark mode background; deepest layer |
+| `harbor` | `#0D1724` | Dark mode raised surface (panels, sheets) |
+| `harborHigh` | `#142235` | Dark mode highest surface (drawer, hover) |
 | `mist` | `#EEF2F5` | Light mode background |
 | `porcelain` | `#FFFFFF` | Light mode surfaces |
 | `ink` | `#0F1C2A` | Primary text on light |
@@ -114,9 +114,9 @@ Sentence case everywhere. No all-caps labels, no colored single words in heading
 // packages/shared/lib/theme/sagip_colors.dart
 abstract final class SagipColors {
   // Neutrals
-  static const bay = Color(0xFF0B1724);
-  static const harbor = Color(0xFF132436);
-  static const harborHigh = Color(0xFF1B3047);
+  static const bay = Color(0xFF070E17);
+  static const harbor = Color(0xFF0D1724);
+  static const harborHigh = Color(0xFF142235);
   static const mist = Color(0xFFEEF2F5);
   static const porcelain = Color(0xFFFFFFFF);
   static const ink = Color(0xFF0F1C2A);

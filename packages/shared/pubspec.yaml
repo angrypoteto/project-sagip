@@ -33,6 +33,8 @@ flutter:
     # Incident type classifier (ml/classifier/train_classifier.py). The v1
     # model is trained on made-up sample descriptions, not MDRRMD records.
     - assets/classifier/incident_classifier_v1.json
+    # Manila MDRRMD's seal, the system's mark (2026-11-10).
+    - assets/brand/mdrrmd_logo.png
   fonts:
     - family: PlusJakartaSans
       fonts:

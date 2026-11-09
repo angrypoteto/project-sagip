@@ -169,7 +169,7 @@ ColorFilter _paint(
 /// Dark: land near `bay`, streets a lighter blue-grey, main roads a warm
 /// grey, water darker than land, names light.
 final _paintDark = _paint(
-  const [13, 25, 38],
+  const [7, 14, 23],
   street: const [0.62, 0.66, 0.72],
   ink: const [0.50, 0.54, 0.60],
   warm: const [0.62, 0.52, 0.34],
@@ -190,7 +190,7 @@ final _paintLight = _paint(
 /// them arriving). Pass it as `MapOptions.backgroundColor`.
 Color mapBackground(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-    ? const Color.fromARGB(255, 13, 25, 38)
+    ? const Color.fromARGB(255, 7, 14, 23)
     : const Color.fromARGB(255, 232, 235, 239);
 
 /// The required OpenStreetMap credit, kept small and quiet. [label] comes

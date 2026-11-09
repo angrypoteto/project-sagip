@@ -1,42 +1,24 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../theme/sagip_colors.dart';
-
-/// The S.A.G.I.P. mark: the red SOS circle with two soft rings, the same
-/// shape as the app icon. Used by the app and the resident web form.
+/// The system's mark: Manila MDRRMD's seal (Joshua, 2026-11-10: "instead of
+/// using our own logo ... use the logo of the mdrrmd"). Replaced the red SOS
+/// circle on the splash, sign-in, dashboard bar, and resident web form; the
+/// app and website icons use the same seal.
 class SagipMark extends StatelessWidget {
   const SagipMark({super.key, this.size = 72});
 
   final double size;
 
   @override
-  Widget build(BuildContext context) {
-    Widget ring(double f, double alpha) => Container(
-      width: size * f,
-      height: size * f,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: SagipColors.signal.withValues(alpha: alpha),
-      ),
-    );
-    return SizedBox.square(
-      dimension: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ring(1, 0.14),
-          ring(0.8, 0.25),
-          ring(0.6, 1),
-          Container(
-            width: size * 0.24,
-            height: size * 0.24,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Image.asset(
+    'assets/brand/mdrrmd_logo.png',
+    package: 'sagip_shared',
+    width: size,
+    height: size,
+    filterQuality: FilterQuality.medium,
+    semanticLabel: 'Manila City DRRM Department',
+    // A blank square of the same size if the image cannot load, so the
+    // layout around it does not jump.
+    errorBuilder: (_, _, _) => SizedBox.square(dimension: size),
+  );
 }
