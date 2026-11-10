@@ -113,17 +113,15 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   @override
   Widget build(BuildContext context) {
     final sentId = _sentId;
+    if (sentId == null) return _form(context);
     return ListView(
       padding: const EdgeInsets.all(SagipSpace.xl),
-      children: [
-        if (sentId != null)
-          _Sent(clientId: sentId, onAnother: _reset)
-        else
-          _form(context),
-      ],
+      children: [_Sent(clientId: sentId, onAnother: _reset)],
     );
   }
 
+  /// The fields scroll; "Send report" stays at the bottom, in reach of the
+  /// thumb (2026-11-11: it sat mid-screen with empty space under it).
   Widget _form(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
@@ -131,94 +129,115 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     final location = ref.watch(locationProvider).value;
     final fix = _picked ?? location?.lastFix;
 
+    final fields = [
+      Text(l10n.reportTitle, style: text.headlineSmall),
+      const SizedBox(height: SagipSpace.sm),
+      Text(
+        l10n.reportExpectation,
+        style: text.bodyMedium!.copyWith(color: p.textSecondary),
+      ),
+      const SizedBox(height: SagipSpace.xl),
+      TextField(
+        // Tapping outside closes the keyboard.
+        onTapOutside: (_) => FocusScope.of(context).unfocus(),
+        controller: _description,
+        minLines: 3,
+        maxLines: 6,
+        maxLength: 500,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: InputDecoration(
+          labelText: l10n.reportDescription,
+          hintText: l10n.reportDescriptionHint,
+          alignLabelWithHint: true,
+          errorText: _error == ReportRejection.emptyDescription
+              ? l10n.reportEmpty
+              : null,
+        ),
+        onChanged: (_) {
+          if (_error == ReportRejection.emptyDescription) {
+            setState(() => _error = null);
+          }
+        },
+      ),
+      const SizedBox(height: SagipSpace.lg),
+      Text(l10n.reportType, style: text.titleSmall),
+      const SizedBox(height: SagipSpace.sm),
+      Wrap(
+        spacing: SagipSpace.sm,
+        runSpacing: SagipSpace.sm,
+        children: [
+          for (final t in IncidentType.values)
+            ChoiceChip(
+              label: Text(l10n.incidentType(t)),
+              selected: _type == t,
+              onSelected: (on) => setState(() => _type = on ? t : null),
+            ),
+        ],
+      ),
+      const SizedBox(height: SagipSpace.lg),
+      _PhotoRow(
+        photo: _photo,
+        missing: _photoMissing,
+        onAdd: _addPhoto,
+        onRemove: () => setState(() => _photo = null),
+      ),
+      const SizedBox(height: SagipSpace.xl),
+      _LocationRow(
+        status: location,
+        picked: _picked,
+        onChange: _change,
+        onUseGps: () => setState(() => _picked = null),
+      ),
+      if (_error != null && _error != ReportRejection.emptyDescription) ...[
+        const SizedBox(height: SagipSpace.lg),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Symbols.error_rounded, color: p.critical.text),
+            const SizedBox(width: SagipSpace.sm),
+            Expanded(
+              child: Text(
+                l10n.reportRejection(_error!),
+                style: text.bodyMedium!.copyWith(color: p.critical.text),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.reportTitle, style: text.headlineSmall),
-        const SizedBox(height: SagipSpace.sm),
-        Text(
-          l10n.reportExpectation,
-          style: text.bodyMedium!.copyWith(color: p.textSecondary),
-        ),
-        const SizedBox(height: SagipSpace.xl),
-        TextField(
-          // Tapping outside closes the keyboard.
-          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-          controller: _description,
-          minLines: 3,
-          maxLines: 6,
-          maxLength: 500,
-          textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(
-            labelText: l10n.reportDescription,
-            hintText: l10n.reportDescriptionHint,
-            alignLabelWithHint: true,
-            errorText: _error == ReportRejection.emptyDescription
-                ? l10n.reportEmpty
-                : null,
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(SagipSpace.xl),
+            children: fields,
           ),
-          onChanged: (_) {
-            if (_error == ReportRejection.emptyDescription) {
-              setState(() => _error = null);
-            }
-          },
         ),
-        const SizedBox(height: SagipSpace.lg),
-        Text(l10n.reportType, style: text.titleSmall),
-        const SizedBox(height: SagipSpace.sm),
-        Wrap(
-          spacing: SagipSpace.sm,
-          runSpacing: SagipSpace.sm,
-          children: [
-            for (final t in IncidentType.values)
-              ChoiceChip(
-                label: Text(l10n.incidentType(t)),
-                selected: _type == t,
-                onSelected: (on) => setState(() => _type = on ? t : null),
-              ),
-          ],
-        ),
-        const SizedBox(height: SagipSpace.lg),
-        _PhotoRow(
-          photo: _photo,
-          missing: _photoMissing,
-          onAdd: _addPhoto,
-          onRemove: () => setState(() => _photo = null),
-        ),
-        const SizedBox(height: SagipSpace.xl),
-        _LocationRow(
-          status: location,
-          picked: _picked,
-          onChange: _change,
-          onUseGps: () => setState(() => _picked = null),
-        ),
-        if (_error != null && _error != ReportRejection.emptyDescription) ...[
-          const SizedBox(height: SagipSpace.lg),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            SagipSpace.xl,
+            SagipSpace.sm,
+            SagipSpace.xl,
+            SagipSpace.md,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Symbols.error_rounded, color: p.critical.text),
-              const SizedBox(width: SagipSpace.sm),
-              Expanded(
-                child: Text(
-                  l10n.reportRejection(_error!),
-                  style: text.bodyMedium!.copyWith(color: p.critical.text),
-                ),
+              FilledButton.icon(
+                onPressed: _saving || fix == null ? null : _send,
+                icon: const Icon(Symbols.send_rounded),
+                label: Text(_saving ? l10n.reportSaving : l10n.reportSend),
+              ),
+              const SizedBox(height: SagipSpace.sm),
+              Text(
+                l10n.reportSosHint,
+                textAlign: TextAlign.center,
+                style: text.bodySmall!.copyWith(color: p.textSecondary),
               ),
             ],
           ),
-        ],
-        const SizedBox(height: SagipSpace.xl),
-        FilledButton.icon(
-          onPressed: _saving || fix == null ? null : _send,
-          icon: const Icon(Symbols.send_rounded),
-          label: Text(_saving ? l10n.reportSaving : l10n.reportSend),
-        ),
-        const SizedBox(height: SagipSpace.lg),
-        Text(
-          l10n.reportSosHint,
-          textAlign: TextAlign.center,
-          style: text.bodySmall!.copyWith(color: p.textSecondary),
         ),
       ],
     );

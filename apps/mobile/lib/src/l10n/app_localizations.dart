@@ -4031,7 +4031,7 @@ abstract class AppLocalizations {
   /// No description provided for @photoAddRequired.
   ///
   /// In en, this message translates to:
-  /// **'Add a photo'**
+  /// **'Add a photo (required)'**
   String get photoAddRequired;
 
   /// No description provided for @reportPhotoNeeded.

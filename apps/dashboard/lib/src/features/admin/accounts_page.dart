@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/row_menu.dart';
 import '../../common/actions.dart';
 import '../../common/async_body.dart';
 import '../../common/labels.dart';
@@ -183,57 +184,65 @@ class _StaffActions extends ConsumerWidget {
           onPressed: online ? () => _editAccount(context, ref, s) : null,
           icon: const Icon(Symbols.edit_rounded),
         ),
-        IconButton(
-          key: ValueKey('reset-${s.id}'),
-          tooltip: l10n.resetPassword,
-          onPressed: online
-              ? () async {
-                  final ok = await _confirm(
-                    context,
-                    l10n.resetTitle(s.displayName),
-                    l10n.resetBody,
-                    l10n.resetPassword,
-                  );
-                  if (!ok || !context.mounted) return;
-                  String? pw;
-                  final done = await runAction(context, () async {
-                    pw = await repo.resetPassword(s.id);
-                  });
-                  if (done && pw != null && context.mounted) {
-                    await _showTemporaryPassword(context, s.displayName, pw!);
-                  }
-                }
-              : null,
-          icon: const Icon(Symbols.key_rounded),
-        ),
-        IconButton(
-          key: ValueKey('active-${s.id}'),
-          tooltip: s.active ? l10n.deactivate : l10n.reactivate,
-          onPressed: !online
-              ? null
-              : () async {
-                  if (s.active) {
-                    final ok = await _confirm(
-                      context,
-                      l10n.deactivateTitle(s.displayName),
-                      l10n.deactivateBody,
-                      l10n.deactivate,
-                    );
-                    if (!ok || !context.mounted) return;
-                  }
-                  await runAction(
-                    context,
-                    () => repo.setStaffActive(s.id, active: !s.active),
-                    success: s.active
-                        ? l10n.accountDeactivatedSnack(s.displayName)
-                        : l10n.accountReactivatedSnack(s.displayName),
-                  );
-                },
-          icon: Icon(
-            s.active
-                ? Symbols.person_off_rounded
-                : Symbols.person_check_rounded,
-          ),
+        // Named, in a menu, away from Edit (2026-11-11).
+        RowMenu(
+          key: ValueKey('more-${s.id}'),
+          actions: [
+            RowAction(
+              key: ValueKey('reset-${s.id}'),
+              icon: Symbols.key_rounded,
+              label: l10n.resetPassword,
+              onSelected: !online
+                  ? null
+                  : () async {
+                      final ok = await _confirm(
+                        context,
+                        l10n.resetTitle(s.displayName),
+                        l10n.resetBody,
+                        l10n.resetPassword,
+                      );
+                      if (!ok || !context.mounted) return;
+                      String? pw;
+                      final done = await runAction(context, () async {
+                        pw = await repo.resetPassword(s.id);
+                      });
+                      if (done && pw != null && context.mounted) {
+                        await _showTemporaryPassword(
+                          context,
+                          s.displayName,
+                          pw!,
+                        );
+                      }
+                    },
+            ),
+            RowAction(
+              key: ValueKey('active-${s.id}'),
+              icon: s.active
+                  ? Symbols.person_off_rounded
+                  : Symbols.person_check_rounded,
+              label: s.active ? l10n.deactivate : l10n.reactivate,
+              onSelected: !online
+                  ? null
+                  : () async {
+                      if (s.active) {
+                        final ok = await _confirm(
+                          context,
+                          l10n.deactivateTitle(s.displayName),
+                          l10n.deactivateBody,
+                          l10n.deactivate,
+                        );
+                        if (!ok || !context.mounted) return;
+                      }
+                      await runAction(
+                        context,
+                        () => repo.setStaffActive(s.id, active: !s.active),
+                        success: s.active
+                            ? l10n.accountDeactivatedSnack(s.displayName)
+                            : l10n.accountReactivatedSnack(s.displayName),
+                      );
+                    },
+            ),
+          ],
         ),
       ],
     );

@@ -84,6 +84,11 @@ class _NavItem {
   final String Function(AppLocalizations) label;
 }
 
+/// How many of [_mainItems] are for working an emergency (the board, the
+/// crowd reports, the units); the rest are for looking things up. The
+/// menu shows the two as groups (2026-11-11).
+const _operationsCount = 3;
+
 final _mainItems = [
   _NavItem(
     Routes.board,
@@ -95,8 +100,8 @@ final _mainItems = [
     Symbols.groups_rounded,
     (l) => l.navCrowdReports,
   ),
-  _NavItem(Routes.history, Symbols.event_note_rounded, (l) => l.navHistory),
   _NavItem(Routes.units, Symbols.ambulance_rounded, (l) => l.navUnits),
+  _NavItem(Routes.history, Symbols.event_note_rounded, (l) => l.navHistory),
   _NavItem(Routes.forecast, Symbols.radar_rounded, (l) => l.navHeatmap),
   _NavItem(
     Routes.vulnerable,
@@ -164,6 +169,33 @@ class _NavFrame extends ConsumerStatefulWidget {
 }
 
 class _NavFrameState extends ConsumerState<_NavFrame> {
+  /// The row of the page that is open, kept in view: on a short screen
+  /// the lower pages are below the fold (2026-11-11).
+  final _current = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _showCurrent();
+  }
+
+  @override
+  void didUpdateWidget(_NavFrame old) {
+    super.didUpdateWidget(old);
+    if (old.location != widget.location) _showCurrent();
+  }
+
+  void _showCurrent() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    final row = _current.currentContext;
+    if (!mounted || row == null) return;
+    Scrollable.ensureVisible(
+      row,
+      alignment: 0.5,
+      duration: SagipMotion.fast,
+      alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+    );
+  });
+
   @override
   Widget build(BuildContext context) {
     final p = SagipPalette.of(context);
@@ -237,29 +269,73 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
     );
   }
 
-  Widget _items(SagipPalette p, bool open) => SingleChildScrollView(
-    // More room around the rows (Joshua, 2026-11-10: "it feels so tight").
-    padding: const EdgeInsets.only(bottom: SagipSpace.lg),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final item in widget.isResponder ? _responderItems : _mainItems)
-          _RailRow.item(item, widget.location, open, context),
-        // Admin items are hidden, not disabled, for dispatchers.
-        if (widget.isAdmin) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: SagipSpace.xl,
-              vertical: SagipSpace.md,
-            ),
-            child: Divider(color: p.hairline),
-          ),
-          for (final item in _adminItems)
-            _RailRow.item(item, widget.location, open, context),
+  Widget _items(SagipPalette p, bool open) {
+    final l10n = AppLocalizations.of(context);
+    Widget row(_NavItem item) {
+      final r = _RailRow.item(item, widget.location, open, context);
+      return widget.location.startsWith(item.route)
+          ? KeyedSubtree(key: _current, child: r)
+          : r;
+    }
+
+    return SingleChildScrollView(
+      // More room around the rows (Joshua, 2026-11-10: "it feels so tight").
+      padding: const EdgeInsets.only(bottom: SagipSpace.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.isResponder)
+            for (final item in _responderItems) row(item)
+          else ...[
+            for (final item in _mainItems.take(_operationsCount)) row(item),
+            _GroupHead(label: l10n.navGroupInfo, open: open),
+            for (final item in _mainItems.skip(_operationsCount)) row(item),
+            // Admin items are hidden, not disabled, for dispatchers.
+            if (widget.isAdmin) ...[
+              _GroupHead(label: l10n.navGroupAdmin, open: open),
+              for (final item in _adminItems) row(item),
+            ],
+          ],
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
+}
+
+/// Between two groups of the menu: the group's name while the menu is
+/// open, a hairline while it is a rail. The same height either way, so
+/// the rows do not move when the menu opens.
+class _GroupHead extends StatelessWidget {
+  const _GroupHead({required this.label, required this.open});
+
+  final String label;
+  final bool open;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = SagipPalette.of(context);
+    return SizedBox(
+      height: 36,
+      child: open
+          ? Padding(
+              padding: const EdgeInsets.only(left: 22, top: SagipSpace.sm),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall!
+                      .copyWith(color: p.textSecondary),
+                ),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: SagipSpace.xl),
+              child: Center(child: Divider(height: 1, color: p.hairline)),
+            ),
+    );
+  }
 }
 
 /// The head of the side menu, a little taller than the top bar: the mark,

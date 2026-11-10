@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -13,8 +14,18 @@ class PhoneNotice extends StatefulWidget {
 
   final Widget child;
 
-  /// Narrower than this on its short side: a phone.
+  /// Narrower than this: a phone.
   static const phoneWidth = 600.0;
+
+  /// A phone is a narrow screen, or a phone's browser turned sideways.
+  /// A short window on a computer is not one: a 1080p laptop at 150%
+  /// scaling leaves the page about 500 high (found 2026-11-11).
+  static bool isPhone(Size size) {
+    final touch =
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    return size.width < phoneWidth || (touch && size.shortestSide < phoneWidth);
+  }
 
   @override
   State<PhoneNotice> createState() => _PhoneNoticeState();
@@ -25,8 +36,7 @@ class _PhoneNoticeState extends State<PhoneNotice> {
 
   @override
   Widget build(BuildContext context) {
-    final phone =
-        MediaQuery.sizeOf(context).shortestSide < PhoneNotice.phoneWidth;
+    final phone = PhoneNotice.isPhone(MediaQuery.sizeOf(context));
     if (!phone || _continued) return widget.child;
     return _Notice(onContinue: () => setState(() => _continued = true));
   }

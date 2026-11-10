@@ -70,6 +70,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     final isMock = ref.watch(mockBackendProvider) != null;
     String? required(String? v) =>
         (v == null || v.trim().isEmpty) ? l10n.fieldRequired : null;
+    // A laptop at 150% scaling leaves about 500 px of height: tighter
+    // there, so the whole card shows without scrolling (2026-11-11).
+    final short = MediaQuery.sizeOf(context).height < 640;
+    final gap = short ? SagipSpace.lg : SagipSpace.xxl;
 
     return Scaffold(
       body: Stack(
@@ -77,12 +81,14 @@ class _SignInPageState extends ConsumerState<SignInPage> {
           const Positioned.fill(child: _ManilaBackdrop()),
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(SagipSpace.xxl),
+              padding: EdgeInsets.all(short ? SagipSpace.md : SagipSpace.xxl),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
                 child: Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(SagipSpace.x3),
+                    padding: EdgeInsets.all(
+                      short ? SagipSpace.xl : SagipSpace.x3,
+                    ),
                     child: Form(
                       key: _form,
                       child: AutofillGroup(
@@ -94,7 +100,11 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             // It eases in, and pulses with a ring while signing
                             // in (Joshua, 2026-11-10).
                             Center(
-                              child: SealEntrance(key: _sealKey, busy: _busy),
+                              child: SealEntrance(
+                                key: _sealKey,
+                                busy: _busy,
+                                size: short ? 48 : 72,
+                              ),
                             ),
                             const SizedBox(height: SagipSpace.md),
                             Text(
@@ -112,7 +122,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: SagipSpace.xxl),
+                            SizedBox(height: gap),
                             // Centered under the seal (Joshua, 2026-11-10).
                             Text(
                               l10n.signInTitle,
@@ -127,9 +137,11 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: SagipSpace.xxl),
+                            SizedBox(height: gap),
                             TextFormField(
                               controller: _email,
+                              // Ready to type on open (2026-11-11).
+                              autofocus: true,
                               decoration: InputDecoration(
                                 labelText: l10n.emailLabel,
                               ),
@@ -172,7 +184,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                                 ),
                               ),
                             ],
-                            const SizedBox(height: SagipSpace.xxl),
+                            SizedBox(height: gap),
                             FilledButton(
                               onPressed: _busy ? null : _submit,
                               child: Text(

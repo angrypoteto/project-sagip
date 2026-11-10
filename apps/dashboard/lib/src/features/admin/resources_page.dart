@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/row_menu.dart';
 import '../../common/actions.dart';
 import '../../common/async_body.dart';
 import '../../common/labels.dart';
@@ -156,17 +157,22 @@ class _UnitsTable extends ConsumerWidget {
                               icon: const Icon(Symbols.undo_rounded),
                             )
                           else
-                            IconButton(
-                              key: ValueKey('retire-${u.id}'),
-                              // Disabled buttons show no tooltip, so the
-                              // reason goes in the one shown when enabled.
-                              tooltip: u.isDispatchable
-                                  ? l10n.retire
-                                  : l10n.retireBusy,
-                              onPressed: online && u.isDispatchable
-                                  ? () => _retire(context, ref, u)
-                                  : null,
-                              icon: const Icon(Symbols.inventory_2_rounded),
+                            // Named, in a menu, away from Edit
+                            // (2026-11-11); greyed out with the reason
+                            // while the unit is on a job.
+                            RowMenu(
+                              key: ValueKey('more-${u.id}'),
+                              actions: [
+                                RowAction(
+                                  key: ValueKey('retire-${u.id}'),
+                                  icon: Symbols.inventory_2_rounded,
+                                  label: l10n.retire,
+                                  note: l10n.retireBusy,
+                                  onSelected: online && u.isDispatchable
+                                      ? () => _retire(context, ref, u)
+                                      : null,
+                                ),
+                              ],
                             ),
                         ],
                       ),

@@ -202,16 +202,17 @@ class MePage extends ConsumerWidget {
           title: Text(l10n.privacyNotice),
           onTap: () => showPrivacyNotice(context),
         ),
-        if (resident)
+        // Set apart from the privacy notice, and not in red (2026-11-11):
+        // red is for emergencies, and the dialog asks before sending.
+        if (resident) ...[
+          Divider(height: SagipSpace.xl, color: p.hairline),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Icon(Symbols.delete_rounded, color: p.critical.text),
-            title: Text(
-              l10n.requestDeletion,
-              style: TextStyle(color: p.critical.text),
-            ),
+            leading: const Icon(Symbols.delete_rounded),
+            title: Text(l10n.requestDeletion),
             onTap: () => _requestDeletion(context, ref),
           ),
+        ],
         if (backend != null) ...[
           const SizedBox(height: SagipSpace.x3),
           _DemoTools(backend: backend),

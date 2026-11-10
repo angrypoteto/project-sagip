@@ -48,6 +48,12 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
   final _layers = {_Layer.units, _Layer.reports, _Layer.boundaries};
   bool _ready = false;
 
+  /// The layers card and the legend open from a button (2026-11-11: open
+  /// all the time, they covered a quarter of the map on a laptop). The
+  /// wall map keeps both open: nobody stands there to click.
+  late bool _showLayers = widget.wall;
+  late bool _showLegend = widget.wall;
+
   /// The markers on their way between two reported positions, by unit.
   final _glides = <String, UnitGlide>{};
 
@@ -309,19 +315,41 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
         Positioned(
           right: SagipSpace.lg,
           top: SagipSpace.lg,
-          child: _LayersCard(
-            layers: _layers,
-            onToggle: (layer) => setState(() {
-              _layers.contains(layer)
-                  ? _layers.remove(layer)
-                  : _layers.add(layer);
-            }),
-          ),
+          child: _showLayers
+              ? _LayersCard(
+                  layers: _layers,
+                  onToggle: (layer) => setState(() {
+                    _layers.contains(layer)
+                        ? _layers.remove(layer)
+                        : _layers.add(layer);
+                  }),
+                  onClose: widget.wall
+                      ? null
+                      : () => setState(() => _showLayers = false),
+                )
+              : _MapButton(
+                  key: const ValueKey('layers-open'),
+                  icon: Symbols.layers_rounded,
+                  label: l10n.layersTitle,
+                  onPressed: () => setState(() => _showLayers = true),
+                ),
         ),
         Positioned(
           left: SagipSpace.lg,
           bottom: SagipSpace.x3,
-          child: _Legend(safePlaces: _layers.contains(_Layer.safePlaces)),
+          child: _showLegend
+              ? _Legend(
+                  safePlaces: _layers.contains(_Layer.safePlaces),
+                  onClose: widget.wall
+                      ? null
+                      : () => setState(() => _showLegend = false),
+                )
+              : _MapButton(
+                  key: const ValueKey('legend-open'),
+                  icon: Symbols.info_rounded,
+                  label: l10n.legendTitle,
+                  onPressed: () => setState(() => _showLegend = true),
+                ),
         ),
         Positioned(
           right: SagipSpace.lg,
@@ -350,11 +378,77 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
   }
 }
 
+/// A floating button with a label, which opens a card over the map.
+class _MapButton extends StatelessWidget {
+  const _MapButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = SagipPalette.of(context);
+    return Container(
+      decoration: floatingCard(p),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(SagipRadius.card),
+          onTap: onPressed,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SagipSpace.md,
+              vertical: SagipSpace.sm,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 20, color: p.textSecondary),
+                const SizedBox(width: SagipSpace.sm),
+                Text(label, style: Theme.of(context).textTheme.labelLarge),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The small close button in the corner of an open map card.
+class _CardClose extends StatelessWidget {
+  const _CardClose({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: AppLocalizations.of(context).close,
+    visualDensity: VisualDensity.compact,
+    iconSize: 18,
+    onPressed: onPressed,
+    icon: const Icon(Symbols.close_rounded),
+  );
+}
+
 class _LayersCard extends StatelessWidget {
-  const _LayersCard({required this.layers, required this.onToggle});
+  const _LayersCard({
+    required this.layers,
+    required this.onToggle,
+    this.onClose,
+  });
 
   final Set<_Layer> layers;
   final ValueChanged<_Layer> onToggle;
+
+  /// Null: the card stays open (the wall map).
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +476,12 @@ class _LayersCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(l10n.layersTitle, style: text.titleSmall),
+        Row(
+          children: [
+            Expanded(child: Text(l10n.layersTitle, style: text.titleSmall)),
+            if (onClose != null) _CardClose(onPressed: onClose!),
+          ],
+        ),
         for (final (layer, label) in [
           (_Layer.units, l10n.layerUnits),
           (_Layer.reports, l10n.layerReports),
@@ -404,10 +503,13 @@ class _LayersCard extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const _Legend({this.safePlaces = false});
+  const _Legend({this.safePlaces = false, this.onClose});
 
   /// The safe places layer is on: explain its marker too.
   final bool safePlaces;
+
+  /// Null: the legend stays open (the wall map).
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -474,21 +576,42 @@ class _Legend extends StatelessWidget {
       decoration: floatingCard(p),
       child: SizedBox(
         width: 300,
-        child: Wrap(
-          runSpacing: SagipSpace.sm,
-          children: [
-            for (final (marker, label) in entries)
-              SizedBox(
-                width: 150,
-                child: Row(
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (onClose != null)
+                Row(
                   children: [
-                    marker,
-                    const SizedBox(width: SagipSpace.sm),
-                    Flexible(child: Text(label, style: style)),
+                    Expanded(
+                      child: Text(
+                        l10n.legendTitle,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                    _CardClose(onPressed: onClose!),
                   ],
                 ),
+              Wrap(
+                runSpacing: SagipSpace.sm,
+                children: [
+                  for (final (marker, label) in entries)
+                    SizedBox(
+                      width: 150,
+                      child: Row(
+                        children: [
+                          marker,
+                          const SizedBox(width: SagipSpace.sm),
+                          Flexible(child: Text(label, style: style)),
+                        ],
+                      ),
+                    ),
+                ],
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );

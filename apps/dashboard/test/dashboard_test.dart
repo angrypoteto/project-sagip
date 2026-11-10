@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -404,6 +405,13 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
+    // A short window on a computer is not a phone (2026-11-11); tests run
+    // as Android, where the same size is a phone held sideways.
+    debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+    tester.view.physicalSize = const Size(1272, 503);
+    await settle(tester);
+    expect(find.text('Please use a computer'), findsNothing);
+    debugDefaultTargetPlatformOverride = null;
     tester.view.physicalSize = const Size(390, 844);
     await settle(tester);
     expect(find.text('Please use a computer'), findsOneWidget);
@@ -723,9 +731,14 @@ void main() {
     container.read(routerProvider).go(Routes.board);
     await settle(tester);
     expect(find.byType(SafePlaceMarker), findsNothing);
+    // The layers and the legend open from their buttons (2026-11-11).
+    await tester.tap(find.byKey(const ValueKey('layers-open')));
+    await settle(tester);
     await tester.tap(find.text('Safe places').first);
     await settle(tester);
     expect(find.byType(SafePlaceMarker), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('legend-open')));
+    await settle(tester);
     expect(find.text('Safe place'), findsOne);
   });
 
@@ -1402,6 +1415,9 @@ void main() {
   testWidgets('admins see the audit log', (tester) async {
     await pumpApp(tester);
     await signIn(tester, 'admin@sagip.test');
+    // The last row of the menu: below the fold since the groups got names.
+    await tester.ensureVisible(find.byTooltip('Audit log'));
+    await settle(tester);
     await tester.tap(find.byTooltip('Audit log'));
     await settle(tester);
     expect(find.text('Assigned unit'), findsWidgets);
@@ -3050,11 +3066,26 @@ void main() {
     await settle(tester);
 
     // A unit on a job cannot be retired; a free one can, after asking.
-    final busy = tester.widget<IconButton>(
+    // Retire is in the row's More menu (2026-11-11), greyed out with the
+    // reason while the unit is on a job.
+    await tester.ensureVisible(find.byKey(const ValueKey('more-unit-r05')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('more-unit-r05')));
+    await settle(tester);
+    final busy = tester.widget<PopupMenuItem<int>>(
       find.byKey(const ValueKey('retire-unit-r05')),
     );
-    expect(busy.onPressed, isNull);
-    await tester.ensureVisible(find.byKey(const ValueKey('retire-unit-r20')));
+    expect(busy.enabled, isFalse);
+    expect(
+      find.text('Only a unit that is Available with no job can be retired.'),
+      findsOneWidget,
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await settle(tester);
+    expect(find.byKey(const ValueKey('retire-unit-r05')), findsNothing);
+    await tester.ensureVisible(find.byKey(const ValueKey('more-unit-r20')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('more-unit-r20')));
     await settle(tester);
     await tester.tap(find.byKey(const ValueKey('retire-unit-r20')));
     await settle(tester);
@@ -3198,6 +3229,9 @@ void main() {
     await settle(tester);
     expect(find.text('New Dispatcher'), findsOneWidget);
 
+    // Deactivate is in the row's More menu, away from Edit (2026-11-11).
+    await tester.tap(find.byKey(const ValueKey('more-usr-disp-01')));
+    await settle(tester);
     await tester.tap(find.byKey(const ValueKey('active-usr-disp-01')));
     await settle(tester);
     expect(find.text('Deactivate R. Santos?'), findsOneWidget);

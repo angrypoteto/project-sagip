@@ -2336,7 +2336,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get photoAddOptional => 'Magdagdag ng larawan (opsyonal)';
 
   @override
-  String get photoAddRequired => 'Magdagdag ng larawan';
+  String get photoAddRequired => 'Magdagdag ng larawan (kailangan)';
 
   @override
   String get reportPhotoNeeded =>

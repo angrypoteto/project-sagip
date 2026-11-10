@@ -86,7 +86,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     const SizedBox(height: SagipSpace.xl),
                     Text(
                       l10n.residentSignInTitle,
-                      style: text.headlineMedium,
+                      style: text.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: SagipSpace.sm),

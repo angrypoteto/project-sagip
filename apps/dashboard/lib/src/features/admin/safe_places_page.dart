@@ -208,7 +208,8 @@ class _PlacesTable extends ConsumerWidget {
       table: DataTable(
         columnSpacing: SagipSpace.xl,
         columns: [
-          DataColumn(label: Text(l10n.colPlace)),
+          // The place's name; colPlace reads "Barangay" (2026-11-11).
+          DataColumn(label: Text(l10n.colName)),
           DataColumn(label: Text(l10n.colKind)),
           DataColumn(label: Text(l10n.colBarangay)),
           DataColumn(label: Text(l10n.colSource)),

@@ -1294,6 +1294,30 @@ abstract class AppLocalizations {
   /// **'Layers'**
   String get layersTitle;
 
+  /// No description provided for @legendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legend'**
+  String get legendTitle;
+
+  /// No description provided for @moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
+  /// No description provided for @navGroupInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get navGroupInfo;
+
+  /// No description provided for @navGroupAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Administration'**
+  String get navGroupAdmin;
+
   /// No description provided for @layerUnits.
   ///
   /// In en, this message translates to:

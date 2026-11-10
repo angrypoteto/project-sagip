@@ -372,6 +372,8 @@ class _BatteryPromptState extends ConsumerState<_BatteryPrompt> {
           color: p.panelRaised,
           borderRadius: BorderRadius.circular(SagipRadius.card),
         ),
+        // Compact (2026-11-11): as a tall card with a filled button it
+        // outweighed the job and pushed the crew off the screen.
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -382,17 +384,16 @@ class _BatteryPromptState extends ConsumerState<_BatteryPrompt> {
                 Expanded(
                   child: Text(l10n.batteryTitle, style: text.titleSmall),
                 ),
+                OutlinedButton(
+                  onPressed: _allow,
+                  child: Text(l10n.batteryAllow),
+                ),
               ],
             ),
-            const SizedBox(height: SagipSpace.sm),
-            Text(l10n.batteryBody, style: text.bodyMedium),
-            const SizedBox(height: SagipSpace.sm),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton(
-                onPressed: _allow,
-                child: Text(l10n.batteryAllow),
-              ),
+            const SizedBox(height: SagipSpace.xs),
+            Text(
+              l10n.batteryBody,
+              style: text.bodySmall!.copyWith(color: p.textSecondary),
             ),
           ],
         ),

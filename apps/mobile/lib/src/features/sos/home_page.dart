@@ -94,17 +94,9 @@ class HomePage extends ConsumerWidget {
                     ),
                   ],
                   const Spacer(),
-                  if (active != null) ...[
-                    _ActiveSosCard(sos: active),
-                    const SizedBox(height: SagipSpace.sm),
-                  ],
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () => context.go(Routes.report),
-                      icon: const Icon(Symbols.report_rounded),
-                      label: Text(l10n.reportHazard),
-                    ),
-                  ),
+                  // No "Report a hazard" link here (2026-11-11): the
+                  // Report tab is right below it.
+                  if (active != null) _ActiveSosCard(sos: active),
                 ],
               ),
             ),

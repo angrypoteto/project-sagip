@@ -766,7 +766,7 @@
   "updateLater": "Later",
   "photoAdd": "Add a photo",
   "photoAddOptional": "Add a photo (optional)",
-  "photoAddRequired": "Add a photo",
+  "photoAddRequired": "Add a photo (required)",
   "reportPhotoNeeded": "Add a photo of what you see, so MDRRMD can check it.",
   "photoTake": "Take a photo",
   "photoChoose": "Choose from gallery",

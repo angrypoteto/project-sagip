@@ -711,6 +711,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get layersTitle => 'Layers';
 
   @override
+  String get legendTitle => 'Legend';
+
+  @override
+  String get moreActions => 'More actions';
+
+  @override
+  String get navGroupInfo => 'Information';
+
+  @override
+  String get navGroupAdmin => 'Administration';
+
+  @override
   String get layerUnits => 'Units';
 
   @override

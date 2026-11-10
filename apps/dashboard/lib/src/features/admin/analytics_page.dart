@@ -107,12 +107,8 @@ class _Report extends StatelessWidget {
           spacing: SagipSpace.lg,
           runSpacing: SagipSpace.lg,
           children: [
-            _Kpi(
-              icon: Symbols.emergency_rounded,
-              label: l10n.kpiIncidents,
-              value: '${r.incidents}',
-              footer: l10n.kpiIncidentsFooter(r.resolved, r.falseReports),
-            ),
+            // The two times Objective 1 is judged on come first
+            // (2026-11-11).
             _Kpi(
               icon: Symbols.assignment_ind_rounded,
               label: l10n.kpiDispatch,
@@ -130,6 +126,12 @@ class _Report extends StatelessWidget {
               label: l10n.kpiVerify,
               value: _time(l10n, r.avgVerifyS),
               footer: l10n.kpiVerifyFooter,
+            ),
+            _Kpi(
+              icon: Symbols.emergency_rounded,
+              label: l10n.kpiIncidents,
+              value: '${r.incidents}',
+              footer: l10n.kpiIncidentsFooter(r.resolved, r.falseReports),
             ),
             _Kpi(
               icon: Symbols.cell_tower_rounded,

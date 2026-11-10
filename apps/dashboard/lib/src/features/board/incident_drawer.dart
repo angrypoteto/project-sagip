@@ -168,8 +168,6 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                               l10n.typeConfirmedSnack(l10n.incidentType(t)),
                             ),
                           ),
-                          const SizedBox(height: SagipSpace.sm),
-                          FacebookPostLine(incident: incident),
                           const SizedBox(height: SagipSpace.lg),
                           IncidentPhotos(incidentId: incident.id),
                           const SizedBox(height: SagipSpace.xl),
@@ -215,6 +213,10 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                           ],
                           const SizedBox(height: SagipSpace.xl),
                           IncidentTimeline(incident: incident),
+                          // Last (2026-11-11): it is a note, not a step, and
+                          // it stood between the type and the verification.
+                          const SizedBox(height: SagipSpace.lg),
+                          FacebookPostLine(incident: incident),
                         ],
                       ),
                     ),
@@ -756,14 +758,19 @@ class _Verification extends StatelessWidget {
                     icon: const Icon(Symbols.verified_rounded, size: 16),
                     label: Text(l10n.markVerified),
                   ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: p.textSecondary,
-                    ),
-                    onPressed: enabled ? onFalse : null,
-                    child: Text(l10n.markFalse),
-                  ),
                 ],
+              ),
+              // On its own line at the far side (2026-11-11): beside "Mark
+              // verified", a slip of the mouse closed a real emergency.
+              const SizedBox(height: SagipSpace.sm),
+              Divider(height: 1, color: p.hairline),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  style: TextButton.styleFrom(foregroundColor: p.textSecondary),
+                  onPressed: enabled ? onFalse : null,
+                  child: Text(l10n.markFalse),
+                ),
               ),
             ],
           ],
