@@ -9,11 +9,15 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
 
-/// Slim top bar: PAGASA's conditions, and on the right the connection and
-/// the clock. The mark, the name, and the account are in the side menu (the
-/// account left the bar on 2026-11-10, Joshua).
+/// The top bar: PAGASA's conditions; on the right
+/// the board at a glance (waiting, responding, units free), the connection,
+/// and the date and time. The mark, the name, and the account are in the
+/// side menu (Joshua, 2026-11-10: the bar "feels empty").
 class TopBar extends ConsumerWidget {
-  const TopBar({super.key});
+  const TopBar({super.key, this.showTallies = true});
+
+  /// The board's counts; not for a unit's crew.
+  final bool showTallies;
 
   // As tall as the side menu's head, so the two line up (Joshua,
   // 2026-11-10: "do the same with headings").
@@ -32,6 +36,10 @@ class TopBar extends ConsumerWidget {
       child: Row(
         children: [
           const Expanded(child: _WeatherSummary()),
+          if (showTallies) ...[
+            const _Tallies(),
+            const SizedBox(width: SagipSpace.xl),
+          ],
           const _LinkIndicator(),
           const SizedBox(width: SagipSpace.xl),
           const _Clock(),
@@ -123,10 +131,104 @@ class _Clock extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final now = ref.watch(clockProvider).value ?? DateTime.now();
-    return Text(
-      formatClock(now, Localizations.localeOf(context).toString()),
-      style: Theme.of(context).textTheme.titleSmall!
-          .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+    final locale = Localizations.localeOf(context).toString();
+    final text = Theme.of(context).textTheme;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          formatClock(now, locale),
+          style: text.titleSmall!.copyWith(
+            fontFeatures: const [FontFeature.tabularFigures()],
+            height: 1.2,
+          ),
+        ),
+        Text(
+          formatDate(now, locale),
+          style: text.labelSmall!.copyWith(
+            color: SagipPalette.of(context).textSecondary,
+            height: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The board at a glance, on every page: what waits for a unit, what is
+/// being responded to, and how many units are free. Each opens its page.
+class _Tallies extends ConsumerWidget {
+  const _Tallies();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final incidents = ref.watch(activeIncidentsProvider).value;
+    final units = ref.watch(unitsProvider).value;
+    if (incidents == null || units == null) return const SizedBox.shrink();
+    final waiting = incidents
+        .where(
+          (i) =>
+              i.status == IncidentStatus.pendingVerification ||
+              i.status == IncidentStatus.confirmed,
+        )
+        .length;
+    final responding = incidents
+        .where(
+          (i) =>
+              i.status == IncidentStatus.assigned ||
+              i.status == IncidentStatus.enRoute ||
+              i.status == IncidentStatus.onScene,
+        )
+        .length;
+    final free = units.where((u) => u.status == UnitStatus.available).length;
+    Widget tally(
+      String key,
+      String label,
+      String tip,
+      SagipTone tone,
+      IconData icon,
+      String route,
+    ) => Tooltip(
+      message: tip,
+      child: InkWell(
+        key: ValueKey(key),
+        borderRadius: BorderRadius.circular(SagipRadius.chip),
+        onTap: () => context.go(route),
+        child: SagipChip(label: label, tone: tone, icon: icon, dense: false),
+      ),
+    );
+    return Row(
+      children: [
+        tally(
+          'tally-waiting',
+          l10n.barWaiting(waiting),
+          l10n.barWaitingTip,
+          waiting > 0 ? p.warning : p.neutral,
+          Symbols.hourglass_top_rounded,
+          Routes.board,
+        ),
+        const SizedBox(width: SagipSpace.sm),
+        tally(
+          'tally-responding',
+          l10n.barResponding(responding),
+          l10n.barRespondingTip,
+          responding > 0 ? p.info : p.neutral,
+          Symbols.emergency_rounded,
+          Routes.board,
+        ),
+        const SizedBox(width: SagipSpace.sm),
+        tally(
+          'tally-units',
+          l10n.barUnitsFree(free, units.length),
+          l10n.barUnitsFreeTip,
+          free > 0 ? p.success : p.critical,
+          Symbols.ambulance_rounded,
+          Routes.units,
+        ),
+      ],
     );
   }
 }

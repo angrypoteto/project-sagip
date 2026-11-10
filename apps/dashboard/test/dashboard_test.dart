@@ -519,6 +519,22 @@ void main() {
     expect(width(), 64);
   });
 
+  testWidgets('the top bar counts the board and opens its pages (2026-11-10)', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    expect(find.byKey(const ValueKey('tally-waiting')), findsOneWidget);
+    expect(find.byKey(const ValueKey('tally-responding')), findsOneWidget);
+    expect(
+      find.textContaining(RegExp(r'^\d+ of \d+ units free$')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('tally-units')));
+    await settle(tester);
+    expect(find.byType(QueuePanel), findsNothing);
+  });
+
   testWidgets('the wall map: its own window, larger markers, full screen', (
     tester,
   ) async {
