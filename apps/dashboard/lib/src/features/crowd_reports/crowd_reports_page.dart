@@ -154,6 +154,9 @@ class _CrowdReportsPageState extends ConsumerState<CrowdReportsPage> {
                   ),
                   children: [
                     const SagipBaseMap(),
+                    // Manila's barangays, as on the Command Board, so the
+                    // city's reach shows (Joshua, 2026-11-10).
+                    const BarangayBoundaries(),
                     // The 50 m clustering radius around each confirmed cluster.
                     CircleLayer(
                       circles: [
