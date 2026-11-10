@@ -228,7 +228,8 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
   }
 
   Widget _items(SagipPalette p, bool open) => SingleChildScrollView(
-    padding: const EdgeInsets.only(bottom: SagipSpace.md),
+    // More room around the rows (Joshua, 2026-11-10: "it feels so tight").
+    padding: const EdgeInsets.only(top: SagipSpace.sm, bottom: SagipSpace.lg),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -238,8 +239,8 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
         if (widget.isAdmin) ...[
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: SagipSpace.lg,
-              vertical: SagipSpace.sm,
+              horizontal: SagipSpace.xl,
+              vertical: SagipSpace.md,
             ),
             child: Divider(color: p.hairline),
           ),
@@ -353,7 +354,7 @@ class _RailRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(SagipRadius.card),
           onTap: onTap,
           child: SizedBox(
-            height: 44,
+            height: 48,
             child: Row(
               mainAxisSize: open ? MainAxisSize.max : MainAxisSize.min,
               children: [
@@ -369,7 +370,10 @@ class _RailRow extends StatelessWidget {
                 if (open)
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: SagipSpace.md),
+                      padding: const EdgeInsets.only(
+                        left: SagipSpace.xs,
+                        right: SagipSpace.lg,
+                      ),
                       child: ExcludeSemantics(
                         child: Text(
                           label,
@@ -390,10 +394,7 @@ class _RailRow extends StatelessWidget {
       ),
     );
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: SagipSpace.xs,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       child: open
           ? row
           : Tooltip(message: label, preferBelow: false, child: row),

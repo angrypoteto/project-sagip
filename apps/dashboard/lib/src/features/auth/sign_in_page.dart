@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
@@ -20,6 +21,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   final _password = TextEditingController();
   bool _busy = false;
   String? _error;
+
+  /// The eye in the password field shows what was typed (2026-11-10).
+  bool _showPassword = false;
 
   @override
   void dispose() {
@@ -72,7 +76,14 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(l10n.brandName, style: text.titleMedium),
+                        // MDRRMD's seal beside the name (2026-11-10).
+                        Row(
+                          children: [
+                            const SagipMark(size: 40),
+                            const SizedBox(width: SagipSpace.md),
+                            Text(l10n.brandName, style: text.titleMedium),
+                          ],
+                        ),
                         const SizedBox(height: SagipSpace.xxl),
                         Text(l10n.signInTitle, style: text.headlineSmall),
                         const SizedBox(height: SagipSpace.sm),
@@ -98,8 +109,22 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                           controller: _password,
                           decoration: InputDecoration(
                             labelText: l10n.passwordLabel,
+                            suffixIcon: IconButton(
+                              key: const ValueKey('show-password'),
+                              icon: Icon(
+                                _showPassword
+                                    ? Symbols.visibility_off_rounded
+                                    : Symbols.visibility_rounded,
+                              ),
+                              tooltip: _showPassword
+                                  ? l10n.hidePassword
+                                  : l10n.showPassword,
+                              onPressed: () => setState(
+                                () => _showPassword = !_showPassword,
+                              ),
+                            ),
                           ),
-                          obscureText: true,
+                          obscureText: !_showPassword,
                           autofillHints: const [AutofillHints.password],
                           onFieldSubmitted: (_) => _submit(),
                           validator: required,

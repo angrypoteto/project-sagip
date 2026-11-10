@@ -15,6 +15,8 @@
   "signInSubtitle": "For MDRRMD dispatchers and administrators.",
   "emailLabel": "Email",
   "passwordLabel": "Password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
   "signInButton": "Sign in",
   "pageTabTitle": "{app} - {page}",
   "@pageTabTitle": {"placeholders": {"app": {"type": "String"}, "page": {"type": "String"}}},

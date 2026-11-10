@@ -13,22 +13,36 @@ String formatWait(Duration d) {
   return h > 0 ? '$h:$m:$s' : '$m:$s';
 }
 
-// intl puts a narrow no-break space (U+202F) before AM/PM, which Plus Jakarta
-// Sans does not draw ("7:44:12AM"). Use an ordinary no-break space instead.
-String _spaced(String s) => s.replaceAll(' ', ' ');
+// Clock times are 24-hour ("army time"), as MDRRMD's operations center
+// writes them (MDRRMD, 2026-11-10): "14:05", never "2:05 PM".
 
+/// "14:05:09".
 String formatClock(DateTime t, String locale) =>
-    _spaced(DateFormat.jms(locale).format(t));
+    DateFormat.Hms(locale).format(t);
 
-String formatTime(DateTime t, String locale) =>
-    _spaced(DateFormat.jm(locale).format(t));
+/// "14:05".
+String formatTime(DateTime t, String locale) => DateFormat.Hm(locale).format(t);
 
 /// "Sep 30, 2026".
 String formatDate(DateTime t, String locale) =>
     DateFormat.yMMMd(locale).format(t);
 
+/// "Nov 10, 2026 14:05".
 String formatDateTime(DateTime t, String locale) =>
-    _spaced(DateFormat.yMMMd(locale).add_jm().format(t));
+    DateFormat.yMMMd(locale).add_Hm().format(t);
+
+/// A moment as short as it can be next to [now]: "14:05" today,
+/// "Nov 9, 14:05" this year, "Nov 9, 2025, 14:05" before that.
+String formatStamp(DateTime t, DateTime now, String locale) {
+  final time = formatTime(t, locale);
+  if (t.year == now.year && t.month == now.month && t.day == now.day) {
+    return time;
+  }
+  final day = t.year == now.year
+      ? DateFormat.MMMd(locale).format(t)
+      : DateFormat.yMMMd(locale).format(t);
+  return '$day, $time';
+}
 
 String formatCoordinates(GeoPoint p) =>
     '${p.lat.toStringAsFixed(4)}, ${p.lng.toStringAsFixed(4)}';

@@ -345,7 +345,7 @@ void main() {
     backend.setSignal(SignalState.internet);
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pump();
-    expect(find.textContaining('Your SOS from 3:42'), findsOneWidget);
+    expect(find.textContaining('Your SOS from 15:42'), findsOneWidget);
     expect(onStatus('Received by MDRRMD'), findsOneWidget);
     expect(find.text('How your SOS is being sent'), findsNothing);
     expect(screen.on, isFalse, reason: 'delivered: the screen may sleep');

@@ -212,7 +212,7 @@ String defaultReportTitle(DateTime from, DateTime to) {
 /// states a figure; nothing is inferred. Remarks are left for the
 /// administrator.
 List<ReportSection> draftReportSections(ReportSource s) {
-  final when = DateFormat.yMMMd(_locale).add_jm();
+  final when = DateFormat.yMMMd(_locale).add_Hm();
   String at(DateTime t) => when
       .format(t.toUtc().add(const Duration(hours: 8)))
       .replaceAll('\u202F', ' ');

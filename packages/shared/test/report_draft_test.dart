@@ -195,7 +195,7 @@ void main() {
     test('states the figures, in Manila time, and nothing else', () {
       expect(
         draft[ReportSections.overview],
-        'From Oct 1, 2026 12:00 AM to Oct 2, 2026 12:00 AM (Manila time), '
+        'From Oct 1, 2026 00:00 to Oct 2, 2026 00:00 (Manila time), '
         'the Manila Disaster Risk Reduction and Management Department '
         'recorded 3 incidents through Project S.A.G.I.P.: 2 SOS requests '
         'and 1 confirmed cluster of crowd reports. The highest tropical '

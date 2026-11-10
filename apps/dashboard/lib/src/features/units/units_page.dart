@@ -259,7 +259,21 @@ class _UnitsPageState extends ConsumerState<UnitsPage> {
                               ? const Text('')
                               : Row(
                                   children: [
-                                    Text(l10n.ago(u.lastLocationAt!, now)),
+                                    // The time of the fix in 24-hour
+                                    // form (MDRRMD, 2026-11-10), not
+                                    // "490 h ago".
+                                    Text(
+                                      formatStamp(
+                                        u.lastLocationAt!,
+                                        now,
+                                        locale,
+                                      ),
+                                      style: const TextStyle(
+                                        fontFeatures: [
+                                          FontFeature.tabularFigures(),
+                                        ],
+                                      ),
+                                    ),
                                     if (now.difference(u.lastLocationAt!) >
                                         UnitsPage.staleAfter) ...[
                                       const SizedBox(width: SagipSpace.sm),

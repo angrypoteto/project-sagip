@@ -782,7 +782,7 @@ final navMenuHoveredProvider = NotifierProvider<NavMenuHoverController, bool>(
 
 /// The side menu's widths, closed (icons only) and open (with names).
 const navMenuClosedWidth = 64.0;
-const navMenuOpenWidth = 248.0;
+const navMenuOpenWidth = 272.0;
 const navMenuSlide = Duration(milliseconds: 160);
 
 final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(

@@ -400,6 +400,27 @@ void main() {
     expect(chimesPlayed, before + 1);
   });
 
+  testWidgets('D1 shows the seal and an eye that shows the password '
+      '(2026-11-10)', (tester) async {
+    await pumpApp(tester);
+    expect(find.byType(SagipMark), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField).at(1), 'secret');
+    EditableText field() => tester.widget<EditableText>(
+      find.descendant(
+        of: find.byType(TextFormField).at(1),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(field().obscureText, isTrue);
+    await tester.tap(find.byKey(const ValueKey('show-password')));
+    await tester.pump();
+    expect(field().obscureText, isFalse);
+    expect(find.byTooltip('Hide password'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('show-password')));
+    await tester.pump();
+    expect(field().obscureText, isTrue);
+  });
+
   testWidgets('D11 can switch the new-SOS sound off', (tester) async {
     await pumpApp(tester);
     tester.view.physicalSize = const Size(1440, 2000);
@@ -456,7 +477,7 @@ void main() {
     addTearDown(mouse.removePointer);
     await mouse.moveTo(tester.getCenter(menu));
     await settle(tester);
-    expect(width(), 248);
+    expect(width(), navMenuOpenWidth);
     expect(name('Units'), findsOneWidget);
     expect(name('S.A.G.I.P.'), findsOneWidget);
     expect(tester.getTopLeft(find.byType(QueuePanel)).dx, pageLeft);

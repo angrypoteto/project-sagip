@@ -205,7 +205,7 @@ void main() {
 
     backend.setSignal(SignalState.smsOnly);
     await settle(tester);
-    expect(find.textContaining('Offline. Last updated 3:42'), findsOneWidget);
+    expect(find.textContaining('Offline. Last updated 15:42'), findsOneWidget);
     await finish(tester);
   });
 
