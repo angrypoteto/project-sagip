@@ -229,7 +229,7 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
 
   Widget _items(SagipPalette p, bool open) => SingleChildScrollView(
     // More room around the rows (Joshua, 2026-11-10: "it feels so tight").
-    padding: const EdgeInsets.only(top: SagipSpace.sm, bottom: SagipSpace.lg),
+    padding: const EdgeInsets.only(bottom: SagipSpace.lg),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -252,10 +252,12 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
   );
 }
 
-/// The head of the side menu, as tall as the top bar: the S.A.G.I.P. mark,
+/// The head of the side menu, a little taller than the top bar: the mark,
 /// and beside it the name and the office while the menu is open.
 class _Brand extends StatelessWidget {
   const _Brand({required this.open});
+
+  static const double height = TopBar.height + 16;
 
   final bool open;
 
@@ -265,7 +267,9 @@ class _Brand extends StatelessWidget {
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
     return SizedBox(
-      height: TopBar.height,
+      // Taller than the top bar, so the mark has as much room above it as
+      // below it (Joshua, 2026-11-10: "the logo is too high").
+      height: _Brand.height,
       child: Padding(
         // The mark sits over the icons below it.
         padding: const EdgeInsets.only(left: 17),
