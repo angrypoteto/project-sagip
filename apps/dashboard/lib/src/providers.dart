@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart';
@@ -782,9 +784,34 @@ final navMenuHoveredProvider = NotifierProvider<NavMenuHoverController, bool>(
 
 /// Whether the account menu opened from the side menu is showing: the side
 /// menu stays open under it (Joshua, 2026-11-10).
-final navMenuHeldProvider = NotifierProvider<NavMenuHoverController, bool>(
-  NavMenuHoverController.new,
+final navMenuHeldProvider = NotifierProvider<NavMenuHoldController, bool>(
+  NavMenuHoldController.new,
 );
+
+/// Holds the side menu open; [release] lets it go once the account menu has
+/// finished closing, so the account menu goes first (Joshua, 2026-11-10).
+class NavMenuHoldController extends Notifier<bool> {
+  Timer? _release;
+
+  @override
+  bool build() {
+    ref.onDispose(() => _release?.cancel());
+    return false;
+  }
+
+  void hold() {
+    _release?.cancel();
+    state = true;
+  }
+
+  void release(Duration after) {
+    _release?.cancel();
+    _release = Timer(after, () => state = false);
+  }
+}
+
+/// How long the account menu takes to close.
+const accountMenuClose = Duration(milliseconds: 150);
 
 /// The side menu's widths, closed (icons only) and open (with names).
 const navMenuClosedWidth = 64.0;

@@ -192,11 +192,16 @@ class UserMenu extends ConsumerWidget {
       tooltip: l10n.userWithRole(user.displayName, l10n.role(user.role)),
       // From the foot of the side menu it opens over the button, upward.
       position: inSideMenu ? PopupMenuPosition.over : PopupMenuPosition.under,
-      // From the side menu, the side menu stays open while this is showing.
-      onOpened: inSideMenu ? () => hold.set(true) : null,
-      onCanceled: inSideMenu ? () => hold.set(false) : null,
+      // From the side menu, the side menu stays open while this is showing,
+      // and closes only after this has.
+      popUpAnimationStyle: const AnimationStyle(
+        duration: Duration(milliseconds: 200),
+        reverseDuration: accountMenuClose,
+      ),
+      onOpened: inSideMenu ? hold.hold : null,
+      onCanceled: inSideMenu ? () => hold.release(accountMenuClose) : null,
       onSelected: (action) {
-        if (inSideMenu) hold.set(false);
+        if (inSideMenu) hold.release(accountMenuClose);
         switch (action) {
           case _MenuAction.account:
             context.go(Routes.account);

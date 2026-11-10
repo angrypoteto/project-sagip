@@ -508,8 +508,12 @@ void main() {
     await mouse.moveTo(const Offset(700, 500));
     await settle(tester);
     expect(width(), navMenuOpenWidth);
-    // Closing the account menu lets it close.
+    // Closing the account menu lets it close, after the account menu has
+    // gone.
     await tester.tapAt(const Offset(1000, 300));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(width(), navMenuOpenWidth, reason: 'the account menu goes first');
     await settle(tester);
     expect(find.text('My account'), findsNothing);
     expect(width(), 64);
