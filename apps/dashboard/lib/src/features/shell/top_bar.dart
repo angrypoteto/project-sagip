@@ -36,7 +36,7 @@ class TopBar extends ConsumerWidget {
           const SizedBox(width: SagipSpace.xl),
           const _Clock(),
           const SizedBox(width: SagipSpace.lg),
-          const _UserMenu(),
+          const UserMenu(),
         ],
       ),
     );
@@ -143,8 +143,15 @@ enum _MenuAction {
   signOut,
 }
 
-class _UserMenu extends ConsumerWidget {
-  const _UserMenu();
+/// The account: who is signed in, My account, the theme, and sign out. In
+/// the top bar it is the circle alone; at the foot of the side menu
+/// ([inSideMenu]) it is the circle, and beside it the name and role while
+/// the menu is [open] (Joshua, 2026-11-10).
+class UserMenu extends ConsumerWidget {
+  const UserMenu({super.key, this.inSideMenu = false, this.open = false});
+
+  final bool inSideMenu;
+  final bool open;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -163,9 +170,27 @@ class _UserMenu extends ConsumerWidget {
         .map((s) => s[0])
         .join();
 
+    // The circle, in a 44 px target; the name and role are in the menu and
+    // the tooltip.
+    final avatar = SizedBox(
+      width: 44,
+      height: 44,
+      child: Center(
+        child: CircleAvatar(
+          radius: 16,
+          backgroundColor: p.panelRaised,
+          child: Text(
+            initials,
+            style: text.labelSmall!.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+    );
+
     return PopupMenuButton<_MenuAction>(
       tooltip: l10n.userWithRole(user.displayName, l10n.role(user.role)),
-      position: PopupMenuPosition.under,
+      // From the foot of the side menu it opens over the button, upward.
+      position: inSideMenu ? PopupMenuPosition.over : PopupMenuPosition.under,
       onSelected: (action) => switch (action) {
         _MenuAction.account => context.go(Routes.account),
         _MenuAction.theme => ref.read(themeModeProvider.notifier).toggle(),
@@ -220,21 +245,48 @@ class _UserMenu extends ConsumerWidget {
         const PopupMenuDivider(),
         PopupMenuItem(value: _MenuAction.signOut, child: Text(l10n.signOut)),
       ],
-      // The circle alone, in a 44 px target; the name and role are in the
-      // menu and the tooltip.
-      child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Center(
-          child: CircleAvatar(
-            radius: 16,
-            backgroundColor: p.panelRaised,
-            child: Text(
-              initials,
-              style: text.labelSmall!.copyWith(fontWeight: FontWeight.w600),
+      child: inSideMenu ? _sideMenuFace(context, user, avatar) : avatar,
+    );
+  }
+
+  /// The circle in the side menu's icon column, the name and role beside it.
+  Widget _sideMenuFace(BuildContext context, AppUser user, Widget avatar) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    return SizedBox(
+      height: 56,
+      child: Row(
+        children: [
+          const SizedBox(width: 10),
+          avatar,
+          if (open) ...[
+            const SizedBox(width: SagipSpace.sm),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.displayName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.labelLarge!.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    l10n.role(user.role),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.labelSmall!.copyWith(color: p.textSecondary),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
+            const SizedBox(width: SagipSpace.lg),
+          ],
+        ],
       ),
     );
   }

@@ -216,6 +216,14 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
                     children: [
                       _Brand(open: open),
                       Expanded(child: _items(p, open)),
+                      // The account, at the very bottom (Joshua, 2026-11-10).
+                      Divider(height: 1, color: p.hairline),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: SagipSpace.sm,
+                        ),
+                        child: UserMenu(inSideMenu: true, open: open),
+                      ),
                     ],
                   ),
                 ),
