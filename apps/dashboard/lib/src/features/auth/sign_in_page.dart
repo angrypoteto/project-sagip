@@ -132,13 +132,19 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: SagipSpace.xxl),
-                            Text(l10n.signInTitle, style: text.headlineSmall),
+                            // Centered under the seal (Joshua, 2026-11-10).
+                            Text(
+                              l10n.signInTitle,
+                              style: text.headlineSmall,
+                              textAlign: TextAlign.center,
+                            ),
                             const SizedBox(height: SagipSpace.sm),
                             Text(
                               l10n.signInSubtitle,
                               style: text.bodyMedium!.copyWith(
                                 color: p.textSecondary,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: SagipSpace.xxl),
                             TextFormField(
@@ -193,7 +199,11 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                               ),
                             ),
                             const SizedBox(height: SagipSpace.lg),
-                            Text(l10n.forgotPassword, style: text.bodySmall),
+                            Text(
+                              l10n.forgotPassword,
+                              style: text.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
                             if (isMock) ...[
                               const SizedBox(height: SagipSpace.lg),
                               Container(
