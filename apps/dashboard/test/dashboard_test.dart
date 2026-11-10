@@ -404,6 +404,9 @@ void main() {
       '(2026-11-10)', (tester) async {
     await pumpApp(tester);
     expect(find.byType(SagipMark), findsOneWidget);
+    // The motto, and Manila behind the card (2026-11-10).
+    expect(find.text('Manila, God First'), findsOneWidget);
+    expect(find.byKey(const ValueKey('sign-in-backdrop')), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).at(1), 'secret');
     EditableText field() => tester.widget<EditableText>(
       find.descendant(

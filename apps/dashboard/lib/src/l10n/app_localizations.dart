@@ -106,6 +106,12 @@ abstract class AppLocalizations {
   /// **'S.A.G.I.P.'**
   String get brandName;
 
+  /// No description provided for @cityMotto.
+  ///
+  /// In en, this message translates to:
+  /// **'Manila, God First'**
+  String get cityMotto;
+
   /// No description provided for @brandOffice.
   ///
   /// In en, this message translates to:

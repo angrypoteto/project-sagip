@@ -16,6 +16,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get brandName => 'S.A.G.I.P.';
 
   @override
+  String get cityMotto => 'Manila, God First';
+
+  @override
   String get brandOffice => 'Manila City MDRRMD';
 
   @override
