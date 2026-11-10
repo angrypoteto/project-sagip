@@ -2396,6 +2396,42 @@ abstract class AppLocalizations {
   /// **'Create an account'**
   String get registerTitle;
 
+  /// No description provided for @brandName.
+  ///
+  /// In en, this message translates to:
+  /// **'S.A.G.I.P.'**
+  String get brandName;
+
+  /// No description provided for @cityMotto.
+  ///
+  /// In en, this message translates to:
+  /// **'Manila, God First'**
+  String get cityMotto;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @registerStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1 of 2: your details. Next, a code by SMS.'**
+  String get registerStep;
+
+  /// No description provided for @haveAccountSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get haveAccountSignIn;
+
   /// No description provided for @registerBody.
   ///
   /// In en, this message translates to:

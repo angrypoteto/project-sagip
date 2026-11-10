@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -42,12 +40,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   Future<void> _submit() async {
     if (_busy || !_form.currentState!.validate()) return;
     final l10n = AppLocalizations.of(context);
-    // Taken now: once signed in, the router replaces this page.
-    final overlay = Overlay.of(context, rootOverlay: true);
-    final still = MediaQuery.of(context).disableAnimations;
-    final box = _sealKey.currentContext?.findRenderObject() as RenderBox?;
-    final seal = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
-    final canvas = SagipPalette.of(context).canvas;
+    // Readied now: once signed in, the router replaces this page.
+    final flight = SealFlightLauncher(context, seal: _sealKey);
     setState(() {
       _busy = true;
       _error = null;
@@ -58,17 +52,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
           .signIn(email: _email.text, password: _password.text);
       // Accepted: the seal alone floats, then flies forward and fades,
       // over the board as it opens (Joshua, 2026-11-10).
-      if (!still && seal != null) {
-        late final OverlayEntry entry;
-        entry = OverlayEntry(
-          builder: (_) => SealFlight(
-            from: seal,
-            background: canvas,
-            onDone: () => entry.remove(),
-          ),
-        );
-        overlay.insert(entry);
-      }
+      flight.play();
     } on AuthException catch (e) {
       if (mounted) setState(() => _error = l10n.authFailure(e.reason));
     } catch (_) {
@@ -110,10 +94,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             // It eases in, and pulses with a ring while signing
                             // in (Joshua, 2026-11-10).
                             Center(
-                              child: KeyedSubtree(
-                                key: _sealKey,
-                                child: _AnimatedSeal(busy: _busy),
-                              ),
+                              child: SealEntrance(key: _sealKey, busy: _busy),
                             ),
                             const SizedBox(height: SagipSpace.md),
                             Text(
@@ -277,196 +258,6 @@ class _ManilaBackdrop extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// MDRRMD's seal on the sign-in card: it eases in when the page opens, and
-/// while signing in it breathes inside a turning ring. Still when the
-/// device asks for less motion.
-class _AnimatedSeal extends StatefulWidget {
-  const _AnimatedSeal({required this.busy});
-
-  final bool busy;
-
-  @override
-  State<_AnimatedSeal> createState() => _AnimatedSealState();
-}
-
-class _AnimatedSealState extends State<_AnimatedSeal>
-    with TickerProviderStateMixin {
-  static const _size = 72.0;
-  static const _ring = 92.0;
-
-  late final _enter = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 600),
-  );
-  late final _pulse = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-  );
-
-  bool get _still => MediaQuery.of(context).disableAnimations;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_still) {
-      _enter.value = 1;
-    } else if (_enter.status == AnimationStatus.dismissed) {
-      _enter.forward();
-    }
-  }
-
-  @override
-  void didUpdateWidget(_AnimatedSeal old) {
-    super.didUpdateWidget(old);
-    if (widget.busy == old.busy) return;
-    if (widget.busy && !_still) {
-      _pulse.repeat(reverse: true);
-    } else {
-      _pulse.animateTo(0, duration: const Duration(milliseconds: 200));
-    }
-  }
-
-  @override
-  void dispose() {
-    _enter.dispose();
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final p = SagipPalette.of(context);
-    final enter = CurvedAnimation(parent: _enter, curve: Curves.easeOutBack);
-    final pulse = CurvedAnimation(parent: _pulse, curve: Curves.easeInOut);
-    return SizedBox.square(
-      key: const ValueKey('sign-in-seal'),
-      dimension: _ring,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (widget.busy)
-            SizedBox.square(
-              dimension: _ring,
-              child: CircularProgressIndicator(
-                key: const ValueKey('sign-in-seal-ring'),
-                strokeWidth: 3,
-                color: p.info.fill,
-              ),
-            ),
-          AnimatedBuilder(
-            animation: Listenable.merge([enter, pulse]),
-            builder: (context, child) => Opacity(
-              opacity: _enter.value.clamp(0.0, 1.0),
-              child: Transform.scale(
-                scale: (0.7 + 0.3 * enter.value) * (1 + 0.06 * pulse.value),
-                child: child,
-              ),
-            ),
-            child: const SagipMark(size: _size),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// After a sign-in is accepted (Joshua, 2026-11-10): everything but the
-/// seal goes; the seal floats up to the middle of the screen, then flies
-/// toward the viewer, growing and fading, while the page behind it fades
-/// to show the board.
-class SealFlight extends StatefulWidget {
-  const SealFlight({
-    super.key,
-    required this.from,
-    required this.background,
-    required this.onDone,
-  });
-
-  /// Where the seal sat on the card, on screen.
-  final Rect from;
-
-  /// The page color that hides the card, then fades.
-  final Color background;
-  final VoidCallback onDone;
-
-  static const duration = Duration(milliseconds: 1500);
-
-  @override
-  State<SealFlight> createState() => _SealFlightState();
-}
-
-class _SealFlightState extends State<SealFlight>
-    with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(
-    vsync: this,
-    duration: SealFlight.duration,
-  )..forward().whenComplete(widget.onDone);
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final screen = MediaQuery.sizeOf(context);
-    // 0 to 0.4: float to the middle, a little above it, and settle.
-    final float = CurvedAnimation(
-      parent: _c,
-      curve: const Interval(0, 0.4, curve: Curves.easeInOutCubic),
-    );
-    // 0.45 to 1: fly forward and fade.
-    final fly = CurvedAnimation(
-      parent: _c,
-      curve: const Interval(0.45, 1, curve: Curves.easeInCubic),
-    );
-    // The page behind fades from 0.55, showing the board.
-    final reveal = CurvedAnimation(
-      parent: _c,
-      curve: const Interval(0.55, 1, curve: Curves.easeOut),
-    );
-    final start = widget.from.center;
-    final middle = Offset(screen.width / 2, screen.height / 2);
-    // The box holds the seal and its ring: the seal is the inner part.
-    final size =
-        widget.from.width * _AnimatedSealState._size / _AnimatedSealState._ring;
-    return IgnorePointer(
-      child: AnimatedBuilder(
-        animation: _c,
-        builder: (context, _) {
-          // A gentle rise that peaks mid-float and settles.
-          final lift = -24 * math.sin(math.pi * float.value);
-          final at = Offset.lerp(start, middle, float.value)! + Offset(0, lift);
-          final scale = 1 + 0.25 * float.value + 5 * fly.value;
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: ColoredBox(
-                  color: widget.background.withValues(alpha: 1 - reveal.value),
-                ),
-              ),
-              Positioned(
-                left: at.dx - size / 2,
-                top: at.dy - size / 2,
-                width: size,
-                height: size,
-                child: Opacity(
-                  opacity: (1 - fly.value).clamp(0.0, 1.0),
-                  child: Transform.scale(
-                    scale: scale,
-                    child: SagipMark(size: size),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
       ),
     );
   }

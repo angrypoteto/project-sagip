@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/auth_header.dart';
 import '../../common/barangay_picker.dart';
 import '../../common/labels.dart';
 import '../../common/privacy_notice.dart';
@@ -26,6 +27,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _phone = TextEditingController();
   Barangay? _barangay;
   var _agreed = false;
+  final _sealKey = GlobalKey();
 
   /// Optional: someone at home may need extra help (2026-11-10).
   var _vulnerable = false;
@@ -79,9 +81,21 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       body: ListView(
         padding: const EdgeInsets.all(SagipSpace.xl),
         children: [
+          Center(
+            child: AuthHeader(sealKey: _sealKey, busy: _busy, size: 56),
+          ),
+          const SizedBox(height: SagipSpace.lg),
+          // Where they are in signing up (2026-11-10).
+          Text(
+            l10n.registerStep,
+            style: text.labelLarge!.copyWith(color: p.info.text),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: SagipSpace.xs),
           Text(
             l10n.registerBody,
             style: text.bodyMedium!.copyWith(color: p.textSecondary),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: SagipSpace.xl),
           TextField(
@@ -205,6 +219,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             child: FilledButton(
               onPressed: _busy ? null : _continue,
               child: Text(_busy ? l10n.creatingAccount : l10n.continueButton),
+            ),
+          ),
+          const SizedBox(height: SagipSpace.sm),
+          Center(
+            child: TextButton(
+              onPressed: () => context.go(Routes.signIn),
+              child: Text(l10n.haveAccountSignIn),
             ),
           ),
         ],

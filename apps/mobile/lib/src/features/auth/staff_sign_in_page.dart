@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/auth_header.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -19,6 +21,10 @@ class _StaffSignInPageState extends ConsumerState<StaffSignInPage> {
   final _password = TextEditingController();
   String? _error;
   var _busy = false;
+  final _sealKey = GlobalKey();
+
+  /// The eye in the password field shows what was typed (2026-11-10).
+  var _showPassword = false;
 
   @override
   void dispose() {
@@ -29,6 +35,8 @@ class _StaffSignInPageState extends ConsumerState<StaffSignInPage> {
 
   Future<void> _signIn() async {
     final l10n = AppLocalizations.of(context);
+    // Readied now: once signed in, the router replaces this page.
+    final flight = SealFlightLauncher(context, seal: _sealKey);
     setState(() {
       _busy = true;
       _error = null;
@@ -37,6 +45,7 @@ class _StaffSignInPageState extends ConsumerState<StaffSignInPage> {
       await ref
           .read(authRepositoryProvider)
           .signIn(email: _email.text, password: _password.text);
+      flight.play();
     } on AuthException catch (e) {
       if (mounted) setState(() => _error = l10n.authFailure(e.reason));
     } catch (_) {
@@ -57,9 +66,14 @@ class _StaffSignInPageState extends ConsumerState<StaffSignInPage> {
       body: ListView(
         padding: const EdgeInsets.all(SagipSpace.xl),
         children: [
+          Center(
+            child: AuthHeader(sealKey: _sealKey, busy: _busy),
+          ),
+          const SizedBox(height: SagipSpace.xl),
           Text(
             l10n.staffSignInBody,
             style: text.bodyMedium!.copyWith(color: p.textSecondary),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: SagipSpace.xl),
           TextField(
@@ -72,10 +86,22 @@ class _StaffSignInPageState extends ConsumerState<StaffSignInPage> {
           const SizedBox(height: SagipSpace.md),
           TextField(
             controller: _password,
-            obscureText: true,
+            obscureText: !_showPassword,
             autofillHints: const [AutofillHints.password],
             onTapOutside: (_) => FocusScope.of(context).unfocus(),
-            decoration: InputDecoration(labelText: l10n.password),
+            decoration: InputDecoration(
+              labelText: l10n.password,
+              suffixIcon: IconButton(
+                key: const ValueKey('show-password'),
+                tooltip: _showPassword ? l10n.hidePassword : l10n.showPassword,
+                icon: Icon(
+                  _showPassword
+                      ? Symbols.visibility_off_rounded
+                      : Symbols.visibility_rounded,
+                ),
+                onPressed: () => setState(() => _showPassword = !_showPassword),
+              ),
+            ),
             onSubmitted: (_) => _signIn(),
           ),
           if (_error != null) ...[

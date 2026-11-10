@@ -136,6 +136,7 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
+    await tester.ensureVisible(find.byTooltip('Call MDRRMD'));
     await tester.tap(find.byTooltip('Call MDRRMD'));
     await settle(tester);
     expect(
@@ -152,6 +153,7 @@ void main() {
       config: const ClientConfig(hotline: '(02) 8527-0000'),
     );
     // With a number set, the button calls it (Joshua, 2026-10-28), no dialog.
+    await tester.ensureVisible(find.byTooltip('Call MDRRMD'));
     await tester.tap(find.byTooltip('Call MDRRMD'));
     await settle(tester);
     expect((container.read(phoneCallerProvider) as MockPhoneCaller).called, [
@@ -169,6 +171,7 @@ void main() {
       config: const ClientConfig(hotline: '(02) 8527-0000'),
       caller: MockPhoneCaller(outcome: CallOutcome.unavailable),
     );
+    await tester.ensureVisible(find.byTooltip('Call MDRRMD'));
     await tester.tap(find.byTooltip('Call MDRRMD'));
     await settle(tester);
     expect(find.text('Call (02) 8527-0000 from any phone.'), findsOneWidget);
@@ -238,10 +241,17 @@ void main() {
     await pumpApp(tester);
     await tap(tester, 'New to S.A.G.I.P.? Create an account');
     // Optional, with a reminder that it can be done later.
-    expect(
-      find.textContaining('You can always add or change vulnerable residents'),
-      findsOneWidget,
+    final later = find.textContaining(
+      'You can always add or change vulnerable residents',
     );
+    await tester.scrollUntilVisible(
+      later,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(later, findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 2000));
+    await settle(tester);
     await tester.enterText(find.byType(TextField).at(0), 'Ana Reyes');
     await tester.enterText(find.byType(TextField).at(1), '0918 555 0102');
     await tap(tester, 'Barangay');

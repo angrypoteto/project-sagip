@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import '../../common/auth_header.dart';
 import '../../common/hotline.dart';
 import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
@@ -23,6 +24,7 @@ class SignInPage extends ConsumerStatefulWidget {
 
 class _SignInPageState extends ConsumerState<SignInPage> {
   final _phone = TextEditingController();
+  final _sealKey = GlobalKey();
   PhoneAuthFailure? _error;
   var _busy = false;
 
@@ -78,7 +80,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: SagipSpace.x3),
-                    const Center(child: SagipMark(size: 64)),
+                    Center(
+                      child: AuthHeader(sealKey: _sealKey, busy: _busy),
+                    ),
                     const SizedBox(height: SagipSpace.xl),
                     Text(
                       l10n.residentSignInTitle,

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
+import 'features/shell/phone_notice.dart';
 import 'l10n/app_localizations.dart';
 import 'providers.dart';
 import 'router.dart';
@@ -27,8 +28,10 @@ class SagipDashboardApp extends ConsumerWidget {
       // flutter_map still uses package:flutter/material.dart; the bridge lets
       // its widgets read our material_ui theme (material_ui migration guide).
       // Remove once flutter_map migrates to material_ui.
-      // ignore: deprecated_member_use
-      builder: (context, child) => MaterialUiCompatibilityBridge(child: child!),
+      // On a phone it first suggests a computer (2026-11-10).
+      builder: (context, child) =>
+          // ignore: deprecated_member_use
+          MaterialUiCompatibilityBridge(child: PhoneNotice(child: child!)),
     );
   }
 }

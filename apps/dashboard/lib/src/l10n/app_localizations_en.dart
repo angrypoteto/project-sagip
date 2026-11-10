@@ -19,6 +19,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cityMotto => 'Manila, God First';
 
   @override
+  String get phoneNoticeTitle => 'Please use a computer';
+
+  @override
+  String get phoneNoticeBody =>
+      'The S.A.G.I.P. Command Center is made for MDRRMD dispatchers and administrators at a computer. Open staff.sagip.me on a PC or laptop.';
+
+  @override
+  String get phoneNoticeApp =>
+      'Rescue personnel and residents: use the S.A.G.I.P. app on your phone. Get it at sagip.me.';
+
+  @override
+  String get phoneNoticeContinue => 'Continue on this phone anyway';
+
+  @override
   String get brandOffice => 'Manila City MDRRMD';
 
   @override

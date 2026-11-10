@@ -1372,6 +1372,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerTitle => 'Create an account';
 
   @override
+  String get brandName => 'S.A.G.I.P.';
+
+  @override
+  String get cityMotto => 'Manila, God First';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get registerStep => 'Step 1 of 2: your details. Next, a code by SMS.';
+
+  @override
+  String get haveAccountSignIn => 'Already have an account? Sign in';
+
+  @override
   String get registerBody =>
       'MDRRMD uses this to reach you and to know your barangay.';
 

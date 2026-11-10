@@ -73,6 +73,7 @@ export 'src/widgets/responder_widgets.dart';
 export 'src/widgets/safe_place_widgets.dart';
 export 'src/widgets/sagip_chip.dart';
 export 'src/widgets/sagip_map.dart';
+export 'src/widgets/seal_motion.dart';
 export 'src/widgets/sos_button.dart';
 export 'src/widgets/state_views.dart';
 export 'src/widgets/status_visuals.dart';

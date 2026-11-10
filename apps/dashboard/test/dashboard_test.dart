@@ -15,7 +15,6 @@ import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
 import 'package:sagip_dashboard/src/features/forecast/forecast_page.dart';
 import 'package:sagip_dashboard/src/features/forecast/heat_layer.dart';
-import 'package:sagip_dashboard/src/features/auth/sign_in_page.dart';
 import 'package:sagip_dashboard/src/features/shell/top_bar.dart';
 import 'package:sagip_dashboard/src/l10n/app_localizations.dart';
 import 'package:sagip_dashboard/src/providers.dart';
@@ -399,6 +398,21 @@ void main() {
     await settle(tester);
     expect(find.text('New SOS'), findsOneWidget);
     expect(chimesPlayed, before + 1);
+  });
+
+  testWidgets('on a phone it suggests a computer first (2026-11-10)', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    tester.view.physicalSize = const Size(390, 844);
+    await settle(tester);
+    expect(find.text('Please use a computer'), findsOneWidget);
+    expect(find.textContaining('Get it at sagip.me'), findsOneWidget);
+    expect(find.text('Sign in to the command board'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('phone-notice-continue')));
+    await settle(tester);
+    expect(find.text('Please use a computer'), findsNothing);
+    expect(find.text('Sign in to the command board'), findsOneWidget);
   });
 
   testWidgets('signing in: the seal floats, flies forward, and fades '

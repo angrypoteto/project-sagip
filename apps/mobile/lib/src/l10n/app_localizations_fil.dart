@@ -1384,6 +1384,25 @@ class AppLocalizationsFil extends AppLocalizations {
   String get registerTitle => 'Gumawa ng account';
 
   @override
+  String get brandName => 'S.A.G.I.P.';
+
+  @override
+  String get cityMotto => 'Manila, God First';
+
+  @override
+  String get showPassword => 'Ipakita ang password';
+
+  @override
+  String get hidePassword => 'Itago ang password';
+
+  @override
+  String get registerStep =>
+      'Hakbang 1 ng 2: ang iyong detalye. Susunod, code sa SMS.';
+
+  @override
+  String get haveAccountSignIn => 'May account na? Mag-sign in';
+
+  @override
   String get registerBody =>
       'Ginagamit ito ng MDRRMD para makontak ka at malaman ang iyong barangay.';
 

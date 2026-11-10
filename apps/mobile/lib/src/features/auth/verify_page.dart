@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
 import '../../common/labels.dart';
+import '../../common/auth_header.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 
@@ -29,6 +30,7 @@ class _VerifyPageState extends ConsumerState<VerifyPage> {
   var _left = _resendAfter;
   var _busy = false;
   PhoneAuthFailure? _error;
+  final _sealKey = GlobalKey();
 
   @override
   void initState() {
@@ -55,6 +57,8 @@ class _VerifyPageState extends ConsumerState<VerifyPage> {
 
   Future<void> _check() async {
     if (_code.text.length != 6) return;
+    // Readied now: once signed in, the router replaces this page.
+    final flight = SealFlightLauncher(context, seal: _sealKey);
     setState(() {
       _busy = true;
       _error = null;
@@ -63,6 +67,7 @@ class _VerifyPageState extends ConsumerState<VerifyPage> {
       await ref
           .read(residentAccountRepositoryProvider)
           .verifyCode(phone: widget.phone, code: _code.text);
+      flight.play();
     } on PhoneAuthException catch (e) {
       if (mounted) setState(() => _error = e.reason);
     } finally {
@@ -106,7 +111,15 @@ class _VerifyPageState extends ConsumerState<VerifyPage> {
       body: ListView(
         padding: const EdgeInsets.all(SagipSpace.xl),
         children: [
-          Text(l10n.verifyBody(_pretty), style: text.bodyLarge),
+          Center(
+            child: AuthHeader(sealKey: _sealKey, busy: _busy, size: 56),
+          ),
+          const SizedBox(height: SagipSpace.xl),
+          Text(
+            l10n.verifyBody(_pretty),
+            style: text.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: SagipSpace.xl),
           TextField(
             controller: _code,

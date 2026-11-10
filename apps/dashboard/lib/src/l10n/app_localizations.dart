@@ -112,6 +112,30 @@ abstract class AppLocalizations {
   /// **'Manila, God First'**
   String get cityMotto;
 
+  /// No description provided for @phoneNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please use a computer'**
+  String get phoneNoticeTitle;
+
+  /// No description provided for @phoneNoticeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The S.A.G.I.P. Command Center is made for MDRRMD dispatchers and administrators at a computer. Open staff.sagip.me on a PC or laptop.'**
+  String get phoneNoticeBody;
+
+  /// No description provided for @phoneNoticeApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescue personnel and residents: use the S.A.G.I.P. app on your phone. Get it at sagip.me.'**
+  String get phoneNoticeApp;
+
+  /// No description provided for @phoneNoticeContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue on this phone anyway'**
+  String get phoneNoticeContinue;
+
   /// No description provided for @brandOffice.
   ///
   /// In en, this message translates to:
