@@ -214,52 +214,136 @@ class UserMenu extends ConsumerWidget {
             ref.read(authRepositoryProvider).signOut();
         }
       },
+      // Compact and a little wider than its longest line, each line with
+      // its icon (Joshua, 2026-11-10: "it feels elongated").
+      constraints: const BoxConstraints(minWidth: 248, maxWidth: 280),
+      menuPadding: const EdgeInsets.symmetric(vertical: SagipSpace.xs),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: p.hairline),
+      ),
       itemBuilder: (context) => [
-        // Who is signed in: the bar itself shows only the circle.
+        // Who is signed in: the circle, the name, and the role.
         PopupMenuItem(
           enabled: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          height: 56,
+          child: Row(
             children: [
-              Text(
-                user.displayName,
-                style: text.titleSmall!.copyWith(color: p.textPrimary),
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: p.panelRaised,
+                child: Text(
+                  initials,
+                  style: text.labelSmall!.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: p.textPrimary,
+                  ),
+                ),
               ),
-              Text(
-                l10n.role(user.role),
-                style: text.bodySmall!.copyWith(color: p.textSecondary),
+              const SizedBox(width: SagipSpace.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      user.displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.titleSmall!.copyWith(color: p.textPrimary),
+                    ),
+                    Text(
+                      l10n.role(user.role),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.bodySmall!.copyWith(color: p.textSecondary),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-        const PopupMenuDivider(),
-        PopupMenuItem(value: _MenuAction.account, child: Text(l10n.myAccount)),
-        PopupMenuItem(
-          value: _MenuAction.theme,
-          child: Text(isDark ? l10n.switchToLight : l10n.switchToDark),
+        const PopupMenuDivider(height: 9),
+        _item(
+          context,
+          _MenuAction.account,
+          Symbols.person_rounded,
+          l10n.myAccount,
+        ),
+        _item(
+          context,
+          _MenuAction.theme,
+          isDark ? Symbols.light_mode_rounded : Symbols.dark_mode_rounded,
+          isDark ? l10n.switchToLight : l10n.switchToDark,
         ),
         if (backend != null) ...[
-          const PopupMenuDivider(),
-          PopupMenuItem(enabled: false, child: Text(l10n.demoConnection)),
+          const PopupMenuDivider(height: 9),
           PopupMenuItem(
-            value: _MenuAction.offline,
-            child: Text(l10n.demoGoOffline),
+            enabled: false,
+            height: 32,
+            child: Text(
+              l10n.demoConnection,
+              style: text.labelSmall!.copyWith(color: p.textSecondary),
+            ),
           ),
-          PopupMenuItem(
-            value: _MenuAction.reconnecting,
-            child: Text(l10n.demoReconnecting),
+          _item(
+            context,
+            _MenuAction.offline,
+            Symbols.cloud_off_rounded,
+            l10n.demoGoOffline,
           ),
-          PopupMenuItem(value: _MenuAction.live, child: Text(l10n.demoGoLive)),
-          PopupMenuItem(
-            value: _MenuAction.expire,
-            child: Text(l10n.demoExpireSession),
+          _item(
+            context,
+            _MenuAction.reconnecting,
+            Symbols.sync_rounded,
+            l10n.demoReconnecting,
+          ),
+          _item(
+            context,
+            _MenuAction.live,
+            Symbols.wifi_rounded,
+            l10n.demoGoLive,
+          ),
+          _item(
+            context,
+            _MenuAction.expire,
+            Symbols.timer_off_rounded,
+            l10n.demoExpireSession,
           ),
         ],
-        const PopupMenuDivider(),
-        PopupMenuItem(value: _MenuAction.signOut, child: Text(l10n.signOut)),
+        const PopupMenuDivider(height: 9),
+        _item(
+          context,
+          _MenuAction.signOut,
+          Symbols.logout_rounded,
+          l10n.signOut,
+        ),
       ],
       child: inSideMenu ? _sideMenuFace(context, user, avatar) : avatar,
+    );
+  }
+
+  /// One line of the menu: its icon, then its name.
+  PopupMenuItem<_MenuAction> _item(
+    BuildContext context,
+    _MenuAction value,
+    IconData icon,
+    String label,
+  ) {
+    final p = SagipPalette.of(context);
+    return PopupMenuItem(
+      value: value,
+      height: 40,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: p.textSecondary),
+          const SizedBox(width: SagipSpace.md),
+          Expanded(
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
     );
   }
 
