@@ -157,66 +157,68 @@ class _LocationPickerState extends ConsumerState<LocationPickerPage> {
 
     return Stack(
       children: [
-        FlutterMap(
-          mapController: _map,
-          options: MapOptions(
-            backgroundColor: mapBackground(context),
-            minZoom: mapMinZoom,
-            cameraConstraint: mapCameraConstraint,
-            initialCenter: toLatLng(_center),
-            initialZoom: 17,
-            onMapReady: () => _ready = true,
-            // Moves by code set the center themselves (_moveTo).
-            onPositionChanged: (camera, hasGesture) {
-              if (!hasGesture) return;
-              final c = camera.center;
-              setState(() {
-                _center = GeoPoint(c.latitude, c.longitude);
-                _onGps = false;
-              });
-            },
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-            ),
-          ),
-          children: [
-            SagipTiles(
-              userAgentPackageName: 'ph.sagip.mobile',
-              enabled: tiles,
-              tileProvider: ref.watch(tileProviderProvider),
-            ),
-            if (gps != null) ...[
-              CircleLayer(
-                circles: [
-                  CircleMarker(
-                    point: toLatLng(gps.point),
-                    radius: gps.accuracyMeters.clamp(5, 200),
-                    useRadiusInMeter: true,
-                    color: p.info.fill.withValues(alpha: 0.12),
-                    borderColor: p.info.fill.withValues(alpha: 0.4),
-                    borderStrokeWidth: 1,
-                  ),
-                ],
+        ManilaZoom(
+          builder: (context, minZoom) => FlutterMap(
+            mapController: _map,
+            options: MapOptions(
+              backgroundColor: mapBackground(context),
+              minZoom: minZoom,
+              cameraConstraint: mapCameraConstraint,
+              initialCenter: toLatLng(_center),
+              initialZoom: startZoom(17, minZoom),
+              onMapReady: () => _ready = true,
+              // Moves by code set the center themselves (_moveTo).
+              onPositionChanged: (camera, hasGesture) {
+                if (!hasGesture) return;
+                final c = camera.center;
+                setState(() {
+                  _center = GeoPoint(c.latitude, c.longitude);
+                  _onGps = false;
+                });
+              },
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: toLatLng(gps.point),
-                    width: MyLocationMarker.size,
-                    height: MyLocationMarker.size,
-                    child: Semantics(
-                      container: true,
-                      label: l10n.youAreHere,
-                      child: MyLocationMarker(
-                        heading: ref.watch(headingProvider).value,
+            ),
+            children: [
+              SagipTiles(
+                userAgentPackageName: 'ph.sagip.mobile',
+                enabled: tiles,
+                tileProvider: ref.watch(tileProviderProvider),
+              ),
+              if (gps != null) ...[
+                CircleLayer(
+                  circles: [
+                    CircleMarker(
+                      point: toLatLng(gps.point),
+                      radius: gps.accuracyMeters.clamp(5, 200),
+                      useRadiusInMeter: true,
+                      color: p.info.fill.withValues(alpha: 0.12),
+                      borderColor: p.info.fill.withValues(alpha: 0.4),
+                      borderStrokeWidth: 1,
+                    ),
+                  ],
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: toLatLng(gps.point),
+                      width: MyLocationMarker.size,
+                      height: MyLocationMarker.size,
+                      child: Semantics(
+                        container: true,
+                        label: l10n.youAreHere,
+                        child: MyLocationMarker(
+                          heading: ref.watch(headingProvider).value,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
+              MapCredit(label: l10n.mapAttribution),
             ],
-            MapCredit(label: l10n.mapAttribution),
-          ],
+          ),
         ),
         // The pin stays in the middle; the map moves under it. Its tip
         // marks the spot.

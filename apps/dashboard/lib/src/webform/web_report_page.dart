@@ -574,40 +574,44 @@ class _PinMap extends ConsumerWidget {
           decoration: BoxDecoration(color: p.panelRaised),
           child: Stack(
             children: [
-              FlutterMap(
-                key: const ValueKey('web-map'),
-                mapController: controller,
-                options: MapOptions(
-                  backgroundColor: mapBackground(context),
-                  minZoom: mapMinZoom,
-                  cameraConstraint: mapCameraConstraint,
-                  initialCenter: start == null ? manilaCenter : toLatLng(start),
-                  initialZoom: start == null ? 13 : 16,
-                  maxZoom: 19,
-                  onMapReady: onReady,
-                  // Moves by code set the location themselves.
-                  onPositionChanged: (camera, hasGesture) {
-                    if (!hasGesture) return;
-                    final c = camera.center;
-                    onMoved(GeoPoint(c.latitude, c.longitude));
-                  },
-                  // The page scrolls, so the wheel does not zoom the map;
-                  // the buttons do.
-                  interactionOptions: const InteractionOptions(
-                    flags:
-                        InteractiveFlag.drag |
-                        InteractiveFlag.pinchZoom |
-                        InteractiveFlag.doubleTapZoom |
-                        InteractiveFlag.flingAnimation,
+              ManilaZoom(
+                builder: (context, minZoom) => FlutterMap(
+                  key: const ValueKey('web-map'),
+                  mapController: controller,
+                  options: MapOptions(
+                    backgroundColor: mapBackground(context),
+                    minZoom: minZoom,
+                    cameraConstraint: mapCameraConstraint,
+                    initialCenter: start == null
+                        ? manilaCenter
+                        : toLatLng(start),
+                    initialZoom: startZoom(start == null ? 13 : 16, minZoom),
+                    maxZoom: 19,
+                    onMapReady: onReady,
+                    // Moves by code set the location themselves.
+                    onPositionChanged: (camera, hasGesture) {
+                      if (!hasGesture) return;
+                      final c = camera.center;
+                      onMoved(GeoPoint(c.latitude, c.longitude));
+                    },
+                    // The page scrolls, so the wheel does not zoom the map;
+                    // the buttons do.
+                    interactionOptions: const InteractionOptions(
+                      flags:
+                          InteractiveFlag.drag |
+                          InteractiveFlag.pinchZoom |
+                          InteractiveFlag.doubleTapZoom |
+                          InteractiveFlag.flingAnimation,
+                    ),
                   ),
+                  children: [
+                    SagipTiles(
+                      userAgentPackageName: 'ph.sagip.webform',
+                      enabled: tiles,
+                    ),
+                    MapCredit(label: l10n.mapAttribution),
+                  ],
                 ),
-                children: [
-                  SagipTiles(
-                    userAgentPackageName: 'ph.sagip.webform',
-                    enabled: tiles,
-                  ),
-                  MapCredit(label: l10n.mapAttribution),
-                ],
               ),
               // The pin stays in the middle; its tip marks the spot.
               IgnorePointer(

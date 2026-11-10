@@ -244,64 +244,67 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
 
     return Stack(
       children: [
-        FlutterMap(
-          mapController: _controller,
-          options: MapOptions(
-            backgroundColor: mapBackground(context),
-            minZoom: mapMinZoom,
-            cameraConstraint: mapCameraConstraint,
-            initialCenter: manilaCenter,
-            initialZoom: 13.6,
-            maxZoom: 18,
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+        ManilaZoom(
+          builder: (context, minZoom) => FlutterMap(
+            mapController: _controller,
+            options: MapOptions(
+              backgroundColor: mapBackground(context),
+              minZoom: minZoom,
+              cameraConstraint: mapCameraConstraint,
+              initialCenter: manilaCenter,
+              initialZoom: startZoom(13.6, minZoom),
+              maxZoom: 18,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
+              onMapReady: () {
+                _ready = true;
+                if (widget.selectedId != null) _focusSelected();
+              },
             ),
-            onMapReady: () {
-              _ready = true;
-              if (widget.selectedId != null) _focusSelected();
-            },
-          ),
-          children: [
-            const SagipBaseMap(),
-            if (_layers.contains(_Layer.boundaries)) const BarangayBoundaries(),
-            // Where routes are slowed: confirmed open floods and fires.
-            CircleLayer(
-              circles: [
-                for (final z in HazardPenalty.fromIncidents(incidents).zones)
-                  CircleMarker(
-                    point: toLatLng(z.center),
-                    radius: z.radiusMeters,
-                    useRadiusInMeter: true,
-                    color: (z.type == IncidentType.fire ? p.critical : p.info)
-                        .fill
-                        .withValues(alpha: 0.18),
-                    borderColor:
-                        (z.type == IncidentType.fire ? p.critical : p.info)
-                            .fill,
-                    borderStrokeWidth: 1.5,
-                  ),
-              ],
-            ),
-            // A dotted line ties each unit to its faint second marker.
-            if (_layers.contains(_Layer.units))
-              PolylineLayer(
-                polylines: [
-                  for (final u in units)
-                    if (ghostOf(u) != null && u.mapPosition != null)
-                      Polyline(
-                        points: [
-                          toLatLng(u.mapPosition!),
-                          toLatLng(ghostOf(u)!),
-                        ],
-                        color: p.textSecondary.withValues(alpha: 0.7),
-                        strokeWidth: 1.5 * scale,
-                        pattern: const StrokePattern.dotted(),
-                      ),
+            children: [
+              const SagipBaseMap(),
+              if (_layers.contains(_Layer.boundaries))
+                const BarangayBoundaries(),
+              // Where routes are slowed: confirmed open floods and fires.
+              CircleLayer(
+                circles: [
+                  for (final z in HazardPenalty.fromIncidents(incidents).zones)
+                    CircleMarker(
+                      point: toLatLng(z.center),
+                      radius: z.radiusMeters,
+                      useRadiusInMeter: true,
+                      color: (z.type == IncidentType.fire ? p.critical : p.info)
+                          .fill
+                          .withValues(alpha: 0.18),
+                      borderColor:
+                          (z.type == IncidentType.fire ? p.critical : p.info)
+                              .fill,
+                      borderStrokeWidth: 1.5,
+                    ),
                 ],
               ),
-            MarkerLayer(markers: markers),
-            const MapAttribution(),
-          ],
+              // A dotted line ties each unit to its faint second marker.
+              if (_layers.contains(_Layer.units))
+                PolylineLayer(
+                  polylines: [
+                    for (final u in units)
+                      if (ghostOf(u) != null && u.mapPosition != null)
+                        Polyline(
+                          points: [
+                            toLatLng(u.mapPosition!),
+                            toLatLng(ghostOf(u)!),
+                          ],
+                          color: p.textSecondary.withValues(alpha: 0.7),
+                          strokeWidth: 1.5 * scale,
+                          pattern: const StrokePattern.dotted(),
+                        ),
+                  ],
+                ),
+              MarkerLayer(markers: markers),
+              const MapAttribution(),
+            ],
+          ),
         ),
         Positioned(
           right: SagipSpace.lg,

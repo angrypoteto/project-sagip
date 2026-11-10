@@ -135,57 +135,61 @@ class _ForecastPageState extends ConsumerState<ForecastPage> {
               MouseRegion(
                 onHover: (e) => _hoverAt(e.localPosition),
                 onExit: (_) => _hover.value = null,
-                child: FlutterMap(
-                  mapController: _map,
-                  options: MapOptions(
-                    backgroundColor: mapBackground(context),
-                    minZoom: mapMinZoom,
-                    cameraConstraint: mapCameraConstraint,
-                    initialCenter: manilaCenter,
-                    initialZoom: 13.2,
-                    maxZoom: 18,
-                    interactionOptions: const InteractionOptions(
-                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                child: ManilaZoom(
+                  builder: (context, minZoom) => FlutterMap(
+                    mapController: _map,
+                    options: MapOptions(
+                      backgroundColor: mapBackground(context),
+                      minZoom: minZoom,
+                      cameraConstraint: mapCameraConstraint,
+                      initialCenter: manilaCenter,
+                      initialZoom: startZoom(13.2, minZoom),
+                      maxZoom: 18,
+                      interactionOptions: const InteractionOptions(
+                        flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                      ),
                     ),
-                  ),
-                  children: [
-                    const SagipBaseMap(),
-                    // The heat map: one smooth field, low in blues, moderate
-                    // in purples, high in reds; the barangay lines stay on
-                    // top, faint, for finding and clicking one.
-                    if (hotspots.isNotEmpty)
-                      HeatLayer(weights: hotspotWeights(hotspots))
-                    else if (recordedType != null)
-                      HeatLayer(
-                        weights: recordedWeights(
-                          recordedCounts(
-                            history.value ?? const <ClosedIncident>[],
-                            recordedType,
+                    children: [
+                      const SagipBaseMap(),
+                      // The heat map: one smooth field, low in blues, moderate
+                      // in purples, high in reds; the barangay lines stay on
+                      // top, faint, for finding and clicking one.
+                      if (hotspots.isNotEmpty)
+                        HeatLayer(weights: hotspotWeights(hotspots))
+                      else if (recordedType != null)
+                        HeatLayer(
+                          weights: recordedWeights(
+                            recordedCounts(
+                              history.value ?? const <ClosedIncident>[],
+                              recordedType,
+                            ),
+                          ),
+                        )
+                      else if (run != null)
+                        HeatLayer(
+                          weights: riskWeights(
+                            run,
+                            _hazard,
+                            densities:
+                                ref.watch(densityProvider).value ??
+                                const <HazardDensity>[],
                           ),
                         ),
-                      )
-                    else if (run != null)
-                      HeatLayer(
-                        weights: riskWeights(
-                          run,
-                          _hazard,
-                          densities:
-                              ref.watch(densityProvider).value ??
-                              const <HazardDensity>[],
+                      BarangayBoundaries(
+                        highlight: selected,
+                        onTap: run == null ? null : _select,
+                      ),
+                      if (run != null &&
+                          selected != null &&
+                          recordedType == null)
+                        _SelectedMarker(
+                          run: run,
+                          hazard: _hazard,
+                          barangay: selected,
                         ),
-                      ),
-                    BarangayBoundaries(
-                      highlight: selected,
-                      onTap: run == null ? null : _select,
-                    ),
-                    if (run != null && selected != null && recordedType == null)
-                      _SelectedMarker(
-                        run: run,
-                        hazard: _hazard,
-                        barangay: selected,
-                      ),
-                    const MapAttribution(),
-                  ],
+                      const MapAttribution(),
+                    ],
+                  ),
                 ),
               ),
               ValueListenableBuilder<_Hover?>(

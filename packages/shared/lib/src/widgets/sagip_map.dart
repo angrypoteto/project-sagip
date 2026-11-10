@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_ui/material_ui.dart';
@@ -18,6 +20,52 @@ LatLng toLatLng(GeoPoint p) => LatLng(p.lat, p.lng);
 /// phone (Joshua, 2026-10-28: a map could be zoomed out to the whole
 /// world, with no streets left to see).
 const mapMinZoom = 11.0;
+
+/// Manila City, its sixteen districts from Tondo to Santa Ana, with a little
+/// room around them.
+final manilaCityBounds = LatLngBounds(
+  const LatLng(14.550, 120.940),
+  const LatLng(14.642, 121.030),
+);
+
+/// The farthest a map of [size] zooms out: all of Manila City just fits in
+/// it, and no further (Joshua, 2026-11-10: "only zoomed out max to the size
+/// of Manila"). Dragging still reaches the rest ([mapCameraConstraint]).
+/// Never below [mapMinZoom]; [mapMinZoom] while the size is unknown.
+double manilaMinZoom(Size size) {
+  if (!size.width.isFinite || !size.height.isFinite) return mapMinZoom;
+  if (size.width <= 0 || size.height <= 0) return mapMinZoom;
+  // Web Mercator at zoom 0: the world is 256 px square.
+  double y(double lat) {
+    final r = lat * math.pi / 180;
+    return (1 - math.log(math.tan(r) + 1 / math.cos(r)) / math.pi) / 2 * 256;
+  }
+
+  final b = manilaCityBounds;
+  final w = (b.east - b.west) / 360 * 256;
+  final h = y(b.south) - y(b.north);
+  final z = math.min(
+    math.log(size.width / w) / math.ln2,
+    math.log(size.height / h) / math.ln2,
+  );
+  return math.max(mapMinZoom, math.min(z, 16.0));
+}
+
+/// [wanted], or [minZoom] if that is farther in.
+double startZoom(double wanted, double minZoom) =>
+    wanted < minZoom ? minZoom : wanted;
+
+/// Gives a map the zoom-out limit for its own size ([manilaMinZoom]).
+class ManilaZoom extends StatelessWidget {
+  const ManilaZoom({super.key, required this.builder});
+
+  final Widget Function(BuildContext context, double minZoom) builder;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) => builder(context, manilaMinZoom(box.biggest)),
+  );
+}
 
 /// How far any map can be dragged: its centre stays over Metro Manila and
 /// a margin around it, so it never slides off to the sea or the world.

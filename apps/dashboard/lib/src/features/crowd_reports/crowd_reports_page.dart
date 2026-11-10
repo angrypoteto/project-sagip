@@ -138,67 +138,69 @@ class _CrowdReportsPageState extends ConsumerState<CrowdReportsPage> {
         Expanded(
           child: Stack(
             children: [
-              FlutterMap(
-                mapController: _map,
-                options: MapOptions(
-                  backgroundColor: mapBackground(context),
-                  minZoom: mapMinZoom,
-                  cameraConstraint: mapCameraConstraint,
-                  initialCenter: manilaCenter,
-                  initialZoom: 13.6,
-                  maxZoom: 18,
-                  interactionOptions: const InteractionOptions(
-                    flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ManilaZoom(
+                builder: (context, minZoom) => FlutterMap(
+                  mapController: _map,
+                  options: MapOptions(
+                    backgroundColor: mapBackground(context),
+                    minZoom: minZoom,
+                    cameraConstraint: mapCameraConstraint,
+                    initialCenter: manilaCenter,
+                    initialZoom: startZoom(13.6, minZoom),
+                    maxZoom: 18,
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                    ),
                   ),
-                ),
-                children: [
-                  const SagipBaseMap(),
-                  // The 50 m clustering radius around each confirmed cluster.
-                  CircleLayer(
-                    circles: [
-                      for (final id in clusters.keys)
-                        CircleMarker(
-                          point: toLatLng(incidents[id]!.location),
-                          radius: 50,
-                          useRadiusInMeter: true,
-                          color: p.critical.tint,
-                          borderColor: p.critical.fill,
-                          borderStrokeWidth: 1.5,
-                        ),
-                    ],
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      for (final r in reports)
-                        Marker(
-                          point: toLatLng(r.location),
-                          width: ReportMarkerRing.size,
-                          height: ReportMarkerRing.size,
-                          child: Tooltip(
-                            message: r.description,
-                            child: ReportMarkerRing(clustered: r.isClustered),
+                  children: [
+                    const SagipBaseMap(),
+                    // The 50 m clustering radius around each confirmed cluster.
+                    CircleLayer(
+                      circles: [
+                        for (final id in clusters.keys)
+                          CircleMarker(
+                            point: toLatLng(incidents[id]!.location),
+                            radius: 50,
+                            useRadiusInMeter: true,
+                            color: p.critical.tint,
+                            borderColor: p.critical.fill,
+                            borderStrokeWidth: 1.5,
                           ),
-                        ),
-                      // Each cluster's count, just above its reports so the
-                      // dots stay visible.
-                      for (final entry in clusters.entries)
-                        Marker(
-                          key: ValueKey('cluster-count-${entry.key}'),
-                          point: toLatLng(incidents[entry.key]!.location),
-                          width: ClusterCountMarker.size,
-                          height: ClusterCountMarker.size,
-                          alignment: const Alignment(0, -2.2),
-                          child: Tooltip(
-                            message: l10n.clusterReports(entry.value.length),
-                            child: ClusterCountMarker(
-                              count: entry.value.length,
+                      ],
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        for (final r in reports)
+                          Marker(
+                            point: toLatLng(r.location),
+                            width: ReportMarkerRing.size,
+                            height: ReportMarkerRing.size,
+                            child: Tooltip(
+                              message: r.description,
+                              child: ReportMarkerRing(clustered: r.isClustered),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                  const MapAttribution(),
-                ],
+                        // Each cluster's count, just above its reports so the
+                        // dots stay visible.
+                        for (final entry in clusters.entries)
+                          Marker(
+                            key: ValueKey('cluster-count-${entry.key}'),
+                            point: toLatLng(incidents[entry.key]!.location),
+                            width: ClusterCountMarker.size,
+                            height: ClusterCountMarker.size,
+                            alignment: const Alignment(0, -2.2),
+                            child: Tooltip(
+                              message: l10n.clusterReports(entry.value.length),
+                              child: ClusterCountMarker(
+                                count: entry.value.length,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const MapAttribution(),
+                  ],
+                ),
               ),
               Positioned(
                 left: SagipSpace.lg,

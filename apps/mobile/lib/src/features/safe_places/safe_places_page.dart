@@ -245,81 +245,83 @@ class _SafeMap extends ConsumerWidget {
       borderRadius: BorderRadius.circular(SagipRadius.card),
       child: SizedBox(
         height: 260,
-        child: FlutterMap(
-          // A new set of places frames the map again.
-          key: ValueKey(options.map((o) => o.place.id).join()),
-          options: MapOptions(
-            backgroundColor: mapBackground(context),
-            minZoom: mapMinZoom,
-            cameraConstraint: mapCameraConstraint,
-            initialCenter: points.first,
-            initialZoom: 16,
-            initialCameraFit: CameraFit.coordinates(
-              coordinates: points,
-              padding: const EdgeInsets.all(40),
-              maxZoom: 17,
+        child: ManilaZoom(
+          builder: (context, minZoom) => FlutterMap(
+            // A new set of places frames the map again.
+            key: ValueKey(options.map((o) => o.place.id).join()),
+            options: MapOptions(
+              backgroundColor: mapBackground(context),
+              minZoom: minZoom,
+              cameraConstraint: mapCameraConstraint,
+              initialCenter: points.first,
+              initialZoom: startZoom(16, minZoom),
+              initialCameraFit: CameraFit.coordinates(
+                coordinates: points,
+                padding: const EdgeInsets.all(40),
+                maxZoom: 17,
+              ),
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
             ),
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-            ),
-          ),
-          children: [
-            SagipTiles(
-              userAgentPackageName: 'ph.sagip.mobile',
-              enabled: ref.watch(mapTilesEnabledProvider),
-              tileProvider: ref.watch(tileProviderProvider),
-            ),
-            PolylineLayer(
-              polylines: [
-                Polyline(
-                  points: walk == null
-                      ? [toLatLng(from), toLatLng(chosen.place.location)]
-                      : [for (final pt in walk!.points) toLatLng(pt)],
-                  strokeWidth: 4,
-                  color: p.success.fill,
-                  pattern: walk == null
-                      ? StrokePattern.dashed(segments: const [10, 8])
-                      : const StrokePattern.solid(),
-                ),
-              ],
-            ),
-            MarkerLayer(
-              markers: [
-                for (final o in options)
-                  Marker(
-                    key: ValueKey('safe-marker-${o.place.id}'),
-                    point: toLatLng(o.place.location),
-                    width: 48,
-                    height: 48,
-                    child: GestureDetector(
-                      onTap: () => onSelect(o.place.id),
-                      child: Center(
-                        child: SafePlaceMarker(
-                          kind: o.place.kind,
-                          official: o.place.official,
-                          selected: o == chosen,
-                          label: l10n.safePlaceName(o.place),
-                          size: o == chosen ? 36 : 30,
+            children: [
+              SagipTiles(
+                userAgentPackageName: 'ph.sagip.mobile',
+                enabled: ref.watch(mapTilesEnabledProvider),
+                tileProvider: ref.watch(tileProviderProvider),
+              ),
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: walk == null
+                        ? [toLatLng(from), toLatLng(chosen.place.location)]
+                        : [for (final pt in walk!.points) toLatLng(pt)],
+                    strokeWidth: 4,
+                    color: p.success.fill,
+                    pattern: walk == null
+                        ? StrokePattern.dashed(segments: const [10, 8])
+                        : const StrokePattern.solid(),
+                  ),
+                ],
+              ),
+              MarkerLayer(
+                markers: [
+                  for (final o in options)
+                    Marker(
+                      key: ValueKey('safe-marker-${o.place.id}'),
+                      point: toLatLng(o.place.location),
+                      width: 48,
+                      height: 48,
+                      child: GestureDetector(
+                        onTap: () => onSelect(o.place.id),
+                        child: Center(
+                          child: SafePlaceMarker(
+                            kind: o.place.kind,
+                            official: o.place.official,
+                            selected: o == chosen,
+                            label: l10n.safePlaceName(o.place),
+                            size: o == chosen ? 36 : 30,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                Marker(
-                  point: toLatLng(from),
-                  width: MyLocationMarker.size,
-                  height: MyLocationMarker.size,
-                  child: Semantics(
-                    container: true,
-                    label: l10n.youAreHere,
-                    child: MyLocationMarker(
-                      heading: ref.watch(headingProvider).value,
+                  Marker(
+                    point: toLatLng(from),
+                    width: MyLocationMarker.size,
+                    height: MyLocationMarker.size,
+                    child: Semantics(
+                      container: true,
+                      label: l10n.youAreHere,
+                      child: MyLocationMarker(
+                        heading: ref.watch(headingProvider).value,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            MapCredit(label: l10n.mapAttribution),
-          ],
+                ],
+              ),
+              MapCredit(label: l10n.mapAttribution),
+            ],
+          ),
         ),
       ),
     );

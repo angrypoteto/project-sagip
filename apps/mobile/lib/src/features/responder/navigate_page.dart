@@ -144,119 +144,121 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
           Expanded(
             child: Stack(
               children: [
-                FlutterMap(
-                  mapController: _map,
-                  options: MapOptions(
-                    backgroundColor: mapBackground(context),
-                    minZoom: mapMinZoom,
-                    cameraConstraint: mapCameraConstraint,
-                    initialCenter: toLatLng(unit ?? a.destination),
-                    initialZoom: 17,
-                    onMapReady: () => _ready = true,
-                    onPositionChanged: (_, hasGesture) {
-                      if (hasGesture && _follow) {
-                        setState(() => _follow = false);
-                      }
-                    },
-                    interactionOptions: const InteractionOptions(
-                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                ManilaZoom(
+                  builder: (context, minZoom) => FlutterMap(
+                    mapController: _map,
+                    options: MapOptions(
+                      backgroundColor: mapBackground(context),
+                      minZoom: minZoom,
+                      cameraConstraint: mapCameraConstraint,
+                      initialCenter: toLatLng(unit ?? a.destination),
+                      initialZoom: startZoom(17, minZoom),
+                      onMapReady: () => _ready = true,
+                      onPositionChanged: (_, hasGesture) {
+                        if (hasGesture && _follow) {
+                          setState(() => _follow = false);
+                        }
+                      },
+                      interactionOptions: const InteractionOptions(
+                        flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                      ),
                     ),
-                  ),
-                  children: [
-                    SagipTiles(
-                      userAgentPackageName: 'ph.sagip.mobile',
-                      enabled: tiles,
-                      tileProvider: ref.watch(tileProviderProvider),
-                    ),
-                    // Where the route is slowed: confirmed floods and fires.
-                    CircleLayer(
-                      circles: [
-                        for (final z in hazards)
-                          CircleMarker(
-                            point: toLatLng(z.center),
-                            radius: z.radiusMeters,
-                            useRadiusInMeter: true,
-                            color:
-                                (z.type == IncidentType.fire
-                                        ? p.critical
-                                        : p.info)
-                                    .fill
-                                    .withValues(alpha: 0.22),
-                            borderColor:
-                                (z.type == IncidentType.fire
-                                        ? p.critical
-                                        : p.info)
-                                    .fill,
-                            borderStrokeWidth: 1.5,
-                          ),
-                      ],
-                    ),
-                    if (unit != null && rest.isNotEmpty)
-                      PolylineLayer(
-                        polylines: [
-                          Polyline(points: rest, strokeWidth: 6, color: line),
+                    children: [
+                      SagipTiles(
+                        userAgentPackageName: 'ph.sagip.mobile',
+                        enabled: tiles,
+                        tileProvider: ref.watch(tileProviderProvider),
+                      ),
+                      // Where the route is slowed: confirmed floods and fires.
+                      CircleLayer(
+                        circles: [
+                          for (final z in hazards)
+                            CircleMarker(
+                              point: toLatLng(z.center),
+                              radius: z.radiusMeters,
+                              useRadiusInMeter: true,
+                              color:
+                                  (z.type == IncidentType.fire
+                                          ? p.critical
+                                          : p.info)
+                                      .fill
+                                      .withValues(alpha: 0.22),
+                              borderColor:
+                                  (z.type == IncidentType.fire
+                                          ? p.critical
+                                          : p.info)
+                                      .fill,
+                              borderStrokeWidth: 1.5,
+                            ),
                         ],
                       ),
-                    if (unit != null)
-                      GlidingLayer(
-                        target: toLatLng(unit),
-                        builder: (at) => PolylineLayer(
+                      if (unit != null && rest.isNotEmpty)
+                        PolylineLayer(
                           polylines: [
-                            if (rest.isNotEmpty)
-                              Polyline(
-                                points: [at, rest.first],
-                                strokeWidth: 6,
-                                color: line,
-                              )
-                            else
-                              Polyline(
-                                points: [at, toLatLng(a.destination)],
-                                strokeWidth: 5,
-                                color: line,
-                                pattern: StrokePattern.dashed(
-                                  segments: const [12, 8],
-                                ),
-                              ),
+                            Polyline(points: rest, strokeWidth: 6, color: line),
                           ],
                         ),
-                      ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: toLatLng(a.destination),
-                          width: 44,
-                          height: 44,
-                          child: Semantics(
-                            container: true,
-                            label: l10n.destination,
-                            child: const SosPinMarker(),
+                      if (unit != null)
+                        GlidingLayer(
+                          target: toLatLng(unit),
+                          builder: (at) => PolylineLayer(
+                            polylines: [
+                              if (rest.isNotEmpty)
+                                Polyline(
+                                  points: [at, rest.first],
+                                  strokeWidth: 6,
+                                  color: line,
+                                )
+                              else
+                                Polyline(
+                                  points: [at, toLatLng(a.destination)],
+                                  strokeWidth: 5,
+                                  color: line,
+                                  pattern: StrokePattern.dashed(
+                                    segments: const [12, 8],
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                    if (unit != null)
-                      GlidingLayer(
-                        target: toLatLng(unit),
-                        builder: (at) => MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: at,
-                              width: 44,
-                              height: 44,
-                              child: Semantics(
-                                container: true,
-                                label: l10n.yourUnit,
-                                child: UnitMarker(
-                                  type: state.unit.type,
-                                  heading: heading,
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: toLatLng(a.destination),
+                            width: 44,
+                            height: 44,
+                            child: Semantics(
+                              container: true,
+                              label: l10n.destination,
+                              child: const SosPinMarker(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (unit != null)
+                        GlidingLayer(
+                          target: toLatLng(unit),
+                          builder: (at) => MarkerLayer(
+                            markers: [
+                              Marker(
+                                point: at,
+                                width: 44,
+                                height: 44,
+                                child: Semantics(
+                                  container: true,
+                                  label: l10n.yourUnit,
+                                  child: UnitMarker(
+                                    type: state.unit.type,
+                                    heading: heading,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    MapCredit(label: l10n.mapAttribution),
-                  ],
+                      MapCredit(label: l10n.mapAttribution),
+                    ],
+                  ),
                 ),
                 if (!_follow)
                   Positioned(

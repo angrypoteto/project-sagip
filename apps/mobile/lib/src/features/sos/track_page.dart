@@ -96,98 +96,102 @@ class _TrackBody extends ConsumerWidget {
 
     return Stack(
       children: [
-        FlutterMap(
-          options: MapOptions(
-            backgroundColor: mapBackground(context),
-            minZoom: mapMinZoom,
-            cameraConstraint: mapCameraConstraint,
-            initialCenter: points.isEmpty ? manilaCenter : points.first,
-            initialZoom: 16,
-            initialCameraFit: fitBoth
-                ? CameraFit.coordinates(
-                    coordinates: points,
-                    padding: const EdgeInsets.fromLTRB(60, 60, 60, 260),
-                    maxZoom: 17,
-                  )
-                : null,
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-            ),
-          ),
-          children: [
-            SagipTiles(
-              userAgentPackageName: 'ph.sagip.mobile',
-              enabled: tiles,
-              tileProvider: ref.watch(tileProviderProvider),
-            ),
-            if (you != null && unit != null && rest.isNotEmpty)
-              PolylineLayer(
-                polylines: [
-                  Polyline(points: rest, strokeWidth: 5, color: line),
-                ],
+        ManilaZoom(
+          builder: (context, minZoom) => FlutterMap(
+            options: MapOptions(
+              backgroundColor: mapBackground(context),
+              minZoom: minZoom,
+              cameraConstraint: mapCameraConstraint,
+              initialCenter: points.isEmpty ? manilaCenter : points.first,
+              initialZoom: startZoom(16, minZoom),
+              initialCameraFit: fitBoth
+                  ? CameraFit.coordinates(
+                      coordinates: points,
+                      padding: const EdgeInsets.fromLTRB(60, 60, 60, 260),
+                      maxZoom: 17,
+                    )
+                  : null,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
-            if (you != null && unit != null)
-              GlidingLayer(
-                target: unit,
-                builder: (at) => PolylineLayer(
+            ),
+            children: [
+              SagipTiles(
+                userAgentPackageName: 'ph.sagip.mobile',
+                enabled: tiles,
+                tileProvider: ref.watch(tileProviderProvider),
+              ),
+              if (you != null && unit != null && rest.isNotEmpty)
+                PolylineLayer(
                   polylines: [
-                    if (rest.isNotEmpty)
-                      Polyline(
-                        points: [at, rest.first],
-                        strokeWidth: 5,
-                        color: line,
-                      )
-                    else
-                      Polyline(
-                        points: [at, you],
-                        strokeWidth: 4,
-                        color: line,
-                        pattern: StrokePattern.dashed(segments: const [10, 8]),
-                      ),
+                    Polyline(points: rest, strokeWidth: 5, color: line),
                   ],
                 ),
-              ),
-            if (you != null)
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: you,
-                    width: MyLocationMarker.size,
-                    height: MyLocationMarker.size,
-                    child: Semantics(
-                      container: true,
-                      label: l10n.youAreHere,
-                      // Only the arrow follows the compass, which changes
-                      // many times a second; the map stays put.
-                      child: Consumer(
-                        builder: (context, ref, _) => MyLocationMarker(
-                          heading: ref.watch(headingProvider).value,
+              if (you != null && unit != null)
+                GlidingLayer(
+                  target: unit,
+                  builder: (at) => PolylineLayer(
+                    polylines: [
+                      if (rest.isNotEmpty)
+                        Polyline(
+                          points: [at, rest.first],
+                          strokeWidth: 5,
+                          color: line,
+                        )
+                      else
+                        Polyline(
+                          points: [at, you],
+                          strokeWidth: 4,
+                          color: line,
+                          pattern: StrokePattern.dashed(
+                            segments: const [10, 8],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              if (you != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: you,
+                      width: MyLocationMarker.size,
+                      height: MyLocationMarker.size,
+                      child: Semantics(
+                        container: true,
+                        label: l10n.youAreHere,
+                        // Only the arrow follows the compass, which changes
+                        // many times a second; the map stays put.
+                        child: Consumer(
+                          builder: (context, ref, _) => MyLocationMarker(
+                            heading: ref.watch(headingProvider).value,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            if (unit != null)
-              GlidingLayer(
-                target: unit,
-                builder: (at) => MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: at,
-                      width: 44,
-                      height: 44,
-                      child: Semantics(
-                        container: true,
-                        label: l10n.responderMarker(sos.unitCallSign ?? ''),
-                        child: UnitMarker(type: sos.unitType),
-                      ),
-                    ),
                   ],
                 ),
-              ),
-            MapCredit(label: l10n.mapAttribution),
-          ],
+              if (unit != null)
+                GlidingLayer(
+                  target: unit,
+                  builder: (at) => MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: at,
+                        width: 44,
+                        height: 44,
+                        child: Semantics(
+                          container: true,
+                          label: l10n.responderMarker(sos.unitCallSign ?? ''),
+                          child: UnitMarker(type: sos.unitType),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              MapCredit(label: l10n.mapAttribution),
+            ],
+          ),
         ),
         Positioned(
           left: SagipSpace.lg,

@@ -89,77 +89,79 @@ class _Body extends ConsumerWidget {
           borderRadius: BorderRadius.circular(SagipRadius.card),
           child: SizedBox(
             height: 200,
-            child: FlutterMap(
-              options: MapOptions(
-                backgroundColor: mapBackground(context),
-                minZoom: mapMinZoom,
-                cameraConstraint: mapCameraConstraint,
-                initialCenter: points.first,
-                initialZoom: 15,
-                initialCameraFit: points.length == 2 && points[0] != points[1]
-                    ? CameraFit.coordinates(
-                        coordinates: points,
-                        padding: const EdgeInsets.all(40),
-                        maxZoom: 17,
-                      )
-                    : null,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.none,
-                ),
-              ),
-              children: [
-                SagipTiles(
-                  userAgentPackageName: 'ph.sagip.mobile',
-                  enabled: tiles,
-                  tileProvider: ref.watch(tileProviderProvider),
-                ),
-                if (road != null)
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: [for (final q in road.points) toLatLng(q)],
-                        strokeWidth: 4,
-                        color: p.info.fill,
-                      ),
-                    ],
-                  )
-                else if (unit != null)
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: points.reversed.toList(),
-                        strokeWidth: 3,
-                        color: p.info.fill,
-                        pattern: StrokePattern.dashed(segments: const [8, 6]),
-                      ),
-                    ],
+            child: ManilaZoom(
+              builder: (context, minZoom) => FlutterMap(
+                options: MapOptions(
+                  backgroundColor: mapBackground(context),
+                  minZoom: minZoom,
+                  cameraConstraint: mapCameraConstraint,
+                  initialCenter: points.first,
+                  initialZoom: startZoom(15, minZoom),
+                  initialCameraFit: points.length == 2 && points[0] != points[1]
+                      ? CameraFit.coordinates(
+                          coordinates: points,
+                          padding: const EdgeInsets.all(40),
+                          maxZoom: 17,
+                        )
+                      : null,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.none,
                   ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: points.first,
-                      width: 44,
-                      height: 44,
-                      child: Semantics(
-                        container: true,
-                        label: l10n.destination,
-                        child: const SosPinMarker(),
-                      ),
+                ),
+                children: [
+                  SagipTiles(
+                    userAgentPackageName: 'ph.sagip.mobile',
+                    enabled: tiles,
+                    tileProvider: ref.watch(tileProviderProvider),
+                  ),
+                  if (road != null)
+                    PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: [for (final q in road.points) toLatLng(q)],
+                          strokeWidth: 4,
+                          color: p.info.fill,
+                        ),
+                      ],
+                    )
+                  else if (unit != null)
+                    PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: points.reversed.toList(),
+                          strokeWidth: 3,
+                          color: p.info.fill,
+                          pattern: StrokePattern.dashed(segments: const [8, 6]),
+                        ),
+                      ],
                     ),
-                    if (unit != null)
+                  MarkerLayer(
+                    markers: [
                       Marker(
-                        point: toLatLng(unit),
-                        width: 40,
-                        height: 40,
+                        point: points.first,
+                        width: 44,
+                        height: 44,
                         child: Semantics(
                           container: true,
-                          label: l10n.yourUnit,
-                          child: UnitMarker(type: state.unit.type),
+                          label: l10n.destination,
+                          child: const SosPinMarker(),
                         ),
                       ),
-                  ],
-                ),
-              ],
+                      if (unit != null)
+                        Marker(
+                          point: toLatLng(unit),
+                          width: 40,
+                          height: 40,
+                          child: Semantics(
+                            container: true,
+                            label: l10n.yourUnit,
+                            child: UnitMarker(type: state.unit.type),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
