@@ -1398,6 +1398,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agreeTerms => 'I agree to the terms and the privacy notice';
 
   @override
+  String get registerVulnerable =>
+      'Someone in my home may need extra help in an emergency (optional)';
+
+  @override
+  String get registerVulnerableHint =>
+      'A senior citizen, a person with disability, someone pregnant, or others. You will list them after the code, so MDRRMD can reach them first.';
+
+  @override
+  String get registerVulnerableLater =>
+      'You can always add or change vulnerable residents later in Me, then Vulnerability profile.';
+
+  @override
+  String get vulnDone => 'Done';
+
+  @override
   String get readPrivacy => 'Read the privacy notice';
 
   @override

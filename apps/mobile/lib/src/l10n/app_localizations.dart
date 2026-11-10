@@ -2444,6 +2444,30 @@ abstract class AppLocalizations {
   /// **'I agree to the terms and the privacy notice'**
   String get agreeTerms;
 
+  /// No description provided for @registerVulnerable.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone in my home may need extra help in an emergency (optional)'**
+  String get registerVulnerable;
+
+  /// No description provided for @registerVulnerableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A senior citizen, a person with disability, someone pregnant, or others. You will list them after the code, so MDRRMD can reach them first.'**
+  String get registerVulnerableHint;
+
+  /// No description provided for @registerVulnerableLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can always add or change vulnerable residents later in Me, then Vulnerability profile.'**
+  String get registerVulnerableLater;
+
+  /// No description provided for @vulnDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get vulnDone;
+
   /// No description provided for @readPrivacy.
   ///
   /// In en, this message translates to:

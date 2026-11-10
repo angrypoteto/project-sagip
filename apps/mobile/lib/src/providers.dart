@@ -429,6 +429,21 @@ class WelcomeSeen extends Notifier<bool> {
   }
 }
 
+/// Ticked on S4 (Joshua, 2026-11-10): someone at home may need extra help,
+/// so the vulnerability profile opens once the code is accepted. Optional;
+/// it can always be filled in later from Me.
+class AddVulnerableAfterSignUp extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
+}
+
+final addVulnerableAfterSignUpProvider =
+    NotifierProvider<AddVulnerableAfterSignUp, bool>(
+      AddVulnerableAfterSignUp.new,
+    );
+
 final welcomeSeenProvider = NotifierProvider<WelcomeSeen, bool>(
   WelcomeSeen.new,
 );

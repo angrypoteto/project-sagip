@@ -206,9 +206,12 @@ void main() {
     await pumpApp(tester);
     await tap(tester, 'New to S.A.G.I.P.? Create an account');
     await tap(tester, 'Continue');
+    expect(find.text('Agree to the terms to continue.'), findsOneWidget);
+    // The form is longer since 2026-11-10: back to the top for the rest.
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 2000));
+    await settle(tester);
     expect(find.text('Enter your full name.'), findsOneWidget);
     expect(find.text('Choose your barangay.'), findsOneWidget);
-    expect(find.text('Agree to the terms to continue.'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField).at(0), 'Ana Reyes');
     await tester.enterText(find.byType(TextField).at(1), '0918 555 0101');
@@ -226,6 +229,44 @@ void main() {
     await settle(tester);
     expect(find.text('Hi, Ana'), findsOneWidget);
     expect(find.text('Barangay 700, Malate'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('sign-up can open the vulnerability profile (2026-11-10)', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tap(tester, 'New to S.A.G.I.P.? Create an account');
+    // Optional, with a reminder that it can be done later.
+    expect(
+      find.textContaining('You can always add or change vulnerable residents'),
+      findsOneWidget,
+    );
+    await tester.enterText(find.byType(TextField).at(0), 'Ana Reyes');
+    await tester.enterText(find.byType(TextField).at(1), '0918 555 0102');
+    await tap(tester, 'Barangay');
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Search barangays'),
+      'malate',
+    );
+    await settle(tester);
+    await tap(tester, 'Barangay 700');
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('register-vulnerable')),
+    );
+    await tester.tap(find.byKey(const ValueKey('register-vulnerable')));
+    await settle(tester);
+    await tap(tester, 'I agree to the terms and the privacy notice');
+    await tap(tester, 'Continue');
+    await tester.enterText(find.byType(TextField), MockMobileBackend.demoCode);
+    await settle(tester);
+
+    // The profile opens, with its own consent; Done goes home.
+    expect(find.text('Vulnerability profile'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('vuln-close')));
+    await settle(tester);
+    expect(find.text('Hi, Ana'), findsOneWidget);
+    expect(container.read(addVulnerableAfterSignUpProvider), isFalse);
     await finish(tester);
   });
 

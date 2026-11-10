@@ -1411,6 +1411,21 @@ class AppLocalizationsFil extends AppLocalizations {
       'Sumasang-ayon ako sa mga tuntunin at abiso sa privacy';
 
   @override
+  String get registerVulnerable =>
+      'May kasama ako sa bahay na maaaring mangailangan ng dagdag na tulong sa emergency (opsyonal)';
+
+  @override
+  String get registerVulnerableHint =>
+      'Senior citizen, may kapansanan, buntis, o iba pa. Ililista mo sila pagkatapos ng code, para sila ang unang maabot ng MDRRMD.';
+
+  @override
+  String get registerVulnerableLater =>
+      'Maaari mong idagdag o baguhin ang mga nangangailangan ng dagdag na tulong anumang oras sa Ako, pagkatapos Profile para sa dagdag na tulong.';
+
+  @override
+  String get vulnDone => 'Tapos na';
+
+  @override
   String get readPrivacy => 'Basahin ang abiso sa privacy';
 
   @override

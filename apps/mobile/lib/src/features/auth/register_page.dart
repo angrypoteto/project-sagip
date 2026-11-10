@@ -26,6 +26,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _phone = TextEditingController();
   Barangay? _barangay;
   var _agreed = false;
+
+  /// Optional: someone at home may need extra help (2026-11-10).
+  var _vulnerable = false;
   var _busy = false;
   var _tried = false;
   PhoneAuthFailure? _error;
@@ -55,6 +58,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       await ref
           .read(residentAccountRepositoryProvider)
           .register(fullName: _name.text, phone: phone, barangay: _barangay!);
+      ref.read(addVulnerableAfterSignUpProvider.notifier).set(_vulnerable);
       if (mounted) context.push(Routes.verifyFor(phone));
     } on PhoneAuthException catch (e) {
       if (mounted) setState(() => _error = e.reason);
@@ -138,6 +142,41 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               final picked = await showBarangayPicker(context);
               if (picked != null) setState(() => _barangay = picked);
             },
+          ),
+          const SizedBox(height: SagipSpace.sm),
+          // Optional: the profile opens after the code, with its own
+          // consent; it can always be done later from Me.
+          CheckboxListTile(
+            key: const ValueKey('register-vulnerable'),
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            value: _vulnerable,
+            onChanged: (v) => setState(() => _vulnerable = v ?? false),
+            title: Text(l10n.registerVulnerable),
+            subtitle: Text(
+              l10n.registerVulnerableHint,
+              style: text.bodySmall!.copyWith(color: p.textSecondary),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(SagipSpace.md),
+            decoration: BoxDecoration(
+              color: p.info.tint,
+              borderRadius: BorderRadius.circular(SagipRadius.control),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Symbols.info_rounded, size: 20, color: p.info.text),
+                const SizedBox(width: SagipSpace.sm),
+                Expanded(
+                  child: Text(
+                    l10n.registerVulnerableLater,
+                    style: text.bodySmall!.copyWith(color: p.textPrimary),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: SagipSpace.sm),
           CheckboxListTile(

@@ -142,7 +142,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       final home = _homeFor(user);
       // Dispatchers and admins use the web dashboard, not this app.
       if (home == null) return path == Routes.signIn ? null : Routes.signIn;
-      if (public || path == Routes.splash) return home;
+      if (public || path == Routes.splash) {
+        // Signed up wanting to list someone who needs extra help: the
+        // profile opens once, over home (2026-11-10).
+        final vulnerable = ref.read(addVulnerableAfterSignUpProvider.notifier);
+        if (user.role == UserRole.resident &&
+            ref.read(addVulnerableAfterSignUpProvider)) {
+          vulnerable.set(false);
+          return Routes.vulnerability;
+        }
+        return home;
+      }
       final resident = user.role == UserRole.resident;
       if (resident && path.startsWith('/f/')) return home;
       if (!resident && path.startsWith('/r/')) return home;
