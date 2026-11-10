@@ -15,6 +15,7 @@ import 'package:sagip_dashboard/src/features/board/map_parts.dart';
 import 'package:sagip_dashboard/src/features/board/queue_panel.dart';
 import 'package:sagip_dashboard/src/features/forecast/forecast_page.dart';
 import 'package:sagip_dashboard/src/features/forecast/heat_layer.dart';
+import 'package:sagip_dashboard/src/features/auth/sign_in_page.dart';
 import 'package:sagip_dashboard/src/features/shell/top_bar.dart';
 import 'package:sagip_dashboard/src/l10n/app_localizations.dart';
 import 'package:sagip_dashboard/src/providers.dart';
@@ -398,6 +399,28 @@ void main() {
     await settle(tester);
     expect(find.text('New SOS'), findsOneWidget);
     expect(chimesPlayed, before + 1);
+  });
+
+  testWidgets('signing in: the seal floats, flies forward, and fades '
+      '(2026-11-10)', (tester) async {
+    await pumpApp(tester);
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'dispatcher@sagip.test',
+    );
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      MockSeed.demoPassword,
+    );
+    await tester.tap(find.text('Sign in'));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.byType(SealFlight), findsOneWidget);
+    await tester.pump(SealFlight.duration);
+    await tester.pump();
+    expect(find.byType(SealFlight), findsNothing);
+    expect(find.byType(QueuePanel), findsOneWidget);
   });
 
   testWidgets('D1 shows the seal and an eye that shows the password '

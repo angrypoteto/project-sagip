@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -34,9 +36,18 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     super.dispose();
   }
 
+  /// Where the seal is, for the flight after signing in.
+  final _sealKey = GlobalKey();
+
   Future<void> _submit() async {
     if (_busy || !_form.currentState!.validate()) return;
     final l10n = AppLocalizations.of(context);
+    // Taken now: once signed in, the router replaces this page.
+    final overlay = Overlay.of(context, rootOverlay: true);
+    final still = MediaQuery.of(context).disableAnimations;
+    final box = _sealKey.currentContext?.findRenderObject() as RenderBox?;
+    final seal = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+    final canvas = SagipPalette.of(context).canvas;
     setState(() {
       _busy = true;
       _error = null;
@@ -45,6 +56,19 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       await ref
           .read(authRepositoryProvider)
           .signIn(email: _email.text, password: _password.text);
+      // Accepted: the seal alone floats, then flies forward and fades,
+      // over the board as it opens (Joshua, 2026-11-10).
+      if (!still && seal != null) {
+        late final OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => SealFlight(
+            from: seal,
+            background: canvas,
+            onDone: () => entry.remove(),
+          ),
+        );
+        overlay.insert(entry);
+      }
     } on AuthException catch (e) {
       if (mounted) setState(() => _error = l10n.authFailure(e.reason));
     } catch (_) {
@@ -85,7 +109,12 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             // (Joshua, 2026-11-10).
                             // It eases in, and pulses with a ring while signing
                             // in (Joshua, 2026-11-10).
-                            Center(child: _AnimatedSeal(busy: _busy)),
+                            Center(
+                              child: KeyedSubtree(
+                                key: _sealKey,
+                                child: _AnimatedSeal(busy: _busy),
+                              ),
+                            ),
                             const SizedBox(height: SagipSpace.md),
                             Text(
                               l10n.brandName,
@@ -331,6 +360,103 @@ class _AnimatedSealState extends State<_AnimatedSeal>
             child: const SagipMark(size: _size),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// After a sign-in is accepted (Joshua, 2026-11-10): everything but the
+/// seal goes; the seal floats up to the middle of the screen, then flies
+/// toward the viewer, growing and fading, while the page behind it fades
+/// to show the board.
+class SealFlight extends StatefulWidget {
+  const SealFlight({
+    super.key,
+    required this.from,
+    required this.background,
+    required this.onDone,
+  });
+
+  /// Where the seal sat on the card, on screen.
+  final Rect from;
+
+  /// The page color that hides the card, then fades.
+  final Color background;
+  final VoidCallback onDone;
+
+  static const duration = Duration(milliseconds: 1500);
+
+  @override
+  State<SealFlight> createState() => _SealFlightState();
+}
+
+class _SealFlightState extends State<SealFlight>
+    with SingleTickerProviderStateMixin {
+  late final _c = AnimationController(
+    vsync: this,
+    duration: SealFlight.duration,
+  )..forward().whenComplete(widget.onDone);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screen = MediaQuery.sizeOf(context);
+    // 0 to 0.4: float to the middle, a little above it, and settle.
+    final float = CurvedAnimation(
+      parent: _c,
+      curve: const Interval(0, 0.4, curve: Curves.easeInOutCubic),
+    );
+    // 0.45 to 1: fly forward and fade.
+    final fly = CurvedAnimation(
+      parent: _c,
+      curve: const Interval(0.45, 1, curve: Curves.easeInCubic),
+    );
+    // The page behind fades from 0.55, showing the board.
+    final reveal = CurvedAnimation(
+      parent: _c,
+      curve: const Interval(0.55, 1, curve: Curves.easeOut),
+    );
+    final start = widget.from.center;
+    final middle = Offset(screen.width / 2, screen.height / 2);
+    // The box holds the seal and its ring: the seal is the inner part.
+    final size =
+        widget.from.width * _AnimatedSealState._size / _AnimatedSealState._ring;
+    return IgnorePointer(
+      child: AnimatedBuilder(
+        animation: _c,
+        builder: (context, _) {
+          // A gentle rise that peaks mid-float and settles.
+          final lift = -24 * math.sin(math.pi * float.value);
+          final at = Offset.lerp(start, middle, float.value)! + Offset(0, lift);
+          final scale = 1 + 0.25 * float.value + 5 * fly.value;
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: ColoredBox(
+                  color: widget.background.withValues(alpha: 1 - reveal.value),
+                ),
+              ),
+              Positioned(
+                left: at.dx - size / 2,
+                top: at.dy - size / 2,
+                width: size,
+                height: size,
+                child: Opacity(
+                  opacity: (1 - fly.value).clamp(0.0, 1.0),
+                  child: Transform.scale(
+                    scale: scale,
+                    child: SagipMark(size: size),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
