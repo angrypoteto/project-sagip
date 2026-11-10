@@ -76,13 +76,14 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // MDRRMD's seal beside the name (2026-11-10).
-                        Row(
-                          children: [
-                            const SagipMark(size: 40),
-                            const SizedBox(width: SagipSpace.md),
-                            Text(l10n.brandName, style: text.titleMedium),
-                          ],
+                        // MDRRMD's seal above the name, both centered
+                        // (Joshua, 2026-11-10).
+                        const Center(child: SagipMark(size: 72)),
+                        const SizedBox(height: SagipSpace.md),
+                        Text(
+                          l10n.brandName,
+                          style: text.titleMedium,
+                          textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: SagipSpace.xxl),
                         Text(l10n.signInTitle, style: text.headlineSmall),

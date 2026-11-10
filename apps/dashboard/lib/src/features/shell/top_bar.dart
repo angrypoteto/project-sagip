@@ -70,7 +70,7 @@ class _WeatherSummary extends ConsumerWidget {
           child: Tooltip(
             message: l10n.pagasaAt(formatTime(weather.issuedAt, locale)),
             child: Text(
-              l10n.rainfall(weather.rainfallMmPerHour.toStringAsFixed(0)),
+              _rainfallLine(l10n, weather.rainfallMmPerHour),
               style: secondary,
               overflow: TextOverflow.ellipsis,
             ),
@@ -237,3 +237,15 @@ class _UserMenu extends ConsumerWidget {
     );
   }
 }
+
+/// PAGASA's rainfall reading is its warning level, not a rain gauge
+/// (ingest-pagasa: yellow 7.5, orange 15, red 30 mm/hr), so 0 means "no
+/// warning", not "no rain" (Joshua, 2026-11-10). Other values come from
+/// simulation mode and are shown as they are.
+String _rainfallLine(AppLocalizations l10n, double mm) => switch (mm) {
+  0 => l10n.rainfallNoWarning,
+  30 => l10n.rainfallWarning(l10n.rainRed),
+  15 => l10n.rainfallWarning(l10n.rainOrange),
+  7.5 => l10n.rainfallWarning(l10n.rainYellow),
+  _ => l10n.rainfall(mm.toStringAsFixed(mm % 1 == 0 ? 0 : 1)),
+};

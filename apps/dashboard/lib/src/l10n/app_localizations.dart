@@ -586,6 +586,36 @@ abstract class AppLocalizations {
   /// **'Rainfall {value} mm/hr'**
   String rainfall(String value);
 
+  /// No description provided for @rainfallNoWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'No rainfall warning'**
+  String get rainfallNoWarning;
+
+  /// No description provided for @rainfallWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{level} rainfall warning'**
+  String rainfallWarning(String level);
+
+  /// No description provided for @rainYellow.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get rainYellow;
+
+  /// No description provided for @rainOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get rainOrange;
+
+  /// No description provided for @rainRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get rainRed;
+
   /// No description provided for @pagasaAt.
   ///
   /// In en, this message translates to:

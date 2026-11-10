@@ -304,6 +304,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get rainfallNoWarning => 'No rainfall warning';
+
+  @override
+  String rainfallWarning(String level) {
+    return '$level rainfall warning';
+  }
+
+  @override
+  String get rainYellow => 'Yellow';
+
+  @override
+  String get rainOrange => 'Orange';
+
+  @override
+  String get rainRed => 'Red';
+
+  @override
   String pagasaAt(String time) {
     return 'PAGASA, $time';
   }

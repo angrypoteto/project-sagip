@@ -1,7 +1,7 @@
 name: sagip_mobile
 description: S.A.G.I.P. Android app for Manila residents and MDRRMD field rescue personnel.
 publish_to: none
-version: 0.3.19+22
+version: 0.3.20+23
 resolution: workspace
 
 environment:

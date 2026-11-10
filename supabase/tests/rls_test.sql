@@ -26,6 +26,12 @@ update public.app_setting set value = 'false'
  where key in ('channels.facebook', 'channels.facebook_incidents');
 update public.app_setting set value = 'true' where key in ('channels.push', 'channels.sms');
 
+-- The test resident signs in with res-001's demo number, which on the
+-- hosted project is also the review account's number (2026-10-20). Free it
+-- for this transaction only; the rollback gives it back (2026-11-10).
+update auth.users set phone = null
+ where phone = '639170004821' and id <> '00000000-0000-4000-8000-00000000000c';
+
 insert into auth.users (id, email, phone) values
   ('00000000-0000-4000-8000-00000000000d', 'rls-dispatcher@test.local', null),
   ('00000000-0000-4000-8000-00000000000a', 'rls-admin@test.local', null),
@@ -355,6 +361,13 @@ select is(
 
 -- ------------------------------------------- resident: phone app (part 5)
 
+-- res-001's demo SOS (INC-0147) was received 4 minutes ago, so a new SOS
+-- would join it (sos_repeat_joins, 2026-11-03). Age it past those 10
+-- minutes: these checks are about a new SOS (2026-11-10).
+reset role;
+update public.incident_event set at = at - interval '15 minutes'
+ where incident_id = 'INC-0147' and kind = 'received';
+set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 
 select is(public.link_resident(), 'res-001',
@@ -488,6 +501,11 @@ select is((select count(*)::int from public.completion_report), 1,
   'the report is stored once, and the unit sees only its own reports');
 select throws_ok($$ select public.set_unit_status('onScene') $$,
   'P0001', 'no_assignment', 'On scene needs an assignment');
+-- Only a crew member on duty moves the unit (crew_duty, 2026-11-01).
+reset role;
+update public.staff set on_duty = true, duty_since = now()
+ where id = '00000000-0000-4000-8000-00000000000b';
+set local role authenticated;
 select lives_ok($$ select public.update_unit_location(14.5750, 120.9880, now()) $$,
   'a responder can share the unit''s position');
 select lives_ok($$ select public.update_unit_location(14.5000, 120.9000, now() - interval '1 minute') $$,
@@ -580,6 +598,10 @@ select ok(
 
 reset role;
 update public.manila_resident set suspended_at = now() where manila_resident_id = 'res-001';
+-- A new SOS, not a repeat that joins res-001's open one (2026-11-10).
+update public.incident_event set at = at - interval '15 minutes'
+ where kind = 'received'
+   and incident_id in (select incident_id from public.incident_report where manila_resident_id = 'res-001');
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 -- (A separate statement, so the check below sees the new row.)
@@ -2576,6 +2598,10 @@ select (jsonb_populate_record(null::public.crowd_report,
            'report_id', 'rep-PHOTO-1', 'manila_resident_id', 'res-001',
            'client_uuid', '00000000-0000-4000-8000-0000000009c1', 'anonymized_at', null))).*
   from (select * from public.crowd_report order by report_id limit 1) c;
+-- A new SOS, not a repeat that joins res-001's open one (2026-11-10).
+update public.incident_event set at = at - interval '15 minutes'
+ where kind = 'received'
+   and incident_id in (select incident_id from public.incident_report where manila_resident_id = 'res-001');
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
@@ -2990,12 +3016,14 @@ select ok(exists (select 1 from public.audit_log
 -- Each run keeps its chances and rule, for D8's "why" (2026-11-02).
 
 reset role;
+-- One active model at a time; the hosted project has its own (2026-11-10).
+update public.forecast_model set is_active = false where is_active and version <> 'rls-test';
 insert into public.forecast_model (version, model, is_active)
   values ('rls-test', '{"rule": {"high": {"probability": 0.5, "density": 0.5}, "moderate": []}}', true)
   on conflict (version) do update set is_active = true;
 select is(
   public.record_forecast_run('test-v', '2023-01-20', '{"flood": 0.6, "fire": 0.3, "storm_surge": 0.0}',
-                             '{"Barangay 412": "hll"}', 20), 897, 'a run writes every barangay');
+                             '{"Barangay 412": "hll"}', 20), (select count(*)::int from public.barangay), 'a run writes every barangay');
 select is((select (probabilities ->> 'flood')::numeric from public.forecast_run_detail where model_version like 'test-v %'),
   0.6, 'and keeps the run''s chances');
 select ok((select rule ? 'high' and rule ? 'moderate' from public.forecast_run_detail where model_version like 'test-v %'),
@@ -3032,7 +3060,8 @@ select ok(not has_function_privilege('authenticated',
     'public.record_forecast_run_labelled(text, date, jsonb, jsonb, int, text, boolean)', 'execute'),
   'only the server records runs');
 select is(public.record_forecast_run_labelled('test-l', '2026-11-01', '{"flood": 0.3}', '{}', 20,
-  'live weather, 14 days to 2026-11-01 (sample-trained model, provisional levels)', false), 897,
+  'live weather, 14 days to 2026-11-01 (sample-trained model, provisional levels)', false),
+  (select count(*)::int from public.barangay),
   'a live run writes every barangay');
 select ok((select bool_and(not is_simulated) from public.barangay_forecast
    where model_version = 'test-l live weather, 14 days to 2026-11-01 (sample-trained model, provisional levels)'),
@@ -3082,7 +3111,9 @@ select ok((select not is_current from public.storm_track where event_id = 1), 'a
 select throws_ok($$select public.save_hazard_feeds('{}', '[]')$$, 'P0001', 'invalid_value', 'rejects a non-list');
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
-select is((select count(*)::int from public.storm_track) + (select count(*)::int from public.pagasa_warning), 2,
+-- Only the test's own rows: the hosted project keeps real ones (2026-11-10).
+select is((select count(*)::int from public.storm_track where event_id = 1)
+          + (select count(*)::int from public.pagasa_warning where id = 'w1'), 2,
   'a dispatcher reads both');
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
 select is((select count(*)::int from public.storm_track) + (select count(*)::int from public.pagasa_warning), 0,
@@ -3109,6 +3140,8 @@ select ok(not has_function_privilege('authenticated', 'public.record_volcano_lev
   'no signed-in account can record volcano levels');
 
 update public.app_setting set value = 'true' where key in ('alerts.quake_relay', 'alerts.volcano_relay');
+-- Push was switched off by an earlier section (2026-11-10).
+update public.app_setting set value = 'true' where key = 'channels.push';
 select public.record_phivolcs_events(jsonb_build_array(
   jsonb_build_object('key', 'rls-felt', 'occurred_at', now() - interval '10 minutes', 'latitude', 14.0,
     'longitude', 121.0, 'depth_km', 12, 'magnitude', 5.6, 'location', 'test place', 'distance_km', 80,
