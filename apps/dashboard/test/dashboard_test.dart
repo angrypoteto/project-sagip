@@ -406,6 +406,8 @@ void main() {
     expect(find.byType(SagipMark), findsOneWidget);
     // The motto, and Manila behind the card (2026-11-10).
     expect(find.text('Manila, God First'), findsOneWidget);
+    // The seal eases in (2026-11-10).
+    expect(find.byKey(const ValueKey('sign-in-seal')), findsOneWidget);
     expect(find.byKey(const ValueKey('sign-in-backdrop')), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).at(1), 'secret');
     EditableText field() => tester.widget<EditableText>(

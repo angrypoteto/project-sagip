@@ -83,7 +83,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                           children: [
                             // MDRRMD's seal above the name, both centered
                             // (Joshua, 2026-11-10).
-                            const Center(child: SagipMark(size: 72)),
+                            // It eases in, and pulses with a ring while signing
+                            // in (Joshua, 2026-11-10).
+                            Center(child: _AnimatedSeal(busy: _busy)),
                             const SizedBox(height: SagipSpace.md),
                             Text(
                               l10n.brandName,
@@ -236,6 +238,99 @@ class _ManilaBackdrop extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// MDRRMD's seal on the sign-in card: it eases in when the page opens, and
+/// while signing in it breathes inside a turning ring. Still when the
+/// device asks for less motion.
+class _AnimatedSeal extends StatefulWidget {
+  const _AnimatedSeal({required this.busy});
+
+  final bool busy;
+
+  @override
+  State<_AnimatedSeal> createState() => _AnimatedSealState();
+}
+
+class _AnimatedSealState extends State<_AnimatedSeal>
+    with TickerProviderStateMixin {
+  static const _size = 72.0;
+  static const _ring = 92.0;
+
+  late final _enter = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+  );
+  late final _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  bool get _still => MediaQuery.of(context).disableAnimations;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_still) {
+      _enter.value = 1;
+    } else if (_enter.status == AnimationStatus.dismissed) {
+      _enter.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedSeal old) {
+    super.didUpdateWidget(old);
+    if (widget.busy == old.busy) return;
+    if (widget.busy && !_still) {
+      _pulse.repeat(reverse: true);
+    } else {
+      _pulse.animateTo(0, duration: const Duration(milliseconds: 200));
+    }
+  }
+
+  @override
+  void dispose() {
+    _enter.dispose();
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = SagipPalette.of(context);
+    final enter = CurvedAnimation(parent: _enter, curve: Curves.easeOutBack);
+    final pulse = CurvedAnimation(parent: _pulse, curve: Curves.easeInOut);
+    return SizedBox.square(
+      key: const ValueKey('sign-in-seal'),
+      dimension: _ring,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (widget.busy)
+            SizedBox.square(
+              dimension: _ring,
+              child: CircularProgressIndicator(
+                key: const ValueKey('sign-in-seal-ring'),
+                strokeWidth: 3,
+                color: p.info.fill,
+              ),
+            ),
+          AnimatedBuilder(
+            animation: Listenable.merge([enter, pulse]),
+            builder: (context, child) => Opacity(
+              opacity: _enter.value.clamp(0.0, 1.0),
+              child: Transform.scale(
+                scale: (0.7 + 0.3 * enter.value) * (1 + 0.06 * pulse.value),
+                child: child,
+              ),
+            ),
+            child: const SagipMark(size: _size),
+          ),
+        ],
       ),
     );
   }
