@@ -161,6 +161,7 @@ class UserMenu extends ConsumerWidget {
     final user = ref.watch(currentUserProvider).value;
     final backend = ref.watch(mockBackendProvider);
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final hold = ref.read(navMenuHeldProvider.notifier);
     if (user == null) return const SizedBox.shrink();
 
     final initials = user.displayName
@@ -191,14 +192,27 @@ class UserMenu extends ConsumerWidget {
       tooltip: l10n.userWithRole(user.displayName, l10n.role(user.role)),
       // From the foot of the side menu it opens over the button, upward.
       position: inSideMenu ? PopupMenuPosition.over : PopupMenuPosition.under,
-      onSelected: (action) => switch (action) {
-        _MenuAction.account => context.go(Routes.account),
-        _MenuAction.theme => ref.read(themeModeProvider.notifier).toggle(),
-        _MenuAction.offline => backend?.setLink(LinkState.offline),
-        _MenuAction.reconnecting => backend?.setLink(LinkState.reconnecting),
-        _MenuAction.live => backend?.setLink(LinkState.live),
-        _MenuAction.expire => backend?.expireSession(),
-        _MenuAction.signOut => ref.read(authRepositoryProvider).signOut(),
+      // From the side menu, the side menu stays open while this is showing.
+      onOpened: inSideMenu ? () => hold.set(true) : null,
+      onCanceled: inSideMenu ? () => hold.set(false) : null,
+      onSelected: (action) {
+        if (inSideMenu) hold.set(false);
+        switch (action) {
+          case _MenuAction.account:
+            context.go(Routes.account);
+          case _MenuAction.theme:
+            ref.read(themeModeProvider.notifier).toggle();
+          case _MenuAction.offline:
+            backend?.setLink(LinkState.offline);
+          case _MenuAction.reconnecting:
+            backend?.setLink(LinkState.reconnecting);
+          case _MenuAction.live:
+            backend?.setLink(LinkState.live);
+          case _MenuAction.expire:
+            backend?.expireSession();
+          case _MenuAction.signOut:
+            ref.read(authRepositoryProvider).signOut();
+        }
       },
       itemBuilder: (context) => [
         // Who is signed in: the bar itself shows only the circle.

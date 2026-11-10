@@ -780,6 +780,12 @@ final navMenuHoveredProvider = NotifierProvider<NavMenuHoverController, bool>(
   NavMenuHoverController.new,
 );
 
+/// Whether the account menu opened from the side menu is showing: the side
+/// menu stays open under it (Joshua, 2026-11-10).
+final navMenuHeldProvider = NotifierProvider<NavMenuHoverController, bool>(
+  NavMenuHoverController.new,
+);
+
 /// The side menu's widths, closed (icons only) and open (with names).
 const navMenuClosedWidth = 64.0;
 const navMenuOpenWidth = 272.0;

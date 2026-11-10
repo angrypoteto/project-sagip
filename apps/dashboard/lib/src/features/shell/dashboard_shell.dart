@@ -168,7 +168,9 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
   Widget build(BuildContext context) {
     final p = SagipPalette.of(context);
     // Open while pointed at.
-    final open = ref.watch(navMenuHoveredProvider);
+    // Open while pointed at, and while its account menu is showing.
+    final open =
+        ref.watch(navMenuHoveredProvider) || ref.watch(navMenuHeldProvider);
     final hover = ref.read(navMenuHoveredProvider.notifier);
     final width = open ? _NavFrame.openWidth : _NavFrame.closedWidth;
     return Stack(

@@ -492,6 +492,27 @@ void main() {
     await settle(tester);
     expect(width(), 64);
     expect(name('Units'), findsNothing);
+
+    // Its account menu keeps it open while showing, even with the pointer
+    // away (2026-11-10).
+    await mouse.moveTo(tester.getCenter(menu));
+    await settle(tester);
+    await tester.tap(
+      find.descendant(
+        of: menu,
+        matching: find.byTooltip('R. Santos, Dispatcher'),
+      ),
+    );
+    await settle(tester);
+    expect(find.text('My account'), findsOneWidget);
+    await mouse.moveTo(const Offset(700, 500));
+    await settle(tester);
+    expect(width(), navMenuOpenWidth);
+    // Closing the account menu lets it close.
+    await tester.tapAt(const Offset(1000, 300));
+    await settle(tester);
+    expect(find.text('My account'), findsNothing);
+    expect(width(), 64);
   });
 
   testWidgets('the wall map: its own window, larger markers, full screen', (
