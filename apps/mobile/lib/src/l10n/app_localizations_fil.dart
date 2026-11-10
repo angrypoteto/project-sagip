@@ -2302,6 +2302,13 @@ class AppLocalizationsFil extends AppLocalizations {
   String get photoAddOptional => 'Magdagdag ng larawan (opsyonal)';
 
   @override
+  String get photoAddRequired => 'Magdagdag ng larawan';
+
+  @override
+  String get reportPhotoNeeded =>
+      'Magdagdag ng larawan ng nakikita mo, para masuri ito ng MDRRMD.';
+
+  @override
   String get photoTake => 'Kumuha ng larawan';
 
   @override

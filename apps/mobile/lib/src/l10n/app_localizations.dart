@@ -3968,6 +3968,18 @@ abstract class AppLocalizations {
   /// **'Add a photo (optional)'**
   String get photoAddOptional;
 
+  /// No description provided for @photoAddRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get photoAddRequired;
+
+  /// No description provided for @reportPhotoNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of what you see, so MDRRMD can check it.'**
+  String get reportPhotoNeeded;
+
   /// No description provided for @photoTake.
   ///
   /// In en, this message translates to:

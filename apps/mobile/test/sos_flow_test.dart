@@ -57,6 +57,10 @@ void main() {
         mapTilesEnabledProvider.overrideWithValue(false),
         welcomeSeenProvider.overrideWith(WelcomeDone.new),
         clockProvider.overrideWith((ref) => Stream.value(now)),
+        // A hazard report needs a photo (2026-11-10).
+        photoTakerProvider.overrideWithValue(
+          (from) async => img.encodeJpg(img.Image(width: 40, height: 30)),
+        ),
       ],
     );
   });
@@ -725,6 +729,33 @@ void main() {
       await tester.pump();
     }
 
+    Future<void> addPhoto() async {
+      final add = find.byKey(const ValueKey('report-add-photo'));
+      await Scrollable.ensureVisible(tester.element(add), alignment: 0.5);
+      await tester.pump();
+      await tester.tap(add);
+      await settle(tester);
+      await tester.tap(find.byKey(const ValueKey('photo-gallery')));
+      await settle(tester);
+    }
+
+    // A photo is required (2026-11-10): nothing is sent without one.
+    await tester.enterText(
+      find.byType(TextField),
+      'Water is knee-deep on Dapitan St',
+    );
+    await tapSend();
+    expect(
+      find.text('Add a photo of what you see, so MDRRMD can check it.'),
+      findsOneWidget,
+    );
+    expect(container.read(myReportsProvider).value ?? const [], isEmpty);
+    await tester.enterText(find.byType(TextField), '');
+    await addPhoto();
+    expect(
+      find.text('Add a photo of what you see, so MDRRMD can check it.'),
+      findsNothing,
+    );
     await tapSend();
     expect(find.text('Describe what you see.'), findsOneWidget);
 
@@ -747,6 +778,7 @@ void main() {
     backend.setSignal(SignalState.smsOnly);
     await tester.pump();
     await tester.enterText(find.byType(TextField), 'Fallen wires on Lacson');
+    await addPhoto();
     await tapSend();
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('Saved on your phone'), findsOneWidget);

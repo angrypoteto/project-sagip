@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:material_ui/material_ui.dart';
 import 'package:sagip_mobile/src/app.dart';
+import 'package:sagip_mobile/src/common/photo_picker.dart';
 import 'package:sagip_mobile/src/providers.dart';
 import 'package:sagip_mobile/src/router.dart';
 import 'package:sagip_shared/sagip_shared.dart';
@@ -45,6 +47,10 @@ void main() {
         mapTilesEnabledProvider.overrideWithValue(false),
         clockProvider.overrideWith((ref) => Stream.value(now)),
         welcomeSeenProvider.overrideWith(WelcomeDone.new),
+        // A hazard report needs a photo (2026-11-10).
+        photoTakerProvider.overrideWithValue(
+          (from) async => img.encodeJpg(img.Image(width: 40, height: 30)),
+        ),
       ],
     );
     tester.view.physicalSize = const Size(390, 844);
@@ -282,6 +288,12 @@ void main() {
     expect(find.text('Barangay 287, Binondo'), findsOneWidget);
     expect(find.text('Chosen by you'), findsOneWidget);
     await tester.enterText(find.byType(TextField).first, 'Fallen tree');
+    final add = find.byKey(const ValueKey('report-add-photo'));
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('photo-gallery')));
+    await settle(tester);
     await tap(tester, 'Send report');
     final sent = container.read(myReportsProvider).value!.single;
     expect(sent.barangay, 'Barangay 287');

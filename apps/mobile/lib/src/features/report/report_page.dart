@@ -35,12 +35,21 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   /// The report just sent; shows the confirmation instead of the form.
   String? _sentId;
 
-  /// An optional photo (2026-10-19), sent after the report.
+  /// The photo, sent after the report. Required since 2026-11-10 (Joshua:
+  /// "make sure that the photo is required").
   Uint8List? _photo;
+
+  /// Sending was tried without a photo.
+  var _photoMissing = false;
 
   Future<void> _addPhoto() async {
     final picked = await pickPhoto(context, ref);
-    if (picked != null && mounted) setState(() => _photo = picked);
+    if (picked != null && mounted) {
+      setState(() {
+        _photo = picked;
+        _photoMissing = false;
+      });
+    }
   }
 
   @override
@@ -52,6 +61,11 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   Future<void> _send() async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final photo = _photo;
+    if (photo == null) {
+      setState(() => _photoMissing = true);
+      return;
+    }
     setState(() {
       _saving = true;
       _error = null;
@@ -61,12 +75,9 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       final report = await ref
           .read(hazardReportRepositoryProvider)
           .submit(description: _description.text, type: _type, fix: fix);
-      final photo = _photo;
-      if (photo != null) {
-        await ref
-            .read(hazardReportRepositoryProvider)
-            .addPhoto(report.clientId, photo);
-      }
+      await ref
+          .read(hazardReportRepositoryProvider)
+          .addPhoto(report.clientId, photo);
       if (!mounted) return;
       setState(() => _sentId = report.clientId);
     } on ReportRejected catch (e) {
@@ -95,6 +106,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     _type = null;
     _error = null;
     _photo = null;
+    _photoMissing = false;
     _description.clear();
   });
 
@@ -169,6 +181,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
         const SizedBox(height: SagipSpace.lg),
         _PhotoRow(
           photo: _photo,
+          missing: _photoMissing,
           onAdd: _addPhoto,
           onRemove: () => setState(() => _photo = null),
         ),
@@ -212,16 +225,18 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   }
 }
 
-/// The report's optional photo: a button, or the photo with a way to
-/// remove it.
+/// The report's photo (required): a button, and what is missing if sending
+/// was tried without one; or the photo with a way to remove it.
 class _PhotoRow extends StatelessWidget {
   const _PhotoRow({
     required this.photo,
+    required this.missing,
     required this.onAdd,
     required this.onRemove,
   });
 
   final Uint8List? photo;
+  final bool missing;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
 
@@ -232,14 +247,28 @@ class _PhotoRow extends StatelessWidget {
     final p = SagipPalette.of(context);
     final shot = photo;
     if (shot == null) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: OutlinedButton.icon(
-          key: const ValueKey('report-add-photo'),
-          onPressed: onAdd,
-          icon: const Icon(Symbols.add_a_photo_rounded),
-          label: Text(l10n.photoAddOptional),
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OutlinedButton.icon(
+            key: const ValueKey('report-add-photo'),
+            onPressed: onAdd,
+            style: missing
+                ? OutlinedButton.styleFrom(
+                    side: BorderSide(color: p.critical.text),
+                  )
+                : null,
+            icon: const Icon(Symbols.add_a_photo_rounded),
+            label: Text(l10n.photoAddRequired),
+          ),
+          if (missing) ...[
+            const SizedBox(height: SagipSpace.xs),
+            Text(
+              l10n.reportPhotoNeeded,
+              style: text.bodySmall!.copyWith(color: p.critical.text),
+            ),
+          ],
+        ],
       );
     }
     return Row(

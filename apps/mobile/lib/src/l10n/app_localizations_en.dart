@@ -2274,6 +2274,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photoAddOptional => 'Add a photo (optional)';
 
   @override
+  String get photoAddRequired => 'Add a photo';
+
+  @override
+  String get reportPhotoNeeded =>
+      'Add a photo of what you see, so MDRRMD can check it.';
+
+  @override
   String get photoTake => 'Take a photo';
 
   @override

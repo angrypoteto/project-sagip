@@ -645,6 +645,8 @@
   "updateLater": "Mamaya",
   "photoAdd": "Magdagdag ng larawan",
   "photoAddOptional": "Magdagdag ng larawan (opsyonal)",
+  "photoAddRequired": "Magdagdag ng larawan",
+  "reportPhotoNeeded": "Magdagdag ng larawan ng nakikita mo, para masuri ito ng MDRRMD.",
   "photoTake": "Kumuha ng larawan",
   "photoChoose": "Pumili mula sa gallery",
   "photoFailed": "Hindi magamit ang larawang iyon. Subukan ang iba.",
