@@ -4005,7 +4005,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photoMissing => 'Photo not available';
 
   @override
-  String get webPhotoAdd => 'Add a photo (optional)';
+  String get webPhotoAdd => 'Add a photo';
+
+  @override
+  String get webPhotoNeeded =>
+      'Add a photo of what you see, so MDRRMD can check it.';
 
   @override
   String get webPhotoAdded => 'Photo added. It is sent after your report.';

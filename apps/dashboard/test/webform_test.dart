@@ -71,8 +71,14 @@ void main() {
   }) {
     final c = ProviderContainer(
       overrides: [
-        if (photo != null)
-          webPhotoTakerProvider.overrideWithValue(() async => photo),
+        // A report needs a photo (2026-11-10): one is always at hand.
+        webPhotoTakerProvider.overrideWithValue(
+          () async =>
+              photo ??
+              Uint8List.fromList(
+                img.encodeJpg(img.Image(width: 40, height: 30)),
+              ),
+        ),
         webClientConfigRepositoryProvider.overrideWithValue(
           StaticClientConfigRepository(server),
         ),
@@ -337,6 +343,11 @@ void main() {
     expect(backend.photoCountOf(sent.clientId), 1);
   });
 
+  Future<void> addPhoto(WidgetTester tester) async {
+    await tester.tap(find.byKey(const ValueKey('web-add-photo')));
+    await settle(tester);
+  }
+
   testWidgets('W2 and W3: checks, the browser location, send, and the list', (
     tester,
   ) async {
@@ -388,6 +399,17 @@ void main() {
 
     await tester.tap(find.text('Flood'));
     await tester.pump();
+
+    // No photo: nothing is sent (2026-11-10).
+    await tester.tap(find.text('Send report'));
+    await settle(tester);
+    expect(
+      find.text('Add a photo of what you see, so MDRRMD can check it.'),
+      findsOneWidget,
+    );
+    expect(container.read(myWebReportsProvider).value, isEmpty);
+    await addPhoto(tester);
+    expect(find.textContaining('so MDRRMD can check it'), findsNothing);
     await tester.tap(find.text('Send report'));
     await settle(tester);
 
@@ -462,6 +484,7 @@ void main() {
     // Choosing a place in Manila clears the message and sends.
     await chooseBarangay(tester, 'Barangay 700');
     expect(find.textContaining('outside Manila City'), findsNothing);
+    await addPhoto(tester);
     await tester.tap(find.text('Send report'));
     await settle(tester);
     expect(find.text('Report received'), findsOneWidget);
@@ -502,6 +525,7 @@ void main() {
     final again = await pumpApp(tester);
     expect(find.text('Smoke from a warehouse'), findsOneWidget);
     expect(find.text('Barangay 649, Port Area'), findsOneWidget);
+    await addPhoto(tester);
 
     // The browser says online but the server cannot be reached.
     backend.setSignal(SignalState.noSignal);

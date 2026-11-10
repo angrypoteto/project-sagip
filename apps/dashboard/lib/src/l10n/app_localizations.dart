@@ -6815,8 +6815,14 @@ abstract class AppLocalizations {
   /// No description provided for @webPhotoAdd.
   ///
   /// In en, this message translates to:
-  /// **'Add a photo (optional)'**
+  /// **'Add a photo'**
   String get webPhotoAdd;
+
+  /// No description provided for @webPhotoNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of what you see, so MDRRMD can check it.'**
+  String get webPhotoNeeded;
 
   /// No description provided for @webPhotoAdded.
   ///

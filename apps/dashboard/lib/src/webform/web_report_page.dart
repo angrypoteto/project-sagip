@@ -64,9 +64,13 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
   var _failed = false;
   BrowserLocationFailure? _locationFailure;
 
-  /// An optional photo (2026-10-19), sent after the report.
+  /// The photo, sent after the report. Required since 2026-11-10, as in
+  /// the app (Joshua).
   Uint8List? _photo;
   var _photoFailed = false;
+
+  /// Sending was tried without a photo.
+  var _photoMissing = false;
 
   Future<void> _addPhoto() async {
     final photo = await ref.read(webPhotoTakerProvider)();
@@ -74,6 +78,7 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
     setState(() {
       _photo = photo ?? _photo;
       _photoFailed = photo == null;
+      if (photo != null) _photoMissing = false;
     });
   }
 
@@ -142,6 +147,7 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
       _lostConnection = false;
       _failed = false;
       _needLocation = location == null;
+      _photoMissing = _photo == null;
     });
     if (draft.description.trim().isEmpty) {
       setState(() => _error = ReportRejection.emptyDescription);
@@ -152,6 +158,8 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
       setState(() => _error = ReportRejection.outsideManila);
       return;
     }
+    final photo = _photo;
+    if (photo == null) return;
 
     setState(() => _sending = true);
     try {
@@ -167,14 +175,11 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
             accuracyMeters: draft.accuracyMeters,
             barangay: draft.barangay,
           );
-      final photo = _photo;
-      if (photo != null) {
-        try {
-          await ref.read(webReportsProvider).addPhoto(draft.clientId, photo);
-        } catch (_) {
-          // The report is in; only its photo is not.
-          messenger.showSnackBar(SnackBar(content: Text(l10n.webPhotoNotSent)));
-        }
+      try {
+        await ref.read(webReportsProvider).addPhoto(draft.clientId, photo);
+      } catch (_) {
+        // The report is in; only its photo is not.
+        messenger.showSnackBar(SnackBar(content: Text(l10n.webPhotoNotSent)));
       }
       if (!mounted) return;
       _draft.clear();
@@ -332,6 +337,7 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
         _WebPhotoRow(
           photo: _photo,
           failed: _photoFailed,
+          missing: _photoMissing,
           onAdd: _addPhoto,
           onRemove: () => setState(() => _photo = null),
         ),
@@ -376,17 +382,21 @@ class _WebReportPageState extends ConsumerState<WebReportPage> {
   }
 }
 
-/// The report's optional photo (2026-10-19).
+/// The report's photo, required (2026-11-10).
 class _WebPhotoRow extends StatelessWidget {
   const _WebPhotoRow({
     required this.photo,
     required this.failed,
+    required this.missing,
     required this.onAdd,
     required this.onRemove,
   });
 
   final Uint8List? photo;
   final bool failed;
+
+  /// Sending was tried without one.
+  final bool missing;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
 
@@ -403,6 +413,11 @@ class _WebPhotoRow extends StatelessWidget {
           OutlinedButton.icon(
             key: const ValueKey('web-add-photo'),
             onPressed: onAdd,
+            style: missing
+                ? OutlinedButton.styleFrom(
+                    side: BorderSide(color: p.critical.text),
+                  )
+                : null,
             icon: const Icon(Symbols.add_a_photo_rounded),
             label: Text(l10n.webPhotoAdd),
           )
@@ -434,6 +449,13 @@ class _WebPhotoRow extends StatelessWidget {
               ),
             ],
           ),
+        if (missing && shot == null && !failed) ...[
+          const SizedBox(height: SagipSpace.sm),
+          Text(
+            l10n.webPhotoNeeded,
+            style: text.bodySmall!.copyWith(color: p.critical.text),
+          ),
+        ],
         if (failed) ...[
           const SizedBox(height: SagipSpace.sm),
           Text(
