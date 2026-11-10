@@ -112,6 +112,8 @@ class _LinkIndicator extends ConsumerWidget {
     return Semantics(
       liveRegion: true,
       child: Row(
+        // As wide as its dot and word, so it sits at the bar's right edge.
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 8,
@@ -135,6 +137,7 @@ class _Clock extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final text = Theme.of(context).textTheme;
     return Column(
+      key: const ValueKey('top-bar-clock'),
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

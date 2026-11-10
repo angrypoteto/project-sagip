@@ -519,6 +519,19 @@ void main() {
     expect(width(), 64);
   });
 
+  testWidgets(
+    'the top bar: time in the middle, Live at the right (2026-11-10)',
+    (tester) async {
+      await pumpApp(tester);
+      await signIn(tester, 'dispatcher@sagip.test');
+      final bar = tester.getRect(find.byType(TopBar));
+      final live = tester.getRect(find.text('Live'));
+      final clock = tester.getRect(find.byKey(const ValueKey('top-bar-clock')));
+      expect(bar.right - live.right, lessThanOrEqualTo(SagipSpace.xl));
+      expect((clock.center.dx - bar.center.dx).abs(), lessThan(1));
+    },
+  );
+
   testWidgets('the wall map: its own window, larger markers, full screen', (
     tester,
   ) async {
