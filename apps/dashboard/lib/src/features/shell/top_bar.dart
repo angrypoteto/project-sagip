@@ -9,9 +9,9 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../router.dart';
 
-/// Slim top bar: PAGASA's conditions, and on the right the connection, the
-/// clock, and the account. The mark, the name, and the menu button are in
-/// the side menu.
+/// Slim top bar: PAGASA's conditions, and on the right the connection and
+/// the clock. The mark, the name, and the account are in the side menu (the
+/// account left the bar on 2026-11-10, Joshua).
 class TopBar extends ConsumerWidget {
   const TopBar({super.key});
 
@@ -35,8 +35,6 @@ class TopBar extends ConsumerWidget {
           const _LinkIndicator(),
           const SizedBox(width: SagipSpace.xl),
           const _Clock(),
-          const SizedBox(width: SagipSpace.lg),
-          const UserMenu(),
         ],
       ),
     );
@@ -143,14 +141,12 @@ enum _MenuAction {
   signOut,
 }
 
-/// The account: who is signed in, My account, the theme, and sign out. In
-/// the top bar it is the circle alone; at the foot of the side menu
-/// ([inSideMenu]) it is the circle, and beside it the name and role while
-/// the menu is [open] (Joshua, 2026-11-10).
+/// The account, at the foot of the side menu: who is signed in, My account,
+/// the theme, and sign out. The circle, and beside it the name and role
+/// while the side menu is [open] (Joshua, 2026-11-10).
 class UserMenu extends ConsumerWidget {
-  const UserMenu({super.key, this.inSideMenu = false, this.open = false});
+  const UserMenu({super.key, this.open = false});
 
-  final bool inSideMenu;
   final bool open;
 
   @override
@@ -191,17 +187,17 @@ class UserMenu extends ConsumerWidget {
     return PopupMenuButton<_MenuAction>(
       tooltip: l10n.userWithRole(user.displayName, l10n.role(user.role)),
       // From the foot of the side menu it opens over the button, upward.
-      position: inSideMenu ? PopupMenuPosition.over : PopupMenuPosition.under,
+      position: PopupMenuPosition.over,
       // From the side menu, the side menu stays open while this is showing,
       // and closes only after this has.
       popUpAnimationStyle: const AnimationStyle(
         duration: Duration(milliseconds: 200),
         reverseDuration: accountMenuClose,
       ),
-      onOpened: inSideMenu ? hold.hold : null,
-      onCanceled: inSideMenu ? () => hold.release(accountMenuClose) : null,
+      onOpened: hold.hold,
+      onCanceled: () => hold.release(accountMenuClose),
       onSelected: (action) {
-        if (inSideMenu) hold.release(accountMenuClose);
+        hold.release(accountMenuClose);
         switch (action) {
           case _MenuAction.account:
             context.go(Routes.account);
@@ -325,7 +321,7 @@ class UserMenu extends ConsumerWidget {
           l10n.signOut,
         ),
       ],
-      child: inSideMenu ? _sideMenuFace(context, user, avatar) : avatar,
+      child: _sideMenuFace(context, user, avatar),
     );
   }
 

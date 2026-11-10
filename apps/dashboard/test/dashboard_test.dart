@@ -3036,9 +3036,9 @@ void main() {
     // screen.
     tester.view.physicalSize = const Size(1440, 2000);
     await signIn(tester, 'dispatcher@sagip.test');
-    // The account is in the top bar and at the foot of the side menu.
-    expect(find.byTooltip('R. Santos, Dispatcher'), findsNWidgets(2));
-    await tester.tap(find.byTooltip('R. Santos, Dispatcher').last);
+    // The account is at the foot of the side menu only (2026-11-10).
+    expect(find.byTooltip('R. Santos, Dispatcher'), findsOneWidget);
+    await tester.tap(find.byTooltip('R. Santos, Dispatcher'));
     await settle(tester);
     await tester.tap(find.text('My account'));
     await settle(tester);

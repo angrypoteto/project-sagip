@@ -224,7 +224,7 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
                         padding: const EdgeInsets.symmetric(
                           vertical: SagipSpace.sm,
                         ),
-                        child: UserMenu(inSideMenu: true, open: open),
+                        child: UserMenu(open: open),
                       ),
                     ],
                   ),
