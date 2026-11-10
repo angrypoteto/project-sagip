@@ -628,42 +628,6 @@ abstract class AppLocalizations {
   /// **'Simulated feed'**
   String get simulatedFeed;
 
-  /// No description provided for @barWaiting.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} waiting'**
-  String barWaiting(int count);
-
-  /// No description provided for @barWaitingTip.
-  ///
-  /// In en, this message translates to:
-  /// **'SOS and reports not yet given a unit'**
-  String get barWaitingTip;
-
-  /// No description provided for @barResponding.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} responding'**
-  String barResponding(int count);
-
-  /// No description provided for @barRespondingTip.
-  ///
-  /// In en, this message translates to:
-  /// **'Incidents with a unit assigned, on the way, or on scene'**
-  String get barRespondingTip;
-
-  /// No description provided for @barUnitsFree.
-  ///
-  /// In en, this message translates to:
-  /// **'{free} of {total} units free'**
-  String barUnitsFree(int free, int total);
-
-  /// No description provided for @barUnitsFreeTip.
-  ///
-  /// In en, this message translates to:
-  /// **'Units available for a new assignment'**
-  String get barUnitsFreeTip;
-
   /// No description provided for @linkLive.
   ///
   /// In en, this message translates to:

@@ -329,31 +329,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get simulatedFeed => 'Simulated feed';
 
   @override
-  String barWaiting(int count) {
-    return '$count waiting';
-  }
-
-  @override
-  String get barWaitingTip => 'SOS and reports not yet given a unit';
-
-  @override
-  String barResponding(int count) {
-    return '$count responding';
-  }
-
-  @override
-  String get barRespondingTip =>
-      'Incidents with a unit assigned, on the way, or on scene';
-
-  @override
-  String barUnitsFree(int free, int total) {
-    return '$free of $total units free';
-  }
-
-  @override
-  String get barUnitsFreeTip => 'Units available for a new assignment';
-
-  @override
   String get linkLive => 'Live';
 
   @override

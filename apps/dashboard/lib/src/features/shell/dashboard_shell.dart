@@ -49,7 +49,7 @@ class _DashboardShellState extends ConsumerState<DashboardShell> {
           isResponder: isResponder,
           child: Column(
             children: [
-              TopBar(showTallies: !isResponder),
+              const TopBar(),
               const _ConnectionBanner(),
               Expanded(
                 child: Stack(
