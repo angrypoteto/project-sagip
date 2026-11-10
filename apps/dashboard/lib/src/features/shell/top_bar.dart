@@ -15,7 +15,9 @@ import '../../router.dart';
 class TopBar extends ConsumerWidget {
   const TopBar({super.key});
 
-  static const double height = 56;
+  // As tall as the side menu's head, so the two line up (Joshua,
+  // 2026-11-10: "do the same with headings").
+  static const double height = 72;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

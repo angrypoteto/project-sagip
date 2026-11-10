@@ -257,7 +257,7 @@ class _NavFrameState extends ConsumerState<_NavFrame> {
 class _Brand extends StatelessWidget {
   const _Brand({required this.open});
 
-  static const double height = TopBar.height + 16;
+  static const double height = TopBar.height;
 
   final bool open;
 
@@ -267,8 +267,8 @@ class _Brand extends StatelessWidget {
     final p = SagipPalette.of(context);
     final text = Theme.of(context).textTheme;
     return SizedBox(
-      // Taller than the top bar, so the mark has as much room above it as
-      // below it (Joshua, 2026-11-10: "the logo is too high").
+      // 72, with the top bar: the mark has as much room above it as below
+      // it (Joshua, 2026-11-10: "the logo is too high").
       height: _Brand.height,
       child: Padding(
         // The mark sits over the icons below it.
