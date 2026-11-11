@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 
 /**
  * Tier 3 (plan section 11): keeps the phone passing SOS on over Bluetooth
@@ -57,6 +58,7 @@ class RelayService : Service() {
 
     override fun onDestroy() {
         running = false
+        hold(this, false)
         super.onDestroy()
     }
 
@@ -70,6 +72,29 @@ class RelayService : Service() {
         @Volatile private var carrying = 0
         @Volatile private var sent = 0
         @Volatile private var running = false
+
+        /**
+         * Keeps the processor awake while this phone carries someone's SOS
+         * (2026-11-12), so it can still pass it on and upload it with the
+         * screen off. Only then, and at most 15 minutes per hold (renewed
+         * with each count change), to spare the battery.
+         */
+        private var wake: PowerManager.WakeLock? = null
+
+        @Synchronized
+        private fun hold(context: Context, on: Boolean) {
+            if (!on) {
+                wake?.let { if (it.isHeld) it.release() }
+                wake = null
+                return
+            }
+            val lock = wake ?: context.getSystemService(PowerManager::class.java)
+                ?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sagip:relay")
+                ?.apply { setReferenceCounted(false) }
+                ?: return
+            wake = lock
+            lock.acquire(15 * 60 * 1000L)
+        }
 
         private fun notice(context: Context, open: PendingIntent): Notification {
             val res = context.resources
@@ -102,6 +127,7 @@ class RelayService : Service() {
         fun update(context: Context, carrying: Int, sent: Int) {
             this.carrying = carrying
             this.sent = sent
+            hold(context.applicationContext, running && carrying > 0)
             if (!running) return
             val open = PendingIntent.getActivity(
                 context,

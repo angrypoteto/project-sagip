@@ -145,6 +145,7 @@ class RelayNode {
   (int, int)? _shown;
   var _online = false;
   var _uploading = false;
+  var _uploadAgain = false;
 
   /// What this phone is carrying for others, newest first.
   Stream<List<HeardSos>> watch() => _heard.watch().map(
@@ -205,7 +206,12 @@ class RelayNode {
     if (!SosRelayPacket.looksLikeSosId(packet.clientId)) return;
     if (_ownIds().contains(packet.clientId)) return;
     final known = _heard.value[packet.clientId];
-    if (known != null && known.packet.hops <= packet.hops) return;
+    if (known != null && known.packet.hops <= packet.hops) {
+      // Heard again and not delivered yet (an upload was busy, or the
+      // last one failed): try now (2026-11-12).
+      if (_online && !known.done) unawaited(uploadAll());
+      return;
+    }
     _put(
       known == null
           ? HeardSos(packet: packet, heardAt: _clock())
@@ -245,27 +251,40 @@ class RelayNode {
 
   /// Sends every packet not yet uploaded, oldest first.
   Future<void> uploadAll() async {
-    if (_uploading) return;
+    if (_uploading) {
+      // Heard while an upload runs: that run goes round once more.
+      _uploadAgain = true;
+      return;
+    }
     _uploading = true;
     try {
-      final waiting = [
-        for (final h in _heard.value.values)
-          if (!h.done) h,
-      ]..sort((a, b) => a.heardAt.compareTo(b.heardAt));
-      for (final h in waiting) {
-        try {
-          await _upload(h.packet);
-          _put(h.copyWith(uploaded: true));
-        } on ActionRejected catch (e) {
-          if (e.reason == ActionRejection.offline) break;
-          _put(h.copyWith(dropped: e.reason.name));
+      do {
+        _uploadAgain = false;
+        final waiting = [
+          for (final h in _heard.value.values)
+            if (!h.done) h,
+        ]..sort((a, b) => a.heardAt.compareTo(b.heardAt));
+        var offline = false;
+        for (final h in waiting) {
+          try {
+            await _upload(h.packet);
+            _put(h.copyWith(uploaded: true));
+          } on ActionRejected catch (e) {
+            if (e.reason == ActionRejection.offline) {
+              offline = true;
+              break;
+            }
+            _put(h.copyWith(dropped: e.reason.name));
+          }
+          final id = h.packet.clientId;
+          if (_passing.remove(id)) await _radio.stop(_relayKey(id));
         }
-        final id = h.packet.clientId;
-        if (_passing.remove(id)) await _radio.stop(_relayKey(id));
-      }
-      await _save();
+        await _save();
+        if (offline) break;
+      } while (_uploadAgain);
     } finally {
       _uploading = false;
+      _uploadAgain = false;
     }
   }
 

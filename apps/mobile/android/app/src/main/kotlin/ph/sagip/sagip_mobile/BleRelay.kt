@@ -17,6 +17,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelUuid
 
 /**
@@ -42,6 +44,35 @@ class BleRelay(private val context: Context) {
     /** Set while the app listens for SOS, even when Bluetooth is off. */
     private var listener: ((ByteArray) -> Unit)? = null
 
+    /**
+     * Keeps the scan alive with the screen off (Joshua, 2026-11-12: the
+     * relay only worked again after reopening the apps). Android turns a
+     * scan that has run for 30 minutes into one that hears almost nothing,
+     * and HyperOS stops a scan when the phone locks; so the scan is started
+     * again every 10 minutes, and a moment after the screen goes off, comes
+     * on, or is unlocked. The relay's foreground service keeps the app
+     * running meanwhile.
+     */
+    private val keepAlive = Handler(Looper.getMainLooper())
+    private val restartEvery = 10 * 60 * 1000L
+    private val restartTick = object : Runnable {
+        override fun run() {
+            listener?.let { startScan(it) }
+            keepAlive.postDelayed(this, restartEvery)
+        }
+    }
+    private val restartSoon = Runnable { listener?.let { startScan(it) } }
+
+    private val screenChanges = object : BroadcastReceiver() {
+        override fun onReceive(c: Context, intent: Intent) {
+            if (listener == null) return
+            // Once, after things settle: Android refuses more than five scan
+            // starts in 30 seconds.
+            keepAlive.removeCallbacks(restartSoon)
+            keepAlive.postDelayed(restartSoon, 1_500)
+        }
+    }
+
     private val stateChanges = object : BroadcastReceiver() {
         override fun onReceive(c: Context, intent: Intent) {
             when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
@@ -61,6 +92,16 @@ class BleRelay(private val context: Context) {
             context.registerReceiver(stateChanges, filter, Context.RECEIVER_NOT_EXPORTED)
         } else {
             context.registerReceiver(stateChanges, filter)
+        }
+        val screen = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(screenChanges, screen, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            context.registerReceiver(screenChanges, screen)
         }
     }
 
@@ -207,11 +248,17 @@ class BleRelay(private val context: Context) {
         }
         val filter = ScanFilter.Builder().setServiceData(service, ByteArray(0), ByteArray(0)).build()
         val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            // Low latency (2026-11-12, was balanced, which listens about a
+            // quarter of the time): an SOS nearby is heard within a second
+            // or two instead of several advert rounds.
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
         return try {
             scanner.startScan(listOf(filter), settings, callback)
             scan = callback
+            // The 10-minute restart, once (startScan runs again from it).
+            keepAlive.removeCallbacks(restartTick)
+            keepAlive.postDelayed(restartTick, restartEvery)
             true
         } catch (_: SecurityException) {
             false
@@ -221,6 +268,8 @@ class BleRelay(private val context: Context) {
     /** The app stopped listening (signed out). */
     fun stopListening() {
         listener = null
+        keepAlive.removeCallbacks(restartTick)
+        keepAlive.removeCallbacks(restartSoon)
         stopScan()
     }
 

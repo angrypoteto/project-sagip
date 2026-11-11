@@ -136,20 +136,14 @@ void main() {
 
   tearDown(() => engine.dispose());
 
-  test('no internet: data for 20 s, then SMS and Bluetooth at once; data '
-      'keeps reconnecting; delivered later, the advert ends', () async {
+  test('no internet: Bluetooth and SMS at once (2026-11-12, no data '
+      'window when the phone already knows it is offline); data keeps '
+      'reconnecting; delivered later, the advert ends', () async {
     await signal(internet: false);
     await engine.add(entry(start));
     await pumpEventQueue();
-    expect(sosEntry().steps!.current, SosSendStep.data);
     expect(sosEntry().waited, isTrue, reason: 'it could not go at once');
-    expect(sms.sent, isEmpty);
-
-    await at(const Duration(seconds: 19));
-    expect(sms.sent, isEmpty, reason: 'still the data window');
-
-    await at(const Duration(seconds: 20));
-    expect(sms.sent, hasLength(1));
+    expect(sms.sent, hasLength(1), reason: 'no data window when offline');
     expect(radio.adverts.keys, [
       RelayTier.ownKey(id),
     ], reason: 'no wait after the text');
@@ -243,16 +237,18 @@ void main() {
     expect(sosEntry().delivery, DeliveryState.relaying);
   });
 
-  test('the steps move on by themselves', () async {
+  test('online but every send fails: the steps move on by themselves after '
+      'the data window', () async {
     await engine.dispose();
     engine = make(
       clock: DateTime.now,
       dataWindow: const Duration(milliseconds: 40),
     );
-    await signal(internet: false);
+    sender.reachable = false;
+    await signal(internet: true);
     await engine.add(entry(DateTime.now()));
     await pumpEventQueue();
-    expect(sms.sent, isEmpty);
+    expect(sms.sent, isEmpty, reason: 'still the data window');
     expect(radio.adverts, isEmpty);
     await Future<void>.delayed(const Duration(milliseconds: 90));
     await pumpEventQueue();

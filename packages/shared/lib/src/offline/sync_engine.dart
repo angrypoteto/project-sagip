@@ -373,19 +373,28 @@ class SyncEngine {
   /// received it.
   Future<void> _nextStep(OutboxEntry e) async {
     final now = _clock();
-    if (now.difference(e.capturedAt) < dataWindow) return;
+    // The data window is for a phone that still counts itself online: one
+    // that already knows it has no internet starts the other ways at once
+    // (Joshua, 2026-11-12: "it is slow to send the signal").
+    if (_online && now.difference(e.capturedAt) < dataWindow) return;
     // Online, but data has failed for this SOS: try the other ways too.
     final failing = _online && e.attempts > 0;
     final sms = _sms;
     final canText =
         sms != null && sms.gatewayNumber().isNotEmpty && (_smsOk || failing);
     var cur = e;
+    // Nearby phones first: an advert starts in a moment, while the phone
+    // can take up to 20 s to say whether a text went (2026-11-12).
+    if (_relay != null &&
+        (_relayOk || failing) &&
+        cur.smsConfirmedAt == null &&
+        !_advertising.contains(cur.id)) {
+      await _sendRelay(cur);
+      cur = _entries.value.where((x) => x.id == cur.id).firstOrNull ?? cur;
+    }
     if (canText && cur.smsSentAt == null && !_smsWaiting.contains(cur.id)) {
       cur = await _sendSms(cur);
     }
-    if (_relay == null || !(_relayOk || failing)) return;
-    if (cur.smsConfirmedAt != null || _advertising.contains(cur.id)) return;
-    await _sendRelay(cur);
   }
 
   /// A text came in from [from]. When it is the gateway's reply to one of
