@@ -1,0 +1,263 @@
+{
+  "method": "cut-offs chosen by balanced accuracy on the validation windows; scored once on the test windows",
+  "variant": "mdrrmd",
+  "horizon_days": 3,
+  "hazards": {
+    "flood": {
+      "validation_days": [
+        "2026-05-31",
+        "2026-08-10"
+      ],
+      "test_days": [
+        "2026-08-14",
+        "2026-10-28"
+      ],
+      "validation_barangay_days_with_incident": 156,
+      "test_barangay_days_with_incident": 162,
+      "spatial": {
+        "kde_points": 118,
+        "kde_bandwidth_m": 300
+      },
+      "layers": {
+        "kde": {
+          "chosen_on_validation": {
+            "probability": 0.5,
+            "kde_score": 0.1
+          },
+          "validation": {
+            "cells": 64584,
+            "accuracy": 0.8407,
+            "balanced_accuracy": 0.805,
+            "precision": 0.0116,
+            "recall": 0.7692,
+            "f1": 0.0228,
+            "confusion": {
+              "tp": 120,
+              "fp": 10254,
+              "fn": 36,
+              "tn": 54174
+            }
+          },
+          "test_tuned": {
+            "cells": 68172,
+            "accuracy": 0.7984,
+            "balanced_accuracy": 0.7819,
+            "precision": 0.009,
+            "recall": 0.7654,
+            "f1": 0.0177,
+            "confusion": {
+              "tp": 124,
+              "fp": 13708,
+              "fn": 38,
+              "tn": 54302
+            }
+          },
+          "test_provisional_rule": {
+            "cells": 68172,
+            "accuracy": 0.9274,
+            "balanced_accuracy": 0.6865,
+            "precision": 0.0146,
+            "recall": 0.4444,
+            "f1": 0.0283,
+            "confusion": {
+              "tp": 72,
+              "fp": 4858,
+              "fn": 90,
+              "tn": 63152
+            }
+          }
+        },
+        "noah": {
+          "chosen_on_validation": {
+            "probability": 0.8,
+            "kde_score": 0.05
+          },
+          "validation": {
+            "cells": 64584,
+            "accuracy": 0.9306,
+            "balanced_accuracy": 0.7734,
+            "precision": 0.0212,
+            "recall": 0.6154,
+            "f1": 0.0411,
+            "confusion": {
+              "tp": 96,
+              "fp": 4422,
+              "fn": 60,
+              "tn": 60006
+            }
+          },
+          "test_tuned": {
+            "cells": 68172,
+            "accuracy": 0.6156,
+            "balanced_accuracy": 0.7889,
+            "precision": 0.0059,
+            "recall": 0.963,
+            "f1": 0.0118,
+            "confusion": {
+              "tp": 156,
+              "fp": 26199,
+              "fn": 6,
+              "tn": 41811
+            }
+          },
+          "test_provisional_rule": {
+            "cells": 68172,
+            "accuracy": 0.5143,
+            "balanced_accuracy": 0.6396,
+            "precision": 0.0037,
+            "recall": 0.7654,
+            "f1": 0.0074,
+            "confusion": {
+              "tp": 124,
+              "fp": 33070,
+              "fn": 38,
+              "tn": 34940
+            }
+          }
+        },
+        "blend": {
+          "chosen_on_validation": {
+            "probability": 0.8,
+            "kde_score": 0.05
+          },
+          "validation": {
+            "cells": 64584,
+            "accuracy": 0.9311,
+            "balanced_accuracy": 0.8024,
+            "precision": 0.0233,
+            "recall": 0.6731,
+            "f1": 0.045,
+            "confusion": {
+              "tp": 105,
+              "fp": 4401,
+              "fn": 51,
+              "tn": 60027
+            }
+          },
+          "test_tuned": {
+            "cells": 68172,
+            "accuracy": 0.6167,
+            "balanced_accuracy": 0.7925,
+            "precision": 0.006,
+            "recall": 0.9691,
+            "f1": 0.0119,
+            "confusion": {
+              "tp": 157,
+              "fp": 26128,
+              "fn": 5,
+              "tn": 41882
+            }
+          },
+          "test_provisional_rule": {
+            "cells": 68172,
+            "accuracy": 0.5677,
+            "balanced_accuracy": 0.6663,
+            "precision": 0.0042,
+            "recall": 0.7654,
+            "f1": 0.0083,
+            "confusion": {
+              "tp": 124,
+              "fp": 29432,
+              "fn": 38,
+              "tn": 38578
+            }
+          }
+        }
+      },
+      "test_nothing_at_risk": {
+        "cells": 68172,
+        "accuracy": 0.9976,
+        "balanced_accuracy": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 162,
+          "tn": 68010
+        }
+      }
+    },
+    "fire": {
+      "validation_days": [
+        "2026-04-07",
+        "2026-07-14"
+      ],
+      "test_days": [
+        "2026-07-18",
+        "2026-10-28"
+      ],
+      "validation_barangay_days_with_incident": 98,
+      "test_barangay_days_with_incident": 156,
+      "spatial": {
+        "kde_points": 171,
+        "kde_bandwidth_m": 400
+      },
+      "layers": {
+        "kde": {
+          "chosen_on_validation": {
+            "probability": 0.5,
+            "kde_score": 0.1
+          },
+          "validation": {
+            "cells": 88803,
+            "accuracy": 0.5317,
+            "balanced_accuracy": 0.5515,
+            "precision": 0.0013,
+            "recall": 0.5714,
+            "f1": 0.0027,
+            "confusion": {
+              "tp": 56,
+              "fp": 41545,
+              "fn": 42,
+              "tn": 47160
+            }
+          },
+          "test_tuned": {
+            "cells": 92391,
+            "accuracy": 0.2933,
+            "balanced_accuracy": 0.5213,
+            "precision": 0.0018,
+            "recall": 0.75,
+            "f1": 0.0036,
+            "confusion": {
+              "tp": 117,
+              "fp": 65256,
+              "fn": 39,
+              "tn": 26979
+            }
+          },
+          "test_provisional_rule": {
+            "cells": 92391,
+            "accuracy": 0.3396,
+            "balanced_accuracy": 0.5476,
+            "precision": 0.0019,
+            "recall": 0.7564,
+            "f1": 0.0039,
+            "confusion": {
+              "tp": 118,
+              "fp": 60980,
+              "fn": 38,
+              "tn": 31255
+            }
+          }
+        }
+      },
+      "test_nothing_at_risk": {
+        "cells": 92391,
+        "accuracy": 0.9983,
+        "balanced_accuracy": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 156,
+          "tn": 92235
+        }
+      }
+    }
+  }
+}

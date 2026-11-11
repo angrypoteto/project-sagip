@@ -332,6 +332,52 @@ many false alarms, fire has no skill from weather, and the thesis's 80% is
 not reached. Objective 2, FR4, and the LSTM parameters in Chapter 3 say 72
 hours, so the lead time no longer needs a thesis change (plan Q54).
 
+## 12. The 72-hour heatmap per barangay, MDRRMD's records (2026-11-12)
+
+Joshua, 2026-11-12: "let's train the heat map again to achieve that, get the
+data given by the mdrrmd". Objective 2 names the **heatmap's** accuracy; until
+now only the LSTM half had been scored on MDRRMD's records. Scored with
+`heatmap/evaluate_heatmap.py --variant mdrrmd` (model v4, 72 hours): every
+test day × 897 barangays; "at risk" = moderate or high; truth = a placed
+MDRRMD incident of the hazard in that barangay in the next 72 hours.
+
+**New MDRRMD files (Drive, 2026-11-11):** 25 PDF initial and final fire
+incident reports (narratives with the alarm timeline, damage, families
+affected, and names of the injured). Of the 16 with a date and barangay in
+the title, 11 are already in MDRRMD's fire records, so they add at most 5 to 9
+fires to the 257 the model learned from: not enough to change it, and the
+model was not retrained for them. They are kept out of git (names).
+
+**The rule's cut-offs chosen on validation** (`heatmap/tune_rule.py`): the
+provisional rule (plan Q22) uses fixed cut-offs. Here the two cut-offs (the
+LSTM's chance p, the barangay's KDE score d) were chosen per hazard from a
+grid by **balanced accuracy on the validation windows** only, then scored
+once on the test windows. Plain accuracy was not used to choose: it always
+picks "nothing at risk".
+
+| Hazard | Rule | Accuracy | Balanced | Barangay-days caught | False alarms |
+|---|---|---:|---:|---:|---:|
+| Flood (test Aug 14 to Oct 28, 2026; 162 flooded barangay-days) | Provisional rule (live) | **92.7%** | 68.7% | 72 of 162 (44%) | 4,858 |
+| | Cut-offs from validation (p ≥ 0.5, KDE ≥ 0.1) | 79.8% | **78.2%** | **124 of 162 (77%)** | 13,708 |
+| | Nothing at risk | 99.8% | 50.0% | 0 | 0 |
+| Fire (test Jul 18 to Oct 28, 2026; 156 barangay-days) | Provisional rule (live) | 34.0% | 54.8% | 118 of 156 (76%) | 60,980 |
+| | Cut-offs from validation (p ≥ 0.5, KDE ≥ 0.1) | 29.3% | 52.1% | 117 of 156 (75%) | 65,256 |
+| | Nothing at risk | 99.8% | 50.0% | 0 | 0 |
+
+UP NOAH's flood map as the spatial layer (instead of the KDE) catches 96%
+with balanced accuracy 78.9%, at 61.6% accuracy.
+
+- **Flood meets the 80% figure** with the live rule (92.7%), with real skill
+  (balanced 68.7%, 44% of flooded barangay-days flagged in advance; "nothing
+  at risk" flags none). Cut-offs chosen on validation raise the skill
+  (balanced 78.2%, 77% caught) at 79.8% accuracy: the choice between them is
+  the team's (plan Q22).
+- **Fire does not**, and no cut-off fixes it honestly: the fire LSTM says
+  "likely" almost every window (there is a fire in Manila in most 72-hour
+  windows) and the weather cannot tell the quiet ones apart (section 9). A
+  cut-off strict enough to pass 80% does so by flagging almost nothing, the
+  same as "nothing at risk".
+
 ## How to rerun
 
 ```bash
@@ -385,6 +431,8 @@ done
 ../../.venv/Scripts/python kde/kde.py --incidents data/prepared/mdrrmd/manila_medical_prepared.csv --weather build/real/mdrrmd_medical/period.csv --summary kde/kde_summary_mdrrmd_medical.json --grid-dir build/real/mdrrmd_medical --hazards medical
 ../../.venv-tf/Scripts/python heatmap/export_live.py --variant mdrrmd_h2 --kde kde_summary_mdrrmd.json --version lstm-kde-v3 --out-name forecast_live_v3.json
 ../../.venv-tf/Scripts/python heatmap/export_live.py --variant mdrrmd --kde kde_summary_mdrrmd.json --version lstm-kde-v4 --out-name forecast_live_v4.json   # section 11: 72 hours
+../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py --variant mdrrmd   # section 12: the heatmap per barangay
+../../.venv-tf/Scripts/python heatmap/tune_rule.py --variant mdrrmd          # section 12: cut-offs chosen on validation
 ../../.venv/Scripts/python kde/export_density.py --summary kde/kde_summary_mdrrmd.json --summary kde/kde_summary_mdrrmd_medical.json --version kde-v3 --json-out ../../supabase/data/hazard_density_v3.json
 ```
 (`build/real/mdrrmd_medical/period.csv` is a date list from 2023-12-31 to 2026-11-03 with zero weather; kde.py only reads its dates.)
