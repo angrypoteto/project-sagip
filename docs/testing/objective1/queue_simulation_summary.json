@@ -1,0 +1,216 @@
+{
+  "ran_at": "2026-11-12T03:31:17.230351",
+  "units": 10,
+  "surge_hours": 3,
+  "runs_per_rate": 200,
+  "results": [
+    {
+      "reports_per_hour": 12,
+      "fifo/vulnerable": {
+        "incidents": 860,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 8.956976744186047,
+        "p90_wait_min": 28.166666666666668
+      },
+      "fifo/other_sos": {
+        "incidents": 5063,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 8.052238462044935,
+        "p90_wait_min": 26.183333333333334
+      },
+      "fifo/cluster": {
+        "incidents": 1428,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 8.190137721755375,
+        "p90_wait_min": 26.516666666666666
+      },
+      "fifo/all": {
+        "incidents": 7351,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 8.184872806420909,
+        "p90_wait_min": 26.516666666666666
+      },
+      "queue/vulnerable": {
+        "incidents": 860,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 2.4218217054263578,
+        "p90_wait_min": 8.566666666666666
+      },
+      "queue/other_sos": {
+        "incidents": 5063,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 7.046405293304379,
+        "p90_wait_min": 22.2
+      },
+      "queue/cluster": {
+        "incidents": 1428,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 15.85594070961719,
+        "p90_wait_min": 52.95
+      },
+      "queue/all": {
+        "incidents": 7351,
+        "median_wait_min": 0.0,
+        "mean_wait_min": 8.216705210175485,
+        "p90_wait_min": 23.433333333333334
+      },
+      "vulnerable_mean_wait_reduction_pct": 72.96161668613958
+    },
+    {
+      "reports_per_hour": 16,
+      "fifo/vulnerable": {
+        "incidents": 1093,
+        "median_wait_min": 18.483333333333334,
+        "mean_wait_min": 24.88877706617869,
+        "p90_wait_min": 62.6
+      },
+      "fifo/other_sos": {
+        "incidents": 6678,
+        "median_wait_min": 18.59166666666667,
+        "mean_wait_min": 24.77417390436271,
+        "p90_wait_min": 61.55
+      },
+      "fifo/cluster": {
+        "incidents": 1888,
+        "median_wait_min": 18.833333333333336,
+        "mean_wait_min": 24.543388064971733,
+        "p90_wait_min": 61.38333333333333
+      },
+      "fifo/all": {
+        "incidents": 9659,
+        "median_wait_min": 18.6,
+        "mean_wait_min": 24.74203161127798,
+        "p90_wait_min": 61.666666666666664
+      },
+      "queue/vulnerable": {
+        "incidents": 1093,
+        "median_wait_min": 2.25,
+        "mean_wait_min": 4.065584019518149,
+        "p90_wait_min": 11.083333333333334
+      },
+      "queue/other_sos": {
+        "incidents": 6678,
+        "median_wait_min": 15.625,
+        "mean_wait_min": 19.21774732953981,
+        "p90_wait_min": 44.88333333333333
+      },
+      "queue/cluster": {
+        "incidents": 1888,
+        "median_wait_min": 38.04166666666667,
+        "mean_wait_min": 56.497616525423695,
+        "p90_wait_min": 145.58333333333334
+      },
+      "queue/all": {
+        "incidents": 9659,
+        "median_wait_min": 14.05,
+        "mean_wait_min": 24.790071435966375,
+        "p90_wait_min": 62.333333333333336
+      },
+      "vulnerable_mean_wait_reduction_pct": 83.66499081611019
+    },
+    {
+      "reports_per_hour": 20,
+      "fifo/vulnerable": {
+        "incidents": 1414,
+        "median_wait_min": 46.21666666666667,
+        "mean_wait_min": 50.448691654879774,
+        "p90_wait_min": 106.55
+      },
+      "fifo/other_sos": {
+        "incidents": 8205,
+        "median_wait_min": 44.35,
+        "mean_wait_min": 49.319920780012325,
+        "p90_wait_min": 103.98333333333333
+      },
+      "fifo/cluster": {
+        "incidents": 2480,
+        "median_wait_min": 43.291666666666664,
+        "mean_wait_min": 48.23220430107534,
+        "p90_wait_min": 103.01666666666667
+      },
+      "fifo/all": {
+        "incidents": 12099,
+        "median_wait_min": 44.416666666666664,
+        "mean_wait_min": 49.22888392980141,
+        "p90_wait_min": 104.08333333333333
+      },
+      "queue/vulnerable": {
+        "incidents": 1414,
+        "median_wait_min": 3.2916666666666665,
+        "mean_wait_min": 4.776107967939649,
+        "p90_wait_min": 11.783333333333333
+      },
+      "queue/other_sos": {
+        "incidents": 8205,
+        "median_wait_min": 33.38333333333333,
+        "mean_wait_min": 37.47801950030454,
+        "p90_wait_min": 77.88333333333334
+      },
+      "queue/cluster": {
+        "incidents": 2480,
+        "median_wait_min": 127.14166666666668,
+        "mean_wait_min": 113.1933736559142,
+        "p90_wait_min": 204.01666666666668
+      },
+      "queue/all": {
+        "incidents": 12099,
+        "median_wait_min": 32.53333333333333,
+        "mean_wait_min": 49.17597597597602,
+        "p90_wait_min": 132.06666666666666
+      },
+      "vulnerable_mean_wait_reduction_pct": 90.53274166035251
+    },
+    {
+      "reports_per_hour": 30,
+      "fifo/vulnerable": {
+        "incidents": 2063,
+        "median_wait_min": 110.68333333333334,
+        "mean_wait_min": 115.05449184036198,
+        "p90_wait_min": 225.23333333333332
+      },
+      "fifo/other_sos": {
+        "incidents": 12330,
+        "median_wait_min": 110.49166666666667,
+        "mean_wait_min": 115.12642470938073,
+        "p90_wait_min": 224.68333333333334
+      },
+      "fifo/cluster": {
+        "incidents": 3593,
+        "median_wait_min": 109.03333333333333,
+        "mean_wait_min": 114.34081547453377,
+        "p90_wait_min": 225.18333333333334
+      },
+      "fifo/all": {
+        "incidents": 17986,
+        "median_wait_min": 110.275,
+        "mean_wait_min": 114.96123559064465,
+        "p90_wait_min": 224.9
+      },
+      "queue/vulnerable": {
+        "incidents": 2063,
+        "median_wait_min": 4.483333333333333,
+        "mean_wait_min": 6.049870738406849,
+        "p90_wait_min": 14.016666666666667
+      },
+      "queue/other_sos": {
+        "incidents": 12330,
+        "median_wait_min": 98.30833333333334,
+        "mean_wait_min": 95.74869559340287,
+        "p90_wait_min": 172.85
+      },
+      "queue/cluster": {
+        "incidents": 3593,
+        "median_wait_min": 270.31666666666666,
+        "mean_wait_min": 244.02390295945833,
+        "p90_wait_min": 342.51666666666665
+      },
+      "queue/all": {
+        "incidents": 17986,
+        "median_wait_min": 102.80833333333334,
+        "mean_wait_min": 115.08062845175871,
+        "p90_wait_min": 272.3666666666667
+      },
+      "vulnerable_mean_wait_reduction_pct": 94.74173442371894
+    }
+  ]
+}
