@@ -1960,6 +1960,204 @@ abstract class AppLocalizations {
   /// **'Resident still needs help'**
   String get eventCancelWithdrawn;
 
+  /// No description provided for @eventDoneReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew reported done'**
+  String get eventDoneReported;
+
+  /// No description provided for @eventReportValidated.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew report validated'**
+  String get eventReportValidated;
+
+  /// No description provided for @eventFireStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get eventFireStage;
+
+  /// No description provided for @actionReportValidated.
+  ///
+  /// In en, this message translates to:
+  /// **'Validated a crew report'**
+  String get actionReportValidated;
+
+  /// No description provided for @actionFireStageRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded a fire stage'**
+  String get actionFireStageRecorded;
+
+  /// No description provided for @reportCheckAllValidated.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD validated every crew report'**
+  String get reportCheckAllValidated;
+
+  /// No description provided for @crewReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew report'**
+  String get crewReportTitle;
+
+  /// No description provided for @crewReportFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit}, filed {time}'**
+  String crewReportFrom(String unit, String time);
+
+  /// No description provided for @crewReportWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for MDRRMD to validate it. The incident stays open until then, and its figures do not count in the MDRRMD report.'**
+  String get crewReportWaiting;
+
+  /// No description provided for @crewReportValidatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Validated by {name}, {time}'**
+  String crewReportValidatedBy(String name, String time);
+
+  /// No description provided for @crewReportCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'Figures corrected by MDRRMD'**
+  String get crewReportCorrected;
+
+  /// No description provided for @crewReportOnScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Time on scene'**
+  String get crewReportOnScene;
+
+  /// No description provided for @crewReportMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String crewReportMinutes(int count);
+
+  /// No description provided for @crewReportNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get crewReportNotes;
+
+  /// No description provided for @crewReportReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and validate'**
+  String get crewReportReview;
+
+  /// No description provided for @validateCrewReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate crew report'**
+  String get validateCrewReport;
+
+  /// No description provided for @validateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate the report of {unit}'**
+  String validateTitle(String unit);
+
+  /// No description provided for @validateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the figures with the crew. Change any that are wrong; the change is recorded under your name.'**
+  String get validateBody;
+
+  /// No description provided for @validateConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate'**
+  String get validateConfirm;
+
+  /// No description provided for @validatedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew report validated. The incident is closed.'**
+  String get validatedSnack;
+
+  /// No description provided for @validatedOnlySnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew report validated.'**
+  String get validatedOnlySnack;
+
+  /// No description provided for @doneReportedChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported done'**
+  String get doneReportedChip;
+
+  /// No description provided for @fireStagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire progress'**
+  String get fireStagesTitle;
+
+  /// No description provided for @fireStagesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No stage recorded yet. Record each alarm, \"under control\", and \"fire out\" with the time it was declared.'**
+  String get fireStagesNone;
+
+  /// No description provided for @fireStageRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record stage'**
+  String get fireStageRecord;
+
+  /// No description provided for @fireStageDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a fire stage'**
+  String get fireStageDialogTitle;
+
+  /// No description provided for @fireStageField.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get fireStageField;
+
+  /// No description provided for @fireStageTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time declared'**
+  String get fireStageTime;
+
+  /// No description provided for @fireStageTimeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, 24-hour time (for example 14:05). A time later than now is taken as yesterday.'**
+  String get fireStageTimeHelp;
+
+  /// No description provided for @fireStageTimeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the time as HH:MM'**
+  String get fireStageTimeInvalid;
+
+  /// No description provided for @fireStageSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get fireStageSave;
+
+  /// No description provided for @fireStageRecordedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} recorded.'**
+  String fireStageRecordedSnack(String stage);
+
+  /// No description provided for @fireStageName.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage, select, positiveAlarm{Positive alarm} firstAlarm{1st alarm} secondAlarm{2nd alarm} thirdAlarm{3rd alarm} fourthAlarm{4th alarm} fifthAlarm{5th alarm} taskForceAlpha{Task Force Alpha} taskForceBravo{Task Force Bravo} taskForceCharlie{Task Force Charlie} taskForceDelta{Task Force Delta} taskForceEcho{Task Force Echo} generalAlarm{General alarm} fireUnderControl{Fire under control} fireOut{Fire out} other{Stage}}'**
+  String fireStageName(String stage);
+
   /// No description provided for @eventCancelledByResident.
   ///
   /// In en, this message translates to:

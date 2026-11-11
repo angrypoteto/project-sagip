@@ -215,6 +215,12 @@ class QueueRow extends ConsumerWidget {
         .severity;
     final visual = incidentStatusVisual(incident.status, p);
     final statusLabel = switch (incident.status) {
+      // The crew is done; MDRRMD has to validate its report (2026-11-11).
+      _ when incident.doneReported && unit != null => l10n.statusWithUnit(
+        l10n.doneReportedChip,
+        unit.callSign,
+      ),
+      _ when incident.doneReported => l10n.doneReportedChip,
       IncidentStatus.pendingVerification => l10n.statusPendingShort,
       final s when unit != null => l10n.statusWithUnit(
         l10n.incidentStatus(s),

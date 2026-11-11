@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'assignment.dart';
+import 'crew_report.dart';
 import 'enums.dart';
 
 /// What a responder's completion report says happened (F6), without
@@ -60,6 +61,7 @@ class ReportSource {
     this.byType = const {},
     this.byBarangay = const [],
     this.completionReports = 0,
+    this.reportsAwaitingValidation = 0,
     this.resolvedWithoutReport = 0,
     this.personsAssisted = 0,
     this.injured = 0,
@@ -77,6 +79,8 @@ class ReportSource {
     this.maxRainfall,
     this.maxSurgeM,
     this.weatherSimulated = false,
+    this.firesByHighestAlarm = const {},
+    this.medianFireOutS,
   });
 
   final DateTime from;
@@ -102,7 +106,12 @@ class ReportSource {
   /// Most incidents first.
   final List<BarangayCount> byBarangay;
 
+  /// Crew reports MDRRMD validated: only these count in the figures
+  /// below (2026-11-11).
   final int completionReports;
+
+  /// Crew reports still waiting for MDRRMD; their figures are left out.
+  final int reportsAwaitingValidation;
 
   /// Resolved incidents with no completion report: the damage figures
   /// are incomplete while this is above zero.
@@ -132,6 +141,13 @@ class ReportSource {
 
   /// True when any of those readings came from a simulated feed.
   final bool weatherSimulated;
+
+  /// Fires by the highest alarm level recorded (MDRRMD's fire sheet).
+  final Map<FireStage, int> firesByHighestAlarm;
+
+  /// Seconds from verification to "fire out", median over the fires with
+  /// both recorded.
+  final double? medianFireOutS;
 
   bool get isEmpty => incidents == 0;
 
@@ -165,6 +181,7 @@ class ReportSource {
           ),
       ],
       completionReports: n('completion_reports'),
+      reportsAwaitingValidation: n('reports_awaiting_validation'),
       resolvedWithoutReport: n('resolved_without_report'),
       personsAssisted: n('persons_assisted'),
       injured: n('injured'),
@@ -186,6 +203,14 @@ class ReportSource {
       maxRainfall: (json['max_rainfall'] as num?)?.toDouble(),
       maxSurgeM: (json['max_surge_m'] as num?)?.toDouble(),
       weatherSimulated: json['weather_simulated'] as bool? ?? false,
+      firesByHighestAlarm: {
+        for (final e
+            in (json['fires_by_highest_alarm'] as Map<String, Object?>? ??
+                    const {})
+                .entries)
+          ?FireStage.values.asNameMap()[e.key]: (e.value! as num).toInt(),
+      },
+      medianFireOutS: (json['median_fire_out_s'] as num?)?.toDouble(),
     );
   }
 
@@ -207,6 +232,7 @@ class ReportSource {
         {'barangay': b.barangay, 'district': b.district, 'count': b.count},
     ],
     'completion_reports': completionReports,
+    'reports_awaiting_validation': reportsAwaitingValidation,
     'resolved_without_report': resolvedWithoutReport,
     'persons_assisted': personsAssisted,
     'injured': injured,
@@ -224,6 +250,10 @@ class ReportSource {
     'max_rainfall': maxRainfall,
     'max_surge_m': maxSurgeM,
     'weather_simulated': weatherSimulated,
+    'fires_by_highest_alarm': {
+      for (final e in firesByHighestAlarm.entries) e.key.name: e.value,
+    },
+    'median_fire_out_s': medianFireOutS,
   };
 }
 

@@ -8,6 +8,7 @@ import '../../common/labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import 'board_dialogs.dart';
+import 'crew_report_section.dart';
 import 'incident_photos.dart';
 
 /// D4: everything a dispatcher needs to decide on one incident, in the order
@@ -206,6 +207,23 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                             onChoose: (s) => setState(() => _chosen = s),
                             onChooseAnother: () => _chooseAnother(incident),
                           ),
+                          // MDRRMD's process (2026-11-11): the crew's report
+                          // waits here for validation; fires go stage by
+                          // stage as on MDRRMD's fire sheet.
+                          if (incident.crewReports.isNotEmpty) ...[
+                            const SizedBox(height: SagipSpace.xl),
+                            CrewReportSection(
+                              incident: incident,
+                              enabled: canAct,
+                            ),
+                          ],
+                          if (incident.type == IncidentType.fire) ...[
+                            const SizedBox(height: SagipSpace.xl),
+                            FireStagesSection(
+                              incident: incident,
+                              enabled: canAct,
+                            ),
+                          ],
                           if (incident.origin == IncidentOrigin.sos &&
                               incident.residentId != null) ...[
                             const SizedBox(height: SagipSpace.xl),
@@ -231,6 +249,8 @@ class _IncidentDrawerState extends ConsumerState<IncidentDrawer> {
                         () => _repo.resolve(incident.id),
                         l10n.resolvedSnack,
                       ),
+                      onValidate: (r) =>
+                          validateCrewReportFlow(context, ref, incident, r),
                     ),
                   ],
                 ),
@@ -351,6 +371,9 @@ class _Summary extends ConsumerWidget {
               label: l10n.incidentStatus(incident.status),
               visual: incidentStatusVisual(incident.status, p),
             ),
+            if (incident.doneReported &&
+                incident.status != IncidentStatus.resolved)
+              SagipChip(label: l10n.doneReportedChip, tone: p.warning),
             if (rank > 0)
               SagipChip(
                 label: l10n.rankOf(rank, queue.length),
@@ -1303,17 +1326,27 @@ class IncidentTimeline extends StatelessWidget {
     final d = e.detail;
     if (d == null) return null;
     return switch (e.kind) {
-      IncidentEventKind.typeConfirmed => l10n.incidentType(
-        IncidentType.values.byName(d),
-      ),
-      IncidentEventKind.verified => l10n.verificationMethod(
-        VerificationMethod.values.byName(d),
-      ),
-      IncidentEventKind.cancelRequested => l10n.cancelReason(
-        SosCancelReason.values.byName(d),
-      ),
+      // A value this version does not know is shown as written, never a
+      // crash (the sample data once wrote "Callback").
+      IncidentEventKind.typeConfirmed => switch (IncidentType.values
+          .asNameMap()[d]) {
+        final t? => l10n.incidentType(t),
+        null => d,
+      },
+      IncidentEventKind.verified => switch (VerificationMethod.values
+          .asNameMap()[d]) {
+        final m? => l10n.verificationMethod(m),
+        null => d,
+      },
+      IncidentEventKind.cancelRequested => switch (SosCancelReason.values
+          .asNameMap()[d]) {
+        final r? => l10n.cancelReason(r),
+        null => d,
+      },
       IncidentEventKind.resolved when d == 'cancelledByResident' =>
         l10n.eventCancelledByResident,
+      IncidentEventKind.fireStage => l10n.fireStageName(d),
+      IncidentEventKind.doneReported => l10n.historyOutcomeName(d),
       _ => d,
     };
   }
@@ -1383,6 +1416,7 @@ class _Footer extends ConsumerWidget {
     required this.busy,
     required this.onAssign,
     required this.onResolve,
+    required this.onValidate,
   });
 
   final Incident incident;
@@ -1393,10 +1427,14 @@ class _Footer extends ConsumerWidget {
   onAssign;
   final VoidCallback onResolve;
 
+  /// The crew reported done: validating its report closes the incident.
+  final void Function(CrewReport report) onValidate;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final p = SagipPalette.of(context);
+    final waiting = incident.reportsAwaitingValidation;
     final online = ref.watch(isOnlineProvider);
     final ranked =
         ref.watch(suggestionsProvider(incident.id)).value ?? const [];
@@ -1411,6 +1449,10 @@ class _Footer extends ConsumerWidget {
       _ when hasUnit && chosen != null => (
         l10n.reassignUnit(chosen!.unit.callSign),
         () => onAssign(ranked, chosen!),
+      ),
+      _ when waiting.isNotEmpty => (
+        l10n.validateCrewReport,
+        () => onValidate(waiting.first),
       ),
       IncidentStatus.onScene => (l10n.markResolved, onResolve),
       _ => (null, null),

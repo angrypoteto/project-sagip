@@ -152,6 +152,12 @@ enum AuditAction {
   safePlaceSaved,
   safePlaceHidden,
   safePlaceRestored,
+
+  /// MDRRMD validated a crew's completion report (2026-11-11).
+  reportValidated,
+
+  /// A dispatcher recorded a fire stage (alarm level, under control, out).
+  fireStageRecorded,
 }
 
 /// Why a resident asks to cancel their SOS (R2). A dispatcher decides.

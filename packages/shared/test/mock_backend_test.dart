@@ -269,9 +269,46 @@ void main() {
       expect((await incident('INC-0147')).status, IncidentStatus.onScene);
       expect((await unit('unit-r03')).status, UnitStatus.onScene);
 
-      advance(MockBackend.resolveAfterOnScene);
-      expect((await active()).any((i) => i.id == 'INC-0147'), isFalse);
+      // The crew files its report: the unit is free, the incident waits
+      // for MDRRMD (2026-11-11).
+      advance(MockBackend.crewReportAfterOnScene);
+      final done = await incident('INC-0147');
+      expect(done.doneReported, isTrue);
+      expect(done.reportsAwaitingValidation, hasLength(1));
       expect((await unit('unit-r03')).isDispatchable, isTrue);
+
+      // MDRRMD validates it, correcting one figure: now it is resolved.
+      await backend.validateCrewReport(
+        done.reportsAwaitingValidation.single.id,
+        correction: const CrewReportCorrection(personsAssisted: 2),
+      );
+      expect((await active()).any((i) => i.id == 'INC-0147'), isFalse);
+      await expectLater(
+        backend.validateCrewReport(done.reportsAwaitingValidation.single.id),
+        throwsA(isA<ActionRejected>()),
+      );
+    });
+
+    test('a fire stage is recorded on a fire only', () async {
+      await backend.signIn('dispatcher@sagip.test', MockSeed.demoPassword);
+      final fire = (await active()).firstWhere(
+        (i) => i.type == IncidentType.fire,
+      );
+      final other = (await active()).firstWhere(
+        (i) => i.type != null && i.type != IncidentType.fire,
+      );
+      await backend.recordFireStage(fire.id, FireStage.firstAlarm);
+      await backend.recordFireStage(fire.id, FireStage.fireUnderControl);
+      final after = await incident(fire.id);
+      expect(after.fireStages.keys, {
+        FireStage.firstAlarm,
+        FireStage.fireUnderControl,
+      });
+      expect(after.highestAlarm, FireStage.firstAlarm);
+      await expectLater(
+        backend.recordFireStage(other.id, FireStage.fireOut),
+        throwsA(isA<ActionRejected>()),
+      );
     });
 
     test('nothing moves while the connection is down', () async {

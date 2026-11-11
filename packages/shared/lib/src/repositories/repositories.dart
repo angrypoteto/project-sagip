@@ -5,6 +5,7 @@ import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/assignment.dart';
+import '../models/crew_report.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/facebook_post.dart';
@@ -136,6 +137,23 @@ abstract interface class IncidentRepository {
     RoadRoute? route,
   });
   Future<void> resolve(String incidentId);
+
+  /// MDRRMD validates a crew's completion report, with [correction] for
+  /// any figure it changes (2026-11-11). Resolves the incident if it is
+  /// still open. Refused with [ActionRejection.invalidValue] when the
+  /// report was validated already.
+  Future<void> validateCrewReport(
+    String reportId, {
+    CrewReportCorrection? correction,
+  });
+
+  /// Records a stage of a fire at [at] (MDRRMD's fire sheet). Refused with
+  /// [ActionRejection.invalidValue] for an incident that is not a fire.
+  Future<void> recordFireStage(
+    String incidentId,
+    FireStage stage, {
+    DateTime? at,
+  });
 
   /// Closes an SOS the resident asked to cancel (D4). Refused with
   /// [ActionRejection.invalidValue] when the resident did not ask.

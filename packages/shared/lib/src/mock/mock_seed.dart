@@ -617,7 +617,7 @@ class MockSeed {
           kind: IncidentEventKind.verified,
           at: ago(7),
           actorName: 'R. Santos',
-          detail: 'Callback',
+          detail: 'callback',
         ),
         IncidentEvent(
           kind: IncidentEventKind.assigned,
@@ -652,7 +652,7 @@ class MockSeed {
           kind: IncidentEventKind.verified,
           at: ago(10),
           actorName: 'R. Santos',
-          detail: 'Callback',
+          detail: 'callback',
         ),
         IncidentEvent(
           kind: IncidentEventKind.assigned,
@@ -1105,7 +1105,7 @@ class MockSeed {
       action: AuditAction.verified,
       targetTable: 'incident_report',
       targetId: 'INC-0142',
-      detail: 'Callback',
+      detail: 'callback',
     ),
     AuditEntry(
       id: 'log-1003',
@@ -1127,7 +1127,7 @@ class MockSeed {
       action: AuditAction.verified,
       targetTable: 'incident_report',
       targetId: 'INC-0144',
-      detail: 'Callback',
+      detail: 'callback',
     ),
     AuditEntry(
       id: 'log-1005',

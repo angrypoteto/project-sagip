@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import '../models/alerts.dart';
+import '../models/crew_report.dart';
 import '../models/assignment.dart';
 import '../models/enums.dart';
 import '../models/incident.dart';
@@ -110,6 +111,18 @@ ReportSource buildReportSource({
   int sum(int Function(DamageRecord c) of) =>
       filed.fold(0, (total, c) => total + of(c));
 
+  final alarms = <FireStage, int>{};
+  final fireOut = <double?>[];
+  for (final i in rows) {
+    if (i.type != IncidentType.fire) continue;
+    if (i.highestAlarm case final top?) alarms[top] = (alarms[top] ?? 0) + 1;
+    final out = i.fireStages[FireStage.fireOut];
+    final verified = first(i, IncidentEventKind.verified);
+    if (out != null && verified != null && !out.isBefore(verified)) {
+      fireOut.add(out.difference(verified).inMilliseconds / 1000);
+    }
+  }
+
   return ReportSource(
     from: from,
     to: to,
@@ -137,6 +150,10 @@ ReportSource buildReportSource({
         return byCount != 0 ? byCount : a.barangay.compareTo(b.barangay);
       }),
     completionReports: filed.length,
+    reportsAwaitingValidation: rows.fold(
+      0,
+      (total, i) => total + i.reportsAwaitingValidation.length,
+    ),
     resolvedWithoutReport: rows
         .where((i) => real(i) && !completions.containsKey(i.id))
         .length,
@@ -165,8 +182,28 @@ ReportSource buildReportSource({
     maxRainfall: highest(weather.map((w) => w.rainfallMmPerHour)),
     maxSurgeM: highest(weather.map((w) => w.stormSurgeMeters)),
     weatherSimulated: weather.any((w) => w.isSimulated),
+    firesByHighestAlarm: alarms,
+    medianFireOutS: median(fireOut),
   );
 }
+
+/// A fire stage as MDRRMD writes it.
+String _fireStage(FireStage s) => switch (s) {
+  FireStage.positiveAlarm => 'Positive alarm',
+  FireStage.firstAlarm => '1st alarm',
+  FireStage.secondAlarm => '2nd alarm',
+  FireStage.thirdAlarm => '3rd alarm',
+  FireStage.fourthAlarm => '4th alarm',
+  FireStage.fifthAlarm => '5th alarm',
+  FireStage.taskForceAlpha => 'Task Force Alpha',
+  FireStage.taskForceBravo => 'Task Force Bravo',
+  FireStage.taskForceCharlie => 'Task Force Charlie',
+  FireStage.taskForceDelta => 'Task Force Delta',
+  FireStage.taskForceEcho => 'Task Force Echo',
+  FireStage.generalAlarm => 'General alarm',
+  FireStage.fireUnderControl => 'Fire under control',
+  FireStage.fireOut => 'Fire out',
+};
 
 // Reports are written in English; en_US needs no locale data loaded.
 const _locale = 'en_US';
@@ -274,6 +311,19 @@ List<ReportSection> draftReportSections(ReportSource s) {
       ' ${_n(s.vulnerableIncidents, 'incident')} involved a household on '
       'the Vulnerable Resident Priority List.',
     );
+    // As on MDRRMD's fire sheet (2026-11-11).
+    if (s.firesByHighestAlarm.isNotEmpty) {
+      incidents.write(
+        ' Fires by highest alarm: ${[for (final st in FireStage.values)
+          if (s.firesByHighestAlarm[st] case final count?) '${_fireStage(st)} $count'].join(', ')}.',
+      );
+    }
+    if (s.medianFireOutS != null) {
+      incidents.write(
+        ' From verification to fire out took a median of '
+        '${_n((s.medianFireOutS! / 60).round(), 'minute')}.',
+      );
+    }
   }
 
   final population = StringBuffer(
@@ -287,6 +337,14 @@ List<ReportSection> draftReportSections(ReportSource s) {
     population.write(
       ' Outcomes: ${[for (final o in RescueOutcome.values)
         if (s.outcomes[o] case final count?) '${_outcome(o)} $count'].join(', ')}.',
+    );
+  }
+  if (s.reportsAwaitingValidation > 0) {
+    population.write(
+      ' ${_n(s.reportsAwaitingValidation, 'more report')} '
+      '${s.reportsAwaitingValidation == 1 ? 'awaits' : 'await'} validation '
+      'by MDRRMD and ${s.reportsAwaitingValidation == 1 ? 'is' : 'are'} not '
+      'counted here.',
     );
   }
   if (s.resolvedWithoutReport > 0) {
@@ -346,6 +404,9 @@ enum ReportCheck {
   /// Every resolved incident has its completion report.
   allReportsFiled,
 
+  /// MDRRMD validated every crew report of the period (2026-11-11).
+  allReportsValidated,
+
   /// None of the figures come from simulated alerts or readings.
   noSimulatedData,
 
@@ -361,6 +422,7 @@ Set<ReportCheck> passedReportChecks(
   if (!source.isEmpty) ReportCheck.hasIncidents,
   if (source.open == 0) ReportCheck.noneOpen,
   if (source.resolvedWithoutReport == 0) ReportCheck.allReportsFiled,
+  if (source.reportsAwaitingValidation == 0) ReportCheck.allReportsValidated,
   if (source.alertsSimulated == 0 && !source.weatherSimulated)
     ReportCheck.noSimulatedData,
   if (sections.every((s) => s.body.trim().isNotEmpty))

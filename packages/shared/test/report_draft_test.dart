@@ -334,6 +334,7 @@ void main() {
       expect(passedReportChecks(figures, sections), {
         ReportCheck.hasIncidents,
         ReportCheck.allReportsFiled,
+        ReportCheck.allReportsValidated,
         ReportCheck.noSimulatedData,
       });
       final written = [

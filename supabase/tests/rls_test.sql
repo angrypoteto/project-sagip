@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(671);
+select plan(677);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -490,15 +490,33 @@ select lives_ok(
        'transported', 1, 900, 0, 0, 0, 1, 'Taken to hospital') $$,
   'a responder can file the completion report');
 select ok(
-  (select status = 'resolved' from public.incident_report where incident_id = 'INC-0142')
+  (select status = 'onScene' and done_reported_at is not null from public.incident_report where incident_id = 'INC-0142')
   and (select status = 'available' and current_incident_id is null from public.response_unit where unit_id = 'unit-r05'),
-  'filing the report resolves the incident and frees the unit');
+  'filing the report frees the unit; the incident waits for MDRRMD (2026-11-11)');
 select lives_ok(
   $$ select public.submit_completion_report('00000000-0000-4000-8000-0000000007c1', 'INC-0142', now(),
        'transported', 1, 900, 0, 0, 0, 1, 'Taken to hospital') $$,
   'sending the same report again is accepted');
 select is((select count(*)::int from public.completion_report), 1,
   'the report is stored once, and the unit sees only its own reports');
+-- MDRRMD validates the crew's report; that closes the incident (2026-11-11).
+select throws_ok($$ select public.validate_crew_report('00000000-0000-4000-8000-0000000007c1') $$,
+  'P0001', 'not_allowed', 'a responder cannot validate a crew report');
+select throws_ok($$ select public.record_fire_stage('INC-0142', 'fireOut') $$,
+  'P0001', 'not_allowed', 'a responder cannot record a fire stage');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select lives_ok($$ select public.validate_crew_report('00000000-0000-4000-8000-0000000007c1') $$,
+  'a dispatcher validates the crew report');
+select ok(
+  (select status = 'resolved' from public.incident_report where incident_id = 'INC-0142')
+  and (select validated_at is not null and validated_by_name is not null and not corrected
+         from public.completion_report where report_id = '00000000-0000-4000-8000-0000000007c1'),
+  'validating resolves the incident and records who validated');
+select throws_ok($$ select public.validate_crew_report('00000000-0000-4000-8000-0000000007c1') $$,
+  'P0001', 'already_validated', 'a report is validated once');
+select throws_ok($$ select public.record_fire_stage('INC-0142', 'notAStage') $$,
+  'P0001', 'invalid_value', 'a fire stage must be one MDRRMD records, on a fire');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}';
 select throws_ok($$ select public.set_unit_status('onScene') $$,
   'P0001', 'no_assignment', 'On scene needs an assignment');
 -- Only a crew member on duty moves the unit (crew_duty, 2026-11-01).

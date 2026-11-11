@@ -15,6 +15,8 @@ import '../data/manila_safe_places.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
+import '../models/assignment.dart';
+import '../models/crew_report.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
@@ -803,7 +805,10 @@ class MockBackend {
   static const sosArrivesAfter = Duration(seconds: 20);
   static const clusterFormsAfter = Duration(seconds: 35);
   static const acceptAfter = Duration(seconds: 6);
-  static const resolveAfterOnScene = Duration(seconds: 90);
+
+  /// The simulated crew files its report this long after arriving; the
+  /// incident then waits for MDRRMD to validate it (2026-11-11).
+  static const crewReportAfterOnScene = Duration(seconds: 90);
   static const smsReplyAfter = Duration(seconds: 6);
   static const unitMetersPerSecond = 60.0;
 
@@ -2022,7 +2027,7 @@ class MockBackend {
     final actor = await _authorize();
     final incident = _activeIncident(id);
     final now = _clock();
-    _releaseUnit(incident.assignedUnitId);
+    _releaseUnitFrom(incident.assignedUnitId, incident.id);
     _close(
       incident
           .copyWith(
@@ -2109,6 +2114,170 @@ class MockBackend {
     );
   }
 
+  /// The simulated crew's completion report: the unit is free, and the
+  /// incident waits for MDRRMD (as `submit_completion_report`).
+  void _fileCrewReport(Incident incident, ResponseUnit? unit) {
+    final now = _clock();
+    final unitId = incident.assignedUnitId;
+    if (unitId != null) _releaseUnitFrom(unitId, incident.id);
+    _onSceneSince.remove(incident.id);
+    _putIncident(
+      incident
+          .copyWith(
+            doneReportedAt: now,
+            crewReports: [
+              ...incident.crewReports,
+              if (unitId != null)
+                CrewReport(
+                  id: 'crew-${incident.id}-$unitId',
+                  unitId: unitId,
+                  callSign: unit?.callSign,
+                  capturedAt: now,
+                  outcome: RescueOutcome.rescued,
+                  personsAssisted: incident.peopleCount ?? 1,
+                  timeOnSceneSeconds: crewReportAfterOnScene.inSeconds,
+                ),
+            ],
+          )
+          .withEvent(
+            IncidentEvent(
+              kind: IncidentEventKind.doneReported,
+              at: now,
+              actorName: unit?.callSign,
+              detail: RescueOutcome.rescued.name,
+            ),
+          ),
+    );
+  }
+
+  Future<void> validateCrewReport(
+    String reportId, {
+    CrewReportCorrection? correction,
+  }) async {
+    final actor = await _authorize();
+    final now = _clock();
+    final active = _incidents.value.values
+        .where((i) => i.crewReports.any((r) => r.id == reportId))
+        .firstOrNull;
+    final closed = active != null
+        ? null
+        : _resolved.value
+              .where((i) => i.crewReports.any((r) => r.id == reportId))
+              .firstOrNull;
+    final incident = active ?? closed;
+    if (incident == null) {
+      throw const ActionRejected(ActionRejection.notFound);
+    }
+    final report = incident.crewReports.firstWhere((r) => r.id == reportId);
+    if (report.validated) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final done = report.validate(
+      at: now,
+      byName: actor.displayName,
+      correction: correction,
+    );
+    final label = '${done.unitLabel}${done.corrected ? ' (corrected)' : ''}';
+    var next = incident
+        .copyWith(
+          crewReports: [
+            for (final r in incident.crewReports) r.id == reportId ? done : r,
+          ],
+        )
+        .withEvent(
+          IncidentEvent(
+            kind: IncidentEventKind.reportValidated,
+            at: now,
+            actorName: actor.displayName,
+            detail: label,
+          ),
+        );
+    _completions[incident.id] = DamageRecord(
+      incidentId: incident.id,
+      outcome: done.outcome,
+      personsAssisted: done.personsAssisted,
+      housesDamaged: done.housesDamaged,
+      injured: done.injured,
+      missing: done.missing,
+      affectedFamilies: done.affectedFamilies,
+    );
+    if (active != null) {
+      final falseReport = done.outcome == RescueOutcome.falseReport;
+      _releaseUnitFrom(done.unitId, incident.id);
+      next = next
+          .copyWith(
+            status: IncidentStatus.resolved,
+            resolvedAt: now,
+            falseReport: falseReport,
+          )
+          .withEvent(
+            IncidentEvent(
+              kind: falseReport
+                  ? IncidentEventKind.markedFalseReport
+                  : IncidentEventKind.resolved,
+              at: now,
+              actorName: actor.displayName,
+              detail: done.outcome.name,
+            ),
+          );
+      _close(next);
+    } else {
+      _resolved.value = [
+        for (final i in _resolved.value) i.id == incident.id ? next : i,
+      ];
+    }
+    _log(
+      actor,
+      AuditAction.reportValidated,
+      'completion_report',
+      incident.id,
+      label,
+    );
+  }
+
+  Future<void> recordFireStage(
+    String incidentId,
+    FireStage stage, {
+    DateTime? at,
+  }) async {
+    final actor = await _authorize();
+    final now = _clock();
+    final active = _incidents.value[incidentId];
+    final incident =
+        active ?? _resolved.value.where((i) => i.id == incidentId).firstOrNull;
+    if (incident == null) {
+      throw const ActionRejected(ActionRejection.notFound);
+    }
+    final t = at ?? now;
+    if (incident.type != IncidentType.fire ||
+        t.isAfter(now.add(const Duration(minutes: 2))) ||
+        t.isBefore(incident.receivedAt.subtract(const Duration(hours: 12)))) {
+      throw const ActionRejected(ActionRejection.invalidValue);
+    }
+    final next = incident.withEvent(
+      IncidentEvent(
+        kind: IncidentEventKind.fireStage,
+        at: t,
+        actorName: actor.displayName,
+        detail: stage.name,
+      ),
+    );
+    if (active != null) {
+      _putIncident(next);
+    } else {
+      _resolved.value = [
+        for (final i in _resolved.value) i.id == incidentId ? next : i,
+      ];
+    }
+    _log(
+      actor,
+      AuditAction.fireStageRecorded,
+      'incident_report',
+      incidentId,
+      stage.name,
+    );
+  }
+
   Future<void> resolve(String id) async {
     final actor = await _authorize();
     final incident = _activeIncident(id);
@@ -2152,6 +2321,13 @@ class MockBackend {
 
   /// Plays the resident for demos and tests: asks to cancel an open SOS
   /// ([reason] null takes the request back), or moves the phone.
+  /// The crew on [id] files its completion report now (demo and tests).
+  void crewFilesReport(String id) {
+    final incident = _incidents.value[id];
+    if (incident == null || incident.doneReported) return;
+    _fileCrewReport(incident, _units.value[incident.assignedUnitId]);
+  }
+
   void residentAsksToCancel(String id, SosCancelReason? reason) {
     final incident = _incidents.value[id];
     if (incident == null) return;
@@ -2244,9 +2420,10 @@ class MockBackend {
         case IncidentStatus.enRoute when unit != null:
           _moveToward(unit, incident, step, now);
         case IncidentStatus.onScene:
+          if (incident.doneReported) break;
           final since = _onSceneSince.putIfAbsent(incident.id, () => now);
-          if (now.difference(since) >= resolveAfterOnScene) {
-            _resolveNow(incident, unit?.callSign);
+          if (now.difference(since) >= crewReportAfterOnScene) {
+            _fileCrewReport(incident, unit);
           }
         default:
           break;
@@ -2481,9 +2658,21 @@ class MockBackend {
     _setUnit(unit.copyWith(status: UnitStatus.available, clearIncident: true));
   }
 
+  /// Frees the unit only while it is still on [incidentId]: after its crew
+  /// reported done, it may be on another job already.
+  void _releaseUnitFrom(String? unitId, String incidentId) {
+    final unit = _units.value[unitId];
+    if (unit == null) return;
+    if (unit.currentIncidentId != null &&
+        unit.currentIncidentId != incidentId) {
+      return;
+    }
+    _releaseUnit(unitId);
+  }
+
   void _resolveNow(Incident incident, String? actorName) {
     final now = _clock();
-    _releaseUnit(incident.assignedUnitId);
+    _releaseUnitFrom(incident.assignedUnitId, incident.id);
     _close(
       incident
           .copyWith(status: IncidentStatus.resolved, resolvedAt: now)

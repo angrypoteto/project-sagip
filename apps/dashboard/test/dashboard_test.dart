@@ -236,6 +236,57 @@ void main() {
     expect(find.textContaining('From the SOS, added'), findsOneWidget);
   });
 
+  testWidgets('MDRRMD validates the crew report, which closes the incident', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    backend.crewFilesReport('INC-0139');
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('INC-0139')));
+    await settle(tester);
+    expect(find.text('Reported done'), findsWidgets);
+
+    // The footer's one filled button validates the waiting report.
+    await tester.tap(find.widgetWithText(FilledButton, 'Validate crew report'));
+    await settle(tester);
+    expect(find.text('Validate the report of R-11'), findsOneWidget);
+    await tester.enterText(find.byKey(const ValueKey('validate-injured')), '1');
+    await tester.tap(find.byKey(const ValueKey('validate-confirm')));
+    await settle(tester);
+    expect(
+      find.text('Crew report validated. The incident is closed.'),
+      findsOneWidget,
+    );
+    // Read through the app's own state (a raw stream can wait forever
+    // under the widget-test clock).
+    expect(container.read(incidentByIdProvider('INC-0139')), isNull);
+  });
+
+  testWidgets('a dispatcher records a fire stage with its time', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await signIn(tester, 'dispatcher@sagip.test');
+    await tester.tap(find.byKey(const ValueKey('INC-0144')));
+    await settle(tester);
+    final record = find.byKey(const ValueKey('fire-stage-record'));
+    await revealInDrawer(tester, record);
+    await tester.tap(record);
+    await settle(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('fire-stage-time')),
+      '15:30',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('fire-stage-save')));
+    await settle(tester);
+    expect(find.text('Positive alarm recorded.'), findsOneWidget);
+    final fire = container.read(incidentByIdProvider('INC-0144'))!;
+    expect(fire.fireStages.keys, [FireStage.positiveAlarm]);
+    expect(find.text('Positive alarm'), findsWidgets);
+  });
+
   testWidgets('a dispatcher assigns the top suggested unit', (tester) async {
     await pumpApp(tester);
     await signIn(tester, 'dispatcher@sagip.test');

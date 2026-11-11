@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'crew_report.dart';
 import 'enums.dart';
 import 'geo_point.dart';
 
@@ -19,6 +20,16 @@ enum IncidentEventKind {
   /// The resident asked to cancel the SOS, or took that back.
   cancelRequested,
   cancelWithdrawn,
+
+  /// The crew filed its completion report; the incident waits for MDRRMD
+  /// (2026-11-11).
+  doneReported,
+
+  /// MDRRMD validated a crew's report (detail: the call sign).
+  reportValidated,
+
+  /// A stage of a fire, as MDRRMD records it (detail: a [FireStage] name).
+  fireStage,
 }
 
 @immutable
@@ -38,6 +49,18 @@ class IncidentEvent {
 
   /// Short extra text such as a unit call sign or a type name.
   final String? detail;
+
+  /// The fire stage of a [IncidentEventKind.fireStage] event.
+  FireStage? get fireStage => kind == IncidentEventKind.fireStage
+      ? FireStage.values.asNameMap()[detail]
+      : null;
+
+  /// Null for a kind this version does not know (a newer database), so an
+  /// older dashboard skips it instead of failing.
+  static IncidentEvent? tryFromJson(Map<String, Object?> json) =>
+      IncidentEventKind.values.asNameMap().containsKey(json['kind'])
+      ? IncidentEvent.fromJson(json)
+      : null;
 
   factory IncidentEvent.fromJson(Map<String, Object?> json) => IncidentEvent(
     kind: enumFromJson(IncidentEventKind.values, json['kind']),
@@ -94,6 +117,8 @@ class Incident {
     this.lastLocation,
     this.lastLocationAt,
     this.lastAccuracyMeters,
+    this.doneReportedAt,
+    this.crewReports = const [],
   });
 
   final String id;
@@ -172,6 +197,42 @@ class Incident {
   final DateTime? lastLocationAt;
   final double? lastAccuracyMeters;
 
+  /// When the crew reported the job done (2026-11-11). The incident stays
+  /// open until MDRRMD validates the crew's report or resolves it.
+  final DateTime? doneReportedAt;
+
+  /// The crews' completion reports, validated or waiting.
+  final List<CrewReport> crewReports;
+
+  bool get doneReported => doneReportedAt != null;
+
+  /// Crew reports MDRRMD has not validated yet.
+  List<CrewReport> get reportsAwaitingValidation => [
+    for (final r in crewReports)
+      if (!r.validated) r,
+  ];
+
+  /// Each fire stage recorded, with its newest time.
+  Map<FireStage, DateTime> get fireStages {
+    final out = <FireStage, DateTime>{};
+    for (final e in events) {
+      final s = e.fireStage;
+      if (s == null) continue;
+      final t = out[s];
+      if (t == null || e.at.isAfter(t)) out[s] = e.at;
+    }
+    return out;
+  }
+
+  /// The highest alarm level reached, if any was recorded.
+  FireStage? get highestAlarm {
+    FireStage? top;
+    for (final s in fireStages.keys) {
+      if (s.isAlarm && (top == null || s.index > top.index)) top = s;
+    }
+    return top;
+  }
+
   bool get cancelRequested => cancelRequestedAt != null;
 
   /// Where to send a unit: the resident's newest position, or where the
@@ -216,6 +277,8 @@ class Incident {
     GeoPoint? lastLocation,
     DateTime? lastLocationAt,
     double? lastAccuracyMeters,
+    DateTime? doneReportedAt,
+    List<CrewReport>? crewReports,
   }) {
     return Incident(
       id: id,
@@ -257,6 +320,8 @@ class Incident {
       lastLocation: lastLocation ?? this.lastLocation,
       lastLocationAt: lastLocationAt ?? this.lastLocationAt,
       lastAccuracyMeters: lastAccuracyMeters ?? this.lastAccuracyMeters,
+      doneReportedAt: doneReportedAt ?? this.doneReportedAt,
+      crewReports: crewReports ?? this.crewReports,
     );
   }
 
@@ -310,7 +375,7 @@ class Incident {
     resolvedAt: timeFromJsonOrNull(json['resolved_at']),
     events: [
       for (final e in (json['events'] as List<Object?>? ?? const []))
-        IncidentEvent.fromJson(e! as Map<String, Object?>),
+        ?IncidentEvent.tryFromJson(e! as Map<String, Object?>),
     ],
     isSimulated: json['is_simulated'] as bool? ?? false,
     cancelRequestedAt: timeFromJsonOrNull(json['cancel_requested_at']),
@@ -328,6 +393,11 @@ class Incident {
           ),
     lastLocationAt: timeFromJsonOrNull(json['last_location_at']),
     lastAccuracyMeters: (json['last_accuracy_m'] as num?)?.toDouble(),
+    doneReportedAt: timeFromJsonOrNull(json['done_reported_at']),
+    crewReports: [
+      for (final r in (json['crew_reports'] as List<Object?>? ?? const []))
+        CrewReport.fromJson(r! as Map<String, Object?>),
+    ],
   );
 
   Map<String, Object?> toJson() => {
@@ -368,5 +438,7 @@ class Incident {
     'last_longitude': lastLocation?.lng,
     'last_location_at': lastLocationAt?.toIso8601String(),
     'last_accuracy_m': lastAccuracyMeters,
+    'done_reported_at': doneReportedAt?.toIso8601String(),
+    'crew_reports': [for (final r in crewReports) r.toJson()],
   };
 }

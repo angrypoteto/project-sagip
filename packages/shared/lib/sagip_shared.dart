@@ -33,6 +33,7 @@ export 'src/models/account.dart';
 export 'src/models/alerts.dart';
 export 'src/models/analytics.dart';
 export 'src/models/assignment.dart';
+export 'src/models/crew_report.dart';
 export 'src/models/crowd_report.dart';
 export 'src/models/enums.dart';
 export 'src/models/facebook_post.dart';

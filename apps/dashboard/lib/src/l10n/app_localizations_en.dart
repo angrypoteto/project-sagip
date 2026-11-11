@@ -1149,6 +1149,138 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventCancelWithdrawn => 'Resident still needs help';
 
   @override
+  String get eventDoneReported => 'Crew reported done';
+
+  @override
+  String get eventReportValidated => 'Crew report validated';
+
+  @override
+  String get eventFireStage => 'Fire';
+
+  @override
+  String get actionReportValidated => 'Validated a crew report';
+
+  @override
+  String get actionFireStageRecorded => 'Recorded a fire stage';
+
+  @override
+  String get reportCheckAllValidated => 'MDRRMD validated every crew report';
+
+  @override
+  String get crewReportTitle => 'Crew report';
+
+  @override
+  String crewReportFrom(String unit, String time) {
+    return '$unit, filed $time';
+  }
+
+  @override
+  String get crewReportWaiting =>
+      'Waiting for MDRRMD to validate it. The incident stays open until then, and its figures do not count in the MDRRMD report.';
+
+  @override
+  String crewReportValidatedBy(String name, String time) {
+    return 'Validated by $name, $time';
+  }
+
+  @override
+  String get crewReportCorrected => 'Figures corrected by MDRRMD';
+
+  @override
+  String get crewReportOnScene => 'Time on scene';
+
+  @override
+  String crewReportMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get crewReportNotes => 'Notes';
+
+  @override
+  String get crewReportReview => 'Review and validate';
+
+  @override
+  String get validateCrewReport => 'Validate crew report';
+
+  @override
+  String validateTitle(String unit) {
+    return 'Validate the report of $unit';
+  }
+
+  @override
+  String get validateBody =>
+      'Check the figures with the crew. Change any that are wrong; the change is recorded under your name.';
+
+  @override
+  String get validateConfirm => 'Validate';
+
+  @override
+  String get validatedSnack => 'Crew report validated. The incident is closed.';
+
+  @override
+  String get validatedOnlySnack => 'Crew report validated.';
+
+  @override
+  String get doneReportedChip => 'Reported done';
+
+  @override
+  String get fireStagesTitle => 'Fire progress';
+
+  @override
+  String get fireStagesNone =>
+      'No stage recorded yet. Record each alarm, \"under control\", and \"fire out\" with the time it was declared.';
+
+  @override
+  String get fireStageRecord => 'Record stage';
+
+  @override
+  String get fireStageDialogTitle => 'Record a fire stage';
+
+  @override
+  String get fireStageField => 'Stage';
+
+  @override
+  String get fireStageTime => 'Time declared';
+
+  @override
+  String get fireStageTimeHelp =>
+      'Today, 24-hour time (for example 14:05). A time later than now is taken as yesterday.';
+
+  @override
+  String get fireStageTimeInvalid => 'Enter the time as HH:MM';
+
+  @override
+  String get fireStageSave => 'Record';
+
+  @override
+  String fireStageRecordedSnack(String stage) {
+    return '$stage recorded.';
+  }
+
+  @override
+  String fireStageName(String stage) {
+    String _temp0 = intl.Intl.selectLogic(stage, {
+      'positiveAlarm': 'Positive alarm',
+      'firstAlarm': '1st alarm',
+      'secondAlarm': '2nd alarm',
+      'thirdAlarm': '3rd alarm',
+      'fourthAlarm': '4th alarm',
+      'fifthAlarm': '5th alarm',
+      'taskForceAlpha': 'Task Force Alpha',
+      'taskForceBravo': 'Task Force Bravo',
+      'taskForceCharlie': 'Task Force Charlie',
+      'taskForceDelta': 'Task Force Delta',
+      'taskForceEcho': 'Task Force Echo',
+      'generalAlarm': 'General alarm',
+      'fireUnderControl': 'Fire under control',
+      'fireOut': 'Fire out',
+      'other': 'Stage',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get eventCancelledByResident => 'Cancelled by the resident';
 
   @override

@@ -12,6 +12,7 @@ import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/assignment.dart';
+import '../models/crew_report.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';
 import '../models/facebook_post.dart';
@@ -1126,6 +1127,31 @@ class SupabaseIncidentRepository implements IncidentRepository {
   @override
   Future<void> resolve(String incidentId) =>
       _rpc('resolve_incident', {'p_incident_id': incidentId});
+
+  @override
+  Future<void> validateCrewReport(
+    String reportId, {
+    CrewReportCorrection? correction,
+  }) => _rpc('validate_crew_report', {
+    'p_report_id': reportId,
+    'p_outcome': correction?.outcome?.name,
+    'p_persons_assisted': correction?.personsAssisted,
+    'p_injured': correction?.injured,
+    'p_missing': correction?.missing,
+    'p_affected_families': correction?.affectedFamilies,
+    'p_houses_damaged': correction?.housesDamaged,
+  });
+
+  @override
+  Future<void> recordFireStage(
+    String incidentId,
+    FireStage stage, {
+    DateTime? at,
+  }) => _rpc('record_fire_stage', {
+    'p_incident_id': incidentId,
+    'p_stage': stage.name,
+    'p_at': at?.toUtc().toIso8601String(),
+  });
 
   @override
   Future<void> confirmCancel(String incidentId) =>

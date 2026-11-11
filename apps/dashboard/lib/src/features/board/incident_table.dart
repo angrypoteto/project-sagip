@@ -141,7 +141,9 @@ class IncidentTable extends ConsumerWidget {
         ),
         DataCell(
           SagipChip.status(
-            label: l10n.incidentStatus(i.status),
+            label: i.doneReported && i.status != IncidentStatus.resolved
+                ? l10n.doneReportedChip
+                : l10n.incidentStatus(i.status),
             visual: visual,
           ),
         ),

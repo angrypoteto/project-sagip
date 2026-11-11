@@ -107,7 +107,13 @@ extension DomainLabels on AppLocalizations {
     IncidentEventKind.markedFalseReport => eventFalseReport,
     IncidentEventKind.cancelRequested => eventCancelRequested,
     IncidentEventKind.cancelWithdrawn => eventCancelWithdrawn,
+    IncidentEventKind.doneReported => eventDoneReported,
+    IncidentEventKind.reportValidated => eventReportValidated,
+    IncidentEventKind.fireStage => eventFireStage,
   };
+
+  /// "1st alarm", "Fire out" (MDRRMD's fire sheet).
+  String fireStage(FireStage s) => fireStageName(s.name);
 
   String unitAgency(UnitAgency a) => switch (a) {
     UnitAgency.mdrrmd => agencyMdrrmd,
@@ -183,12 +189,15 @@ extension DomainLabels on AppLocalizations {
     AuditAction.safePlaceSaved => actionSafePlaceSaved,
     AuditAction.safePlaceHidden => actionSafePlaceHidden,
     AuditAction.safePlaceRestored => actionSafePlaceRestored,
+    AuditAction.reportValidated => actionReportValidated,
+    AuditAction.fireStageRecorded => actionFireStageRecorded,
   };
 
   String reportCheck(ReportCheck c) => switch (c) {
     ReportCheck.hasIncidents => reportCheckIncidents,
     ReportCheck.noneOpen => reportCheckNoneOpen,
     ReportCheck.allReportsFiled => reportCheckAllFiled,
+    ReportCheck.allReportsValidated => reportCheckAllValidated,
     ReportCheck.noSimulatedData => reportCheckNoSimulated,
     ReportCheck.noEmptySection => reportCheckNoEmpty,
   };

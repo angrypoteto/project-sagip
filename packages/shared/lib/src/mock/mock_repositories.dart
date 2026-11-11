@@ -5,6 +5,7 @@ import '../algorithms/dijkstra/routing_log.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/crowd_report.dart';
+import '../models/crew_report.dart';
 import '../models/enums.dart';
 import '../models/facebook_post.dart';
 import '../models/geo_point.dart';
@@ -100,6 +101,19 @@ class MockIncidentRepository implements IncidentRepository {
 
   @override
   Future<void> resolve(String incidentId) => _backend.resolve(incidentId);
+
+  @override
+  Future<void> validateCrewReport(
+    String reportId, {
+    CrewReportCorrection? correction,
+  }) => _backend.validateCrewReport(reportId, correction: correction);
+
+  @override
+  Future<void> recordFireStage(
+    String incidentId,
+    FireStage stage, {
+    DateTime? at,
+  }) => _backend.recordFireStage(incidentId, stage, at: at);
 
   @override
   Future<void> confirmCancel(String incidentId) =>
