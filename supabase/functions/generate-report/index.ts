@@ -3,8 +3,9 @@
 //
 // A6 sends a draft's figures and its assembled sections. For each section
 // the function finds the closest reference passages (report_reference, by
-// embedding; by shared words if embeddings fail) and asks Google Gemini to
-// write the section from the figures, following the passages. It answers
+// embedding; by shared words if embeddings fail) and asks the language
+// model (Groq first, Gemini if Groq fails; since 2026-11-12) to write the
+// section from the figures, following the passages. It answers
 // with the new text; the administrator reviews and saves it. Nothing is
 // saved here.
 //
@@ -181,8 +182,11 @@ async function writeWithGroq(key: string, prompt: string): Promise<string> {
   return text;
 }
 
-/** The sections from the first model that answers with them: each Gemini
- * key in turn, then each Groq key. */
+/** The sections from the first model that answers with them: each Groq key
+ * in turn, then each Gemini key. Groq writes first (Joshua, 2026-11-12: "if
+ * the gemini is not working then we can just use groq": Gemini answered in
+ * none of six timed runs and Groq wrote every report); Gemini stays as the
+ * fallback, and its embeddings still pick the reference passages. */
 async function write(
   prompt: string,
   asked: Section[],
@@ -194,25 +198,25 @@ async function write(
     return sections;
   };
   let failure: unknown = new Error("no key");
-  if (geminiKeys.length) {
+  if (groqKeys.length) {
     try {
       const sections = await withKeys(
-        rotated(geminiKeys, turn),
-        async (k) => read(await writeWithGemini(k, prompt)),
-        30_000,
+        rotated(groqKeys, turn),
+        async (k) => read(await writeWithGroq(k, prompt)),
+        60_000,
       );
-      return { sections, model };
+      return { sections, model: groqModel };
     } catch (e) {
       failure = e;
     }
   }
-  if (groqKeys.length) {
+  if (geminiKeys.length) {
     const sections = await withKeys(
-      rotated(groqKeys, turn),
-      async (k) => read(await writeWithGroq(k, prompt)),
-      60_000,
+      rotated(geminiKeys, turn),
+      async (k) => read(await writeWithGemini(k, prompt)),
+      30_000,
     );
-    return { sections, model: groqModel };
+    return { sections, model };
   }
   throw failure;
 }
@@ -235,7 +239,7 @@ Deno.serve(async (req) => {
   }
   const rewriteId = begun.data;
   const started = Date.now();
-  let usedModel = model;
+  let usedModel = groqKeys.length ? groqModel : model;
   const finish = (ok: boolean, detail: string | null) =>
     rpc("finish_report_rewrite", {
       p_rewrite_id: rewriteId,

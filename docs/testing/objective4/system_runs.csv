@@ -1,8 +1,14 @@
-run,rewrite_id,period,incidents,collect_and_draft_s,rewrite_s,model,retrieval,numbers_check,remarks_untouched,counted
-0,548,last 7 days,4,0.2,114.7,openai/gpt-oss-120b,embedding,passed,no,no (before the fixes)
-1,549,last 7 days,4,0.2,54.1,openai/gpt-oss-120b,embedding,passed,yes,yes
-2,550,last 7 days,4,0.4,36.2,openai/gpt-oss-120b,embedding,passed,yes,yes
-3,551,last 7 days,4,0.2,54.2,openai/gpt-oss-120b,embedding,passed,yes,yes
-4,552,last 30 days,59,0.2,35.4,openai/gpt-oss-120b,embedding,passed,yes,yes
-5,553,last 30 days,59,0.2,57.7,openai/gpt-oss-120b,embedding,passed,yes,yes
-6,554,last 30 days,59,0.4,44.1,openai/gpt-oss-120b,embedding,passed,yes,yes
+set,run,rewrite_id,period,incidents,collect_and_draft_s,rewrite_s,model,retrieval,numbers_check,remarks_untouched,counted
+before fixes,0,548,last 7 days,4,0.2,114.7,openai/gpt-oss-120b (Gemini timed out first),embedding,passed,no,no
+Gemini first (v18),1,549,last 7 days,4,0.2,54.1,openai/gpt-oss-120b (Gemini timed out first),embedding,passed,yes,superseded
+Gemini first (v18),2,550,last 7 days,4,0.4,36.2,openai/gpt-oss-120b (Gemini timed out first),embedding,passed,yes,superseded
+Gemini first (v18),3,551,last 7 days,4,0.2,54.2,openai/gpt-oss-120b (Gemini timed out first),embedding,passed,yes,superseded
+Gemini first (v18),4,552,last 30 days,59,0.2,35.4,openai/gpt-oss-120b (Gemini timed out first),embedding,passed,yes,superseded
+Gemini first (v18),5,553,last 30 days,59,0.2,57.7,openai/gpt-oss-120b (Gemini timed out first),embedding,passed,yes,superseded
+Gemini first (v18),6,554,last 30 days,59,0.4,44.1,openai/gpt-oss-120b (Gemini timed out first),embedding,passed,yes,superseded
+Groq first (v19 live),1,555,last 7 days,4,0.3,4.1,openai/gpt-oss-120b,embedding,passed,yes,yes
+Groq first (v19 live),2,556,last 7 days,4,0.2,3.1,openai/gpt-oss-120b,embedding,passed,yes,yes
+Groq first (v19 live),3,557,last 7 days,4,0.2,3.9,openai/gpt-oss-120b,embedding,passed,yes,yes
+Groq first (v19 live),4,558,last 30 days,59,0.5,4.7,openai/gpt-oss-120b,embedding,passed,yes,yes
+Groq first (v19 live),5,559,last 30 days,59,0.2,4.4,openai/gpt-oss-120b,embedding,passed,yes,yes
+Groq first (v19 live),6,560,last 30 days,59,0.2,3.9,openai/gpt-oss-120b,embedding,passed,yes,yes

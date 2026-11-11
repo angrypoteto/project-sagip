@@ -31,40 +31,34 @@ administrator's time, and that it works reliably.
 Six runs on staff.sagip.me, signed in as an administrator, through the real
 A6 page: *New report → period → Collect records → Rewrite with the language
 model*. Nothing was saved. The drafting time is the page's own timer; the
-rewrite time is the server's (`report_rewrite.duration_ms`).
+rewrite time is the server's (`report_rewrite.duration_ms`). The function in
+use is `generate-report` version 19: **Groq writes first, Gemini is the
+fallback**, and Gemini's embeddings pick the reference passages.
 
 | Run | Period | Incidents | Collect and draft | Rewrite | Model that wrote it | Numbers check |
 |---:|---|---:|---:|---:|---|---|
-| 1 | Last 7 days | 4 | 0.2 s | 54.1 s | Groq `gpt-oss-120b` | passed |
-| 2 | Last 7 days | 4 | 0.4 s | 36.2 s | Groq `gpt-oss-120b` | passed |
-| 3 | Last 7 days | 4 | 0.2 s | 54.2 s | Groq `gpt-oss-120b` | passed |
-| 4 | Last 30 days | 59 | 0.2 s | 35.4 s | Groq `gpt-oss-120b` | passed |
-| 5 | Last 30 days | 59 | 0.2 s | 57.7 s | Groq `gpt-oss-120b` | passed |
-| 6 | Last 30 days | 59 | 0.4 s | 44.1 s | Groq `gpt-oss-120b` | passed |
+| 1 | Last 7 days | 4 | 0.3 s | 4.1 s | Groq `gpt-oss-120b` | passed |
+| 2 | Last 7 days | 4 | 0.2 s | 3.1 s | Groq `gpt-oss-120b` | passed |
+| 3 | Last 7 days | 4 | 0.2 s | 3.9 s | Groq `gpt-oss-120b` | passed |
+| 4 | Last 30 days | 59 | 0.5 s | 4.7 s | Groq `gpt-oss-120b` | passed |
+| 5 | Last 30 days | 59 | 0.2 s | 4.4 s | Groq `gpt-oss-120b` | passed |
+| 6 | Last 30 days | 59 | 0.2 s | 3.9 s | Groq `gpt-oss-120b` | passed |
 
-**Summary:** collect and draft in 0.2 to 0.4 s; rewrite median **49.1 s**
-(mean 47.0 s, range 35.4 to 57.7 s); **6 of 6** rewrites succeeded; **6 of 6**
-passed the numbers check (every number in the new text is in the records);
-section 6 (Remarks, the administrator's own) was left untouched in 6 of 6.
-The machine time for a full draft is therefore **under one minute**. What
+**Summary:** collect and draft in 0.2 to 0.5 s; rewrite median **3.9 s**
+(range 3.1 to 4.7 s); **6 of 6** rewrites succeeded; **6 of 6** passed the
+numbers check (every number in the new text is in the records); section 6
+(Remarks, the administrator's own) was left untouched in 6 of 6. The machine
+time for a full, rewritten draft is therefore **about 5 seconds**. What
 remains is the administrator's reading, the remarks, and marking it final:
 part B measures that.
 
-### Found and fixed during the test (before runs 1 to 6)
+### How it got here (all runs are in `system_runs.csv`)
 
-A first run (not counted) took **114.7 s** and showed three problems, fixed in
-`generate-report` version 18 (tests: 15 of 15):
-
-| Problem | Fix |
-|---|---|
-| The model wrote the administrator's section 6 ("Remarks and recommendations are not available") | Section 6 is never sent to the model and never replaced |
-| A median time came out as "36.41555 s" | The model gets the figures rounded as a report states them (times to whole seconds) |
-| A slow Gemini held the administrator for up to 100 s before the Groq fallback | Gemini gets 25 s per key and 30 s in all, then Groq (45 s per key) |
-
-**Open:** Gemini (`gemini-3.8-flash`) did not answer within its 30 s in any of
-the six runs, so every report was written by the Groq fallback. The fallback
-is why the rewrites still succeeded; the primary model's speed (or a smaller
-Gemini model) is worth checking before the defense.
+| Step | Rewrite time | What changed |
+|---|---:|---|
+| First run | 114.7 s | Gemini first, up to 100 s before the Groq fallback; the model wrote section 6; a time came out as "36.41555 s" |
+| Version 18 (six runs) | median 49.1 s | Section 6 never sent to the model; figures rounded before the prompt; Gemini limited to 30 s. Gemini still answered in none of the six runs, so Groq wrote every report after Gemini's 30 s |
+| **Version 19 (six runs, live)** | **median 3.9 s** | Joshua, 2026-11-12: "if the gemini is not working then we can just use groq". Groq writes first; Gemini only if Groq fails |
 
 ## B. The timed comparison
 
