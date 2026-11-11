@@ -23,7 +23,7 @@ class ReachabilitySignalMonitor implements SignalMonitor {
     this.every = const Duration(seconds: 20),
     this.everyOffline = const Duration(seconds: 5),
     this.confirmAfter = const Duration(seconds: 3),
-    this.timeout = const Duration(seconds: 10),
+    this.timeout = const Duration(seconds: 6),
     this.failuresToDrop = 2,
     http.Client Function()? client,
     this._network,

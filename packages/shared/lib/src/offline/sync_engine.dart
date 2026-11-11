@@ -96,7 +96,7 @@ class SmsTier {
     required this.sender,
     required this.gatewayNumber,
     required this.available,
-    this.retryAfter = const Duration(seconds: 30),
+    this.retryAfter = const Duration(seconds: 10),
   });
 
   final SmsSender sender;
@@ -138,7 +138,7 @@ class SyncEngine {
     Duration Function(int attempts)? retryDelay,
     SmsTier? sms,
     RelayTier? relay,
-    this.dataWindow = const Duration(seconds: 20),
+    this.dataWindow = const Duration(seconds: 8),
   }) : _store = store,
        _sms = sms,
        _relay = relay,
@@ -186,8 +186,8 @@ class SyncEngine {
       : DeliveryState.savedOnPhone;
 
   /// How long an SOS is tried over data alone before it is also texted
-  /// (20 s: two or three tries; the phone needs about 13 s of failed checks
-  /// to count itself offline anyway).
+  /// (8 s since 2026-11-12, was 20: "it try too many time on data before
+  /// moving on to the text and relay"). Data keeps being tried after.
   final Duration dataWindow;
 
   /// A Bluetooth advert that could not start (Bluetooth off, no

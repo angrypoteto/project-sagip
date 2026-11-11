@@ -55,7 +55,7 @@ void main() {
     );
     expect(titles(), [
       'No internet. Trying again over data',
-      'SOS sent by SMS to MDRRMD',
+      'SOS texted to MDRRMD',
       'Asking nearby phones to pass on your SOS',
       'Your SOS reached MDRRMD',
     ]);
@@ -69,13 +69,15 @@ void main() {
       sos(const SosSendSteps(smsFailed: true, bluetooth: true)),
     ], l10n);
     expect(titles(), [
-      'The SMS could not be sent',
+      'The text did not go out yet',
       'Asking nearby phones to pass on your SOS',
     ]);
     expect(notice.shown.first, contains('Turn on Bluetooth'));
-    // The usual reason (2026-10-20): the resident's SIM has no load.
-    expect(notice.shown.first, contains('no load'));
-    expect(notice.shown.last, contains('The SMS could not be sent'));
+    // No guess that the SIM has no load before it is the reason
+    // (2026-11-12); what to check is still said.
+    expect(notice.shown.first, isNot(contains('may have no load')));
+    expect(notice.shown.first, contains('signal and load'));
+    expect(notice.shown.last, contains('The text did not go out yet'));
   });
 
   test('an SOS that went out at once gets no notification', () {

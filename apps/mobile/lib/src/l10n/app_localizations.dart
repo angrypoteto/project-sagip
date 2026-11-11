@@ -527,13 +527,13 @@ abstract class AppLocalizations {
   /// No description provided for @sosSendSmsTitle.
   ///
   /// In en, this message translates to:
-  /// **'SOS sent by SMS to MDRRMD'**
+  /// **'SOS texted to MDRRMD'**
   String get sosSendSmsTitle;
 
   /// No description provided for @sosSendSmsText.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for MDRRMD to confirm. Nearby phones are asked by Bluetooth next, and data keeps reconnecting.'**
+  /// **'Your phone sent the text. It counts as received when MDRRMD replies. Until then nearby phones are asked by Bluetooth, and data keeps reconnecting.'**
   String get sosSendSmsText;
 
   /// No description provided for @sosSendReceivedTitle.
@@ -551,13 +551,13 @@ abstract class AppLocalizations {
   /// No description provided for @sosSendSmsFailedTitle.
   ///
   /// In en, this message translates to:
-  /// **'The SMS could not be sent'**
+  /// **'The text did not go out yet'**
   String get sosSendSmsFailedTitle;
 
   /// No description provided for @sosSendSmsFailedText.
   ///
   /// In en, this message translates to:
-  /// **'Your SIM may have no load or no signal. Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.'**
+  /// **'Your phone could not send it yet. It is tried again every 10 seconds. Turn on Bluetooth so nearby phones can pass your SOS on. If the text keeps failing, check that the SIM you text with has signal and load.'**
   String get sosSendSmsFailedText;
 
   /// No description provided for @sosSendBluetoothTitle.
@@ -569,7 +569,7 @@ abstract class AppLocalizations {
   /// No description provided for @sosSendBluetoothText.
   ///
   /// In en, this message translates to:
-  /// **'The SMS could not be sent (your SIM may have no load or no signal). A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.'**
+  /// **'The text did not go out yet. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and the text keep being tried. Keep Bluetooth on.'**
   String get sosSendBluetoothText;
 
   /// No description provided for @sosSendBluetoothNoSms.

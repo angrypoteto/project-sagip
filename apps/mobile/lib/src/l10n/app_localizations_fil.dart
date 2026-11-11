@@ -261,11 +261,11 @@ class AppLocalizationsFil extends AppLocalizations {
       'Naka-save ang iyong SOS sa phone na ito. Kung hindi gumana ang data, ipapadala ito sa SMS, saka sa mga kalapit na phone.';
 
   @override
-  String get sosSendSmsTitle => 'Naipadala sa SMS ang SOS sa MDRRMD';
+  String get sosSendSmsTitle => 'Na-text ang SOS sa MDRRMD';
 
   @override
   String get sosSendSmsText =>
-      'Hinihintay ang kumpirmasyon ng MDRRMD. Susunod na hihingan ng tulong ang mga kalapit na phone sa Bluetooth, at patuloy na kumokonekta ang data.';
+      'Naipadala ng iyong phone ang text. Ituturing itong natanggap kapag sumagot ang MDRRMD. Hanggang doon, hihingan ng tulong ang mga kalapit na phone sa Bluetooth, at patuloy na kumokonekta ang data.';
 
   @override
   String get sosSendReceivedTitle => 'Natanggap ng MDRRMD ang SOS mo sa SMS';
@@ -276,11 +276,11 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
-  String get sosSendSmsFailedTitle => 'Hindi naipadala ang SMS';
+  String get sosSendSmsFailedTitle => 'Hindi pa naipapadala ang text';
 
   @override
   String get sosSendSmsFailedText =>
-      'Maaaring walang load o signal ang iyong SIM. I-on ang Bluetooth para maipasa ng mga kalapit na phone ang iyong SOS. Sinusubukan pa rin ang data at SMS.';
+      'Hindi pa ito maipadala ng iyong phone. Susubukan ulit tuwing 10 segundo. I-on ang Bluetooth para maipasa ng mga kalapit na phone ang iyong SOS. Kung patuloy na hindi maipadala ang text, tingnan kung may signal at load ang SIM na ginagamit mo sa pag-text.';
 
   @override
   String get sosSendBluetoothTitle =>
@@ -288,7 +288,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get sosSendBluetoothText =>
-      'Hindi naipadala ang SMS (maaaring walang load o signal ang iyong SIM). Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Patuloy na sinusubukan ang data at SMS. Panatilihing naka-on ang Bluetooth.';
+      'Hindi pa naipapadala ang text. Ipapasa sa MDRRMD ng kalapit na phone na may S.A.G.I.P. ang iyong SOS kapag online ito. Patuloy na sinusubukan ang data at ang text. Panatilihing naka-on ang Bluetooth.';
 
   @override
   String get sosSendBluetoothNoSms =>

@@ -23,6 +23,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.provider.Telephony
 import android.telephony.SmsManager
+import android.telephony.SubscriptionManager
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -372,8 +373,36 @@ class MainActivity : FlutterActivity() {
             checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED
 
     /**
+     * The SMS manager for the SIM the phone texts from (2026-11-12: on a
+     * dual-SIM phone set to "ask every time", the default manager failed
+     * and the app said the SIM may have no load). The SIM chosen for texts,
+     * else the one for mobile data, else the system's default.
+     */
+    private fun smsManager(): SmsManager {
+        var sub = SubscriptionManager.getDefaultSmsSubscriptionId()
+        if (sub == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            sub = SubscriptionManager.getDefaultDataSubscriptionId()
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val base = getSystemService(SmsManager::class.java)
+            return if (sub != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                base.createForSubscriptionId(sub)
+            } else {
+                base
+            }
+        }
+        @Suppress("DEPRECATION")
+        return if (sub != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            SmsManager.getSmsManagerForSubscriptionId(sub)
+        } else {
+            SmsManager.getDefault()
+        }
+    }
+
+    /**
      * Sends one text and reports whether the phone's SMS service sent it
-     * (the "sent" broadcast), or false after 40 seconds without an answer.
+     * (the "sent" broadcast), or false after 20 seconds without an answer
+     * (was 40: the next way of sending waited that long).
      */
     private fun send(number: String, text: String, done: (Boolean) -> Unit) {
         if (!canSend()) {
@@ -405,7 +434,7 @@ class MainActivity : FlutterActivity() {
         } else {
             registerReceiver(receiver, filter)
         }
-        handler.postAtTime({ finish(false) }, action, android.os.SystemClock.uptimeMillis() + 40_000)
+        handler.postAtTime({ finish(false) }, action, android.os.SystemClock.uptimeMillis() + 20_000)
 
         val sent = PendingIntent.getBroadcast(
             this,
@@ -414,13 +443,7 @@ class MainActivity : FlutterActivity() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT,
         )
         try {
-            val sms = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                getSystemService(SmsManager::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                SmsManager.getDefault()
-            }
-            sms.sendTextMessage(number, null, text, sent, null)
+            smsManager().sendTextMessage(number, null, text, sent, null)
         } catch (_: Exception) {
             finish(false)
         }

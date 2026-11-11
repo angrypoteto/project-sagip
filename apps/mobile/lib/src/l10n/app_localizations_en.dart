@@ -257,11 +257,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your SOS is saved on this phone. If data doesn\'t work soon, it goes by SMS, then through nearby phones.';
 
   @override
-  String get sosSendSmsTitle => 'SOS sent by SMS to MDRRMD';
+  String get sosSendSmsTitle => 'SOS texted to MDRRMD';
 
   @override
   String get sosSendSmsText =>
-      'Waiting for MDRRMD to confirm. Nearby phones are asked by Bluetooth next, and data keeps reconnecting.';
+      'Your phone sent the text. It counts as received when MDRRMD replies. Until then nearby phones are asked by Bluetooth, and data keeps reconnecting.';
 
   @override
   String get sosSendReceivedTitle => 'MDRRMD received your SOS by SMS';
@@ -272,11 +272,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sosSendSmsFailedTitle => 'The SMS could not be sent';
+  String get sosSendSmsFailedTitle => 'The text did not go out yet';
 
   @override
   String get sosSendSmsFailedText =>
-      'Your SIM may have no load or no signal. Turn on Bluetooth so nearby phones can pass your SOS on. Data and SMS are still being tried.';
+      'Your phone could not send it yet. It is tried again every 10 seconds. Turn on Bluetooth so nearby phones can pass your SOS on. If the text keeps failing, check that the SIM you text with has signal and load.';
 
   @override
   String get sosSendBluetoothTitle =>
@@ -284,7 +284,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sosSendBluetoothText =>
-      'The SMS could not be sent (your SIM may have no load or no signal). A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and SMS keep being tried. Keep Bluetooth on.';
+      'The text did not go out yet. A phone near you with S.A.G.I.P. passes your SOS to MDRRMD when it is online. Data and the text keep being tried. Keep Bluetooth on.';
 
   @override
   String get sosSendBluetoothNoSms =>

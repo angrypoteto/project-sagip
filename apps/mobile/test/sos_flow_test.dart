@@ -357,7 +357,7 @@ void main() {
     final notice = container.read(sosSendNoticeProvider) as MockSosSendNotice;
     expect(
       [for (final s in notice.shown) s.split(': ').first],
-      ['SOS sent by SMS to MDRRMD', 'Your SOS reached MDRRMD'],
+      ['SOS texted to MDRRMD', 'Your SOS reached MDRRMD'],
     );
     await finish(tester);
   });
