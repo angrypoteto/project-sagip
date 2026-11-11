@@ -42,11 +42,17 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--variant", default="recorded")
+    # The weather can come from a longer file than the model's own records,
+    # to replay events from before them (2026-11-12: model v4, trained on
+    # MDRRMD's records from December 2024, on the 2024 typhoons it never saw;
+    # its prior-day incident count is 0 before MDRRMD's records begin).
+    parser.add_argument("--weather-from", default=None)
     args = parser.parse_args()
     prepared = FORECAST / "data" / "prepared" / args.variant
     build = FORECAST / "build" / "real" / args.variant
+    weather_dir = FORECAST / "data" / "prepared" / (args.weather_from or args.variant)
 
-    weather_rows = read_csv(prepared / "manila_weather_prepared.csv")
+    weather_rows = read_csv(weather_dir / "manila_weather_prepared.csv")
     days = [date.fromisoformat(r["date"]) for r in weather_rows]
     columns = ["rainfall_total_mm", "rainfall_max_hourly_mm", "typhoon_signal", "max_wind_kph", "storm_surge_m"]
     weather = np.array([[float(r[c]) for c in columns] for r in weather_rows])
@@ -99,7 +105,7 @@ def main():
             "highest_signal_last_14_days": float(weather[list(window), 2].max()),
         })
     out = FORECAST / "heatmap" / f"backtest_{args.variant}.json"
-    out.write_text(json.dumps({"variant": args.variant, "events": rows}, indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps({"variant": args.variant, "weather_from": args.weather_from or args.variant, "events": rows}, indent=2) + "\n", encoding="utf-8")
     print(f"{'hazard':<6} {'made':<11} {'chance':>7} {'recorded':>8} {'rain14':>7} {'signal':>6}  event")
     for r in rows:
         print(f"{r['hazard']:<6} {r['forecast_made']:<11} {r['chance_next_72h']:>7.3f} {r['recorded_next_72h']:>8} "

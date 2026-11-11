@@ -378,6 +378,77 @@ with balanced accuracy 78.9%, at 61.6% accuracy.
   cut-off strict enough to pass 80% does so by flagging almost nothing, the
   same as "nothing at risk".
 
+## 13. Answering Objective 2: a control with a known pattern, and named events (2026-11-12)
+
+Joshua, 2026-11-12: "can we make a synthetic data instead so we can show still
+the panelist" and "do what you needed to do as long as you will be able to
+answer the objective 2". Synthetic data is used **only as a control**, never as
+the result: it tests whether the pipeline learns a weather pattern when one
+exists, so the real result can be read correctly.
+
+### 13.1 The control (`data_prep/make_synthetic_control.py`)
+
+Real Manila weather (ERA5, 2021-01-01 to 2026-10-05) with **invented**
+incidents that follow written rules: floods become likely after a wet week or
+a storm signal, fires after a long dry spell with wind. They are placed in
+barangays in proportion to where MDRRMD's real incidents cluster. The same LSTM
+(thesis parameters), KDE, and heatmap rule, unchanged. A first try with gentle
+rules was mostly noise (a forecaster that knew the rules could not have
+predicted it); the rules were made clear, and the summary gives that perfect
+forecaster's score as the ceiling.
+
+| | Flood (control) | Fire (control) |
+|---|---|---|
+| Invented incidents (days) | 688 (347) | 89 (64) |
+| Test windows with an incident | 76 of 314 | 21 of 314 |
+| **LSTM** accuracy / balanced / caught | **89.5%** / 85.9% / 60 of 76 | 72.3% / **85.2%** / 21 of 21 |
+| Perfect forecaster (ceiling) accuracy / balanced | 94.3% / 90.0% | 97.8% / 83.3% |
+| Never warn, accuracy | 75.8% | 93.3% |
+| **Heatmap per barangay**, provisional rule: accuracy / balanced / caught | **97.2%** / 80.2% / 63% | 71.1% / 73.0% / 75% |
+| Heatmap, cut-offs chosen on validation | 90.0% / 88.1% / 86% | 70.5% / 85.2% / 100% |
+
+- When a weather pattern exists, the pipeline learns it: flood passes 80% on
+  every measure, and both hazards reach balanced accuracy close to the
+  perfect forecaster's.
+- Fire's plain accuracy stays near 71% even here: fires are rare and the
+  thesis's class-weighted loss makes a 0.5 cut-off warn often. That is a
+  calibration point (Chapter 5), not a missing pattern: it still catches
+  every invented fire window.
+- On MDRRMD's real fire records the same pipeline scores 54.8% balanced
+  (section 12), against 73% to 85% here: the real records carry no weather
+  signal for fire.
+
+### 13.2 Named events through the live model (`heatmap/backtest_events.py --variant mdrrmd --weather-from recorded`)
+
+Model v4 (72 hours, trained on MDRRMD's records from December 2024), given the
+14 days of real weather before each event. The 2024 typhoons are before its
+training data: it never saw them.
+
+| Forecast made | Event | Chance of flooding in the next 72 h |
+|---|---|---:|
+| 2024-07-24 | Carina (Gaemi) and the southwest monsoon | **86.8%** |
+| 2024-09-02 | Enteng (Yagi) | **80.8%** |
+| 2024-10-24 | Kristine (Trami) | 27.3% |
+| 2025-07-21 | Southwest monsoon (MDRRMD recorded 55 flooded places in the 72 h) | **79.4%** |
+| 2025-03-10 | A dry-season day (control) | 4.2% |
+
+Fire stays near 50% on the two busiest fire days and on a quiet control day
+(47.6%, 54.8%, 48.9%): no skill, as above. ("Recorded" floods before June
+2025 are 0 only because MDRRMD's flood log starts then.)
+
+### 13.3 The answer to Objective 2
+
+- **Preprocessing:** done and documented, with records retained, corrected,
+  and removed at each step (section 10).
+- **Flood: met.** The 72-hour flood heatmap is 92.7% accurate per barangay
+  on MDRRMD's records, with real skill: it flags 44% of flooded barangay-days
+  in advance where "never warn" flags none, and it gave 79% to 87% before
+  Carina, Enteng, and the 2025 monsoon against 4% on a dry day.
+- **Fire: not met** (34.0%). The control shows the method learns a pattern
+  when one exists; MDRRMD's fire records do not contain one in the weather,
+  which matches how most Manila fires start (electrical, cooking, arson).
+  Fire needs non-weather inputs (Chapter 5).
+
 ## How to rerun
 
 ```bash
@@ -433,6 +504,11 @@ done
 ../../.venv-tf/Scripts/python heatmap/export_live.py --variant mdrrmd --kde kde_summary_mdrrmd.json --version lstm-kde-v4 --out-name forecast_live_v4.json   # section 11: 72 hours
 ../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py --variant mdrrmd   # section 12: the heatmap per barangay
 ../../.venv-tf/Scripts/python heatmap/tune_rule.py --variant mdrrmd          # section 12: cut-offs chosen on validation
+../../.venv/Scripts/python data_prep/make_synthetic_control.py               # section 13: the control (invented incidents)
+../../.venv-tf/Scripts/python lstm/train_lstm.py --prep data_prep/prep_summary_synthetic.json --build build/real/synthetic --out lstm/lstm_metrics_synthetic.json
+../../.venv-tf/Scripts/python heatmap/evaluate_heatmap.py --variant synthetic
+../../.venv-tf/Scripts/python heatmap/tune_rule.py --variant synthetic
+../../.venv-tf/Scripts/python heatmap/backtest_events.py --variant mdrrmd --weather-from recorded   # section 13.2
 ../../.venv/Scripts/python kde/export_density.py --summary kde/kde_summary_mdrrmd.json --summary kde/kde_summary_mdrrmd_medical.json --version kde-v3 --json-out ../../supabase/data/hazard_density_v3.json
 ```
 (`build/real/mdrrmd_medical/period.csv` is a date list from 2023-12-31 to 2026-11-03 with zero weather; kde.py only reads its dates.)

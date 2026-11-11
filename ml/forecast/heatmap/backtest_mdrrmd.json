@@ -1,0 +1,78 @@
+{
+  "variant": "mdrrmd",
+  "weather_from": "recorded",
+  "events": [
+    {
+      "hazard": "flood",
+      "event": "Carina (Gaemi) and the southwest monsoon",
+      "forecast_made": "2024-07-24",
+      "chance_next_72h": 0.868,
+      "recorded_next_72h": 0,
+      "rain_last_14_days_mm": 270.1,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "flood",
+      "event": "Enteng (Yagi)",
+      "forecast_made": "2024-09-02",
+      "chance_next_72h": 0.808,
+      "recorded_next_72h": 0,
+      "rain_last_14_days_mm": 188.8,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "flood",
+      "event": "Kristine (Trami)",
+      "forecast_made": "2024-10-24",
+      "chance_next_72h": 0.273,
+      "recorded_next_72h": 0,
+      "rain_last_14_days_mm": 155.2,
+      "highest_signal_last_14_days": 2.0
+    },
+    {
+      "hazard": "flood",
+      "event": "Southwest monsoon, July 2025",
+      "forecast_made": "2025-07-21",
+      "chance_next_72h": 0.794,
+      "recorded_next_72h": 55,
+      "rain_last_14_days_mm": 172.3,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "flood",
+      "event": "A dry-season day (control)",
+      "forecast_made": "2025-03-10",
+      "chance_next_72h": 0.042,
+      "recorded_next_72h": 0,
+      "rain_last_14_days_mm": 12.9,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "fire",
+      "event": "Busiest fire day in the records (5 fires)",
+      "forecast_made": "2025-02-14",
+      "chance_next_72h": 0.476,
+      "recorded_next_72h": 5,
+      "rain_last_14_days_mm": 60.6,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "fire",
+      "event": "Busiest fire day in the records (4 fires)",
+      "forecast_made": "2024-12-31",
+      "chance_next_72h": 0.548,
+      "recorded_next_72h": 5,
+      "rain_last_14_days_mm": 99.4,
+      "highest_signal_last_14_days": 0.0
+    },
+    {
+      "hazard": "fire",
+      "event": "A day with no fire recorded in the next 72 hours (control)",
+      "forecast_made": "2021-03-01",
+      "chance_next_72h": 0.489,
+      "recorded_next_72h": 0,
+      "rain_last_14_days_mm": 61.6,
+      "highest_signal_last_14_days": 0.0
+    }
+  ]
+}

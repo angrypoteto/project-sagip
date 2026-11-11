@@ -1,0 +1,280 @@
+{
+  "variant": "synthetic",
+  "data": "SYNTHETIC CONTROL: real Manila weather (ERA5) 2021-01-01 to 2026-10-05 with INVENTED incidents that follow written rules (make_synthetic_control.py). Not a result about Manila; it tests whether the pipeline learns a weather pattern when one exists.",
+  "rules": {
+    "flood": "P = logistic(-7.0 + 0.08 * rain over days d-7..d-1 (mm) + 1.5 * highest signal on day d-1); 1 to 5 places (Poisson, mean 2)",
+    "fire": "P = logistic(-6.0 + 0.6 * dry days before d (capped at 20) + 0.1 * (wind on day d-1 - 13 kph)); 1 or 2 fires"
+  },
+  "seed": 20261112,
+  "window_days": 14,
+  "horizon_days": 3,
+  "split": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "features": [
+    "rainfall_total_mm",
+    "rainfall_max_hourly_mm",
+    "typhoon_signal",
+    "max_wind_kph",
+    "storm_surge_m",
+    "prior_day_incidents"
+  ],
+  "period": [
+    "2021-01-01",
+    "2026-10-05"
+  ],
+  "hazards": {
+    "flood": {
+      "perfect_forecaster_on_test": {
+        "accuracy": 0.9427,
+        "balanced_accuracy": 0.8995,
+        "recall": 0.8158
+      },
+      "incident_records": 688,
+      "days_with_an_incident": 347,
+      "windows": 2087,
+      "parts": {
+        "train": {
+          "windows": 1457,
+          "positives": 365,
+          "positive_rate": 0.2505,
+          "first_window_ends": "2021-01-15",
+          "last_window_ends": "2025-01-10"
+        },
+        "validation": {
+          "windows": 310,
+          "positives": 101,
+          "positive_rate": 0.3258,
+          "first_window_ends": "2025-01-14",
+          "last_window_ends": "2025-11-19"
+        },
+        "test": {
+          "windows": 314,
+          "positives": 76,
+          "positive_rate": 0.242,
+          "first_window_ends": "2025-11-23",
+          "last_window_ends": "2026-10-02"
+        }
+      },
+      "class_weights": {
+        "0": 0.6671,
+        "1": 1.9959
+      },
+      "baselines": {
+        "validation": {
+          "positives": 101,
+          "windows": 310,
+          "always_majority": {
+            "accuracy": 0.6742,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.5708,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 101,
+              "tn": 209
+            }
+          },
+          "persistence": {
+            "accuracy": 0.7484,
+            "precision": 0.6139,
+            "recall": 0.6139,
+            "f1": 0.6139,
+            "rmse": 0.5016,
+            "confusion": {
+              "tp": 62,
+              "fp": 39,
+              "fn": 39,
+              "tn": 170
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.8387,
+            "precision": 0.7143,
+            "recall": 0.8416,
+            "f1": 0.7727,
+            "rmse": 0.3418,
+            "confusion": {
+              "tp": 85,
+              "fp": 34,
+              "fn": 16,
+              "tn": 175
+            }
+          }
+        },
+        "test": {
+          "positives": 76,
+          "windows": 314,
+          "always_majority": {
+            "accuracy": 0.758,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.492,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 76,
+              "tn": 238
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8344,
+            "precision": 0.6579,
+            "recall": 0.6579,
+            "f1": 0.6579,
+            "rmse": 0.4069,
+            "confusion": {
+              "tp": 50,
+              "fp": 26,
+              "fn": 26,
+              "tn": 212
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.9204,
+            "precision": 0.8228,
+            "recall": 0.8553,
+            "f1": 0.8387,
+            "rmse": 0.2509,
+            "confusion": {
+              "tp": 65,
+              "fp": 14,
+              "fn": 11,
+              "tn": 224
+            }
+          }
+        }
+      }
+    },
+    "fire": {
+      "perfect_forecaster_on_test": {
+        "accuracy": 0.9777,
+        "balanced_accuracy": 0.8333,
+        "recall": 0.6667
+      },
+      "incident_records": 89,
+      "days_with_an_incident": 64,
+      "windows": 2087,
+      "parts": {
+        "train": {
+          "windows": 1457,
+          "positives": 87,
+          "positive_rate": 0.0597,
+          "first_window_ends": "2021-01-15",
+          "last_window_ends": "2025-01-10"
+        },
+        "validation": {
+          "windows": 310,
+          "positives": 27,
+          "positive_rate": 0.0871,
+          "first_window_ends": "2025-01-14",
+          "last_window_ends": "2025-11-19"
+        },
+        "test": {
+          "windows": 314,
+          "positives": 21,
+          "positive_rate": 0.0669,
+          "first_window_ends": "2025-11-23",
+          "last_window_ends": "2026-10-02"
+        }
+      },
+      "class_weights": {
+        "0": 0.5318,
+        "1": 8.3736
+      },
+      "baselines": {
+        "validation": {
+          "positives": 27,
+          "windows": 310,
+          "always_majority": {
+            "accuracy": 0.9129,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.2951,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 27,
+              "tn": 283
+            }
+          },
+          "persistence": {
+            "accuracy": 0.8903,
+            "precision": 0.3704,
+            "recall": 0.3704,
+            "f1": 0.3704,
+            "rmse": 0.3312,
+            "confusion": {
+              "tp": 10,
+              "fp": 17,
+              "fn": 17,
+              "tn": 266
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.671,
+            "precision": 0.1681,
+            "recall": 0.7037,
+            "f1": 0.2714,
+            "rmse": 0.4376,
+            "confusion": {
+              "tp": 19,
+              "fp": 94,
+              "fn": 8,
+              "tn": 189
+            }
+          }
+        },
+        "test": {
+          "positives": 21,
+          "windows": 314,
+          "always_majority": {
+            "accuracy": 0.9331,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "rmse": 0.2586,
+            "confusion": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 21,
+              "tn": 293
+            }
+          },
+          "persistence": {
+            "accuracy": 0.9554,
+            "precision": 0.6667,
+            "recall": 0.6667,
+            "f1": 0.6667,
+            "rmse": 0.2112,
+            "confusion": {
+              "tp": 14,
+              "fp": 7,
+              "fn": 7,
+              "tn": 286
+            }
+          },
+          "logistic_regression": {
+            "accuracy": 0.6306,
+            "precision": 0.1481,
+            "recall": 0.9524,
+            "f1": 0.2564,
+            "rmse": 0.4698,
+            "confusion": {
+              "tp": 20,
+              "fp": 115,
+              "fn": 1,
+              "tn": 178
+            }
+          }
+        }
+      }
+    }
+  }
+}
