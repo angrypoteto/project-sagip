@@ -72,9 +72,13 @@ class OutboxSosRepository implements SosRepository {
       ),
     );
     return combineLatest(
-      [server, _engine.watch()],
-      (v) =>
-          mergeSos(v[0] as List<SosRequest>?, v[1]! as List<OutboxEntry>, me),
+      [server, _engine.watch(), _engine.watchRescueTexts()],
+      (v) => mergeSos(
+        v[0] as List<SosRequest>?,
+        v[1]! as List<OutboxEntry>,
+        me,
+        rescue: v[2]! as Map<String, RescueText>,
+      ),
     );
   }
 
@@ -82,8 +86,9 @@ class OutboxSosRepository implements SosRepository {
   static List<SosRequest> mergeSos(
     List<SosRequest>? server,
     List<OutboxEntry> entries,
-    String account,
-  ) {
+    String account, {
+    Map<String, RescueText> rescue = const {},
+  }) {
     final byId = {
       for (final s in server ?? const <SosRequest>[]) s.clientId: s,
     };
@@ -142,6 +147,20 @@ class OutboxSosRepository implements SosRepository {
           (e.payload['details']! as Map).cast<String, Object?>(),
         ),
       );
+    }
+    // What the gateway texted, when it is further on than what the phone
+    // last heard from the server (no data: 2026-11-12).
+    for (final entry in byId.entries.toList()) {
+      final sos = entry.value;
+      final r = rescue[sos.incidentId];
+      if (r == null) continue;
+      final current = sos.status;
+      if (current != null && current.index >= r.status.index) continue;
+      var next = sos.withStatus(r.status, r.at);
+      if (r.unit != null && sos.unitCallSign == null) {
+        next = next.copyWith(unitCallSign: r.unit);
+      }
+      byId[entry.key] = next;
     }
     return byId.values.toList()
       ..sort((a, b) => b.capturedAt.compareTo(a.capturedAt));

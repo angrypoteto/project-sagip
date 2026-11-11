@@ -74,4 +74,46 @@ void main() {
       messages.first['client_id'],
     );
   });
+
+  // The rescue texts exactly as send-alerts words them
+  // (confirmationSmsText), so the app can follow its SOS with no data.
+  test('reads the rescue texts the gateway sends', () {
+    final sent = SosSms.parseRescue(
+      'S.A.G.I.P.: Rescue team BFP-STAANA has been sent to your location. '
+      'Stay where you are if it is safe and keep your phone on. Ref INC-0223.',
+    )!;
+    expect(sent.incidentId, 'INC-0223');
+    expect(sent.status, IncidentStatus.assigned);
+    expect(sent.unit, 'BFP-STAANA');
+
+    final anyTeam = SosSms.parseRescue(
+      'S.A.G.I.P.: A rescue team has been sent to your location. Stay where '
+      'you are if it is safe and keep your phone on. Ref INC-0007.',
+    )!;
+    expect(anyTeam.unit, isNull);
+    expect(anyTeam.status, IncidentStatus.assigned);
+
+    final arrived = SosSms.parseRescue(
+      'S.A.G.I.P.: Rescue team R-03 has arrived at your location. Ref INC-0010.',
+    )!;
+    expect(arrived.status, IncidentStatus.onScene);
+
+    final closed = SosSms.parseRescue(
+      'S.A.G.I.P.: Your SOS INC-0010 has been closed. If you still need '
+      'help, send a new SOS or call MDRRMD.',
+    )!;
+    expect(closed.status, IncidentStatus.resolved);
+    expect(closed.incidentId, 'INC-0010');
+
+    expect(
+      SosSms.parseRescue(
+        'S.A.G.I.P.: Your SOS was received (INC-1, ref 12345678).',
+      ),
+      isNull,
+    );
+    expect(
+      SosSms.parseRescue('Rescue team X has been sent. Ref INC-1.'),
+      isNull,
+    );
+  });
 }

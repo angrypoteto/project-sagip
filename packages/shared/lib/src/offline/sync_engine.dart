@@ -82,6 +82,9 @@ class ServerSender implements OutboxSender {
   }
 }
 
+/// A step of an SOS that the gateway texted (2026-11-12).
+typedef RescueText = ({IncidentStatus status, String? unit, DateTime at});
+
 /// Sends a text message from this phone (Tier 2).
 abstract interface class SmsSender {
   /// True when the phone's SMS service accepted and sent it.
@@ -162,6 +165,7 @@ class SyncEngine {
       );
     }
     _entries = LiveValue(_sorted(kept));
+    _rescueTexts = LiveValue(_readRescueTexts(store));
     _onlineSub = online.listen((on) {
       _online = on;
       if (on) unawaited(pump());
@@ -211,6 +215,30 @@ class SyncEngine {
   final DateTime Function() _clock;
   final Duration Function(int attempts) _retryDelay;
   late final LiveValue<List<OutboxEntry>> _entries;
+  late final LiveValue<Map<String, RescueText>> _rescueTexts;
+
+  static const _rescueKey = 'rescue_texts';
+
+  static Map<String, RescueText> _readRescueTexts(LocalStore store) {
+    final raw = store.read(_rescueKey);
+    if (raw is! Map) return const {};
+    final out = <String, RescueText>{};
+    for (final e in raw.entries) {
+      final v = e.value;
+      if (v is! Map) continue;
+      final status = IncidentStatus.values.asNameMap()[v['status']];
+      final at = DateTime.tryParse('${v['at']}');
+      if (status == null || at == null) continue;
+      out['${e.key}'] = (status: status, unit: v['unit'] as String?, at: at);
+    }
+    return out;
+  }
+
+  /// What the gateway texted about this phone's SOS (a team sent, arrived,
+  /// the SOS closed), by incident: the app follows its SOS with no data
+  /// (2026-11-12). The newest step per incident.
+  Map<String, RescueText> get rescueTexts => _rescueTexts.value;
+  Stream<Map<String, RescueText>> watchRescueTexts() => _rescueTexts.watch();
   late final StreamSubscription<bool> _onlineSub;
   final SmsTier? _sms;
   StreamSubscription<bool>? _smsSub;
@@ -368,7 +396,7 @@ class SyncEngine {
     final gateway = _lastTen(_sms?.gatewayNumber() ?? '');
     if (gateway.length < 10 || _lastTen(from) != gateway) return false;
     final ack = SosSms.parseAck(text);
-    if (ack == null) return false;
+    if (ack == null) return _rescueText(text);
     final e = _entries.value
         .where(
           (x) =>
@@ -390,6 +418,57 @@ class SyncEngine {
       ),
     );
     if (_advertising.contains(e.id)) await _stopRelay(e);
+    return true;
+  }
+
+  /// A rescue text: kept by incident, the furthest step wins. When no SOS
+  /// on the phone knows the incident yet (the "received" reply never
+  /// came), the one SOS still waiting after a text takes it.
+  Future<bool> _rescueText(String text) async {
+    final r = SosSms.parseRescue(text);
+    if (r == null) return false;
+    final known = _entries.value.any(
+      (x) => x.action == OutboxAction.sos && x.serverId == r.incidentId,
+    );
+    if (!known) {
+      final waiting = [
+        for (final x in _entries.value)
+          if (x.action == OutboxAction.sos &&
+              x.serverId == null &&
+              x.smsSentAt != null)
+            x,
+      ];
+      if (waiting.length == 1) {
+        final now = _clock();
+        await _put(
+          waiting.single.copyWith(
+            delivery: DeliveryState.sentBySms,
+            smsConfirmedAt: waiting.single.smsConfirmedAt ?? now,
+            serverId: r.incidentId,
+            waited: true,
+          ),
+        );
+      }
+    }
+    final before = _rescueTexts.value[r.incidentId];
+    if (before != null && before.status.index >= r.status.index) return true;
+    final next = {
+      ..._rescueTexts.value,
+      r.incidentId: (
+        status: r.status,
+        unit: r.unit ?? before?.unit,
+        at: _clock(),
+      ),
+    };
+    _rescueTexts.value = next;
+    await _store.write(_rescueKey, {
+      for (final e in next.entries)
+        e.key: {
+          'status': e.value.status.name,
+          'unit': e.value.unit,
+          'at': e.value.at.toUtc().toIso8601String(),
+        },
+    });
     return true;
   }
 

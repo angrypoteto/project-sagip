@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/sos.dart';
 
@@ -111,6 +112,43 @@ abstract final class SosSms {
   static final _ack = RegExp(
     r'^S\.A\.G\.I\.P\.: Your SOS was received \((INC-\d+), ref ([0-9a-f]{8})\)',
   );
+
+  static final _rescue = RegExp(
+    r'^S\.A\.G\.I\.P\.: (?:Rescue team (\S+)|A rescue team) has '
+    r'(been sent to|arrived at) your location\..*\bRef (INC-\d+)\.',
+    dotAll: true,
+  );
+  static final _closed = RegExp(
+    r'^S\.A\.G\.I\.P\.: Your SOS (INC-\d+) has been closed\.',
+  );
+
+  /// A rescue text from the gateway (`send-alerts`, confirmationSmsText):
+  /// a team sent, arrived, or the SOS closed, with its incident. Null for
+  /// any other text. Lets the app follow its SOS with no data
+  /// (2026-11-12).
+  static ({String incidentId, IncidentStatus status, String? unit})?
+  parseRescue(String text) {
+    final t = text.trim();
+    final m = _rescue.firstMatch(t);
+    if (m != null) {
+      return (
+        incidentId: m.group(3)!,
+        status: m.group(2) == 'arrived at'
+            ? IncidentStatus.onScene
+            : IncidentStatus.assigned,
+        unit: m.group(1),
+      );
+    }
+    final c = _closed.firstMatch(t);
+    if (c != null) {
+      return (
+        incidentId: c.group(1)!,
+        status: IncidentStatus.resolved,
+        unit: null,
+      );
+    }
+    return null;
+  }
 
   /// The incident and the code in the gateway's reply ("S.A.G.I.P.: Your SOS
   /// was received (INC-0181, ref 3f2a9c1e). ..."); null for any other text.

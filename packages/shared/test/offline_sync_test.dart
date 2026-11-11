@@ -510,6 +510,76 @@ void main() {
       expect(engine.entries.single.delivery, DeliveryState.savedOnPhone);
     });
 
+    test('the gateway texts a team sent: the SOS shows it with no data (2026-11-12)', () async {
+      await signal(internet: false, texting: true);
+      await engine.add(entry(sosId, OutboxAction.sos, sos(sosId).toJson()));
+      await pumpEventQueue();
+      expect(sms.sent, hasLength(1));
+
+      // "Received", then "team sent", from the gateway's number.
+      expect(
+        await engine.gatewayReplied(
+          '+63${gateway.substring(1)}',
+          'S.A.G.I.P.: Your SOS was received (INC-0223, ref '
+              '${SosSms.ackRef(sosId)}). Stay where you are if safe.',
+        ),
+        isTrue,
+      );
+      expect(
+        await engine.gatewayReplied(
+          gateway,
+          'S.A.G.I.P.: Rescue team BFP-STAANA has been sent to your '
+          'location. Stay where you are if it is safe and keep your phone '
+          'on. Ref INC-0223.',
+        ),
+        isTrue,
+      );
+      var shown = OutboxSosRepository.mergeSos(
+        null,
+        engine.entries,
+        'res-001',
+        rescue: engine.rescueTexts,
+      ).single;
+      expect(shown.incidentId, 'INC-0223');
+      expect(shown.status, IncidentStatus.assigned);
+      expect(shown.unitCallSign, 'BFP-STAANA');
+
+      // A text from another number is not taken as the gateway's.
+      expect(
+        await engine.gatewayReplied(
+          '09998887777',
+          'S.A.G.I.P.: Your SOS INC-0223 has been closed. If you still '
+              'need help, send a new SOS or call MDRRMD.',
+        ),
+        isFalse,
+      );
+
+      // The server's copy, once data is back, wins when it is further on;
+      // an older text never moves the SOS back.
+      final fromServer = shown.withStatus(
+        IncidentStatus.onScene,
+        now.add(const Duration(minutes: 9)),
+      );
+      shown = OutboxSosRepository.mergeSos(
+        [fromServer],
+        engine.entries,
+        'res-001',
+        rescue: engine.rescueTexts,
+      ).single;
+      expect(shown.status, IncidentStatus.onScene);
+
+      // It is still there after a restart.
+      await engine.dispose();
+      engine = SyncEngine(
+        store: store,
+        sender: ServerSender(server),
+        online: online.stream,
+        account: () => account,
+        clock: () => now,
+      );
+      expect(engine.rescueTexts['INC-0223']?.status, IncidentStatus.assigned);
+    });
+
     test('the gateway number can arrive later (set on A3)', () async {
       gateway = '';
       await signal(internet: false, texting: true);
