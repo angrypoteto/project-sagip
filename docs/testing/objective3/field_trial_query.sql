@@ -16,6 +16,7 @@ select channel,
        round(percentile_cont(0.5) within group (order by greatest(delay_s, 0))::numeric, 1) as median_delay_s,
        round(max(greatest(delay_s, 0))::numeric, 1)               as longest_delay_s,
        count(*) filter (where delay_s <= 60)                      as within_1_min,
+       count(*) filter (where delay_s <= 180)                     as within_3_min,  -- the success window
        count(*) filter (where delay_s <= 300)                     as within_5_min,
        count(*) filter (where delay_s <= 900)                     as within_15_min
   from trial

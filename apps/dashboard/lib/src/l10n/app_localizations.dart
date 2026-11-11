@@ -3252,7 +3252,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryNote.
   ///
   /// In en, this message translates to:
-  /// **'Each SOS counts once, on the tier that reached the server first. The delay runs from the moment the resident pressed SOS (by the phone\'s clock) to the server\'s receipt. For a trial, pick a period that holds only the trial\'s SOS. Which window counts as a success is still to be agreed (plan Q44).'**
+  /// **'Each SOS counts once, on the tier that reached the server first. The delay runs from the moment the resident pressed SOS (by the phone\'s clock) to the server\'s receipt. For a trial, pick a period that holds only the trial\'s SOS. An SOS counts as transmitted when it reaches the server within 3 minutes of the press (Objective 3 target: 95%).'**
   String get deliveryNote;
 
   /// No description provided for @colFirstTier.
@@ -3332,6 +3332,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Within {minutes} min: {delivered} of {attempts} ({percent}%)'**
   String successRate(int minutes, int delivered, int attempts, String percent);
+
+  /// No description provided for @successRateObjective.
+  ///
+  /// In en, this message translates to:
+  /// **'Success rate (within 3 min): {delivered} of {attempts} ({percent}%)'**
+  String successRateObjective(int delivered, int attempts, String percent);
 
   /// No description provided for @noValue.
   ///

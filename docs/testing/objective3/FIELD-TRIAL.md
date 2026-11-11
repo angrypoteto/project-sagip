@@ -16,9 +16,10 @@ the success rate for Chapter 4: **S_rate = N_success / N_total × 100**.
 ## Before you start
 
 1. On A3 (Configuration), check that the SMS gateway number is set.
-2. Agree on the delivery window that counts as a success (plan Q44: 1, 5,
-   or 15 minutes). **5 minutes** is the suggestion: Bluetooth took 22 s in
-   the median during development.
+2. **A success is an SOS on the board within 3 minutes of the press**
+   (decided by Joshua, 2026-11-12: "in emergency time is really crucial";
+   plan Q44). During development every Bluetooth and SMS SOS made it within
+   3 minutes (the slowest relay took 2 min 41 s).
 3. Tell the dispatcher: **close each test SOS as soon as it appears** (Mark
    as false report). A new SOS from the same account within 10 minutes
    of an open one **joins** that one instead of making a new incident, so
@@ -30,7 +31,8 @@ the success rate for Chapter 4: **S_rate = N_success / N_total × 100**.
 
 A press counts as an attempt when the SOS button is held for 2 seconds and
 the app shows the SOS as saved or sent. Wait until it appears on the board
-(or 5 minutes pass) and the dispatcher closes it before the next press.
+(or 3 minutes pass; note a late arrival in the remarks) and the dispatcher
+closes it before the next press.
 
 | # | Condition | Sender phone settings | Expected tier |
 |---|---|---|---|
@@ -51,12 +53,12 @@ do not drop the row.
 ## Counting
 
 For each condition: **N_total** = presses on the tally sheet, **N_success** =
-those that appeared on the board within the agreed window. The board's
+those that appeared on the board within 3 minutes of the press. The board's
 timeline and `field_trial_query.sql` give the times. Enter each condition's
 attempt count on A4 (Analytics, "SOS attempts in the trial") to see the
 rate there too.
 
-| Condition | N_total | N_success (within 5 min) | S_rate |
+| Condition | N_total | N_success (within 3 min) | S_rate |
 |---|---:|---:|---:|
 | T1 SMS only | 20 | | |
 | T2 Relay, 5 m | 20 | | |

@@ -2800,6 +2800,15 @@ void main() {
     );
     await tester.enterText(attempts, '${delivered * 2}');
     await tester.pump();
+    // Objective 3's own rate is the 3-minute one (2026-11-12).
+    final within3 = today.delivery.deliveredWithin(180);
+    expect(
+      find.text(
+        'Success rate (within 3 min): $within3 of ${delivered * 2} '
+        '(${(100 * within3 / (delivered * 2)).toStringAsFixed(1)}%)',
+      ),
+      findsOneWidget,
+    );
     final within15 = today.delivery.deliveredWithin(900);
     expect(
       find.text(

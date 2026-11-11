@@ -279,9 +279,14 @@ void main() {
       expect(app.medianS, 3); // 0, 2, 4, 180
       expect(app.maxS, 180);
       expect(app.p95S, closeTo(153.6, 1e-9));
-      expect([app.within60, app.within300, app.within900], [3, 4, 4]);
+      expect(
+        [app.within60, app.within180, app.within300, app.within900],
+        [3, 4, 4, 4],
+      );
       expect(d.delivered, 6);
       expect(d.deliveredWithin(60), 3);
+      // Objective 3's window (3 minutes): 180 s exactly still counts.
+      expect(d.deliveredWithin(SosDeliveryReport.successWindow), 4);
       expect(d.deliveredWithin(300), 4);
       expect(d.deliveredWithin(900), 5);
     });
@@ -294,7 +299,8 @@ void main() {
         to: t0.add(const Duration(minutes: 1)),
       );
       expect(r.delivery.delivered, 6);
-      expect(analyticsCsv(r), contains('sms,1,1200.0,1200.0,1200.0,0,0,0'));
+      expect(analyticsCsv(r), contains('within_180s'));
+      expect(analyticsCsv(r), contains('sms,1,1200.0,1200.0,1200.0,0,0,0,0'));
 
       final json = AnalyticsReport.fromJson({
         'from': '2026-09-30T00:00:00Z',
@@ -313,6 +319,7 @@ void main() {
               'p95_s': 90,
               'max_s': 93,
               'within_60': 0,
+              'within_180': 2,
               'within_300': 2,
               'within_900': 2,
             },
@@ -325,6 +332,7 @@ void main() {
       final ble = json.delivery.channels.single;
       expect(ble.channel, ReportChannel.bleRelay);
       expect(ble.medianS, 61.5);
+      expect(ble.within(180), 2);
       expect(ble.within(300), 2);
       expect(json.delivery.relayUploads, 5);
       expect(json.delivery.relayMaxHops, 2);

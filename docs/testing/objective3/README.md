@@ -4,7 +4,11 @@
 signals during simulated internet outages, through a multi-tiered offline
 mode (Bluetooth Low Energy mesh and SMS fallback).*
 
-Formula (Chapter 3): **S_rate = N_success / N_total × 100**.
+Formula (Chapter 3): **S_rate = N_success / N_total × 100**, where a
+success is an SOS that reaches the server **within 3 minutes** of the
+press (Joshua, 2026-11-12: "in emergency time is really crucial"; plan
+Q44). The Analytics page (A4) shows this rate in bold, green at 95% or
+more.
 
 There are two tests:
 
@@ -84,11 +88,11 @@ with the app is within Bluetooth range. Test B measures that.
 SOS received on the hosted project from 12 October to 10 November 2026,
 by the tier that delivered them first (team test SOS):
 
-| Tier | Delivered | Median delay (capture to receipt) | Within 1 minute | Within 5 minutes |
-|---|---:|---:|---:|---:|
-| Internet (app) | 56 | 0.2 s | 48 | 53 |
-| Bluetooth relay (two phones) | 5 | 22.1 s | 4 | 5 |
-| SMS to the gateway | 1 | 0.5 s | 1 | 1 |
+| Tier | Delivered | Median delay (capture to receipt) | Within 1 minute | **Within 3 minutes** | Within 5 minutes |
+|---|---:|---:|---:|---:|---:|
+| Internet (app) | 56 | 0.2 s | 48 | **52** | 53 |
+| Bluetooth relay (two phones) | 5 | 22.1 s | 4 | **5** | 5 |
+| SMS to the gateway | 1 | 0.5 s | 1 | **1** | 1 |
 
 The number of attempts was not counted, so no success rate can be taken
 from these.

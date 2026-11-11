@@ -90,6 +90,7 @@ class SosDelivery {
     required this.channel,
     required this.count,
     required this.within60,
+    this.within180 = 0,
     required this.within300,
     required this.within900,
     this.medianS,
@@ -103,14 +104,17 @@ class SosDelivery {
   final double? p95S;
   final double? maxS;
 
-  /// Delivered within 1, 5, and 15 minutes of capture.
+  /// Delivered within 1, 3, 5, and 15 minutes of capture. Three minutes
+  /// is Objective 3's success window (Joshua, 2026-11-12; plan Q44).
   final int within60;
+  final int within180;
   final int within300;
   final int within900;
 
-  /// How many arrived within [seconds] (60, 300, or 900).
+  /// How many arrived within [seconds] (60, 180, 300, or 900).
   int within(int seconds) => switch (seconds) {
     60 => within60,
+    180 => within180,
     300 => within300,
     900 => within900,
     _ => throw ArgumentError.value(seconds, 'seconds'),
@@ -123,6 +127,7 @@ class SosDelivery {
     p95S: (json['p95_s'] as num?)?.toDouble(),
     maxS: (json['max_s'] as num?)?.toDouble(),
     within60: (json['within_60']! as num).toInt(),
+    within180: (json['within_180'] as num?)?.toInt() ?? 0,
     within300: (json['within_300']! as num).toInt(),
     within900: (json['within_900']! as num).toInt(),
   );
@@ -147,8 +152,13 @@ class SosDeliveryReport {
   final int relayedSos;
   final int? relayMaxHops;
 
-  /// The windows A4 shows; which one counts as success is Q44.
-  static const windows = [60, 300, 900];
+  /// The windows A4 shows.
+  static const windows = [60, 180, 300, 900];
+
+  /// An SOS counts as transmitted when it reaches the server within this
+  /// many seconds of the press (Objective 3; Joshua, 2026-11-12: "in
+  /// emergency time is really crucial"; plan Q44).
+  static const successWindow = 180;
 
   int get delivered => channels.fold(0, (n, c) => n + c.count);
 

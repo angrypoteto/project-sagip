@@ -148,6 +148,7 @@ SosDeliveryReport sosDelivery(Iterable<Incident> incidents) {
             p95S: percentile(delays, 0.95),
             maxS: delays.reduce((a, b) => a > b ? a : b),
             within60: delays.where((d) => d <= 60).length,
+            within180: delays.where((d) => d <= 180).length,
             within300: delays.where((d) => d <= 300).length,
             within900: delays.where((d) => d <= 900).length,
           ),
@@ -278,6 +279,7 @@ String analyticsCsv(AnalyticsReport r) {
     'p95_delay_s',
     'max_delay_s',
     'within_60s',
+    'within_180s',
     'within_300s',
     'within_900s',
   ]);
@@ -289,6 +291,7 @@ String analyticsCsv(AnalyticsReport r) {
       c.p95S,
       c.maxS,
       c.within60,
+      c.within180,
       c.within300,
       c.within900,
     ]);

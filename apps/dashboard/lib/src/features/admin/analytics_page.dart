@@ -475,9 +475,7 @@ class _DeliveryState extends State<_Delivery> {
                   c.medianS,
                   c.p95S,
                   c.maxS,
-                  c.within60,
-                  c.within300,
-                  c.within900,
+                  for (final w in SosDeliveryReport.windows) c.within(w),
                 ]),
               row(l10n.deliveryAllTiers, [
                 d.delivered,
@@ -520,17 +518,33 @@ class _DeliveryState extends State<_Delivery> {
                 onChanged: (_) => setState(() {}),
               ),
             ),
+            // The 3-minute rate is Objective 3's (2026-11-12); the other
+            // windows are shown for comparison.
             if (attempts != null && attempts > 0 && !tooFew)
               for (final w in SosDeliveryReport.windows)
                 Text(
-                  l10n.successRate(
-                    w ~/ 60,
-                    d.deliveredWithin(w),
-                    attempts,
-                    (100 * d.deliveredWithin(w) / attempts).toStringAsFixed(1),
-                  ),
+                  key: ValueKey('success-$w'),
+                  w == SosDeliveryReport.successWindow
+                      ? l10n.successRateObjective(
+                          d.deliveredWithin(w),
+                          attempts,
+                          (100 * d.deliveredWithin(w) / attempts)
+                              .toStringAsFixed(1),
+                        )
+                      : l10n.successRate(
+                          w ~/ 60,
+                          d.deliveredWithin(w),
+                          attempts,
+                          (100 * d.deliveredWithin(w) / attempts)
+                              .toStringAsFixed(1),
+                        ),
                   style: tabular.copyWith(
-                    color: d.deliveredWithin(w) / attempts >= 0.95
+                    fontWeight: w == SosDeliveryReport.successWindow
+                        ? FontWeight.w700
+                        : null,
+                    color:
+                        w == SosDeliveryReport.successWindow &&
+                            d.deliveredWithin(w) / attempts >= 0.95
                         ? p.success.text
                         : p.textPrimary,
                   ),

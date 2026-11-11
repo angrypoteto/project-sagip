@@ -1936,7 +1936,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deliveryNote =>
-      'Each SOS counts once, on the tier that reached the server first. The delay runs from the moment the resident pressed SOS (by the phone\'s clock) to the server\'s receipt. For a trial, pick a period that holds only the trial\'s SOS. Which window counts as a success is still to be agreed (plan Q44).';
+      'Each SOS counts once, on the tier that reached the server first. The delay runs from the moment the resident pressed SOS (by the phone\'s clock) to the server\'s receipt. For a trial, pick a period that holds only the trial\'s SOS. An SOS counts as transmitted when it reaches the server within 3 minutes of the press (Objective 3 target: 95%).';
 
   @override
   String get colFirstTier => 'First tier';
@@ -1982,6 +1982,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String successRate(int minutes, int delivered, int attempts, String percent) {
     return 'Within $minutes min: $delivered of $attempts ($percent%)';
+  }
+
+  @override
+  String successRateObjective(int delivered, int attempts, String percent) {
+    return 'Success rate (within 3 min): $delivered of $attempts ($percent%)';
   }
 
   @override
