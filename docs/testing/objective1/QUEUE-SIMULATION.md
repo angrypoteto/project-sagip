@@ -55,8 +55,9 @@ plus 20 to 60 minutes on scene. 200 surges per rate.
 ## B. The 5-minute fire target (routing)
 
 A fire unit is expected on scene within 5 minutes (Joshua, 2026-11-12;
-BFP-NCR has stated a 5-minute target for Metro Manila. **Cite the BFP
-document** in Chapter 4). From the Dijkstra test (897 barangay centers as
+BFP-NCR's standard is 30 seconds to leave after a call and 5 minutes to
+reach the fire: GMA News, "NCR firefighters vow 5-minute response time".
+A BFP memorandum would be a stronger citation). From the Dijkstra test (897 barangay centers as
 incidents, all ten units at their stations, `docs/testing/dijkstra/`):
 
 | First unit sent | Barangays reached within 5 minutes by road |
