@@ -1,0 +1,4 @@
+kind,platform,runs,accounts,first_day,last_day,mean_ms,median_ms,p95_ms,min_ms,max_ms,runs_at_or_under_100ms
+route,android,260,5,2026-10-03,2026-10-22,14.92,8.89,53.01,0.15,139.67,256
+route,web,40,2,2026-10-11,2026-11-07,1.38,1.35,2.53,0.40,3.70,40
+suggestions,web,196,2,2026-10-11,2026-11-10,10.45,6.30,28.20,1.30,134.50,195

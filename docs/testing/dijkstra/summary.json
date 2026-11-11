@@ -1,0 +1,176 @@
+{
+  "ran_at": "2026-11-11T22:16:50.907935",
+  "machine": "windows \"Windows 11 Pro\" 10.0 (Build 26200)",
+  "dart": "3.13.2",
+  "graph": {
+    "nodes": 9296,
+    "edges": 23716,
+    "built": "2026-09-30"
+  },
+  "correctness": {
+    "networkx_pairs": 50,
+    "networkx_pairs_matched": 50,
+    "networkx_max_difference_seconds": 0.0,
+    "networkx_units": 8,
+    "networkx_units_matched": 8
+  },
+  "suggestions": {
+    "incident_points": 897,
+    "all_units_routed": 897,
+    "same_first_unit": 646,
+    "same_top3_set": 581,
+    "different_first_unit": 250,
+    "minutes_saved_when_different": {
+      "n": 250.0,
+      "mean": 0.8608198126844522,
+      "median": 0.47504595385345094,
+      "p95": 3.2926177607611056,
+      "min": 0.056586041556833305,
+      "max": 4.443905985021119
+    },
+    "percent_saved_when_different": {
+      "n": 250.0,
+      "mean": 14.712142571898722,
+      "median": 8.181681758844869,
+      "p95": 44.493394630756896,
+      "min": 0.8685115428765479,
+      "max": 58.540355614141724
+    },
+    "percent_saved_all_points": {
+      "n": 897.0,
+      "mean": 4.100518656636018,
+      "median": 0.0,
+      "p95": 30.179211979732823,
+      "min": 0.0,
+      "max": 58.540355614141724
+    },
+    "straight_line_eta_minus_road_eta_minutes": {
+      "n": 897.0,
+      "mean": 0.2858012217402937,
+      "median": 0.19562720513012355,
+      "p95": 2.396828766132389,
+      "min": -5.920900063359514,
+      "max": 5.093426021726454
+    },
+    "compute_ms": {
+      "n": 877.0,
+      "mean": 1.9365530216647668,
+      "median": 1.697,
+      "p95": 3.135,
+      "min": 0.978,
+      "max": 64.462
+    }
+  },
+  "routes": {
+    "routes": 897,
+    "edges_join_up": 897,
+    "start_and_end_at_the_right_points": 897,
+    "eta_equals_suggestion": 897,
+    "road_over_straight_distance": {
+      "n": 874.0,
+      "mean": 1.695356142533881,
+      "median": 1.5627287003269406,
+      "p95": 2.7577496695679775,
+      "min": 1.0203257333510158,
+      "max": 6.375319587334739
+    },
+    "minutes": {
+      "n": 897.0,
+      "mean": 4.088974358974361,
+      "median": 3.89,
+      "p95": 7.32,
+      "min": 0.32,
+      "max": 11.09
+    },
+    "compute_ms": {
+      "n": 877.0,
+      "mean": 0.2568939566704676,
+      "median": 0.167,
+      "p95": 0.669,
+      "min": 0.052,
+      "max": 3.828
+    }
+  },
+  "rerouting": {
+    "reroutes": 924,
+    "time_left_consistent": 924,
+    "compute_ms": {
+      "n": 904.0,
+      "mean": 0.46137278761061945,
+      "median": 0.263,
+      "p95": 1.504,
+      "min": 0.044,
+      "max": 3.703
+    }
+  },
+  "hazards": {
+    "flood": {
+      "cases": 100,
+      "route_avoids_the_zone": 86,
+      "radius_m": 150.0,
+      "slow_down_factor": 4.0,
+      "minutes_saved_vs_driving_through": {
+        "n": 100.0,
+        "mean": 1.1109104466835655,
+        "median": 1.3011280993620555,
+        "p95": 2.169774775703748,
+        "min": 0.0,
+        "max": 2.649122788508733
+      },
+      "extra_km": {
+        "n": 100.0,
+        "mean": 0.21655157068014141,
+        "median": 0.20516249322891236,
+        "p95": 1.0304425234794616,
+        "min": -0.9085699834823608,
+        "max": 1.592235098361969
+      },
+      "compute_ms_with_penalty": {
+        "n": 100.0,
+        "mean": 3.75335,
+        "median": 2.641,
+        "p95": 10.716,
+        "min": 1.242,
+        "max": 20.024
+      }
+    },
+    "fire": {
+      "cases": 100,
+      "route_avoids_the_zone": 99,
+      "radius_m": 100.0,
+      "slow_down_factor": 20.0,
+      "minutes_saved_vs_driving_through": {
+        "n": 100.0,
+        "mean": 6.413163486356535,
+        "median": 6.736249602834383,
+        "p95": 10.257596320410569,
+        "min": 0.0,
+        "max": 13.280387974778812
+      },
+      "extra_km": {
+        "n": 100.0,
+        "mean": 0.28152522115230555,
+        "median": 0.22145830726623536,
+        "p95": 1.1924296679496764,
+        "min": -0.8959721095561981,
+        "max": 2.7936856298446657
+      },
+      "compute_ms_with_penalty": {
+        "n": 100.0,
+        "mean": 3.014629999999999,
+        "median": 2.219,
+        "p95": 7.939,
+        "min": 1.244,
+        "max": 12.912
+      }
+    }
+  },
+  "full_graph_search_ms": {
+    "n": 45.0,
+    "mean": 1.7626000000000002,
+    "median": 1.46,
+    "p95": 2.347,
+    "min": 1.238,
+    "max": 9.503
+  }
+}
