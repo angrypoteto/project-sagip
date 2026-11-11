@@ -1,0 +1,839 @@
+{
+  "ran_at": "2026-11-12T02:47:52.766659",
+  "attempts_per_condition": 500,
+  "success": "reached the server within 3 minutes of the press",
+  "results": [
+    {
+      "setting": {
+        "name": "observed",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.01,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 14.5515,
+          "p90_s": 26.544,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 499,
+          "s_rate_pct": 99.8,
+          "median_s": 25.856,
+          "p90_s": 79.43,
+          "first_by_sms": 0,
+          "first_by_ble": 499
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 416,
+          "s_rate_pct": 83.2,
+          "median_s": 59.2585,
+          "p90_s": 147.856,
+          "first_by_sms": 0,
+          "first_by_ble": 416
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 496,
+          "s_rate_pct": 99.2,
+          "median_s": 22.8975,
+          "p90_s": 82.628,
+          "first_by_sms": 0,
+          "first_by_ble": 496
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1911,
+      "total_s_rate_pct": 95.55
+    },
+    {
+      "setting": {
+        "name": "far phone hears as well as near",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.03,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 14.8155,
+          "p90_s": 27.248,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 498,
+          "s_rate_pct": 99.6,
+          "median_s": 25.0475,
+          "p90_s": 77.262,
+          "first_by_sms": 0,
+          "first_by_ble": 498
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 497,
+          "s_rate_pct": 99.4,
+          "median_s": 24.821,
+          "p90_s": 86.513,
+          "first_by_sms": 0,
+          "first_by_ble": 497
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 497,
+          "s_rate_pct": 99.4,
+          "median_s": 27.52,
+          "p90_s": 72.122,
+          "first_by_sms": 0,
+          "first_by_ble": 497
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1992,
+      "total_s_rate_pct": 99.6
+    },
+    {
+      "setting": {
+        "name": "far phone hears 2% a second",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.02,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 15.4705,
+          "p90_s": 27.024,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 496,
+          "s_rate_pct": 99.2,
+          "median_s": 23.3325,
+          "p90_s": 74.656,
+          "first_by_sms": 0,
+          "first_by_ble": 496
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 489,
+          "s_rate_pct": 97.8,
+          "median_s": 34.674,
+          "p90_s": 99.401,
+          "first_by_sms": 0,
+          "first_by_ble": 489
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 496,
+          "s_rate_pct": 99.2,
+          "median_s": 23.2365,
+          "p90_s": 72.521,
+          "first_by_sms": 0,
+          "first_by_ble": 496
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1981,
+      "total_s_rate_pct": 99.05
+    },
+    {
+      "setting": {
+        "name": "far phone hears 0.5% a second",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.005,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 15.0135,
+          "p90_s": 26.728,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 499,
+          "s_rate_pct": 99.8,
+          "median_s": 26.099,
+          "p90_s": 79.449,
+          "first_by_sms": 0,
+          "first_by_ble": 499
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 281,
+          "s_rate_pct": 56.2,
+          "median_s": 71.766,
+          "p90_s": 159.307,
+          "first_by_sms": 0,
+          "first_by_ble": 281
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 24.7205,
+          "p90_s": 78.087,
+          "first_by_sms": 0,
+          "first_by_ble": 500
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1780,
+      "total_s_rate_pct": 89.0
+    },
+    {
+      "setting": {
+        "name": "texts fail 25%",
+        "sms_fail_chance": 0.25,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.01,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 19.391,
+          "p90_s": 39.223,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 498,
+          "s_rate_pct": 99.6,
+          "median_s": 26.7875,
+          "p90_s": 70.214,
+          "first_by_sms": 0,
+          "first_by_ble": 498
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 403,
+          "s_rate_pct": 80.6,
+          "median_s": 61.318,
+          "p90_s": 139.312,
+          "first_by_sms": 0,
+          "first_by_ble": 403
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 497,
+          "s_rate_pct": 99.4,
+          "median_s": 24.236,
+          "p90_s": 79.81,
+          "first_by_sms": 0,
+          "first_by_ble": 497
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1898,
+      "total_s_rate_pct": 94.9
+    },
+    {
+      "setting": {
+        "name": "texts fail 50%",
+        "sms_fail_chance": 0.5,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.01,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 27.6875,
+          "p90_s": 62.851,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 497,
+          "s_rate_pct": 99.4,
+          "median_s": 24.872,
+          "p90_s": 80.069,
+          "first_by_sms": 0,
+          "first_by_ble": 497
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 415,
+          "s_rate_pct": 83.0,
+          "median_s": 54.081,
+          "p90_s": 135.465,
+          "first_by_sms": 0,
+          "first_by_ble": 415
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 498,
+          "s_rate_pct": 99.6,
+          "median_s": 23.468,
+          "p90_s": 72.609,
+          "first_by_sms": 0,
+          "first_by_ble": 498
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1910,
+      "total_s_rate_pct": 95.5
+    },
+    {
+      "setting": {
+        "name": "texts fail 75%",
+        "sms_fail_chance": 0.75,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.01,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 482,
+          "s_rate_pct": 96.4,
+          "median_s": 43.3765,
+          "p90_s": 113.047,
+          "first_by_sms": 482,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 497,
+          "s_rate_pct": 99.4,
+          "median_s": 23.349,
+          "p90_s": 78.025,
+          "first_by_sms": 0,
+          "first_by_ble": 497
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 426,
+          "s_rate_pct": 85.2,
+          "median_s": 50.2985,
+          "p90_s": 129.598,
+          "first_by_sms": 0,
+          "first_by_ble": 426
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 496,
+          "s_rate_pct": 99.2,
+          "median_s": 25.282,
+          "p90_s": 78.679,
+          "first_by_sms": 0,
+          "first_by_ble": 496
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1901,
+      "total_s_rate_pct": 95.05
+    },
+    {
+      "setting": {
+        "name": "slow network: texts take up to 2 min",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          120.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.01,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 56.171499999999995,
+          "p90_s": 105.911,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 24.4605,
+          "p90_s": 75.44,
+          "first_by_sms": 0,
+          "first_by_ble": 500
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 421,
+          "s_rate_pct": 84.2,
+          "median_s": 52.885,
+          "p90_s": 142.066,
+          "first_by_sms": 0,
+          "first_by_ble": 421
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 499,
+          "s_rate_pct": 99.8,
+          "median_s": 24.539,
+          "p90_s": 77.88,
+          "first_by_sms": 0,
+          "first_by_ble": 499
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1920,
+      "total_s_rate_pct": 96.0
+    },
+    {
+      "setting": {
+        "name": "hearing half as likely",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.015,
+        "hear_chance_per_second_far": 0.005,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 14.9755,
+          "p90_s": 26.671,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 456,
+          "s_rate_pct": 91.2,
+          "median_s": 47.8425,
+          "p90_s": 132.028,
+          "first_by_sms": 0,
+          "first_by_ble": 456
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 318,
+          "s_rate_pct": 63.6,
+          "median_s": 70.46600000000001,
+          "p90_s": 151.364,
+          "first_by_sms": 0,
+          "first_by_ble": 318
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 455,
+          "s_rate_pct": 91.0,
+          "median_s": 42.62,
+          "p90_s": 120.023,
+          "first_by_sms": 0,
+          "first_by_ble": 455
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1729,
+      "total_s_rate_pct": 86.45
+    },
+    {
+      "setting": {
+        "name": "hearing a quarter as likely",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.0075,
+        "hear_chance_per_second_far": 0.0025,
+        "scan_stopped_chance": 0.0,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 15.810500000000001,
+          "p90_s": 26.526,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 363,
+          "s_rate_pct": 72.6,
+          "median_s": 62.647,
+          "p90_s": 155.262,
+          "first_by_sms": 0,
+          "first_by_ble": 363
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 170,
+          "s_rate_pct": 34.0,
+          "median_s": 73.473,
+          "p90_s": 153.283,
+          "first_by_sms": 0,
+          "first_by_ble": 170
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 370,
+          "s_rate_pct": 74.0,
+          "median_s": 60.486000000000004,
+          "p90_s": 140.66,
+          "first_by_sms": 0,
+          "first_by_ble": 370
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1403,
+      "total_s_rate_pct": 70.15
+    },
+    {
+      "setting": {
+        "name": "nearby scan stopped 10%",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.01,
+        "scan_stopped_chance": 0.1,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 14.665,
+          "p90_s": 27.449,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 460,
+          "s_rate_pct": 92.0,
+          "median_s": 25.008000000000003,
+          "p90_s": 85.394,
+          "first_by_sms": 0,
+          "first_by_ble": 460
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 378,
+          "s_rate_pct": 75.6,
+          "median_s": 50.16,
+          "p90_s": 135.061,
+          "first_by_sms": 0,
+          "first_by_ble": 378
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 467,
+          "s_rate_pct": 93.4,
+          "median_s": 23.725,
+          "p90_s": 81.077,
+          "first_by_sms": 0,
+          "first_by_ble": 467
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1805,
+      "total_s_rate_pct": 90.25
+    },
+    {
+      "setting": {
+        "name": "nearby scan stopped 25%",
+        "sms_fail_chance": 0.0,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.03,
+        "hear_chance_per_second_far": 0.01,
+        "scan_stopped_chance": 0.25,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 14.686,
+          "p90_s": 26.399,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 403,
+          "s_rate_pct": 80.6,
+          "median_s": 24.324,
+          "p90_s": 88.908,
+          "first_by_sms": 0,
+          "first_by_ble": 403
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 325,
+          "s_rate_pct": 65.0,
+          "median_s": 64.636,
+          "p90_s": 148.804,
+          "first_by_sms": 0,
+          "first_by_ble": 325
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 406,
+          "s_rate_pct": 81.2,
+          "median_s": 30.113,
+          "p90_s": 98.79,
+          "first_by_sms": 0,
+          "first_by_ble": 406
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1634,
+      "total_s_rate_pct": 81.7
+    },
+    {
+      "setting": {
+        "name": "worst together: texts fail 50%, hearing half, scan stopped 25%",
+        "sms_fail_chance": 0.5,
+        "sms_fail_reported_after_s": 5.0,
+        "sms_transit_s": [
+          0.5,
+          30.0
+        ],
+        "hear_chance_per_second_near": 0.015,
+        "hear_chance_per_second_far": 0.005,
+        "scan_stopped_chance": 0.25,
+        "upload_s_max": 2.0
+      },
+      "conditions": [
+        {
+          "key": "F1",
+          "condition": "SMS only (no data, signal and load, nobody nearby)",
+          "attempts": 500,
+          "within_3_min": 500,
+          "s_rate_pct": 100.0,
+          "median_s": 25.5295,
+          "p90_s": 58.867,
+          "first_by_sms": 500,
+          "first_by_ble": 0
+        },
+        {
+          "key": "F2",
+          "condition": "Bluetooth relay, nearby phone within 5 m (no data, no signal)",
+          "attempts": 500,
+          "within_3_min": 376,
+          "s_rate_pct": 75.2,
+          "median_s": 42.6095,
+          "p90_s": 128.614,
+          "first_by_sms": 0,
+          "first_by_ble": 376
+        },
+        {
+          "key": "F3",
+          "condition": "Bluetooth relay, nearby phone 15 to 20 m away",
+          "attempts": 500,
+          "within_3_min": 262,
+          "s_rate_pct": 52.4,
+          "median_s": 77.857,
+          "p90_s": 154.925,
+          "first_by_sms": 0,
+          "first_by_ble": 262
+        },
+        {
+          "key": "F4",
+          "condition": "Text fails (no load), Bluetooth relay takes over (5 m)",
+          "attempts": 500,
+          "within_3_min": 369,
+          "s_rate_pct": 73.8,
+          "median_s": 46.857,
+          "p90_s": 128.518,
+          "first_by_sms": 0,
+          "first_by_ble": 369
+        }
+      ],
+      "total_attempts": 2000,
+      "total_within_3_min": 1507,
+      "total_s_rate_pct": 75.35
+    }
+  ]
+}
