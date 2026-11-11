@@ -3,6 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   buildPrompt,
+  figuresForPrompt,
+  forModel,
+  roundedFigures,
   cosine,
   keysFrom,
   numbersIn,
@@ -160,4 +163,30 @@ test("numbers the facts do not have are pointed out", () => {
   ];
   assert.deepEqual(unknownNumbers(written, sections, source), [{ key: "response", numbers: ["37"] }]);
   assert.deepEqual(unknownNumbers([written[0]], sections, source), []);
+});
+
+// 2026-11-12, from the Objective 4 test runs.
+test("the administrator's remarks are never sent to the model", () => {
+  const sections = [
+    { key: "overview", title: "Situation overview", body: "Text." },
+    { key: "remarks", title: "Remarks and recommendations", body: "" },
+  ];
+  assert.deepEqual(forModel(sections).map((s) => s.key), ["overview"]);
+});
+
+test("figures reach the model rounded as a report states them", () => {
+  assert.deepEqual(
+    roundedFigures({ median_dispatch_s: 36.41555, max_rainfall: 12.345, incidents: 4, by: [{ count: 2 }] }),
+    { median_dispatch_s: 36, max_rainfall: 12.3, incidents: 4, by: [{ count: 2 }] },
+  );
+  assert.ok(figuresForPrompt({ median_dispatch_s: 36.41555 }).includes('"median_dispatch_s":36'));
+});
+
+test("a rounded figure in the text is not flagged", () => {
+  const flagged = unknownNumbers(
+    [{ key: "response", title: "Response", body: "The median was 36 s." }],
+    [{ key: "response", title: "Response", body: "Dispatches were made." }],
+    { median_dispatch_s: 36.41555 },
+  );
+  assert.deepEqual(flagged, []);
 });

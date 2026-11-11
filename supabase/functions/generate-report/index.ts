@@ -39,6 +39,7 @@ import {
   type Section,
   systemInstruction,
   unknownNumbers,
+  forModel,
   withKeys,
 } from "./rag.ts";
 
@@ -125,7 +126,7 @@ async function embed(key: string, texts: string[], taskType: string): Promise<nu
         outputDimensionality: 768,
       })),
     }),
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`embedding: HTTP ${res.status}`);
   const data = (await res.json()) as { embeddings?: { values?: number[] }[] };
@@ -145,7 +146,9 @@ async function writeWithGemini(key: string, prompt: string): Promise<string> {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
     }),
-    signal: AbortSignal.timeout(90_000),
+    // Short: a slow Gemini hands over to Groq instead of holding the
+    // administrator (2026-11-12: one rewrite waited 130 s).
+    signal: AbortSignal.timeout(25_000),
   });
   if (!res.ok) throw new Error(`model: HTTP ${res.status}`);
   const data = (await res.json()) as {
@@ -169,7 +172,7 @@ async function writeWithGroq(key: string, prompt: string): Promise<string> {
         { role: "user", content: prompt },
       ],
     }),
-    signal: AbortSignal.timeout(90_000),
+    signal: AbortSignal.timeout(45_000),
   });
   if (!res.ok) throw new Error(`groq: HTTP ${res.status}`);
   const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
@@ -196,6 +199,7 @@ async function write(
       const sections = await withKeys(
         rotated(geminiKeys, turn),
         async (k) => read(await writeWithGemini(k, prompt)),
+        30_000,
       );
       return { sections, model };
     } catch (e) {
@@ -206,6 +210,7 @@ async function write(
     const sections = await withKeys(
       rotated(groqKeys, turn),
       async (k) => read(await writeWithGroq(k, prompt)),
+      60_000,
     );
     return { sections, model: groqModel };
   }
@@ -249,14 +254,20 @@ Deno.serve(async (req) => {
     const refs = await references();
     // Embeddings are best effort: without them the passages are matched by
     // shared words.
-    let sectionVectors: (number[] | null)[] = input.sections.map(() => null);
+    // The administrator's own section (remarks) is left as it is.
+    const asked = forModel(input.sections);
+    if (asked.length === 0) {
+      await finish(false, "nothing to rewrite");
+      return json(400, { error: "invalid_value" });
+    }
+    let sectionVectors: (number[] | null)[] = asked.map(() => null);
     let retrieval = "words";
     try {
       const keys = rotated(geminiKeys, rewriteId);
       const missing = refs.filter((r) => !r.embedding);
       if (missing.length) {
         const made = await withKeys(keys, (k) =>
-          embed(k, missing.map((r) => `${r.title}\n${r.body}`), "RETRIEVAL_DOCUMENT"), 40_000);
+          embed(k, missing.map((r) => `${r.title}\n${r.body}`), "RETRIEVAL_DOCUMENT"), 15_000);
         await Promise.all(missing.map((r, i) => {
           r.embedding = made[i];
           return rpc("record_reference_embedding", {
@@ -267,17 +278,17 @@ Deno.serve(async (req) => {
         }));
       }
       sectionVectors = await withKeys(keys, (k) =>
-        embed(k, input.sections.map((s) => `${s.title}\n${s.body}`), "RETRIEVAL_QUERY"), 40_000);
+        embed(k, asked.map((s) => `${s.title}\n${s.body}`), "RETRIEVAL_QUERY"), 15_000);
       retrieval = "embedding";
     } catch {
       for (const r of refs) r.embedding = null;
     }
 
     const passages = new Map<string, Reference[]>();
-    input.sections.forEach((s, i) => passages.set(s.key, retrieve(s, sectionVectors[i], refs)));
+    asked.forEach((s, i) => passages.set(s.key, retrieve(s, sectionVectors[i], refs)));
     const written = await write(
-      buildPrompt(input.sections, input.source, passages),
-      input.sections,
+      buildPrompt(asked, input.source, passages),
+      asked,
       rewriteId,
     );
     const sections = written.sections;
@@ -289,7 +300,7 @@ Deno.serve(async (req) => {
     return json(200, {
       sections,
       references: [...used.values()].map((r) => ({ id: r.id, title: r.title })),
-      check: unknownNumbers(sections, input.sections, input.source),
+      check: unknownNumbers(sections, asked, input.source),
       model: usedModel,
       retrieval,
       ms: Date.now() - started,

@@ -164,9 +164,35 @@ export const systemInstruction = [
   "Answer with JSON only: {\"sections\": [{\"key\": \"...\", \"body\": \"...\"}]}, one item for each section asked, with the same keys.",
 ].join("\n");
 
-/** The figures, without what the model has no use for. */
+/** The section an administrator writes (2026-11-12: the model filled it
+ * with "not available"). It is never sent to the model and never replaced. */
+export const adminWrittenKeys = new Set(["remarks"]);
+
+/** The sections the model rewrites. */
+export function forModel(sections: Section[]): Section[] {
+  return sections.filter((s) => !adminWrittenKeys.has(s.key));
+}
+
+/** Figures rounded as a report states them (2026-11-12: the model wrote
+ * "36.41555 s"): times in seconds (`*_s`) to whole seconds, any other
+ * fraction to one decimal. */
+export function roundedFigures(value: unknown, key = ""): unknown {
+  if (typeof value === "number") {
+    if (Number.isInteger(value)) return value;
+    return key.endsWith("_s") ? Math.round(value) : Math.round(value * 10) / 10;
+  }
+  if (Array.isArray(value)) return value.map((v) => roundedFigures(v));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, roundedFigures(v, k)]),
+    );
+  }
+  return value;
+}
+
+/** The figures as the model sees them: rounded. */
 export function figuresForPrompt(source: Record<string, unknown>): string {
-  return JSON.stringify(source);
+  return JSON.stringify(roundedFigures(source));
 }
 
 export function buildPrompt(
@@ -236,6 +262,8 @@ export function unknownNumbers(
   source: Record<string, unknown>,
 ): { key: string; numbers: string[] }[] {
   const known = numbersIn(JSON.stringify(source));
+  // The rounded figures the model was given count as known too.
+  for (const n of numbersIn(figuresForPrompt(source))) known.add(n);
   for (const f of facts) {
     for (const n of numbersIn(`${f.title} ${f.body}`)) known.add(n);
   }

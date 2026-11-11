@@ -1,0 +1,7 @@
+period,method,participant_role,started_hhmmss,finished_hhmmss,minutes,sentences_changed_after_rewrite,numbers_check,remarks
+last 7 days,by hand,,,,,,,
+last 7 days,with system,,,,,,,
+last 30 days,by hand,,,,,,,
+last 30 days,with system,,,,,,,
+storm week,by hand,,,,,,,
+storm week,with system,,,,,,,
