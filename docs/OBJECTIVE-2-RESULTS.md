@@ -312,6 +312,26 @@ No. 3, 9 Aug 2026); no other 2026 Manila signal was found in the news.
 The Medical layer shows on the Heatmap's Medical view (D8), labelled as past
 MDRRMD calls, not a forecast.
 
+## 11. Back to the thesis's 72 hours (2026-11-11)
+
+Joshua, 2026-11-11: "i want now the system still do the 72 hours
+prediction". Model `lstm-kde-v4` (`supabase/data/forecast_live_v4.json`) is
+the **72-hour** LSTM trained on 2026-11-07 beside the 48-hour one: the same
+MDRRMD records, the same preparation with `--horizon-days 3`, the same KDE
+(the densities do not depend on the lead time, so `hazard_density` stays
+`kde-v3`). Nothing was retrained. Its test figures are the 72 h rows of the
+table in section 10:
+
+| Hazard | Test windows (with an incident) | Accuracy | Balanced | Caught | Never or always warn |
+|---|---|---:|---:|---:|---:|
+| Flood | 76 (15) | 51.3% | 69.7% | 15 of 15 | 80.3% |
+| Fire | 103 (73) | 59.2% | 48.7% | 54 of 73 | 70.9% |
+
+The limits are those of section 10: flood catches every test flood with
+many false alarms, fire has no skill from weather, and the thesis's 80% is
+not reached. Objective 2, FR4, and the LSTM parameters in Chapter 3 say 72
+hours, so the lead time no longer needs a thesis change (plan Q54).
+
 ## How to rerun
 
 ```bash
@@ -364,6 +384,7 @@ done
 ../../.venv/Scripts/python data_prep/prepare_emr.py
 ../../.venv/Scripts/python kde/kde.py --incidents data/prepared/mdrrmd/manila_medical_prepared.csv --weather build/real/mdrrmd_medical/period.csv --summary kde/kde_summary_mdrrmd_medical.json --grid-dir build/real/mdrrmd_medical --hazards medical
 ../../.venv-tf/Scripts/python heatmap/export_live.py --variant mdrrmd_h2 --kde kde_summary_mdrrmd.json --version lstm-kde-v3 --out-name forecast_live_v3.json
+../../.venv-tf/Scripts/python heatmap/export_live.py --variant mdrrmd --kde kde_summary_mdrrmd.json --version lstm-kde-v4 --out-name forecast_live_v4.json   # section 11: 72 hours
 ../../.venv/Scripts/python kde/export_density.py --summary kde/kde_summary_mdrrmd.json --summary kde/kde_summary_mdrrmd_medical.json --version kde-v3 --json-out ../../supabase/data/hazard_density_v3.json
 ```
 (`build/real/mdrrmd_medical/period.csv` is a date list from 2023-12-31 to 2026-11-03 with zero weather; kde.py only reads its dates.)

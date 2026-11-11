@@ -206,3 +206,26 @@ test("v3: a 48-hour lead time, flood and fire", { skip: !v3 }, () => {
   assert.deepEqual(forecastHazards(v3!), ["flood", "fire"]);
   assert.equal(v3!.days.length, 0);
 });
+
+// Model v4 (lstm-kde-v4, 2026-11-11): MDRRMD's records as in v3, back at the
+// thesis's 72-hour lead time (Joshua: "still do the 72 hours prediction").
+const v4File = new URL("../../data/forecast_live_v4.json", import.meta.url);
+const v4 = existsSync(v4File)
+  ? JSON.parse(readFileSync(v4File, "utf8")) as LiveModel & {
+    test_vectors: { hazard: Hazard; window: number[][]; probability: number }[];
+  }
+  : null;
+
+test("v4: the LSTM matches Keras on windows from the test period", { skip: !v4 }, () => {
+  assert.ok(v4!.test_vectors.length >= 4);
+  for (const v of v4!.test_vectors) {
+    const p = probability(v4!.hazards[v.hazard]!, v.window);
+    assert.ok(Math.abs(p - v.probability) < 1e-5, `${v.hazard}: ${p} against Keras ${v.probability}`);
+  }
+});
+
+test("v4: a 72-hour lead time, flood and fire", { skip: !v4 }, () => {
+  assert.equal(v4!.horizon_hours, 72);
+  assert.deepEqual(forecastHazards(v4!), ["flood", "fire"]);
+  assert.equal(v4!.days.length, 0);
+});

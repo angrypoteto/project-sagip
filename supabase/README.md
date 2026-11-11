@@ -30,7 +30,7 @@ The hosted project is **Project S.A.G.I.P** (`imssgenjfirpohkwxwbv`, Seoul regio
 | `migrations/*_crowd_cluster_nearby.sql` | Surge finding 3 (`20261103081905`): DBSCAN re-runs only on reports within 150 m of the new ones (index on position), only clusters with a new or unassigned report are processed, under a lock; the trigger passes the new rows |
 | `migrations/*_sos_open_index.sql` | `20261103082532`: index for the open-SOS lookup of `sos_repeat_joins` (without it an SOS read every incident) |
 | `migrations/*_board_changes.sql` | Surge finding 4 (`20261103082602`): `incident_report.updated_at` (moved by its own changes, a new event, or a crowd report joining or leaving), shown on `incident_board`; the dashboard reads only what changed (`BoardCache`) |
-| `migrations/*_forecast_v3_medical.sql` | Model v3 (2026-11-07, `20261107001239`): a run is valid for the active model's `horizon_hours` (48 for `lstm-kde-v3`); `hazard_density` also accepts `medical` (the Heatmap's Medical layer from MDRRMD's EMR records) |
+| `migrations/*_forecast_v3_medical.sql` | Model v3 (2026-11-07, `20261107001239`): a run is valid for the active model's `horizon_hours` (48 for `lstm-kde-v3`, 72 for `lstm-kde-v4`); `hazard_density` also accepts `medical` (the Heatmap's Medical layer from MDRRMD's EMR records) |
 | `migrations/*_private_helpers_locked.sql` | 2026-11-10 (`20261110002940`): three private helpers from the crew migrations lose PUBLIC's EXECUTE, as every other private helper (found by the RLS full run) |
 | `tests/surge_test.sql`, `tests/surge_reports_test.sql`, `tests/surge_restore.sql` | The NFR7 surge test (`docs/SURGE-TEST.md`): one transaction that raises at the end, then the restore script for the counters |
 | `migrations/*_crew_requests_new_only.sql` | Crew heads ask only for new people or to take off a member of their own unit (2026-11-01): `request_crew_change('add')` is refused, `crew_candidates()` dropped; old 'add' requests can still be decided |
@@ -310,6 +310,24 @@ With simulation mode on (Configuration page), an admin can make a **simulated SO
 ## Final NDRRMC report PDFs (migration `report_pdfs`)
 
 When an admin marks a report final (A6), the dashboard builds its PDF and keeps it in the private Storage bucket `ndrrmc-reports` as `<report id>.pdf`; `attach_report_pdf()` records it on the report. Only active admins can read the bucket, a file can be added only for a final report and only once, and there is no update or delete, so the stored copy stays as issued. "Download PDF" on a final report gives the stored copy. If storing fails (no connection), the report is still final and "Store the PDF" tries again.
+
+## Loading model v4 (`lstm-kde-v4`, 2026-11-11)
+
+MDRRMD's records as in v3, at the thesis's 72-hour lead time
+(`docs/OBJECTIVE-2-RESULTS.md` section 11). No migration: a run is already
+valid for the active model's `horizon_hours`, and the screens read the hours
+from the run. The densities stay `kde-v3`. After the commit with
+`supabase/data/forecast_live_v4.json` is on GitHub:
+
+```sql
+select net.http_get('https://raw.githubusercontent.com/angrypoteto/project-sagip/<commit>/supabase/data/forecast_live_v4.json');
+-- a few seconds later, with the id it returned:
+select private.load_forecast_model(content::jsonb) from net._http_response where id = <id>;
+select private.call_run_forecast();   -- the first 72-hour run, without waiting for the six-hourly one
+```
+
+To go back to 48 hours:
+`update public.forecast_model set is_active = (version = 'lstm-kde-v3');`.
 
 ## Loading model v3 (`lstm-kde-v3`, 2026-11-07)
 

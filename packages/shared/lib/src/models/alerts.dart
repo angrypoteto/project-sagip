@@ -276,8 +276,8 @@ class BarangayForecast {
   final DateTime validUntil;
   final Map<ForecastHazard, RiskLevel> risks;
 
-  /// How far ahead the forecast looks: 72 hours in the thesis, 48 for the
-  /// model trained on MDRRMD's records (2026-11-07). From the row's own
+  /// How far ahead the forecast looks: 72 hours in the thesis and for
+  /// model v4 (2026-11-11), 48 for v3 (2026-11-07). From the row's own
   /// times, so the screens follow whichever model made it.
   int get horizonHours => horizonHoursBetween(issuedAt, validUntil);
 

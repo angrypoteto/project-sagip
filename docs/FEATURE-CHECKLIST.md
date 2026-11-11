@@ -250,7 +250,7 @@ Sign in on the dashboard with a unit account (for example `bfp.pandacan@sagip.te
 - [ ] The threshold engine raises alerts from weather readings
 - [ ] PAGASA feed read every 10 minutes; PHIVOLCS every 15 minutes; river levels from PAGASA's Pasig-Marikina-Tullahan feed
 - [ ] Data retention: closed incidents lose their link to the resident after the set months, every night
-- [ ] The LSTM and KDE: trained on MDRRMD's fire and flood records (model v3, 48 hours, live since 2026-11-10). The classifier (TF-IDF): still the sample model, until real report texts arrive (see part 8)
+- [ ] The LSTM and KDE: trained on MDRRMD's fire and flood records (model v4, 72 hours as in the thesis, since 2026-11-11; v3 was 48 hours). The classifier (TF-IDF): still the sample model, until real report texts arrive (see part 8)
 
 ---
 
@@ -285,7 +285,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 
 | What | Where it stands |
 |---|---|
-| ~~The forecast feed~~ | **Done**: a run every six hours on live weather (Open-Meteo, PAGASA), model v3 trained on MDRRMD's records, 48 hours ahead (2026-11-10) |
+| ~~The forecast feed~~ | **Done**: a run every six hours on live weather (Open-Meteo, PAGASA), model v4 trained on MDRRMD's records, 72 hours ahead (2026-11-11; v3 was 48 hours) |
 | Typhoon signal and storm surge days, 2021 to now, from public records | The forecast's two missing columns (`ml/forecast/data/manila_signals.csv`). 23 signal days gathered so far from news; PAGASA's tropical cyclone reports and the news can fill the rest. Claude can do this; MDRRMD's situational reports (letter item G) would check it |
 | A team-labelled set of incident descriptions | **Ready for the team (2026-11-03):** `ml/classifier/TEAM-LABELLING.md` (300 per type, at least 100; the template `data/team_reports_template.csv`). Claude runs `train_classifier.py --team` and loads `v2-team`. Until then the sample model is active on the hosted project (loaded 2026-11-03) and its guesses are marked on the board |
 | The ping on the full screen map | You reported it does not ping there. The code is the same as the board's; closing that window and reopening it was the suggested fix, and you have not said whether it worked |
@@ -298,7 +298,7 @@ public GitHub repo (the letter promises it); only the trained models do.
 
 | What | Letter item | Where it stands |
 |---|---|---|
-| ~~The forecast on real data~~ (LSTM and KDE) | A | **Done 2026-11-07/10** with MDRRMD's fire, flood, and EMR records (model v3, 48 hours, plan Q54): flood balanced accuracy 69.2%, every test flood caught with many false alarms; fire no skill from weather; storm surge not forecast. Below the thesis's 80% (`docs/OBJECTIVE-2-RESULTS.md` section 10). Situational reports (G) would still help the signal days |
+| ~~The forecast on real data~~ (LSTM and KDE) | A | **Done 2026-11-07/10** with MDRRMD's fire, flood, and EMR records (model v3, 48 hours, plan Q54): flood balanced accuracy 69.2%, every test flood caught with many false alarms; fire no skill from weather; storm surge not forecast. Below the thesis's 80% (`docs/OBJECTIVE-2-RESULTS.md` section 10). Back at 72 hours since 2026-11-11 (model v4, section 11: flood balanced 69.7%, 15 of 15 caught). Situational reports (G) would still help the signal days |
 | ~~Forecast accuracy figures on D8~~ (done 2026-11-03 for model v2); a run selector | A | The figures update with the model |
 | The classifier on real descriptions | B | MDRRMD says the texts are on its Facebook Page. Ask MDRRMD for an export of the Page's posts (Meta Business Suite, "Download your information"), or the team copies posts by hand; no scraping. Until then the sample model is active and marked |
 | The dispatch-time baseline (before and after) | C | Our side is built (A4 Analytics measures our times); MDRRMD's current times are the "before" |
