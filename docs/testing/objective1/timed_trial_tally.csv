@@ -1,0 +1,13 @@
+scenario,method,dispatcher_role,started_hhmmss,unit_named_or_assigned_hhmmss,dispatch_seconds,unit_chosen,unit_road_eta_minutes,urgent_one_first,remarks
+1,current way,,,,,,,,
+1,with system,,,,,,,,
+2,current way,,,,,,,,
+2,with system,,,,,,,,
+3,current way,,,,,,,,
+3,with system,,,,,,,,
+4,current way,,,,,,,,
+4,with system,,,,,,,,
+5,current way,,,,,,,,
+5,with system,,,,,,,,
+6,current way,,,,,,,,
+6,with system,,,,,,,,
