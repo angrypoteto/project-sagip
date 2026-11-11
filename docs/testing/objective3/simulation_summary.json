@@ -1,0 +1,132 @@
+{
+  "ran_at": "2026-11-11T23:15:59.425171",
+  "attempts_per_condition": 100,
+  "conditions": [
+    {
+      "key": "C0",
+      "label": "Internet available (control)",
+      "attempts": 100,
+      "reached_server_during_outage": 100,
+      "reached_server_by_tier_during_outage": {
+        "app": 100
+      },
+      "reached_server_through_neighbour_later": 0,
+      "reached_server_in_the_end": 100,
+      "success_rate_during_outage_pct": 100.0,
+      "success_rate_in_the_end_pct": 100.0,
+      "copies_received_by_server": 100,
+      "incidents_created": 100,
+      "duplicate_incidents": 0,
+      "phone_shows_delivered": 100,
+      "capture_time_error_max_s": 0,
+      "location_error_max_m": 0.0,
+      "sms_decode_failures": 0
+    },
+    {
+      "key": "C1",
+      "label": "No mobile data, cell signal: SMS to the gateway (Tier 2)",
+      "attempts": 100,
+      "reached_server_during_outage": 100,
+      "reached_server_by_tier_during_outage": {
+        "sms": 100
+      },
+      "reached_server_through_neighbour_later": 0,
+      "reached_server_in_the_end": 100,
+      "success_rate_during_outage_pct": 100.0,
+      "success_rate_in_the_end_pct": 100.0,
+      "copies_received_by_server": 200,
+      "incidents_created": 100,
+      "duplicate_incidents": 0,
+      "phone_shows_delivered": 100,
+      "capture_time_error_max_s": 0,
+      "location_error_max_m": 0.74,
+      "sms_decode_failures": 0
+    },
+    {
+      "key": "C2",
+      "label": "No data, no signal, a nearby phone with internet (Tier 3)",
+      "attempts": 100,
+      "reached_server_during_outage": 100,
+      "reached_server_by_tier_during_outage": {
+        "bleRelay": 100
+      },
+      "reached_server_through_neighbour_later": 0,
+      "reached_server_in_the_end": 100,
+      "success_rate_during_outage_pct": 100.0,
+      "success_rate_in_the_end_pct": 100.0,
+      "copies_received_by_server": 200,
+      "incidents_created": 100,
+      "duplicate_incidents": 0,
+      "phone_shows_delivered": 100,
+      "capture_time_error_max_s": 0,
+      "location_error_max_m": 0.77,
+      "sms_decode_failures": 0
+    },
+    {
+      "key": "C3",
+      "label": "Signal but no load (text fails), a nearby phone with internet",
+      "attempts": 100,
+      "reached_server_during_outage": 100,
+      "reached_server_by_tier_during_outage": {
+        "bleRelay": 100
+      },
+      "reached_server_through_neighbour_later": 0,
+      "reached_server_in_the_end": 100,
+      "success_rate_during_outage_pct": 100.0,
+      "success_rate_in_the_end_pct": 100.0,
+      "copies_received_by_server": 200,
+      "incidents_created": 100,
+      "duplicate_incidents": 0,
+      "phone_shows_delivered": 100,
+      "capture_time_error_max_s": 0,
+      "location_error_max_m": 0.71,
+      "sms_decode_failures": 0
+    },
+    {
+      "key": "C4",
+      "label": "No data, no signal, the nearby phone is offline too and reaches the internet later",
+      "attempts": 100,
+      "reached_server_during_outage": 0,
+      "reached_server_by_tier_during_outage": {},
+      "reached_server_through_neighbour_later": 100,
+      "reached_server_in_the_end": 100,
+      "success_rate_during_outage_pct": 100.0,
+      "success_rate_in_the_end_pct": 100.0,
+      "copies_received_by_server": 200,
+      "incidents_created": 100,
+      "duplicate_incidents": 0,
+      "phone_shows_delivered": 100,
+      "capture_time_error_max_s": 0,
+      "location_error_max_m": 0.75,
+      "sms_decode_failures": 0
+    },
+    {
+      "key": "C5",
+      "label": "No data, no signal, nobody nearby (Tier 1 only, until the internet returns)",
+      "attempts": 100,
+      "reached_server_during_outage": 0,
+      "reached_server_by_tier_during_outage": {},
+      "reached_server_through_neighbour_later": 0,
+      "reached_server_in_the_end": 100,
+      "success_rate_during_outage_pct": 0.0,
+      "success_rate_in_the_end_pct": 100.0,
+      "copies_received_by_server": 100,
+      "incidents_created": 100,
+      "duplicate_incidents": 0,
+      "phone_shows_delivered": 100,
+      "capture_time_error_max_s": 0,
+      "location_error_max_m": 0.0,
+      "sms_decode_failures": 0
+    }
+  ],
+  "totals": {
+    "attempts_all": 600,
+    "delivered_in_the_end_all": 600,
+    "outage_attempts": 500,
+    "outage_delivered_without_the_senders_internet": 400,
+    "outage_success_rate_pct": 80.0,
+    "outage_success_rate_with_a_fallback_available_pct": 100.0,
+    "delivered_in_the_end_pct": 100.0,
+    "during_outage_all": 500
+  }
+}
