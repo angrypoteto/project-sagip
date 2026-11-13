@@ -1,0 +1,39 @@
+card,method,event,time
+1,current,start,03:45:06.591
+1,current,done,03:45:50.987
+1,sagip,start,03:45:52.260
+1,sagip,done,03:46:12.258
+1,sagip,server,INC-0276 received 03:45:51.090 verified 03:45:56.226 assigned 03:46:00.203 BFP-SNICOLAS
+2,current,start,03:46:19.247
+2,current,done,03:47:17.831
+2,sagip,start,03:47:20.049
+2,sagip,done,03:47:46.364
+2,sagip,server,INC-0277 B93 received 03:47:18.674 assigned 03:47:27.153 verified 03:47:30.330 BFP-GAGALANG; INC-0278 B105 received 03:47:18.946 verified 03:47:33.054 assigned 03:47:34.815 BFP-TONDO
+3,current,start,03:47:55.558
+3,current,done,03:49:55.130
+3,sagip,start,03:49:56.446
+3,sagip,done,03:50:17.905
+3,sagip,server,INC-0279 received 03:49:55.226 verified 03:50:06.254 assigned 03:50:08.951 BFP-SNLAZARO
+4,current,start,03:50:32.392
+4,current,done,03:52:50.435
+4,sagip,start,03:53:01.429
+4,setup,flood,INC-0280 confirmed simulated flood Barangay 864 (862 reports joined run-1 cluster INC-0272, already closed); post held back: simulated
+4,sagip,done,03:53:19.432
+4,sagip,server,INC-0281 received 03:53:00.098 verified 03:53:09.132 assigned 03:53:11.309 BFP-PANDACAN
+5,sagip,start,03:53:27.315
+5,sagip,done,03:54:08.586
+5,sagip,server,INC-0283 B835 vulnerable received 03:53:26.037 verified 03:53:38.247 assigned 03:53:42.048 BFP-PANDACAN (assigned first); INC-0282 B863 received 03:53:25.872 verified 03:53:49.426 assigned 03:53:52.309 BFP-STAANA
+5,current,start,03:54:17.047
+5,current,done,03:55:33.578
+6,current,start,03:55:33.634
+6,current,void-started-in-error,03:55:40.481
+6,sagip,start,03:55:41.804
+6,sagip,done,03:56:06.995
+6,sagip,server,INC-0284 received 03:55:40.561 verified 03:55:48.053 assigned 03:55:51.026 BFP-PACO (fire truck; incident type not set)
+6,current,start,03:56:15.790
+6,current,done,03:57:29.010
+7,sagip,start,03:57:30.694
+7,sagip,done,03:58:08.843
+7,sagip,server,INC-0285 B694 flood received 03:57:29.079 verified 03:57:44.280 assigned 03:57:46.355 BFP-PACO (assigned first); INC-0286 B93 gas leak received 03:57:29.451 verified 03:57:49.443 assigned 03:57:51.178 BFP-GAGALANG
+7,current,start,03:58:17.600
+7,current,done,04:00:08.884

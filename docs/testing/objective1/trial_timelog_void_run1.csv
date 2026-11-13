@@ -1,0 +1,25 @@
+card,method,event,time
+1,current,start,03:36:57.119
+1,current,void-not-started,03:37:34.507
+1,current,start,03:38:55.129
+1,current,done,03:39:21.857
+1,sagip,start,03:39:32.740
+1,sagip,done,03:40:04.291
+1,sagip,server,INC-0268 received 03:39:31.606 verified 03:39:47.877 assigned 03:39:55.383 BFP-SNICOLAS
+2,current,start,03:40:30.327
+2,current,done,03:40:49.822
+2,sagip,start,03:40:51.260
+2,sagip,done,03:41:18.647
+2,sagip,server,INC-0269 B93 received 03:40:49.922 verified 03:40:58.855 assigned 03:41:01.727 BFP-GAGALANG; INC-0270 B105 received 03:40:50.114 verified 03:41:08.179 assigned 03:41:09.937 BFP-TONDO
+3,current,start,03:41:26.826
+3,current,done,03:41:45.371
+3,sagip,start,03:41:46.324
+3,sagip,done,03:42:06.753
+3,sagip,server,INC-0271 received 03:41:45.233 verified 03:41:52.601 assigned 03:41:56.325 BFP-SNLAZARO
+4,setup,flood,INC-0272 confirmed simulated flood Barangay 862 (post held back: simulated)
+4,current,start,03:42:25.103
+4,current,done,03:43:07.598
+4,sagip,start,03:43:08.931
+4,sagip,done,03:43:35.876
+4,sagip,server,INC-0273 received 03:43:07.698 verified 03:43:20.992 assigned 03:43:22.468 BFP-PANDACAN
+5,sagip,start,03:43:51.562
