@@ -1,0 +1,81 @@
+condition,attempt,pressed_at_hhmmss,app_showed,on_board_at_hhmmss,channel_on_board,incident_id,remarks
+T1,1,11:55:53,Sent by SMS,11:55:58,SMS,INC-0244,6.0 s; closed as false report
+T1,2,11:58:56,Sent by SMS,11:59:02,SMS,INC-0245,"6.1 s; closed as false report; an earlier press at 11:57:41 missed the button (phone in landscape), nothing sent, not an attempt"
+T1,3,12:00:32,Sent by SMS,12:00:36,SMS,INC-0246,4.7 s; closed as false report
+T1,4,12:01:34,Sent by SMS,12:01:39,SMS,INC-0247,5.4 s; closed as false report
+T1,5,12:02:31,Sent by SMS,12:02:36,SMS,INC-0248,5.3 s; closed as false report
+T1,6,12:03:42,Sent by SMS,12:03:46,SMS,INC-0249,4.3 s; closed as false report
+T1,7,12:04:48,Sent by SMS,12:04:53,SMS,INC-0250,5.9 s; closed as false report
+T1,8,12:06:48,Sent by SMS,12:06:53,SMS,INC-0251,5.2 s; closed as false report
+T1,9,12:08:03,Sent by SMS,12:08:08,SMS,INC-0252,5.7 s; closed as false report
+T1,10,12:09:56,Sent by SMS,12:10:02,SMS,INC-0253,6.8 s; closed as false report
+T1,11,12:11:17,Sent by SMS,12:11:23,SMS,INC-0254,6.1 s; closed as false report
+T1,12,12:13:13,Sent by SMS,12:13:18,SMS,INC-0255,5.7 s; closed as false report
+T1,13,12:14:15,Sent by SMS,12:14:20,SMS,INC-0256,5.0 s; closed as false report
+T1,14,12:15:21,Sent by SMS,12:15:25,SMS,INC-0257,4.9 s; closed as false report
+T1,15,12:16:21,Sent by SMS,12:16:38,SMS,INC-0258,17.6 s; closed as false report
+T1,16,12:17:31,Sent by SMS,12:17:35,SMS,INC-0259,4.5 s; closed as false report
+T1,17,12:18:51,Sent by SMS,12:18:56,SMS,INC-0260,5.2 s; closed as false report
+T1,18,12:20:00,Sent by SMS,12:20:14,SMS,INC-0261,14.5 s; closed as false report
+T1,19,12:21:01,Sent by SMS,12:21:06,SMS,INC-0262,5.5 s; closed as false report
+T1,20,12:22:37,Sent by SMS,12:22:42,SMS,INC-0263,"5.2 s; closed as false report; an earlier press at 12:22:05 did not register (layout shifted), nothing sent, not an attempt"
+T2,1,12:27:09,Saved on your phone; SMS couldn't send; then Passing to nearby phones,12:28:23,Bluetooth relay,INC-0264,74.6 s; closed as false report
+T2,2,12:37:07,Passing to nearby phones; SMS couldn't send,12:37:08,Bluetooth relay,INC-0265,1.6 s; closed as false report
+T2,3,,,,,,
+T2,4,,,,,,
+T2,5,,,,,,
+T2,6,,,,,,
+T2,7,,,,,,
+T2,8,,,,,,
+T2,9,,,,,,
+T2,10,,,,,,
+T2,11,,,,,,
+T2,12,,,,,,
+T2,13,,,,,,
+T2,14,,,,,,
+T2,15,,,,,,
+T2,16,,,,,,
+T2,17,,,,,,
+T2,18,,,,,,
+T2,19,,,,,,
+T2,20,,,,,,
+T3,1,,,,,,
+T3,2,,,,,,
+T3,3,,,,,,
+T3,4,,,,,,
+T3,5,,,,,,
+T3,6,,,,,,
+T3,7,,,,,,
+T3,8,,,,,,
+T3,9,,,,,,
+T3,10,,,,,,
+T3,11,,,,,,
+T3,12,,,,,,
+T3,13,,,,,,
+T3,14,,,,,,
+T3,15,,,,,,
+T3,16,,,,,,
+T3,17,,,,,,
+T3,18,,,,,,
+T3,19,,,,,,
+T3,20,,,,,,
+T4,1,,,,,,
+T4,2,,,,,,
+T4,3,,,,,,
+T4,4,,,,,,
+T4,5,,,,,,
+T4,6,,,,,,
+T4,7,,,,,,
+T4,8,,,,,,
+T4,9,,,,,,
+T4,10,,,,,,
+T4,11,,,,,,
+T4,12,,,,,,
+T4,13,,,,,,
+T4,14,,,,,,
+T4,15,,,,,,
+T4,16,,,,,,
+T4,17,,,,,,
+T4,18,,,,,,
+T4,19,,,,,,
+T4,20,,,,,,
