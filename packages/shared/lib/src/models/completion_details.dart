@@ -366,3 +366,115 @@ T? _enum<T extends Enum>(List<T> values, Object? raw) {
   }
   return null;
 }
+
+/// What "Fill from notes" (RAG, fill-crew-report) answered (2026-11-17):
+/// the form's answers, the report's figures, and a short narrative, all for
+/// the responder to check before submitting.
+@immutable
+class CrewReportFill {
+  const CrewReportFill({
+    required this.details,
+    this.figures = const {},
+    this.narrative = '',
+    this.check = const [],
+    this.references = const [],
+    this.model,
+    this.retrieval,
+    this.ms,
+  });
+
+  final CompletionDetails details;
+
+  /// Any of persons_assisted, injured, missing, affected_families,
+  /// houses_damaged the notes gave.
+  final Map<String, int> figures;
+  final String narrative;
+
+  /// What the server dropped or wants checked.
+  final List<String> check;
+
+  /// The form guidance passages it retrieved, by title.
+  final List<String> references;
+  final String? model;
+  final String? retrieval;
+  final int? ms;
+
+  factory CrewReportFill.fromJson(Map<String, Object?> json) {
+    final figures = json['figures'];
+    final check = json['check'];
+    final refs = json['references'];
+    return CrewReportFill(
+      details: CompletionDetails.fromJson(json['answers']),
+      figures: {
+        if (figures is Map)
+          for (final e in figures.entries)
+            if (e.value is num) '${e.key}': (e.value as num).toInt(),
+      },
+      narrative: (json['narrative'] as String? ?? '').trim(),
+      check: [
+        if (check is List)
+          for (final c in check) '$c',
+      ],
+      references: [
+        if (refs is List)
+          for (final r in refs)
+            if (r is Map && r['title'] is String) r['title']! as String,
+      ],
+      model: json['model'] as String?,
+      retrieval: json['retrieval'] as String?,
+      ms: (json['ms'] as num?)?.toInt(),
+    );
+  }
+
+  /// [current] with these answers on top: an answer the notes gave replaces
+  /// the one there; one they did not give stays. Patients' names already
+  /// typed or pre-filled are kept (the server never sends names).
+  CompletionDetails mergeInto(CompletionDetails current) {
+    final x = details;
+    final patients = x.patients.isEmpty
+        ? current.patients
+        : [
+            for (var i = 0; i < x.patients.length; i++)
+              PatientRecord(
+                name: i < current.patients.length
+                    ? current.patients[i].name
+                    : null,
+                age:
+                    x.patients[i].age ??
+                    (i < current.patients.length
+                        ? current.patients[i].age
+                        : null),
+                gender:
+                    x.patients[i].gender ??
+                    (i < current.patients.length
+                        ? current.patients[i].gender
+                        : null),
+                hospital: x.patients[i].hospital,
+                chiefComplaint: x.patients[i].chiefComplaint,
+                remarks: x.patients[i].remarks,
+              ),
+          ];
+    return CompletionDetails(
+      emrType: x.emrType ?? current.emrType,
+      accidentCause: x.accidentCause ?? current.accidentCause,
+      vehicles: x.vehicles.isEmpty ? current.vehicles : x.vehicles,
+      patients: patients,
+      floodCause: x.floodCause ?? current.floodCause,
+      cycloneName: x.cycloneName ?? current.cycloneName,
+      windSignal: x.windSignal ?? current.windSignal,
+      floodLevel: x.floodLevel ?? current.floodLevel,
+      floodStatus: x.floodStatus ?? current.floodStatus,
+      fireKind: x.fireKind ?? current.fireKind,
+      highestAlarm: x.highestAlarm ?? current.highestAlarm,
+      estimatedDamage: x.estimatedDamage ?? current.estimatedDamage,
+      affectedIndividuals: x.affectedIndividuals ?? current.affectedIndividuals,
+    );
+  }
+
+  /// How many answers and figures it filled in.
+  int get filledCount =>
+      details.toJson().length +
+      details.patients.fold<int>(0, (n, p) => n + p.toJson().length) -
+      (details.patients.isEmpty ? 0 : 1) +
+      figures.length;
+}

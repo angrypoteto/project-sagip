@@ -245,6 +245,8 @@ class CompletionReport {
     this.affectedFamilies = 0,
     this.notes,
     this.details = const CompletionDetails(),
+    this.narrative,
+    this.filledByRag = false,
     this.delivery = DeliveryState.savedOnPhone,
   });
 
@@ -266,6 +268,13 @@ class CompletionReport {
 
   /// What MDRRMD's form for the incident's type asks (2026-11-17).
   final CompletionDetails details;
+
+  /// The short account for MDRRMD, from "Fill from notes" (RAG), as the
+  /// responder left it.
+  final String? narrative;
+
+  /// The answers were filled from the responder's notes (RAG).
+  final bool filledByRag;
   final DeliveryState delivery;
 
   CompletionReport withDelivery(DeliveryState next) => CompletionReport(
@@ -281,6 +290,8 @@ class CompletionReport {
     affectedFamilies: affectedFamilies,
     notes: notes,
     details: details,
+    narrative: narrative,
+    filledByRag: filledByRag,
     delivery: next,
   );
 
@@ -297,6 +308,8 @@ class CompletionReport {
     'affected_families': affectedFamilies,
     'notes': notes,
     if (!details.isEmpty) 'details': details.toJson(),
+    if (narrative != null) 'narrative': narrative,
+    if (filledByRag) 'filled_by_rag': true,
     'delivery': delivery.name,
   };
 
@@ -314,6 +327,8 @@ class CompletionReport {
         affectedFamilies: json['affected_families'] as int? ?? 0,
         notes: json['notes'] as String?,
         details: CompletionDetails.fromJson(json['details']),
+        narrative: json['narrative'] as String?,
+        filledByRag: json['filled_by_rag'] as bool? ?? false,
         delivery: enumFromJson(DeliveryState.values, json['delivery']),
       );
 }

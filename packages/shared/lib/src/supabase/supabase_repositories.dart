@@ -12,6 +12,7 @@ import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
 import '../models/assignment.dart';
+import '../models/completion_details.dart';
 import '../models/crew_report.dart';
 import '../models/crowd_report.dart';
 import '../models/enums.dart';

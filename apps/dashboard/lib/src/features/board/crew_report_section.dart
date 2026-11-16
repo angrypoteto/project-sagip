@@ -211,6 +211,18 @@ class _CrewReportCard extends StatelessWidget {
                 l10n.crewReportOnScene,
                 l10n.crewReportMinutes((r.timeOnSceneSeconds / 60).round()),
               ),
+            if (r.narrative case final story?) ...[
+              const SizedBox(height: SagipSpace.md),
+              Text(l10n.crewNarrative, style: text.labelMedium),
+              Text(story, style: text.bodyMedium),
+            ],
+            if (r.filledByRag) ...[
+              const SizedBox(height: SagipSpace.xs),
+              Text(
+                l10n.crewFilledByRag,
+                style: text.bodySmall!.copyWith(color: p.textSecondary),
+              ),
+            ],
             if (!r.details.isEmpty) ...[
               const SizedBox(height: SagipSpace.md),
               Text(l10n.crewFormAnswers, style: text.labelMedium),

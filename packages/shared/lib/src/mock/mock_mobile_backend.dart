@@ -281,6 +281,8 @@ class MockMobileBackend {
   Future<void> markAlertRead(String id) => _alerts.markRead(id);
   Future<void> markConfirmationRead(String id) => _alerts.markRead(id);
 
+  Future<CrewReportFill> fillFromNotes(String notes) =>
+      _responder.fillFromNotes(notes);
   Stream<List<CompletedAssignment>> watchHistory() => _responder.watchHistory();
 
   /// R-03's crew (2026-11-01): J. Reyes, this phone's account, is the crew
@@ -706,6 +708,8 @@ class MockMobileBackend {
     String? notes,
     CompletionDetails details = const CompletionDetails(),
     List<Uint8List> photos = const [],
+    String? narrative,
+    bool filledByRag = false,
   }) => _responder.complete(
     outcome: outcome,
     personsAssisted: personsAssisted,
@@ -716,6 +720,8 @@ class MockMobileBackend {
     notes: notes,
     details: details,
     photos: photos,
+    narrative: narrative,
+    filledByRag: filledByRag,
   );
 
   // --------------------------------------------------- resident accounts

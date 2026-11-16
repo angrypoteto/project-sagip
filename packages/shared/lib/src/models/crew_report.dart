@@ -26,6 +26,8 @@ class CrewReport {
     this.housesDamaged = 0,
     this.notes,
     this.details = const CompletionDetails(),
+    this.narrative,
+    this.filledByRag = false,
     this.validatedAt,
     this.validatedByName,
     this.corrected = false,
@@ -48,6 +50,11 @@ class CrewReport {
 
   /// The answers MDRRMD's form for the incident's type asks (2026-11-17).
   final CompletionDetails details;
+
+  /// The short account written from the crew's notes (RAG), checked by
+  /// the crew.
+  final String? narrative;
+  final bool filledByRag;
 
   /// Null while the report waits for MDRRMD.
   final DateTime? validatedAt;
@@ -80,6 +87,8 @@ class CrewReport {
       housesDamaged: c.housesDamaged ?? housesDamaged,
       notes: notes,
       details: details,
+      narrative: narrative,
+      filledByRag: filledByRag,
       validatedAt: at,
       validatedByName: byName,
     );
@@ -109,6 +118,8 @@ class CrewReport {
     housesDamaged: housesDamaged,
     notes: notes,
     details: details,
+    narrative: narrative,
+    filledByRag: filledByRag,
     validatedAt: validatedAt,
     validatedByName: validatedByName,
     corrected: value,
@@ -128,6 +139,8 @@ class CrewReport {
     housesDamaged: json['houses_damaged'] as int? ?? 0,
     notes: json['notes'] as String?,
     details: CompletionDetails.fromJson(json['details']),
+    narrative: json['narrative'] as String?,
+    filledByRag: json['filled_by_rag'] as bool? ?? false,
     validatedAt: timeFromJsonOrNull(json['validated_at']),
     validatedByName: json['validated_by_name'] as String?,
     corrected: json['corrected'] as bool? ?? false,
@@ -147,6 +160,8 @@ class CrewReport {
     'houses_damaged': housesDamaged,
     'notes': notes,
     if (!details.isEmpty) 'details': details.toJson(),
+    'narrative': narrative,
+    'filled_by_rag': filledByRag,
     'validated_at': validatedAt?.toIso8601String(),
     'validated_by_name': validatedByName,
     'corrected': corrected,

@@ -703,7 +703,15 @@ abstract interface class ResponderRepository {
     String? notes,
     CompletionDetails details = const CompletionDetails(),
     List<Uint8List> photos = const [],
+    String? narrative,
+    bool filledByRag = false,
   });
+
+  /// "Fill from notes" (RAG, 2026-11-17): the form's answers and a short
+  /// narrative from what the responder wrote, for the current assignment.
+  /// Internet only: [ActionRejected] offline, when refused, or when the
+  /// language model is not set up.
+  Future<CrewReportFill> fillFromNotes(String notes);
 
   /// Assignments this unit finished, newest first, with whether each
   /// completion report has reached the server (F7).

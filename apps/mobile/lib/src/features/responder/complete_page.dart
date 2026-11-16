@@ -28,6 +28,9 @@ class CompletionDraft {
     this.notes = '',
     this.details = const CompletionDetails(),
     this.photos = const [],
+    this.whatHappened = '',
+    this.narrative = '',
+    this.filledByRag = false,
   });
 
   final String incidentId;
@@ -45,6 +48,15 @@ class CompletionDraft {
   /// Photos ready to send ([preparePhoto]).
   final List<Uint8List> photos;
 
+  /// What the responder wrote or dictated for "Fill from notes" (RAG).
+  final String whatHappened;
+
+  /// The narrative for MDRRMD, from the fill, as the responder left it.
+  final String narrative;
+
+  /// "Fill from notes" filled the answers.
+  final bool filledByRag;
+
   CompletionDraft copyWith({
     RescueOutcome? outcome,
     int? persons,
@@ -55,6 +67,9 @@ class CompletionDraft {
     String? notes,
     CompletionDetails? details,
     List<Uint8List>? photos,
+    String? whatHappened,
+    String? narrative,
+    bool? filledByRag,
   }) => CompletionDraft(
     incidentId: incidentId,
     outcome: outcome ?? this.outcome,
@@ -66,6 +81,9 @@ class CompletionDraft {
     notes: notes ?? this.notes,
     details: details ?? this.details,
     photos: photos ?? this.photos,
+    whatHappened: whatHappened ?? this.whatHappened,
+    narrative: narrative ?? this.narrative,
+    filledByRag: filledByRag ?? this.filledByRag,
   );
 }
 
@@ -124,6 +142,8 @@ class _CompletePageState extends ConsumerState<CompletePage> {
   final _fields = <String, TextEditingController>{};
   String? _error;
   var _saving = false;
+  var _filling = false;
+  String? _fillMessage;
 
   TextEditingController _field(String key, String initial) =>
       _fields.putIfAbsent(key, () => TextEditingController(text: initial));
@@ -198,6 +218,83 @@ class _CompletePageState extends ConsumerState<CompletePage> {
     });
   }
 
+  /// "Fill from notes" (RAG, 2026-11-17): the server fills in the form's
+  /// answers and writes a narrative from what the responder wrote; they
+  /// check them before submitting.
+  Future<void> _fillFromNotes() async {
+    final l10n = AppLocalizations.of(context);
+    final a = _assignment;
+    if (a == null) return;
+    final notes = _draftFor(
+      a,
+      ref.read(completionDraftProvider),
+    ).whatHappened.trim();
+    if (notes.length < 10) {
+      return setState(() => _fillMessage = l10n.ragShort);
+    }
+    setState(() {
+      _filling = true;
+      _fillMessage = null;
+    });
+    String message;
+    try {
+      final fill = await ref
+          .read(responderRepositoryProvider)
+          .fillFromNotes(notes);
+      _update((d) {
+        final f = fill.figures;
+        final next = d.copyWith(
+          details: fill.mergeInto(d.details),
+          persons: f['persons_assisted'],
+          injured: f['injured'],
+          missing: f['missing'],
+          families: f['affected_families'],
+          houses: f['houses_damaged'],
+          narrative: fill.narrative.isEmpty ? null : fill.narrative,
+          filledByRag: true,
+        );
+        // The number fields keep their own text: set it to the new values.
+        for (final (key, value) in [
+          ('injured', next.injured),
+          ('missing', next.missing),
+          ('families', next.families),
+          ('houses', next.houses),
+          ('narrative', null),
+        ]) {
+          if (key == 'narrative') {
+            _fields[key]?.text = next.narrative;
+          } else {
+            _fields[key]?.text = '$value';
+          }
+        }
+        for (var i = 0; i < next.details.patients.length; i++) {
+          final p = next.details.patients[i];
+          _fields['p$i-complaint']?.text = p.chiefComplaint ?? '';
+          _fields['p$i-remarks']?.text = p.remarks ?? '';
+        }
+        _fields['damage_php']?.text =
+            next.details.estimatedDamage?.toString() ?? '';
+        _fields['individuals']?.text =
+            next.details.affectedIndividuals?.toString() ?? '';
+        _fields['cyclone']?.text = next.details.cycloneName ?? '';
+        return next;
+      });
+      message = l10n.ragDone(fill.filledCount);
+    } on ActionRejected catch (e) {
+      message = switch (e.reason) {
+        ActionRejection.offline => l10n.ragOffline,
+        ActionRejection.rateLimited => l10n.ragLimited,
+        ActionRejection.notSetUp => l10n.ragNotSetUp,
+        _ => l10n.ragFailed,
+      };
+    }
+    if (!mounted) return;
+    setState(() {
+      _filling = false;
+      _fillMessage = message;
+    });
+  }
+
   Future<void> _addPhoto() async {
     final jpeg = await pickPhoto(context, ref);
     if (jpeg == null || !mounted) return;
@@ -237,6 +334,8 @@ class _CompletePageState extends ConsumerState<CompletePage> {
           notes: d.notes.trim().isEmpty ? null : d.notes.trim(),
           details: d.details,
           photos: d.photos,
+          narrative: d.narrative.trim().isEmpty ? null : d.narrative.trim(),
+          filledByRag: d.filledByRag,
         );
     ref.read(completionDraftProvider.notifier).clear();
     final online =
@@ -508,6 +607,53 @@ class _CompletePageState extends ConsumerState<CompletePage> {
                   label: l10n.peopleCount(d.persons ?? 0),
                   onChanged: (v) => _update((d) => d.copyWith(persons: v)),
                 ),
+                const SizedBox(height: SagipSpace.xxl),
+                Text(l10n.ragTitle, style: text.titleLarge),
+                const SizedBox(height: SagipSpace.xs),
+                Text(
+                  l10n.ragHint,
+                  style: text.bodyMedium!.copyWith(color: p.textSecondary),
+                ),
+                const SizedBox(height: SagipSpace.md),
+                words(
+                  'what_happened',
+                  l10n.ragNotesLabel,
+                  d.whatHappened,
+                  (v) => _update((d) => d.copyWith(whatHappened: v)),
+                  maxLines: 4,
+                ),
+                const SizedBox(height: SagipSpace.sm),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('rag-fill'),
+                    onPressed: _filling ? null : _fillFromNotes,
+                    icon: _filling
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Symbols.auto_awesome_rounded),
+                    label: Text(_filling ? l10n.ragWorking : l10n.ragButton),
+                  ),
+                ),
+                if (_fillMessage != null) ...[
+                  const SizedBox(height: SagipSpace.sm),
+                  Text(
+                    _fillMessage!,
+                    style: text.bodyMedium!.copyWith(color: p.textSecondary),
+                  ),
+                ],
+                if (d.narrative.isNotEmpty || d.filledByRag) ...[
+                  const SizedBox(height: SagipSpace.md),
+                  words(
+                    'narrative',
+                    l10n.narrativeLabel,
+                    d.narrative,
+                    (v) => _update((d) => d.copyWith(narrative: v)),
+                    maxLines: 5,
+                  ),
+                ],
                 if (form.isNotEmpty) ...[
                   const SizedBox(height: SagipSpace.xxl),
                   Text(l10n.crewFormTitle(type ?? ''), style: text.titleLarge),
@@ -704,6 +850,8 @@ class _PatientCard extends StatelessWidget {
           ),
           const SizedBox(height: SagipSpace.md),
           DropdownButtonFormField<AgeBracket>(
+            // Redrawn when the value changes from outside (Fill from notes).
+            key: ValueKey('p$index-age-${patient.age}'),
             initialValue: patient.age,
             decoration: InputDecoration(labelText: l10n.patientAge),
             items: [
@@ -731,6 +879,7 @@ class _PatientCard extends StatelessWidget {
           ),
           const SizedBox(height: SagipSpace.md),
           DropdownButtonFormField<String>(
+            key: ValueKey('p$index-hospital-${patient.hospital}'),
             initialValue: patient.hospital,
             isExpanded: true,
             decoration: InputDecoration(labelText: l10n.patientHospital),

@@ -12,8 +12,9 @@ generation.*
 online forms (EMR, Flood Monitoring/Roving, Fire Incident 2026); in
 S.A.G.I.P. the crew's completion report (F6, build 33) asks the same
 questions with photos, and MDRRMD validates it on the dashboard. Part B
-compares the two; part A (below) is the machine time to turn validated
-reports into the MDRRMD report for NDRRMC.
+compares the two (S.A.G.I.P. both by hand and with **Fill from notes**,
+the RAG on the responder's report, build 36); part A (below) is the
+machine time to turn validated reports into the MDRRMD report.
 
 There are two parts:
 
@@ -66,6 +67,18 @@ part B measures that.
 | First run | 114.7 s | Gemini first, up to 100 s before the Groq fallback; the model wrote section 6; a time came out as "36.41555 s" |
 | Version 18 (six runs) | median 49.1 s | Section 6 never sent to the model; figures rounded before the prompt; Gemini limited to 30 s. Gemini still answered in none of the six runs, so Groq wrote every report after Gemini's 30 s |
 | **Version 19 (six runs, live)** | **median 3.9 s** | Joshua, 2026-11-12: "if the gemini is not working then we can just use groq". Groq writes first; Gemini only if Groq fails |
+
+## A2. Fill from notes: the RAG on the responder's report (live, 2026-11-17)
+
+On the POCO as MDR-DELPAN (build 36), each report then validated on
+staff.sagip.me. Times are the server's (`crew_report_fill.duration_ms`);
+retrieval by Gemini embedding every time; Groq `gpt-oss-120b` wrote all.
+
+| Incident | Type | Notes (language) | Fill time | Answers filled | Result |
+|---|---|---|---:|---:|---|
+| INC-0368 | Fire | Filipino and English | 2.8 s, then 2.5 s | 7 | Residential, 3rd alarm, PHP 200,000, 15 affected, 2 houses, 1 injured, 4 families; all right. The first narrative added "was contained" (not in the notes); the instruction was tightened and the second run kept to the notes |
+| INC-0369 | Flood | Filipino | 2.6 s | 5 | Clogged waterways, waist deep, NPATV, 12 assisted, 3 families, 0 injured; right (the notes gave two causes; the form takes one) |
+| INC-0370 | EMR (a real SOS) | Filipino and English, naming the sender | 4.6 s | 13 | Road accident, overspeeding, motorcycle and pedestrian; patient 1 (name kept from the SOS) 61+, female, OSMA, knee injury; patient 2 male 26-30, PGH, shoulder injury; the narrative does not contain the name |
 
 ## B. The timed comparison
 

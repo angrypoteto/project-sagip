@@ -1561,5 +1561,7 @@
   "@crewPhotosCount": {"placeholders": {"count": {"type": "int"}}},
   "patientUnnamed": "No name given",
   "crewFormAnswers": "MDRRMD form answers",
-  "photoFromCrew": "From the crew's report"
+  "photoFromCrew": "From the crew's report",
+  "crewNarrative": "Narrative",
+  "crewFilledByRag": "Answers filled from the crew's notes (RAG) and checked by the crew."
 }

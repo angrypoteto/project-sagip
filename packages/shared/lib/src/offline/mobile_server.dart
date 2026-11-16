@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../models/assignment.dart';
+import '../models/completion_details.dart';
 import '../models/enums.dart';
 import '../models/geo_point.dart';
 import '../models/hazard_report.dart';
@@ -61,6 +62,10 @@ abstract interface class MobileServer {
   });
   Future<void> setStatus(UnitStatus status, DateTime capturedAt);
   Future<void> submitCompletion(CompletionReport report);
+
+  /// fill-crew-report (RAG): the form's answers and a narrative from the
+  /// responder's notes. Internet only.
+  Future<CrewReportFill> fillCrewReport(String incidentId, String notes);
   Future<void> updateLocation(GeoPoint point, DateTime capturedAt);
   Stream<List<CompletedAssignment>> watchHistory();
   Stream<List<CrewMember>> watchCrew();

@@ -4921,4 +4921,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photoFromCrew => 'From the crew\'s report';
+
+  @override
+  String get crewNarrative => 'Narrative';
+
+  @override
+  String get crewFilledByRag =>
+      'Answers filled from the crew\'s notes (RAG) and checked by the crew.';
 }

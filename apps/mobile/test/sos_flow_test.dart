@@ -987,13 +987,46 @@ void main() {
 
     expect(find.text('Completion report'), findsOneWidget);
     await tapAndSettle(tester, 'Rescued');
-    // MDRRMD's flood form (2026-11-17): its starred questions come first.
+    // Fill from notes (RAG, 2026-11-17; the mock stands in for the
+    // server): what the responder writes fills in the form to check.
+    final notes = find.widgetWithText(TextField, 'What happened');
+    await tester.scrollUntilVisible(
+      notes,
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.enterText(notes, 'Baha hanggang tuhod dahil sa ulan.');
+    await tester.pump();
+    await tapAndSettle(tester, 'Fill from notes');
+    expect(
+      find.textContaining('Check each one before you submit'),
+      findsOneWidget,
+    );
+    expect(
+      find.widgetWithText(TextField, 'Narrative for MDRRMD'),
+      findsOneWidget,
+    );
+    // MDRRMD's flood form (2026-11-17).
+    await tester.scrollUntilVisible(
+      find.text('Flood monitoring'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     expect(find.text('Flood monitoring'), findsOneWidget);
     await tapAndSettle(tester, 'Submit report');
-    // The cause comes pre-filled from PAGASA's reading (2026-11-17); the
-    // level is the first question left.
+    // The cause and level came from the notes; the status is left.
     expect(
-      find.text('Answer "Flood level" before you submit.'),
+      find.text('Answer "Flood status" before you submit.'),
       findsOneWidget,
     );
     expect(find.text('Completion report'), findsOneWidget);
@@ -1016,7 +1049,6 @@ void main() {
       await settle(tester);
     }
 
-    await chip('Knee deep (19 in)');
     await chip('Not passable to light vehicles (NPLV)');
     await tapAndSettle(tester, 'Submit report');
     expect(

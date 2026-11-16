@@ -170,6 +170,8 @@ class MockResponderRepository implements ResponderRepository {
     String? notes,
     CompletionDetails details = const CompletionDetails(),
     List<Uint8List> photos = const [],
+    String? narrative,
+    bool filledByRag = false,
   }) => _backend.complete(
     outcome: outcome,
     personsAssisted: personsAssisted,
@@ -180,7 +182,13 @@ class MockResponderRepository implements ResponderRepository {
     notes: notes,
     details: details,
     photos: photos,
+    narrative: narrative,
+    filledByRag: filledByRag,
   );
+
+  @override
+  Future<CrewReportFill> fillFromNotes(String notes) =>
+      _backend.fillFromNotes(notes);
 
   @override
   Stream<List<CompletedAssignment>> watchHistory() => _backend.watchHistory();

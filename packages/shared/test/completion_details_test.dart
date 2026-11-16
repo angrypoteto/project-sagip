@@ -187,4 +187,51 @@ void main() {
       expect(back.highestAlarm, FireStage.firstAlarm);
     });
   });
+
+  test(
+    'a RAG fill: read from the server, merged keeping names (2026-11-17)',
+    () {
+      final fill = CrewReportFill.fromJson({
+        'answers': {
+          'emr_type': 'roadAccident',
+          'accident_cause': 'overspeeding',
+          'vehicles': ['motorcycle', 'pedestrian'],
+          'patients': [
+            {'age': 'from61', 'hospital': 'Ospital ng Maynila (OSMA)'},
+            {'gender': 'male', 'hospital': 'Philippine General Hospital (PGH)'},
+          ],
+        },
+        'figures': {'injured': 2, 'persons_assisted': 2},
+        'narrative': 'A motorcycle hit a pedestrian.',
+        'check': ['houses damaged 9 is not in the notes'],
+        'references': [
+          {'id': 1, 'title': 'EMR form: patients'},
+        ],
+        'model': 'openai/gpt-oss-120b',
+        'retrieval': 'embedding',
+        'ms': 2100,
+      });
+      expect(fill.figures, {'injured': 2, 'persons_assisted': 2});
+      expect(fill.references, ['EMR form: patients']);
+      expect(fill.ms, 2100);
+      const current = CompletionDetails(
+        emrType: EmrType.medicalCall,
+        patients: [PatientRecord(name: 'Ana', gender: PatientGender.female)],
+      );
+      final merged = fill.mergeInto(current);
+      expect(merged.emrType, EmrType.roadAccident, reason: 'the notes win');
+      expect(merged.patients, hasLength(2));
+      expect(merged.patients.first.name, 'Ana', reason: 'names are kept');
+      expect(merged.patients.first.gender, PatientGender.female);
+      expect(merged.patients.first.age, AgeBracket.from61);
+      expect(merged.patients.last.name, isNull);
+      expect(fill.filledCount, greaterThan(5));
+      final empty = const CrewReportFill(details: CompletionDetails());
+      expect(
+        empty.mergeInto(current),
+        current,
+        reason: 'nothing said, nothing changed',
+      );
+    },
+  );
 }

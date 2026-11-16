@@ -814,6 +814,29 @@ class SupabaseMobileRemote implements MobileServer {
   );
 
   @override
+  Future<CrewReportFill> fillCrewReport(String incidentId, String notes) async {
+    try {
+      final res = await _client.functions.invoke(
+        'fill-crew-report',
+        body: {'incident_id': incidentId, 'notes': notes},
+      );
+      return CrewReportFill.fromJson((res.data as Map).cast<String, Object?>());
+    } on FunctionException catch (e) {
+      throw ActionRejected(switch (e.status) {
+        400 => ActionRejection.invalidValue,
+        401 || 403 => ActionRejection.notAllowed,
+        404 || 503 => ActionRejection.notSetUp,
+        429 => ActionRejection.rateLimited,
+        _ => ActionRejection.failed,
+      });
+    } on ActionRejected {
+      rethrow;
+    } on Exception {
+      throw const ActionRejected(ActionRejection.offline);
+    }
+  }
+
+  @override
   Future<void> submitCompletion(CompletionReport report) => _call(
     () => _client.rpc<void>(
       'submit_completion_report',
@@ -830,6 +853,8 @@ class SupabaseMobileRemote implements MobileServer {
         'p_affected_families': report.affectedFamilies,
         'p_notes': report.notes,
         'p_details': report.details.toJson(),
+        'p_narrative': report.narrative,
+        'p_filled_by_rag': report.filledByRag,
       },
     ),
   );

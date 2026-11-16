@@ -8023,6 +8023,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From the crew\'s report'**
   String get photoFromCrew;
+
+  /// No description provided for @crewNarrative.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative'**
+  String get crewNarrative;
+
+  /// No description provided for @crewFilledByRag.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers filled from the crew\'s notes (RAG) and checked by the crew.'**
+  String get crewFilledByRag;
 }
 
 class _AppLocalizationsDelegate

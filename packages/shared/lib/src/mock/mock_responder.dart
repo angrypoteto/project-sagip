@@ -277,6 +277,42 @@ class _ResponderSim {
     _queueStatus();
   }
 
+  /// A stand-in for fill-crew-report on mock data: a few words in the
+  /// notes pick answers, and the narrative is the notes themselves. The
+  /// real fill is the language model on the server (RAG).
+  Future<CrewReportFill> fillFromNotes(String notes) async {
+    final current = _state.value.current;
+    if (current == null) throw const ActionRejected(ActionRejection.notAllowed);
+    final n = notes.toLowerCase();
+    bool has(List<String> words) => words.any(n.contains);
+    final details = switch (current.type) {
+      IncidentType.medical => CompletionDetails(
+        emrType: has(['motor', 'car', 'bangga', 'accident', 'jeep'])
+            ? EmrType.roadAccident
+            : EmrType.medicalCall,
+      ),
+      IncidentType.flood => CompletionDetails(
+        floodCause: has(['ulan', 'rain']) ? FloodCause.heavyRainfall : null,
+        floodLevel: has(['tuhod', 'knee'])
+            ? FloodLevel.knee
+            : has(['baywang', 'waist'])
+            ? FloodLevel.waist
+            : null,
+      ),
+      IncidentType.fire => CompletionDetails(
+        fireKind: has(['bahay', 'house', 'residential'])
+            ? FireKind.residential
+            : null,
+      ),
+      _ => const CompletionDetails(),
+    };
+    return CrewReportFill(
+      details: details,
+      narrative: notes.trim(),
+      model: 'mock',
+    );
+  }
+
   Future<void> complete({
     required RescueOutcome outcome,
     required int personsAssisted,
@@ -287,6 +323,8 @@ class _ResponderSim {
     String? notes,
     CompletionDetails details = const CompletionDetails(),
     List<Uint8List> photos = const [],
+    String? narrative,
+    bool filledByRag = false,
   }) async {
     final current = _state.value.current;
     if (current == null) return;
@@ -304,6 +342,8 @@ class _ResponderSim {
       affectedFamilies: affectedFamilies,
       notes: notes,
       details: details,
+      narrative: narrative,
+      filledByRag: filledByRag,
     );
     _mapTimer?.cancel();
     _driveTimer?.cancel();

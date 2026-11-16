@@ -120,6 +120,12 @@ class FakeServer implements MobileServer {
   }
 
   @override
+  Future<CrewReportFill> fillCrewReport(String incidentId, String notes) async {
+    _net();
+    return const CrewReportFill(details: CompletionDetails());
+  }
+
+  @override
   Future<void> submitCompletion(CompletionReport report) async {
     _net();
     calls.add('completion ${report.incidentId}');

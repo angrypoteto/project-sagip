@@ -4477,6 +4477,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Answer \"{question}\" for {patient} before you submit.'**
   String crewFormMissingPatient(String question, String patient);
+
+  /// No description provided for @ragTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill from notes'**
+  String get ragTitle;
+
+  /// No description provided for @ragHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write or dictate what happened, in English or Filipino. The questions below are filled in for you to check.'**
+  String get ragHint;
+
+  /// No description provided for @ragNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened'**
+  String get ragNotesLabel;
+
+  /// No description provided for @ragButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill from notes'**
+  String get ragButton;
+
+  /// No description provided for @ragWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Filling in…'**
+  String get ragWorking;
+
+  /// No description provided for @ragDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing in the notes matched the form. Answer the questions yourself.} =1{Filled in 1 answer. Check it before you submit.} other{Filled in {count} answers. Check each one before you submit.}}'**
+  String ragDone(int count);
+
+  /// No description provided for @ragOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill from notes needs internet. Answer the questions yourself; the report still saves on the phone.'**
+  String get ragOffline;
+
+  /// No description provided for @ragFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t fill in from the notes. Answer the questions yourself, or try again.'**
+  String get ragFailed;
+
+  /// No description provided for @ragLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries this hour. Answer the questions yourself.'**
+  String get ragLimited;
+
+  /// No description provided for @ragNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill from notes is not set up yet. Answer the questions yourself.'**
+  String get ragNotSetUp;
+
+  /// No description provided for @ragShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a little more about what happened first.'**
+  String get ragShort;
+
+  /// No description provided for @narrativeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative for MDRRMD'**
+  String get narrativeLabel;
 }
 
 class _AppLocalizationsDelegate

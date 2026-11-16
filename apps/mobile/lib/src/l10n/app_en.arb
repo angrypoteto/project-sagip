@@ -865,5 +865,18 @@
   "fewerPatients": "Fewer patients",
   "morePatients": "More patients",
   "crewFormMissingPatient": "Answer \"{question}\" for {patient} before you submit.",
-  "@crewFormMissingPatient": {"placeholders": {"question": {"type": "String"}, "patient": {"type": "String"}}}
+  "@crewFormMissingPatient": {"placeholders": {"question": {"type": "String"}, "patient": {"type": "String"}}},
+  "ragTitle": "Fill from notes",
+  "ragHint": "Write or dictate what happened, in English or Filipino. The questions below are filled in for you to check.",
+  "ragNotesLabel": "What happened",
+  "ragButton": "Fill from notes",
+  "ragWorking": "Filling in…",
+  "ragDone": "{count, plural, =0{Nothing in the notes matched the form. Answer the questions yourself.} =1{Filled in 1 answer. Check it before you submit.} other{Filled in {count} answers. Check each one before you submit.}}",
+  "@ragDone": {"placeholders": {"count": {"type": "int"}}},
+  "ragOffline": "Fill from notes needs internet. Answer the questions yourself; the report still saves on the phone.",
+  "ragFailed": "Couldn't fill in from the notes. Answer the questions yourself, or try again.",
+  "ragLimited": "Too many tries this hour. Answer the questions yourself.",
+  "ragNotSetUp": "Fill from notes is not set up yet. Answer the questions yourself.",
+  "ragShort": "Write a little more about what happened first.",
+  "narrativeLabel": "Narrative for MDRRMD"
 }

@@ -759,6 +759,8 @@ class OutboxResponderRepository implements ResponderRepository {
     String? notes,
     CompletionDetails details = const CompletionDetails(),
     List<Uint8List> photos = const [],
+    String? narrative,
+    bool filledByRag = false,
   }) async {
     final me = _account();
     final current = _latest?.current;
@@ -777,6 +779,8 @@ class OutboxResponderRepository implements ResponderRepository {
       affectedFamilies: affectedFamilies,
       notes: notes,
       details: details,
+      narrative: narrative,
+      filledByRag: filledByRag,
     );
     await _engine.add(
       OutboxEntry(
@@ -803,6 +807,15 @@ class OutboxResponderRepository implements ResponderRepository {
         jpeg,
       );
     }
+  }
+
+  @override
+  Future<CrewReportFill> fillFromNotes(String notes) {
+    final current = _latest?.current;
+    if (current == null) {
+      throw const ActionRejected(ActionRejection.notAllowed);
+    }
+    return _server.fillCrewReport(current.incidentId, notes);
   }
 
   @override

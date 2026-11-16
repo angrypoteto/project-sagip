@@ -2719,4 +2719,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String crewFormMissingPatient(String question, String patient) {
     return 'Answer \"$question\" for $patient before you submit.';
   }
+
+  @override
+  String get ragTitle => 'Fill from notes';
+
+  @override
+  String get ragHint =>
+      'Write or dictate what happened, in English or Filipino. The questions below are filled in for you to check.';
+
+  @override
+  String get ragNotesLabel => 'What happened';
+
+  @override
+  String get ragButton => 'Fill from notes';
+
+  @override
+  String get ragWorking => 'Filling in…';
+
+  @override
+  String ragDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Filled in $count answers. Check each one before you submit.',
+      one: 'Filled in 1 answer. Check it before you submit.',
+      zero: 'Nothing in the notes matched the form. Answer the questions yourself.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ragOffline =>
+      'Fill from notes needs internet. Answer the questions yourself; the report still saves on the phone.';
+
+  @override
+  String get ragFailed =>
+      'Couldn\'t fill in from the notes. Answer the questions yourself, or try again.';
+
+  @override
+  String get ragLimited =>
+      'Too many tries this hour. Answer the questions yourself.';
+
+  @override
+  String get ragNotSetUp =>
+      'Fill from notes is not set up yet. Answer the questions yourself.';
+
+  @override
+  String get ragShort => 'Write a little more about what happened first.';
+
+  @override
+  String get narrativeLabel => 'Narrative for MDRRMD';
 }
