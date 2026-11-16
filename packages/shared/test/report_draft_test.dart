@@ -577,4 +577,75 @@ void main() {
     expect(bare.unknownNumbers, isEmpty);
     expect(bare.byEmbedding, isTrue);
   });
+
+  test(
+    'the form answers are counted and written, never names (2026-11-17)',
+    () {
+      final form = FormAnswerCounts.fromDetails(const [
+        CompletionDetails(
+          emrType: EmrType.roadAccident,
+          accidentCause: AccidentCause.overspeeding,
+          vehicles: [VehicleKind.motorcycle, VehicleKind.pedestrian],
+          patients: [
+            PatientRecord(
+              name: 'Juan Dela Cruz',
+              age: AgeBracket.from61,
+              gender: PatientGender.male,
+              hospital: 'Ospital ng Maynila (OSMA)',
+            ),
+            PatientRecord(age: AgeBracket.from26To30),
+          ],
+        ),
+        CompletionDetails(
+          fireKind: FireKind.residential,
+          estimatedDamage: 200000,
+          affectedIndividuals: 15,
+        ),
+        CompletionDetails(
+          floodLevel: FloodLevel.waist,
+          floodStatus: FloodStatus.npatv,
+          floodCause: FloodCause.cloggedWaterways,
+        ),
+      ]);
+      expect(form.patients, 2);
+      expect(form.of('patient_age'), {'from61': 1, 'from26To30': 1});
+      expect(FormAnswerCounts.fromJson(form.toJson()).toJson(), form.toJson());
+
+      final source = ReportSource(
+        from: DateTime.utc(2026, 11, 1),
+        to: DateTime.utc(2026, 11, 8),
+        incidents: 3,
+        resolved: 3,
+        completionReports: 3,
+        byType: const {IncidentType.medical: 1},
+        form: form,
+      );
+      expect(
+        ReportSource.fromJson(source.toJson()).form.toJson(),
+        form.toJson(),
+      );
+      final text = draftReportSections(source).map((s) => s.body).join(' ');
+      expect(text, contains('Fires by type: Residential 1.'));
+      expect(
+        text,
+        contains(
+          'Emergency medical responses by type: Vehicular/road accident 1.',
+        ),
+      );
+      expect(text, contains('Causes of road accidents: Overspeeding 1.'));
+      expect(text, contains('Flood levels: Waist deep 1.'));
+      expect(
+        text,
+        contains('Flood status: Not passable to all vehicles (NPATV) 1.'),
+      );
+      expect(text, contains('Patients on medical reports: 2'));
+      expect(
+        text,
+        contains('Receiving hospitals: Ospital ng Maynila (OSMA) 1.'),
+      );
+      expect(text, contains('Individuals affected by fires: 15.'));
+      expect(text, contains('Estimated damage from fires: PHP 200,000.'));
+      expect(text, isNot(contains('Juan')), reason: 'never a name');
+    },
+  );
 }

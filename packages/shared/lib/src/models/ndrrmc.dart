@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'assignment.dart';
+import 'completion_details.dart';
 import 'crew_report.dart';
 import 'enums.dart';
 
@@ -16,15 +17,133 @@ class DamageRecord {
     this.injured = 0,
     this.missing = 0,
     this.affectedFamilies = 0,
+    this.details = const CompletionDetails(),
   });
 
   final String incidentId;
   final RescueOutcome outcome;
+
+  /// The answers of MDRRMD's form (2026-11-17); patients' names are never
+  /// read from here into a report.
+  final CompletionDetails details;
   final int personsAssisted;
   final int housesDamaged;
   final int injured;
   final int missing;
   final int affectedFamilies;
+}
+
+/// The answers of MDRRMD's forms on validated crew reports, as counts
+/// (`report_source` 'form', 2026-11-17): by fire type, EMR type, cause of
+/// road accident, vehicle, flood cause, level and status, and patients by
+/// age bracket, gender and receiving hospital; with the totals of
+/// estimated fire damage (pesos) and individuals affected by fire. No
+/// names.
+@immutable
+class FormAnswerCounts {
+  const FormAnswerCounts({
+    this.counts = const {},
+    this.patients = 0,
+    this.fireDamagePhp = 0,
+    this.fireAffectedIndividuals = 0,
+  });
+
+  static const keys = [
+    'fire_kind',
+    'emr_type',
+    'accident_cause',
+    'vehicles',
+    'flood_cause',
+    'flood_level',
+    'flood_status',
+    'patient_age',
+    'patient_gender',
+    'patient_hospital',
+  ];
+
+  /// For each of [keys], each answer and how many times it was given.
+  final Map<String, Map<String, int>> counts;
+  final int patients;
+  final int fireDamagePhp;
+  final int fireAffectedIndividuals;
+
+  Map<String, int> of(String key) => counts[key] ?? const {};
+
+  bool get isEmpty =>
+      counts.values.every((m) => m.isEmpty) &&
+      patients == 0 &&
+      fireDamagePhp == 0 &&
+      fireAffectedIndividuals == 0;
+
+  /// The same counts from crew reports in memory (the mock backend).
+  factory FormAnswerCounts.fromDetails(Iterable<CompletionDetails> all) {
+    final counts = {for (final k in keys) k: <String, int>{}};
+    void add(String key, String? value) {
+      if (value == null || value.isEmpty) return;
+      counts[key]![value] = (counts[key]![value] ?? 0) + 1;
+    }
+
+    var patients = 0;
+    var damage = 0;
+    var affected = 0;
+    for (final d in all) {
+      add('fire_kind', d.fireKind?.name);
+      add('emr_type', d.emrType?.name);
+      final road = d.emrType == EmrType.roadAccident;
+      if (road) add('accident_cause', d.accidentCause?.name);
+      if (road) {
+        for (final v in d.vehicles) {
+          add('vehicles', v.name);
+        }
+      }
+      add('flood_cause', d.floodCause?.name);
+      add('flood_level', d.floodLevel?.name);
+      add('flood_status', d.floodStatus?.name);
+      for (final p in d.patients) {
+        patients++;
+        add('patient_age', p.age?.name);
+        add('patient_gender', p.gender?.name);
+        add('patient_hospital', p.hospital);
+      }
+      damage += d.estimatedDamage ?? 0;
+      affected += d.affectedIndividuals ?? 0;
+    }
+    return FormAnswerCounts(
+      counts: {
+        for (final e in counts.entries)
+          if (e.value.isNotEmpty) e.key: e.value,
+      },
+      patients: patients,
+      fireDamagePhp: damage,
+      fireAffectedIndividuals: affected,
+    );
+  }
+
+  factory FormAnswerCounts.fromJson(Object? raw) {
+    if (raw is! Map) return const FormAnswerCounts();
+    final json = raw.cast<String, Object?>();
+    return FormAnswerCounts(
+      counts: {
+        for (final k in keys)
+          if (json[k] case final Map m when m.isNotEmpty)
+            k: {
+              for (final e in m.entries)
+                if (e.value is num) '${e.key}': (e.value as num).toInt(),
+            },
+      },
+      patients: (json['patients'] as num?)?.toInt() ?? 0,
+      fireDamagePhp: (json['fire_damage_php'] as num?)?.toInt() ?? 0,
+      fireAffectedIndividuals:
+          (json['fire_affected_individuals'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Map<String, Object?> toJson() => {
+    for (final k in keys) k: counts[k] ?? const <String, int>{},
+    'patients': patients,
+    'fire_damage_php': fireDamagePhp,
+    'fire_affected_individuals': fireAffectedIndividuals,
+  };
 }
 
 /// Incidents in one barangay during a report's period.
@@ -81,6 +200,7 @@ class ReportSource {
     this.weatherSimulated = false,
     this.firesByHighestAlarm = const {},
     this.medianFireOutS,
+    this.form = const FormAnswerCounts(),
   });
 
   final DateTime from;
@@ -149,6 +269,9 @@ class ReportSource {
   /// both recorded.
   final double? medianFireOutS;
 
+  /// The answers of MDRRMD's forms on the validated crew reports.
+  final FormAnswerCounts form;
+
   bool get isEmpty => incidents == 0;
 
   factory ReportSource.fromJson(Map<String, Object?> json) {
@@ -211,6 +334,7 @@ class ReportSource {
           ?FireStage.values.asNameMap()[e.key]: (e.value! as num).toInt(),
       },
       medianFireOutS: (json['median_fire_out_s'] as num?)?.toDouble(),
+      form: FormAnswerCounts.fromJson(json['form']),
     );
   }
 
@@ -254,6 +378,7 @@ class ReportSource {
       for (final e in firesByHighestAlarm.entries) e.key.name: e.value,
     },
     'median_fire_out_s': medianFireOutS,
+    'form': form.toJson(),
   };
 }
 

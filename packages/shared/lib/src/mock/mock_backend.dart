@@ -2200,6 +2200,7 @@ class MockBackend {
       injured: done.injured,
       missing: done.missing,
       affectedFamilies: done.affectedFamilies,
+      details: done.details,
     );
     if (active != null) {
       final falseReport = done.outcome == RescueOutcome.falseReport;

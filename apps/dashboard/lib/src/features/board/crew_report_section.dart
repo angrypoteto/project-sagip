@@ -286,6 +286,32 @@ class _CrewReportCard extends StatelessWidget {
   }
 }
 
+/// One choice from a list, for MDRRMD's form answers in the dialog.
+Widget _pick<T>(
+  String key,
+  String label,
+  T? value,
+  List<T> values,
+  String Function(T v) name,
+  void Function(T? v) set,
+) => Padding(
+  padding: const EdgeInsets.only(top: SagipSpace.md),
+  child: DropdownButtonFormField<T>(
+    key: ValueKey('validate-$key-$value'),
+    initialValue: value,
+    isExpanded: true,
+    decoration: InputDecoration(labelText: label),
+    items: [
+      for (final v in values)
+        DropdownMenuItem(
+          value: v,
+          child: Text(name(v), overflow: TextOverflow.ellipsis),
+        ),
+    ],
+    onChanged: set,
+  ),
+);
+
 class _ValidateDialog extends StatefulWidget {
   const _ValidateDialog({required this.report});
 
@@ -303,12 +329,34 @@ class _ValidateDialogState extends State<_ValidateDialog> {
   late final _families = _field(widget.report.affectedFamilies);
   late final _houses = _field(widget.report.housesDamaged);
 
+  /// MDRRMD's form answers and narrative, as MDRRMD corrects them
+  /// (2026-11-17).
+  late CompletionDetails _details = widget.report.details;
+  late final _narrative = TextEditingController(
+    text: widget.report.narrative ?? '',
+  );
+  late final _damage = TextEditingController(
+    text: widget.report.details.estimatedDamage?.toString() ?? '',
+  );
+  late final _individuals = TextEditingController(
+    text: widget.report.details.affectedIndividuals?.toString() ?? '',
+  );
+
   static TextEditingController _field(int v) =>
       TextEditingController(text: '$v');
 
   @override
   void dispose() {
-    for (final c in [_assisted, _injured, _missing, _families, _houses]) {
+    for (final c in [
+      _assisted,
+      _injured,
+      _missing,
+      _families,
+      _houses,
+      _narrative,
+      _damage,
+      _individuals,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -339,7 +387,215 @@ class _ValidateDialogState extends State<_ValidateDialog> {
       missing: changed(_missing, r.missing),
       affectedFamilies: changed(_families, r.affectedFamilies),
       housesDamaged: changed(_houses, r.housesDamaged),
+      details: _formDetails() == r.details ? null : _formDetails(),
+      narrative: _narrative.text.trim() == (r.narrative ?? '').trim()
+          ? null
+          : _narrative.text.trim(),
     );
+  }
+
+  /// The answers with the two typed numbers (fire) read in.
+  CompletionDetails _formDetails() {
+    final damage = int.tryParse(_damage.text.trim());
+    final individuals = int.tryParse(_individuals.text.trim());
+    final d = _details;
+    return CompletionDetails(
+      emrType: d.emrType,
+      accidentCause: d.accidentCause,
+      vehicles: d.vehicles,
+      patients: d.patients,
+      floodCause: d.floodCause,
+      cycloneName: d.cycloneName,
+      windSignal: d.windSignal,
+      floodLevel: d.floodLevel,
+      floodStatus: d.floodStatus,
+      fireKind: d.fireKind,
+      highestAlarm: d.highestAlarm,
+      estimatedDamage: damage,
+      affectedIndividuals: individuals,
+    );
+  }
+
+  /// MDRRMD's form answers for the report's incident type, and the
+  /// narrative, editable (2026-11-17).
+  List<Widget> _formEditor(AppLocalizations l10n) {
+    final d = _details;
+    String bare(String title) => title.replaceAll('*', '').trim();
+    void set(CompletionDetails Function(CompletionDetails d) change) =>
+        setState(() => _details = change(_details));
+    final medical = d.emrType != null || d.patients.isNotEmpty;
+    final flood =
+        d.floodCause != null || d.floodLevel != null || d.floodStatus != null;
+    final fire =
+        d.fireKind != null ||
+        d.highestAlarm != null ||
+        d.estimatedDamage != null ||
+        d.affectedIndividuals != null;
+    final hasNarrative = (widget.report.narrative ?? '').isNotEmpty;
+    if (!medical && !flood && !fire && !hasNarrative) return const [];
+
+    TextField typed(
+      String key,
+      String label,
+      TextEditingController c, {
+      int maxLines = 1,
+      bool digits = false,
+    }) => TextField(
+      key: ValueKey('validate-$key'),
+      controller: c,
+      maxLines: maxLines,
+      keyboardType: digits ? TextInputType.number : null,
+      inputFormatters: digits ? [FilteringTextInputFormatter.digitsOnly] : null,
+      decoration: InputDecoration(labelText: label),
+      onChanged: (_) => setState(() {}),
+    );
+
+    return [
+      const SizedBox(height: SagipSpace.xl),
+      Text(l10n.crewFormAnswers, style: Theme.of(context).textTheme.titleSmall),
+      if (medical) ...[
+        _pick(
+          'emr',
+          bare(l10n.emrTypeTitle),
+          d.emrType,
+          EmrType.values,
+          (v) => l10n.emrTypeLabel(v.name),
+          (v) => set((d) => d.copyWith(emrType: v)),
+        ),
+        if (d.emrType == EmrType.roadAccident)
+          _pick(
+            'cause',
+            bare(l10n.accidentCauseTitle),
+            d.accidentCause,
+            AccidentCause.values,
+            (v) => l10n.accidentCauseLabel(v.name),
+            (v) => set((d) => d.copyWith(accidentCause: v)),
+          ),
+        for (var i = 0; i < d.patients.length; i++) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: SagipSpace.lg),
+            child: Text(l10n.patientHeading(i + 1)),
+          ),
+          _pick(
+            'p$i-age',
+            l10n.patientAge,
+            d.patients[i].age,
+            AgeBracket.values,
+            (v) => l10n.ageBracketLabel(v.name),
+            (v) => set(
+              (d) => d.copyWith(
+                patients: [
+                  for (var j = 0; j < d.patients.length; j++)
+                    j == i ? d.patients[j].copyWith(age: v) : d.patients[j],
+                ],
+              ),
+            ),
+          ),
+          _pick(
+            'p$i-gender',
+            l10n.patientGender,
+            d.patients[i].gender,
+            PatientGender.values,
+            (v) => l10n.genderLabel(v.name),
+            (v) => set(
+              (d) => d.copyWith(
+                patients: [
+                  for (var j = 0; j < d.patients.length; j++)
+                    j == i ? d.patients[j].copyWith(gender: v) : d.patients[j],
+                ],
+              ),
+            ),
+          ),
+          _pick(
+            'p$i-hospital',
+            bare(l10n.patientHospital),
+            d.patients[i].hospital,
+            receivingHospitals,
+            (v) => v,
+            (v) => set(
+              (d) => d.copyWith(
+                patients: [
+                  for (var j = 0; j < d.patients.length; j++)
+                    j == i
+                        ? d.patients[j].copyWith(hospital: v)
+                        : d.patients[j],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+      if (flood) ...[
+        _pick(
+          'flood-cause',
+          bare(l10n.floodCauseTitle),
+          d.floodCause,
+          FloodCause.values,
+          (v) => l10n.floodCauseLabel(v.name),
+          (v) => set((d) => d.copyWith(floodCause: v)),
+        ),
+        _pick(
+          'flood-level',
+          bare(l10n.floodLevelTitle),
+          d.floodLevel,
+          FloodLevel.values,
+          (v) => l10n.floodLevelLabel(v.name),
+          (v) => set((d) => d.copyWith(floodLevel: v)),
+        ),
+        _pick(
+          'flood-status',
+          bare(l10n.floodStatusTitle),
+          d.floodStatus,
+          FloodStatus.values,
+          (v) => l10n.floodStatusLabel(v.name),
+          (v) => set((d) => d.copyWith(floodStatus: v)),
+        ),
+      ],
+      if (fire) ...[
+        _pick(
+          'fire-kind',
+          l10n.fireKindTitle,
+          d.fireKind,
+          FireKind.values,
+          (v) => l10n.fireKindLabel(v.name),
+          (v) => set((d) => d.copyWith(fireKind: v)),
+        ),
+        _pick(
+          'fire-alarm',
+          l10n.highestAlarmTitle,
+          d.highestAlarm,
+          [
+            for (final s in FireStage.values)
+              if (s.isAlarm && s != FireStage.positiveAlarm) s,
+          ],
+          (v) => l10n.fireStageName(v.name),
+          (v) => set((d) => d.copyWith(highestAlarm: v)),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: SagipSpace.md),
+          child: typed('damage', l10n.estimatedDamage, _damage, digits: true),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: SagipSpace.md),
+          child: typed(
+            'individuals',
+            l10n.affectedIndividuals,
+            _individuals,
+            digits: true,
+          ),
+        ),
+      ],
+      if (hasNarrative)
+        Padding(
+          padding: const EdgeInsets.only(top: SagipSpace.lg),
+          child: typed(
+            'narrative',
+            l10n.crewNarrative,
+            _narrative,
+            maxLines: 5,
+          ),
+        ),
+    ];
   }
 
   @override
@@ -386,6 +642,7 @@ class _ValidateDialogState extends State<_ValidateDialog> {
               number('missing', l10n.historyMissing, _missing),
               number('families', l10n.historyFamilies, _families),
               number('houses', l10n.historyHouses, _houses),
+              ..._formEditor(l10n),
             ],
           ),
         ),

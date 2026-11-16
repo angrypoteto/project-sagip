@@ -86,13 +86,17 @@ class CrewReport {
       affectedFamilies: c.affectedFamilies ?? affectedFamilies,
       housesDamaged: c.housesDamaged ?? housesDamaged,
       notes: notes,
-      details: details,
-      narrative: narrative,
+      details: c.details ?? details,
+      narrative: c.narrative ?? narrative,
       filledByRag: filledByRag,
       validatedAt: at,
       validatedByName: byName,
     );
-    return next._withCorrected(!listEquals(next._figures, _figures));
+    return next._withCorrected(
+      !listEquals(next._figures, _figures) ||
+          next.details != details ||
+          next.narrative != narrative,
+    );
   }
 
   List<Object> get _figures => [
@@ -178,9 +182,17 @@ class CrewReportCorrection {
     this.missing,
     this.affectedFamilies,
     this.housesDamaged,
+    this.details,
+    this.narrative,
   });
 
   final RescueOutcome? outcome;
+
+  /// MDRRMD's corrected form answers (2026-11-17); null keeps the crew's.
+  final CompletionDetails? details;
+
+  /// MDRRMD's corrected narrative; null keeps the crew's.
+  final String? narrative;
   final int? personsAssisted;
   final int? injured;
   final int? missing;

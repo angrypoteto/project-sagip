@@ -1141,6 +1141,8 @@ class SupabaseIncidentRepository implements IncidentRepository {
     'p_missing': correction?.missing,
     'p_affected_families': correction?.affectedFamilies,
     'p_houses_damaged': correction?.housesDamaged,
+    'p_details': correction?.details?.toJson(),
+    'p_narrative': correction?.narrative,
   });
 
   @override

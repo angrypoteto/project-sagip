@@ -184,7 +184,119 @@ ReportSource buildReportSource({
     weatherSimulated: weather.any((w) => w.isSimulated),
     firesByHighestAlarm: alarms,
     medianFireOutS: median(fireOut),
+    form: FormAnswerCounts.fromDetails(filed.map((c) => c.details)),
   );
+}
+
+/// How MDRRMD's forms word each answer, for the report (2026-11-17).
+const _formWords = <String, Map<String, String>>{
+  'fire_kind': {
+    'rubbish': 'Rubbish',
+    'electrical': 'Electrical',
+    'commercial': 'Commercial',
+    'residential': 'Residential',
+    'governmentOffice': 'Government office',
+    'vehicular': 'Vehicular fire',
+    'warehouse': 'Warehouse',
+    'residentialCommercial': 'Residential/commercial',
+  },
+  'emr_type': {
+    'roadAccident': 'Vehicular/road accident',
+    'medicalCall': 'Medical call',
+    'medicalStandby': 'Medical standby',
+    'patientTransport': 'Patient transport',
+  },
+  'accident_cause': {
+    'drunkDriving': 'Drunk driving',
+    'lossOfControl': 'Loss of control',
+    'brakeFailure': 'Brake failure',
+    'overspeeding': 'Overspeeding',
+    'driverNegligence': 'Driver negligence',
+    'roadCondition': 'Road condition',
+    'roadHazards': 'Road hazards',
+    'inclementWeather': 'Inclement weather',
+    'roadTrafficCollision': 'Road traffic collision',
+    'other': 'Other',
+  },
+  'vehicles': {
+    'pedestrian': 'Pedestrian',
+    'bicycle': 'Bicycle',
+    'motorcycle': 'Motorcycle',
+    'eBike': 'E-bike',
+    'tricycle': 'Tricycle',
+    'eTrike': 'E-trike',
+    'sedan': 'Sedan',
+    'suv': 'SUV',
+    'van': 'Van',
+    'taxi': 'Taxi',
+    'puj': 'PUJ',
+    'puv': 'PUV',
+    'truck': 'Truck',
+    'ambulance': 'Ambulance',
+    'fireTruck': 'Fire truck',
+    'other': 'Other',
+  },
+  'flood_cause': {
+    'cloggedWaterways': 'Clogged waterways',
+    'heavyRainfall': 'Heavy rainfall',
+    'tropicalCyclone': 'Tropical cyclone',
+    'stormSurge': 'Storm surge',
+  },
+  'flood_level': {
+    'gutter': 'Gutter deep',
+    'halfKnee': 'Half-knee deep',
+    'halfTire': 'Half-tire deep',
+    'knee': 'Knee deep',
+    'tire': 'Tire deep',
+    'waist': 'Waist deep',
+    'chest': 'Chest deep',
+    'aboveChest': 'Above the chest',
+    'head': 'Head deep',
+  },
+  'flood_status': {
+    'patv': 'Passable to all vehicles (PATV)',
+    'nplv': 'Not passable to light vehicles (NPLV)',
+    'npatv': 'Not passable to all vehicles (NPATV)',
+  },
+  'patient_age': {
+    'upTo17': '0-17',
+    'from18To25': '18-25',
+    'from26To30': '26-30',
+    'from31To35': '31-35',
+    'from36To40': '36-40',
+    'from41To45': '41-45',
+    'from46To50': '46-50',
+    'from51To60': '51-60',
+    'from61': '61 and above',
+  },
+  'patient_gender': {'male': 'Male', 'female': 'Female', 'other': 'Other'},
+};
+
+/// "Residential 2, Electrical 1": the answers of [key], most first, in
+/// the form's words.
+String _formList(FormAnswerCounts f, String key) {
+  final words = _formWords[key] ?? const <String, String>{};
+  final entries = f.of(key).entries.toList()
+    ..sort((a, b) {
+      final byCount = b.value.compareTo(a.value);
+      if (byCount != 0) return byCount;
+      // The form's own order when the counts are equal.
+      final order = words.keys.toList();
+      return order.indexOf(a.key).compareTo(order.indexOf(b.key));
+    });
+  return [for (final e in entries) '${words[e.key] ?? e.key} ${e.value}']
+      .join(', ');
+}
+
+/// 200000 as "200,000".
+String _thousands(int n) {
+  final s = '$n';
+  final out = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) out.write(',');
+    out.write(s[i]);
+  }
+  return '$out';
 }
 
 /// A fire stage as MDRRMD writes it.
@@ -324,6 +436,33 @@ List<ReportSection> draftReportSections(ReportSource s) {
         '${_n((s.medianFireOutS! / 60).round(), 'minute')}.',
       );
     }
+    // MDRRMD's form answers on validated crew reports (2026-11-17).
+    final f = s.form;
+    if (f.of('fire_kind').isNotEmpty) {
+      incidents.write(' Fires by type: ${_formList(f, 'fire_kind')}.');
+    }
+    if (f.of('emr_type').isNotEmpty) {
+      incidents.write(
+        ' Emergency medical responses by type: ${_formList(f, 'emr_type')}.',
+      );
+    }
+    if (f.of('accident_cause').isNotEmpty) {
+      incidents.write(
+        ' Causes of road accidents: ${_formList(f, 'accident_cause')}.',
+      );
+    }
+    if (f.of('vehicles').isNotEmpty) {
+      incidents.write(' Vehicles involved: ${_formList(f, 'vehicles')}.');
+    }
+    if (f.of('flood_cause').isNotEmpty) {
+      incidents.write(' Causes of flooding: ${_formList(f, 'flood_cause')}.');
+    }
+    if (f.of('flood_level').isNotEmpty) {
+      incidents.write(' Flood levels: ${_formList(f, 'flood_level')}.');
+    }
+    if (f.of('flood_status').isNotEmpty) {
+      incidents.write(' Flood status: ${_formList(f, 'flood_status')}.');
+    }
   }
 
   final population = StringBuffer(
@@ -338,6 +477,27 @@ List<ReportSection> draftReportSections(ReportSource s) {
       ' Outcomes: ${[for (final o in RescueOutcome.values)
         if (s.outcomes[o] case final count?) '${_outcome(o)} $count'].join(', ')}.',
     );
+    final f = s.form;
+    if (f.patients > 0) {
+      population.write(' Patients on medical reports: ${f.patients}');
+      final parts = [
+        if (f.of('patient_age').isNotEmpty)
+          'by age ${_formList(f, 'patient_age')}',
+        if (f.of('patient_gender').isNotEmpty)
+          'by gender ${_formList(f, 'patient_gender')}',
+      ];
+      population.write(parts.isEmpty ? '.' : ', ${parts.join('; ')}.');
+      if (f.of('patient_hospital').isNotEmpty) {
+        population.write(
+          ' Receiving hospitals: ${_formList(f, 'patient_hospital')}.',
+        );
+      }
+    }
+    if (f.fireAffectedIndividuals > 0) {
+      population.write(
+        ' Individuals affected by fires: ${f.fireAffectedIndividuals}.',
+      );
+    }
   }
   if (s.reportsAwaitingValidation > 0) {
     population.write(
@@ -358,7 +518,8 @@ List<ReportSection> draftReportSections(ReportSource s) {
   final damage = s.completionReports == 0
       ? 'No damage figures were reported in the period.'
       : 'Houses reported damaged: ${s.housesDamaged}, as recorded by '
-            'responders in their completion reports.';
+            'responders in their completion reports.'
+            '${s.form.fireDamagePhp > 0 ? ' Estimated damage from fires: PHP ${_thousands(s.form.fireDamagePhp)}.' : ''}';
 
   final response = StringBuffer(
     '${_n(s.dispatches, 'dispatch', 'dispatches')} '

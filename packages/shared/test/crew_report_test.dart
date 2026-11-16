@@ -125,4 +125,32 @@ void main() {
       contains('1 more report awaits validation by MDRRMD and is not counted'),
     );
   });
+
+  test('MDRRMD corrects the form answers and the narrative (2026-11-17)', () {
+    final report = CrewReport(
+      id: 'r1',
+      unitId: 'unit-1',
+      capturedAt: DateTime.utc(2026, 11, 17),
+      outcome: RescueOutcome.rescued,
+      details: const CompletionDetails(floodLevel: FloodLevel.knee),
+      narrative: 'Knee-deep flood.',
+    );
+    final same = report.validate(
+      at: DateTime.utc(2026, 11, 17, 1),
+      byName: 'A',
+    );
+    expect(same.corrected, isFalse);
+    expect(same.details, report.details);
+    final fixed = report.validate(
+      at: DateTime.utc(2026, 11, 17, 1),
+      byName: 'A',
+      correction: const CrewReportCorrection(
+        details: CompletionDetails(floodLevel: FloodLevel.waist),
+        narrative: 'Waist-deep flood.',
+      ),
+    );
+    expect(fixed.corrected, isTrue);
+    expect(fixed.details.floodLevel, FloodLevel.waist);
+    expect(fixed.narrative, 'Waist-deep flood.');
+  });
 }
