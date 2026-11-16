@@ -1,0 +1,8 @@
+scenario,build,pressed_at,on_board_at,channel,incident_id,seconds,result,remarks
+S1 normal relay (both phones by the laptop),32,06:47:39,06:47:40,Bluetooth relay,INC-0323,1.6,pass,Oppo online with the app open
+S2 relay screen off (locked 3 s before the press),32,06:49:09,06:49:10,Bluetooth relay,INC-0324,1.4,pass,"screen off only briefly; a long sleep (Android Doze) is not covered"
+S3 relay app in the background (Oppo on its home screen),32,06:50:59,06:51:00,Bluetooth relay,INC-0325,1.5,pass,
+S4 relay offline while carrying then Wi-Fi back on,32,06:52:45,06:55:42,Bluetooth relay,INC-0326,176.4,pass,"Oppo carried it offline (notice: Passing on 1 SOS); Oppo Wi-Fi switched on 06:55:39.7 (phone log); on the board 2.3 s later"
+S5 no relay nearby (Oppo Bluetooth off),32,06:57:19,06:59:47,App (internet),INC-0327,148.0,pass,"nothing reached the board while offline (POCO: Offline 1 waiting to send); POCO Wi-Fi on 06:59:23.9 (phone log), on the board 23.8 s later with its original capture time"
+S2b relay screen off longer (Oppo still on USB),32,07:09:17,07:09:19,Bluetooth relay,INC-0328,1.6,pass,"Oppo screen off but still USB powered, so Android deep sleep (Doze) did not start: not the kitchen condition; repeat unplugged"
+S2c relay unplugged with screen off for 5 min,32,07:18:07,07:18:09,Bluetooth relay,INC-0329,1.2,pass,"Oppo unplugged (not on adb) from 07:12:59; screen off and untouched; whether Android deep sleep had started could not be read without the cable"

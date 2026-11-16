@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sagip_shared/sagip_shared.dart';
 
@@ -352,6 +353,106 @@ void main() {
       refuse = null;
       await node.uploadAll();
       expect(uploaded, isEmpty);
+    });
+
+    test('online but the upload failed: tried again without a new advert '
+        '(field trial, 2026-11-16)', () {
+      fakeAsync((async) {
+        var calls = 0;
+        final node2 = RelayNode(
+          radio: radio,
+          store: MemoryLocalStore(),
+          online: online.stream,
+          upload: (p) async {
+            calls++;
+            if (calls == 1) throw const ActionRejected(ActionRejection.offline);
+            uploaded.add(p);
+          },
+          ownIds: () => {id},
+          clock: () => now,
+        );
+        unawaited(node.dispose());
+        unawaited(node2.start());
+        async.flushMicrotasks();
+        online.add(true);
+        async.flushMicrotasks();
+        radio.hear(SosRelayPacket.of(sos(other)).encode());
+        async.flushMicrotasks();
+        expect(calls, 1, reason: 'first try, no internet after all');
+        expect(uploaded, isEmpty);
+
+        // No new advert and no change in the phone's state.
+        async.elapse(const Duration(seconds: 6));
+        expect(calls, 2);
+        expect(uploaded.map((p) => p.clientId), [other]);
+        async.elapse(const Duration(seconds: 30));
+        expect(calls, 2, reason: 'delivered: no more tries');
+        unawaited(node2.dispose());
+        async.flushMicrotasks();
+      });
+    });
+
+    test('an upload that hangs counts as no internet and is tried again', () {
+      fakeAsync((async) {
+        var calls = 0;
+        final hang = Completer<void>();
+        final node2 = RelayNode(
+          radio: radio,
+          store: MemoryLocalStore(),
+          online: online.stream,
+          upload: (p) async {
+            calls++;
+            if (calls == 1) return hang.future;
+            uploaded.add(p);
+          },
+          ownIds: () => {id},
+          clock: () => now,
+        );
+        unawaited(node.dispose());
+        unawaited(node2.start());
+        async.flushMicrotasks();
+        online.add(true);
+        async.flushMicrotasks();
+        radio.hear(SosRelayPacket.of(sos(other)).encode());
+        async.flushMicrotasks();
+        async.elapse(const Duration(seconds: 14));
+        expect(uploaded, isEmpty);
+        async.elapse(const Duration(seconds: 7)); // 15 s timeout + 5 s retry
+        expect(calls, 2);
+        expect(uploaded.map((p) => p.clientId), [other]);
+        unawaited(node2.dispose());
+        async.flushMicrotasks();
+      });
+    });
+
+    test('offline: no retries until the phone is online', () {
+      fakeAsync((async) {
+        var calls = 0;
+        final node2 = RelayNode(
+          radio: radio,
+          store: MemoryLocalStore(),
+          online: online.stream,
+          upload: (p) async {
+            calls++;
+            uploaded.add(p);
+          },
+          ownIds: () => {id},
+          clock: () => now,
+        );
+        unawaited(node.dispose());
+        unawaited(node2.start());
+        async.flushMicrotasks();
+        online.add(false);
+        async.flushMicrotasks();
+        radio.hear(SosRelayPacket.of(sos(other)).encode());
+        async.elapse(const Duration(minutes: 1));
+        expect(calls, 0);
+        online.add(true);
+        async.flushMicrotasks();
+        expect(uploaded.map((p) => p.clientId), [other]);
+        unawaited(node2.dispose());
+        async.flushMicrotasks();
+      });
     });
 
     test('what it carries survives a restart', () async {

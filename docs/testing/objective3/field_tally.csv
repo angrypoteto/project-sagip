@@ -19,63 +19,63 @@ T1,17,12:18:51,Sent by SMS,12:18:56,SMS,INC-0260,5.2 s; closed as false report
 T1,18,12:20:00,Sent by SMS,12:20:14,SMS,INC-0261,14.5 s; closed as false report
 T1,19,12:21:01,Sent by SMS,12:21:06,SMS,INC-0262,5.5 s; closed as false report
 T1,20,12:22:37,Sent by SMS,12:22:42,SMS,INC-0263,"5.2 s; closed as false report; an earlier press at 12:22:05 did not register (layout shifted), nothing sent, not an attempt"
-T2,1,12:27:09,Saved on your phone; SMS couldn't send; then Passing to nearby phones,12:28:23,Bluetooth relay,INC-0264,74.6 s; closed as false report
+T2,1,,,,,,
 T2,2,12:37:07,Passing to nearby phones; SMS couldn't send,12:37:08,Bluetooth relay,INC-0265,1.6 s; closed as false report
-T2,3,,,,,,
-T2,4,,,,,,
-T2,5,,,,,,
-T2,6,,,,,,
-T2,7,,,,,,
-T2,8,,,,,,
-T2,9,,,,,,
-T2,10,,,,,,
-T2,11,,,,,,
-T2,12,,,,,,
-T2,13,,,,,,
-T2,14,,,,,,
-T2,15,,,,,,
-T2,16,,,,,,
-T2,17,,,,,,
-T2,18,,,,,,
-T2,19,,,,,,
-T2,20,,,,,,
-T3,1,,,,,,
-T3,2,,,,,,
-T3,3,,,,,,
-T3,4,,,,,,
-T3,5,,,,,,
-T3,6,,,,,,
-T3,7,,,,,,
-T3,8,,,,,,
-T3,9,,,,,,
-T3,10,,,,,,
+T2,3,05:41:36,Passing to nearby phones; SMS couldn't send,05:41:37,Bluetooth relay,INC-0288,1.8 s; closed as false report
+T2,4,05:43:49,Passing to nearby phones; SMS couldn't send,05:43:55,Bluetooth relay,INC-0289,6.3 s; closed as false report
+T2,5,05:44:51,Passing to nearby phones; SMS couldn't send,05:44:56,Bluetooth relay,INC-0290,5.4 s; closed as false report
+T2,6,05:45:47,Passing to nearby phones; SMS couldn't send,05:45:57,Bluetooth relay,INC-0291,9.8 s; closed as false report
+T2,7,05:47:05,Passing to nearby phones; SMS couldn't send,05:47:09,Bluetooth relay,INC-0292,4.6 s; closed as false report
+T2,8,05:49:26,Passing to nearby phones; SMS couldn't send,05:49:35,Bluetooth relay,INC-0293,9.9 s; closed as false report
+T2,9,05:50:48,Passing to nearby phones; SMS couldn't send,05:50:49,Bluetooth relay,INC-0294,1.4 s; closed as false report
+T2,10,05:51:41,Passing to nearby phones; SMS couldn't send,05:51:50,Bluetooth relay,INC-0295,8.6 s; closed as false report
+T2,11,05:52:31,Passing to nearby phones; SMS couldn't send,05:52:41,Bluetooth relay,INC-0296,10.5 s; closed as false report
+T2,12,05:53:35,Passing to nearby phones; SMS couldn't send,05:53:43,Bluetooth relay,INC-0297,7.1 s; closed as false report
+T2,13,05:54:35,Passing to nearby phones; SMS couldn't send,05:54:44,Bluetooth relay,INC-0298,9.3 s; closed as false report
+T2,14,05:55:47,Passing to nearby phones; SMS couldn't send,05:55:56,Bluetooth relay,INC-0299,8.0 s; closed as false report
+T2,15,05:57:08,Passing to nearby phones; SMS couldn't send,05:57:17,Bluetooth relay,INC-0300,8.9 s; closed as false report
+T2,16,05:58:17,Passing to nearby phones; SMS couldn't send,05:58:19,Bluetooth relay,INC-0301,1.5 s; closed as false report
+T2,17,05:59:16,Passing to nearby phones; SMS couldn't send,05:59:20,Bluetooth relay,INC-0302,4.0 s; closed as false report
+T2,18,06:00:09,Passing to nearby phones; SMS couldn't send,06:00:12,Bluetooth relay,INC-0303,2.3 s; closed as false report
+T2,19,06:02:46,Passing to nearby phones; SMS couldn't send,06:02:48,Bluetooth relay,INC-0305,1.3 s; closed as false report
+T2,20,06:03:37,Passing to nearby phones; SMS couldn't send,06:03:39,Bluetooth relay,INC-0306,1.5 s; closed as false report
+T3,1,06:05:03,Passing to nearby phones; SMS couldn't send,06:05:05,Bluetooth relay,INC-0307,"1.1 s; relay in the kitchen about 15-17 m away, indoors, 2 walls between; closed as false report"
+T3,2,06:08:36,Passing to nearby phones; SMS couldn't send,06:08:37,Bluetooth relay,INC-0308,1.9 s; closed as false report
+T3,3,06:09:46,Passing to nearby phones; SMS couldn't send,06:09:47,Bluetooth relay,INC-0309,1.8 s; closed as false report
+T3,4,06:11:16,Passing to nearby phones; SMS couldn't send,06:11:18,Bluetooth relay,INC-0310,1.0 s; closed as false report
+T3,5,06:12:42,Passing to nearby phones; SMS couldn't send,06:12:44,Bluetooth relay,INC-0311,1.8 s; closed as false report
+T3,6,06:14:23,Passing to nearby phones; SMS couldn't send,06:14:24,Bluetooth relay,INC-0312,1.0 s; closed as false report
+T3,7,06:15:19,Passing to nearby phones; SMS couldn't send,06:15:20,Bluetooth relay,INC-0313,0.8 s; closed as false report
+T3,8,06:16:12,Passing to nearby phones; SMS couldn't send,06:16:13,Bluetooth relay,INC-0314,1.8 s; closed as false report
+T3,9,06:16:52,Passing to nearby phones; SMS couldn't send,06:16:54,Bluetooth relay,INC-0315,2.2 s; closed as false report
+T3,10,06:17:58,Asking nearby phones (notification); SMS couldn't send,06:18:00,Bluetooth relay,INC-0316,1.5 s; closed as false report
 T3,11,,,,,,
-T3,12,,,,,,
-T3,13,,,,,,
-T3,14,,,,,,
-T3,15,,,,,,
-T3,16,,,,,,
-T3,17,,,,,,
-T3,18,,,,,,
-T3,19,,,,,,
-T3,20,,,,,,
-T4,1,,,,,,
-T4,2,,,,,,
-T4,3,,,,,,
-T4,4,,,,,,
-T4,5,,,,,,
-T4,6,,,,,,
-T4,7,,,,,,
-T4,8,,,,,,
-T4,9,,,,,,
-T4,10,,,,,,
-T4,11,,,,,,
-T4,12,,,,,,
-T4,13,,,,,,
-T4,14,,,,,,
-T4,15,,,,,,
-T4,16,,,,,,
-T4,17,,,,,,
-T4,18,,,,,,
-T4,19,,,,,,
-T4,20,,,,,,
+T3,12,07:21:38,Passing to nearby phones; SMS couldn't send,07:21:40,Bluetooth relay,INC-0331,1.1 s; closed as false report
+T3,13,07:22:32,Passing to nearby phones; SMS couldn't send,07:22:34,Bluetooth relay,INC-0332,1.8 s; closed as false report
+T3,14,07:24:26,Passing to nearby phones; SMS couldn't send,07:24:28,Bluetooth relay,INC-0333,1.5 s; closed as false report
+T3,15,07:25:52,Passing to nearby phones; SMS couldn't send,07:25:54,Bluetooth relay,INC-0334,1.1 s; closed as false report
+T3,16,07:27:25,Passing to nearby phones; SMS couldn't send,07:27:34,Bluetooth relay,INC-0335,8.3 s; closed as false report
+T3,17,07:28:25,Passing to nearby phones; SMS couldn't send,07:28:35,Bluetooth relay,INC-0336,9.8 s; closed as false report
+T3,18,07:29:10,Passing to nearby phones; SMS couldn't send,07:29:16,Bluetooth relay,INC-0337,5.7 s; closed as false report
+T3,19,07:30:03,Passing to nearby phones; SMS couldn't send,07:30:07,Bluetooth relay,INC-0338,4.0 s; closed as false report
+T3,20,07:30:56,Passing to nearby phones; SMS couldn't send,07:30:59,Bluetooth relay,INC-0339,3.1 s; closed as false report
+T4,1,07:47:44,Passing to nearby phones; SMS couldn't send,07:47:54,Bluetooth relay,INC-0341,"9.4 s; only the TNT SIM (no load) in the POCO, signal on, data off; SMS failed on the phone; closed as false report"
+T4,2,07:49:30,Passing to nearby phones; SMS couldn't send,07:49:37,Bluetooth relay,INC-0342,6.1 s; closed as false report
+T4,3,07:50:48,Passing to nearby phones; SMS couldn't send,07:50:58,Bluetooth relay,INC-0343,10.9 s; closed as false report
+T4,4,07:51:48,Passing to nearby phones; SMS couldn't send,07:51:50,Bluetooth relay,INC-0344,2.1 s; closed as false report
+T4,5,07:55:25,Passing to nearby phones; SMS couldn't send,07:55:35,Bluetooth relay,INC-0345,"9.5 s; one earlier press at 07:54:19 did not register on the phone (no SOS made), not an attempt; closed as false report"
+T4,6,07:56:45,Passing to nearby phones; SMS couldn't send,07:56:47,Bluetooth relay,INC-0346,1.5 s; closed as false report
+T4,7,07:57:58,Passing to nearby phones; SMS couldn't send,07:58:06,Bluetooth relay,INC-0347,7.3 s; closed as false report
+T4,8,07:59:04,Passing to nearby phones; SMS couldn't send,07:59:07,Bluetooth relay,INC-0348,2.8 s; closed as false report
+T4,9,08:00:10,Passing to nearby phones; SMS couldn't send,08:00:19,Bluetooth relay,INC-0349,8.5 s; closed as false report
+T4,10,08:01:16,Passing to nearby phones; SMS couldn't send,08:01:18,Bluetooth relay,INC-0350,1.0 s; closed as false report
+T4,11,08:02:56,Passing to nearby phones; SMS couldn't send,08:02:59,Bluetooth relay,INC-0351,2.8 s; closed as false report
+T4,12,08:04:04,Passing to nearby phones; SMS couldn't send,08:04:11,Bluetooth relay,INC-0352,7.2 s; closed as false report
+T4,13,08:05:16,Passing to nearby phones; SMS couldn't send,08:05:46,Bluetooth relay,INC-0353,29.6 s; closed as false report
+T4,14,08:06:53,Passing to nearby phones; SMS couldn't send,08:06:55,Bluetooth relay,INC-0354,1.6 s; closed as false report
+T4,15,08:07:44,Passing to nearby phones; SMS couldn't send,08:07:46,Bluetooth relay,INC-0355,1.6 s; closed as false report
+T4,16,08:08:50,Passing to nearby phones; SMS couldn't send,08:08:58,Bluetooth relay,INC-0356,7.1 s; closed as false report
+T4,17,08:09:45,Passing to nearby phones; SMS couldn't send,08:09:49,Bluetooth relay,INC-0357,4.3 s; closed as false report
+T4,18,08:11:39,Passing to nearby phones; SMS couldn't send,08:11:42,Bluetooth relay,INC-0358,3.4 s; closed as false report
+T4,19,08:21:15,Passing to nearby phones; SMS couldn't send,08:21:16,Bluetooth relay,INC-0360,1.8 s; repeat of the voided 08:13:24 press; closed as false report
+T4,20,08:22:46,Passing to nearby phones; SMS couldn't send,08:22:48,Bluetooth relay,INC-0361,1.5 s; closed as false report

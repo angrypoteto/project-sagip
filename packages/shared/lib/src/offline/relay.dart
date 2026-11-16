@@ -113,6 +113,8 @@ class RelayNode {
     required this._ownIds,
     DateTime Function()? clock,
     this.maxPassedOn = 3,
+    this.retryEvery = const Duration(seconds: 5),
+    this.uploadTimeout = const Duration(seconds: 15),
   }) : _onlineSource = online,
        _clock = clock ?? DateTime.now;
 
@@ -133,6 +135,18 @@ class RelayNode {
   /// only a few adverts).
   final int maxPassedOn;
 
+  /// While the phone counts as online and still carries an SOS it could
+  /// not upload, it tries again this often (2026-11-16). Before, it waited
+  /// for the phone to go offline and online again or to hear the SOS
+  /// again, and Android often reports a nearby advert only once: in the
+  /// Objective 3 field trial a relay phone with a flaky connection held an
+  /// SOS for over 3 minutes while its own SOS went through.
+  final Duration retryEvery;
+
+  /// An upload that has not answered by then counts as no internet, so a
+  /// hung request on a weak connection does not hold the others back.
+  final Duration uploadTimeout;
+
   /// Packets older than this are forgotten.
   static const keepFor = Duration(hours: 24);
   static const _key = 'relay:heard';
@@ -146,6 +160,7 @@ class RelayNode {
   var _online = false;
   var _uploading = false;
   var _uploadAgain = false;
+  Timer? _retry;
 
   /// What this phone is carrying for others, newest first.
   Stream<List<HeardSos>> watch() => _heard.watch().map(
@@ -189,6 +204,7 @@ class RelayNode {
       if (on) {
         unawaited(uploadAll());
       } else {
+        _retry?.cancel();
         unawaited(_passOn());
       }
     });
@@ -267,7 +283,7 @@ class RelayNode {
         var offline = false;
         for (final h in waiting) {
           try {
-            await _upload(h.packet);
+            await _upload(h.packet).timeout(uploadTimeout);
             _put(h.copyWith(uploaded: true));
           } on ActionRejected catch (e) {
             if (e.reason == ActionRejection.offline) {
@@ -275,6 +291,10 @@ class RelayNode {
               break;
             }
             _put(h.copyWith(dropped: e.reason.name));
+          } on Exception {
+            // A timeout or a network error: no internet for now.
+            offline = true;
+            break;
           }
           final id = h.packet.clientId;
           if (_passing.remove(id)) await _radio.stop(_relayKey(id));
@@ -285,7 +305,17 @@ class RelayNode {
     } finally {
       _uploading = false;
       _uploadAgain = false;
+      _retryIfCarrying();
     }
+  }
+
+  /// Tries again in [retryEvery] while online with an SOS still to deliver.
+  void _retryIfCarrying() {
+    _retry?.cancel();
+    _retry = null;
+    if (!_online || _heardSub == null) return;
+    if (!_heard.value.values.any((h) => !h.done)) return;
+    _retry = Timer(retryEvery, () => unawaited(uploadAll()));
   }
 
   /// Tells the notice what is true now: SOS still to deliver, and SOS
@@ -303,6 +333,8 @@ class RelayNode {
   /// Stops listening and advertising (signed out). What was heard stays
   /// on the phone for the next account.
   Future<void> stop() async {
+    _retry?.cancel();
+    _retry = null;
     await _heardSub?.cancel();
     _heardSub = null;
     await _statusSub?.cancel();

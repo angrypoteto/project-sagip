@@ -1425,3 +1425,9 @@ Joshua asked for a UI/UX scan of both apps, then for the placement of features a
 - Build 29: SOS texted through the default SMS SIM, sooner, with honest send messages. Build 30: the app follows its SOS from the gateway's rescue texts with no data. Build 31: the Bluetooth relay starts at once when offline and keeps scanning with the screen off (10-minute restart, restart on screen events, wake lock while carrying an SOS).
 - Joshua checked on the phones (2026-11-12): the rescue text updates the app with data off; crew report and validation; fire stages; Bluetooth relay after more than 30 minutes locked. All working.
 - Left: the timed trials for Chapter 4 (Objective 1 dispatch, Objective 3 field, Objective 4 report), kits in `docs/testing/`.
+
+### 2026-11-16 (session f47c816b, Claude): Objective 3 field trial done, relay retry fix, build 32
+
+- Objective 3 field trial on the POCO (sender) and the Oppo (relay): 78 of 78 counted SOS on the board within 3 minutes; median 4.8 s (T1 SMS 5.5 s, T2 relay within 5 m 5.4 s, T3 relay 15 to 17 m through 2 walls 1.8 s, T4 SMS fails then relay 3.9 s). Results: `docs/testing/objective3/FIELD-TRIAL-RESULTS.md`, per press `field_tally.csv`. T2 and T3 have 19 counted presses each; one more press each makes 20. Joshua fills Table 4.16 himself (with Claude chat).
+- Relay fix found in the trial (`packages/shared/lib/src/offline/relay.dart`): a relay that still counts as online retries an SOS it could not upload every 5 s, and an upload with no answer in 15 s counts as no internet. 3 new tests in `relay_test.dart`. Build 32 installed on both phones; checks in `relay_fix_checks.csv`.
+- Seen, not fixed: a relay phone left with its screen off long enough for Android's deep sleep does not upload until it is woken (residents are not asked to exempt the app from battery optimisation; only responders are). Possible fix: ask residents too, or explain it on the relay notice.
