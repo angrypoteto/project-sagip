@@ -4,9 +4,8 @@ The run of `FIELD-TRIAL.md` on real phones. Per-press data:
 `field_tally.csv` (one row per counted press). The relay fix made during
 the trial and its checks: `relay_fix_checks.csv`.
 
-**Result: 78 of 78 counted SOS reached the dispatcher's board within
-3 minutes (100%).** T2 and T3 have 19 counted presses each; one more press
-in each makes the planned 20.
+**Result: 80 of 80 SOS reached the dispatcher's board within 3 minutes
+(100%), 20 in each condition.**
 
 ## Set-up
 
@@ -19,8 +18,9 @@ in each makes the planned 20.
 
 Dates and builds:
 - 2026-11-12: T1 (all 20) and T2 press 2, on build 31.
-- 2026-11-16: the rest of T2, T3 presses 1 to 10, on build 31; T3 presses
-  11 to 20 and all of T4 on build 32 (the relay retry fix, below).
+- 2026-11-16: T2 presses 3 to 20 and T3 presses 1 to 10 on build 31;
+  T2 press 1, T3 presses 11 to 20 and all of T4 on build 32 (the relay
+  retry fix, below).
 
 Between presses the sender went back online for a few seconds so the app
 learned that its last SOS was closed (the app keeps one open SOS at a
@@ -54,10 +54,10 @@ no-load SIM was left in the phone.
 | Condition | Counted | On the board within 3 min | Fastest | Median | Mean | Slowest | Within 10 s |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | T1 SMS only | 20 | 20 (100%) | 4.3 s | 5.5 s | 6.5 s | 17.6 s | 18 |
-| T2 relay, within 5 m | 19 | 19 (100%) | 1.3 s | 5.4 s | 5.5 s | 10.5 s | 18 |
-| T3 relay, 15 to 17 m, 2 walls | 19 | 19 (100%) | 0.8 s | 1.8 s | 2.7 s | 9.8 s | 19 |
+| T2 relay, within 5 m | 20 | 20 (100%) | 1.3 s | 5.0 s | 5.3 s | 10.5 s | 19 |
+| T3 relay, 15 to 17 m, 2 walls | 20 | 20 (100%) | 0.8 s | 1.8 s | 2.7 s | 9.8 s | 20 |
 | T4 SMS fails, relay | 20 | 20 (100%) | 1.0 s | 3.9 s | 6.0 s | 29.6 s | 18 |
-| **T1 to T4** | **78** | **78 (100%)** | 0.8 s | **4.8 s** | 5.2 s | 29.6 s | 73 |
+| **T1 to T4** | **80** | **80 (100%)** | 0.8 s | **4.7 s** | 5.1 s | 29.6 s | 75 |
 
 Every SOS arrived by the channel the condition was testing: T1 as an SMS
 SOS, T2 to T4 as "Bluetooth relay" on the board.
