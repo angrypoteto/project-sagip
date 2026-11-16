@@ -987,6 +987,37 @@ void main() {
 
     expect(find.text('Completion report'), findsOneWidget);
     await tapAndSettle(tester, 'Rescued');
+    // MDRRMD's flood form (2026-11-17): its starred questions come first.
+    expect(find.text('Flood monitoring'), findsOneWidget);
+    await tapAndSettle(tester, 'Submit report');
+    // The cause comes pre-filled from PAGASA's reading (2026-11-17); the
+    // level is the first question left.
+    expect(
+      find.text('Answer "Flood level" before you submit.'),
+      findsOneWidget,
+    );
+    expect(find.text('Completion report'), findsOneWidget);
+    Future<void> chip(String label) async {
+      final f = find.widgetWithText(ChoiceChip, label);
+      await tester.scrollUntilVisible(
+        f,
+        200,
+        scrollable: find
+            .descendant(
+              of: find.byType(ListView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      // Centred, so the bottom bar never covers it.
+      await Scrollable.ensureVisible(tester.element(f), alignment: 0.5);
+      await tester.pump();
+      await tester.tap(f);
+      await settle(tester);
+    }
+
+    await chip('Knee deep (19 in)');
+    await chip('Not passable to light vehicles (NPLV)');
     await tapAndSettle(tester, 'Submit report');
     expect(
       find.text('Report sent. The unit is available again.'),

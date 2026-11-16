@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'completion_details.dart';
+import 'crew_report.dart';
 import 'enums.dart';
 import 'geo_point.dart';
 import 'offline.dart';
@@ -41,6 +43,8 @@ class Assignment {
     this.residentLocation,
     this.residentLocationAt,
     this.cancelRequested = false,
+    this.residentName,
+    this.highestAlarm,
   });
 
   final String incidentId;
@@ -56,8 +60,15 @@ class Assignment {
   final int? peopleCount;
   final String? residentNote;
 
-  /// Vulnerability types only, never names or medical details (plan Q9).
+  /// Vulnerability types only, never medical details (plan Q9).
   final List<VulnerabilityType> vulnerable;
+
+  /// The name of the resident who sent the SOS, for the first patient on
+  /// the crew's report (Joshua, 2026-11-17). Null for a crowd report.
+  final String? residentName;
+
+  /// The highest fire alarm the dispatcher recorded, for the fire report.
+  final FireStage? highestAlarm;
 
   /// assigned (offered), enRoute, onScene, or resolved.
   final IncidentStatus status;
@@ -131,6 +142,8 @@ class Assignment {
     residentLocation: residentLocation ?? this.residentLocation,
     residentLocationAt: residentLocationAt ?? this.residentLocationAt,
     cancelRequested: cancelRequested ?? this.cancelRequested,
+    residentName: residentName,
+    highestAlarm: highestAlarm,
   );
 
   factory Assignment.fromJson(Map<String, Object?> json) => Assignment(
@@ -168,6 +181,10 @@ class Assignment {
           ),
     residentLocationAt: timeFromJsonOrNull(json['resident_location_at']),
     cancelRequested: json['cancel_requested_at'] != null,
+    residentName: json['resident_name'] as String?,
+    highestAlarm: FireStage.values
+        .where((s) => s.name == json['highest_alarm'])
+        .firstOrNull,
   );
 
   Map<String, Object?> toJson() => {
@@ -197,6 +214,8 @@ class Assignment {
     'resident_location_at': residentLocationAt?.toUtc().toIso8601String(),
     // Only whether it was asked matters to the responder.
     'cancel_requested_at': cancelRequested ? 'yes' : null,
+    'resident_name': residentName,
+    'highest_alarm': highestAlarm?.name,
   };
 }
 
@@ -225,6 +244,7 @@ class CompletionReport {
     this.missing = 0,
     this.affectedFamilies = 0,
     this.notes,
+    this.details = const CompletionDetails(),
     this.delivery = DeliveryState.savedOnPhone,
   });
 
@@ -243,6 +263,9 @@ class CompletionReport {
   final int missing;
   final int affectedFamilies;
   final String? notes;
+
+  /// What MDRRMD's form for the incident's type asks (2026-11-17).
+  final CompletionDetails details;
   final DeliveryState delivery;
 
   CompletionReport withDelivery(DeliveryState next) => CompletionReport(
@@ -257,6 +280,7 @@ class CompletionReport {
     missing: missing,
     affectedFamilies: affectedFamilies,
     notes: notes,
+    details: details,
     delivery: next,
   );
 
@@ -272,6 +296,7 @@ class CompletionReport {
     'missing': missing,
     'affected_families': affectedFamilies,
     'notes': notes,
+    if (!details.isEmpty) 'details': details.toJson(),
     'delivery': delivery.name,
   };
 
@@ -288,6 +313,7 @@ class CompletionReport {
         missing: json['missing'] as int? ?? 0,
         affectedFamilies: json['affected_families'] as int? ?? 0,
         notes: json['notes'] as String?,
+        details: CompletionDetails.fromJson(json['details']),
         delivery: enumFromJson(DeliveryState.values, json['delivery']),
       );
 }

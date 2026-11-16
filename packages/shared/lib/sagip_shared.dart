@@ -3,6 +3,7 @@
 /// Supabase implementations, algorithms, and shared widgets.
 library;
 
+export 'src/algorithms/crew_report_prefill.dart';
 export 'src/algorithms/alert_thresholds.dart';
 export 'src/algorithms/analytics.dart';
 export 'src/algorithms/dbscan.dart';
@@ -33,6 +34,7 @@ export 'src/models/account.dart';
 export 'src/models/alerts.dart';
 export 'src/models/analytics.dart';
 export 'src/models/assignment.dart';
+export 'src/models/completion_details.dart';
 export 'src/models/crew_report.dart';
 export 'src/models/crowd_report.dart';
 export 'src/models/enums.dart';

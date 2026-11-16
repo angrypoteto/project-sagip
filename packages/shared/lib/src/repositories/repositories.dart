@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import '../algorithms/dijkstra/hazard_penalty.dart';
+import '../models/completion_details.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/analytics.dart';
@@ -700,6 +701,8 @@ abstract interface class ResponderRepository {
     int missing = 0,
     int affectedFamilies = 0,
     String? notes,
+    CompletionDetails details = const CompletionDetails(),
+    List<Uint8List> photos = const [],
   });
 
   /// Assignments this unit finished, newest first, with whether each

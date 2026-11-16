@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import '../algorithms/dijkstra/hazard_penalty.dart';
+import '../models/completion_details.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/assignment.dart';
@@ -167,6 +168,8 @@ class MockResponderRepository implements ResponderRepository {
     int missing = 0,
     int affectedFamilies = 0,
     String? notes,
+    CompletionDetails details = const CompletionDetails(),
+    List<Uint8List> photos = const [],
   }) => _backend.complete(
     outcome: outcome,
     personsAssisted: personsAssisted,
@@ -175,6 +178,8 @@ class MockResponderRepository implements ResponderRepository {
     missing: missing,
     affectedFamilies: affectedFamilies,
     notes: notes,
+    details: details,
+    photos: photos,
   );
 
   @override

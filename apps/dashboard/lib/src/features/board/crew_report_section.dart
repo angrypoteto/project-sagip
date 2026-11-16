@@ -100,6 +100,54 @@ class CrewReportSection extends ConsumerWidget {
   }
 }
 
+/// The answers of MDRRMD's form on a crew report, as (question, answer)
+/// rows in the form's order. A row with no question is a heading (a
+/// patient).
+List<(String, String)> crewFormRows(
+  AppLocalizations l10n,
+  CompletionDetails x,
+) {
+  String bare(String title) => title.replaceAll('*', '').trim();
+  return [
+    if (x.emrType case final v?)
+      (bare(l10n.emrTypeTitle), l10n.emrTypeLabel(v.name)),
+    if (x.accidentCause case final v?)
+      (bare(l10n.accidentCauseTitle), l10n.accidentCauseLabel(v.name)),
+    if (x.vehicles.isNotEmpty)
+      (
+        l10n.vehiclesTitle,
+        [for (final v in x.vehicles) l10n.vehicleLabel(v.name)].join(', '),
+      ),
+    for (var i = 0; i < x.patients.length; i++) ...[
+      ('', l10n.patientHeading(i + 1)),
+      (bare(l10n.patientName), x.patients[i].name ?? l10n.patientUnnamed),
+      if (x.patients[i].age case final v?)
+        (l10n.patientAge, l10n.ageBracketLabel(v.name)),
+      if (x.patients[i].gender case final v?)
+        (l10n.patientGender, l10n.genderLabel(v.name)),
+      if (x.patients[i].hospital case final v?) (bare(l10n.patientHospital), v),
+      if (x.patients[i].chiefComplaint case final v?)
+        (l10n.patientComplaint, v),
+      if (x.patients[i].remarks case final v?) (l10n.patientRemarks, v),
+    ],
+    if (x.floodCause case final v?)
+      (bare(l10n.floodCauseTitle), l10n.floodCauseLabel(v.name)),
+    if (x.cycloneName case final v?) (l10n.cycloneName, v),
+    if (x.windSignal case final v?)
+      (l10n.windSignalTitle, l10n.windSignalLabel(v)),
+    if (x.floodLevel case final v?)
+      (bare(l10n.floodLevelTitle), l10n.floodLevelLabel(v.name)),
+    if (x.floodStatus case final v?)
+      (bare(l10n.floodStatusTitle), l10n.floodStatusLabel(v.name)),
+    if (x.fireKind case final v?)
+      (l10n.fireKindTitle, l10n.fireKindLabel(v.name)),
+    if (x.highestAlarm case final v?)
+      (l10n.highestAlarmTitle, l10n.fireStageName(v.name)),
+    if (x.estimatedDamage case final v?) (l10n.estimatedDamage, '$v'),
+    if (x.affectedIndividuals case final v?) (l10n.affectedIndividuals, '$v'),
+  ];
+}
+
 class _CrewReportCard extends StatelessWidget {
   const _CrewReportCard({super.key, required this.report, this.onValidate});
 
@@ -163,6 +211,18 @@ class _CrewReportCard extends StatelessWidget {
                 l10n.crewReportOnScene,
                 l10n.crewReportMinutes((r.timeOnSceneSeconds / 60).round()),
               ),
+            if (!r.details.isEmpty) ...[
+              const SizedBox(height: SagipSpace.md),
+              Text(l10n.crewFormAnswers, style: text.labelMedium),
+              const SizedBox(height: SagipSpace.xs),
+              for (final (label, value) in crewFormRows(l10n, r.details))
+                label.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: SagipSpace.sm),
+                        child: Text(value, style: text.titleSmall),
+                      )
+                    : figure(label, value),
+            ],
             if (r.notes case final notes?) ...[
               const SizedBox(height: SagipSpace.sm),
               Text(l10n.crewReportNotes, style: text.labelMedium),

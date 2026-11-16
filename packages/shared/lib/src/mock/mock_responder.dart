@@ -285,6 +285,8 @@ class _ResponderSim {
     int missing = 0,
     int affectedFamilies = 0,
     String? notes,
+    CompletionDetails details = const CompletionDetails(),
+    List<Uint8List> photos = const [],
   }) async {
     final current = _state.value.current;
     if (current == null) return;
@@ -301,6 +303,7 @@ class _ResponderSim {
       missing: missing,
       affectedFamilies: affectedFamilies,
       notes: notes,
+      details: details,
     );
     _mapTimer?.cancel();
     _driveTimer?.cancel();

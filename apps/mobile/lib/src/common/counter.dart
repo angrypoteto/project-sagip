@@ -10,6 +10,8 @@ class Counter extends StatelessWidget {
     super.key,
     required this.value,
     required this.label,
+    this.fewerLabel,
+    this.moreLabel,
     required this.onChanged,
     this.minimum = 0,
   });
@@ -21,6 +23,11 @@ class Counter extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final int minimum;
 
+  /// The buttons' names for screen readers; "Fewer people" and "More
+  /// people" when not given.
+  final String? fewerLabel;
+  final String? moreLabel;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -29,7 +36,7 @@ class Counter extends StatelessWidget {
       children: [
         IconButton.outlined(
           iconSize: 28,
-          tooltip: l10n.fewerPeople,
+          tooltip: fewerLabel ?? l10n.fewerPeople,
           onPressed: value > minimum ? () => onChanged(value - 1) : null,
           icon: const Icon(Symbols.remove_rounded),
         ),
@@ -44,7 +51,7 @@ class Counter extends StatelessWidget {
         ),
         IconButton.outlined(
           iconSize: 28,
-          tooltip: l10n.morePeople,
+          tooltip: moreLabel ?? l10n.morePeople,
           onPressed: () => onChanged(value + 1),
           icon: const Icon(Symbols.add_rounded),
         ),

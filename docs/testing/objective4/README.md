@@ -5,18 +5,25 @@ formulate official post-disaster assessments by at least 30% by utilizing
 Retrieval-Augmented Generation (RAG) AI for automated NDRRMC PDF report
 generation.*
 
-**Reduction = (T_by_hand − T_with_system) / T_by_hand × 100**, for the same
-period, by the same kind of person (an MDRRMD administrator).
+**Reduction = (T_current − T_with_system) / T_current × 100.**
+
+**Changed 2026-11-17 (Joshua):** the report is made and submitted by the
+**responder**, and MDRRMD validates it. Today responders fill in MDRRMD's
+online forms (EMR, Flood Monitoring/Roving, Fire Incident 2026); in
+S.A.G.I.P. the crew's completion report (F6, build 33) asks the same
+questions with photos, and MDRRMD validates it on the dashboard. Part B
+compares the two; part A (below) is the machine time to turn validated
+reports into the MDRRMD report for NDRRMC.
 
 There are two parts:
 
 | Part | What it measures | Status |
 |---|---|---|
 | **A. The system's own time** (this page) | How long the system takes to collect the figures, draft the report, and rewrite it with the language model, on the live project | **Done 2026-11-12**: results below |
-| **B. The timed comparison** (`TIMED-TRIAL.md`) | An administrator preparing the same report by hand and with the system, each timed from start to a finished report | **Not run yet**: needs an MDRRMD administrator (or a team member acting as one) |
+| **B. The timed comparison** (`TIMED-TRIAL.md`) | A responder filing the same incident on MDRRMD's current form and in S.A.G.I.P. (F6), plus MDRRMD recording or validating it | **Not run yet**: needs a responder and MDRRMD staff (or team members acting as them) |
 
-Chapter 4 needs B for the 30% figure. A shows what the system adds to the
-administrator's time, and that it works reliably.
+Chapter 4 needs B for the 30% figure. A shows that the report for NDRRMC
+follows from the validated reports in seconds, reliably.
 
 ## Files
 

@@ -4684,4 +4684,241 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String emrTypeLabel(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'roadAccident': 'Vehicular / road accident',
+      'medicalCall': 'Medical call',
+      'medicalStandby': 'Medical standby',
+      'patientTransport': 'Patient transport',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String accidentCauseLabel(String cause) {
+    String _temp0 = intl.Intl.selectLogic(cause, {
+      'drunkDriving': 'Drunk driving',
+      'lossOfControl': 'Loss of control',
+      'brakeFailure': 'Brake failure',
+      'overspeeding': 'Overspeeding',
+      'driverNegligence': 'Driver negligence',
+      'roadCondition': 'Road condition',
+      'roadHazards': 'Road hazards',
+      'inclementWeather': 'Inclement weather',
+      'roadTrafficCollision': 'Road traffic collision',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String vehicleLabel(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'pedestrian': 'Pedestrian',
+      'bicycle': 'Bicycle',
+      'motorcycle': 'Motorcycle',
+      'eBike': 'E-bike',
+      'tricycle': 'Tricycle',
+      'eTrike': 'E-trike',
+      'sedan': 'Sedan',
+      'suv': 'SUV',
+      'van': 'Van',
+      'taxi': 'Taxi',
+      'puj': 'PUJ',
+      'puv': 'PUV',
+      'truck': 'Truck',
+      'ambulance': 'Ambulance',
+      'fireTruck': 'Fire truck',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String ageBracketLabel(String age) {
+    String _temp0 = intl.Intl.selectLogic(age, {
+      'upTo17': '0 to 17',
+      'from18To25': '18 to 25',
+      'from26To30': '26 to 30',
+      'from31To35': '31 to 35',
+      'from36To40': '36 to 40',
+      'from41To45': '41 to 45',
+      'from46To50': '46 to 50',
+      'from51To60': '51 to 60',
+      'from61': '61 and above',
+      'other': 'Unknown',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String genderLabel(String gender) {
+    String _temp0 = intl.Intl.selectLogic(gender, {
+      'male': 'Male',
+      'female': 'Female',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String floodCauseLabel(String cause) {
+    String _temp0 = intl.Intl.selectLogic(cause, {
+      'cloggedWaterways': 'Clogged waterways',
+      'heavyRainfall': 'Heavy rainfall',
+      'tropicalCyclone': 'Tropical cyclone',
+      'stormSurge': 'Storm surge',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String floodLevelLabel(String level) {
+    String _temp0 = intl.Intl.selectLogic(level, {
+      'gutter': 'Gutter deep (8 in)',
+      'halfKnee': 'Half-knee deep (10 in)',
+      'halfTire': 'Half-tire deep (13 in)',
+      'knee': 'Knee deep (19 in)',
+      'tire': 'Tire deep (28 in)',
+      'waist': 'Waist deep (37 in)',
+      'chest': 'Chest deep (45 in)',
+      'aboveChest': 'Above the chest',
+      'head': 'Head deep',
+      'other': 'Unknown',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String floodStatusLabel(String status) {
+    String _temp0 = intl.Intl.selectLogic(status, {
+      'patv': 'Passable to all vehicles (PATV)',
+      'nplv': 'Not passable to light vehicles (NPLV)',
+      'npatv': 'Not passable to all vehicles (NPATV)',
+      'other': 'Unknown',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String fireKindLabel(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rubbish': 'Rubbish',
+      'electrical': 'Electrical',
+      'commercial': 'Commercial',
+      'residential': 'Residential',
+      'governmentOffice': 'Government office',
+      'vehicular': 'Vehicular fire',
+      'warehouse': 'Warehouse',
+      'residentialCommercial': 'Residential / commercial',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String windSignalLabel(int n) {
+    return 'Signal #$n';
+  }
+
+  @override
+  String crewFormTitle(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'medical': 'Emergency medical response',
+      'flood': 'Flood monitoring',
+      'fire': 'Fire incident',
+      'other': 'Incident details',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get emrTypeTitle => 'Type of EMR *';
+
+  @override
+  String get accidentCauseTitle => 'Cause of road accident *';
+
+  @override
+  String get vehiclesTitle => 'Vehicles involved';
+
+  @override
+  String get patientsTitle => 'Patients';
+
+  @override
+  String patientHeading(int n) {
+    return 'Patient $n';
+  }
+
+  @override
+  String get patientName => 'Name (optional)';
+
+  @override
+  String get patientAge => 'Age';
+
+  @override
+  String get patientGender => 'Gender';
+
+  @override
+  String get patientHospital => 'Receiving hospital *';
+
+  @override
+  String get patientComplaint => 'Chief complaint';
+
+  @override
+  String get patientRemarks => 'Remarks';
+
+  @override
+  String get floodCauseTitle => 'Cause of flood *';
+
+  @override
+  String get cycloneName => 'Tropical cyclone name';
+
+  @override
+  String get windSignalTitle => 'Wind signal';
+
+  @override
+  String get floodLevelTitle => 'Flood level *';
+
+  @override
+  String get floodStatusTitle => 'Flood status *';
+
+  @override
+  String get fireKindTitle => 'Type of fire';
+
+  @override
+  String get highestAlarmTitle => 'Highest alarm level';
+
+  @override
+  String get estimatedDamage => 'Estimated damage (₱)';
+
+  @override
+  String get affectedIndividuals => 'Affected individuals';
+
+  @override
+  String get crewPhotosTitle => 'Photos';
+
+  @override
+  String crewPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+      zero: 'No photos',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get patientUnnamed => 'No name given';
+
+  @override
+  String get crewFormAnswers => 'MDRRMD form answers';
+
+  @override
+  String get photoFromCrew => 'From the crew\'s report';
 }

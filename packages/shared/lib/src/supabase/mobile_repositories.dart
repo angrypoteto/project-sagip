@@ -829,6 +829,7 @@ class SupabaseMobileRemote implements MobileServer {
         'p_missing': report.missing,
         'p_affected_families': report.affectedFamilies,
         'p_notes': report.notes,
+        'p_details': report.details.toJson(),
       },
     ),
   );

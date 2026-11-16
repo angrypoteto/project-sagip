@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'assignment.dart';
+import 'completion_details.dart';
 import 'enums.dart';
 
 /// A crew's completion report as MDRRMD sees it on the board (2026-11-11).
@@ -24,6 +25,7 @@ class CrewReport {
     this.affectedFamilies = 0,
     this.housesDamaged = 0,
     this.notes,
+    this.details = const CompletionDetails(),
     this.validatedAt,
     this.validatedByName,
     this.corrected = false,
@@ -43,6 +45,9 @@ class CrewReport {
   final int affectedFamilies;
   final int housesDamaged;
   final String? notes;
+
+  /// The answers MDRRMD's form for the incident's type asks (2026-11-17).
+  final CompletionDetails details;
 
   /// Null while the report waits for MDRRMD.
   final DateTime? validatedAt;
@@ -74,6 +79,7 @@ class CrewReport {
       affectedFamilies: c.affectedFamilies ?? affectedFamilies,
       housesDamaged: c.housesDamaged ?? housesDamaged,
       notes: notes,
+      details: details,
       validatedAt: at,
       validatedByName: byName,
     );
@@ -102,6 +108,7 @@ class CrewReport {
     affectedFamilies: affectedFamilies,
     housesDamaged: housesDamaged,
     notes: notes,
+    details: details,
     validatedAt: validatedAt,
     validatedByName: validatedByName,
     corrected: value,
@@ -120,6 +127,7 @@ class CrewReport {
     affectedFamilies: json['affected_families'] as int? ?? 0,
     housesDamaged: json['houses_damaged'] as int? ?? 0,
     notes: json['notes'] as String?,
+    details: CompletionDetails.fromJson(json['details']),
     validatedAt: timeFromJsonOrNull(json['validated_at']),
     validatedByName: json['validated_by_name'] as String?,
     corrected: json['corrected'] as bool? ?? false,
@@ -138,6 +146,7 @@ class CrewReport {
     'affected_families': affectedFamilies,
     'houses_damaged': housesDamaged,
     'notes': notes,
+    if (!details.isEmpty) 'details': details.toJson(),
     'validated_at': validatedAt?.toIso8601String(),
     'validated_by_name': validatedByName,
     'corrected': corrected,

@@ -6,6 +6,7 @@ import '../algorithms/dijkstra/hazard_penalty.dart';
 import '../algorithms/incident_classifier.dart';
 import '../algorithms/sos_sms.dart';
 import '../data/manila_barangays.dart';
+import '../models/completion_details.dart';
 import '../models/account.dart';
 import '../models/alerts.dart';
 import '../models/assignment.dart';
@@ -703,6 +704,8 @@ class MockMobileBackend {
     int missing = 0,
     int affectedFamilies = 0,
     String? notes,
+    CompletionDetails details = const CompletionDetails(),
+    List<Uint8List> photos = const [],
   }) => _responder.complete(
     outcome: outcome,
     personsAssisted: personsAssisted,
@@ -711,6 +714,8 @@ class MockMobileBackend {
     missing: missing,
     affectedFamilies: affectedFamilies,
     notes: notes,
+    details: details,
+    photos: photos,
   );
 
   // --------------------------------------------------- resident accounts

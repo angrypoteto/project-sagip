@@ -70,12 +70,11 @@ class IncidentPhotos extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        l10n.photoCaption(
-                          photo.kind == PhotoKind.sos
-                              ? l10n.photoFromSos
-                              : l10n.photoFromReport,
-                          formatDateTime(photo.uploadedAt, locale),
-                        ),
+                        l10n.photoCaption(switch (photo.kind) {
+                          PhotoKind.sos => l10n.photoFromSos,
+                          PhotoKind.report => l10n.photoFromReport,
+                          PhotoKind.completion => l10n.photoFromCrew,
+                        }, formatDateTime(photo.uploadedAt, locale)),
                         style: text.bodyMedium,
                       ),
                     ),

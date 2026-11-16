@@ -7807,6 +7807,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{No incidents recorded} =1{1 incident recorded} other{{count} incidents recorded}}'**
   String heatmapHoverRecorded(int count);
+
+  /// No description provided for @emrTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{type, select, roadAccident{Vehicular / road accident} medicalCall{Medical call} medicalStandby{Medical standby} patientTransport{Patient transport} other{Other}}'**
+  String emrTypeLabel(String type);
+
+  /// No description provided for @accidentCauseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{cause, select, drunkDriving{Drunk driving} lossOfControl{Loss of control} brakeFailure{Brake failure} overspeeding{Overspeeding} driverNegligence{Driver negligence} roadCondition{Road condition} roadHazards{Road hazards} inclementWeather{Inclement weather} roadTrafficCollision{Road traffic collision} other{Other}}'**
+  String accidentCauseLabel(String cause);
+
+  /// No description provided for @vehicleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, pedestrian{Pedestrian} bicycle{Bicycle} motorcycle{Motorcycle} eBike{E-bike} tricycle{Tricycle} eTrike{E-trike} sedan{Sedan} suv{SUV} van{Van} taxi{Taxi} puj{PUJ} puv{PUV} truck{Truck} ambulance{Ambulance} fireTruck{Fire truck} other{Other}}'**
+  String vehicleLabel(String kind);
+
+  /// No description provided for @ageBracketLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{age, select, upTo17{0 to 17} from18To25{18 to 25} from26To30{26 to 30} from31To35{31 to 35} from36To40{36 to 40} from41To45{41 to 45} from46To50{46 to 50} from51To60{51 to 60} from61{61 and above} other{Unknown}}'**
+  String ageBracketLabel(String age);
+
+  /// No description provided for @genderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{gender, select, male{Male} female{Female} other{Other}}'**
+  String genderLabel(String gender);
+
+  /// No description provided for @floodCauseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{cause, select, cloggedWaterways{Clogged waterways} heavyRainfall{Heavy rainfall} tropicalCyclone{Tropical cyclone} stormSurge{Storm surge} other{Other}}'**
+  String floodCauseLabel(String cause);
+
+  /// No description provided for @floodLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{level, select, gutter{Gutter deep (8 in)} halfKnee{Half-knee deep (10 in)} halfTire{Half-tire deep (13 in)} knee{Knee deep (19 in)} tire{Tire deep (28 in)} waist{Waist deep (37 in)} chest{Chest deep (45 in)} aboveChest{Above the chest} head{Head deep} other{Unknown}}'**
+  String floodLevelLabel(String level);
+
+  /// No description provided for @floodStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{status, select, patv{Passable to all vehicles (PATV)} nplv{Not passable to light vehicles (NPLV)} npatv{Not passable to all vehicles (NPATV)} other{Unknown}}'**
+  String floodStatusLabel(String status);
+
+  /// No description provided for @fireKindLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, rubbish{Rubbish} electrical{Electrical} commercial{Commercial} residential{Residential} governmentOffice{Government office} vehicular{Vehicular fire} warehouse{Warehouse} residentialCommercial{Residential / commercial} other{Other}}'**
+  String fireKindLabel(String kind);
+
+  /// No description provided for @windSignalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal #{n}'**
+  String windSignalLabel(int n);
+
+  /// No description provided for @crewFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{type, select, medical{Emergency medical response} flood{Flood monitoring} fire{Fire incident} other{Incident details}}'**
+  String crewFormTitle(String type);
+
+  /// No description provided for @emrTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of EMR *'**
+  String get emrTypeTitle;
+
+  /// No description provided for @accidentCauseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cause of road accident *'**
+  String get accidentCauseTitle;
+
+  /// No description provided for @vehiclesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles involved'**
+  String get vehiclesTitle;
+
+  /// No description provided for @patientsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients'**
+  String get patientsTitle;
+
+  /// No description provided for @patientHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient {n}'**
+  String patientHeading(int n);
+
+  /// No description provided for @patientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get patientName;
+
+  /// No description provided for @patientAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get patientAge;
+
+  /// No description provided for @patientGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get patientGender;
+
+  /// No description provided for @patientHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving hospital *'**
+  String get patientHospital;
+
+  /// No description provided for @patientComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Chief complaint'**
+  String get patientComplaint;
+
+  /// No description provided for @patientRemarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Remarks'**
+  String get patientRemarks;
+
+  /// No description provided for @floodCauseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cause of flood *'**
+  String get floodCauseTitle;
+
+  /// No description provided for @cycloneName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tropical cyclone name'**
+  String get cycloneName;
+
+  /// No description provided for @windSignalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind signal'**
+  String get windSignalTitle;
+
+  /// No description provided for @floodLevelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood level *'**
+  String get floodLevelTitle;
+
+  /// No description provided for @floodStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood status *'**
+  String get floodStatusTitle;
+
+  /// No description provided for @fireKindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of fire'**
+  String get fireKindTitle;
+
+  /// No description provided for @highestAlarmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest alarm level'**
+  String get highestAlarmTitle;
+
+  /// No description provided for @estimatedDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated damage (₱)'**
+  String get estimatedDamage;
+
+  /// No description provided for @affectedIndividuals.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected individuals'**
+  String get affectedIndividuals;
+
+  /// No description provided for @crewPhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get crewPhotosTitle;
+
+  /// No description provided for @crewPhotosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No photos} =1{1 photo} other{{count} photos}}'**
+  String crewPhotosCount(int count);
+
+  /// No description provided for @patientUnnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'No name given'**
+  String get patientUnnamed;
+
+  /// No description provided for @crewFormAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'MDRRMD form answers'**
+  String get crewFormAnswers;
+
+  /// No description provided for @photoFromCrew.
+  ///
+  /// In en, this message translates to:
+  /// **'From the crew\'s report'**
+  String get photoFromCrew;
 }
 
 class _AppLocalizationsDelegate

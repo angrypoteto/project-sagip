@@ -7,6 +7,7 @@ import '../algorithms/sos_relay.dart';
 import '../data/manila_barangays.dart';
 import '../mock/live_value.dart';
 import '../models/assignment.dart';
+import '../models/completion_details.dart';
 import '../models/enums.dart';
 import '../models/hazard_report.dart';
 import '../models/offline.dart';
@@ -756,6 +757,8 @@ class OutboxResponderRepository implements ResponderRepository {
     int missing = 0,
     int affectedFamilies = 0,
     String? notes,
+    CompletionDetails details = const CompletionDetails(),
+    List<Uint8List> photos = const [],
   }) async {
     final me = _account();
     final current = _latest?.current;
@@ -773,6 +776,7 @@ class OutboxResponderRepository implements ResponderRepository {
       missing: missing,
       affectedFamilies: affectedFamilies,
       notes: notes,
+      details: details,
     );
     await _engine.add(
       OutboxEntry(
@@ -788,7 +792,17 @@ class OutboxResponderRepository implements ResponderRepository {
           'district': current.district,
         },
       ),
-    );
+    ); // Photos go after the report, over the internet only (2026-11-17).
+    for (final jpeg in photos.take(maxCrewPhotos)) {
+      await _queuePhoto(
+        _engine,
+        me,
+        now,
+        PhotoKind.completion,
+        report.clientId,
+        jpeg,
+      );
+    }
   }
 
   @override

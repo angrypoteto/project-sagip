@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
 /// What a photo belongs to (2026-10-19).
-enum PhotoKind { sos, report }
+/// Whose record a photo belongs to: a resident's SOS or crowd report, or a
+/// crew's report (F6, 2026-11-17).
+enum PhotoKind { sos, report, completion }
 
 /// A photo on an incident as the dashboard shows it: the SOS's, or one
 /// from a crowd report in its cluster. [url] is a short-lived link.
