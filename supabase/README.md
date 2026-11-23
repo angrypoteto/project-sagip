@@ -320,7 +320,7 @@ is moderate in the top fire places (KDE of every placed real fire, 500 m,
 about 300 barangays) or where a fire was recorded in the last 180 days,
 high in both; the fire LSTM no longer sets the level. Flood is v4's.
 
-1. Apply migration `20261123120000_forecast_fire_history` (table
+1. Apply migration `20261123105901_forecast_fire_history` (table
    `fire_history`, function `forecast_recent_fires`).
 2. Deploy `run-forecast` (it only calls the new function when the active
    model has a fire rule, so v4 keeps working until step 4).

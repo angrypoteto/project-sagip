@@ -67,8 +67,8 @@ async function live(model: LiveModel) {
   const win = liveWindow(model, om, recorded, end);
   if (!win) throw new Error("a day of the window is missing");
   // Model v5's fire rule: the barangays with a fire in its look-back, from
-  // MDRRMD's fire history (private.fire_history) and S.A.G.I.P.'s own
-  // incidents (migration forecast_fire_history).
+  // MDRRMD's fire history (public.fire_history, closed to app accounts;
+  // migration forecast_fire_history).
   const recent: RecentByHazard = {};
   for (const hz of hazards) {
     const rule = model.hazards[hz]?.rule;
