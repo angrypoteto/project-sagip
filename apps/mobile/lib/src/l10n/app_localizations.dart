@@ -4343,7 +4343,7 @@ abstract class AppLocalizations {
   /// No description provided for @patientComplaint.
   ///
   /// In en, this message translates to:
-  /// **'Chief complaint'**
+  /// **'Injury or complaint'**
   String get patientComplaint;
 
   /// No description provided for @patientRemarks.

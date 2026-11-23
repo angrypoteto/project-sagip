@@ -11,10 +11,12 @@ const heavyRainfallMmPerHour = 7.5;
 /// details since we already have some details about the incidents and the
 /// name of the person"). Every answer stays changeable.
 ///
-/// - Medical: a medical call, with one patient per person counted (on
-///   scene, else in the SOS; at least one), the first named after the SOS
-///   sender, 61 and above if the household lists a senior citizen, female
-///   if it lists a pregnancy.
+/// - Medical: one patient per person counted (on scene, else in the SOS;
+///   at least one), the first named after the SOS sender, 61 and above if
+///   the household lists a senior citizen, female if it lists a pregnancy.
+///   The type of EMR is never guessed (2026-11-17 trial: a pre-filled
+///   "Medical call" was left as it was on a road accident, hiding the
+///   accident's questions); the responder picks it.
 /// - Flood: the cause from PAGASA's reading now: a raised wind signal (a
 ///   tropical cyclone, with the signal), else a storm surge advisory, else
 ///   heavy rain.
@@ -29,7 +31,6 @@ CompletionDetails prefillCompletionDetails(
       final senior = a.vulnerable.contains(VulnerabilityType.seniorCitizen);
       final pregnant = a.vulnerable.contains(VulnerabilityType.pregnant);
       return CompletionDetails(
-        emrType: EmrType.medicalCall,
         patients: [
           for (var i = 0; i < count; i++)
             i == 0

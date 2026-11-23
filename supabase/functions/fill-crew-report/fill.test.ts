@@ -1,7 +1,7 @@
 // Run with: node --test supabase/functions/fill-crew-report/fill.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildPrompt, closest, hospitalFrom, numbersIn, readFilled, redact } from "./fill.ts";
+import { buildPrompt, closest, countsIn, hospitalFrom, numbersIn, readFilled, redact } from "./fill.ts";
 
 test("names and phone numbers leave the notes", () => {
   const out = redact("Si Maria Santos, 0917 000 1234, sakit ng dibdib. Maria ok na.", ["Maria Santos"]);
@@ -74,4 +74,26 @@ test("hospitals by short name; passages by shared words; the prompt lists the an
   const prompt = buildPrompt("flood", "knee deep", passages, []);
   assert.match(prompt, /"flood_level": one of "gutter"/);
   assert.match(prompt, /No validated past reports/);
+});
+
+test("plain counts are read from the notes, with or without commas", () => {
+  // The 2026-11-17 trial's note, typed without commas.
+  assert.deepEqual(
+    countsIn("Knee deep na baha sa Kahilum St dahil sa malakas na ulan hindi passable sa light vehicles 3 families 12 persons assisted walang injured"),
+    { persons_assisted: 12, injured: 0, affected_families: 3 },
+  );
+  assert.deepEqual(
+    countsIn("3 families, 12 persons assisted, no missing"),
+    { persons_assisted: 12, missing: 0, affected_families: 3 },
+  );
+  assert.deepEqual(countsIn("tatlong pamilya, apat na bahay nasunog, 1 sugatan"), { injured: 1, affected_families: 3, houses_damaged: 4 });
+  assert.deepEqual(countsIn("families: 4"), { affected_families: 4 });
+  assert.deepEqual(countsIn("Patient 2 the rider, 28, male, brought to PGH"), {});
+  // The model left the families out: the notes' count fills it in.
+  const f = readFilled(
+    JSON.stringify({ answers: { flood_level: "knee" }, figures: { persons_assisted: 12 }, narrative: "" }),
+    "flood",
+    "knee deep 3 families 12 persons assisted walang injured",
+  )!;
+  assert.deepEqual(f.figures, { persons_assisted: 12, injured: 0, affected_families: 3 });
 });

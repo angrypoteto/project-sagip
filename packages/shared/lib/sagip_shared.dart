@@ -3,6 +3,7 @@
 /// Supabase implementations, algorithms, and shared widgets.
 library;
 
+export 'src/algorithms/crew_report_narrative.dart';
 export 'src/algorithms/crew_report_prefill.dart';
 export 'src/algorithms/alert_thresholds.dart';
 export 'src/algorithms/analytics.dart';

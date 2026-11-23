@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baseline form replica</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<!--
+  A replica of MDRRMD's current online report forms (Emergency Medical
+  Response Form, Flood Monitoring/Roving Form 2026, Fire Incident 2026),
+  rebuilt from the PDF templates MDRRMD sent, for the S.A.G.I.P. Objective 4
+  timed trial ("the current way"). Same questions, same order, same
+  required fields; no MDRRMD branding. Not MDRRMD's form and sends nothing
+  anywhere: answers and times stay in this browser.
+
+  The timer starts at "Start" and stops when "Submit" passes the required
+  checks. Results are kept in this browser and can be copied as CSV.
+-->
+<style>
+  :root { --bg:#eef2f5; --card:#fff; --ink:#0f1c2a; --muted:#5b6b7b; --line:#d5dde5; --accent:#2e7cd6; --err:#c62d38; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:#fff; border-bottom:1px solid var(--line); padding:14px 16px; }
+  header h1 { margin:0; font-size:18px; }
+  header p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+  main { max-width:720px; margin:0 auto; padding:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:14px; }
+  .q { margin:18px 0 0; }
+  .q > label.t, .q > .t { display:block; font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:.2px; }
+  .req { color:var(--err); }
+  .hint { color:var(--muted); font-size:13px; margin:2px 0 6px; white-space:pre-line; }
+  input[type=text], input[type=number], input[type=datetime-local], select, textarea { width:100%; padding:10px; border:1px solid var(--line); border-radius:6px; font:inherit; background:#fff; }
+  textarea { min-height:90px; }
+  .opts { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px; }
+  .opts label { display:flex; gap:8px; align-items:flex-start; border:1px solid var(--line); border-radius:6px; padding:10px; background:#f7fafc; font-size:14px; }
+  .map { height:220px; border:1px solid var(--line); border-radius:6px; }
+  .latlon { font-size:13px; color:var(--muted); margin-top:4px; }
+  .err { color:var(--err); font-size:13px; margin-top:4px; }
+  .q.bad input, .q.bad select, .q.bad textarea, .q.bad .opts, .q.bad .map { border-color:var(--err); }
+  .patient { border-left:3px solid var(--line); padding-left:12px; margin-top:16px; }
+  button { font:inherit; padding:12px 18px; border-radius:8px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .timer { font-variant-numeric:tabular-nums; font-weight:700; font-size:20px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td, th { border-bottom:1px solid var(--line); padding:6px 4px; text-align:left; }
+  .hidden { display:none; }
+  .done { background:#e9f7ef; border:1px solid #9bd3b5; border-radius:8px; padding:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Baseline form replica (Objective 4 timed trial)</h1>
+  <p>A copy of the questions on MDRRMD's current EMR, flood and fire report forms, rebuilt from MDRRMD's PDF templates for timing. Not MDRRMD's form. Nothing is sent anywhere.</p>
+</header>
+<main>
+  <div class="card">
+    <div class="row">
+      <label>Form
+        <select id="formPick">
+          <option value="emr">Emergency Medical Response Form</option>
+          <option value="flood">Flood Monitoring/Roving Form 2026</option>
+          <option value="fire">Fire Incident 2026</option>
+        </select>
+      </label>
+      <label>Card
+        <select id="cardPick">
+          <option>EMR road accident 2 patients</option>
+          <option>Flood knee deep</option>
+          <option>Fire residential 2nd alarm</option>
+          <option>Practice</option>
+        </select>
+      </label>
+      <label>Participant <input type="text" id="who" placeholder="e.g. Responder A" style="width:160px"></label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="startBtn">Start</button>
+      <span class="timer" id="timer">0.0 s</span>
+    </div>
+  </div>
+
+  <form id="form" class="card hidden" novalidate></form>
+
+  <div id="done" class="card hidden"></div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <strong>Results in this browser</strong>
+      <span class="row"><button id="csvBtn" type="button">Copy CSV</button><button id="clearBtn" type="button">Clear</button></span>
+    </div>
+    <table><thead><tr><th>#</th><th>Form</th><th>Card</th><th>Participant</th><th>Started</th><th>Seconds</th><th>Answered</th></tr></thead><tbody id="results"></tbody></table>
+  </div>
+</main>
+
+<script>
+const BARANGAYS = [["Barangay 1","Tondo"],["Barangay 2","Tondo"],["Barangay 3","Tondo"],["Barangay 4","Tondo"],["Barangay 5","Tondo"],["Barangay 6","Tondo"],["Barangay 7","Tondo"],["Barangay 8","Tondo"],["Barangay 9","Tondo"],["Barangay 10","Tondo"],["Barangay 11","Tondo"],["Barangay 12","Tondo"],["Barangay 13","Tondo"],["Barangay 14","Tondo"],["Barangay 15","Tondo"],["Barangay 16","Tondo"],["Barangay 17","Tondo"],["Barangay 18","Tondo"],["Barangay 19","Tondo"],["Barangay 20","Tondo"],["Barangay 25","Tondo"],["Barangay 26","Tondo"],["Barangay 28","Tondo"],["Barangay 29","Tondo"],["Barangay 30","Tondo"],["Barangay 31","Tondo"],["Barangay 32","Tondo"],["Barangay 33","Tondo"],["Barangay 34","Tondo"],["Barangay 35","Tondo"],["Barangay 36","Tondo"],["Barangay 37","Tondo"],["Barangay 38","Tondo"],["Barangay 39","Tondo"],["Barangay 41","Tondo"],["Barangay 42","Tondo"],["Barangay 43","Tondo"],["Barangay 44","Tondo"],["Barangay 45","Tondo"],["Barangay 46","Tondo"],["Barangay 47","Tondo"],["Barangay 48","Tondo"],["Barangay 49","Tondo"],["Barangay 50","Tondo"],["Barangay 51","Tondo"],["Barangay 52","Tondo"],["Barangay 53","Tondo"],["Barangay 54","Tondo"],["Barangay 55","Tondo"],["Barangay 56","Tondo"],["Barangay 57","Tondo"],["Barangay 58","Tondo"],["Barangay 59","Tondo"],["Barangay 60","Tondo"],["Barangay 61","Tondo"],["Barangay 62","Tondo"],["Barangay 63","Tondo"],["Barangay 64","Tondo"],["Barangay 65","Tondo"],["Barangay 66","Tondo"],["Barangay 67","Tondo"],["Barangay 68","Tondo"],["Barangay 69","Tondo"],["Barangay 70","Tondo"],["Barangay 71","Tondo"],["Barangay 72","Tondo"],["Barangay 73","Tondo"],["Barangay 74","Tondo"],["Barangay 75","Tondo"],["Barangay 76","Tondo"],["Barangay 77","Tondo"],["Barangay 78","Tondo"],["Barangay 79","Tondo"],["Barangay 80","Tondo"],["Barangay 81","Tondo"],["Barangay 82","Tondo"],["Barangay 83","Tondo"],["Barangay 84","Tondo"],["Barangay 85","Tondo"],["Barangay 86","Tondo"],["Barangay 87","Tondo"],["Barangay 88","Tondo"],["Barangay 89","Tondo"],["Barangay 90","Tondo"],["Barangay 91","Tondo"],["Barangay 92","Tondo"],["Barangay 93","Tondo"],["Barangay 94","Tondo"],["Barangay 95","Tondo"],["Barangay 96","Tondo"],["Barangay 97","Tondo"],["Barangay 98","Tondo"],["Barangay 99","Tondo"],["Barangay 100","Tondo"],["Barangay 101","Tondo"],["Barangay 102","Tondo"],["Barangay 103","Tondo"],["Barangay 104","Tondo"],["Barangay 105","Tondo"],["Barangay 106","Tondo"],["Barangay 107","Tondo"],["Barangay 108","Tondo"],["Barangay 109","Tondo"],["Barangay 110","Tondo"],["Barangay 111","Tondo"],["Barangay 112","Tondo"],["Barangay 116","Tondo"],["Barangay 117","Tondo"],["Barangay 118","Tondo"],["Barangay 119","Tondo"],["Barangay 120","Tondo"],["Barangay 121","Tondo"],["Barangay 122","Tondo"],["Barangay 123","Tondo"],["Barangay 124","Tondo"],["Barangay 125","Tondo"],["Barangay 126","Tondo"],["Barangay 127","Tondo"],["Barangay 128","Tondo"],["Barangay 129","Tondo"],["Barangay 130","Tondo"],["Barangay 131","Tondo"],["Barangay 132","Tondo"],["Barangay 133","Tondo"],["Barangay 134","Tondo"],["Barangay 135","Tondo"],["Barangay 136","Tondo"],["Barangay 137","Tondo"],["Barangay 138","Tondo"],["Barangay 139","Tondo"],["Barangay 140","Tondo"],["Barangay 141","Tondo"],["Barangay 142","Tondo"],["Barangay 143","Tondo"],["Barangay 144","Tondo"],["Barangay 145","Tondo"],["Barangay 146","Tondo"],["Barangay 147","Tondo"],["Barangay 148","Tondo"],["Barangay 149","Tondo"],["Barangay 150","Tondo"],["Barangay 151","Tondo"],["Barangay 152","Tondo"],["Barangay 153","Tondo"],["Barangay 154","Tondo"],["Barangay 155","Tondo"],["Barangay 156","Tondo"],["Barangay 157","Tondo"],["Barangay 158","Tondo"],["Barangay 159","Tondo"],["Barangay 160","Tondo"],["Barangay 161","Tondo"],["Barangay 162","Tondo"],["Barangay 163","Tondo"],["Barangay 164","Tondo"],["Barangay 165","Tondo"],["Barangay 166","Tondo"],["Barangay 167","Tondo"],["Barangay 168","Tondo"],["Barangay 169","Tondo"],["Barangay 170","Tondo"],["Barangay 171","Tondo"],["Barangay 172","Tondo"],["Barangay 173","Tondo"],["Barangay 174","Tondo"],["Barangay 175","Tondo"],["Barangay 176","Tondo"],["Barangay 177","Tondo"],["Barangay 178","Tondo"],["Barangay 179","Tondo"],["Barangay 180","Tondo"],["Barangay 181","Tondo"],["Barangay 182","Tondo"],["Barangay 183","Tondo"],["Barangay 184","Tondo"],["Barangay 185","Tondo"],["Barangay 186","Tondo"],["Barangay 187","Tondo"],["Barangay 188","Tondo"],["Barangay 189","Tondo"],["Barangay 190","Tondo"],["Barangay 191","Tondo"],["Barangay 192","Tondo"],["Barangay 193","Tondo"],["Barangay 194","Tondo"],["Barangay 195","Tondo"],["Barangay 196","Tondo"],["Barangay 197","Tondo"],["Barangay 198","Tondo"],["Barangay 199","Tondo"],["Barangay 200","Tondo"],["Barangay 201","Tondo"],["Barangay 202","Tondo"],["Barangay 202-A","Tondo"],["Barangay 203","Tondo"],["Barangay 204","Tondo"],["Barangay 205","Tondo"],["Barangay 206","Tondo"],["Barangay 207","Tondo"],["Barangay 208","Tondo"],["Barangay 209","Tondo"],["Barangay 210","Tondo"],["Barangay 211","Tondo"],["Barangay 212","Tondo"],["Barangay 213","Tondo"],["Barangay 214","Tondo"],["Barangay 215","Tondo"],["Barangay 216","Tondo"],["Barangay 217","Tondo"],["Barangay 218","Tondo"],["Barangay 219","Tondo"],["Barangay 220","Tondo"],["Barangay 221","Tondo"],["Barangay 222","Tondo"],["Barangay 223","Tondo"],["Barangay 224","Tondo"],["Barangay 225","Tondo"],["Barangay 226","Tondo"],["Barangay 227","Tondo"],["Barangay 228","Tondo"],["Barangay 229","Tondo"],["Barangay 230","Tondo"],["Barangay 231","Tondo"],["Barangay 232","Tondo"],["Barangay 233","Tondo"],["Barangay 234","Tondo"],["Barangay 235","Tondo"],["Barangay 236","Tondo"],["Barangay 237","Tondo"],["Barangay 238","Tondo"],["Barangay 239","Tondo"],["Barangay 240","Tondo"],["Barangay 241","Tondo"],["Barangay 242","Tondo"],["Barangay 243","Tondo"],["Barangay 244","Tondo"],["Barangay 245","Tondo"],["Barangay 246","Tondo"],["Barangay 247","Tondo"],["Barangay 248","Tondo"],["Barangay 249","Tondo"],["Barangay 250","Tondo"],["Barangay 251","Tondo"],["Barangay 252","Tondo"],["Barangay 253","Tondo"],["Barangay 254","Tondo"],["Barangay 255","Tondo"],["Barangay 256","Tondo"],["Barangay 257","Tondo"],["Barangay 258","Tondo"],["Barangay 259","Tondo"],["Barangay 260","Tondo"],["Barangay 261","Tondo"],["Barangay 262","Tondo"],["Barangay 263","Tondo"],["Barangay 264","Tondo"],["Barangay 265","Tondo"],["Barangay 266","Tondo"],["Barangay 267","Tondo"],["Barangay 268","San Nicolas"],["Barangay 269","San Nicolas"],["Barangay 270","San Nicolas"],["Barangay 271","San Nicolas"],["Barangay 272","San Nicolas"],["Barangay 273","San Nicolas"],["Barangay 274","San Nicolas"],["Barangay 275","San Nicolas"],["Barangay 276","San Nicolas"],["Barangay 281","San Nicolas"],["Barangay 282","San Nicolas"],["Barangay 283","San Nicolas"],["Barangay 284","San Nicolas"],["Barangay 285","San Nicolas"],["Barangay 286","San Nicolas"],["Barangay 287","Binondo"],["Barangay 288","Binondo"],["Barangay 289","Binondo"],["Barangay 290","Binondo"],["Barangay 291","Binondo"],["Barangay 292","Binondo"],["Barangay 293","Binondo"],["Barangay 294","Binondo"],["Barangay 295","Binondo"],["Barangay 296","Binondo"],["Barangay 297","Santa Cruz"],["Barangay 298","Santa Cruz"],["Barangay 299","Santa Cruz"],["Barangay 300","Santa Cruz"],["Barangay 301","Santa Cruz"],["Barangay 302","Santa Cruz"],["Barangay 303","Santa Cruz"],["Barangay 304","Santa Cruz"],["Barangay 305","Santa Cruz"],["Barangay 306","Quiapo"],["Barangay 307","Quiapo"],["Barangay 308","Quiapo"],["Barangay 309","Quiapo"],["Barangay 310","Santa Cruz"],["Barangay 311","Santa Cruz"],["Barangay 312","Santa Cruz"],["Barangay 313","Santa Cruz"],["Barangay 314","Santa Cruz"],["Barangay 315","Santa Cruz"],["Barangay 316","Santa Cruz"],["Barangay 317","Santa Cruz"],["Barangay 318","Santa Cruz"],["Barangay 319","Santa Cruz"],["Barangay 320","Santa Cruz"],["Barangay 321","Santa Cruz"],["Barangay 322","Santa Cruz"],["Barangay 323","Santa Cruz"],["Barangay 324","Santa Cruz"],["Barangay 325","Santa Cruz"],["Barangay 326","Santa Cruz"],["Barangay 327","Santa Cruz"],["Barangay 328","Santa Cruz"],["Barangay 329","Santa Cruz"],["Barangay 330","Santa Cruz"],["Barangay 331","Santa Cruz"],["Barangay 332","Santa Cruz"],["Barangay 333","Santa Cruz"],["Barangay 334","Santa Cruz"],["Barangay 335","Santa Cruz"],["Barangay 336","Santa Cruz"],["Barangay 337","Santa Cruz"],["Barangay 338","Santa Cruz"],["Barangay 339","Santa Cruz"],["Barangay 340","Santa Cruz"],["Barangay 341","Santa Cruz"],["Barangay 342","Santa Cruz"],["Barangay 343","Santa Cruz"],["Barangay 344","Santa Cruz"],["Barangay 345","Santa Cruz"],["Barangay 346","Santa Cruz"],["Barangay 347","Santa Cruz"],["Barangay 348","Santa Cruz"],["Barangay 349","Santa Cruz"],["Barangay 350","Santa Cruz"],["Barangay 351","Santa Cruz"],["Barangay 352","Santa Cruz"],["Barangay 353","Santa Cruz"],["Barangay 354","Santa Cruz"],["Barangay 355","Santa Cruz"],["Barangay 356","Santa Cruz"],["Barangay 357","Santa Cruz"],["Barangay 358","Santa Cruz"],["Barangay 359","Santa Cruz"],["Barangay 360","Santa Cruz"],["Barangay 361","Santa Cruz"],["Barangay 362","Santa Cruz"],["Barangay 363","Santa Cruz"],["Barangay 364","Santa Cruz"],["Barangay 365","Santa Cruz"],["Barangay 366","Santa Cruz"],["Barangay 367","Santa Cruz"],["Barangay 368","Santa Cruz"],["Barangay 369","Santa Cruz"],["Barangay 370","Santa Cruz"],["Barangay 371","Santa Cruz"],["Barangay 372","Santa Cruz"],["Barangay 373","Santa Cruz"],["Barangay 374","Santa Cruz"],["Barangay 375","Santa Cruz"],["Barangay 376","Santa Cruz"],["Barangay 377","Santa Cruz"],["Barangay 378","Santa Cruz"],["Barangay 379","Santa Cruz"],["Barangay 380","Santa Cruz"],["Barangay 381","Santa Cruz"],["Barangay 382","Santa Cruz"],["Barangay 383","Quiapo"],["Barangay 384","Quiapo"],["Barangay 385","Quiapo"],["Barangay 386","Quiapo"],["Barangay 387","Quiapo"],["Barangay 388","Quiapo"],["Barangay 389","Quiapo"],["Barangay 390","Quiapo"],["Barangay 391","Quiapo"],["Barangay 392","Quiapo"],["Barangay 393","Quiapo"],["Barangay 394","Quiapo"],["Barangay 395","Sampaloc"],["Barangay 396","Sampaloc"],["Barangay 397","Sampaloc"],["Barangay 398","Sampaloc"],["Barangay 399","Sampaloc"],["Barangay 400","Sampaloc"],["Barangay 401","Sampaloc"],["Barangay 402","Sampaloc"],["Barangay 403","Sampaloc"],["Barangay 404","Sampaloc"],["Barangay 405","Sampaloc"],["Barangay 406","Sampaloc"],["Barangay 407","Sampaloc"],["Barangay 408","Sampaloc"],["Barangay 409","Sampaloc"],["Barangay 410","Sampaloc"],["Barangay 411","Sampaloc"],["Barangay 412","Sampaloc"],["Barangay 413","Sampaloc"],["Barangay 414","Sampaloc"],["Barangay 415","Sampaloc"],["Barangay 416","Sampaloc"],["Barangay 417","Sampaloc"],["Barangay 418","Sampaloc"],["Barangay 419","Sampaloc"],["Barangay 420","Sampaloc"],["Barangay 421","Sampaloc"],["Barangay 422","Sampaloc"],["Barangay 423","Sampaloc"],["Barangay 424","Sampaloc"],["Barangay 425","Sampaloc"],["Barangay 426","Sampaloc"],["Barangay 427","Sampaloc"],["Barangay 428","Sampaloc"],["Barangay 429","Sampaloc"],["Barangay 430","Sampaloc"],["Barangay 431","Sampaloc"],["Barangay 432","Sampaloc"],["Barangay 433","Sampaloc"],["Barangay 434","Sampaloc"],["Barangay 435","Sampaloc"],["Barangay 436","Sampaloc"],["Barangay 437","Sampaloc"],["Barangay 438","Sampaloc"],["Barangay 439","Sampaloc"],["Barangay 440","Sampaloc"],["Barangay 441","Sampaloc"],["Barangay 442","Sampaloc"],["Barangay 443","Sampaloc"],["Barangay 444","Sampaloc"],["Barangay 445","Sampaloc"],["Barangay 446","Sampaloc"],["Barangay 447","Sampaloc"],["Barangay 448","Sampaloc"],["Barangay 449","Sampaloc"],["Barangay 450","Sampaloc"],["Barangay 451","Sampaloc"],["Barangay 452","Sampaloc"],["Barangay 453","Sampaloc"],["Barangay 454","Sampaloc"],["Barangay 455","Sampaloc"],["Barangay 456","Sampaloc"],["Barangay 457","Sampaloc"],["Barangay 458","Sampaloc"],["Barangay 459","Sampaloc"],["Barangay 460","Sampaloc"],["Barangay 461","Sampaloc"],["Barangay 462","Sampaloc"],["Barangay 463","Sampaloc"],["Barangay 464","Sampaloc"],["Barangay 465","Sampaloc"],["Barangay 466","Sampaloc"],["Barangay 467","Sampaloc"],["Barangay 468","Sampaloc"],["Barangay 469","Sampaloc"],["Barangay 470","Sampaloc"],["Barangay 471","Sampaloc"],["Barangay 472","Sampaloc"],["Barangay 473","Sampaloc"],["Barangay 474","Sampaloc"],["Barangay 475","Sampaloc"],["Barangay 476","Sampaloc"],["Barangay 477","Sampaloc"],["Barangay 478","Sampaloc"],["Barangay 479","Sampaloc"],["Barangay 480","Sampaloc"],["Barangay 481","Sampaloc"],["Barangay 482","Sampaloc"],["Barangay 483","Sampaloc"],["Barangay 484","Sampaloc"],["Barangay 485","Sampaloc"],["Barangay 486","Sampaloc"],["Barangay 487","Sampaloc"],["Barangay 488","Sampaloc"],["Barangay 489","Sampaloc"],["Barangay 490","Sampaloc"],["Barangay 491","Sampaloc"],["Barangay 492","Sampaloc"],["Barangay 493","Sampaloc"],["Barangay 494","Sampaloc"],["Barangay 495","Sampaloc"],["Barangay 496","Sampaloc"],["Barangay 497","Sampaloc"],["Barangay 498","Sampaloc"],["Barangay 499","Sampaloc"],["Barangay 500","Sampaloc"],["Barangay 501","Sampaloc"],["Barangay 502","Sampaloc"],["Barangay 503","Sampaloc"],["Barangay 504","Sampaloc"],["Barangay 505","Sampaloc"],["Barangay 506","Sampaloc"],["Barangay 507","Sampaloc"],["Barangay 508","Sampaloc"],["Barangay 509","Sampaloc"],["Barangay 510","Sampaloc"],["Barangay 511","Sampaloc"],["Barangay 512","Sampaloc"],["Barangay 513","Sampaloc"],["Barangay 514","Sampaloc"],["Barangay 515","Sampaloc"],["Barangay 516","Sampaloc"],["Barangay 517","Sampaloc"],["Barangay 518","Sampaloc"],["Barangay 519","Sampaloc"],["Barangay 520","Sampaloc"],["Barangay 521","Sampaloc"],["Barangay 522","Sampaloc"],["Barangay 523","Sampaloc"],["Barangay 524","Sampaloc"],["Barangay 525","Sampaloc"],["Barangay 526","Sampaloc"],["Barangay 527","Sampaloc"],["Barangay 528","Sampaloc"],["Barangay 529","Sampaloc"],["Barangay 530","Sampaloc"],["Barangay 531","Sampaloc"],["Barangay 532","Sampaloc"],["Barangay 533","Sampaloc"],["Barangay 534","Sampaloc"],["Barangay 535","Sampaloc"],["Barangay 536","Sampaloc"],["Barangay 537","Sampaloc"],["Barangay 538","Sampaloc"],["Barangay 539","Sampaloc"],["Barangay 540","Sampaloc"],["Barangay 541","Sampaloc"],["Barangay 542","Sampaloc"],["Barangay 543","Sampaloc"],["Barangay 544","Sampaloc"],["Barangay 545","Sampaloc"],["Barangay 546","Sampaloc"],["Barangay 547","Sampaloc"],["Barangay 548","Sampaloc"],["Barangay 549","Sampaloc"],["Barangay 550","Sampaloc"],["Barangay 551","Sampaloc"],["Barangay 552","Sampaloc"],["Barangay 553","Sampaloc"],["Barangay 554","Sampaloc"],["Barangay 555","Sampaloc"],["Barangay 556","Sampaloc"],["Barangay 557","Sampaloc"],["Barangay 558","Sampaloc"],["Barangay 559","Sampaloc"],["Barangay 560","Sampaloc"],["Barangay 561","Sampaloc"],["Barangay 562","Sampaloc"],["Barangay 563","Sampaloc"],["Barangay 564","Sampaloc"],["Barangay 565","Sampaloc"],["Barangay 566","Sampaloc"],["Barangay 567","Sampaloc"],["Barangay 568","Sampaloc"],["Barangay 569","Sampaloc"],["Barangay 570","Sampaloc"],["Barangay 571","Sampaloc"],["Barangay 572","Sampaloc"],["Barangay 573","Sampaloc"],["Barangay 574","Sampaloc"],["Barangay 575","Sampaloc"],["Barangay 576","Sampaloc"],["Barangay 577","Sampaloc"],["Barangay 578","Sampaloc"],["Barangay 579","Sampaloc"],["Barangay 580","Sampaloc"],["Barangay 581","Sampaloc"],["Barangay 582","Sampaloc"],["Barangay 583","Sampaloc"],["Barangay 584","Sampaloc"],["Barangay 585","Sampaloc"],["Barangay 586","Sampaloc"],["Barangay 587","Sampaloc"],["Barangay 587-A","Sampaloc"],["Barangay 588","Sampaloc"],["Barangay 589","Sampaloc"],["Barangay 590","Sampaloc"],["Barangay 591","Sampaloc"],["Barangay 592","Sampaloc"],["Barangay 593","Sampaloc"],["Barangay 594","Sampaloc"],["Barangay 595","Sampaloc"],["Barangay 596","Sampaloc"],["Barangay 597","Sampaloc"],["Barangay 598","Sampaloc"],["Barangay 599","Sampaloc"],["Barangay 600","Sampaloc"],["Barangay 601","Sampaloc"],["Barangay 602","Sampaloc"],["Barangay 603","Sampaloc"],["Barangay 604","Sampaloc"],["Barangay 605","Sampaloc"],["Barangay 606","Sampaloc"],["Barangay 607","Sampaloc"],["Barangay 608","Sampaloc"],["Barangay 609","Sampaloc"],["Barangay 610","Sampaloc"],["Barangay 611","Sampaloc"],["Barangay 612","Sampaloc"],["Barangay 613","Sampaloc"],["Barangay 614","Sampaloc"],["Barangay 615","Sampaloc"],["Barangay 616","Sampaloc"],["Barangay 617","Sampaloc"],["Barangay 618","Sampaloc"],["Barangay 619","Sampaloc"],["Barangay 620","Sampaloc"],["Barangay 621","Sampaloc"],["Barangay 622","Sampaloc"],["Barangay 623","Sampaloc"],["Barangay 624","Sampaloc"],["Barangay 625","Sampaloc"],["Barangay 626","Sampaloc"],["Barangay 627","Sampaloc"],["Barangay 628","Sampaloc"],["Barangay 629","Sampaloc"],["Barangay 630","Sampaloc"],["Barangay 631","Sampaloc"],["Barangay 632","Sampaloc"],["Barangay 633","Sampaloc"],["Barangay 634","Sampaloc"],["Barangay 635","Sampaloc"],["Barangay 636","Sampaloc"],["Barangay 637","San Miguel"],["Barangay 638","San Miguel"],["Barangay 639","San Miguel"],["Barangay 640","San Miguel"],["Barangay 641","San Miguel"],["Barangay 642","San Miguel"],["Barangay 643","San Miguel"],["Barangay 644","San Miguel"],["Barangay 645","San Miguel"],["Barangay 646","San Miguel"],["Barangay 647","San Miguel"],["Barangay 648","San Miguel"],["Barangay 649","Port Area"],["Barangay 650","Port Area"],["Barangay 651","Port Area"],["Barangay 652","Port Area"],["Barangay 653","Port Area"],["Barangay 654","Intramuros"],["Barangay 655","Intramuros"],["Barangay 656","Intramuros"],["Barangay 657","Intramuros"],["Barangay 658","Intramuros"],["Barangay 659","Ermita"],["Barangay 659-A","Ermita"],["Barangay 660","Ermita"],["Barangay 660-A","Ermita"],["Barangay 661","Ermita"],["Barangay 662","Paco"],["Barangay 663","Ermita"],["Barangay 663-A","Ermita"],["Barangay 664","Ermita"],["Barangay 664-A","Paco"],["Barangay 666","Ermita"],["Barangay 667","Ermita"],["Barangay 668","Ermita"],["Barangay 669","Ermita"],["Barangay 670","Ermita"],["Barangay 671","Paco"],["Barangay 672","Paco"],["Barangay 673","Paco"],["Barangay 674","Paco"],["Barangay 675","Paco"],["Barangay 676","Paco"],["Barangay 677","Paco"],["Barangay 678","Paco"],["Barangay 679","Paco"],["Barangay 680","Paco"],["Barangay 681","Paco"],["Barangay 682","Paco"],["Barangay 683","Paco"],["Barangay 684","Paco"],["Barangay 685","Paco"],["Barangay 686","Paco"],["Barangay 687","Paco"],["Barangay 688","Malate"],["Barangay 689","Malate"],["Barangay 690","Malate"],["Barangay 691","Malate"],["Barangay 692","Malate"],["Barangay 693","Malate"],["Barangay 694","Malate"],["Barangay 695","Malate"],["Barangay 696","Malate"],["Barangay 697","Malate"],["Barangay 698","Malate"],["Barangay 699","Malate"],["Barangay 700","Malate"],["Barangay 701","Malate"],["Barangay 702","Malate"],["Barangay 703","Malate"],["Barangay 704","Malate"],["Barangay 705","Malate"],["Barangay 706","Malate"],["Barangay 707","Malate"],["Barangay 708","Malate"],["Barangay 709","Malate"],["Barangay 710","Malate"],["Barangay 711","Malate"],["Barangay 712","Malate"],["Barangay 713","Malate"],["Barangay 714","Malate"],["Barangay 715","Malate"],["Barangay 716","Malate"],["Barangay 717","Malate"],["Barangay 718","Malate"],["Barangay 719","Malate"],["Barangay 720","Malate"],["Barangay 721","Malate"],["Barangay 722","Malate"],["Barangay 723","Malate"],["Barangay 724","Malate"],["Barangay 725","Malate"],["Barangay 726","Malate"],["Barangay 727","Malate"],["Barangay 728","Malate"],["Barangay 729","Malate"],["Barangay 730","Malate"],["Barangay 731","Malate"],["Barangay 732","Malate"],["Barangay 733","Malate"],["Barangay 734","Malate"],["Barangay 735","Malate"],["Barangay 736","Malate"],["Barangay 737","Malate"],["Barangay 738","Malate"],["Barangay 739","Malate"],["Barangay 740","Malate"],["Barangay 741","Malate"],["Barangay 742","Malate"],["Barangay 743","Malate"],["Barangay 744","Malate"],["Barangay 745","Santa Ana"],["Barangay 746","Santa Ana"],["Barangay 747","Santa Ana"],["Barangay 748","Santa Ana"],["Barangay 749","Santa Ana"],["Barangay 750","Santa Ana"],["Barangay 751","Santa Ana"],["Barangay 752","Santa Ana"],["Barangay 753","Santa Ana"],["Barangay 754","Santa Ana"],["Barangay 755","Santa Ana"],["Barangay 756","Santa Ana"],["Barangay 757","Santa Ana"],["Barangay 758","Santa Ana"],["Barangay 759","Santa Ana"],["Barangay 760","Santa Ana"],["Barangay 761","Santa Ana"],["Barangay 762","Santa Ana"],["Barangay 763","Santa Ana"],["Barangay 764","Santa Ana"],["Barangay 765","Santa Ana"],["Barangay 766","Santa Ana"],["Barangay 767","Santa Ana"],["Barangay 768","Santa Ana"],["Barangay 769","Santa Ana"],["Barangay 770","Santa Ana"],["Barangay 771","Santa Ana"],["Barangay 772","Santa Ana"],["Barangay 773","Santa Ana"],["Barangay 774","Santa Ana"],["Barangay 775","Santa Ana"],["Barangay 776","Santa Ana"],["Barangay 777","Santa Ana"],["Barangay 778","Santa Ana"],["Barangay 779","Santa Ana"],["Barangay 780","Santa Ana"],["Barangay 781","Santa Ana"],["Barangay 782","Santa Ana"],["Barangay 783","Santa Ana"],["Barangay 784","Santa Ana"],["Barangay 785","Santa Ana"],["Barangay 786","Santa Ana"],["Barangay 787","Santa Ana"],["Barangay 788","Santa Ana"],["Barangay 789","Santa Ana"],["Barangay 790","Santa Ana"],["Barangay 791","Santa Ana"],["Barangay 792","Santa Ana"],["Barangay 793","Santa Ana"],["Barangay 794","Santa Ana"],["Barangay 795","Santa Ana"],["Barangay 796","Santa Ana"],["Barangay 797","Santa Ana"],["Barangay 798","Santa Ana"],["Barangay 799","Santa Ana"],["Barangay 800","Santa Ana"],["Barangay 801","Santa Ana"],["Barangay 802","Santa Ana"],["Barangay 803","Santa Ana"],["Barangay 804","Santa Ana"],["Barangay 805","Santa Ana"],["Barangay 806","Santa Ana"],["Barangay 807","Santa Ana"],["Barangay 808","Santa Ana"],["Barangay 809","Paco"],["Barangay 810","Paco"],["Barangay 811","Paco"],["Barangay 812","Paco"],["Barangay 813","Paco"],["Barangay 814","Paco"],["Barangay 815","Paco"],["Barangay 816","Paco"],["Barangay 817","Paco"],["Barangay 818","Paco"],["Barangay 818-A","Santa Ana"],["Barangay 819","Paco"],["Barangay 820","Paco"],["Barangay 821","Paco"],["Barangay 822","Paco"],["Barangay 823","Paco"],["Barangay 824","Paco"],["Barangay 825","Paco"],["Barangay 826","Paco"],["Barangay 827","Paco"],["Barangay 828","Paco"],["Barangay 829","Paco"],["Barangay 830","Paco"],["Barangay 831","Paco"],["Barangay 832","Paco"],["Barangay 833","Pandacan"],["Barangay 834","Pandacan"],["Barangay 835","Pandacan"],["Barangay 836","Pandacan"],["Barangay 837","Pandacan"],["Barangay 838","Pandacan"],["Barangay 839","Pandacan"],["Barangay 840","Pandacan"],["Barangay 841","Pandacan"],["Barangay 842","Pandacan"],["Barangay 843","Pandacan"],["Barangay 844","Pandacan"],["Barangay 845","Pandacan"],["Barangay 846","Pandacan"],["Barangay 847","Pandacan"],["Barangay 848","Pandacan"],["Barangay 849","Pandacan"],["Barangay 850","Pandacan"],["Barangay 851","Pandacan"],["Barangay 852","Pandacan"],["Barangay 853","Pandacan"],["Barangay 855","Pandacan"],["Barangay 856","Pandacan"],["Barangay 857","Pandacan"],["Barangay 858","Pandacan"],["Barangay 859","Pandacan"],["Barangay 860","Pandacan"],["Barangay 861","Pandacan"],["Barangay 862","Pandacan"],["Barangay 863","Pandacan"],["Barangay 864","Pandacan"],["Barangay 865","Pandacan"],["Barangay 866","Santa Ana"],["Barangay 867","Pandacan"],["Barangay 868","Pandacan"],["Barangay 869","Pandacan"],["Barangay 870","Pandacan"],["Barangay 871","Pandacan"],["Barangay 872","Pandacan"],["Barangay 873","Santa Ana"],["Barangay 874","Santa Ana"],["Barangay 875","Santa Ana"],["Barangay 876","Santa Ana"],["Barangay 877","Santa Ana"],["Barangay 878","Santa Ana"],["Barangay 879","Santa Ana"],["Barangay 880","Santa Ana"],["Barangay 881","Santa Ana"],["Barangay 882","Santa Ana"],["Barangay 883","Santa Ana"],["Barangay 884","Santa Ana"],["Barangay 885","Santa Ana"],["Barangay 886","Santa Ana"],["Barangay 887","Santa Ana"],["Barangay 888","Santa Ana"],["Barangay 889","Santa Ana"],["Barangay 890","Santa Ana"],["Barangay 891","Santa Ana"],["Barangay 892","Santa Ana"],["Barangay 893","Santa Ana"],["Barangay 894","Santa Ana"],["Barangay 895","Santa Ana"],["Barangay 896","Santa Ana"],["Barangay 897","Santa Ana"],["Barangay 898","Santa Ana"],["Barangay 899","Santa Ana"],["Barangay 900","Santa Ana"],["Barangay 901","Santa Ana"],["Barangay 902","Santa Ana"],["Barangay 903","Santa Ana"],["Barangay 904","Santa Ana"],["Barangay 905","Santa Ana"]];
+
+// ------------------------------------------------------------------ the forms' questions, in their order
+const zones = ['TONDO 1','TONDO 2','STA.CRUZ','BINONDO','SAMPALOC','STA.MESA','ERMITA','PACO','SAN NICOLAS','SAN ANDRES','STA.ANA','MALATE','PORT AREA','QUIAPO','INTRAMUROS','SAN MIGUEL','PANDACAN','IF OUTSIDE MANILA (PLEASE SPECIFY)'];
+const districts = ['DISTRICT 1','DISTRICT 2','DISTRICT 3','DISTRICT 4','DISTRICT 5','DISTRICT 6'];
+const districtHint = 'For reference:\n• DISTRICT 1&2 (TONDO)\n• DISTRICT 3 (QUIAPO, BINONDO, STA.CRUZ)\n• DISTRICT 4 (SAMPALOC)\n• DISTRICT 5 (ERMITA, PACO, MALATE, INTRAMUROS, SAN ANDRES)\n• DISTRICT 6 (SAN MIGUEL, STA. ANA, PACO, STA.MESA)\n• OUTSIDE MANILA (LOCATION CATERED FROM OTHER CITIES)';
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const quarters = ['1st Quarter','2nd Quarter','3rd Quarter','4th Quarter'];
+const quarterHint = '• 1st Quarter - January, February, March\n• 2nd Quarter - April, May, June\n• 3rd Quarter - July, August, September\n• 4th Quarter - October, November, December';
+const hospitals = ['Refused to transport','Double two upon arrival','Philippine Orthopedic Center (P.O.C.)','Ospital ng Maynila (OSMA)','Ospital ng Sampaloc (OSAM)','Ospital ng Tondo','Philippine General Hospital (PGH)','Sta. Ana Hospital','Gat. Andres Bonifacio Hospital','Tondo Medical Hospital','Jose Reyes Hospital','Chinese General Hospital','Metropolitan Hospital','Manila Medical Center','St. Jude Hospital','Infant Jesus Hospital','UST Hospital',"Manila Doctor's Hospital",'Mary Johnston Hospital','Justice Jose Abad Santos General Hospital (JJASGEN)','UERM','Other'];
+const vehicles = ['Motorcycle','Pedestrian','Tricycle','E-bike','Bicycle','E-trike','Truck','Van','PUV','PUJ','SUV','Sedan','Taxi','Ambulance','Fire Truck','Other'];
+const ages = ['0-17 yrs old','18-25 yrs old','26-30 yrs old','31-35 yrs old','36-40 yrs old','41-45 yrs old','46-50 yrs old','50-60 yrs old','61 yrs old and above'];
+const encoders = ['Encoder Name 1','Encoder Name 2','Encoder Name 3','Encoder Name 4','Encoder Name 5','Encoder Name 6','Encoder Name 7','Encoder Name 8','Other'];
+
+// Question kinds: text, textarea, number, datetime, select (dropdown), radio (choices), check (several), map (pin), photos.
+const FORMS = {
+  emr: { title: 'EMERGENCY MEDICAL RESPONSE FORM', sections: [
+    { h: 'GENERAL INFORMATION' },
+    { id:'datetime', k:'datetime', t:'DATE AND TIME', req:true },
+    { id:'pin', k:'map', t:'LOCATION', req:true, hint:'Pin your exact location' },
+    { id:'loc', k:'text', t:'ENTER YOUR LOCATION', req:true, hint:'Type the exact location\n• Landmark\n• Street Intersection\n• Establishment\n• Barangay\n"Manila City Hall, Padre Burgos Ave, Ermita, Brgy 659"' },
+    { id:'leader', k:'text', t:'TEAM LEADER', req:true, hint:'Enter the name of the Team Leader' },
+    { id:'zone', k:'radio', t:'ADMINISTRATIVE LOCATION', req:true, hint:'ZONE', opts: zones },
+    { id:'district', k:'radio', t:'DISTRICT LOCATION', req:true, hint: districtHint, opts: [...districts, 'IF OUTSIDE MANILA (PLEASE SPECIFY)'] },
+    { id:'month', k:'select', t:'INCIDENT MONTH', req:true, opts: months },
+    { id:'quarter', k:'radio', t:'QUARTER', hint: quarterHint, opts: quarters },
+    { id:'emrType', k:'radio', t:'TYPE OF EMR', req:true, opts:['Vehicular / Road Accident','Medical Call','Medical Standby','Patient Transport'] },
+    { id:'cause', k:'radio', t:'CAUSE OF ROAD ACCIDENT', req:true, opts:['Drunk Driving','Loss of control','Break Failure','Overspeeding','Driver Negligence','Road Condition','Road Hazards','Inclement Weather','Road Traffic Collision','Other'], when: a => a.emrType === 'Vehicular / Road Accident' },
+    { id:'vehicle1', k:'radio', t:'TYPE OF VEHICLE INVOLVED: VEHICLE 1', opts: vehicles, when: a => a.emrType === 'Vehicular / Road Accident' },
+    { id:'vehicle2', k:'radio', t:'TYPE OF VEHICLE INVOLVED: VEHICLE 2', opts: vehicles, when: a => a.emrType === 'Vehicular / Road Accident' },
+    { id:'incidentPhotos', k:'photos', t:'IMAGE OF THE INCIDENT', req:true, min:3, hint:'Drop image here or select image (minimum number of files required: 3)', when: a => a.emrType === 'Vehicular / Road Accident' },
+    { id:'patients', k:'radio', t:'NO. OF PATIENT INVOLVED', req:true, opts:['1','2','3','4','5','6','7','8'] },
+    { patients: true },
+  ]},
+  flood: { title: 'FLOOD MONITORING/ROVING FORM 2026', intro:'Flood Monitoring Survey aims to gather real-time data on flood-affected areas to enhance response efforts and disaster management. By providing information on water levels, affected communities, and urgent needs, this survey helps authorities and responders take swift action.', sections: [
+    { id:'encoder', k:'text', t:'NAME OF ENCODER' },
+    { id:'datetime', k:'datetime', t:'DATE AND TIME', req:true },
+    { id:'district', k:'select', t:'DISTRICT', req:true, opts: [...districts, 'OUTSIDE MANILA'] },
+    { id:'adminDistrict', k:'select', t:'ADMIN DISTRICT', req:true, hint: districtHint, opts: zones },
+    { id:'barangay', k:'select', t:'BARANGAY', opts: BARANGAYS.map(b => b[0]) },
+    { id:'pin', k:'map', t:'LOCATION OF FLOOD', req:true },
+    { id:'loc', k:'text', t:'LOCATION', req:true, hint:'LOCATION (House No./ Street / Barangay/Landmark)\n(sample format): #123 Mabuhay St. Barangay. 999, Tondo, Manila' },
+    { id:'month', k:'select', t:'MONTH', req:true, opts: months },
+    { id:'quarter', k:'radio', t:'QUARTERLY', opts:['1ST QUARTER','2ND QUARTER','3RD QUARTER','4TH QUARTER'], hint:'1ST QUARTER - January to March  2ND QUARTER - April to June\n3RD QUARTER - July to September  4TH QUARTER - October-December' },
+    { id:'cause', k:'radio', t:'CAUSE OF FLOOD', req:true, opts:['CLOGGED WATERWAYS','HEAVY RAINFALL','TROPICAL CYCLONE','STORM SURGE'] },
+    { id:'tcName', k:'text', t:'TROPICAL NAME', when: a => a.cause === 'TROPICAL CYCLONE' },
+    { id:'signal', k:'radio', t:'Tropical Cyclone Wind Signal', opts:['SIGNAL #1','SIGNAL #2','SIGNAL #3','SIGNAL #4','SIGNAL #5'], when: a => a.cause === 'TROPICAL CYCLONE' },
+    { id:'level', k:'radio', t:'FLOOD LEVEL', req:true, hint:'8" (inches) - Gutter deep flood  10" (inches) - Half-knee-deep flood  13" (INCHES) - HALF TIRE LEVEL FLOOD\n19" (inches) - Knee-deep flood  28" (INCHES) - TIRE DEEP FLOOD  37" (inches) - Waist deep flood  45" (inches) - Chest deep flood', opts:['GUTTER DEEP LEVEL','HALF KNEE DEEP LEVEL','HALF TIRE LEVEL DEEP','KNEE DEEP LEVEL','TIRE LEVEL DEEP','WAIST LEVEL DEEP','CHEST DEEP','ABOVE THE CHEST DEEP','HEAD DEEP'] },
+    { id:'status', k:'radio', t:'FLOOD STATUS', req:true, hint:'PASSABLE TO ALL TYPES OF VEHICLES (PATV): 8" Gutter deep, 10" Half-knee deep\nNOT PASSABLE TO LIGHT VEHICLES (NPLV): 13" Half Tire Level, 19" Knee deep\nNOT PASSABLE TO ALL TYPES OF VEHICLES (NPATV): 37" Waist deep, 45" Chest deep', opts:['PATV','NPLV','NPATV','Other'] },
+  ]},
+  fire: { title: 'FIRE INCIDENT 2026', intro:'The Fire Incident Report Form is designed to collect essential information about fire incidents to improve emergency response and disaster management.', sections: [
+    { id:'encoder', k:'radio', t:'NAME OF ENCODER', req:true, hint:'Please state your name.', opts: encoders },
+    { id:'datetime', k:'datetime', t:'FIRE INCIDENT DATE', req:true, hint:'Select the exact date and time.' },
+    { id:'loc', k:'text', t:'FIRE INCIDENT LOCATION', req:true, hint:'LOCATION (House No. / Street / Barangay)\n(sample format): #123 Mabuhay St. Barangay. 999, Tondo, Manila' },
+    { id:'pin', k:'map', t:'LOCATION', req:true, hint:'Please pin the exact location.' },
+    { id:'month', k:'select', t:'MONTH', req:true, hint:'Please state the month of the fire incident.', opts: months },
+    { id:'quarter', k:'radio', t:'QUARTER', req:true, hint:'• 1ST QUARTER - January to March\n• 2ND QUARTER - April to June\n• 3RD QUARTER - July to September\n• 4TH QUARTER - October- December', opts:['1ST QUARTER','2ND QUARTER','3RD QUARTER','4TH QUARTER'] },
+    { id:'district', k:'radio', t:'DISTRICT', req:true, hint:'Select the district where the fire incident occurred.', opts: districts },
+    { id:'barangay', k:'select', t:'BARANGAY', req:true, opts: BARANGAYS.map(b => b[0]) },
+    { id:'adminDistrict', k:'select', t:'ADMIN DISTRICT', req:true, opts: zones },
+    { id:'fireType', k:'radio', t:'TYPE OF FIRE INCIDENT', opts:['Rubbish','Electrical','Commercial','Residential','Government Office','Vehicular Fire','Warehouse','Residential/ Commercial'] },
+    { id:'alarm', k:'select', t:'HIGHEST ALARM LEVEL', opts:['1st Alarm','2nd Alarm','3rd Alarm','4th Alarm','5th Alarm','Task Force Alpha','Task Force Bravo','Task Force Charlie','Task Force Delta','Task Force Echo','General Alarm'] },
+    { id:'damage', k:'number', t:'ESTIMATED DAMAGE' },
+    { id:'injured', k:'number', t:'NO. OF INJURED INDIVIDUALS' },
+    { id:'families', k:'number', t:'NO. OF AFFECTED FAMILIES' },
+    { id:'individuals', k:'number', t:'NO. OF AFFECTED INDIVIDUALS' },
+    { id:'photos', k:'photos', t:'FIRE INCIDENT DOCUMENTATION', min:2, max:15, hint:'Please put atleast 2 pictures' },
+    { id:'alarmDetails', k:'textarea', t:'ALARM DETAILS', hint:'Alarm Details Format\n1st Alarm: 0000H\n2nd Alarm: 0000H\nUnder Control: 0000H\nFire Out: 0000H' },
+  ]},
+};
+const PATIENT = [
+  { id:'name', k:'text', t:'NAME OF THE PATIENT', req:true },
+  { id:'age', k:'radio', t:'AGE', opts: ages },
+  { id:'gender', k:'radio', t:'GENDER', opts:['Male','Female','Other'] },
+  { id:'hospital', k:'radio', t:'RECEIVING HOSPITAL', req:true, opts: hospitals },
+  { id:'photos', k:'photos', t:'UPLOAD PHOTOS', req:true, min:3, hint:'Kindly attached the ff.\n• PCR (front and back)\n• 3 - 8 incident photos' },
+  { id:'complaint', k:'text', t:'CHIEF COMPLAINTS' },
+  { id:'remarks', k:'textarea', t:'REMARKS' },
+];
+
+// ------------------------------------------------------------------ building the page
+const $ = (s, r = document) => r.querySelector(s);
+const form = $('#form');
+let answers = {}, maps = [], started = null, tick = null, current = 'emr';
+
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') e.className = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  for (const c of kids) if (c != null) e.append(c);
+  return e;
+}
+
+function question(q, key) {
+  const box = el('div', { class: 'q', 'data-key': key });
+  box.append(el('div', { class: 't' }, q.t, q.req ? el('span', { class: 'req' }, '*') : null));
+  if (q.hint) box.append(el('div', { class: 'hint' }, q.hint));
+  const set = v => { answers[key] = v; box.classList.remove('bad'); render(true); };
+  const val = answers[key];
+  switch (q.k) {
+    case 'text': box.append(el('input', { type: 'text', value: val ?? '', oninput: e => { answers[key] = e.target.value; box.classList.remove('bad'); } })); break;
+    case 'textarea': { const t = el('textarea', { maxlength: '1000', oninput: e => { answers[key] = e.target.value; } }); t.value = val ?? ''; box.append(t); break; }
+    case 'number': box.append(el('input', { type: 'number', min: '0', value: val ?? '', oninput: e => { answers[key] = e.target.value; } })); break;
+    case 'datetime': box.append(el('input', { type: 'datetime-local', value: val ?? '', oninput: e => { answers[key] = e.target.value; box.classList.remove('bad'); } })); break;
+    case 'select': {
+      const s = el('select', { onchange: e => set(e.target.value) }, el('option', { value: '' }, '-Please select-'));
+      for (const o of q.opts) { const op = el('option', { value: o }, o); if (o === val) op.selected = true; s.append(op); }
+      box.append(s); break;
+    }
+    case 'radio': {
+      const g = el('div', { class: 'opts' });
+      for (const o of q.opts) {
+        const r = el('input', { type: 'radio', name: key, value: o, onchange: () => set(o) });
+        if (o === val) r.checked = true;
+        g.append(el('label', {}, r, o));
+      }
+      box.append(g); break;
+    }
+    case 'map': {
+      const m = el('div', { class: 'map' });
+      const ll = el('div', { class: 'latlon' }, val ? `Lat: ${val[0].toFixed(6)}  Lon: ${val[1].toFixed(6)}` : 'No geometry captured yet.');
+      box.append(m, ll);
+      queueMicrotask(() => {
+        const map = L.map(m).setView(val ?? [14.5995, 120.9842], val ? 17 : 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+        let marker = val ? L.marker(val).addTo(map) : null;
+        map.on('click', e => {
+          if (map.getZoom() < 15) { ll.textContent = 'Zoom in closer to set location.'; return; }
+          const p = [e.latlng.lat, e.latlng.lng];
+          answers[key] = p; box.classList.remove('bad');
+          marker ? marker.setLatLng(p) : (marker = L.marker(p).addTo(map));
+          ll.textContent = `Lat: ${p[0].toFixed(6)}  Lon: ${p[1].toFixed(6)}`;
+        });
+        maps.push(map);
+      });
+      break;
+    }
+    case 'photos': {
+      const n = el('div', { class: 'latlon' }, `${(val ?? []).length} file(s)`);
+      const i = el('input', { type: 'file', accept: 'image/*', multiple: '', onchange: e => {
+        answers[key] = [...(answers[key] ?? []), ...[...e.target.files].map(f => f.name)];
+        n.textContent = `${answers[key].length} file(s)`; box.classList.remove('bad');
+      } });
+      box.append(i, n); break;
+    }
+  }
+  box.append(el('div', { class: 'err hidden' }));
+  return box;
+}
+
+function visible(q) { return !q.when || q.when(answers); }
+
+function render(keepScroll) {
+  const y = window.scrollY;
+  maps.forEach(m => m.remove()); maps = [];
+  form.innerHTML = '';
+  const f = FORMS[current];
+  form.append(el('h2', {}, f.title));
+  if (f.intro) form.append(el('p', { class: 'hint' }, f.intro));
+  for (const q of f.sections) {
+    if (q.h) { form.append(el('h3', {}, q.h)); continue; }
+    if (q.patients) {
+      const n = Number(answers.patients || 0);
+      for (let p = 1; p <= n; p++) {
+        const box = el('div', { class: 'patient' }, el('h3', {}, `PATIENT ${p}: PATIENT NO. ${p} DETAILS`));
+        for (const pq of PATIENT) box.append(question(pq, `p${p}.${pq.id}`));
+        form.append(box);
+      }
+      continue;
+    }
+    if (visible(q)) form.append(question(q, q.id));
+  }
+  form.append(el('div', { class: 'row', style: 'margin-top:20px' }, el('button', { type: 'submit', class: 'primary' }, 'Submit')));
+  if (keepScroll) window.scrollTo(0, y);
+}
+
+function requiredMissing() {
+  const missing = [];
+  const f = FORMS[current];
+  const check = (q, key) => {
+    const v = answers[key];
+    let ok = true;
+    if (q.k === 'photos') {
+      const c = (v ?? []).length;
+      ok = c >= (q.min && (q.req || c > 0) ? q.min : 0) && (!q.max || c <= q.max);
+      if (!q.req && c === 0) ok = true;
+    } else if (q.req) ok = Array.isArray(v) ? v.length > 0 : (v ?? '').toString().trim() !== '';
+    if (!ok) missing.push(key);
+  };
+  for (const q of f.sections) {
+    if (q.h) continue;
+    if (q.patients) { for (let p = 1; p <= Number(answers.patients || 0); p++) for (const pq of PATIENT) check(pq, `p${p}.${pq.id}`); continue; }
+    if (visible(q)) check(q, q.id);
+  }
+  return missing;
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!started) return;
+  const missing = requiredMissing();
+  document.querySelectorAll('.q').forEach(b => {
+    const bad = missing.includes(b.dataset.key);
+    b.classList.toggle('bad', bad);
+    const er = b.querySelector('.err'); er.textContent = bad ? 'This field is required.' : ''; er.classList.toggle('hidden', !bad);
+  });
+  if (missing.length) { document.querySelector(`.q[data-key="${missing[0]}"]`).scrollIntoView({ block: 'center' }); return; }
+  const ended = new Date();
+  const seconds = (ended - started) / 1000;
+  clearInterval(tick);
+  const row = { form: current, card: $('#cardPick').value, who: $('#who').value.trim(), started: started.toISOString(), submitted: ended.toISOString(), seconds: Math.round(seconds * 10) / 10, answered: Object.values(answers).filter(v => v !== '' && v != null).length,
+    // What was entered (photo file names only), to check it against the card.
+    answers: JSON.parse(JSON.stringify(answers)) };
+  const all = load(); all.push(row); save(all); list();
+  form.classList.add('hidden');
+  const d = $('#done'); d.classList.remove('hidden');
+  d.innerHTML = '';
+  d.append(el('div', { class: 'done' }, `Submitted. ${row.seconds} s from Start to Submit (${row.answered} answers).`));
+  started = null; $('#startBtn').disabled = false;
+  window.scrollTo(0, 0);
+});
+
+// Each card belongs to one form: picking the card picks its form.
+const cardForm = { 'EMR road accident 2 patients': 'emr', 'Flood knee deep': 'flood', 'Fire residential 2nd alarm': 'fire' };
+$('#cardPick').addEventListener('change', e => { const f = cardForm[e.target.value]; if (f) $('#formPick').value = f; });
+
+$('#startBtn').addEventListener('click', () => {
+  current = $('#formPick').value; answers = {};
+  $('#done').classList.add('hidden'); form.classList.remove('hidden');
+  render(false);
+  started = new Date(); $('#startBtn').disabled = true;
+  clearInterval(tick);
+  tick = setInterval(() => { $('#timer').textContent = `${((new Date() - started) / 1000).toFixed(1)} s`; }, 100);
+});
+
+// ------------------------------------------------------------------ results
+function load() { try { return JSON.parse(localStorage.getItem('baselineRuns') || '[]'); } catch { return []; } }
+function save(a) { try { localStorage.setItem('baselineRuns', JSON.stringify(a)); } catch {} }
+function list() {
+  const tb = $('#results'); tb.innerHTML = '';
+  load().forEach((r, i) => tb.append(el('tr', {}, ...[i + 1, r.form, r.card, r.who, r.started.slice(11, 19), r.seconds, r.answered].map(v => el('td', {}, String(v))))));
+}
+$('#csvBtn').addEventListener('click', async () => {
+  const rows = load();
+  const csv = ['form,card,participant,started,submitted,seconds,answered,answers', ...rows.map(r => [r.form, r.card, r.who, r.started, r.submitted, r.seconds, r.answered, JSON.stringify(r.answers ?? {})].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n');
+  try { await navigator.clipboard.writeText(csv); alert('Copied.'); } catch { prompt('Copy the CSV:', csv); }
+});
+$('#clearBtn').addEventListener('click', () => { if (confirm('Clear all results in this browser?')) { save([]); list(); } });
+list();
+</script>
+</body>
+</html>

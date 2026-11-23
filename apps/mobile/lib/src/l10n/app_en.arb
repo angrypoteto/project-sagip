@@ -837,7 +837,7 @@
   "patientAge": "Age",
   "patientGender": "Gender",
   "patientHospital": "Receiving hospital *",
-  "patientComplaint": "Chief complaint",
+  "patientComplaint": "Injury or complaint",
   "patientRemarks": "Remarks",
   "floodCauseTitle": "Cause of flood *",
   "cycloneName": "Tropical cyclone name",

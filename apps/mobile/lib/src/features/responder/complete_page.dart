@@ -148,6 +148,10 @@ class _CompletePageState extends ConsumerState<CompletePage> {
   TextEditingController _field(String key, String initial) =>
       _fields.putIfAbsent(key, () => TextEditingController(text: initial));
 
+  /// A count's text: empty for none, so typing never has to erase a "0"
+  /// first (2026-11-18 trial: "i need to remove first the number 0").
+  static String _countText(int? v) => v == null || v == 0 ? '' : '$v';
+
   @override
   void dispose() {
     for (final c in _fields.values) {
@@ -202,7 +206,8 @@ class _CompletePageState extends ConsumerState<CompletePage> {
       final old = d.details.patients.length;
       final injured = d.injured == old ? count : d.injured;
       final persons = (d.persons ?? 0) <= old ? count : d.persons;
-      _fields['injured']?.text = '$injured';
+      _fields['injured']?.text = _countText(injured);
+      _fields['persons']?.text = _countText(persons);
       return d.copyWith(
         injured: injured,
         persons: persons,
@@ -255,6 +260,7 @@ class _CompletePageState extends ConsumerState<CompletePage> {
         );
         // The number fields keep their own text: set it to the new values.
         for (final (key, value) in [
+          ('persons', next.persons),
           ('injured', next.injured),
           ('missing', next.missing),
           ('families', next.families),
@@ -264,13 +270,12 @@ class _CompletePageState extends ConsumerState<CompletePage> {
           if (key == 'narrative') {
             _fields[key]?.text = next.narrative;
           } else {
-            _fields[key]?.text = '$value';
+            _fields[key]?.text = _countText(value);
           }
         }
         for (var i = 0; i < next.details.patients.length; i++) {
           final p = next.details.patients[i];
           _fields['p$i-complaint']?.text = p.chiefComplaint ?? '';
-          _fields['p$i-remarks']?.text = p.remarks ?? '';
         }
         _fields['damage_php']?.text =
             next.details.estimatedDamage?.toString() ?? '';
@@ -322,19 +327,44 @@ class _CompletePageState extends ConsumerState<CompletePage> {
       return setState(() => _error = l10n.crewPhotosMissing(minPhotos));
     }
     setState(() => _saving = true);
+    // Each type asks each count once (2026-11-17, "too much redundancy"):
+    // EMR counts its patients; fire counts the affected individuals.
+    final x = d.details;
+    final persons = switch (type) {
+      'medical' => x.patients.length,
+      'fire' => x.affectedIndividuals ?? d.persons ?? 0,
+      _ => d.persons ?? 0,
+    };
+    final injured = type == 'medical' ? x.patients.length : d.injured;
+    final houses = type == 'medical' || type == 'flood' ? 0 : d.houses;
+    final missingCount = type == 'medical' || type == 'fire' ? 0 : d.missing;
+    final families = type == 'medical' ? 0 : d.families;
+    // No narrative written or filled: one from the answers (2026-11-18).
+    final narrative = d.narrative.trim().isNotEmpty
+        ? d.narrative.trim()
+        : composeCrewNarrative(
+            type: type,
+            outcome: d.outcome!,
+            details: x,
+            personsAssisted: persons,
+            injured: injured,
+            missing: missingCount,
+            affectedFamilies: families,
+            housesDamaged: houses,
+          );
     await ref
         .read(responderRepositoryProvider)
         .complete(
           outcome: d.outcome!,
-          personsAssisted: d.persons ?? 0,
-          housesDamaged: d.houses,
-          injured: d.injured,
-          missing: d.missing,
-          affectedFamilies: d.families,
+          personsAssisted: persons,
+          housesDamaged: houses,
+          injured: injured,
+          missing: missingCount,
+          affectedFamilies: families,
           notes: d.notes.trim().isEmpty ? null : d.notes.trim(),
           details: d.details,
           photos: d.photos,
-          narrative: d.narrative.trim().isEmpty ? null : d.narrative.trim(),
+          narrative: narrative.isEmpty ? null : narrative,
           filledByRag: d.filledByRag,
         );
     ref.read(completionDraftProvider.notifier).clear();
@@ -378,14 +408,22 @@ class _CompletePageState extends ConsumerState<CompletePage> {
       String label,
       int? value,
       void Function(int) set,
-    ) => TextField(
-      controller: _field(key, value == null ? '' : '$value'),
-      keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      onTapOutside: (_) => FocusScope.of(context).unfocus(),
-      decoration: InputDecoration(labelText: label),
-      onChanged: (v) => set(int.tryParse(v) ?? 0),
-    );
+    ) {
+      final c = _field(key, _countText(value));
+      return TextField(
+        controller: c,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        // A number already there is selected, so typing replaces it.
+        onTap: () => c.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: c.text.length,
+        ),
+        onTapOutside: (_) => FocusScope.of(context).unfocus(),
+        decoration: InputDecoration(labelText: label, hintText: '0'),
+        onChanged: (v) => set(int.tryParse(v) ?? 0),
+      );
+    }
 
     Widget words(
       String key,
@@ -546,32 +584,73 @@ class _CompletePageState extends ConsumerState<CompletePage> {
           (v) => l10n.fireStageName(v.name),
           (v) => _details((x) => x.copyWith(highestAlarm: v)),
         ),
-        const SizedBox(height: SagipSpace.lg),
-        Row(
-          children: [
-            Expanded(
-              child: number(
-                'damage_php',
-                l10n.estimatedDamage,
-                x.estimatedDamage,
-                (v) => _details((x) => x.copyWith(estimatedDamage: v)),
-              ),
-            ),
-            const SizedBox(width: SagipSpace.md),
-            Expanded(
-              child: number(
-                'individuals',
-                l10n.affectedIndividuals,
-                x.affectedIndividuals,
-                (v) => _details((x) => x.copyWith(affectedIndividuals: v)),
-              ),
-            ),
-          ],
-        ),
       ],
     ];
 
     final minPhotos = minimumCrewPhotos(type);
+
+    // The counts each type asks for (an EMR report counts its patients).
+    Widget injuredField() => number(
+      'injured',
+      l10n.injured,
+      d.injured,
+      (v) => _update((d) => d.copyWith(injured: v)),
+    );
+    Widget familiesField() => number(
+      'families',
+      l10n.affectedFamilies,
+      d.families,
+      (v) => _update((d) => d.copyWith(families: v)),
+    );
+    // Persons assisted is the block's first box where it is asked
+    // (2026-11-18 trial: on a separate counter above, the 12 persons
+    // were typed into "Injured", the first box here).
+    final damage = <Widget>[
+      if (type != 'medical' && type != 'fire')
+        number(
+          'persons',
+          l10n.personsAssisted,
+          d.persons,
+          (v) => _update((d) => d.copyWith(persons: v)),
+        ),
+      if (type == 'flood') ...[
+        injuredField(),
+        number(
+          'missing',
+          l10n.missing,
+          d.missing,
+          (v) => _update((d) => d.copyWith(missing: v)),
+        ),
+        familiesField(),
+      ],
+      // Fire: every number in one block, the damage first (2026-11-17
+      // trial: the damage was typed into "Houses damaged", the first box
+      // under this title, while its own box sat in the fire section).
+      if (type == 'fire') ...[
+        number(
+          'damage_php',
+          l10n.estimatedDamage,
+          x.estimatedDamage,
+          (v) => _details((x) => x.copyWith(estimatedDamage: v)),
+        ),
+        number(
+          'individuals',
+          l10n.affectedIndividuals,
+          x.affectedIndividuals,
+          (v) => _details((x) => x.copyWith(affectedIndividuals: v)),
+        ),
+      ],
+      if (type != 'medical' && type != 'flood') ...[
+        number(
+          'houses',
+          l10n.housesDamaged,
+          d.houses,
+          (v) => _update((d) => d.copyWith(houses: v)),
+        ),
+        injuredField(),
+        familiesField(),
+      ],
+    ];
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.completeTitle)),
@@ -598,14 +677,6 @@ class _CompletePageState extends ConsumerState<CompletePage> {
                   d.outcome,
                   l10n.outcomeLabel,
                   (o) => _update((d) => d.copyWith(outcome: o)),
-                ),
-                const SizedBox(height: SagipSpace.xl),
-                Text(l10n.personsAssisted, style: text.titleMedium),
-                const SizedBox(height: SagipSpace.sm),
-                Counter(
-                  value: d.persons ?? 0,
-                  label: l10n.peopleCount(d.persons ?? 0),
-                  onChanged: (v) => _update((d) => d.copyWith(persons: v)),
                 ),
                 const SizedBox(height: SagipSpace.xxl),
                 Text(l10n.ragTitle, style: text.titleLarge),
@@ -644,7 +715,7 @@ class _CompletePageState extends ConsumerState<CompletePage> {
                     style: text.bodyMedium!.copyWith(color: p.textSecondary),
                   ),
                 ],
-                if (d.narrative.isNotEmpty || d.filledByRag) ...[
+                ...[
                   const SizedBox(height: SagipSpace.md),
                   words(
                     'narrative',
@@ -664,52 +735,24 @@ class _CompletePageState extends ConsumerState<CompletePage> {
                   ),
                   ...form,
                 ],
-                const SizedBox(height: SagipSpace.xl),
-                Text(l10n.damageTitle, style: text.titleMedium),
-                const SizedBox(height: SagipSpace.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: number(
-                        'houses',
-                        l10n.housesDamaged,
-                        d.houses,
-                        (v) => _update((d) => d.copyWith(houses: v)),
-                      ),
-                    ),
-                    const SizedBox(width: SagipSpace.md),
-                    Expanded(
-                      child: number(
-                        'injured',
-                        l10n.injured,
-                        d.injured,
-                        (v) => _update((d) => d.copyWith(injured: v)),
-                      ),
+                if (damage.isNotEmpty) ...[
+                  const SizedBox(height: SagipSpace.xl),
+                  Text(l10n.damageTitle, style: text.titleMedium),
+                  for (var i = 0; i < damage.length; i += 2) ...[
+                    const SizedBox(height: SagipSpace.sm),
+                    Row(
+                      children: [
+                        Expanded(child: damage[i]),
+                        const SizedBox(width: SagipSpace.md),
+                        Expanded(
+                          child: i + 1 < damage.length
+                              ? damage[i + 1]
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-                const SizedBox(height: SagipSpace.md),
-                Row(
-                  children: [
-                    Expanded(
-                      child: number(
-                        'missing',
-                        l10n.missing,
-                        d.missing,
-                        (v) => _update((d) => d.copyWith(missing: v)),
-                      ),
-                    ),
-                    const SizedBox(width: SagipSpace.md),
-                    Expanded(
-                      child: number(
-                        'families',
-                        l10n.affectedFamilies,
-                        d.families,
-                        (v) => _update((d) => d.copyWith(families: v)),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
                 title(l10n.crewPhotosTitle),
                 Text(
                   [
@@ -739,14 +782,6 @@ class _CompletePageState extends ConsumerState<CompletePage> {
                         label: Text(l10n.photoAdd),
                       ),
                   ],
-                ),
-                const SizedBox(height: SagipSpace.lg),
-                words(
-                  'notes',
-                  l10n.reportNotes,
-                  d.notes,
-                  (v) => _update((d) => d.copyWith(notes: v)),
-                  maxLines: 3,
                 ),
               ],
             ),
@@ -790,7 +825,7 @@ class _CompletePageState extends ConsumerState<CompletePage> {
 }
 
 /// One patient on an EMR report: name (optional), age, gender, receiving
-/// hospital, chief complaint, remarks.
+/// hospital, injury or complaint.
 class _PatientCard extends StatelessWidget {
   const _PatientCard({
     required this.index,
@@ -898,13 +933,6 @@ class _PatientCard extends StatelessWidget {
             l10n.patientComplaint,
             patient.chiefComplaint,
             (v) => onChanged((p) => p.copyWith(chiefComplaint: v)),
-          ),
-          const SizedBox(height: SagipSpace.md),
-          words(
-            'remarks',
-            l10n.patientRemarks,
-            patient.remarks,
-            (v) => onChanged((p) => p.copyWith(remarks: v)),
           ),
         ],
       ),

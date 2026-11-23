@@ -228,6 +228,47 @@ export function numbersIn(text: string): Set<string> {
   return out;
 }
 
+/** A count and the words that name it, in English or Filipino. */
+const countWords: Record<string, string> = {
+  persons_assisted: "persons?|people|individuals?|tao|katao|residents?|evacuees?",
+  injured: "injured|injuries|sugatan|nasugatan",
+  missing: "missing|nawawala|nawala",
+  affected_families: "famil(?:y|ies)|households?|pamilya",
+  houses_damaged: "houses?|homes?|bahay|kabahayan",
+};
+
+/**
+ * The counts written plainly in the notes ("3 families", "12 persons
+ * assisted", "walang injured", "no missing"), with or without commas
+ * between them (2026-11-17 trial: "3 families 12 persons" lost the
+ * families). Used where the model gave none.
+ */
+export function countsIn(notes: string): Record<string, number> {
+  const t = ` ${notes.toLowerCase()} `;
+  const named: Record<string, number> = {
+    one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    isa: 1, dalawa: 2, tatlo: 3, apat: 4, lima: 5, anim: 6, pito: 7, walo: 8, siyam: 9, sampu: 10,
+  };
+  // "tatlong pamilya": the -ng linker after a number word.
+  const num = String.raw`(\d[\d,]*|` + Object.keys(named).join("|") + ")(?:ng)?";
+  const all = Object.values(countWords).join("|");
+  const out: Record<string, number> = {};
+  for (const [key, w] of Object.entries(countWords)) {
+    // "3 families", "3 na pamilya", "families: 3", "walang injured", "no missing"
+    const before = new RegExp(String.raw`(?:^|[^\w])${num}\s*(?:na\s+|ka\s*)?(?:${w})(?![a-z])`);
+    const after = new RegExp(String.raw`(?:^|[^\w])(?:${w})\s*[:=-]?\s*${num}(?![\d a-z]*\s*(?:${all}))`);
+    const none = new RegExp(String.raw`(?:^|[^\w])(?:walang|wala\s+(?:ng|na)|no|zero|none)\s+(?:${w})(?![a-z])`);
+    const m = t.match(before) ?? t.match(after);
+    if (m) {
+      const raw = m[1];
+      out[key] = raw in named ? named[raw] : Number(raw.replace(/,/g, ""));
+    } else if (none.test(t)) {
+      out[key] = 0;
+    }
+  }
+  return out;
+}
+
 export interface Filled {
   answers: Record<string, unknown>;
   figures: Record<string, number>;
@@ -347,6 +388,10 @@ export function readFilled(raw: string, type: IncidentType, notes: string): Fill
     }
     const v = fromNotes(n, k.replace(/_/g, " "));
     if (v !== undefined) figures[k] = v;
+  }
+  // Counts the notes state plainly but the model left out.
+  for (const [k, v] of Object.entries(countsIn(notes))) {
+    if (!(k in figures)) figures[k] = v;
   }
 
   let narrative = text(d.narrative, 2000) ?? "";

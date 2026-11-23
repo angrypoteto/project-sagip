@@ -136,7 +136,7 @@ void main() {
           vulnerable: const [VulnerabilityType.seniorCitizen],
         ),
       );
-      expect(d.emrType, EmrType.medicalCall);
+      expect(d.emrType, isNull, reason: 'what happened is never guessed');
       expect(d.patients, hasLength(2), reason: 'people found on scene win');
       expect(d.patients.first.name, 'Juan Dela Cruz');
       expect(d.patients.first.age, AgeBracket.from61);

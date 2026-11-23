@@ -2603,7 +2603,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get patientHospital => 'Receiving hospital *';
 
   @override
-  String get patientComplaint => 'Chief complaint';
+  String get patientComplaint => 'Injury or complaint';
 
   @override
   String get patientRemarks => 'Remarks';
