@@ -1,0 +1,28 @@
+{
+ "chosen_on_validation": {
+  "kde_points": "mdrrmd+public",
+  "bandwidth_m": 500,
+  "top_n": 300,
+  "recent_fire_days": 180
+ },
+ "validation": {
+  "balanced": 0.6373,
+  "accuracy": 0.6318,
+  "recall": 0.6429,
+  "tp": 63,
+  "fp": 32658,
+  "fn": 35
+ },
+ "test": {
+  "balanced": 0.5845,
+  "accuracy": 0.6303,
+  "recall": 0.5385,
+  "tp": 84,
+  "fp": 34085,
+  "fn": 72
+ },
+ "random_same_size_test_balanced": {
+  "mean": 0.5137,
+  "p95": 0.5622
+ }
+}

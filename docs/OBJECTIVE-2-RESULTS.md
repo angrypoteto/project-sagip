@@ -449,6 +449,45 @@ Fire stays near 50% on the two busiest fire days and on a quiet control day
   which matches how most Manila fires start (electrical, cooking, arson).
   Fire needs non-weather inputs (Chapter 5).
 
+## 14. Fire against the 60% balanced-accuracy target (2026-11-23)
+
+The paper (2026-11-23 draft) changed Objective 2 to **a minimum balanced
+accuracy of 60%**. Flood meets it (68.7%, section 12); fire was 54.8%.
+Joshua asked to try to bring fire to 60%. Two checks, each choosing its
+settings on the validation windows only and scored once on the test
+windows (Jul 18 to Oct 28, 2026; 156 fire barangay-days):
+
+| Try | Rule chosen on validation | Validation balanced | **Test balanced** | Test caught |
+|---|---|---:|---:|---:|
+| Live rule (section 12) | provisional cut-offs | | 54.8% | 118 of 156 |
+| **A. Where fires cluster** (`heatmap/fire_topn_check.py`) | the 100 barangays with the highest fire KDE (400 m, as `kde-v3`), the LSTM ignored | 53.6% | **54.1%** | 30 of 156 |
+| 100 random barangays (200 draws) | | | 49.9% mean, 53.1% 95th percentile, 56.9% best | |
+| **B. Recent fires in the barangay** (`heatmap/fire_history_check.py`) | at risk if the barangay had a fire in the last 180 days | 60.0% | **52.4%** | 18 of 156 |
+| **C. A + B, with more real fire locations** (`heatmap/fire_more_places_check.py`) | KDE fitted on MDRRMD's 171 training fires plus 851 public placed fires (TXTFIRE, DROMIC, news, 2021 to Apr 2026), 500 m; the top 300 barangays, or any barangay with an MDRRMD fire in the last 180 days | 63.7% | **58.5%** | 84 of 156 |
+| 300 random barangays + the same 180-day rule (200 draws) | | | 51.4% mean, 56.2% 95th percentile | |
+
+- **A:** places where fires cluster carry a little skill (above 95% of
+  random picks), but not enough for 60%; the LSTM's chance did not help,
+  as in section 9.
+- **B:** repeat fires are rare in MDRRMD's records: of 257 placed fires,
+  9 had an earlier fire in the same barangay within 30 days, 23 within 90,
+  50 within a year. The rule that reached 60% on validation fell to 52.4%
+  on test, so a barangay fire-history input to the LSTM is not expected to
+  reach 60% either; it was not built (it would change the thesis's LSTM
+  inputs).
+- **C:** the best fire result so far and above every random pick's 95th
+  percentile, so the place map has real skill when fitted on more real
+  fires; but 58.5% is still under 60%, with many false alarms (about 340
+  barangays flagged a day, 63% plain accuracy). The test part was scored
+  once; trying further variants against it until one passes would be
+  tuning on the test, so none were.
+- **Conclusion:** Objective 2 stays **met for floods, not met for fires**
+  (best honest result 58.5% balanced accuracy, try C). With weather,
+  place, and recent history all tried, MDRRMD's fire records
+  do not support a 72-hour forecast at 60% balanced accuracy; fires need
+  inputs about causes (electrical faults, power interruptions, holidays;
+  section 9, Chapter 5).
+
 ## How to rerun
 
 ```bash
