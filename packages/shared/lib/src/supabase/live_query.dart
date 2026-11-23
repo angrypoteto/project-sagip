@@ -4,6 +4,14 @@ import 'package:supabase/supabase.dart';
 
 int _channelCount = 0;
 
+final _restarts = StreamController<void>.broadcast();
+
+/// Drops every live query's realtime channel and joins a new one (each
+/// query refetches once joined). For a link stuck reconnecting: Joshua,
+/// 2026-11-23, the board stayed on "Live updates paused. Reconnecting."
+/// until the page was refreshed. Called by [SupabaseConnectionMonitor].
+void restartLiveQueries() => _restarts.add(null);
+
 /// A stream that runs [fetch] on listen, then runs it again whenever one of
 /// [tables] changes (Supabase Realtime), if set every [refreshEvery], and
 /// whenever [refreshOn] emits (for changes realtime cannot deliver).
@@ -24,6 +32,7 @@ Stream<T> liveQuery<T>(
   Timer? pending;
   Timer? periodic;
   StreamSubscription<Object?>? manual;
+  StreamSubscription<void>? restarts;
   var sequence = 0;
 
   Future<void> run() async {
@@ -44,20 +53,31 @@ Stream<T> liveQuery<T>(
     pending = Timer(debounce, run);
   }
 
+  void join() {
+    var ch = client.channel('live-${tables.join('-')}-${_channelCount++}');
+    for (final table in tables) {
+      ch = ch.onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: table,
+        callback: (_) => schedule(),
+      );
+    }
+    channel = ch.subscribe((status, _) {
+      if (status == RealtimeSubscribeStatus.subscribed) schedule();
+    });
+  }
+
   controller = StreamController<T>(
     onListen: () {
       run();
-      var ch = client.channel('live-${tables.join('-')}-${_channelCount++}');
-      for (final table in tables) {
-        ch = ch.onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: table,
-          callback: (_) => schedule(),
-        );
-      }
-      channel = ch.subscribe((status, _) {
-        if (status == RealtimeSubscribeStatus.subscribed) schedule();
+      join();
+      restarts = _restarts.stream.listen((_) {
+        final old = channel;
+        if (old != null) {
+          unawaited(client.removeChannel(old).catchError((_) => ''));
+        }
+        join();
       });
       if (refreshEvery != null) {
         periodic = Timer.periodic(refreshEvery, (_) => schedule());
@@ -68,6 +88,7 @@ Stream<T> liveQuery<T>(
       pending?.cancel();
       periodic?.cancel();
       await manual?.cancel();
+      await restarts?.cancel();
       final ch = channel;
       channel = null;
       if (ch != null) await client.removeChannel(ch);

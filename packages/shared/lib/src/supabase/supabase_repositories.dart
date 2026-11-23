@@ -1718,26 +1718,81 @@ class SupabaseAuditRepository implements AuditRepository {
 
 /// Reports the realtime link: joined means live, an error or timeout means
 /// the client is retrying, and a closed channel means offline.
+///
+/// If the link is not live again within [recoverAfter], it is rebuilt: the
+/// sign-in is refreshed if it expired (a laptop asleep past the hour), the
+/// socket is closed and reopened, and every live query joins a new
+/// channel and refetches. Tried again every [recoverAfter] until live
+/// (Joshua, 2026-11-23: the board stayed on "Reconnecting" until the page
+/// was refreshed).
 class SupabaseConnectionMonitor implements ConnectionMonitor {
-  SupabaseConnectionMonitor(this._client);
+  SupabaseConnectionMonitor(
+    this._client, {
+    this.recoverAfter = const Duration(seconds: 10),
+  });
 
   final SupabaseClient _client;
+  final Duration recoverAfter;
   final _changes = StreamController<LinkState>.broadcast();
   RealtimeChannel? _channel;
   LinkState? _state;
+  Timer? _watchdog;
+  bool _recovering = false;
 
   void _start() {
-    _channel ??= _client.channel('sagip-link').subscribe((status, _) {
+    if (_channel == null) _join();
+  }
+
+  void _join() {
+    final channel = _client.channel('sagip-link');
+    _channel = channel;
+    channel.subscribe((status, _) {
+      // A channel replaced by [_recover] reports "closed" as it leaves.
+      if (!identical(channel, _channel)) return;
       final next = switch (status) {
         RealtimeSubscribeStatus.subscribed => LinkState.live,
         RealtimeSubscribeStatus.channelError ||
         RealtimeSubscribeStatus.timedOut => LinkState.reconnecting,
         RealtimeSubscribeStatus.closed => LinkState.offline,
       };
+      if (next == LinkState.live) {
+        _watchdog?.cancel();
+        _watchdog = null;
+      } else {
+        _watchdog ??= Timer.periodic(recoverAfter, (_) => _recover());
+      }
       if (next == _state) return;
       _state = next;
       _changes.add(next);
     });
+  }
+
+  Future<void> _recover() async {
+    if (_recovering || _state == LinkState.live) return;
+    _recovering = true;
+    try {
+      final session = _client.auth.currentSession;
+      if (session != null && session.isExpired) {
+        try {
+          await _client.auth.refreshSession();
+        } catch (_) {
+          // Still offline: the next try refreshes it.
+        }
+      }
+      final token = _client.auth.currentSession?.accessToken;
+      if (token != null) await _client.realtime.setAuth(token);
+      await _client.realtime.disconnect();
+      final old = _channel;
+      _channel = null;
+      // Not awaited: on a dead link leaving waits for its timeout.
+      if (old != null) {
+        unawaited(_client.removeChannel(old).catchError((_) => ''));
+      }
+      _join();
+      restartLiveQueries();
+    } finally {
+      _recovering = false;
+    }
   }
 
   @override
