@@ -20,7 +20,9 @@
 // marked simulated and names the replayed day in its model version, a live
 // one names the last day of its window.
 //
-// The levels come from the provisional rule (plan Q22).
+// The levels come from the provisional rule (plan Q22); since model v5 the
+// fire level comes from the top fire places and recent fires instead
+// (docs/OBJECTIVE-2-RESULTS.md section 14).
 //
 // Deploy with JWT checking off (the shared secret is the check):
 //   supabase functions deploy run-forecast --no-verify-jwt
@@ -34,6 +36,8 @@ import {
   liveWindow,
   type LiveModel,
   type OpenMeteo,
+  type RecentByHazard,
+  recentSince,
   type RecordedDay,
   replayDay,
 } from "./forecast.ts";
@@ -62,7 +66,20 @@ async function live(model: LiveModel) {
   ]);
   const win = liveWindow(model, om, recorded, end);
   if (!win) throw new Error("a day of the window is missing");
-  return liveRun(model, win);
+  // Model v5's fire rule: the barangays with a fire in its look-back, from
+  // MDRRMD's fire history (private.fire_history) and S.A.G.I.P.'s own
+  // incidents (migration forecast_fire_history).
+  const recent: RecentByHazard = {};
+  for (const hz of hazards) {
+    const rule = model.hazards[hz]?.rule;
+    if (!rule || hz !== "fire") continue;
+    const rows = await rpc<{ barangay: string }[]>("forecast_recent_fires", {
+      p_since: recentSince(rule, end),
+      p_to: end,
+    });
+    recent[hz] = new Set(rows.map((r) => r.barangay));
+  }
+  return liveRun(model, win, recent);
 }
 
 const url = Deno.env.get("SUPABASE_URL");
@@ -137,7 +154,11 @@ Deno.serve(async (req) => {
       const missing = hazards
         .filter((hz) => !input.model.hazards[hz])
         .map((hz) => `${hz.replace("_", " ")} not forecast`);
-      label = `live weather, 14 days to ${r.windowEnd} (${[trained, ...missing, "provisional levels"].join("; ")})`;
+      const fireRule = input.model.hazards.fire?.rule;
+      const fireNote = fireRule
+        ? [`fire: top fire places or a fire in the last ${fireRule.recent_days} days`]
+        : [];
+      label = `live weather, 14 days to ${r.windowEnd} (${[trained, ...missing, ...fireNote, "provisional levels"].join("; ")})`;
     } catch (e) {
       const why = e instanceof Error ? e.message : String(e);
       if (!input.model.days.length) {

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(677);
+select plan(678);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -3197,6 +3197,16 @@ select ok((select count(*) from public.volcano_status) >= 2, 'a dispatcher reads
 set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
 select is((select count(*)::int from public.volcano_status), 0, 'a resident reads none');
 reset role;
+
+-- MDRRMD's fire history (model v5's recent-fire rule): no app account reads
+-- it or its look-up; only run-forecast does, with the service role.
+reset role;
+select ok(
+  not has_table_privilege('authenticated', 'public.fire_history', 'select')
+  and not has_table_privilege('anon', 'public.fire_history', 'select')
+  and not has_function_privilege('authenticated', 'public.forecast_recent_fires(date, date)', 'execute')
+  and not has_function_privilege('anon', 'public.forecast_recent_fires(date, date)', 'execute'),
+  'fire history and its look-up are closed to app accounts');
 
 -- The counters as the real records need them (see the top).
 reset role;

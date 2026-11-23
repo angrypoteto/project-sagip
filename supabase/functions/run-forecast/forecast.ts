@@ -30,6 +30,34 @@ export interface HazardModel {
   model: { layers: LstmLayer[]; dense: { weights: number[]; bias: number[] } };
   /** Relative KDE density per barangay (only those the rule can raise). */
   density: Record<string, number>;
+  /**
+   * Fire since model v5 (2026-11-23, docs/OBJECTIVE-2-RESULTS.md section
+   * 14): a barangay is moderate if its density reaches [density_cutoff]
+   * (the top fire places) or it had a fire in the last [recent_days], high
+   * if both. The LSTM's chance is still computed but does not set it.
+   */
+  rule?: PlaceOrRecent;
+}
+
+export interface PlaceOrRecent {
+  kind: "place_or_recent";
+  density_cutoff: number;
+  recent_days: number;
+}
+
+/** Barangays with a recorded incident of each hazard in its look-back. */
+export type RecentByHazard = Partial<Record<Hazard, Set<string>>>;
+
+/** The level of the place-or-recent rule. */
+export function placeOrRecentLevel(rule: PlaceOrRecent, density: number, recent: boolean): Level {
+  const place = density >= rule.density_cutoff;
+  if (place && recent) return "high";
+  return place || recent ? "moderate" : "low";
+}
+
+/** The first day of [rule]'s look-back for a window ending on [end]. */
+export function recentSince(rule: PlaceOrRecent, end: string): string {
+  return addDays(end, 1 - rule.recent_days);
 }
 
 export interface Threshold {
@@ -140,10 +168,12 @@ export function riskLevel(rule: Rule, p: number, density: number): Level {
 export function levelCodes(
   model: LiveModel,
   probs: Partial<Record<Hazard, number>>,
+  recent: RecentByHazard = {},
 ): Record<string, string> {
   const names = new Set<string>();
   for (const hz of forecastHazards(model)) {
     for (const name of Object.keys(model.hazards[hz]!.density)) names.add(name);
+    if (model.hazards[hz]!.rule) for (const name of recent[hz] ?? []) names.add(name);
   }
   const letter: Record<Level, string> = { low: "l", moderate: "m", high: "h" };
   const out: Record<string, string> = {};
@@ -152,7 +182,13 @@ export function levelCodes(
       .map((hz) => {
         const m = model.hazards[hz];
         const p = probs[hz];
-        return m && p !== undefined ? letter[riskLevel(model.rule, p, m.density[name] ?? 0)] : "l";
+        if (!m || p === undefined) return "l";
+        const density = m.density[name] ?? 0;
+        return letter[
+          m.rule
+            ? placeOrRecentLevel(m.rule, density, recent[hz]?.has(name) ?? false)
+            : riskLevel(model.rule, p, density)
+        ];
       })
       .join("");
     if (code !== "lll") out[name] = code;
@@ -269,7 +305,7 @@ export function liveWindow(
 }
 
 /** One run on a live window: the probabilities and the level codes. */
-export function liveRun(model: LiveModel, win: LiveWindow) {
+export function liveRun(model: LiveModel, win: LiveWindow, recent: RecentByHazard = {}) {
   const probs: Partial<Record<Hazard, number>> = {};
   for (const hz of forecastHazards(model)) {
     const rows = win.weather.map((w, i) => [...w, win.prior[hz][i]]);
@@ -278,6 +314,6 @@ export function liveRun(model: LiveModel, win: LiveWindow) {
   return {
     windowEnd: win.days[win.days.length - 1],
     probabilities: probs,
-    levels: levelCodes(model, probs),
+    levels: levelCodes(model, probs, recent),
   };
 }

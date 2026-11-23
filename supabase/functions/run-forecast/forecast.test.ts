@@ -16,7 +16,9 @@ import {
   liveWindow,
   type LiveModel,
   type OpenMeteo,
+  placeOrRecentLevel,
   probability,
+  recentSince,
   type RecordedDay,
   replayDay,
   riskLevel,
@@ -228,4 +230,53 @@ test("v4: a 72-hour lead time, flood and fire", { skip: !v4 }, () => {
   assert.equal(v4!.horizon_hours, 72);
   assert.deepEqual(forecastHazards(v4!), ["flood", "fire"]);
   assert.equal(v4!.days.length, 0);
+});
+
+// Model v5 (lstm-kde-v5, 2026-11-23): v4 with try C's fire layer
+// (docs/OBJECTIVE-2-RESULTS.md section 14).
+const v5File = new URL("../../data/forecast_live_v5.json", import.meta.url);
+const v5 = existsSync(v5File)
+  ? JSON.parse(readFileSync(v5File, "utf8")) as LiveModel & {
+    test_vectors: { hazard: Hazard; window: number[][]; probability: number }[];
+  }
+  : null;
+
+test("place or recent: moderate for either, high for both", () => {
+  const rule = { kind: "place_or_recent" as const, density_cutoff: 0.5, recent_days: 180 };
+  assert.equal(placeOrRecentLevel(rule, 0.4, false), "low");
+  assert.equal(placeOrRecentLevel(rule, 0.5, false), "moderate");
+  assert.equal(placeOrRecentLevel(rule, 0.1, true), "moderate");
+  assert.equal(placeOrRecentLevel(rule, 0.9, true), "high");
+  // The look-back counts the window's last day: 180 days end on it.
+  assert.equal(recentSince(rule, "2026-11-22"), "2026-05-27");
+});
+
+test("v5: flood is v4's, fire keeps about the top 300 places", { skip: !v5 || !v4 }, () => {
+  assert.equal(v5!.version, "lstm-kde-v5");
+  assert.deepEqual(v5!.hazards.flood, v4!.hazards.flood);
+  const fire = v5!.hazards.fire!;
+  assert.equal(fire.rule?.kind, "place_or_recent");
+  assert.equal(fire.rule?.recent_days, 180);
+  const n = Object.keys(fire.density).length;
+  assert.ok(n >= 300 && n <= 310, `${n} fire places`);
+  for (const d of Object.values(fire.density)) assert.ok(d >= fire.rule!.density_cutoff);
+  for (const v of v5!.test_vectors) {
+    const p = probability(v5!.hazards[v.hazard]!, v.window);
+    assert.ok(Math.abs(p - v.probability) < 1e-5, `${v.hazard}: ${p} against Keras ${v.probability}`);
+  }
+});
+
+test("v5: fire levels ignore the LSTM; a recent fire raises a barangay", { skip: !v5 }, () => {
+  const fire = v5!.hazards.fire!;
+  const [place] = Object.keys(fire.density);
+  const outside = "Barangay that is not a fire place";
+  const fireLetter = (codes: Record<string, string>, name: string) => (codes[name] ?? "lll")[1];
+  for (const p of [0, 0.99]) {
+    const codes = levelCodes(v5!, { flood: 0, fire: p }, { fire: new Set([place, outside]) });
+    assert.equal(fireLetter(codes, place), "h");
+    assert.equal(fireLetter(codes, outside), "m");
+    const none = levelCodes(v5!, { flood: 0, fire: p });
+    assert.equal(fireLetter(none, place), "m");
+    assert.equal(fireLetter(none, outside), "l");
+  }
 });

@@ -313,6 +313,33 @@ With simulation mode on (Configuration page), an admin can make a **simulated SO
 
 When an admin marks a report final (A6), the dashboard builds its PDF and keeps it in the private Storage bucket `ndrrmc-reports` as `<report id>.pdf`; `attach_report_pdf()` records it on the report. Only active admins can read the bucket, a file can be added only for a final report and only once, and there is no update or delete, so the stored copy stays as issued. "Download PDF" on a final report gives the stored copy. If storing fails (no connection), the report is still final and "Store the PDF" tries again.
 
+## Loading model v5 (`lstm-kde-v5`, 2026-11-23)
+
+v4 with try C's fire layer (`docs/OBJECTIVE-2-RESULTS.md` section 14): fire
+is moderate in the top fire places (KDE of every placed real fire, 500 m,
+about 300 barangays) or where a fire was recorded in the last 180 days,
+high in both; the fire LSTM no longer sets the level. Flood is v4's.
+
+1. Apply migration `20261123120000_forecast_fire_history` (table
+   `fire_history`, function `forecast_recent_fires`).
+2. Deploy `run-forecast` (it only calls the new function when the active
+   model has a fire rule, so v4 keeps working until step 4).
+3. Load MDRRMD's fire history (barangay and date only) with the SQL file
+   made from `ml/forecast/data/prepared/mdrrmd/` (`load_fire_history.sql`,
+   never committed). Check: `select count(*) from public.fire_history;`
+   gives 257.
+4. After the commit with `supabase/data/forecast_live_v5.json` is on
+   GitHub, in the SQL editor:
+
+```sql
+select net.http_get('https://raw.githubusercontent.com/angrypoteto/project-sagip/<commit>/supabase/data/forecast_live_v5.json');
+-- a few seconds later, with the id it returned:
+select private.load_forecast_model(content::jsonb) from net._http_response where id = <model id>;
+select private.call_run_forecast();
+```
+
+To go back: `update public.forecast_model set is_active = (version = 'lstm-kde-v4');`.
+
 ## Loading model v4 (`lstm-kde-v4`, 2026-11-11)
 
 MDRRMD's records as in v3, at the thesis's 72-hour lead time
