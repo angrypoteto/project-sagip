@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show PointerHoverEvent;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,10 +53,26 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
     _Layer.roads,
   };
 
-  /// Which TomTom road was tapped (its card shows over the map), and the
-  /// map's report of what is under the pointer.
+  /// Which TomTom road was tapped (its card stays at the top of the map
+  /// until closed), and the map's report of what is under the pointer.
   RoadCondition? _road;
   final _roadHit = LayerHitNotifier<RoadCondition>(null);
+
+  /// The road under the mouse and where (Joshua, 2026-11-25: hover instead
+  /// of clicking each road); its card follows the pointer.
+  RoadCondition? _hovered;
+  Offset _hoverAt = Offset.zero;
+
+  void _hover(PointerHoverEvent e) {
+    final hit = _roadHit.value?.hitValues;
+    final road = hit == null || hit.isEmpty ? null : hit.last;
+    if (road == null && _hovered == null) return;
+    setState(() {
+      _hovered = road;
+      _hoverAt = e.localPosition;
+    });
+  }
+
   bool _ready = false;
 
   /// The layers card and the legend open from a button (2026-11-11: open
@@ -263,6 +280,45 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
         ),
     ];
 
+    return LayoutBuilder(
+      builder: (context, box) => _stack(
+        context,
+        box,
+        l10n: l10n,
+        p: p,
+        scale: scale,
+        incidents: incidents,
+        units: units,
+        roads: roads,
+        roadFeed: roadFeed,
+        markers: markers,
+        ghostOf: ghostOf,
+      ),
+    );
+  }
+
+  Widget _stack(
+    BuildContext context,
+    BoxConstraints box, {
+    required AppLocalizations l10n,
+    required SagipPalette p,
+    required double scale,
+    required List<Incident> incidents,
+    required List<ResponseUnit> units,
+    required List<RoadCondition> roads,
+    required RoadConditions? roadFeed,
+    required List<Marker> markers,
+    required GeoPoint? Function(ResponseUnit) ghostOf,
+  }) {
+    // The hover card sits below and right of the pointer, flipped to stay
+    // inside the map.
+    const hoverWidth = 320.0, hoverHeight = 150.0, gap = 16.0;
+    final hoverLeft = _hoverAt.dx + gap + hoverWidth > box.maxWidth
+        ? _hoverAt.dx - gap - hoverWidth
+        : _hoverAt.dx + gap;
+    final hoverTop = _hoverAt.dy + gap + hoverHeight > box.maxHeight
+        ? _hoverAt.dy - gap - hoverHeight
+        : _hoverAt.dy + gap;
     return Stack(
       children: [
         ManilaZoom(
@@ -288,11 +344,16 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
               if (_layers.contains(_Layer.boundaries))
                 const BarangayBoundaries(),
               // TomTom's jams, closed roads, and flooded roads (2026-11-25):
-              // thick lines that stand out; tap one for what it is.
+              // thick lines that stand out; hover one for what it is, or
+              // tap it to keep its card open.
               if (roads.isNotEmpty)
                 MouseRegion(
                   hitTestBehavior: HitTestBehavior.deferToChild,
                   cursor: SystemMouseCursors.click,
+                  onHover: _hover,
+                  onExit: (_) {
+                    if (_hovered != null) setState(() => _hovered = null);
+                  },
                   child: GestureDetector(
                     onTap: () {
                       final hit = _roadHit.value?.hitValues;
@@ -369,6 +430,18 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
                   onPressed: () => setState(() => _showLayers = true),
                 ),
         ),
+        if (_hovered case final road?
+            when roads.contains(road) && road != _road)
+          Positioned(
+            left: hoverLeft.clamp(0, box.maxWidth),
+            top: hoverTop.clamp(0, box.maxHeight),
+            child: IgnorePointer(
+              child: SizedBox(
+                width: hoverWidth,
+                child: _RoadCard(road: road),
+              ),
+            ),
+          ),
         if (_road case final road? when roads.contains(road))
           Positioned(
             top: SagipSpace.lg,
@@ -711,10 +784,12 @@ class _Legend extends StatelessWidget {
 
 /// What a tapped TomTom road is: kind, where, how slow, since when.
 class _RoadCard extends StatelessWidget {
-  const _RoadCard({required this.road, required this.onClose});
+  const _RoadCard({required this.road, this.onClose});
 
   final RoadCondition road;
-  final VoidCallback onClose;
+
+  /// Null: no close button (the card that follows the mouse).
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -774,7 +849,10 @@ class _RoadCard extends StatelessWidget {
                 ],
               ),
             ),
-            _CardClose(onPressed: onClose),
+            if (onClose != null)
+              _CardClose(onPressed: onClose!)
+            else
+              const SizedBox(width: SagipSpace.sm),
           ],
         ),
       ),
