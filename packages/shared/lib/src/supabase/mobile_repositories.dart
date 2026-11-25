@@ -924,4 +924,19 @@ class SupabaseMobileRemote implements MobileServer {
         ?HazardZone.fromJson(r),
     ],
   );
+
+  /// TomTom's slow roads (`road_conditions()`), asked for every minute: the
+  /// server replaces them every 5.
+  @override
+  Stream<RoadConditions> watchRoadConditions() => liveQuery(
+    _client,
+    tables: const [],
+    refreshEvery: const Duration(minutes: 1),
+    fetch: () async {
+      final r = await _client.rpc<Object?>('road_conditions');
+      return r is Map
+          ? RoadConditions.fromJson(r.cast<String, dynamic>())
+          : RoadConditions.none;
+    },
+  );
 }

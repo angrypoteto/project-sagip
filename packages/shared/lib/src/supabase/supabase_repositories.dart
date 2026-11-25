@@ -26,6 +26,7 @@ import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/photo.dart';
 import '../models/records.dart';
+import '../models/road_condition.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import '../models/safe_place.dart';
@@ -1442,6 +1443,21 @@ class SupabaseFeedStatusRepository implements FeedStatusRepository {
       for (final r in await _client.from('river_level').select())
         RiverLevel.fromJson(r),
     ],
+  );
+
+  /// `road_conditions()` (staff only). The snapshot is replaced every 5
+  /// minutes, so it is asked for every minute rather than followed.
+  @override
+  Stream<RoadConditions> watchRoadConditions() => liveQuery(
+    _client,
+    tables: const [],
+    refreshEvery: const Duration(minutes: 1),
+    fetch: () async {
+      final r = await _client.rpc<Object?>('road_conditions');
+      return r is Map
+          ? RoadConditions.fromJson(r.cast<String, dynamic>())
+          : RoadConditions.none;
+    },
   );
 }
 

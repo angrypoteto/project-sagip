@@ -4117,6 +4117,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legendSafePlace => 'Safe place';
 
   @override
+  String get layerRoads => 'Roads (TomTom)';
+
+  @override
+  String get legendRoadHeavy => 'Heavy traffic';
+
+  @override
+  String get legendRoadSlow => 'Slow traffic';
+
+  @override
+  String get legendRoadClosed => 'Road closed';
+
+  @override
+  String get legendRoadFlooded => 'Flooded road';
+
+  @override
+  String roadFeedUpdated(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes min ago',
+      one: '1 min ago',
+      zero: 'just now',
+    );
+    return 'Traffic from TomTom, updated $_temp0';
+  }
+
+  @override
+  String roadFeedStale(String time) {
+    return 'Traffic not updated since $time; routes ignore it';
+  }
+
+  @override
+  String get roadFeedNone => 'Traffic from TomTom not received yet';
+
+  @override
+  String roadKind(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'jamHeavy': 'Heavy traffic',
+      'jam': 'Slow traffic',
+      'closed': 'Road closed',
+      'flooding': 'Flooded road',
+      'other': 'Road report',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String roadFromTo(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String roadDelay(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes min',
+      one: '1 min',
+    );
+    return 'About $_temp0 slower';
+  }
+
+  @override
+  String roadSince(String time) {
+    return 'Reported since $time';
+  }
+
+  @override
+  String get roadSource => 'TomTom report; not confirmed by MDRRMD';
+
+  @override
   String get actionSafePlaceSaved => 'Changed a safe place';
 
   @override

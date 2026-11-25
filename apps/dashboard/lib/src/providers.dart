@@ -316,6 +316,21 @@ final riverLevelsProvider = StreamProvider<List<RiverLevel>>(
   ),
 );
 
+/// TomTom's jams, closed roads, and flooded roads in Manila (2026-11-25):
+/// the board's Roads layer.
+final roadConditionsProvider = StreamProvider<RoadConditions>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(feedStatusRepositoryProvider).watchRoadConditions(),
+  ),
+);
+
+/// The reported roads routing slows now: none while the feed is stale.
+List<RoadCondition> usableRoads(Ref ref) =>
+    (ref.read(roadConditionsProvider).value ?? RoadConditions.none).usable(
+      ref.read(clockProvider).value ?? DateTime.now(),
+    );
+
 final feedStatusProvider = StreamProvider<List<FeedStatus>>(
   (ref) => _forAccount(
     ref,
@@ -642,14 +657,17 @@ final roadRouterProvider = FutureProvider<RoadRouter>(
 /// graph, plan 10.2), falling back to straight-line estimates for units the
 /// graph cannot place or when the graph fails to load. Each run is timed
 /// for Chapter 4.
-final unitSuggesterProvider = Provider<UnitSuggester>(
-  (ref) => RoadNetworkSuggester(
+final unitSuggesterProvider = Provider<UnitSuggester>((ref) {
+  // Keeps the TomTom roads coming even while the map is not shown.
+  ref.listen(roadConditionsProvider, (_, _) {});
+  return RoadNetworkSuggester(
     () => ref.read(roadRouterProvider.future),
     onRun: ref.read(routingLogProvider).log,
     hazards: () => ref.read(activeIncidentsProvider).value ?? const [],
+    roads: () => usableRoads(ref),
     now: () => ref.read(clockProvider).value ?? DateTime.now(),
-  ),
-);
+  );
+});
 
 /// The chosen unit's road route to the incident, sent with the assignment
 /// so the dispatch record and the responder's phone have it. Null when the
@@ -672,6 +690,8 @@ Future<RoadRoute?> routeForAssignment(
       penalty: HazardPenalty.fromIncidents(
         ref.read(activeIncidentsProvider).value ?? const [],
         except: incident.id,
+        roads: (ref.read(roadConditionsProvider).value ?? RoadConditions.none)
+            .usable(ref.read(clockProvider).value ?? DateTime.now()),
       ),
     );
     if (route != null) {

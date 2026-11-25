@@ -160,6 +160,9 @@ class FakeServer implements MobileServer {
   final hazards = StreamController<List<HazardZone>>.broadcast();
   @override
   Stream<List<HazardZone>> watchRoadHazards() => hazards.stream;
+  @override
+  Stream<RoadConditions> watchRoadConditions() =>
+      Stream.value(RoadConditions.none);
 }
 
 /// A phone's SMS service the test can switch off.

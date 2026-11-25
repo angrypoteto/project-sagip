@@ -11,6 +11,7 @@ import '../models/hazard_report.dart';
 import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/records.dart';
+import '../models/road_condition.dart';
 import '../models/sos.dart';
 import '../repositories/repositories.dart';
 import 'mock_mobile_backend.dart';
@@ -195,6 +196,11 @@ class MockResponderRepository implements ResponderRepository {
 
   @override
   Stream<List<HazardZone>> watchRoadHazards() => _backend.watchRoadHazards();
+
+  /// Mock data has no TomTom feed: no reported roads.
+  @override
+  Stream<RoadConditions> watchRoadConditions() =>
+      Stream.value(RoadConditions.none);
 
   @override
   Stream<List<CrewMember>> watchCrew() => _backend.watchCrew();

@@ -9,6 +9,7 @@ import '../models/hazard_report.dart';
 import '../models/people.dart';
 import '../models/photo.dart';
 import '../models/response_unit.dart';
+import '../models/road_condition.dart';
 import '../models/sos.dart';
 
 /// The server as the phone's outbox and caches see it. The Supabase
@@ -50,6 +51,7 @@ abstract interface class MobileServer {
   // Responder.
   Stream<ResponseUnit?> watchUnit();
   Stream<List<HazardZone>> watchRoadHazards();
+  Stream<RoadConditions> watchRoadConditions();
   Stream<List<Assignment>> watchAssignments();
   Future<void> accept(String incidentId, DateTime capturedAt);
   Future<void> arrive(String incidentId, DateTime capturedAt);

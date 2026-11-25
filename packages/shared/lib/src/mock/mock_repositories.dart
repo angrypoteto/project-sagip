@@ -15,6 +15,7 @@ import '../models/ndrrmc.dart';
 import '../models/people.dart';
 import '../models/photo.dart';
 import '../models/records.dart';
+import '../models/road_condition.dart';
 import '../models/response_unit.dart';
 import '../models/road_route.dart';
 import '../models/safe_place.dart';
@@ -334,6 +335,11 @@ class MockFeedStatusRepository implements FeedStatusRepository {
 
   @override
   Stream<List<RiverLevel>> watchRiverLevels() => _backend.watchRiverLevels();
+
+  /// Mock data has no TomTom feed: no reported roads.
+  @override
+  Stream<RoadConditions> watchRoadConditions() =>
+      Stream.value(RoadConditions.none);
 }
 
 class MockSimulationRepository implements SimulationRepository {

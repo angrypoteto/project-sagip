@@ -6,6 +6,7 @@ import '../../models/geo_point.dart';
 import '../../models/incident.dart';
 import '../../models/records.dart';
 import '../../models/response_unit.dart';
+import '../../models/road_condition.dart';
 import '../../models/road_route.dart';
 import 'dijkstra.dart';
 import 'hazard_penalty.dart';
@@ -245,6 +246,7 @@ class RoadNetworkSuggester implements UnitSuggester {
     this.fallback = const StraightLineSuggester(),
     this.onRun,
     this.hazards,
+    this.roads,
     this.now = DateTime.now,
     RoutingPlatform? platform,
   }) : platform = platform ?? RoutingPlatform.current;
@@ -255,6 +257,10 @@ class RoadNetworkSuggester implements UnitSuggester {
 
   /// The open incidents; confirmed floods and fires among them are routed around (plan 10.2, "Could").
   final Iterable<Incident> Function()? hazards;
+
+  /// TomTom's jams, closed roads, and flooded roads (2026-11-25), slowed
+  /// the same way.
+  final List<RoadCondition> Function()? roads;
 
   final Future<RoadRouter> Function() _loadRouter;
   final StraightLineSuggester fallback;
@@ -288,9 +294,13 @@ class RoadNetworkSuggester implements UnitSuggester {
     final result = router.timesTo(
       incident.currentLocation,
       {for (final u in candidates) u.id: u.startingPoint(at)!},
-      penalty: hazards == null
+      penalty: hazards == null && roads == null
           ? HazardPenalty.none
-          : HazardPenalty.fromIncidents(hazards!(), except: incident.id),
+          : HazardPenalty.fromIncidents(
+              hazards?.call() ?? const [],
+              except: incident.id,
+              roads: roads?.call() ?? const [],
+            ),
     );
     onRun?.call(
       RoutingRun(

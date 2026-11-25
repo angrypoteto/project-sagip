@@ -518,6 +518,107 @@ void main() {
       },
     );
 
+    group('TomTom roads (2026-11-25)', () {
+      RoadCondition along(
+        RoadConditionKind kind, {
+        int severity = 0,
+        List<GeoPoint>? path,
+      }) => RoadCondition(
+        id: 'r',
+        kind: kind,
+        severity: severity,
+        path:
+            path ??
+            const [GeoPoint(14.600, 120.981), GeoPoint(14.600, 120.989)],
+      );
+
+      double via(RoadCondition r) =>
+          RoadRouter(block())
+              .route(from, to, penalty: HazardPenalty(const [], roads: [r]))!
+              .seconds;
+
+      test('a closed or flooded road on the short way sends it around', () {
+        expect(via(along(RoadConditionKind.closed)), closeTo(200, 1));
+        expect(via(along(RoadConditionKind.flooding)), closeTo(200, 1));
+      });
+
+      test('a heavy jam sends it around; a light one only slows it', () {
+        expect(
+          via(along(RoadConditionKind.jam, severity: 3)),
+          closeTo(200, 1),
+          reason: 'Top St at 2.5x is 150 s, plus East St: longer than 200',
+        );
+        expect(
+          via(along(RoadConditionKind.jam, severity: 1)),
+          closeTo(150, 1),
+          reason: 'Top St at 1.5x is 90 s, plus East St',
+        );
+      });
+
+      test('a closed cross street or a far road changes nothing', () {
+        expect(
+          via(
+            along(
+              RoadConditionKind.closed,
+              path: const [
+                GeoPoint(14.605, 120.985),
+                GeoPoint(14.595, 120.985),
+              ],
+            ),
+          ),
+          closeTo(120, 1),
+        );
+        expect(
+          via(
+            along(
+              RoadConditionKind.closed,
+              path: const [
+                GeoPoint(14.650, 121.020),
+                GeoPoint(14.650, 121.025),
+              ],
+            ),
+          ),
+          closeTo(120, 1),
+        );
+      });
+
+      test('a row from the server is read; a bad one is dropped', () {
+        final all = RoadConditions.fromJson({
+          'fetched_at': '2026-11-25T11:07:25Z',
+          'ok': true,
+          'items': [
+            {
+              'id': 'a',
+              'kind': 'jam',
+              'severity': 3,
+              'from': 'A',
+              'delay': 240,
+              'path': [
+                [120.98, 14.6],
+                [120.99, 14.6],
+              ],
+            },
+            {'id': 'b', 'kind': 'accident', 'path': []},
+            {
+              'id': 'c',
+              'kind': 'closed',
+              'path': [
+                [120.98, 14.6],
+              ],
+            },
+          ],
+        });
+        expect(all.items.map((r) => r.id), ['a']);
+        final r = all.items.single;
+        expect(r.isHeavy, isTrue);
+        expect(r.path.first, const GeoPoint(14.6, 120.98));
+        expect(RoadConditions.fromJson(all.toJson()), all);
+        expect(all.isStale(DateTime.utc(2026, 11, 25, 11, 20)), isFalse);
+        expect(all.isStale(DateTime.utc(2026, 11, 25, 11, 30)), isTrue);
+        expect(RoadConditions.none.isStale(DateTime.utc(2026)), isTrue);
+      });
+    });
+
     test(
       'only confirmed, open, real floods and fires, not the incident itself',
       () {

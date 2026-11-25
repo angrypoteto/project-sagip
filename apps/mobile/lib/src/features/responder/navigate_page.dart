@@ -107,6 +107,7 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
     final unit = state.unit.crewPosition;
     final estimate = routeEstimate(ref, state, a);
     final hazards = ref.watch(roadHazardsProvider).value ?? const [];
+    final roads = ref.watch(roadConditionsProvider).value?.items ?? const [];
     final p = SagipPalette.of(context);
     if (state.gpsOn) _speak(estimate);
     final voiceOn = ref.watch(voiceGuidanceProvider);
@@ -192,6 +193,9 @@ class _NavigatePageState extends ConsumerState<NavigatePage> {
                             ),
                         ],
                       ),
+                      // TomTom's jams (red, orange), closed roads (dashed
+                      // red), and flooded roads (blue), under the route.
+                      if (roads.isNotEmpty) RoadConditionsLayer(roads: roads),
                       if (unit != null && rest.isNotEmpty)
                         PolylineLayer(
                           polylines: [

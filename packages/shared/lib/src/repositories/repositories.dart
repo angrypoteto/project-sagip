@@ -20,6 +20,7 @@ import '../models/people.dart';
 import '../models/photo.dart';
 import '../models/records.dart';
 import '../models/response_unit.dart';
+import '../models/road_condition.dart';
 import '../models/road_route.dart';
 import '../models/safe_place.dart';
 import '../models/settings.dart';
@@ -242,6 +243,11 @@ abstract interface class FeedStatusRepository {
 
   /// The newest water level of each river station.
   Stream<List<RiverLevel>> watchRiverLevels();
+
+  /// TomTom's jams, closed roads, and flooded roads in Manila (2026-11-25):
+  /// the board's Roads layer and routing. Refreshed every minute; the
+  /// server asks TomTom every 5.
+  Stream<RoadConditions> watchRoadConditions();
 }
 
 /// The 72-hour forecast for every barangay (D8, FR4).
@@ -721,6 +727,11 @@ abstract interface class ResponderRepository {
   /// where and which, nothing about who reported them. Never the unit's own
   /// incident. Offline it is the last list the phone was given.
   Stream<List<HazardZone>> watchRoadHazards();
+
+  /// TomTom's jams, closed roads, and flooded roads in Manila (2026-11-25):
+  /// drawn on the navigation map and slowed on the route. Offline it is the
+  /// last snapshot the phone was given (routing ignores it once stale).
+  Stream<RoadConditions> watchRoadConditions();
 
   /// This unit's crew and who is on duty (2026-11-01).
   Stream<List<CrewMember>> watchCrew();

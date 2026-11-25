@@ -14,6 +14,7 @@ import '../models/offline.dart';
 import '../models/people.dart';
 import '../models/photo.dart';
 import '../models/response_unit.dart';
+import '../models/road_condition.dart';
 import '../models/sos.dart';
 import '../repositories/repositories.dart';
 import 'mobile_server.dart';
@@ -835,6 +836,23 @@ class OutboxResponderRepository implements ResponderRepository {
         encode: (l) => [for (final z in l) z.toJson()],
       ),
     ).map((zones) => zones ?? const []);
+  }
+
+  @override
+  Stream<RoadConditions> watchRoadConditions() {
+    final me = _account();
+    if (me == null) return Stream.value(RoadConditions.none);
+    return nullOnError(
+      withSavedCopy(
+        _store,
+        'roads:$me',
+        _server.watchRoadConditions(),
+        decode: (j) => j is Map
+            ? RoadConditions.fromJson(j.cast<String, dynamic>())
+            : RoadConditions.none,
+        encode: (r) => r.toJson(),
+      ),
+    ).map((roads) => roads ?? RoadConditions.none);
   }
 
   /// Online only: who is on duty changes on the server.

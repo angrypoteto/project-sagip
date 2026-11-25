@@ -569,6 +569,16 @@ final roadHazardsProvider = StreamProvider<List<HazardZone>>(
   ),
 );
 
+/// TomTom's jams, closed roads, and flooded roads in Manila (2026-11-25),
+/// drawn on the navigation map and slowed on the route. Empty for anyone
+/// but a responder; offline it is the last snapshot the phone was given.
+final roadConditionsProvider = StreamProvider<RoadConditions>(
+  (ref) => _forAccount(
+    ref,
+    () => ref.watch(responderRepositoryProvider).watchRoadConditions(),
+  ),
+);
+
 /// The road route from [from] to a job, by Dijkstra on the phone. Recomputed
 /// for every new position (a few milliseconds), so it follows the unit and
 /// re-routes when it leaves the route, and again when a flood or a fire is
@@ -586,6 +596,10 @@ final navigationRouteProvider = Provider.autoDispose
         key.to,
         penalty: HazardPenalty(
           ref.watch(roadHazardsProvider).value ?? const [],
+          // A stale snapshot (offline, feed down) slows nothing.
+          roads:
+              (ref.watch(roadConditionsProvider).value ?? RoadConditions.none)
+                  .usable(DateTime.now()),
         ),
       );
       if (route != null) {

@@ -13,7 +13,7 @@ import '../../router.dart';
 import 'map_parts.dart';
 import 'unit_glide.dart';
 
-enum _Layer { units, reports, boundaries, safePlaces }
+enum _Layer { units, reports, boundaries, roads, safePlaces }
 
 /// A safe place's marker on the board: smaller than a unit's.
 const safePlaceMarkerSize = 22.0;
@@ -45,7 +45,17 @@ class IncidentMap extends ConsumerStatefulWidget {
 class _IncidentMapState extends ConsumerState<IncidentMap>
     with SingleTickerProviderStateMixin {
   final _controller = MapController();
-  final _layers = {_Layer.units, _Layer.reports, _Layer.boundaries};
+  final _layers = {
+    _Layer.units,
+    _Layer.reports,
+    _Layer.boundaries,
+    _Layer.roads,
+  };
+
+  /// Which TomTom road was tapped (its card shows over the map), and the
+  /// map's report of what is under the pointer.
+  RoadCondition? _road;
+  final _roadHit = LayerHitNotifier<RoadCondition>(null);
   bool _ready = false;
 
   /// The layers card and the legend open from a button (2026-11-11: open
@@ -122,6 +132,7 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
   @override
   void dispose() {
     _moving.dispose();
+    _roadHit.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -149,6 +160,10 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
               if (!s.hidden) s,
           ]
         : const <SafePlace>[];
+    final roadFeed = ref.watch(roadConditionsProvider).value;
+    final roads = _layers.contains(_Layer.roads)
+        ? (roadFeed?.items ?? const <RoadCondition>[])
+        : const <RoadCondition>[];
     final pings = ref.watch(sosPingProvider);
     // Whether a free unit's fix is recent enough to draw: a slow tick.
     final now = ref.watch(slowClockProvider).value ?? DateTime.now();
@@ -272,6 +287,26 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
               const SagipBaseMap(),
               if (_layers.contains(_Layer.boundaries))
                 const BarangayBoundaries(),
+              // TomTom's jams, closed roads, and flooded roads (2026-11-25):
+              // thick lines that stand out; tap one for what it is.
+              if (roads.isNotEmpty)
+                MouseRegion(
+                  hitTestBehavior: HitTestBehavior.deferToChild,
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {
+                      final hit = _roadHit.value?.hitValues;
+                      if (hit != null && hit.isNotEmpty) {
+                        setState(() => _road = hit.last);
+                      }
+                    },
+                    child: RoadConditionsLayer(
+                      roads: roads,
+                      scale: scale,
+                      hitNotifier: _roadHit,
+                    ),
+                  ),
+                ),
               // Where routes are slowed: confirmed open floods and fires.
               CircleLayer(
                 circles: [
@@ -334,12 +369,26 @@ class _IncidentMapState extends ConsumerState<IncidentMap>
                   onPressed: () => setState(() => _showLayers = true),
                 ),
         ),
+        if (_road case final road? when roads.contains(road))
+          Positioned(
+            top: SagipSpace.lg,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: _RoadCard(
+                road: road,
+                onClose: () => setState(() => _road = null),
+              ),
+            ),
+          ),
         Positioned(
           left: SagipSpace.lg,
           bottom: SagipSpace.x3,
           child: _showLegend
               ? _Legend(
                   safePlaces: _layers.contains(_Layer.safePlaces),
+                  roads: _layers.contains(_Layer.roads),
+                  roadFeed: roadFeed,
                   onClose: widget.wall
                       ? null
                       : () => setState(() => _showLegend = false),
@@ -486,6 +535,7 @@ class _LayersCard extends StatelessWidget {
           (_Layer.units, l10n.layerUnits),
           (_Layer.reports, l10n.layerReports),
           (_Layer.boundaries, l10n.layerBoundaries),
+          (_Layer.roads, l10n.layerRoads),
           (_Layer.safePlaces, l10n.layerSafePlaces),
         ])
           CheckboxListTile(
@@ -503,10 +553,19 @@ class _LayersCard extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const _Legend({this.safePlaces = false, this.onClose});
+  const _Legend({
+    this.safePlaces = false,
+    this.roads = false,
+    this.roadFeed,
+    this.onClose,
+  });
 
   /// The safe places layer is on: explain its marker too.
   final bool safePlaces;
+
+  /// The roads layer is on: explain its lines and say how fresh they are.
+  final bool roads;
+  final RoadConditions? roadFeed;
 
   /// Null: the legend stays open (the wall map).
   final VoidCallback? onClose;
@@ -569,7 +628,31 @@ class _Legend extends StatelessWidget {
         l10n.legendUnitCrew,
       ),
       if (safePlaces) (dot(p.success.fill, ring: true), l10n.legendSafePlace),
+      if (roads) ...[
+        (RoadLegendSwatch(color: p.critical.fill), l10n.legendRoadHeavy),
+        (RoadLegendSwatch(color: p.warning.fill), l10n.legendRoadSlow),
+        (
+          RoadLegendSwatch(color: p.critical.fill, dashed: true),
+          l10n.legendRoadClosed,
+        ),
+        (RoadLegendSwatch(color: p.info.fill), l10n.legendRoadFlooded),
+      ],
     ];
+    final now = DateTime.now();
+    final fetched = roadFeed?.fetchedAt;
+    final feedLine = !roads
+        ? null
+        : fetched == null
+        ? l10n.roadFeedNone
+        : roadFeed!.isStale(now)
+        ? l10n.roadFeedStale(
+            formatStamp(
+              fetched.toLocal(),
+              now,
+              Localizations.localeOf(context).toString(),
+            ),
+          )
+        : l10n.roadFeedUpdated(now.difference(fetched).inMinutes);
 
     return Container(
       padding: const EdgeInsets.all(SagipSpace.md),
@@ -610,8 +693,89 @@ class _Legend extends StatelessWidget {
                     ),
                 ],
               ),
+              if (feedLine != null) ...[
+                const SizedBox(height: SagipSpace.sm),
+                Text(
+                  feedLine,
+                  key: const ValueKey('road-feed-line'),
+                  style: style,
+                ),
+              ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// What a tapped TomTom road is: kind, where, how slow, since when.
+class _RoadCard extends StatelessWidget {
+  const _RoadCard({required this.road, required this.onClose});
+
+  final RoadCondition road;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = SagipPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final locale = Localizations.localeOf(context).toString();
+    final kind = road.isHeavy ? 'jamHeavy' : road.kind.name;
+    final from = road.from, to = road.to;
+    final where = from != null && to != null
+        ? l10n.roadFromTo(from, to)
+        : from ?? to ?? road.road;
+    final delay = road.delaySeconds;
+    final since = road.since;
+    final secondary = text.bodySmall!.copyWith(color: p.textSecondary);
+    return Container(
+      key: const ValueKey('road-card'),
+      constraints: const BoxConstraints(maxWidth: 360),
+      padding: const EdgeInsets.fromLTRB(
+        SagipSpace.lg,
+        SagipSpace.md,
+        SagipSpace.sm,
+        SagipSpace.md,
+      ),
+      decoration: floatingCard(p),
+      child: Material(
+        type: MaterialType.transparency,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: RoadLegendSwatch(
+                color: roadConditionColor(p, road),
+                dashed: road.kind == RoadConditionKind.closed,
+              ),
+            ),
+            const SizedBox(width: SagipSpace.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.roadKind(kind), style: text.titleSmall),
+                  if (where != null) Text(where, style: text.bodyMedium),
+                  if (delay != null && delay >= 60)
+                    Text(l10n.roadDelay(delay ~/ 60), style: secondary),
+                  if (since != null)
+                    Text(
+                      l10n.roadSince(
+                        formatStamp(since.toLocal(), DateTime.now(), locale),
+                      ),
+                      style: secondary,
+                    ),
+                  const SizedBox(height: SagipSpace.xs),
+                  Text(l10n.roadSource, style: secondary),
+                ],
+              ),
+            ),
+            _CardClose(onPressed: onClose),
+          ],
         ),
       ),
     );

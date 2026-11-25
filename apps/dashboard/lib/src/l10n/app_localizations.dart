@@ -6980,6 +6980,84 @@ abstract class AppLocalizations {
   /// **'Safe place'**
   String get legendSafePlace;
 
+  /// No description provided for @layerRoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Roads (TomTom)'**
+  String get layerRoads;
+
+  /// No description provided for @legendRoadHeavy.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy traffic'**
+  String get legendRoadHeavy;
+
+  /// No description provided for @legendRoadSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow traffic'**
+  String get legendRoadSlow;
+
+  /// No description provided for @legendRoadClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Road closed'**
+  String get legendRoadClosed;
+
+  /// No description provided for @legendRoadFlooded.
+  ///
+  /// In en, this message translates to:
+  /// **'Flooded road'**
+  String get legendRoadFlooded;
+
+  /// No description provided for @roadFeedUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic from TomTom, updated {minutes, plural, =0{just now} =1{1 min ago} other{{minutes} min ago}}'**
+  String roadFeedUpdated(int minutes);
+
+  /// No description provided for @roadFeedStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic not updated since {time}; routes ignore it'**
+  String roadFeedStale(String time);
+
+  /// No description provided for @roadFeedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic from TomTom not received yet'**
+  String get roadFeedNone;
+
+  /// No description provided for @roadKind.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, jamHeavy{Heavy traffic} jam{Slow traffic} closed{Road closed} flooding{Flooded road} other{Road report}}'**
+  String roadKind(String kind);
+
+  /// No description provided for @roadFromTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String roadFromTo(String from, String to);
+
+  /// No description provided for @roadDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'About {minutes, plural, =1{1 min} other{{minutes} min}} slower'**
+  String roadDelay(int minutes);
+
+  /// No description provided for @roadSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported since {time}'**
+  String roadSince(String time);
+
+  /// No description provided for @roadSource.
+  ///
+  /// In en, this message translates to:
+  /// **'TomTom report; not confirmed by MDRRMD'**
+  String get roadSource;
+
   /// No description provided for @actionSafePlaceSaved.
   ///
   /// In en, this message translates to:

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(678);
+select plan(682);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -3207,6 +3207,32 @@ select ok(
   and not has_function_privilege('authenticated', 'public.forecast_recent_fires(date, date)', 'execute')
   and not has_function_privilege('anon', 'public.forecast_recent_fires(date, date)', 'execute'),
   'fire history and its look-up are closed to app accounts');
+
+-- TomTom's road conditions (2026-11-25): only the Edge Function writes them;
+-- staff read them through road_conditions(); residents and anon cannot.
+reset role;
+select ok(
+  not has_table_privilege('authenticated', 'public.road_condition', 'select')
+  and not has_table_privilege('anon', 'public.road_condition', 'select')
+  and not has_table_privilege('authenticated', 'public.road_feed', 'select')
+  and not has_function_privilege('authenticated', 'public.save_road_conditions(jsonb, timestamptz)', 'execute')
+  and not has_function_privilege('anon', 'public.save_road_conditions(jsonb, timestamptz)', 'execute')
+  and not has_function_privilege('authenticated', 'public.road_feed_failed(text)', 'execute')
+  and not has_function_privilege('anon', 'public.road_conditions()', 'execute'),
+  'road condition tables and the writer are closed to app accounts');
+select is(
+  public.save_road_conditions('[
+    {"id": "in", "kind": "jam", "severity": 3, "path": [[120.9842, 14.5995], [120.9860, 14.6010]]},
+    {"id": "out", "kind": "closed", "path": [[121.02, 14.552], [121.025, 14.553]]},
+    {"id": "odd", "kind": "accident", "path": [[120.98, 14.6], [120.99, 14.6]]}]'::jsonb, now()),
+  '{"kept": 1, "dropped": 2}'::jsonb,
+  'a Manila jam is kept; a road outside Manila and an unknown kind are not');
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000d", "role": "authenticated"}';
+select is(jsonb_array_length(public.road_conditions()->'items'), 1, 'a dispatcher reads the roads');
+set local request.jwt.claims = '{"sub": "00000000-0000-4000-8000-00000000000c", "role": "authenticated"}';
+select throws_ok('select public.road_conditions()', 'P0001', 'not_allowed', 'a resident cannot');
+reset role;
 
 -- The counters as the real records need them (see the top).
 reset role;
