@@ -2257,16 +2257,11 @@ void main() {
     expect(top('Barangay 412'), lessThan(top('Barangay 105')));
     expect(top('Barangay 560'), lessThan(top('Barangay 105')));
 
-    // Storm surge: the bay side comes first.
-    await tester.tap(find.text('Storm surge'));
-    await settle(tester);
-    expect(find.text('2 high, 1 moderate, 5 low'), findsOneWidget);
-    expect(top('Barangay 649'), lessThan(top('Barangay 105')));
-    expect(top('Barangay 105'), lessThan(top('Barangay 412')));
+    // The storm surge chip is gone (2026-11-26: flood and fire only).
+    expect(find.text('Storm surge'), findsNothing);
     // The heat map (2026-11-02, radar look): each level in its own band of
-    // the ramp, high in the reds, moderate in the purples, low (only where
-    // incidents happened before) in the blues. The outlines carry no colour
-    // and take the clicks.
+    // the ramp, high in the reds, moderate in the purples. The outlines
+    // carry no colour and take the clicks.
     final heat = tester.widget<HeatLayer>(find.byType(HeatLayer));
     bool inBand(String barangay, RiskLevel level) {
       final v = heat.weights[barangay];
@@ -2274,13 +2269,8 @@ void main() {
       return v != null && v >= low && v <= high;
     }
 
-    expect(inBand('Barangay 649', RiskLevel.high), isTrue);
+    expect(inBand('Barangay 412', RiskLevel.high), isTrue);
     expect(inBand('Barangay 105', RiskLevel.moderate), isTrue);
-    expect(
-      !heat.weights.containsKey('Barangay 412') ||
-          inBand('Barangay 412', RiskLevel.low),
-      isTrue,
-    );
     final shading = tester.widget<BarangayBoundaries>(
       find.byType(BarangayBoundaries),
     );
@@ -2418,14 +2408,11 @@ void main() {
     await settle(tester);
     expect(find.text('Live weather'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('heatmap-topic-stormSurge')));
-    await settle(tester);
-    expect(find.byKey(const ValueKey('forecast-not-forecast')), findsOneWidget);
+    // No storm surge chip since 2026-11-26 (only flood and fire).
     expect(
-      find.byKey(const ValueKey('forecast-row-Barangay 412')),
+      find.byKey(const ValueKey('heatmap-topic-stormSurge')),
       findsNothing,
     );
-    expect(tester.widget<HeatLayer>(find.byType(HeatLayer)).weights, isEmpty);
 
     // Flood is forecast as usual, and the panel marks storm surge.
     await tester.tap(find.byKey(const ValueKey('heatmap-topic-flood')));
@@ -2443,26 +2430,19 @@ void main() {
     );
   });
 
-  testWidgets('D8: the Medical layer from MDRRMD records; a 48-hour run '
-      'says so (2026-11-07)', (tester) async {
+  testWidgets('D8: only flood and fire to choose; a 48-hour run says so', (
+    tester,
+  ) async {
     await pumpApp(tester);
     await signIn(tester, 'dispatcher@sagip.test');
-    backend.setMedicalHotspots({
-      'Barangay 659': 1.0,
-      'Barangay 412': 0.4,
-      'Barangay 105': 0.02,
-    });
     await tester.tap(find.byTooltip('Heatmap'));
     await settle(tester);
-    await tester.tap(find.byKey(const ValueKey('heatmap-topic-medical')));
-    await settle(tester);
-    expect(
-      find.text('Where medical calls and road accidents cluster'),
-      findsOneWidget,
-    );
-    expect(find.byKey(const ValueKey('medical-hotspot-note')), findsOneWidget);
-    final heat = tester.widget<HeatLayer>(find.byType(HeatLayer));
-    expect(heat.weights, {'Barangay 659': 1.0, 'Barangay 412': 0.4});
+    // Joshua, 2026-11-26: storm surge, medical, and structural removed.
+    expect(find.byKey(const ValueKey('heatmap-topic-flood')), findsOneWidget);
+    expect(find.byKey(const ValueKey('heatmap-topic-fire')), findsOneWidget);
+    for (final gone in ['stormSurge', 'medical', 'structural']) {
+      expect(find.byKey(ValueKey('heatmap-topic-$gone')), findsNothing);
+    }
 
     // A run made by the 48-hour model says 48 hours.
     final issued = DateTime.now().subtract(const Duration(hours: 1));
@@ -2486,49 +2466,6 @@ void main() {
     await settle(tester);
     expect(find.text('48-hour forecast'), findsOneWidget);
     expect(find.text('Flood risk, next 48 hours'), findsOneWidget);
-  });
-
-  testWidgets('D8: medical and structural show recorded incidents', (
-    tester,
-  ) async {
-    await pumpApp(tester);
-    await signIn(tester, 'dispatcher@sagip.test');
-    await tester.tap(find.byTooltip('Heatmap'));
-    await settle(tester);
-
-    await tester.tap(find.byKey(const ValueKey('heatmap-topic-medical')));
-    await settle(tester);
-    // Recorded, not forecast: said in the list and the key.
-    expect(find.byKey(const ValueKey('recorded-list')), findsOneWidget);
-    expect(find.text('Not a forecast'), findsOneWidget);
-    expect(find.byKey(const ValueKey('recorded-legend')), findsOneWidget);
-    expect(find.byKey(const ValueKey('forecast-legend')), findsNothing);
-
-    // The heat map follows the counts: the busiest barangay is red.
-    final history = await tester.runAsync(
-      () => container
-          .read(incidentRepositoryProvider)
-          .watchHistory(from: now.subtract(const Duration(days: 365)), to: now)
-          .first,
-    );
-    final counts = recordedCounts(history!, IncidentType.medical);
-    final heat = tester.widget<HeatLayer>(find.byType(HeatLayer));
-    expect(heat.weights.keys.toSet(), counts.keys.toSet());
-    if (counts.isNotEmpty) {
-      expect(heat.weights.values.reduce((a, b) => a > b ? a : b), 1.0);
-      final top = counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
-      expect(find.byKey(ValueKey('recorded-row-${top.key}')), findsOneWidget);
-    } else {
-      expect(
-        find.text('No medical incidents resolved in the last 12 months'),
-        findsOneWidget,
-      );
-    }
-
-    // Back to a forecast hazard.
-    await tester.tap(find.byKey(const ValueKey('heatmap-topic-flood')));
-    await settle(tester);
-    expect(find.byKey(const ValueKey('forecast-list')), findsOneWidget);
   });
 
   testWidgets('D8: an overdue run is flagged; no run is said plainly', (

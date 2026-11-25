@@ -481,15 +481,11 @@ class _TopicPicker extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Flood and fire only (Joshua, 2026-11-26): storm surge is not
+          // forecast, and the recorded Medical and Structural maps are off.
           group(l10n.heatmapForecastGroup, const [
             HeatmapTopic.flood,
             HeatmapTopic.fire,
-            HeatmapTopic.stormSurge,
-          ]),
-          const SizedBox(height: SagipSpace.sm),
-          group(l10n.heatmapRecordedGroup, const [
-            HeatmapTopic.medical,
-            HeatmapTopic.structural,
           ]),
         ],
       ),
