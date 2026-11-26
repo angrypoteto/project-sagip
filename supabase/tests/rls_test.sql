@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(682);
+select plan(683);
 
 -- reset_demo_data() sets the record-number counters back, and a counter is
 -- not undone by the rollback: on the hosted project that made the next real
@@ -2118,8 +2118,9 @@ select ok(
   and has_function_privilege('service_role', 'public.claim_incident_posts()', 'execute'),
   'only the sender (service role) can claim incident posts or record outcomes');
 
--- Four unverified SOS in Pandacan: three floods (the third simulated) and
--- a medical one.
+-- Three unverified SOS in Pandacan, with the switch off: a flood, a
+-- simulated flood, and a medical one. Since 2026-11-26 a flood, fire, or
+-- structural SOS gets its post as soon as it arrives (incident_post_on_arrival).
 insert into public.incident_report
 select (jsonb_populate_record(null::public.incident_report,
          to_jsonb(i) || jsonb_build_object(
@@ -2131,15 +2132,34 @@ select (jsonb_populate_record(null::public.incident_report,
            'district', 'Pandacan', 'barangay', 'Barangay 840', 'address', '12 Sample Street',
            'assigned_unit_id', null, 'resolved_at', null, 'manila_resident_id', null))).*
   from (select * from public.incident_report order by incident_id limit 1) i,
-       generate_series(1, 4) g;
-select is((select count(*)::int from public.incident_post where incident_id like 'INC-POST-%'), 0,
-  'an unverified SOS is never posted');
+       unnest(array[1, 3, 4]) g;
+select is(
+  (select string_agg(incident_id || ':' || stage || ':' || status, ',' order by incident_id)
+     from public.incident_post where incident_id like 'INC-POST-%'),
+  'INC-POST-1:unverified:off,INC-POST-3:unverified:simulated',
+  'an unverified flood SOS is logged at once (held back with the switch off; simulated never posted)');
 
 update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-1';
 select is((select status from public.incident_post where incident_id = 'INC-POST-1'), 'off',
   'with the switch off a confirmed incident is logged, not posted');
 
 update public.app_setting set value = 'true' where key = 'channels.facebook_incidents';
+-- With the switch on, a fourth flood SOS arrives.
+insert into public.incident_report
+select (jsonb_populate_record(null::public.incident_report,
+         to_jsonb(i) || jsonb_build_object(
+           'incident_id', 'INC-POST-2', 'client_uuid', gen_random_uuid(),
+           'origin', 'sos', 'status', 'pendingVerification',
+           'verification_method', null, 'emergency_type', null, 'suggested_type', 'flood',
+           'false_report', false, 'cancelled', false, 'is_simulated', false,
+           'district', 'Pandacan', 'barangay', 'Barangay 840', 'address', '12 Sample Street',
+           'assigned_unit_id', null, 'resolved_at', null, 'manila_resident_id', null))).*
+  from (select * from public.incident_report order by incident_id limit 1) i;
+select ok(
+  (select p.stage = 'unverified' and p.status = 'queued'
+      and p.message like 'Unverified report: possible flooding in Pandacan.%'
+     from public.incident_post p where p.incident_id = 'INC-POST-2'),
+  'with it on, an unverified SOS is queued for the Page at once, marked unverified');
 update public.incident_report set verification_method = 'callback' where incident_id = 'INC-POST-2';
 select ok(
   (select p.status = 'queued'
@@ -2148,7 +2168,7 @@ select ok(
       and position('Barangay' in p.message) = 0
       and position('Sample Street' in p.message) = 0
      from public.incident_post p where p.incident_id = 'INC-POST-2'),
-  'with it on, the post says what, the district, and when: no barangay, no address');
+  'verified: the same post now says confirmed, the district, and when: no barangay, no address');
 update public.incident_report set emergency_type = 'fire' where incident_id = 'INC-POST-2';
 select is(
   (select count(*)::int || ' ' || min(left(message, 26)) from public.incident_post where incident_id = 'INC-POST-2'),
@@ -2216,7 +2236,7 @@ select ok(
   (select p.stage = 'unverified' and p.status = 'queued'
       and p.message like 'Unverified report: possible flooding in Pandacan.%'
      from public.incident_post p where p.incident_id = 'INC-POST-5'),
-  'an unverified SOS is posted once a unit is sent, marked unverified');
+  'an unverified SOS stays marked unverified when a unit is sent');
 
 -- The Page takes both posts.
 create temp table __first as select public.claim_incident_posts() as claimed;
